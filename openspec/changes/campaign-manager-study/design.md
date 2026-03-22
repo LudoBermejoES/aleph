@@ -62,15 +62,28 @@
 
 ### Key Architectural Decisions
 
-1. **Entity-Attribute-Value (EAV) + JSON hybrid**: Core entity types (character, location, item, etc.) have fixed schema columns. Custom fields stored as JSON columns in SQLite. This balances queryability with flexibility.
+1. **Markdown-first content storage**: All entity content (wiki entries, session logs, character descriptions, etc.) is stored as `.md` files on the filesystem, NOT in the database. SQLite stores only metadata (id, type, name, path, visibility, custom fields, relationships, timestamps). This means:
+   - Content is human-readable and editable outside the app with any text editor
+   - Campaigns are portable -- copy a folder to back up or migrate
+   - Git-friendly -- campaigns can optionally be version-controlled
+   - Files use YAML frontmatter for structured metadata
+   - Vue renders markdown directly via Nuxt Content or @nuxtjs/mdc
+   - Tiptap edits markdown as the source format in the browser
 
-2. **Auto-linking engine**: Background process that scans content for entity names/aliases and creates link records. Triggered on content save and on entity rename. Uses SQLite FTS5 for efficient name matching.
+2. **Hybrid storage split**:
+   - **Filesystem (.md files)**: Entity content, session logs, descriptions -- anything narrative/textual
+   - **SQLite**: Users, permissions, roles, entity metadata, relationships, tags, inventory records, calendar definitions, map pin coordinates, search index (FTS5)
+   - **Filesystem (assets/)**: Map images, character portraits, uploaded files
 
-3. **Permission resolution**: Cascading permission model: System Role -> Campaign Role -> Entity-level override -> Field-level visibility. Cached per-session for performance.
+3. **Auto-linking engine**: Background process that scans `.md` file content for entity names/aliases and creates link records in SQLite. Triggered on file save (both from UI and filesystem watcher). Uses SQLite FTS5 for efficient name matching.
 
-4. **Content visibility**: Every content record has a `visibility` column (public, members, editors, dm_only, private). Query middleware automatically filters based on requesting user's resolved permissions.
+4. **Permission resolution**: Cascading permission model: System Role -> Campaign Role -> Entity-level override -> Field-level visibility. Cached per-session for performance.
 
-5. **Collaborative editing**: Tiptap + Y.js for CRDT-based real-time editing. WebSocket transport via Socket.io. Awareness protocol shows cursors.
+5. **Content visibility**: Entity metadata in SQLite has a `visibility` column (public, members, editors, dm_only, private). The server reads the `.md` file but strips secret/restricted sections before serving to unauthorized users. Inline secret blocks in markdown (e.g., `:::secret` fences) are filtered at render time.
+
+6. **Filesystem watching**: Server uses chokidar to watch the content directory. External edits to `.md` files trigger re-indexing of metadata, search index, and auto-links -- enabling a workflow where DMs can bulk-edit content in VS Code or Obsidian.
+
+7. **Collaborative editing**: Tiptap + Y.js for CRDT-based real-time editing. WebSocket transport via Socket.io. On save, the CRDT state is serialized back to markdown and written to the `.md` file.
 
 ### Data Model Concepts
 

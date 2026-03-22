@@ -71,40 +71,54 @@
 - [ ] 8.8 Define permission inheritance and override rules
 - [ ] 8.9 Research and define additional granular permission roles (QuestKeeper, Cartographer, Chronicler, etc.)
 
-## 9. Tech Stack Validation
+## 9. Markdown-First Content Architecture Research
 
-- [ ] 9.1 Validate Nuxt 3 as the meta-framework: evaluate file-based API routing, middleware, SQLite compatibility, WebSocket support
-- [ ] 9.2 Evaluate Drizzle ORM with SQLite: migration system, type safety, JSON column support, FTS5 integration
-- [ ] 9.3 Evaluate Tiptap + Y.js for collaborative rich text editing in Vue 3
-- [ ] 9.4 Evaluate Leaflet.js with custom image layers for the map system
-- [ ] 9.5 Evaluate SQLite FTS5 for full-text search performance with expected data volumes
-- [ ] 9.6 Evaluate authentication approaches: Lucia Auth vs custom JWT vs Nuxt Auth Utils
-- [ ] 9.7 Evaluate real-time sync options: Socket.io vs native WebSocket vs Nuxt WebSocket module
-- [ ] 9.8 Prototype: basic Nuxt 3 + SQLite + Drizzle setup to validate the core stack works end-to-end
+- [ ] 9.1 Research Nuxt Content module: how it reads .md files from filesystem, YAML frontmatter parsing, Vue component embedding in markdown, query API, and hot-reload on file changes
+- [ ] 9.2 Research @nuxtjs/mdc (Markdown Components): rendering markdown with Vue components inline (e.g., embedded maps, dice rollers, meters inside .md files)
+- [ ] 9.3 Evaluate markdown-it vs unified/remark vs @nuxtjs/mdc as the markdown parsing pipeline -- extensibility for custom syntax (auto-linking, entity mentions, secret blocks)
+- [ ] 9.4 Research Tiptap's markdown serialization: can Tiptap edit markdown as source format and serialize back to .md on save (vs operating on HTML/JSON internally)?
+- [ ] 9.5 Research filesystem watching in Node.js/Nuxt: chokidar or fs.watch for detecting external edits to .md files and triggering re-indexing
+- [ ] 9.6 Design the YAML frontmatter schema for entity files: which metadata goes in frontmatter (type, name, aliases, tags, visibility, custom fields) vs in the database only
+- [ ] 9.7 Design the campaign directory structure convention: folder hierarchy per entity type, naming conventions, asset co-location (images next to .md files vs centralized)
+- [ ] 9.8 Research how to handle permission-filtered rendering: stripping secret/DM-only sections from markdown before serving to unauthorized users (frontmatter visibility + inline secret blocks)
+- [ ] 9.9 Research git integration potential: since content is files, campaigns could be versioned with git -- evaluate feasibility and UX implications
+- [ ] 9.10 Evaluate SQLite FTS5 indexing of markdown file content: how to keep the search index in sync with filesystem changes, incremental re-indexing strategy
+- [ ] 9.11 Research how Obsidian (the note app) and similar tools handle markdown + metadata split -- lessons learned for our architecture
 
-## 10. Data Model Design
+## 10. Tech Stack Validation
 
-- [ ] 10.1 Design the User and Authentication schema (users, sessions, password hashes, 2FA)
-- [ ] 10.2 Design the Campaign and Membership schema (campaigns, members, roles, invitations)
-- [ ] 10.3 Design the Entity system schema (polymorphic entities, templates, custom fields, tags, relations)
-- [ ] 10.4 Design the Map schema (maps, layers, pins, groups, nested maps)
-- [ ] 10.5 Design the Session and Story schema (sessions, logs, arcs, scenes, decisions)
-- [ ] 10.6 Design the Calendar and Timeline schema (calendars, months, events, timelines)
-- [ ] 10.7 Design the Inventory and Economy schema (items, inventories, shops, currencies, transactions)
-- [ ] 10.8 Design the Permission schema (roles, permissions, entity-level overrides, visibility)
-- [ ] 10.9 Design the Search index schema (FTS5 virtual tables, trigram index for auto-linking)
+- [ ] 10.1 Validate Nuxt 3 as the meta-framework: evaluate file-based API routing, middleware, SQLite compatibility, WebSocket support
+- [ ] 10.2 Evaluate Drizzle ORM with SQLite: migration system, type safety, JSON column support, FTS5 integration
+- [ ] 10.3 Evaluate Tiptap + Y.js for collaborative rich text editing in Vue 3
+- [ ] 10.4 Evaluate Leaflet.js with custom image layers for the map system
+- [ ] 10.5 Evaluate SQLite FTS5 for full-text search performance with expected data volumes
+- [ ] 10.6 Evaluate authentication approaches: Lucia Auth vs custom JWT vs Nuxt Auth Utils
+- [ ] 10.7 Evaluate real-time sync options: Socket.io vs native WebSocket vs Nuxt WebSocket module
+- [ ] 10.8 Prototype: basic Nuxt 3 + SQLite + Drizzle + markdown file reading to validate the core stack works end-to-end
 
-## 11. Collaboration and Real-Time Research
+## 11. Data Model Design
 
-- [ ] 11.1 Study LegendKeeper's real-time co-editing (multiplayer cursors, conflict resolution)
-- [ ] 11.2 Research Y.js CRDT for collaborative editing with Tiptap
-- [ ] 11.3 Define which features need real-time sync vs eventual consistency
-- [ ] 11.4 Design WebSocket event model for live updates (entity changes, map pin moves, dice rolls, session state)
+- [ ] 11.1 Design the User and Authentication schema (users, sessions, password hashes, 2FA)
+- [ ] 11.2 Design the Campaign and Membership schema (campaigns, members, roles, invitations)
+- [ ] 11.3 Design the Entity system schema (polymorphic entities, templates, custom fields, tags, relations) -- metadata only, content lives in .md files
+- [ ] 11.4 Design the Map schema (maps, layers, pins, groups, nested maps)
+- [ ] 11.5 Design the Session and Story schema (sessions, logs, arcs, scenes, decisions)
+- [ ] 11.6 Design the Calendar and Timeline schema (calendars, months, events, timelines)
+- [ ] 11.7 Design the Inventory and Economy schema (items, inventories, shops, currencies, transactions)
+- [ ] 11.8 Design the Permission schema (roles, permissions, entity-level overrides, visibility)
+- [ ] 11.9 Design the Search index schema (FTS5 virtual tables, trigram index for auto-linking, synced from .md file content)
 
-## 12. Differentiation and Unique Features
+## 12. Collaboration and Real-Time Research
 
-- [ ] 12.1 Define the auto-linking engine specification: entity detection, alias support, case-insensitivity, retroactive linking, performance requirements
-- [ ] 12.2 Define the "relationship graph" feature: bidirectional connections, visual graph view, connection types
-- [ ] 12.3 Define the decision/consequence tracking system (inspired by Amsel Tome's Arcana)
-- [ ] 12.4 Define the self-hosting story: single binary/Docker, zero-config SQLite, easy backup (copy one file)
-- [ ] 12.5 Identify 3-5 differentiating features that no single existing tool provides in combination
+- [ ] 12.1 Study LegendKeeper's real-time co-editing (multiplayer cursors, conflict resolution)
+- [ ] 12.2 Research Y.js CRDT for collaborative editing with Tiptap over markdown files
+- [ ] 12.3 Define which features need real-time sync vs eventual consistency
+- [ ] 12.4 Design WebSocket event model for live updates (entity changes, map pin moves, dice rolls, session state)
+
+## 13. Differentiation and Unique Features
+
+- [ ] 13.1 Define the auto-linking engine specification: entity detection, alias support, case-insensitivity, retroactive linking, performance requirements
+- [ ] 13.2 Define the "relationship graph" feature: bidirectional connections, visual graph view, connection types
+- [ ] 13.3 Define the decision/consequence tracking system (inspired by Amsel Tome's Arcana)
+- [ ] 13.4 Define the self-hosting story: single binary/Docker, zero-config SQLite, easy backup (copy the content folder + one .db file)
+- [ ] 13.5 Identify 3-5 differentiating features that no single existing tool provides in combination
