@@ -1,0 +1,20 @@
+schema: spec-driven
+
+context: |
+  Project: Aleph - A TTRPG Campaign Management Suite (named after the Borges short story)
+  Tech stack: Node.js (latest LTS), Vue.js 3 (latest), SQLite
+  Backend framework: TBD (Nuxt.js recommended for Vue.js SSR + API)
+  Domain: Tabletop RPG campaign management, worldbuilding, session tracking
+  Target: Web application with role-based access control
+  Phase: Study / Requirements gathering
+
+rules:
+  proposal:
+    - Focus on feature discovery and competitive analysis
+    - Always reference which existing tools inspired each requirement
+  specs:
+    - Use Given/When/Then format for scenarios
+    - Include role-based permission context in requirements
+  tasks:
+    - Tasks should be research-oriented for the study phase
+    - Each task should produce a clear deliverable or finding
