@@ -30,6 +30,53 @@ Inspired by: Kanka (20+ entity types), World Anvil (28+ templates), LegendKeeper
 - THEN new entries of that type use the template structure
 - AND existing entries can be migrated to updated templates
 
+### Requirement: Markdown-First Content Storage
+
+The system SHALL store all entity content as markdown files on the filesystem rather than in the database. SQLite handles metadata, relationships, permissions, and indexing, while the actual content lives as `.md` files organized in a directory structure per campaign. Vue renders markdown directly on the client and server side.
+
+Rationale: Markdown files are human-readable, git-friendly, easily backed up by copying a folder, editable outside the app with any text editor, and naturally portable. This separates content (files) from structure (database), making the system transparent and hackable.
+
+#### Scenario: Creating content as a markdown file
+- GIVEN an Editor or higher user creating a new wiki entry
+- WHEN they save the entry with rich content (headings, lists, images, links)
+- THEN the system writes a `.md` file to the campaign's content directory
+- AND the database stores only the metadata (id, type, name, path, visibility, timestamps, custom fields)
+- AND the file includes YAML frontmatter with entity metadata for portability
+
+#### Scenario: Editing content through the web UI
+- GIVEN a user editing an existing wiki entry in the browser
+- WHEN they use the rich text editor (Tiptap) to modify content
+- THEN the editor works with markdown as the source format
+- AND on save, the updated markdown is written back to the file
+- AND the database metadata and search index are updated accordingly
+
+#### Scenario: Editing content outside the app
+- GIVEN a Dungeon Master editing a `.md` file directly with an external editor
+- WHEN the server detects the file change (via filesystem watcher)
+- THEN the database metadata and search index are re-synced automatically
+- AND the auto-linking engine re-processes the updated content
+
+#### Scenario: Rendering markdown in Vue
+- GIVEN a user viewing a wiki entry in the browser
+- WHEN the page loads
+- THEN the server reads the `.md` file, applies permission filtering (strips secret sections), and serves it
+- AND Vue renders the markdown with proper formatting, auto-linked entity references, and embedded components (maps, meters, dice)
+
+#### Scenario: Campaign content directory structure
+- GIVEN a campaign named "Curse of Strahd"
+- WHEN the DM creates entities of various types
+- THEN the filesystem reflects a structured layout like:
+  ```
+  content/campaigns/curse-of-strahd/
+    characters/strahd-von-zarovich.md
+    characters/ireena-kolyana.md
+    locations/barovia/village-of-barovia.md
+    locations/barovia/castle-ravenloft.md
+    sessions/session-001.md
+    maps/barovia-map.md
+  ```
+- AND the entire campaign can be backed up by copying the directory
+
 ### Requirement: Interactive Maps
 
 The system SHALL support interactive maps with customizable pins, layers, and nested map hierarchies.
