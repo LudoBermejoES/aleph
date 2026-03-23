@@ -72,7 +72,8 @@
       "Bash(npx nuxt:*)",
       "Bash(netstat -ano)",
       "Bash(taskkill //PID 34804 //F)",
-      "Bash(taskkill //PID 34252 //F)"
+      "Bash(taskkill //PID 34252 //F)",
+      "Bash(find /c/code/aleph/openspec/changes/*/specs/*/spec.md)"
     ]
   }
 }
