@@ -50,7 +50,29 @@
       "Bash(git rm:*)",
       "Bash(rm -rf /c/code/aleph/.git/modules/OpenSpec)",
       "Bash(git add:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "WebFetch(domain:content.nuxt.com)",
+      "WebFetch(domain:tiptap.dev)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:docs.astro.build)",
+      "WebFetch(domain:www.ryanfiller.com)",
+      "WebFetch(domain:isomorphic-git.org)",
+      "Bash(npm --version)",
+      "Bash(npx nuxi@latest init prototype --packageManager npm --gitInit false --no-install)",
+      "Bash(npx nuxi@latest init prototype --template minimal --packageManager npm --gitInit false --no-install)",
+      "Bash(node -e \"const { DatabaseSync } = require\\(''node:sqlite''\\); const db = new DatabaseSync\\('':memory:''\\); db.exec\\(''CREATE TABLE test\\(id INTEGER PRIMARY KEY, name TEXT\\)''\\); db.prepare\\(''INSERT INTO test VALUES \\(1, \"\"hello\"\"\\)''\\).run\\(\\); console.log\\(db.prepare\\(''SELECT * FROM test''\\).all\\(\\)\\); db.close\\(\\);\")",
+      "Bash(node -e \"const { DatabaseSync } = require\\(''node:sqlite''\\); const db = new DatabaseSync\\('':memory:''\\); db.exec\\(''CREATE TABLE test\\(id INTEGER PRIMARY KEY, name TEXT\\)''\\); db.prepare\\(\"\"INSERT INTO test VALUES \\(1, ''hello''\\)\"\"\\).run\\(\\); console.log\\(db.prepare\\(''SELECT * FROM test''\\).all\\(\\)\\); db.close\\(\\);\")",
+      "Bash(node -e \"const drizzle = require\\(''drizzle-orm''\\); console.log\\(Object.keys\\(drizzle\\).filter\\(k => k.toLowerCase\\(\\).includes\\(''sqlite''\\)\\)\\)\")",
+      "Bash(npm view:*)",
+      "WebFetch(domain:pglite.dev)",
+      "WebFetch(domain:orm.drizzle.team)",
+      "Bash(node -e \":*)",
+      "Bash(rm -f c:/tmp/test_concurrent.db c:/tmp/test_concurrent.db-wal c:/tmp/test_concurrent.db-shm)",
+      "Bash(npm pack:*)",
+      "Bash(npx nuxt:*)",
+      "Bash(netstat -ano)",
+      "Bash(taskkill //PID 34804 //F)",
+      "Bash(taskkill //PID 34252 //F)"
     ]
   }
 }
