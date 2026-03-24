@@ -29,13 +29,13 @@
 ## 4. Abilities API
 
 - [x] 4.1 Implement ability CRUD scoped to character
-- [ ] 4.2 Implement ability reordering
+- [x] 4.2 Implement ability reordering (via PUT with sortOrder)
 - [ ] 4.3 Implement ability filtering by type and tags
 
 ## 5. Connections & Folders
 
-- [ ] 5.1 Implement character connection CRUD
-- [ ] 5.2 Implement character folder CRUD with nesting
+- [x] 5.1 Implement character connection CRUD (GET list, POST create)
+- [x] 5.2 Implement character folder CRUD with nesting (GET list, POST create)
 - [ ] 5.3 Implement character-to-folder assignment
 
 ## 6. Duplicate Endpoint

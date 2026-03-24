@@ -42,7 +42,7 @@
 - [x] 5.2 Create `server/services/search.ts`: indexEntity, removeEntity, searchEntities
 - [x] 5.3 Implement incremental indexing (content hash comparison, skip unchanged)
 - [x] 5.4 Create `GET /api/campaigns/:id/search?q=`: search with BM25 ranking + snippets
-- [ ] 5.5 Add permission filtering to search results (exclude entities user cannot see)
+- [x] 5.5 Add permission filtering to search results (exclude entities user cannot see)
 - [x] 5.6 Create search UI component with instant results dropdown (Ctrl+K)
 
 ## 6. Tests (TDD)

@@ -26,7 +26,7 @@
 ## 4. Story Structure API
 
 - [x] 4.1 Implement arc CRUD (GET list with chapters, POST create)
-- [ ] 4.2 Implement chapter CRUD scoped to arcs (dedicated endpoints)
+- [x] 4.2 Implement chapter CRUD scoped to arcs (dedicated endpoints)
 - [x] 4.3 Implement session-to-chapter linking on session create/update
 
 ## 5. Quest API
@@ -39,8 +39,8 @@
 ## 6. Decision/Consequence API
 
 - [x] 6.1 Implement decision CRUD scoped to sessions (POST create, GET list)
-- [ ] 6.2 Implement consequence CRUD linked to decisions (POST create)
-- [ ] 6.3 Implement consequence reveal toggle endpoint (PATCH)
+- [x] 6.2 Implement consequence CRUD linked to decisions (POST create)
+- [x] 6.3 Implement consequence reveal toggle endpoint (PATCH)
 
 ## 7. Session Pages
 
