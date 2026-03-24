@@ -34,6 +34,15 @@
             <CardDescription>Session logs, quests, and story tracking (coming soon)</CardDescription>
           </CardHeader>
         </Card>
+
+        <NuxtLink :to="`/campaigns/${campaignId}/members`">
+          <Card class="hover:border-primary/50 transition-colors cursor-pointer">
+            <CardHeader>
+              <CardTitle class="text-lg">Members</CardTitle>
+              <CardDescription>Invite players, manage roles and permissions</CardDescription>
+            </CardHeader>
+          </Card>
+        </NuxtLink>
       </div>
     </div>
   </div>

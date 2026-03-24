@@ -53,6 +53,22 @@
         <MDC v-if="entity.content" :value="entity.content" />
         <p v-else class="text-muted-foreground italic">No content yet. Click Edit to add some.</p>
       </div>
+
+      <!-- Child Entities -->
+      <div v-if="children.length" class="mt-8 border-t border-border pt-6">
+        <h2 class="text-lg font-semibold mb-3">Contains</h2>
+        <div class="space-y-1">
+          <NuxtLink
+            v-for="child in children"
+            :key="child.id"
+            :to="`/campaigns/${campaignId}/entities/${child.slug}`"
+            class="block px-3 py-2 rounded text-sm hover:bg-accent transition-colors"
+          >
+            <span class="font-medium">{{ child.name }}</span>
+            <span class="text-xs ml-2 text-muted-foreground">{{ child.type }}</span>
+          </NuxtLink>
+        </div>
+      </div>
     </div>
     <div v-else class="text-center py-16">
       <p class="text-muted-foreground">Loading...</p>
@@ -69,6 +85,7 @@ const campaignId = route.params.id as string
 const slug = route.params.slug as string
 
 const entity = ref<any>(null)
+const children = ref<any[]>([])
 const editing = ref(false)
 const saving = ref(false)
 const editForm = reactive({ name: '', content: '' })
@@ -78,6 +95,13 @@ async function loadEntity() {
     entity.value = await $fetch(`/api/campaigns/${campaignId}/entities/${slug}`)
     editForm.name = entity.value.name
     editForm.content = entity.value.content || ''
+    // Load child entities
+    if (entity.value?.id) {
+      const result = await $fetch(`/api/campaigns/${campaignId}/entities`, {
+        params: { parent_id: entity.value.id },
+      }) as any
+      children.value = result.entities || []
+    }
   } catch {
     entity.value = null
   }

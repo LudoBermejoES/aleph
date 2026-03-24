@@ -23,14 +23,14 @@
 
 - [x] 3.1 Implement `GET /api/campaigns/:id/entity-types` (list built-in + custom)
 - [x] 3.2 Implement `POST /api/campaigns/:id/entity-types` (create custom type, DM only)
-- [ ] 3.3 Implement template CRUD endpoints (create, read, update, delete)
-- [ ] 3.4 Implement template field CRUD with reordering support
+- [x] 3.3 Implement template CRUD endpoints (create, read, update, delete)
+- [x] 3.4 Implement template field CRUD with reordering support
 
 ## 4. Tagging API
 
 - [x] 4.1 Implement `GET /api/campaigns/:id/tags`
 - [x] 4.2 Implement `POST /api/campaigns/:id/tags` (create tag with name and color)
-- [ ] 4.3 Implement tag assignment/removal on entities (PATCH endpoint)
+- [x] 4.3 Implement tag assignment/removal on entities (PATCH endpoint)
 
 ## 5. Entity List Page
 
@@ -45,7 +45,7 @@
 - [x] 6.2 Build frontmatter fields display component (renders template fields above content)
 - [x] 6.3 Integrate MDCRenderer for markdown body
 - [x] 6.4 Build breadcrumb component using recursive ancestor query
-- [ ] 6.5 Display child entities list below content
+- [x] 6.5 Display child entities list below content
 - [x] 6.6 Add edit button/page for entity metadata and content
 
 ## 7. Tests (TDD)
