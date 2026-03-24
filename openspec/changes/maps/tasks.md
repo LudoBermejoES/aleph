@@ -19,7 +19,7 @@
 ## 3. Map CRUD API
 
 - [x] 3.1 Wire map create/read/update/delete handlers
-- [ ] 3.2 Wire image upload handler with `validateMapImage` service
+- [x] 3.2 Wire image upload handler with `validateMapImage` service + image serving endpoint
 - [x] 3.3 Wire nested map listing handler with parent_map_id filter
 - [x] 3.4 Wire breadcrumb via `computeBreadcrumb` service in map GET
 
@@ -41,14 +41,14 @@
 
 ## 6. Map Viewer Component
 
-- [ ] 6.1 Create `MapViewer.vue` wrapping Leaflet.js with CRS.Simple
-- [ ] 6.2 Implement image overlay mode for non-tiled maps
+- [x] 6.1 Create `MapViewer.vue` wrapping Leaflet.js with CRS.Simple
+- [x] 6.2 Implement image overlay mode for non-tiled maps
 - [ ] 6.3 Implement tile layer mode for tiled maps
-- [ ] 6.4 Render pins as L.marker with custom L.divIcon
-- [ ] 6.5 Build pin click popup with entity preview
-- [ ] 6.6 Implement shift+click drill-down to child map
-- [ ] 6.7 Build layer toggle panel
-- [ ] 6.8 Build group visibility toggle
+- [x] 6.4 Render pins as L.marker with custom L.divIcon (colored circles)
+- [x] 6.5 Build pin click popup with entity preview link
+- [x] 6.6 Implement shift+click drill-down to child map
+- [x] 6.7 Build layer toggle panel (checkbox sidebar)
+- [x] 6.8 Build group visibility toggle (checkbox sidebar, re-renders pins)
 
 ## 7. Drawing Tools
 
@@ -60,7 +60,7 @@
 
 - [x] 8.1 Create `app/pages/campaigns/[id]/maps/index.vue` (map list)
 - [x] 8.2 Create `app/pages/campaigns/[id]/maps/[slug].vue` (map detail with breadcrumb)
-- [ ] 8.3 Build map creation/edit form with image upload
+- [ ] 8.3 Build map creation/edit form with image upload UI
 - [x] 8.4 Add breadcrumb navigation component for nested maps
 
 ## 9. Tests (TDD)

@@ -18,14 +18,21 @@
         <span v-if="mapData.width" class="text-sm text-muted-foreground">{{ mapData.width }}x{{ mapData.height }}px</span>
       </div>
 
-      <!-- Map placeholder (Leaflet integration would go here) -->
-      <div class="border border-border rounded-lg bg-muted/30 flex items-center justify-center" style="height: 500px;">
-        <div class="text-center text-muted-foreground">
-          <p class="text-lg mb-2">Map Viewer</p>
-          <p class="text-sm">Leaflet.js integration pending image upload</p>
-          <p v-if="mapData.pins?.length" class="text-sm mt-2">{{ mapData.pins.length }} pins placed</p>
-        </div>
-      </div>
+      <!-- Leaflet Map Viewer -->
+      <ClientOnly>
+        <MapViewer
+          :image-path="mapData.imagePath"
+          :width="mapData.width || 1024"
+          :height="mapData.height || 768"
+          :pins="mapData.pins"
+          :layers="mapData.layers"
+          :groups="mapData.groups"
+          :height="600"
+          :campaign-id="campaignId"
+          @pin-click="onPinClick"
+          @pin-shift-click="onPinShiftClick"
+        />
+      </ClientOnly>
 
       <!-- Pins List -->
       <div v-if="mapData.pins?.length" class="mt-6">
@@ -61,6 +68,18 @@ const mapData = ref<any>(null)
 
 async function load() {
   try { mapData.value = await $fetch(`/api/campaigns/${campaignId}/maps/${slug}`) } catch { mapData.value = null }
+}
+
+function onPinClick(pin: any) {
+  // Pin click opens popup (handled by Leaflet)
+}
+
+function onPinShiftClick(pin: any) {
+  // Shift+click drills down to child map
+  if (pin.childMapId) {
+    // Find the child map slug from the map list
+    navigateTo(`/campaigns/${campaignId}/maps/${pin.childMapId}`)
+  }
 }
 
 onMounted(load)
