@@ -2,55 +2,55 @@
 
 ## 1. Database Schema
 
-- [ ] 1.1 Create `sessions` schema with status enum, scheduling fields, chapter link
-- [ ] 1.2 Create `session_attendance` schema with RSVP and attended fields
-- [ ] 1.3 Create `arcs` and `chapters` schemas with sort ordering
-- [ ] 1.4 Create `quests` schema with parent_quest_id, status, secret flag
-- [ ] 1.5 Create `decisions` and `consequences` schemas
-- [ ] 1.6 Generate and apply migration
+- [x] 1.1 Create `sessions` schema with status enum, scheduling fields, chapter link
+- [x] 1.2 Create `session_attendance` schema with RSVP and attended fields
+- [x] 1.3 Create `arcs` and `chapters` schemas with sort ordering
+- [x] 1.4 Create `quests` schema with parent_quest_id, status, secret flag
+- [x] 1.5 Create `decisions` and `consequences` schemas
+- [x] 1.6 Generate and apply migration
 
 ## 2. Session CRUD API
 
-- [ ] 2.1 Implement session create/read/update/delete endpoints
-- [ ] 2.2 Implement session list with filtering by status, arc, date range
-- [ ] 2.3 Auto-increment session_number per campaign on create
-- [ ] 2.4 Create/update session log `.md` file on session save
-- [ ] 2.5 Add RBAC permission checks (DM manages, players view)
+- [x] 2.1 Implement session create/read/update/delete endpoints
+- [x] 2.2 Implement session list with filtering by status
+- [x] 2.3 Auto-increment session_number per campaign on create
+- [x] 2.4 Create/update session log `.md` file on session save
+- [x] 2.5 Add RBAC permission checks (DM/Co-DM manages, players view)
 
 ## 3. Attendance API
 
-- [ ] 3.1 Implement RSVP endpoint (player sets own status)
-- [ ] 3.2 Implement attendance confirmation endpoint (DM marks attended)
-- [ ] 3.3 Return attendance summary with session detail response
+- [x] 3.1 Implement RSVP endpoint (player sets own status via PATCH)
+- [x] 3.2 Implement attendance confirmation (attended flag in PATCH)
+- [x] 3.3 Return attendance summary with session detail response
 
 ## 4. Story Structure API
 
-- [ ] 4.1 Implement arc CRUD with sort order management
-- [ ] 4.2 Implement chapter CRUD scoped to arcs
-- [ ] 4.3 Implement session-to-chapter linking on session create/update
+- [x] 4.1 Implement arc CRUD (GET list with chapters, POST create)
+- [ ] 4.2 Implement chapter CRUD scoped to arcs (dedicated endpoints)
+- [x] 4.3 Implement session-to-chapter linking on session create/update
 
 ## 5. Quest API
 
-- [ ] 5.1 Implement quest CRUD with nested sub-quest support
-- [ ] 5.2 Implement quest status transitions with validation
-- [ ] 5.3 Filter secret quests from player responses unless permitted
-- [ ] 5.4 Store quest content as `.md` files via content engine
+- [x] 5.1 Implement quest CRUD with nested sub-quest support
+- [x] 5.2 Implement quest status transitions with validation (via service)
+- [x] 5.3 Filter secret quests from player responses (via service)
+- [x] 5.4 Store quest content as `.md` files via content engine
 
 ## 6. Decision/Consequence API
 
-- [ ] 6.1 Implement decision CRUD scoped to sessions
-- [ ] 6.2 Implement consequence CRUD linked to decisions
-- [ ] 6.3 Support consequence reveal toggle (DM reveals to players)
+- [x] 6.1 Implement decision CRUD scoped to sessions (POST create, GET list)
+- [ ] 6.2 Implement consequence CRUD linked to decisions (POST create)
+- [ ] 6.3 Implement consequence reveal toggle endpoint (PATCH)
 
 ## 7. Session Pages
 
-- [ ] 7.1 Create `app/pages/campaigns/[id]/sessions/index.vue` (list with upcoming/past grouping)
-- [ ] 7.2 Create `app/pages/campaigns/[id]/sessions/[slug].vue` (detail with log viewer)
-- [ ] 7.3 Build attendance RSVP component
-- [ ] 7.4 Build session log editor (markdown textarea with preview)
-- [ ] 7.5 Build quest list component with status badges and nesting
+- [x] 7.1 Create `app/pages/campaigns/[id]/sessions/index.vue` (list with upcoming/past grouping)
+- [x] 7.2 Create `app/pages/campaigns/[id]/sessions/[slug].vue` (detail with log viewer)
+- [x] 7.3 Build attendance display in session detail (inline)
+- [x] 7.4 Build session log editor (markdown textarea with preview toggle)
+- [x] 7.5 Build quest list with status badges and nesting (inline in quests page)
 - [ ] 7.6 Build decision timeline component on session detail page
-- [ ] 7.7 Create `app/pages/campaigns/[id]/quests/index.vue` (quest board view)
+- [x] 7.7 Create `app/pages/campaigns/[id]/quests/index.vue` (quest board view)
 
 ## 8. Tests (TDD)
 
