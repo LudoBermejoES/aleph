@@ -5,6 +5,7 @@ import { campaignMembers } from '../../db/schema/campaign-members'
 import { logger } from '../../utils/logger'
 import { auditLogFromEvent } from '../../utils/audit'
 import { seedEntityTypes } from '../../services/entity-types'
+import { seedRelationTypes } from '../../services/relationships'
 import { mkdirSync } from 'fs'
 import { join } from 'path'
 
@@ -48,8 +49,9 @@ export default defineEventHandler(async (event) => {
     joinedAt: now,
   }).run()
 
-  // Seed built-in entity types
+  // Seed built-in entity types and relation types
   seedEntityTypes(db, id)
+  seedRelationTypes(db, id)
 
   logger.info('Campaign created', { campaignId: id, name, userId: user.id })
   auditLogFromEvent(event, {
