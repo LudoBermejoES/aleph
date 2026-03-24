@@ -80,6 +80,23 @@
           @node-click="onGraphNodeClick"
         />
       </div>
+
+      <!-- Referenced By (mentions) -->
+      <div v-if="mentions.length" class="mt-8 border-t border-border pt-6">
+        <h2 class="text-lg font-semibold mb-3">Referenced By</h2>
+        <div class="space-y-1">
+          <NuxtLink
+            v-for="m in mentions"
+            :key="m.id"
+            :to="`/campaigns/${campaignId}/entities/${m.sourceSlug}`"
+            class="block px-3 py-2 rounded text-sm hover:bg-accent transition-colors"
+          >
+            <span class="font-medium">{{ m.sourceName }}</span>
+            <span class="text-xs ml-2 text-muted-foreground">{{ m.sourceType }}</span>
+            <span class="text-xs ml-2 text-muted-foreground">({{ m.count }} mention{{ m.count > 1 ? 's' : '' }})</span>
+          </NuxtLink>
+        </div>
+      </div>
     </div>
     <div v-else class="text-center py-16">
       <p class="text-muted-foreground">Loading...</p>
@@ -98,6 +115,7 @@ const slug = route.params.slug as string
 const entity = ref<any>(null)
 const children = ref<any[]>([])
 const graphData = ref<any>(null)
+const mentions = ref<any[]>([])
 const editing = ref(false)
 const saving = ref(false)
 const editForm = reactive({ name: '', content: '' })
@@ -135,6 +153,14 @@ async function loadEntity() {
         }
         graphData.value = relations.length ? { nodes, edges } : null
       } catch { graphData.value = null }
+    }
+    // Load mentions ("Referenced by")
+    if (entity.value?.id) {
+      try {
+        mentions.value = await $fetch(`/api/campaigns/${campaignId}/mentions`, {
+          params: { entity_id: entity.value.id },
+        }) as any[]
+      } catch { mentions.value = [] }
     }
   } catch {
     entity.value = null

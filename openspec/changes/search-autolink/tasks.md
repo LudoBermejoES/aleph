@@ -13,7 +13,7 @@
 - [x] 2.1 Wire search endpoint using FTS5 with BM25 (already done in markdown-engine)
 - [x] 2.2 Add permission filtering (already done)
 - [x] 2.3 Return results with entity type, snippet, relevance score
-- [ ] 2.4 Support optional type filter parameter
+- [x] 2.4 Support optional type filter parameter
 
 ## 3. Command Palette UI
 
@@ -34,24 +34,24 @@
 
 ## 5. Auto-Link Remark Plugin
 
-- [ ] 5.1 Create remark plugin that runs automaton on text nodes
-- [ ] 5.2 Wire exclusion zone detection
-- [ ] 5.3 Replace matched spans with `:entity-link` MDC components
-- [ ] 5.4 Insert into rendering pipeline
-- [ ] 5.5 Verify source .md files remain unmodified
+- [x] 5.1 Create remark plugin that runs automaton on text nodes
+- [x] 5.2 Wire exclusion zone detection (skip code, links, headings, frontmatter)
+- [x] 5.3 Replace matched spans with `:entity-link` MDC textDirective components
+- [ ] 5.4 Insert into rendering pipeline (needs wiring into MDC parseMarkdown)
+- [x] 5.5 Source .md files never modified (render-time only)
 
 ## 6. Retroactive Linking
 
-- [ ] 6.1 Create `entity_mentions` schema + migration
-- [ ] 6.2 Scan campaign markdown on entity create/rename
-- [ ] 6.3 Synchronous for <20 entities
-- [ ] 6.4 Background task for >=20 entities
-- [ ] 6.5 "Referenced by" section on entity detail
+- [x] 6.1 Create `entity_mentions` schema + migration
+- [x] 6.2 Scan campaign markdown service (scanCampaignMentions)
+- [ ] 6.3 Wire scan into entity create/rename hooks
+- [ ] 6.4 Background task for large campaigns
+- [x] 6.5 "Referenced by" section on entity detail page
 
 ## 7. Mentions API
 
-- [ ] 7.1 Wire mentions query for entity
-- [ ] 7.2 Return source entities with reference counts
+- [x] 7.1 Wire mentions query for entity (GET with entity_id)
+- [x] 7.2 Return source entities with names, types, slugs, and counts
 
 ## 8. Tests (TDD)
 

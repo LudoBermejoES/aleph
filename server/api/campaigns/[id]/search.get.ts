@@ -2,7 +2,6 @@ import { eq } from 'drizzle-orm'
 import { useDb, useSqlite } from '../../../utils/db'
 import { searchEntities } from '../../../services/search'
 import { entities } from '../../../db/schema/entities'
-import { hasMinRole } from '../../../utils/permissions'
 import type { CampaignRole } from '../../../utils/permissions'
 
 const VISIBILITY_MIN_ROLE: Record<string, number> = {
@@ -47,5 +46,14 @@ export default defineEventHandler(async (event) => {
     return roleLevel >= minLevel
   })
 
-  return { results: filtered, query: q }
+  // Optional type filter
+  const typeFilter = query.type as string | undefined
+  const finalResults = typeFilter
+    ? filtered.filter(r => {
+        const ent = db.select({ type: entities.type }).from(entities).where(eq(entities.id, r.entityId)).get()
+        return ent?.type === typeFilter
+      })
+    : filtered
+
+  return { results: finalResults, query: q }
 })
