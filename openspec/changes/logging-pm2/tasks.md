@@ -45,5 +45,5 @@
 
 ### Integration Tests
 
-- [ ] 5.5 Test request logging: make API request, verify log entry created with correct path and status
-- [ ] 5.6 Test audit logging: login via API, verify audit log entry with userId and action='login'
+- [x] 5.5 Test request logging: make API request, verify log entry created with correct path and status
+- [x] 5.6 Test audit logging: login via API, verify audit log entry with userId and action='login'
