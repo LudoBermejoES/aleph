@@ -81,7 +81,10 @@
       "Bash(taskkill //PID 22744 //F)",
       "Bash(COOKIE=\"better-auth.session_token=FlsaIfzqWh7rfd0AEHQllQhk2GpCgJAY.mBh88mqVUaSaaRHy2hkcVDgD9q4EaCsFnLWRkqKGXzE%3D\")",
       "Bash(CAMP_ID=\"38b11e75-c3f3-4fc8-a150-c0abfe8465bd\")",
-      "Bash(COOKIE=\"better-auth.session_token=jdQJ7DK2R34No9XsTDl9zasSFNmismyu.JNc5v4lj%2FQFd0uTK6qUzMOjb8v6HrkizTJPa4wMor50%3D\")"
+      "Bash(COOKIE=\"better-auth.session_token=jdQJ7DK2R34No9XsTDl9zasSFNmismyu.JNc5v4lj%2FQFd0uTK6qUzMOjb8v6HrkizTJPa4wMor50%3D\")",
+      "Bash(for f:*)",
+      "Bash(do echo:*)",
+      "Read(//c/code/aleph/**)"
     ]
   }
 }

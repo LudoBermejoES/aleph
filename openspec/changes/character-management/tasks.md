@@ -57,25 +57,33 @@
 
 ## 8. Tests (TDD)
 
-### Unit Tests (Vitest)
+### Unit Tests -- Service Functions (Vitest)
 
-- [ ] 8.1 Test character creation transaction: entity row + character row created atomically; rollback on failure leaves neither
-- [ ] 8.2 Test secret stat stripping: given a character with secret and non-secret stats, stripping for player role removes only secret stats
+- [x] 8.1 Test stripSecretStats: player sees non-secret only, DM/co_dm sees all (5 tests)
+- [x] 8.2 Test stripSecretAbilities: player sees non-secret only, DM sees all (2 tests)
+- [x] 8.3 Test canEditCharacter: DM/co_dm/editor any, player own only, visitor none (7 tests)
+- [x] 8.4 Test buildCharacterFrontmatter: required fields, excludes undefined, includes optional (4 tests)
+- [x] 8.5 Test buildDuplicateName: appends (Copy) (2 tests)
 
-### Integration Tests
+### Schema Tests (`:memory:` SQLite)
 
-- [ ] 8.3 Test character CRUD: create, read, update, delete via API
-- [ ] 8.4 Test player ownership restriction: player can edit own character only
-- [ ] 8.5 Test DM override: DM can edit any character
-- [ ] 8.6 Test NPC secret visibility: secrets stripped for non-DM
-- [ ] 8.7 Test stat group CRUD and bulk update
-- [ ] 8.8 Test player_editable flag enforcement
-- [ ] 8.9 Test ability CRUD
-- [ ] 8.10 Test character list filters
-- [ ] 8.11 Test duplicate endpoint
-- [ ] 8.12 Test character folder assignment
+- [x] 8.6 Test character-entity FK and cascade delete
+- [x] 8.7 Test stat groups with secret definitions and character stats
+- [x] 8.8 Test abilities with secret flag filtering
+- [x] 8.9 Test player_editable flag on stat groups
+
+### Integration Tests (API)
+
+- [x] 8.10 Test character CRUD: create, read, update, delete via API
+- [x] 8.11 Test ability CRUD via API
+- [x] 8.12 Test character list filter by type
+- [x] 8.13 Test duplicate endpoint: creates copy with (Copy) suffix
+- [ ] 8.14 Test player ownership restriction: player can edit own character only
+- [ ] 8.15 Test NPC secret visibility: secrets stripped for non-DM
+- [ ] 8.16 Test stat bulk update with player_editable enforcement
+- [ ] 8.17 Test character folder assignment
 
 ### Component Tests
 
-- [ ] 8.13 Test stat group display component
-- [ ] 8.14 Test character edit form
+- [ ] 8.18 Test stat group display component
+- [ ] 8.19 Test character edit form

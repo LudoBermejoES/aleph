@@ -1,80 +1,70 @@
 # Tasks: Dice & Tools
 
-## 1. Dice Formula Parser
+## 1. Dice Service -- TDD (tests first, then implementation)
 
-- [ ] 1.1 Implement tokenizer for dice notation (numbers, 'd', operators, modifiers)
-- [ ] 1.2 Implement recursive descent parser producing DiceExpression AST
-- [ ] 1.3 Support standard notation: NdX, NdX+M, NdX-M
-- [ ] 1.4 Support keep highest/lowest: NdXkhN, NdXklN
-- [ ] 1.5 Support exploding dice: NdX!
-- [ ] 1.6 Support d% alias for d100
-- [ ] 1.7 Add input validation with descriptive error messages
-- [ ] 1.8 Write unit tests for parser with edge cases
+### 1a. Write unit tests for parser (RED phase)
 
-## 2. Dice Evaluator
+- [ ] 1.1 Test parseDiceFormula: "2d6+4" produces AST with roll(2,6) + constant(4)
+- [ ] 1.2 Test parseDiceFormula: "4d6kh3" produces AST with roll(4,6) + keep_highest(3)
+- [ ] 1.3 Test parseDiceFormula: "2d10!" produces AST with roll(2,10) + exploding flag
+- [ ] 1.4 Test parseDiceFormula: "d%" parses as d100
+- [ ] 1.5 Test parseDiceFormula: invalid "2dd6" returns descriptive parse error
+- [ ] 1.6 Test isValidFormula: valid formulas return true, invalid return false
 
-- [ ] 2.1 Implement evaluator that walks the DiceExpression AST
-- [ ] 2.2 Use crypto.getRandomValues() for fair random number generation
-- [ ] 2.3 Implement exploding dice with 100-reroll cap
-- [ ] 2.4 Implement keep highest/lowest with kept/dropped tracking
-- [ ] 2.5 Return structured RollResult with individual die values and total
-- [ ] 2.6 Write unit tests for evaluator (mock RNG for deterministic tests)
+### 1b. Write unit tests for evaluator (RED phase)
 
-## 3. Roll Logging
+- [ ] 1.7 Test evaluateDiceRoll: mock RNG, 2d6+4 with rolls [3,5] produces total 12
+- [ ] 1.8 Test evaluateDiceRoll: mock RNG, 4d6kh3 with rolls [1,4,3,6], kept=[4,3,6], total=13
+- [ ] 1.9 Test evaluateDiceRoll: exploding dice mock RNG [6,6,3] produces 3 rolls, sum=15
+- [ ] 1.10 Test evaluateDiceRoll: exploding dice respects 100-reroll cap
+- [ ] 1.11 Test RollResult structure: individual values, kept/dropped arrays, total
+- [ ] 1.12 Test roll bounds: NdX result always between N and N*X (fuzz 100 rolls)
+- [ ] 1.13 Test formatRollResult: produces human-readable output
 
-- [ ] 3.1 Create `session_rolls` schema with formula, result JSON, user, character
-- [ ] 3.2 Generate and apply migration
-- [ ] 3.3 Implement server roll endpoint (validate formula, evaluate, store if logging enabled)
-- [ ] 3.4 Implement session roll history query endpoint
+### 1c. Implement `server/services/dice.ts` (GREEN phase)
 
-## 4. WebSocket Broadcasting
+- [ ] 1.14 Implement parseDiceFormula: tokenizer + recursive descent parser
+- [ ] 1.15 Support standard notation: NdX, NdX+M, NdX-M
+- [ ] 1.16 Support keep highest/lowest: NdXkhN, NdXklN
+- [ ] 1.17 Support exploding dice: NdX!
+- [ ] 1.18 Support d% alias for d100
+- [ ] 1.19 Implement evaluateDiceRoll with injectable RNG (default: crypto.getRandomValues)
+- [ ] 1.20 Implement formatRollResult and isValidFormula
+- [ ] 1.21 Verify all tests pass
 
-- [ ] 4.1 Implement dice:roll message type on the campaign WebSocket
-- [ ] 4.2 Broadcast roll results to all connected campaign members
-- [ ] 4.3 Handle broadcasting gracefully when WebSocket is not available (degrade to local-only)
+## 2. Roll Logging
 
-## 5. Dice Roller UI
+- [ ] 2.1 Create `session_rolls` schema with formula, result JSON, user, character
+- [ ] 2.2 Generate and apply migration
+- [ ] 2.3 Implement server roll endpoint: POST /api/campaigns/:id/roll (validate, evaluate, optionally log)
+- [ ] 2.4 Implement roll history endpoint: GET /api/campaigns/:id/sessions/:slug/rolls
 
-- [ ] 5.1 Create `DiceRoller.vue` floating panel component
-- [ ] 5.2 Build quick-roll buttons for standard dice (d4, d6, d8, d10, d12, d20, d100)
-- [ ] 5.3 Build formula text input with submit on Enter
-- [ ] 5.4 Build modifier +/- controls and manual modifier input
-- [ ] 5.5 Build result display with total and expandable individual die values
-- [ ] 5.6 Build roll log feed showing own and broadcast rolls (last 50)
-- [ ] 5.7 Add "Log to session" toggle (enabled only when session is active)
-- [ ] 5.8 Add panel toggle button to campaign toolbar
-- [ ] 5.9 Make panel draggable and collapsible
+## 3. WebSocket Broadcasting
 
-## 6. Tests (TDD)
+- [ ] 3.1 Implement dice:roll message type on campaign WebSocket
+- [ ] 3.2 Broadcast roll results to all connected campaign members
+- [ ] 3.3 Graceful degradation when WebSocket unavailable
 
-### Unit Tests (Vitest)
+## 4. Dice Roller UI
 
-- [ ] 6.1 Test dice formula parser: "2d6+4" produces AST with roll(2,6) + constant(4)
-- [ ] 6.2 Test dice formula parser: "4d6kh3" produces AST with roll(4,6) + keep_highest(3)
-- [ ] 6.3 Test dice formula parser: "2d10!" produces AST with roll(2,10) + exploding flag
-- [ ] 6.4 Test dice formula parser: "d%" parses as d100
-- [ ] 6.5 Test dice formula parser: invalid input "2dd6" or "abc" returns descriptive parse error
-- [ ] 6.6 Test dice evaluator: mock RNG to return known values; verify 2d6+4 with rolls [3,5] produces total 12
-- [ ] 6.7 Test dice evaluator: mock RNG for 4d6kh3 with rolls [1,4,3,6]; verify kept=[4,3,6], dropped=[1], total=13
-- [ ] 6.8 Test dice evaluator: exploding dice with mock RNG returning [6,6,3] produces 3 rolls total, sum=15
-- [ ] 6.9 Test dice evaluator: exploding dice respects 100-reroll cap (does not infinite loop)
-- [ ] 6.10 Test roll result bounds: NdX result is always between N and N*X (fuzz test with 100 random rolls)
-- [ ] 6.11 Test RollResult structure: contains individual die values array, kept/dropped arrays (for kh/kl), and total
+- [ ] 4.1 Create `DiceRoller.vue` floating panel component
+- [ ] 4.2 Quick-roll buttons for standard dice (d4, d6, d8, d10, d12, d20, d100)
+- [ ] 4.3 Formula text input with submit on Enter
+- [ ] 4.4 Modifier +/- controls
+- [ ] 4.5 Result display with total and expandable individual die values
+- [ ] 4.6 Roll log feed (last 50, own + broadcast)
+- [ ] 4.7 "Log to session" toggle
+- [ ] 4.8 Panel toggle button in campaign toolbar
 
-### Integration Tests (@nuxt/test-utils)
+## 5. Integration Tests (API)
 
-- [ ] 6.12 Test server roll endpoint: POST with valid formula returns structured RollResult with correct fields
-- [ ] 6.13 Test server roll endpoint: POST with invalid formula returns 400 with parse error message
-- [ ] 6.14 Test roll logging: POST roll with session_id stores roll in session_rolls table; GET history returns it
-- [ ] 6.15 Test roll logging disabled: POST roll without session_id does not create session_rolls record
+- [ ] 5.1 Test POST /api/campaigns/:id/roll with valid formula returns RollResult
+- [ ] 5.2 Test POST /api/campaigns/:id/roll with invalid formula returns 400
+- [ ] 5.3 Test roll logging: POST with session_id stores roll, GET history returns it
+- [ ] 5.4 Test roll without session_id does not create log record
 
-### WebSocket Tests
+## 6. Component Tests
 
-- [ ] 6.16 Test dice:roll broadcast: user rolls dice; all other connected campaign members receive broadcast with roll result
-- [ ] 6.17 Test broadcast degradation: when WebSocket is unavailable, roll still succeeds locally without error
-
-### Component Tests (@vue/test-utils)
-
-- [ ] 6.18 Test DiceRoller component: quick-roll button click triggers roll and displays result with total and individual values
-- [ ] 6.19 Test formula input: submitting formula via Enter key triggers roll; invalid formula displays error message
-- [ ] 6.20 Test roll log feed: displays recent rolls in chronological order with user attribution
+- [ ] 6.1 Test DiceRoller: quick-roll button triggers roll, displays result
+- [ ] 6.2 Test formula input: Enter submits, invalid shows error
+- [ ] 6.3 Test roll log feed: displays rolls in order
