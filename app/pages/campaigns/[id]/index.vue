@@ -65,6 +65,8 @@
         </NuxtLink>
       </div>
     </div>
+
+    <DiceRoller :campaign-id="campaignId" />
   </div>
 </template>
 
