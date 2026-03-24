@@ -86,7 +86,8 @@
       "Bash(do echo:*)",
       "Read(//c/code/aleph/**)",
       "Bash(taskkill //PID 22104 //F)",
-      "Bash(rm -f c:/code/aleph/data/aleph.db*)"
+      "Bash(rm -f c:/code/aleph/data/aleph.db*)",
+      "Bash(taskkill //PID 9224 //F)"
     ]
   }
 }
