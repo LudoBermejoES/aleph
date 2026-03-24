@@ -23,14 +23,17 @@
         <MapViewer
           :image-path="mapData.imagePath"
           :width="mapData.width || 1024"
-          :height="mapData.height || 768"
           :pins="mapData.pins"
           :layers="mapData.layers"
           :groups="mapData.groups"
-          :height="600"
+          :regions="mapData.regions"
+          :is-tiled="mapData.isTiled"
+          :tile-url="`/api/campaigns/${campaignId}/maps/${slug}/tiles/{z}/{x}/{y}`"
           :campaign-id="campaignId"
+          :height="600"
           @pin-click="onPinClick"
           @pin-shift-click="onPinShiftClick"
+          @region-created="onRegionCreated"
         />
       </ClientOnly>
 
@@ -75,10 +78,19 @@ function onPinClick(pin: any) {
 }
 
 function onPinShiftClick(pin: any) {
-  // Shift+click drills down to child map
   if (pin.childMapId) {
-    // Find the child map slug from the map list
     navigateTo(`/campaigns/${campaignId}/maps/${pin.childMapId}`)
+  }
+}
+
+async function onRegionCreated(geojson: Record<string, unknown>) {
+  try {
+    await $fetch(`/api/campaigns/${campaignId}/maps/${slug}/regions`, {
+      method: 'POST',
+      body: { geojson, name: 'New Region' },
+    })
+  } catch (e: unknown) {
+    alert((e as { data?: { message?: string } })?.data?.message || 'Failed to save region')
   }
 }
 

@@ -33,17 +33,17 @@
 
 ## 5. Tiling Pipeline
 
-- [ ] 5.1 Implement `generateTiles` with sharp (256x256 tiles, PNG)
-- [ ] 5.2 Create background Nitro task for tiling on upload
-- [ ] 5.3 Store tiles at `content/campaigns/{slug}/maps/{map}/tiles/{z}/{x}/{y}.png`
-- [ ] 5.4 Update map record with `is_tiled = true` on completion
-- [ ] 5.5 Add tile serving endpoint
+- [x] 5.1 Implement `generateTiles` with sharp (256x256 tiles, PNG)
+- [ ] 5.2 Create background Nitro task for tiling on upload (manual call for now)
+- [x] 5.3 Store tiles at `content/campaigns/{slug}/maps/{map}/tiles/{z}/{x}/{y}.png`
+- [x] 5.4 Update map record with `is_tiled = true` on upload
+- [x] 5.5 Add tile serving endpoint
 
 ## 6. Map Viewer Component
 
 - [x] 6.1 Create `MapViewer.vue` wrapping Leaflet.js with CRS.Simple
 - [x] 6.2 Implement image overlay mode for non-tiled maps
-- [ ] 6.3 Implement tile layer mode for tiled maps
+- [x] 6.3 Implement tile layer mode for tiled maps
 - [x] 6.4 Render pins as L.marker with custom L.divIcon (colored circles)
 - [x] 6.5 Build pin click popup with entity preview link
 - [x] 6.6 Implement shift+click drill-down to child map
@@ -52,9 +52,9 @@
 
 ## 7. Drawing Tools
 
-- [ ] 7.1 Integrate Leaflet-Geoman for polygon drawing
-- [ ] 7.2 Save drawn shapes to map_regions via API
-- [ ] 7.3 Render existing regions as L.geoJSON layer
+- [x] 7.1 Integrate Leaflet-Geoman for polygon drawing (pm controls in MapViewer)
+- [x] 7.2 Save drawn shapes to map_regions via API (pm:create event handler)
+- [x] 7.3 Render existing regions as L.geoJSON layer
 
 ## 8. Map Pages
 

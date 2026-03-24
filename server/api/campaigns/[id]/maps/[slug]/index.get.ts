@@ -1,6 +1,6 @@
 import { eq, and } from 'drizzle-orm'
 import { useDb, useSqlite } from '../../../../../utils/db'
-import { maps, mapPins, mapLayers, mapGroups } from '../../../../../db/schema/maps'
+import { maps, mapPins, mapLayers, mapGroups, mapRegions } from '../../../../../db/schema/maps'
 import { filterPinsByVisibility, computeBreadcrumb } from '../../../../../services/maps'
 import type { CampaignRole } from '../../../../../utils/permissions'
 
@@ -21,11 +21,14 @@ export default defineEventHandler(async (event) => {
   const groups = db.select().from(mapGroups).where(eq(mapGroups.mapId, map.id)).all()
   const breadcrumb = computeBreadcrumb(sqlite, map.id)
 
+  const regions = db.select().from(mapRegions).where(eq(mapRegions.mapId, map.id)).all()
+
   return {
     ...map,
     pins: filterPinsByVisibility(pins, role),
     layers,
     groups,
+    regions: filterPinsByVisibility(regions, role),
     breadcrumb,
   }
 })

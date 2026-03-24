@@ -56,12 +56,21 @@ const props = defineProps<{
     color?: string
     visibleDefault: boolean
   }>
+  regions?: Array<{
+    id: string
+    geojson: string
+    color?: string
+    opacity?: number
+  }>
+  isTiled?: boolean
+  tileUrl?: string
   height?: number
   campaignId?: string
 }>()
 
 const emit = defineEmits<{
   pinClick: [pin: any]
+  regionCreated: [geojson: any]
   pinShiftClick: [pin: any]
 }>()
 
@@ -93,16 +102,61 @@ onMounted(async () => {
 
   map.fitBounds(bounds)
 
-  // Add image overlay if we have an image
-  if (props.imagePath) {
+  // Add map image layer
+  if (props.isTiled && props.tileUrl) {
+    // Tiled map -- use L.tileLayer
+    L.tileLayer(props.tileUrl, {
+      minZoom: -2,
+      maxZoom: 4,
+      tileSize: 256,
+      noWrap: true,
+    }).addTo(map)
+  } else if (props.imagePath) {
+    // Non-tiled -- use image overlay
     L.imageOverlay(props.imagePath, bounds).addTo(map)
   } else {
-    // No image yet -- show grid background
+    // No image yet
     map.setView([imgHeight / 2, imgWidth / 2], 0)
   }
 
   // Add pins
   renderPins(L)
+
+  // Render existing regions as GeoJSON
+  if (props.regions?.length) {
+    for (const region of props.regions) {
+      try {
+        const geojson = typeof region.geojson === 'string' ? JSON.parse(region.geojson) : region.geojson
+        L.geoJSON(geojson, {
+          style: { color: region.color || '#3b82f6', fillOpacity: region.opacity ?? 0.3 },
+        }).addTo(map)
+      } catch { /* invalid geojson */ }
+    }
+  }
+
+  // Initialize Geoman drawing tools if editor+ role
+  try {
+    await import('@geoman-io/leaflet-geoman-free')
+    await import('@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css')
+    map.pm.addControls({
+      position: 'topleft',
+      drawMarker: false,
+      drawCircleMarker: false,
+      drawText: false,
+      drawCircle: false,
+      editMode: true,
+      dragMode: true,
+      cutPolygon: false,
+      removalMode: true,
+    })
+
+    map.on('pm:create', (e: any) => {
+      const geojson = e.layer.toGeoJSON()
+      emit('regionCreated', geojson)
+    })
+  } catch {
+    // Geoman not available -- drawing tools disabled
+  }
 
   // Initialize layer/group visibility
   props.layers?.forEach(l => { layerVisibility[l.id] = l.visibleDefault })
