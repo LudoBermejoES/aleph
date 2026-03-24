@@ -57,6 +57,24 @@
           </Card>
         </NuxtLink>
 
+        <NuxtLink :to="`/campaigns/${campaignId}/items`">
+          <Card class="hover:border-primary/50 transition-colors cursor-pointer">
+            <CardHeader>
+              <CardTitle class="text-lg">Items</CardTitle>
+              <CardDescription>Item library, inventories, and loot</CardDescription>
+            </CardHeader>
+          </Card>
+        </NuxtLink>
+
+        <NuxtLink :to="`/campaigns/${campaignId}/shops`">
+          <Card class="hover:border-primary/50 transition-colors cursor-pointer">
+            <CardHeader>
+              <CardTitle class="text-lg">Shops</CardTitle>
+              <CardDescription>In-game shops with stock and purchasing</CardDescription>
+            </CardHeader>
+          </Card>
+        </NuxtLink>
+
         <NuxtLink :to="`/campaigns/${campaignId}/graph`">
           <Card class="hover:border-primary/50 transition-colors cursor-pointer">
             <CardHeader>

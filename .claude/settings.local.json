@@ -89,7 +89,8 @@
       "Bash(rm -f c:/code/aleph/data/aleph.db*)",
       "Bash(taskkill //PID 9224 //F)",
       "Bash(taskkill //PID 22524 //F)",
-      "Bash(taskkill //PID 26996 //F)"
+      "Bash(taskkill //PID 26996 //F)",
+      "Bash(taskkill //PID 34344 //F)"
     ]
   }
 }
