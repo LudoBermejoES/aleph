@@ -10,75 +10,92 @@
 - [ ] 1.6 Create `timelines` and `timeline_events` schemas
 - [ ] 1.7 Generate and apply migration
 
-## 2. Calendar CRUD API
+## 2. Service Layer (`server/services/calendar.ts`)
 
-- [ ] 2.1 Implement calendar create with months, weekdays, moons, seasons in a single payload
-- [ ] 2.2 Implement calendar read (full definition with nested months, weekdays, moons, seasons)
-- [ ] 2.3 Implement calendar update (reorder months, rename, adjust days)
-- [ ] 2.4 Implement current date advancement endpoint (PATCH)
-- [ ] 2.5 Add RBAC checks (DM manages calendar, players view)
+- [ ] 2.1 Implement `calculateAge(birthDate, currentDate, calendarConfig)` -- age from custom calendar dates
+- [ ] 2.2 Implement `getMoonPhase(date, moonConfig)` -- calculates moon phase for a given date
+- [ ] 2.3 Implement `getNextOccurrence(event, calendarConfig)` -- next occurrence of recurring event
+- [ ] 2.4 Implement `isDateInSeason(date, season, calendarConfig)` -- checks if date falls in season
+- [ ] 2.5 Implement date advancement math (advance N days, handle month/year rollover)
 
-## 3. Calendar Events API
+## 3. Calendar CRUD API
 
-- [ ] 3.1 Implement calendar event CRUD
-- [ ] 3.2 Implement recurring event expansion at query time
-- [ ] 3.3 Implement event filtering by date range
-- [ ] 3.4 Link events to entities via entity_id
+- [ ] 3.1 Wire calendar create handler with months, weekdays, moons, seasons in a single payload
+- [ ] 3.2 Wire calendar read handler (full definition with nested months, weekdays, moons, seasons)
+- [ ] 3.3 Wire calendar update handler (reorder months, rename, adjust days)
+- [ ] 3.4 Wire current date advancement handler (PATCH) calling date math service
+- [ ] 3.5 Add RBAC checks (DM manages calendar, players view)
 
-## 4. Timeline API
+## 4. Calendar Events API
 
-- [ ] 4.1 Implement timeline CRUD
-- [ ] 4.2 Implement timeline event CRUD with date range support
-- [ ] 4.3 Implement timeline event ordering and sorting
+- [ ] 4.1 Wire calendar event CRUD handlers
+- [ ] 4.2 Wire recurring event expansion at query time using `getNextOccurrence` service
+- [ ] 4.3 Wire event filtering by date range
+- [ ] 4.4 Link events to entities via entity_id
 
-## 5. Calendar View Component
+## 5. Timeline API
 
-- [ ] 5.1 Create `CalendarView.vue` with custom month grid rendering
-- [ ] 5.2 Render weekday headers from calendar definition
-- [ ] 5.3 Display moon phase indicators per day cell
-- [ ] 5.4 Apply season colors as background tinting
-- [ ] 5.5 Show calendar events in day cells
-- [ ] 5.6 Add month/year navigation and jump-to-current-date button
-- [ ] 5.7 Build calendar creation/edit form (months, weekdays, moons, seasons)
+- [ ] 5.1 Wire timeline CRUD handlers
+- [ ] 5.2 Wire timeline event CRUD handlers with date range support
+- [ ] 5.3 Wire timeline event ordering and sorting
 
-## 6. Age Calculation
+## 6. Calendar View Component
 
-- [ ] 6.1 Implement age calculation utility using custom calendar year length
-- [ ] 6.2 Display calculated age on character detail pages (uses birth date from entity fields)
+- [ ] 6.1 Create `CalendarView.vue` with custom month grid rendering
+- [ ] 6.2 Render weekday headers from calendar definition
+- [ ] 6.3 Display moon phase indicators per day cell (using `getMoonPhase` service)
+- [ ] 6.4 Apply season colors as background tinting (using `isDateInSeason` service)
+- [ ] 6.5 Show calendar events in day cells
+- [ ] 6.6 Add month/year navigation and jump-to-current-date button
+- [ ] 6.7 Build calendar creation/edit form (months, weekdays, moons, seasons)
 
-## 7. Timeline Views
+## 7. Age Calculation
 
-- [ ] 7.1 Create `app/pages/campaigns/[id]/timelines/index.vue` (timeline list)
-- [ ] 7.2 Create `app/pages/campaigns/[id]/timelines/[slug].vue` (timeline detail)
-- [ ] 7.3 Build chronicle view (vertical narrative event list)
-- [ ] 7.4 Build Gantt view (horizontal duration bars with CSS grid)
-- [ ] 7.5 Build calendar overlay view (events rendered on CalendarView)
-- [ ] 7.6 Add view switcher component for toggling between the three views
+- [ ] 7.1 Display calculated age on character detail pages using `calculateAge` service
+- [ ] 7.2 Wire age display into entity detail component (uses birth date from entity fields)
 
-## 8. Tests (TDD)
+## 8. Timeline Views
 
-### Unit Tests (Vitest)
+- [ ] 8.1 Create `app/pages/campaigns/[id]/timelines/index.vue` (timeline list)
+- [ ] 8.2 Create `app/pages/campaigns/[id]/timelines/[slug].vue` (timeline detail)
+- [ ] 8.3 Build chronicle view (vertical narrative event list)
+- [ ] 8.4 Build Gantt view (horizontal duration bars with CSS grid)
+- [ ] 8.5 Build calendar overlay view (events rendered on CalendarView)
+- [ ] 8.6 Add view switcher component for toggling between the three views
 
-- [ ] 8.1 Test custom calendar date math: advancing 35 days in a calendar with 30-day months crosses month boundary correctly
-- [ ] 8.2 Test custom calendar date math: year rollover when advancing past last day of last month
-- [ ] 8.3 Test moon phase calculation: given cycle length and reference date, compute correct phase for arbitrary date
-- [ ] 8.4 Test moon phase calculation: multiple moons with different cycles return independent phases for same date
-- [ ] 8.5 Test age calculation utility: birth date + current calendar date → correct age in custom calendar years
-- [ ] 8.6 Test age calculation: handles edge case where birth date has not yet occurred in current year (age = years - 1)
-- [ ] 8.7 Test recurring event expansion: weekly event generates correct occurrences within a date range query
-- [ ] 8.8 Test recurring event expansion: monthly event on day 15 correctly expands across multiple months
-- [ ] 8.9 Test timeline event ordering: events sorted by start date; ties broken by creation order
+## 9. Tests (TDD)
 
-### Integration Tests (@nuxt/test-utils)
+### Unit Tests -- Service Functions (Vitest)
 
-- [ ] 8.10 Test calendar create: single payload with months, weekdays, moons, seasons creates complete calendar; read returns nested structure
-- [ ] 8.11 Test calendar current date advancement: PATCH advances date, subsequent read shows new current date
-- [ ] 8.12 Test calendar event CRUD: create event, query by date range returns it, delete removes it
-- [ ] 8.13 Test recurring events via API: create recurring event, query date range returns expanded occurrences
-- [ ] 8.14 Test timeline CRUD: create timeline, add events with date ranges, query returns ordered events
-- [ ] 8.15 Test calendar RBAC: DM can create/edit calendar; player can view but not modify
+- [ ] 9.1 Test `calculateAge`: birth date + current calendar date returns correct age in custom calendar years
+- [ ] 9.2 Test `calculateAge`: handles edge case where birth date has not yet occurred in current year (age = years - 1)
+- [ ] 9.3 Test `getMoonPhase`: given cycle length and offset, compute correct phase for arbitrary date
+- [ ] 9.4 Test `getMoonPhase`: multiple moons with different cycles return independent phases for same date
+- [ ] 9.5 Test `getNextOccurrence`: yearly recurring event returns correct next date
+- [ ] 9.6 Test `getNextOccurrence`: monthly recurring event on day 15 expands correctly across multiple months
+- [ ] 9.7 Test `isDateInSeason`: date within season range returns true; date outside returns false
+- [ ] 9.8 Test `isDateInSeason`: season wrapping year boundary (e.g., month 11 to month 2) detected correctly
+- [ ] 9.9 Test custom calendar date math: advancing 35 days in a calendar with 30-day months crosses month boundary correctly
+- [ ] 9.10 Test custom calendar date math: year rollover when advancing past last day of last month
+- [ ] 9.11 Test timeline event ordering: events sorted by start date; ties broken by creation order
 
-### Component Tests (@vue/test-utils)
+### Schema Tests (`:memory:` SQLite)
 
-- [ ] 8.16 Test CalendarView component: renders correct number of day cells for custom month; displays moon phase indicators
-- [ ] 8.17 Test month/year navigation: clicking next/prev month updates displayed month correctly
+- [ ] 9.12 Test calendars table: campaign_id FK; current date fields accept valid values
+- [ ] 9.13 Test calendar_months table: sort_order enforced; cascade delete when calendar deleted
+- [ ] 9.14 Test calendar_events table: recurrence_rule JSON stored and retrieved correctly; entity_id FK nullable
+- [ ] 9.15 Test timelines and timeline_events tables: cascade delete; sort_order fields
+
+### Integration Tests (API)
+
+- [ ] 9.16 Test calendar create: single payload with months, weekdays, moons, seasons creates complete calendar; read returns nested structure
+- [ ] 9.17 Test calendar current date advancement: PATCH advances date, subsequent read shows new current date
+- [ ] 9.18 Test calendar event CRUD: create event, query by date range returns it, delete removes it
+- [ ] 9.19 Test recurring events via API: create recurring event, query date range returns expanded occurrences
+- [ ] 9.20 Test timeline CRUD: create timeline, add events with date ranges, query returns ordered events
+- [ ] 9.21 Test calendar RBAC: DM can create/edit calendar; player can view but not modify
+
+### Component Tests
+
+- [ ] 9.22 Test CalendarView component: renders correct number of day cells for custom month; displays moon phase indicators
+- [ ] 9.23 Test month/year navigation: clicking next/prev month updates displayed month correctly

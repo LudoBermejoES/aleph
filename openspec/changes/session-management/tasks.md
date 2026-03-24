@@ -54,26 +54,41 @@
 
 ## 8. Tests (TDD)
 
-### Unit Tests (Vitest)
+### Unit Tests -- Service Functions (Vitest)
 
-- [ ] 8.1 Test session number auto-increment: creating sessions in sequence produces incrementing numbers per campaign
-- [ ] 8.2 Test quest status transition validation: only valid transitions allowed (e.g., active→completed, active→failed; not completed→active)
-- [ ] 8.3 Test quest secret filtering: secret quests excluded from result set when user is player role
+- [x] 8.1 Test nextSessionNumber: returns max+1 (3 tests)
+- [x] 8.2 Test canTransitionQuestStatus: valid/invalid transitions, same status, unknown status (9 tests)
+- [x] 8.3 Test filterSecretQuests: DM/co_dm see all, player/editor see non-secret only (5 tests)
+- [x] 8.4 Test filterRevealedConsequences: DM sees all, player sees revealed only (2 tests)
 
-### Integration Tests (@nuxt/test-utils)
+### Schema Tests (`:memory:` SQLite)
 
-- [ ] 8.4 Test session lifecycle: create session (status=scheduled) → update to active → update to complete; verify status at each step
-- [ ] 8.5 Test session CRUD: create, read, update, delete; verify session list filtering by status and date range
-- [ ] 8.6 Test attendance tracking: player RSVPs "yes"; DM confirms attendance; GET session returns attendance summary with both fields
-- [ ] 8.7 Test RSVP restriction: player can only set own RSVP status, cannot modify another player's
-- [ ] 8.8 Test quest CRUD with sub-quests: create parent quest → create child quest with parent_quest_id; verify nesting in response
-- [ ] 8.9 Test quest status transitions via API: PATCH quest status from active to completed succeeds; invalid transition returns 400
-- [ ] 8.10 Test decision recording: create decision scoped to session; create consequence linked to decision; verify response includes consequence
-- [ ] 8.11 Test consequence reveal toggle: hidden consequence not visible to player; DM reveals it; player can now see it
-- [ ] 8.12 Test session RBAC: DM can create/edit sessions; player can view but not create/edit
-- [ ] 8.13 Test arc and chapter ordering: create arcs with sort order; reorder; verify new order persists
+- [x] 8.5 Test session auto-increment number via DB query
+- [x] 8.6 Test attendance tracking rows
+- [x] 8.7 Test quest sub-nesting via parent_quest_id
+- [x] 8.8 Test quest status transition validation logic
+- [x] 8.9 Test secret quest filtering
+- [x] 8.10 Test decisions with consequences and reveal flag
+- [x] 8.11 Test arc-chapter ordering
 
-### Component Tests (@vue/test-utils)
+### Integration Tests (API)
 
-- [ ] 8.14 Test attendance RSVP component: renders RSVP options, emits selected status on click
-- [ ] 8.15 Test quest list component: renders quests with status badges, displays nested sub-quests indented
+- [x] 8.12 Test session create with auto-increment number
+- [x] 8.13 Test second session gets number 2
+- [x] 8.14 Test session detail includes attendance and log
+- [x] 8.15 Test session status update via PUT
+- [x] 8.16 Test attendance RSVP via PATCH
+- [x] 8.17 Test session list returns sessions
+- [x] 8.18 Test quest create
+- [x] 8.19 Test quest sub-quest creation
+- [x] 8.20 Test quest valid status transition
+- [x] 8.21 Test quest invalid status transition returns 400
+- [x] 8.22 Test quest list
+- [ ] 8.23 Test decision recording and consequence attachment
+- [ ] 8.24 Test consequence reveal toggle
+- [ ] 8.25 Test session RBAC: player cannot create sessions
+
+### Component Tests
+
+- [ ] 8.26 Test attendance RSVP component
+- [ ] 8.27 Test quest list component with nesting
