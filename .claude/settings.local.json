@@ -73,7 +73,10 @@
       "Bash(netstat -ano)",
       "Bash(taskkill //PID 34804 //F)",
       "Bash(taskkill //PID 34252 //F)",
-      "Bash(find /c/code/aleph/openspec/changes/*/specs/*/spec.md)"
+      "Bash(find /c/code/aleph/openspec/changes/*/specs/*/spec.md)",
+      "Bash(npx shadcn-vue@latest init -y)",
+      "Bash(npx shadcn-vue@latest add button input card dialog dropdown-menu --yes)",
+      "Bash(npm run:*)"
     ]
   }
 }

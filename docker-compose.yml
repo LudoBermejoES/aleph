@@ -1,0 +1,15 @@
+services:
+  aleph:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - aleph-data:/app/data
+      - aleph-content:/app/content
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+
+volumes:
+  aleph-data:
+  aleph-content:
