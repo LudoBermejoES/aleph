@@ -57,6 +57,22 @@ SIDES       = NUMBER | '%' (alias for 100)
 - Roll log feed: scrollable list of recent rolls (own + broadcast from others)
 - Panel position: bottom-right floating panel, draggable, collapsible
 
+### Service Layer (TDD)
+
+Business logic extracted into `server/services/dice.ts` -- pure functions tested in isolation:
+
+- `parseDiceFormula(formula)` -- tokenizes and parses dice notation into AST
+- `evaluateDiceRoll(ast, rng?)` -- evaluates AST with optional mock RNG
+- `formatRollResult(result)` -- formats result for display
+- `isValidFormula(formula)` -- validates formula syntax
+
+Architecture: Write unit tests first (TDD red phase), then implement service functions (green phase), then refactor API handlers to call services. API handlers stay thin -- they call services + DB, return results.
+
+Test layers:
+1. **Unit tests**: service functions in isolation (no DB, no server)
+2. **Schema tests**: DB constraints and cascades (`:memory:` SQLite)
+3. **Integration tests**: API contracts against running server
+
 ### API Endpoints
 
 ```

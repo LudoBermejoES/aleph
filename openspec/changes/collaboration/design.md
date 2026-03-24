@@ -60,6 +60,22 @@ Frontmatter is preserved across saves -- the save pipeline reads the existing fr
 - Client-side composable `useCampaignNotifications()` listens and displays toast notifications
 - Notifications are ephemeral (not persisted) -- they appear only for currently connected users
 
+### Service Layer (TDD)
+
+Business logic extracted into `server/services/collaboration.ts` -- pure functions tested in isolation:
+
+- `markdownToTiptap(md)` -- converts markdown to Tiptap JSON
+- `tiptapToMarkdown(json)` -- converts Tiptap JSON back to markdown
+- `mergeFrontmatter(existing, updated)` -- merges frontmatter preserving created date
+- `isRoundTripSafe(markdown)` -- verifies markdown survives round-trip
+
+Architecture: Write unit tests first (TDD red phase), then implement service functions (green phase), then refactor API handlers to call services. API handlers stay thin -- they call services + DB, return results.
+
+Test layers:
+1. **Unit tests**: service functions in isolation (no DB, no server)
+2. **Schema tests**: DB constraints and cascades (`:memory:` SQLite)
+3. **Integration tests**: API contracts against running server
+
 ### API / WebSocket Endpoints
 
 ```

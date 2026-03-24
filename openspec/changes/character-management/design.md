@@ -48,6 +48,22 @@ Characters are entities with `entity_type = 'character'`. Additional structured 
 - DM controls which stat groups are player-editable via a `player_editable` flag on `stat_groups`
 - All edits go through the same API with RBAC checks
 
+### Service Layer (TDD)
+
+Business logic is extracted into `server/services/characters.ts` -- pure functions tested in isolation without DB or server:
+
+- `stripSecretStats(stats, role)` -- filters secret stats for non-DM roles
+- `stripSecretAbilities(abilities, role)` -- filters secret abilities for non-DM roles
+- `canEditCharacter(role, userId, ownerUserId)` -- checks if user can edit a character
+- `buildCharacterFrontmatter(opts)` -- builds frontmatter object, strips undefined fields
+- `buildDuplicateName(name)` -- generates copy name
+
+API handlers are thin: they call services + DB, return results. This enables:
+
+1. **Unit tests** for business logic (fast, no DB, no server)
+2. **Integration tests** for API contracts (against running server)
+3. **Schema tests** for DB constraints and cascades (`:memory:` SQLite)
+
 ### API Endpoints
 
 ```
