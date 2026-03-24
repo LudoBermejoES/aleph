@@ -35,7 +35,7 @@
 - [x] 4.6 Create `PUT /api/campaigns/:id/members/:userId`: change role
 - [x] 4.7 Create `DELETE /api/campaigns/:id/members/:userId`: remove member
 - [x] 4.8 Create `POST /api/campaigns/:id/members/:userId/permissions`: grant named permission
-- [ ] 4.9 Create campaign members management page
+- [x] 4.9 Create campaign members management page
 
 ## 5. Permission Engine
 
