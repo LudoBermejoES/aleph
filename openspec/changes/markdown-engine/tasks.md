@@ -61,7 +61,7 @@
 
 ### Integration Tests (@nuxt/test-utils)
 
-- [ ] 6.10 Test `GET /api/campaigns/:id/search?q=`: returns matching entities ranked by BM25 relevance
+- [x] 6.10 Test `GET /api/campaigns/:id/search?q=`: returns matching entities ranked by BM25 relevance
 - [ ] 6.11 Test search results exclude entities the requesting user cannot see (permission filtering)
 - [ ] 6.12 Test markdown render endpoint: secret blocks stripped from response for unauthorized user
 - [ ] 6.13 Test markdown render endpoint: DM receives full content including secret blocks

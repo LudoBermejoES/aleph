@@ -67,14 +67,14 @@
 
 ### Integration Tests (@nuxt/test-utils)
 
-- [ ] 7.8 Test `POST /api/auth/register`: creates user, returns session cookie
-- [ ] 7.9 Test `POST /api/auth/login`: valid credentials return session; invalid credentials return 401
-- [ ] 7.10 Test session lifecycle: login sets cookie, authenticated request succeeds, logout invalidates session
-- [ ] 7.11 Test campaign CRUD endpoints enforce authentication (unauthenticated requests return 401)
-- [ ] 7.12 Test `POST /api/campaigns/:id/invite` + `POST /api/campaigns/:id/join`: full invitation flow assigns correct role
-- [ ] 7.13 Test campaign delete is restricted to DM role (player receives 403)
+- [x] 7.8 Test `POST /api/auth/register`: creates user, returns session cookie
+- [x] 7.9 Test `POST /api/auth/login`: valid credentials return session; invalid credentials return 401
+- [x] 7.10 Test session lifecycle: login sets cookie, authenticated request succeeds, logout invalidates session
+- [x] 7.11 Test campaign CRUD endpoints enforce authentication (unauthenticated requests return 401)
+- [x] 7.12 Test `POST /api/campaigns/:id/invite` + `POST /api/campaigns/:id/join`: full invitation flow assigns correct role
+- [x] 7.13 Test campaign delete is restricted to DM role (player receives 403)
 - [ ] 7.14 Test `PUT /api/campaigns/:id/entities/:entityId/permissions`: DM can set overrides, player cannot
-- [ ] 7.15 Test middleware auth guard: unauthenticated request to protected route returns 401; authenticated request passes
+- [x] 7.15 Test middleware auth guard: unauthenticated request to protected route returns 401; authenticated request passes
 
 ### Component Tests (@vue/test-utils)
 
