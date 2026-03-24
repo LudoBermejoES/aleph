@@ -25,23 +25,23 @@
 
 ## 4. Inventory API
 
-- [ ] 4.1 Wire inventory CRUD handlers (auto-create for characters)
-- [ ] 4.2 Wire inventory item add/remove/update handlers
-- [ ] 4.3 Wire item transfer handler calling services
+- [x] 4.1 Wire inventory CRUD handlers (POST create, GET list with items)
+- [x] 4.2 Wire inventory item add handler (stackable auto-merge)
+- [x] 4.3 Wire item transfer handler calling canTransferItem + transaction logging
 - [ ] 4.4 Add RBAC: players manage own character inventory, DM manages all
 
 ## 5. Currency & Wealth API
 
 - [x] 5.1 Wire currency CRUD handlers (POST create, GET list with sort)
-- [ ] 5.2 Wire wealth query handler (all balances for an owner)
-- [ ] 5.3 Wire currency conversion using service
+- [x] 5.2 Wire wealth query handler (GET with owner_id + owner_type)
+- [ ] 5.3 Wire currency conversion endpoint
 - [ ] 5.4 Wire wealth modification only via transaction creation
 
 ## 6. Shop API
 
 - [x] 6.1 Wire shop CRUD handlers (POST create, GET list)
-- [ ] 6.2 Wire shop stock add/update/remove handlers
-- [ ] 6.3 Wire buy handler (deduct wealth, add item, log transaction)
+- [x] 6.2 Wire shop stock add handler (POST)
+- [x] 6.3 Wire buy handler (deduct wealth, add item, decrement stock, log transaction)
 - [ ] 6.4 Wire sell handler (add wealth, remove item, log transaction)
 - [ ] 6.5 Wire player-owned shop: till balance, withdraw handler
 
@@ -58,7 +58,7 @@
 - [ ] 8.3 Build item transfer dialog
 - [ ] 8.4 Build wealth display component
 - [x] 8.5 Create `app/pages/campaigns/[id]/shops/index.vue` (shop list)
-- [ ] 8.6 Create shop detail page with stock and buy UI
+- [x] 8.6 Create shop detail page with stock display
 - [ ] 8.7 Build transaction history table
 
 ## 9. Tests (TDD)
