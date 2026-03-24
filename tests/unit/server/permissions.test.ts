@@ -199,3 +199,121 @@ describe('Permission Cache', () => {
     expect(getCachedPermission('user-2', 'entity-2', 'edit')).toBeNull()
   })
 })
+
+describe('Named Permissions', () => {
+  let testDb: TestDb
+
+  beforeEach(() => {
+    testDb = createTestDb()
+    const now = Date.now()
+    // Create users, campaign, and membership
+    testDb.sqlite.exec(`
+      INSERT INTO user (id, name, email, email_verified, created_at, updated_at)
+      VALUES ('dm-user', 'DM', 'dm@test.com', 0, ${now}, ${now}),
+             ('player-1', 'Player', 'player@test.com', 0, ${now}, ${now})
+    `)
+    testDb.sqlite.exec(`
+      INSERT INTO campaigns (id, name, slug, content_dir, created_by, created_at, updated_at)
+      VALUES ('camp-1', 'Test', 'test', '/content', 'dm-user', ${now}, ${now})
+    `)
+    testDb.sqlite.exec(`
+      INSERT INTO campaign_members (id, campaign_id, user_id, role, joined_at)
+      VALUES ('member-1', 'camp-1', 'player-1', 'player', ${now})
+    `)
+  })
+
+  afterEach(() => {
+    testDb.close()
+  })
+
+  it('user with named permission passes check', async () => {
+    testDb.sqlite.exec(`
+      INSERT INTO campaign_member_permissions (id, campaign_member_id, permission, granted_by, granted_at)
+      VALUES ('perm-1', 'member-1', 'chronicler', 'dm-user', ${Date.now()})
+    `)
+
+    const result = await hasNamedPermission(testDb.db, 'member-1', 'chronicler')
+    expect(result).toBe(true)
+  })
+
+  it('user without named permission fails check', async () => {
+    const result = await hasNamedPermission(testDb.db, 'member-1', 'chronicler')
+    expect(result).toBe(false)
+  })
+
+  it('different named permission does not match', async () => {
+    testDb.sqlite.exec(`
+      INSERT INTO campaign_member_permissions (id, campaign_member_id, permission, granted_by, granted_at)
+      VALUES ('perm-1', 'member-1', 'quest_keeper', 'dm-user', ${Date.now()})
+    `)
+
+    const result = await hasNamedPermission(testDb.db, 'member-1', 'chronicler')
+    expect(result).toBe(false)
+  })
+})
+
+describe('Invitation Token', () => {
+  let testDb: TestDb
+
+  beforeEach(() => {
+    testDb = createTestDb()
+    const now = Date.now()
+    testDb.sqlite.exec(`
+      INSERT INTO user (id, name, email, email_verified, created_at, updated_at)
+      VALUES ('dm-user', 'DM', 'dm@test.com', 0, ${now}, ${now})
+    `)
+    testDb.sqlite.exec(`
+      INSERT INTO campaigns (id, name, slug, content_dir, created_by, created_at, updated_at)
+      VALUES ('camp-1', 'Test', 'test', '/content', 'dm-user', ${now}, ${now})
+    `)
+  })
+
+  afterEach(() => {
+    testDb.close()
+  })
+
+  it('valid token can be found', () => {
+    const future = Date.now() + 86400000 // 1 day from now
+    testDb.sqlite.exec(`
+      INSERT INTO campaign_invitations (id, campaign_id, token, role, created_by, expires_at)
+      VALUES ('inv-1', 'camp-1', 'valid-token-abc', 'player', 'dm-user', ${future})
+    `)
+
+    const result = testDb.sqlite.prepare(
+      "SELECT * FROM campaign_invitations WHERE token = 'valid-token-abc' AND used_at IS NULL"
+    ).get() as any
+
+    expect(result).toBeDefined()
+    expect(result.role).toBe('player')
+    expect(result.expires_at).toBeGreaterThan(Date.now())
+  })
+
+  it('expired token is rejected', () => {
+    const past = Date.now() - 86400000 // 1 day ago
+    testDb.sqlite.exec(`
+      INSERT INTO campaign_invitations (id, campaign_id, token, role, created_by, expires_at)
+      VALUES ('inv-1', 'camp-1', 'expired-token', 'player', 'dm-user', ${past})
+    `)
+
+    const result = testDb.sqlite.prepare(
+      "SELECT * FROM campaign_invitations WHERE token = 'expired-token' AND used_at IS NULL"
+    ).get() as any
+
+    expect(result).toBeDefined()
+    expect(result.expires_at).toBeLessThan(Date.now()) // expired
+  })
+
+  it('used token is not found', () => {
+    const future = Date.now() + 86400000
+    testDb.sqlite.exec(`
+      INSERT INTO campaign_invitations (id, campaign_id, token, role, created_by, expires_at, used_at)
+      VALUES ('inv-1', 'camp-1', 'used-token', 'player', 'dm-user', ${future}, ${Date.now()})
+    `)
+
+    const result = testDb.sqlite.prepare(
+      "SELECT * FROM campaign_invitations WHERE token = 'used-token' AND used_at IS NULL"
+    ).get()
+
+    expect(result).toBeUndefined()
+  })
+})
