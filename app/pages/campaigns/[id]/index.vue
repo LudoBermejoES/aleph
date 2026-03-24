@@ -21,6 +21,15 @@
           </Card>
         </NuxtLink>
 
+        <NuxtLink :to="`/campaigns/${campaignId}/characters`">
+          <Card class="hover:border-primary/50 transition-colors cursor-pointer">
+            <CardHeader>
+              <CardTitle class="text-lg">Characters</CardTitle>
+              <CardDescription>PCs, NPCs, stats, and abilities</CardDescription>
+            </CardHeader>
+          </Card>
+        </NuxtLink>
+
         <Card class="opacity-50">
           <CardHeader>
             <CardTitle class="text-lg">Maps</CardTitle>
