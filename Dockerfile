@@ -9,10 +9,13 @@ RUN npm run build
 FROM node:22-slim AS runtime
 
 WORKDIR /app
+RUN npm install -g pm2
+
 COPY --from=build /app/.output /app/.output
 COPY --from=build /app/server/db/migrations /app/server/db/migrations
+COPY --from=build /app/ecosystem.config.cjs /app/ecosystem.config.cjs
 
-RUN mkdir -p /app/data /app/content
+RUN mkdir -p /app/data /app/content /app/logs
 
 EXPOSE 3000
 
@@ -20,4 +23,4 @@ ENV NODE_ENV=production
 ENV NITRO_PORT=3000
 ENV NITRO_HOST=0.0.0.0
 
-CMD ["node", ".output/server/index.mjs"]
+CMD ["pm2-runtime", "ecosystem.config.cjs", "--env", "production"]

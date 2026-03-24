@@ -15,7 +15,10 @@
     "test:unit": "vitest run --dir tests/unit",
     "test:integration": "vitest run --dir tests/integration",
     "test:e2e": "playwright test",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "start:prod": "pm2-runtime ecosystem.config.cjs --env production",
+    "pm2:status": "pm2 status",
+    "pm2:logs": "pm2 logs aleph"
   },
   "dependencies": {
     "@nuxtjs/mdc": "^0.20.2",
@@ -26,11 +29,14 @@
     "drizzle-orm": "^0.45.1",
     "gray-matter": "^4.0.3",
     "nuxt": "^4.4.2",
+    "pm2": "^6.0.14",
     "reka-ui": "^2.9.2",
     "shadcn-nuxt": "^2.4.3",
     "tailwind-merge": "^3.5.0",
     "vue": "^3.5.30",
-    "vue-router": "^5.0.4"
+    "vue-router": "^5.0.4",
+    "winston": "^3.19.0",
+    "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.15.2",
