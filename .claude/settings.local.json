@@ -76,7 +76,8 @@
       "Bash(find /c/code/aleph/openspec/changes/*/specs/*/spec.md)",
       "Bash(npx shadcn-vue@latest init -y)",
       "Bash(npx shadcn-vue@latest add button input card dialog dropdown-menu --yes)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(npx drizzle-kit:*)"
     ]
   }
 }
