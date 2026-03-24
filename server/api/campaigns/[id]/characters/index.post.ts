@@ -4,6 +4,7 @@ import { useDb, useSqlite } from '../../../../utils/db'
 import { entities } from '../../../../db/schema/entities'
 import { characters } from '../../../../db/schema/characters'
 import { hasMinRole } from '../../../../utils/permissions'
+import { buildCharacterFrontmatter } from '../../../../services/characters'
 import { writeEntityFile, slugify, resolveEntityPath } from '../../../../services/content'
 import { indexEntity } from '../../../../services/search'
 import { logger } from '../../../../utils/logger'
@@ -41,21 +42,18 @@ export default defineEventHandler(async (event) => {
   // Write .md file
   const contentDir = join(process.cwd(), campaign.contentDir)
   const filePath = resolveEntityPath(contentDir, 'character', slug)
-  const frontmatter = {
+  const frontmatter = buildCharacterFrontmatter({
     id: entityId,
-    type: 'character',
     name: name.trim(),
-    aliases: aliases || [],
-    tags: tags || [],
-    visibility: visibility || 'members',
-    fields: Object.fromEntries(Object.entries({
-      characterType: characterType || 'npc',
-      race: race || undefined,
-      class: charClass || undefined,
-      alignment: alignment || undefined,
-      status: status || 'alive',
-    }).filter(([, v]) => v !== undefined)),
-  }
+    characterType: characterType || 'npc',
+    race,
+    charClass,
+    alignment,
+    status,
+    aliases,
+    tags,
+    visibility,
+  })
   const hash = await writeEntityFile(filePath, frontmatter, content || '')
 
   // Insert entity row

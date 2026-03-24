@@ -3,7 +3,7 @@ import { useDb } from '../../../../../utils/db'
 import { entities } from '../../../../../db/schema/entities'
 import { characters, characterStats, statDefinitions, statGroups, abilities } from '../../../../../db/schema/characters'
 import { readEntityFile } from '../../../../../services/content'
-import { hasMinRole } from '../../../../../utils/permissions'
+import { stripSecretStats, stripSecretAbilities } from '../../../../../services/characters'
 import type { CampaignRole } from '../../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
@@ -47,12 +47,9 @@ export default defineEventHandler(async (event) => {
     .orderBy(abilities.sortOrder)
     .all()
 
-  // Strip secrets for non-DM
-  const isDm = hasMinRole(role, 'co_dm')
-  const filteredStats = isDm ? stats : stats.filter(s => !s.defIsSecret)
-  if (!isDm) {
-    charAbilities = charAbilities.filter(a => !a.isSecret)
-  }
+  // Strip secrets for non-DM using service functions
+  const filteredStats = stripSecretStats(stats, role)
+  charAbilities = stripSecretAbilities(charAbilities, role)
 
   // Read markdown
   let file
