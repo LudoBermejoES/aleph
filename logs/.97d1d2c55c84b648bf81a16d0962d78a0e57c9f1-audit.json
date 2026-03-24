@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "C:\\code\\aleph\\logs\\.97d1d2c55c84b648bf81a16d0962d78a0e57c9f1-audit.json",
+    "files": [
+        {
+            "date": 1774368729355,
+            "name": "C:\\code\\aleph\\logs\\error-2026-03-24.log",
+            "hash": "e8bae27374fca37dd15710f5d7fdcfbde9ebab1b3a0bc999785f66b0cbca117a"
+        }
+    ],
+    "hashType": "sha256"
+}
