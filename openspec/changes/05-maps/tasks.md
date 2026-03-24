@@ -56,3 +56,26 @@
 - [ ] 7.2 Create `app/pages/campaigns/[id]/maps/[slug].vue` (map viewer page)
 - [ ] 7.3 Build map creation/edit form (name, parent map, image upload)
 - [ ] 7.4 Add breadcrumb navigation component for nested maps
+
+## 8. Tests (TDD)
+
+### Unit Tests (Vitest)
+
+- [ ] 8.1 Test breadcrumb ancestor query via recursive CTE: returns correct ancestor chain for deeply nested map
+- [ ] 8.2 Test tile path generation: produces correct `{z}/{x}/{y}.png` path structure
+
+### Integration Tests (@nuxt/test-utils)
+
+- [ ] 8.3 Test map CRUD: create map returns slug; read returns map with dimensions; update changes name; delete removes map
+- [ ] 8.4 Test pin CRUD: create pin with coordinates and entity link; read pin returns entity reference; delete removes pin
+- [ ] 8.5 Test pin with child_map_id: creating pin linked to child map enables drill-down query
+- [ ] 8.6 Test layer CRUD: create layers with sort order; toggle layer visibility; verify sort order management
+- [ ] 8.7 Test nested map listing: GET maps with parent_map_id filter returns only direct children
+- [ ] 8.8 Test pin visibility filtering: player cannot see pins on entities they lack permission for; DM sees all pins
+- [ ] 8.9 Test region CRUD: create region with GeoJSON polygon; read returns valid GeoJSON; delete removes region
+- [ ] 8.10 Test image upload endpoint: accepts image file, stores to filesystem, returns dimensions
+
+### Component Tests (@vue/test-utils)
+
+- [ ] 8.11 Test breadcrumb navigation component: renders ancestor maps as links with correct hierarchy
+- [ ] 8.12 Test layer toggle panel: renders layer list, emits toggle events for visibility changes

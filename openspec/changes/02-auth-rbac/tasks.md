@@ -52,3 +52,32 @@
 - [ ] 6.1 Create `PUT /api/campaigns/:id/entities/:entityId/permissions`: set overrides
 - [ ] 6.2 Create permission editor component (assign allow/deny per user or role)
 - [ ] 6.3 Create visibility selector component (dropdown for visibility levels)
+
+## 7. Tests (TDD)
+
+### Unit Tests (Vitest)
+
+- [ ] 7.1 Test permission resolution engine: role hierarchy resolves correctly (DM > player > spectator)
+- [ ] 7.2 Test permission resolution engine: entity-level override trumps role-level default
+- [ ] 7.3 Test permission resolution engine: explicit deny beats implicit allow at same level
+- [ ] 7.4 Test named permission grants: user with `manage_calendar` permission passes check, user without fails
+- [ ] 7.5 Test LRU permission cache: repeated lookups return cached result; invalidation clears entry
+- [ ] 7.6 Test `getVisibleEntitiesQuery()` SQL builder: returns only entities matching user's visibility level
+- [ ] 7.7 Test invitation token generation: produces valid token; expired token is rejected
+
+### Integration Tests (@nuxt/test-utils)
+
+- [ ] 7.8 Test `POST /api/auth/register`: creates user, returns session cookie
+- [ ] 7.9 Test `POST /api/auth/login`: valid credentials return session; invalid credentials return 401
+- [ ] 7.10 Test session lifecycle: login sets cookie, authenticated request succeeds, logout invalidates session
+- [ ] 7.11 Test campaign CRUD endpoints enforce authentication (unauthenticated requests return 401)
+- [ ] 7.12 Test `POST /api/campaigns/:id/invite` + `POST /api/campaigns/:id/join`: full invitation flow assigns correct role
+- [ ] 7.13 Test campaign delete is restricted to DM role (player receives 403)
+- [ ] 7.14 Test `PUT /api/campaigns/:id/entities/:entityId/permissions`: DM can set overrides, player cannot
+- [ ] 7.15 Test middleware auth guard: unauthenticated request to protected route returns 401; authenticated request passes
+
+### Component Tests (@vue/test-utils)
+
+- [ ] 7.16 Test login form component: submits credentials, displays validation errors on empty fields
+- [ ] 7.17 Test permission editor component: renders allow/deny toggles per role, emits correct payload on save
+- [ ] 7.18 Test visibility selector component: renders dropdown options, emits selected visibility level

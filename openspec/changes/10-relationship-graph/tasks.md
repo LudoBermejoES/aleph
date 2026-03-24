@@ -50,3 +50,28 @@
 - [ ] 7.2 Configure `cose-bilkent` layout for large graphs
 - [ ] 7.3 Match visual styling (node colors, edge colors, labels) with v-network-graph version
 - [ ] 7.4 Implement same click-to-navigate interaction
+
+## 8. Tests (TDD)
+
+### Unit Tests (Vitest)
+
+- [ ] 8.1 Test bidirectional relation storage: creating relation A→B stores single row; querying from B returns reverse label
+- [ ] 8.2 Test forward/reverse label swap: relation with forward="parent of" / reverse="child of" returns correct label based on query direction
+- [ ] 8.3 Test attitude score validation: score within valid range (-100 to 100) accepted; score outside range rejected
+- [ ] 8.4 Test built-in relation type seed: 17 built-in types created on campaign creation with correct forward/reverse labels
+
+### Integration Tests (@nuxt/test-utils)
+
+- [ ] 8.5 Test relation CRUD: create relation between two entities; read returns relation with labels; update attitude score; delete removes relation
+- [ ] 8.6 Test entity-centered relation query: entity with 3 relations returns all 3 with correct label direction (forward for outgoing, reverse for incoming)
+- [ ] 8.7 Test relation visibility filtering: player cannot see relations involving entities they lack permission for; DM sees all
+- [ ] 8.8 Test campaign-wide relation list: filters by entity type, relation type, and attitude range return correct subsets
+- [ ] 8.9 Test relation type CRUD: create custom type with forward/reverse labels; built-in type update returns 403
+- [ ] 8.10 Test graph data endpoint: returns nodes and edges in v-network-graph format with entity type and attitude data
+- [ ] 8.11 Test graph data visibility: graph endpoint excludes nodes and edges the requesting user cannot see
+- [ ] 8.12 Test relation validation: creating relation with non-existent entity returns 404; creating relation within wrong campaign returns 400
+
+### Component Tests (@vue/test-utils)
+
+- [ ] 8.13 Test filter panel component: entity type checkboxes and relation type checkboxes emit correct filter params
+- [ ] 8.14 Test attitude range slider: emits min/max values on change

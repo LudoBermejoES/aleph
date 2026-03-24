@@ -44,3 +44,37 @@
 - [ ] 5.7 Add "Log to session" toggle (enabled only when session is active)
 - [ ] 5.8 Add panel toggle button to campaign toolbar
 - [ ] 5.9 Make panel draggable and collapsible
+
+## 6. Tests (TDD)
+
+### Unit Tests (Vitest)
+
+- [ ] 6.1 Test dice formula parser: "2d6+4" produces AST with roll(2,6) + constant(4)
+- [ ] 6.2 Test dice formula parser: "4d6kh3" produces AST with roll(4,6) + keep_highest(3)
+- [ ] 6.3 Test dice formula parser: "2d10!" produces AST with roll(2,10) + exploding flag
+- [ ] 6.4 Test dice formula parser: "d%" parses as d100
+- [ ] 6.5 Test dice formula parser: invalid input "2dd6" or "abc" returns descriptive parse error
+- [ ] 6.6 Test dice evaluator: mock RNG to return known values; verify 2d6+4 with rolls [3,5] produces total 12
+- [ ] 6.7 Test dice evaluator: mock RNG for 4d6kh3 with rolls [1,4,3,6]; verify kept=[4,3,6], dropped=[1], total=13
+- [ ] 6.8 Test dice evaluator: exploding dice with mock RNG returning [6,6,3] produces 3 rolls total, sum=15
+- [ ] 6.9 Test dice evaluator: exploding dice respects 100-reroll cap (does not infinite loop)
+- [ ] 6.10 Test roll result bounds: NdX result is always between N and N*X (fuzz test with 100 random rolls)
+- [ ] 6.11 Test RollResult structure: contains individual die values array, kept/dropped arrays (for kh/kl), and total
+
+### Integration Tests (@nuxt/test-utils)
+
+- [ ] 6.12 Test server roll endpoint: POST with valid formula returns structured RollResult with correct fields
+- [ ] 6.13 Test server roll endpoint: POST with invalid formula returns 400 with parse error message
+- [ ] 6.14 Test roll logging: POST roll with session_id stores roll in session_rolls table; GET history returns it
+- [ ] 6.15 Test roll logging disabled: POST roll without session_id does not create session_rolls record
+
+### WebSocket Tests
+
+- [ ] 6.16 Test dice:roll broadcast: user rolls dice; all other connected campaign members receive broadcast with roll result
+- [ ] 6.17 Test broadcast degradation: when WebSocket is unavailable, roll still succeeds locally without error
+
+### Component Tests (@vue/test-utils)
+
+- [ ] 6.18 Test DiceRoller component: quick-roll button click triggers roll and displays result with total and individual values
+- [ ] 6.19 Test formula input: submitting formula via Enter key triggers roll; invalid formula displays error message
+- [ ] 6.20 Test roll log feed: displays recent rolls in chronological order with user attribution
