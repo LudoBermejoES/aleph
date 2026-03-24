@@ -48,6 +48,15 @@
           </Card>
         </NuxtLink>
 
+        <NuxtLink :to="`/campaigns/${campaignId}/calendars`">
+          <Card class="hover:border-primary/50 transition-colors cursor-pointer">
+            <CardHeader>
+              <CardTitle class="text-lg">Calendars & Timelines</CardTitle>
+              <CardDescription>Custom calendars, moons, seasons, and timelines</CardDescription>
+            </CardHeader>
+          </Card>
+        </NuxtLink>
+
         <NuxtLink :to="`/campaigns/${campaignId}/quests`">
           <Card class="hover:border-primary/50 transition-colors cursor-pointer">
             <CardHeader>
