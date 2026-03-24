@@ -28,5 +28,17 @@ export default defineEventHandler(async (event) => {
     result = result.filter(a => !a.isSecret)
   }
 
+  // Filter by type and tags
+  const query = getQuery(event)
+  if (query.type) result = result.filter(a => a.type === query.type)
+  if (query.tag) {
+    const tag = (query.tag as string).toLowerCase()
+    result = result.filter(a => {
+      if (!a.tagsJson) return false
+      const tags = JSON.parse(a.tagsJson) as string[]
+      return tags.some(t => t.toLowerCase() === tag)
+    })
+  }
+
   return result
 })

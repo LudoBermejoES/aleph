@@ -64,10 +64,10 @@
 - [x] 7.7 Test entity list endpoint: filters by type, tag, visibility, and parent_id return correct subsets
 - [x] 7.8 Test entity list endpoint: pagination (page + limit params) returns correct page with total count
 - [ ] 7.9 Test entity list endpoint: permission-filtered results exclude entities user cannot see
-- [ ] 7.10 Test entity CRUD endpoints enforce RBAC: player cannot delete entity, DM can
-- [ ] 7.11 Test template CRUD: create template with fields, assign to entity, verify fields appear in entity response
+- [x] 7.10 Test entity CRUD endpoints enforce RBAC: player cannot delete entity, DM can
+- [x] 7.11 Test template CRUD: create template with fields, assign to entity, verify fields appear in entity response
 - [ ] 7.12 Test custom field values: entity stores and returns custom field values from template
-- [ ] 7.13 Test tagging: create tag, assign to entity, filter entity list by tag returns correct results
+- [x] 7.13 Test tagging: create tag, assign to entity, filter entity list by tag returns correct results
 - [ ] 7.14 Test hierarchical nesting: create parent → child entities, GET child returns parent in breadcrumb, GET parent lists children
 
 ### Component Tests (@vue/test-utils)
