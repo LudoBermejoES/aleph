@@ -54,6 +54,22 @@
 - **Gantt**: Horizontal bars showing event duration on a time axis (rendered with CSS grid)
 - **Calendar**: Events overlaid on the custom calendar view (reuses CalendarView component)
 
+### Service Layer (TDD)
+
+Business logic extracted into `server/services/calendar.ts` -- pure functions tested in isolation:
+
+- `calculateAge(birthDate, currentDate, calendarConfig)` -- age from custom calendar dates
+- `getMoonPhase(date, moonConfig)` -- calculates moon phase for a given date
+- `getNextOccurrence(event, calendarConfig)` -- next occurrence of recurring event
+- `isDateInSeason(date, season, calendarConfig)` -- checks if date falls in season
+
+Architecture: Write unit tests first (TDD red phase), then implement service functions (green phase), then refactor API handlers to call services. API handlers stay thin -- they call services + DB, return results.
+
+Test layers:
+1. **Unit tests**: service functions in isolation (no DB, no server)
+2. **Schema tests**: DB constraints and cascades (`:memory:` SQLite)
+3. **Integration tests**: API contracts against running server
+
 ### API Endpoints
 
 ```

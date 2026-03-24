@@ -48,6 +48,22 @@
 - Process runs as a background Nitro task; map marked `is_tiled = true` on completion
 - Fallback to `L.imageOverlay` while tiling is in progress
 
+### Service Layer (TDD)
+
+Business logic extracted into `server/services/maps.ts` -- pure functions tested in isolation:
+
+- `computeBreadcrumb(db, mapId)` -- recursive CTE for map ancestor chain
+- `filterPinsByVisibility(pins, role)` -- strips hidden pins for non-DM roles
+- `validateMapImage(file)` -- validates image dimensions and format
+- `generateTiles(imagePath, outputDir)` -- tiles large images for Leaflet
+
+Architecture: Write unit tests first (TDD red phase), then implement service functions (green phase), then refactor API handlers to call services. API handlers stay thin -- they call services + DB, return results.
+
+Test layers:
+1. **Unit tests**: service functions in isolation (no DB, no server)
+2. **Schema tests**: DB constraints and cascades (`:memory:` SQLite)
+3. **Integration tests**: API contracts against running server
+
 ### API Endpoints
 
 ```

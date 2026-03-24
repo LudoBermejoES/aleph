@@ -49,6 +49,22 @@
 - Immutable append-only log; no updates or deletes
 - Queryable for history views and audit
 
+### Service Layer (TDD)
+
+Business logic extracted into `server/services/inventory.ts` -- pure functions tested in isolation:
+
+- `canTransferItem(fromInventory, toInventory, itemId, quantity)` -- validates transfer
+- `calculateTotalPrice(items, currencies)` -- multi-currency price calculation
+- `processTransaction(from, to, item, quantity, price)` -- atomic transfer logic
+- `validateCurrencyAmount(amount, currencies)` -- validates currency values
+
+Architecture: Write unit tests first (TDD red phase), then implement service functions (green phase), then refactor API handlers to call services. API handlers stay thin -- they call services + DB, return results.
+
+Test layers:
+1. **Unit tests**: service functions in isolation (no DB, no server)
+2. **Schema tests**: DB constraints and cascades (`:memory:` SQLite)
+3. **Integration tests**: API contracts against running server
+
 ### API Endpoints
 
 ```

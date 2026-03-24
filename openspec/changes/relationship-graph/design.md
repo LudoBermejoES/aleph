@@ -62,6 +62,21 @@
 1. **Entity-centered**: Given one entity, fetch all direct relations (1 hop). Render the focal entity centered with connected entities around it.
 2. **Campaign-wide**: Fetch all entities and relations for the campaign. Filter UI: entity type checkboxes, relation type checkboxes, attitude range slider.
 
+### Service Layer (TDD)
+
+Business logic extracted into `server/services/relationships.ts` -- pure functions tested in isolation:
+
+- `getRelationLabel(relation, fromEntityId)` -- returns forward or reverse label
+- `validateRelationType(type)` -- validates against built-in + custom types
+- `computeAttitudeColor(score)` -- maps -100..+100 to color
+
+Architecture: Write unit tests first (TDD red phase), then implement service functions (green phase), then refactor API handlers to call services. API handlers stay thin -- they call services + DB, return results.
+
+Test layers:
+1. **Unit tests**: service functions in isolation (no DB, no server)
+2. **Schema tests**: DB constraints and cascades (`:memory:` SQLite)
+3. **Integration tests**: API contracts against running server
+
 ### API Endpoints
 
 ```

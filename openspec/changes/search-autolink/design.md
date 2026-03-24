@@ -63,6 +63,23 @@ When a new entity is created (or renamed):
 - If campaign has >=20 entities: queue a background Nitro task for scanning
 - Background task processes files in batches of 50 with yielding between batches
 
+### Service Layer (TDD)
+
+Business logic extracted into `server/services/autolink.ts` -- pure functions tested in isolation:
+
+- `buildAutomaton(entityNames)` -- builds Aho-Corasick from name list
+- `findMatches(text, automaton)` -- finds all matches in text
+- `computeExclusionZones(markdown)` -- identifies code blocks, links, frontmatter
+- `filterMatchesByExclusions(matches, zones)` -- removes matches in excluded zones
+- `resolveOverlaps(matches)` -- longest-match-wins conflict resolution
+
+Architecture: Write unit tests first (TDD red phase), then implement service functions (green phase), then refactor API handlers to call services. API handlers stay thin -- they call services + DB, return results.
+
+Test layers:
+1. **Unit tests**: service functions in isolation (no DB, no server)
+2. **Schema tests**: DB constraints and cascades (`:memory:` SQLite)
+3. **Integration tests**: API contracts against running server
+
 ### API Endpoints
 
 ```

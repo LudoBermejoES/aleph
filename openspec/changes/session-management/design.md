@@ -40,6 +40,18 @@ Schema:
 - `decisions` table: `id, session_id, campaign_id, type (choice|role|count|destiny), title, description, entity_id (nullable)`
 - `consequences` table: `id, decision_id, description, entity_id (nullable), revealed (boolean)`
 
+### Service Layer (TDD)
+
+Business logic extracted into `server/services/sessions.ts` -- pure functions tested in isolation:
+
+- `nextSessionNumber(currentMax)` -- calculates next session number
+- `canTransitionQuestStatus(from, to)` -- validates quest status transitions against allowed rules
+- `filterSecretQuests(quests, role)` -- filters secret quests for non-DM roles
+- `filterRevealedConsequences(consequences, role)` -- filters unrevealed consequences for non-DM roles
+- `VALID_QUEST_TRANSITIONS` -- exported constant defining allowed status transitions
+
+Same architecture as character-management: thin API handlers calling services + DB.
+
 ### API Endpoints
 
 ```

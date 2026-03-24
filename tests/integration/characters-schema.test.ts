@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { createTestDb, type TestDb } from '../../helpers/db'
+import { createTestDb, type TestDb } from '../helpers/db'
 
 describe('Character Schema', () => {
   let testDb: TestDb
