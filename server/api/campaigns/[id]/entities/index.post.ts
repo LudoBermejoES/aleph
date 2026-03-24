@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto'
-import { eq } from 'drizzle-orm'
+import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../utils/db'
 import { useSqlite } from '../../../../utils/db'
 import { entities } from '../../../../db/schema/entities'
@@ -30,10 +30,10 @@ export default defineEventHandler(async (event) => {
   const id = randomUUID()
   const now = new Date()
 
-  // Generate unique slug
+  // Generate unique slug (scoped to campaign)
   let slug = slugify(name)
   const existing = db.select().from(entities)
-    .where(eq(entities.slug, slug))
+    .where(and(eq(entities.campaignId, campaignId), eq(entities.slug, slug)))
     .get()
   if (existing) {
     slug = `${slug}-${Date.now().toString(36)}`

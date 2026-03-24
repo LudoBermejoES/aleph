@@ -10,6 +10,9 @@ export default defineEventHandler(async (event) => {
   if (!match) return
   if (!event.context.user) return
 
+  // Skip membership check for join endpoint (user joins via invitation)
+  if (path.match(/\/api\/campaigns\/[^/]+\/join$/)) return
+
   const campaignId = match[1]
 
   // Verify campaign exists

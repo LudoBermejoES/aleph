@@ -57,12 +57,12 @@
 
 ### Integration Tests (@nuxt/test-utils)
 
-- [ ] 7.3 Test `POST /api/campaigns/:id/entities`: creates DB row + .md file, returns entity with slug
-- [ ] 7.4 Test `GET /api/campaigns/:id/entities/:slug`: returns entity with parsed frontmatter and markdown body
-- [ ] 7.5 Test `PUT /api/campaigns/:id/entities/:slug`: updates DB row + rewrites .md file, returns updated entity
-- [ ] 7.6 Test `DELETE /api/campaigns/:id/entities/:slug`: removes DB row + .md file, subsequent GET returns 404
-- [ ] 7.7 Test entity list endpoint: filters by type, tag, visibility, and parent_id return correct subsets
-- [ ] 7.8 Test entity list endpoint: pagination (page + limit params) returns correct page with total count
+- [x] 7.3 Test `POST /api/campaigns/:id/entities`: creates DB row + .md file, returns entity with slug
+- [x] 7.4 Test `GET /api/campaigns/:id/entities/:slug`: returns entity with parsed frontmatter and markdown body
+- [x] 7.5 Test `PUT /api/campaigns/:id/entities/:slug`: updates DB row + rewrites .md file, returns updated entity
+- [x] 7.6 Test `DELETE /api/campaigns/:id/entities/:slug`: removes DB row + .md file, subsequent GET returns 404
+- [x] 7.7 Test entity list endpoint: filters by type, tag, visibility, and parent_id return correct subsets
+- [x] 7.8 Test entity list endpoint: pagination (page + limit params) returns correct page with total count
 - [ ] 7.9 Test entity list endpoint: permission-filtered results exclude entities user cannot see
 - [ ] 7.10 Test entity CRUD endpoints enforce RBAC: player cannot delete entity, DM can
 - [ ] 7.11 Test template CRUD: create template with fields, assign to entity, verify fields appear in entity response
