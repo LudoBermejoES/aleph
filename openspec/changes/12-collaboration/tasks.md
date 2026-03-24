@@ -54,3 +54,28 @@
 - [ ] 7.2 Create `useCampaignNotifications()` composable for client-side listening
 - [ ] 7.3 Build toast notification component for live updates
 - [ ] 7.4 Filter notifications by relevance (don't notify the user who made the change)
+
+## 8. Tests (TDD)
+
+### Unit Tests (Vitest)
+
+- [ ] 8.1 Test Tiptap markdown round-trip: serialize markdown → parse to Tiptap JSON → serialize back to markdown produces identical output
+- [ ] 8.2 Test frontmatter preservation: markdown with frontmatter loaded into editor, edited, saved back retains all original frontmatter fields
+- [ ] 8.3 Test frontmatter merge: changing a field in editor updates that field; unchanged fields remain intact
+- [ ] 8.4 Test custom Tiptap `:entity-link` node: serializes to correct MDC syntax; parses back from MDC syntax
+- [ ] 8.5 Test custom Tiptap `::secret` block node: serializes to correct MDC syntax with role/user annotations
+- [ ] 8.6 Test content hash update: saving document updates content_hash in SQLite to match new content
+
+### Integration Tests (@nuxt/test-utils)
+
+- [ ] 8.7 Test WebSocket authentication: connection with valid session token succeeds; connection without token is rejected
+- [ ] 8.8 Test WebSocket disconnection: client disconnect triggers presence:leave after grace period
+- [ ] 8.9 Test save pipeline: Y.js doc change → auto-save writes .md file with correct content and frontmatter
+- [ ] 8.10 Test FTS5 re-index after save: editing entity content updates search index; new terms are searchable
+- [ ] 8.11 Test Hocuspocus onAuthenticate: user without edit permission on entity is rejected; user with permission is accepted
+- [ ] 8.12 Test presence system: two users connect to same campaign room; presence:list returns both users; one disconnects → list returns one
+
+### Component Tests (@vue/test-utils)
+
+- [ ] 8.13 Test MarkdownEditor component: mounts with initial markdown content; emits update on edit
+- [ ] 8.14 Test presence avatar component: renders correct number of user avatars for connected users

@@ -51,3 +51,29 @@
 - [ ] 7.5 Build quest list component with status badges and nesting
 - [ ] 7.6 Build decision timeline component on session detail page
 - [ ] 7.7 Create `app/pages/campaigns/[id]/quests/index.vue` (quest board view)
+
+## 8. Tests (TDD)
+
+### Unit Tests (Vitest)
+
+- [ ] 8.1 Test session number auto-increment: creating sessions in sequence produces incrementing numbers per campaign
+- [ ] 8.2 Test quest status transition validation: only valid transitions allowed (e.g., active→completed, active→failed; not completed→active)
+- [ ] 8.3 Test quest secret filtering: secret quests excluded from result set when user is player role
+
+### Integration Tests (@nuxt/test-utils)
+
+- [ ] 8.4 Test session lifecycle: create session (status=scheduled) → update to active → update to complete; verify status at each step
+- [ ] 8.5 Test session CRUD: create, read, update, delete; verify session list filtering by status and date range
+- [ ] 8.6 Test attendance tracking: player RSVPs "yes"; DM confirms attendance; GET session returns attendance summary with both fields
+- [ ] 8.7 Test RSVP restriction: player can only set own RSVP status, cannot modify another player's
+- [ ] 8.8 Test quest CRUD with sub-quests: create parent quest → create child quest with parent_quest_id; verify nesting in response
+- [ ] 8.9 Test quest status transitions via API: PATCH quest status from active to completed succeeds; invalid transition returns 400
+- [ ] 8.10 Test decision recording: create decision scoped to session; create consequence linked to decision; verify response includes consequence
+- [ ] 8.11 Test consequence reveal toggle: hidden consequence not visible to player; DM reveals it; player can now see it
+- [ ] 8.12 Test session RBAC: DM can create/edit sessions; player can view but not create/edit
+- [ ] 8.13 Test arc and chapter ordering: create arcs with sort order; reorder; verify new order persists
+
+### Component Tests (@vue/test-utils)
+
+- [ ] 8.14 Test attendance RSVP component: renders RSVP options, emits selected status on click
+- [ ] 8.15 Test quest list component: renders quests with status badges, displays nested sub-quests indented

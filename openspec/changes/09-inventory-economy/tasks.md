@@ -53,3 +53,30 @@
 - [ ] 7.5 Create `app/pages/campaigns/[id]/shops/index.vue` (shop list)
 - [ ] 7.6 Create `app/pages/campaigns/[id]/shops/[slug].vue` (shop detail with stock and buy UI)
 - [ ] 7.7 Build transaction history table component
+
+## 8. Tests (TDD)
+
+### Unit Tests (Vitest)
+
+- [ ] 8.1 Test currency conversion utility: 1 gold = 10 silver = 100 copper; converting 150 copper returns 1 gold 5 silver 0 copper
+- [ ] 8.2 Test multi-currency calculation: summing wealth across denominations produces correct total in base currency
+- [ ] 8.3 Test insufficient quantity rejection: transferring 5 items when inventory has 3 throws validation error
+
+### Integration Tests (@nuxt/test-utils)
+
+- [ ] 8.4 Test item transfer atomicity: transfer item between inventories; source quantity decreases, target quantity increases; both changes visible in single read
+- [ ] 8.5 Test item transfer rejection: transferring more than available quantity returns 400 with descriptive error
+- [ ] 8.6 Test shop purchase flow: buy item from shop → wealth deducted from buyer, item added to buyer inventory, stock quantity decremented, transaction logged
+- [ ] 8.7 Test shop purchase insufficient funds: attempting purchase with insufficient wealth returns 400; no side effects (wealth unchanged, stock unchanged)
+- [ ] 8.8 Test shop sell flow: sell item to shop → wealth added to seller, item removed from seller inventory, stock updated, transaction logged
+- [ ] 8.9 Test wealth modification only via transactions: direct wealth update endpoint does not exist; all wealth changes create transaction records
+- [ ] 8.10 Test transaction immutability: PUT and DELETE on transaction endpoints return 405
+- [ ] 8.11 Test transaction history query: filter by type, owner, and date range returns correct subset
+- [ ] 8.12 Test inventory RBAC: player manages own character inventory; player cannot modify another character's inventory; DM manages all
+- [ ] 8.13 Test item CRUD: create item with properties JSON; read returns item; list filters by rarity and tags work correctly
+- [ ] 8.14 Test stackable items: adding same stackable item to inventory increases quantity instead of creating duplicate row
+
+### Component Tests (@vue/test-utils)
+
+- [ ] 8.15 Test wealth display component: renders correct currency icons and amounts for multi-denomination wealth
+- [ ] 8.16 Test item transfer dialog: source/target inventory pickers populate correctly; submit emits transfer payload

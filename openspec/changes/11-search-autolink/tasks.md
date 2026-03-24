@@ -44,3 +44,27 @@
 
 - [ ] 6.1 Implement mentions query endpoint for an entity
 - [ ] 6.2 Return list of source entities that reference the target entity with counts
+
+## 7. Tests (TDD)
+
+### Unit Tests (Vitest)
+
+- [ ] 7.1 Test Aho-Corasick automaton build: given entity names ["Elara", "Elara's Keep", "Orc"], automaton is constructed without error
+- [ ] 7.2 Test case-insensitive matching: "elara" matches entity "Elara"; "ELARA" also matches
+- [ ] 7.3 Test longest-match-wins: text "visited Elara's Keep" matches "Elara's Keep" (not just "Elara")
+- [ ] 7.4 Test word-boundary detection: "Orc" matches "the Orc attacked" but not "Orca whale" or "Forceful"
+- [ ] 7.5 Test exclusion zone detection: entity name inside code block (`` `Elara` ``) is not linked
+- [ ] 7.6 Test exclusion zone detection: entity name inside existing `[link](url)` is not double-linked
+- [ ] 7.7 Test exclusion zone detection: entity name inside frontmatter YAML is not linked
+- [ ] 7.8 Test exclusion zone detection: entity name inside heading is not linked
+- [ ] 7.9 Test remark plugin: input markdown with entity mention outputs markdown with `:entity-link` MDC component
+- [ ] 7.10 Test remark plugin: source .md file content is not modified (linking is render-time only)
+- [ ] 7.11 Test automaton cache invalidation: creating new entity invalidates campaign automaton; subsequent build includes new entity
+
+### Integration Tests (@nuxt/test-utils)
+
+- [ ] 7.12 Test retroactive linking on entity creation: create entity "Dragon", then create entity with body mentioning "Dragon" → mentions table records the reference
+- [ ] 7.13 Test retroactive scan on entity rename: rename entity triggers re-scan; old name no longer matched, new name matched
+- [ ] 7.14 Test mentions API: GET mentions for entity returns list of source entities with reference counts
+- [ ] 7.15 Test search endpoint with type filter: searching with type=character returns only character entities
+- [ ] 7.16 Test search permission filtering: search results exclude entities the user cannot access
