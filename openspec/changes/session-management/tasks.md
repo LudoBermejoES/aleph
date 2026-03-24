@@ -84,9 +84,9 @@
 - [x] 8.20 Test quest valid status transition
 - [x] 8.21 Test quest invalid status transition returns 400
 - [x] 8.22 Test quest list
-- [ ] 8.23 Test decision recording and consequence attachment
-- [ ] 8.24 Test consequence reveal toggle
-- [ ] 8.25 Test session RBAC: player cannot create sessions
+- [x] 8.23 Test decision recording and consequence attachment
+- [x] 8.24 Test consequence reveal toggle
+- [x] 8.25 Test session RBAC: player cannot create sessions
 
 ### Component Tests
 

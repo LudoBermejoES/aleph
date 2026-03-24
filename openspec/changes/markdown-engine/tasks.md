@@ -23,7 +23,7 @@
 - [x] 3.2 Create custom remark plugin `remarkStripSecrets(userRole, userId)`
 - [x] 3.3 Handle `:::secret dm` (DM-only blocks)
 - [x] 3.4 Handle `:::secret player:username1,username2` (user-specific blocks)
-- [ ] 3.5 Test: verify secret content never appears in API response for unauthorized users
+- [x] 3.5 Test: verify secret content never appears in API response for unauthorized users
 
 ## 4. Filesystem Watcher
 

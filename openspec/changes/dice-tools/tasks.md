@@ -62,7 +62,7 @@
 - [x] 5.2 Test POST /api/campaigns/:id/roll with invalid formula returns 400
 - [x] 5.3 Test d20 roll returns 1-20
 - [x] 5.4 Test 4d6kh3 returns valid kept/dropped structure
-- [ ] 5.5 Test roll logging: POST with session_id stores roll, GET history returns it
+- [x] 5.5 Test roll logging: POST with session_id stores roll, GET history returns it
 
 ## 6. Component Tests
 

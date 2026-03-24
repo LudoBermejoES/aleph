@@ -84,7 +84,9 @@
       "Bash(COOKIE=\"better-auth.session_token=jdQJ7DK2R34No9XsTDl9zasSFNmismyu.JNc5v4lj%2FQFd0uTK6qUzMOjb8v6HrkizTJPa4wMor50%3D\")",
       "Bash(for f:*)",
       "Bash(do echo:*)",
-      "Read(//c/code/aleph/**)"
+      "Read(//c/code/aleph/**)",
+      "Bash(taskkill //PID 22104 //F)",
+      "Bash(rm -f c:/code/aleph/data/aleph.db*)"
     ]
   }
 }

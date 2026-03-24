@@ -30,7 +30,7 @@
 
 - [x] 4.1 Implement ability CRUD scoped to character
 - [x] 4.2 Implement ability reordering (via PUT with sortOrder)
-- [ ] 4.3 Implement ability filtering by type and tags
+- [x] 4.3 Implement ability filtering by type and tags
 
 ## 5. Connections & Folders
 

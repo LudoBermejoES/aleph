@@ -73,7 +73,7 @@
 - [x] 7.11 Test campaign CRUD endpoints enforce authentication (unauthenticated requests return 401)
 - [x] 7.12 Test `POST /api/campaigns/:id/invite` + `POST /api/campaigns/:id/join`: full invitation flow assigns correct role
 - [x] 7.13 Test campaign delete is restricted to DM role (player receives 403)
-- [ ] 7.14 Test `PUT /api/campaigns/:id/entities/:entityId/permissions`: DM can set overrides, player cannot
+- [x] 7.14 Test `PUT /api/campaigns/:id/entities/:entityId/permissions`: DM can set overrides, player cannot
 - [x] 7.15 Test middleware auth guard: unauthenticated request to protected route returns 401; authenticated request passes
 
 ### Component Tests (@vue/test-utils)
