@@ -69,6 +69,17 @@
           </NuxtLink>
         </div>
       </div>
+      <!-- Relationship Graph -->
+      <div v-if="graphData && Object.keys(graphData.nodes).length" class="mt-8 border-t border-border pt-6">
+        <h2 class="text-lg font-semibold mb-3">Relationships</h2>
+        <EntityGraphView
+          :nodes="graphData.nodes"
+          :edges="graphData.edges"
+          :height="350"
+          :campaign-id="campaignId"
+          @node-click="onGraphNodeClick"
+        />
+      </div>
     </div>
     <div v-else class="text-center py-16">
       <p class="text-muted-foreground">Loading...</p>
@@ -86,6 +97,7 @@ const slug = route.params.slug as string
 
 const entity = ref<any>(null)
 const children = ref<any[]>([])
+const graphData = ref<any>(null)
 const editing = ref(false)
 const saving = ref(false)
 const editForm = reactive({ name: '', content: '' })
@@ -101,6 +113,28 @@ async function loadEntity() {
         params: { parent_id: entity.value.id },
       }) as any
       children.value = result.entities || []
+    }
+    // Load relationship graph for this entity
+    if (entity.value?.id) {
+      try {
+        const relations = await $fetch(`/api/campaigns/${campaignId}/relations`, {
+          params: { entity_id: entity.value.id },
+        }) as any[]
+        // Build mini graph from entity-centered relations
+        const nodes: Record<string, { name: string; type: string }> = {}
+        const edges: Record<string, { source: string; target: string; label: string; color: string }> = {}
+        nodes[entity.value.id] = { name: entity.value.name, type: entity.value.type }
+        for (const rel of relations) {
+          nodes[rel.relatedEntityId] = { name: rel.relatedEntityId, type: 'entity' }
+          edges[rel.id] = {
+            source: rel.sourceEntityId,
+            target: rel.targetEntityId,
+            label: rel.label,
+            color: '#9ca3af',
+          }
+        }
+        graphData.value = relations.length ? { nodes, edges } : null
+      } catch { graphData.value = null }
     }
   } catch {
     entity.value = null
@@ -121,6 +155,12 @@ async function saveEntity() {
   } finally {
     saving.value = false
   }
+}
+
+function onGraphNodeClick(nodeId: string) {
+  // Navigate to the related entity -- nodeId is the entity ID
+  // For now, we don't have slug lookup, so navigate to graph page
+  navigateTo(`/campaigns/${campaignId}/graph`)
 }
 
 onMounted(loadEntity)

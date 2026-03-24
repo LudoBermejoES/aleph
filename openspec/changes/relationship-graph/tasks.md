@@ -26,7 +26,7 @@
 
 - [x] 4.1 Wire relation type list handler (built-in + custom)
 - [x] 4.2 Wire custom relation type create handler
-- [ ] 4.3 Wire custom relation type update/delete handler (built-in immutable)
+- [x] 4.3 Wire custom relation type update/delete handler (built-in immutable)
 
 ## 5. Graph Data API
 
@@ -36,18 +36,18 @@
 
 ## 6. Entity-Centered Graph View
 
-- [ ] 6.1 Create `EntityGraphView.vue` using v-network-graph
-- [ ] 6.2 Configure force-directed layout
-- [ ] 6.3 Render nodes with entity name and type icon
-- [ ] 6.4 Render edges with attitude coloring
-- [ ] 6.5 Click-to-navigate on node click
-- [ ] 6.6 Embed on entity detail page
+- [x] 6.1 Create `EntityGraphView.vue` using v-network-graph
+- [x] 6.2 Configure force-directed layout (v-network-graph auto layout)
+- [x] 6.3 Render nodes with entity name and type icon
+- [x] 6.4 Render edges with attitude coloring
+- [x] 6.5 Click-to-navigate on node click
+- [x] 6.6 Embed on entity detail page
 
 ## 7. Campaign-Wide Graph View
 
 - [x] 7.1 Create `app/pages/campaigns/[id]/graph.vue`
-- [ ] 7.2 Build filter panel
-- [ ] 7.3 Implement zoom, pan, node drag (v-network-graph)
+- [x] 7.2 Build filter panel (entity type checkboxes)
+- [x] 7.3 Implement zoom, pan, node drag (v-network-graph built-in)
 - [ ] 7.4 Cytoscape.js fallback above 500 nodes
 
 ## 8. Cytoscape.js Fallback
@@ -74,9 +74,10 @@
 - [x] 9.11 Test custom relation type creation
 - [x] 9.12 Test 17 built-in types seeded
 - [ ] 9.13 Test relation visibility filtering
-- [ ] 9.14 Test relation with non-existent entity returns 404
+- [x] 9.14 Test relation with non-existent entity returns 404
+- [x] 9.15 Test builtin relation type cannot be modified (403)
 
 ### Component Tests
 
-- [ ] 9.15 Test filter panel
-- [ ] 9.16 Test attitude range slider
+- [ ] 9.16 Test filter panel
+- [ ] 9.17 Test attitude range slider

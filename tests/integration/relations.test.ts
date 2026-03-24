@@ -125,6 +125,33 @@ describe('Relationship Graph (integration)', () => {
     expect(res.status).toBe(200)
   })
 
+  it('relation with non-existent entity returns 404', async () => {
+    const res = await api(`/api/campaigns/${campaignId}/relations`, {
+      method: 'POST', headers: { Cookie: cookie },
+      body: {
+        sourceEntityId: 'nonexistent-id',
+        targetEntityId: entity2Id,
+        relationTypeId,
+        forwardLabel: 'test',
+        reverseLabel: 'test',
+      },
+    })
+    expect(res.status).toBe(404)
+  })
+
+  it('builtin relation type cannot be modified', async () => {
+    const types = await api(`/api/campaigns/${campaignId}/relation-types`, {
+      method: 'GET', headers: { Cookie: cookie },
+    })
+    const builtinType = (await types.json()).find((t: any) => t.slug === 'ally')
+
+    const res = await api(`/api/campaigns/${campaignId}/relation-types/${builtinType.id}`, {
+      method: 'PUT', headers: { Cookie: cookie },
+      body: { forwardLabel: 'hacked' },
+    })
+    expect(res.status).toBe(403)
+  })
+
   it('DELETE removes relation', async () => {
     const res = await api(`/api/campaigns/${campaignId}/relations/${relationId}`, {
       method: 'DELETE', headers: { Cookie: cookie },
