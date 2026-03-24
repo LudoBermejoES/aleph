@@ -2,7 +2,7 @@ import { eq, and } from 'drizzle-orm'
 import { useDb, useSqlite } from '../../../../../utils/db'
 import { entities } from '../../../../../db/schema/entities'
 import { characters } from '../../../../../db/schema/characters'
-import { hasMinRole } from '../../../../../utils/permissions'
+import { canEditCharacter } from '../../../../../services/characters'
 import { writeEntityFile, readEntityFile } from '../../../../../services/content'
 import { indexEntity } from '../../../../../services/search'
 import type { CampaignRole } from '../../../../../utils/permissions'
@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
   if (!character) throw createError({ statusCode: 404, message: 'Character data not found' })
 
   // Permission check: player can only edit their own PC
-  if (!hasMinRole(role, 'editor') && character.ownerUserId !== userId) {
+  if (!canEditCharacter(role, userId, character.ownerUserId)) {
     throw createError({ statusCode: 403, message: 'You can only edit your own character' })
   }
 

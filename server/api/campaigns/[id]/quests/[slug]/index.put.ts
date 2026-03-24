@@ -2,14 +2,8 @@ import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
 import { quests } from '../../../../../db/schema/sessions'
 import { hasMinRole } from '../../../../../utils/permissions'
+import { canTransitionQuestStatus } from '../../../../../services/sessions'
 import type { CampaignRole } from '../../../../../utils/permissions'
-
-const VALID_TRANSITIONS: Record<string, string[]> = {
-  active: ['completed', 'failed', 'abandoned'],
-  completed: [],
-  failed: ['active'],
-  abandoned: ['active'],
-}
 
 export default defineEventHandler(async (event) => {
   const role = event.context.campaignRole as CampaignRole
@@ -29,8 +23,7 @@ export default defineEventHandler(async (event) => {
 
   // Validate status transition
   if (body.status && body.status !== quest.status) {
-    const allowed = VALID_TRANSITIONS[quest.status] || []
-    if (!allowed.includes(body.status)) {
+    if (!canTransitionQuestStatus(quest.status, body.status)) {
       throw createError({ statusCode: 400, message: `Cannot transition from ${quest.status} to ${body.status}` })
     }
   }
