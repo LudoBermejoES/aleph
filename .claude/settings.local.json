@@ -77,7 +77,10 @@
       "Bash(npx shadcn-vue@latest init -y)",
       "Bash(npx shadcn-vue@latest add button input card dialog dropdown-menu --yes)",
       "Bash(npm run:*)",
-      "Bash(npx drizzle-kit:*)"
+      "Bash(npx drizzle-kit:*)",
+      "Bash(taskkill //PID 22744 //F)",
+      "Bash(COOKIE=\"better-auth.session_token=FlsaIfzqWh7rfd0AEHQllQhk2GpCgJAY.mBh88mqVUaSaaRHy2hkcVDgD9q4EaCsFnLWRkqKGXzE%3D\")",
+      "Bash(CAMP_ID=\"38b11e75-c3f3-4fc8-a150-c0abfe8465bd\")"
     ]
   }
 }

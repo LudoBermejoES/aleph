@@ -26,8 +26,8 @@ describe('Entity Type Seeding', () => {
     // Create a user and campaign for FK constraints
     const now = Date.now()
     testDb.sqlite.exec(`
-      INSERT INTO users (id, username, email, password_hash, system_role, created_at, updated_at)
-      VALUES ('user-1', 'dm', 'dm@test.com', 'hash', 'user', ${now}, ${now})
+      INSERT INTO user (id, name, email, email_verified, created_at, updated_at)
+      VALUES ('user-1', 'dm', 'dm@test.com', 0, ${now}, ${now})
     `)
     testDb.sqlite.exec(`
       INSERT INTO campaigns (id, name, slug, content_dir, created_by, created_at, updated_at)
