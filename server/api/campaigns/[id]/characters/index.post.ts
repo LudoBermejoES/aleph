@@ -48,7 +48,13 @@ export default defineEventHandler(async (event) => {
     aliases: aliases || [],
     tags: tags || [],
     visibility: visibility || 'members',
-    fields: { characterType: characterType || 'npc', race, class: charClass, alignment, status: status || 'alive' },
+    fields: Object.fromEntries(Object.entries({
+      characterType: characterType || 'npc',
+      race: race || undefined,
+      class: charClass || undefined,
+      alignment: alignment || undefined,
+      status: status || 'alive',
+    }).filter(([, v]) => v !== undefined)),
   }
   const hash = await writeEntityFile(filePath, frontmatter, content || '')
 
