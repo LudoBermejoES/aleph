@@ -10,8 +10,9 @@ dist
 node_modules
 
 # Logs
-logs
+logs/*.log
 *.log
+!logs/.gitkeep
 
 # Misc
 .DS_Store

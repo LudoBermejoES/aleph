@@ -1,5 +1,6 @@
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator'
 import { useDb } from '../utils/db'
+import { logger } from '../utils/logger'
 import { join } from 'path'
 
 export default defineNitroPlugin(() => {
@@ -8,9 +9,9 @@ export default defineNitroPlugin(() => {
 
   try {
     migrate(db, { migrationsFolder })
-    console.log('[aleph] Database migrations applied successfully')
+    logger.info('Database migrations applied successfully')
   } catch (error) {
-    console.error('[aleph] Failed to apply database migrations:', error)
+    logger.error('Failed to apply database migrations', { error })
     throw error
   }
 })
