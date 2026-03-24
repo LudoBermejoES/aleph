@@ -1,0 +1,39 @@
+# Nuxt dev/build outputs
+.output
+.data
+.nuxt
+.nitro
+.cache
+dist
+
+# Node dependencies
+node_modules
+
+# Logs
+logs
+*.log
+
+# Misc
+.DS_Store
+.fleet
+.idea
+
+# Local env files
+.env
+.env.*
+!.env.example
+
+# SQLite database (runtime)
+data/*.db
+data/*.db-shm
+data/*.db-wal
+
+# Campaign content (runtime, user-created)
+content/campaigns/
+
+# Playwright
+test-results/
+playwright-report/
+
+# Coverage
+coverage/
