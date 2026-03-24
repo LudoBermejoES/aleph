@@ -30,12 +30,14 @@
           </Card>
         </NuxtLink>
 
-        <Card class="opacity-50">
-          <CardHeader>
-            <CardTitle class="text-lg">Maps</CardTitle>
-            <CardDescription>Interactive maps with pins and layers (coming soon)</CardDescription>
-          </CardHeader>
-        </Card>
+        <NuxtLink :to="`/campaigns/${campaignId}/maps`">
+          <Card class="hover:border-primary/50 transition-colors cursor-pointer">
+            <CardHeader>
+              <CardTitle class="text-lg">Maps</CardTitle>
+              <CardDescription>Interactive maps with pins, layers, and regions</CardDescription>
+            </CardHeader>
+          </Card>
+        </NuxtLink>
 
         <NuxtLink :to="`/campaigns/${campaignId}/sessions`">
           <Card class="hover:border-primary/50 transition-colors cursor-pointer">
