@@ -2,34 +2,34 @@
 
 ## 1. Database Schema
 
-- [ ] 1.1 Create `entity_types` schema with built-in flag and campaign scope
-- [ ] 1.2 Create `entity_templates` and `entity_template_fields` schemas
-- [ ] 1.3 Create `entities` schema with slug, parent_id, template_id, visibility
-- [ ] 1.4 Create `tags` and `entity_tags` schemas
-- [ ] 1.5 Generate and apply migration
-- [ ] 1.6 Add seed function to create built-in entity types on campaign creation
+- [x] 1.1 Create `entity_types` schema with built-in flag and campaign scope
+- [x] 1.2 Create `entity_templates` and `entity_template_fields` schemas
+- [x] 1.3 Create `entities` schema with slug, parent_id, template_id, visibility
+- [x] 1.4 Create `tags` and `entity_tags` schemas
+- [x] 1.5 Generate and apply migration
+- [x] 1.6 Add seed function to create built-in entity types on campaign creation
 
 ## 2. Entity CRUD API
 
-- [ ] 2.1 Implement `POST /api/campaigns/:id/entities` (validate, insert DB row, write .md file)
-- [ ] 2.2 Implement `GET /api/campaigns/:id/entities/:slug` (read DB + parse .md file)
-- [ ] 2.3 Implement `PUT /api/campaigns/:id/entities/:slug` (update DB + rewrite .md file)
-- [ ] 2.4 Implement `DELETE /api/campaigns/:id/entities/:slug` (delete DB row + remove .md file)
-- [ ] 2.5 Implement `GET /api/campaigns/:id/entities` with query params: type, tag, visibility, parent_id, search, page, limit
-- [ ] 2.6 Add slug generation utility (slugify name, enforce uniqueness per campaign)
-- [ ] 2.7 Add permission checks (RBAC middleware) to all entity endpoints
+- [x] 2.1 Implement `POST /api/campaigns/:id/entities` (validate, insert DB row, write .md file)
+- [x] 2.2 Implement `GET /api/campaigns/:id/entities/:slug` (read DB + parse .md file)
+- [x] 2.3 Implement `PUT /api/campaigns/:id/entities/:slug` (update DB + rewrite .md file)
+- [x] 2.4 Implement `DELETE /api/campaigns/:id/entities/:slug` (delete DB row + remove .md file)
+- [x] 2.5 Implement `GET /api/campaigns/:id/entities` with query params: type, tag, visibility, parent_id, search, page, limit
+- [x] 2.6 Add slug generation utility (slugify name, enforce uniqueness per campaign)
+- [x] 2.7 Add permission checks (RBAC middleware) to all entity endpoints
 
 ## 3. Type & Template API
 
-- [ ] 3.1 Implement `GET /api/campaigns/:id/entity-types` (list built-in + custom)
-- [ ] 3.2 Implement `POST /api/campaigns/:id/entity-types` (create custom type, DM only)
+- [x] 3.1 Implement `GET /api/campaigns/:id/entity-types` (list built-in + custom)
+- [x] 3.2 Implement `POST /api/campaigns/:id/entity-types` (create custom type, DM only)
 - [ ] 3.3 Implement template CRUD endpoints (create, read, update, delete)
 - [ ] 3.4 Implement template field CRUD with reordering support
 
 ## 4. Tagging API
 
-- [ ] 4.1 Implement `GET /api/campaigns/:id/tags`
-- [ ] 4.2 Implement `POST /api/campaigns/:id/tags` (create tag with name and color)
+- [x] 4.1 Implement `GET /api/campaigns/:id/tags`
+- [x] 4.2 Implement `POST /api/campaigns/:id/tags` (create tag with name and color)
 - [ ] 4.3 Implement tag assignment/removal on entities (PATCH endpoint)
 
 ## 5. Entity List Page
@@ -52,8 +52,8 @@
 
 ### Unit Tests (Vitest)
 
-- [ ] 7.1 Test slug generation: enforces uniqueness per campaign (duplicate name gets numeric suffix)
-- [ ] 7.2 Test entity type seed function: creates all built-in types for new campaign
+- [x] 7.1 Test slug generation: enforces uniqueness per campaign (duplicate name gets numeric suffix)
+- [x] 7.2 Test entity type seed function: creates all built-in types for new campaign
 
 ### Integration Tests (@nuxt/test-utils)
 
