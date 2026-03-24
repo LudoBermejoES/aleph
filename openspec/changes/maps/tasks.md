@@ -60,7 +60,7 @@
 
 - [x] 8.1 Create `app/pages/campaigns/[id]/maps/index.vue` (map list)
 - [x] 8.2 Create `app/pages/campaigns/[id]/maps/[slug].vue` (map detail with breadcrumb)
-- [ ] 8.3 Build map creation/edit form with image upload UI
+- [x] 8.3 Build map creation/edit form with image upload UI
 - [x] 8.4 Add breadcrumb navigation component for nested maps
 
 ## 9. Tests (TDD)
@@ -78,9 +78,9 @@
 ### Schema Tests (`:memory:` SQLite)
 
 - [x] 9.8 Test breadcrumb recursive CTE with 3-level nesting
-- [ ] 9.9 Test map_pins FK to entity and child_map
-- [ ] 9.10 Test map_layers sort order
-- [ ] 9.11 Test map_regions GeoJSON storage
+- [x] 9.9 Test map_pins FK to entity and child_map
+- [x] 9.10 Test map_layers sort order
+- [x] 9.11 Test map_regions GeoJSON storage
 
 ### Integration Tests (API)
 
