@@ -37,12 +37,23 @@
           </CardHeader>
         </Card>
 
-        <Card class="opacity-50">
-          <CardHeader>
-            <CardTitle class="text-lg">Sessions</CardTitle>
-            <CardDescription>Session logs, quests, and story tracking (coming soon)</CardDescription>
-          </CardHeader>
-        </Card>
+        <NuxtLink :to="`/campaigns/${campaignId}/sessions`">
+          <Card class="hover:border-primary/50 transition-colors cursor-pointer">
+            <CardHeader>
+              <CardTitle class="text-lg">Sessions</CardTitle>
+              <CardDescription>Session logs, scheduling, and attendance</CardDescription>
+            </CardHeader>
+          </Card>
+        </NuxtLink>
+
+        <NuxtLink :to="`/campaigns/${campaignId}/quests`">
+          <Card class="hover:border-primary/50 transition-colors cursor-pointer">
+            <CardHeader>
+              <CardTitle class="text-lg">Quests</CardTitle>
+              <CardDescription>Quest tracking with sub-quests and status</CardDescription>
+            </CardHeader>
+          </Card>
+        </NuxtLink>
 
         <NuxtLink :to="`/campaigns/${campaignId}/members`">
           <Card class="hover:border-primary/50 transition-colors cursor-pointer">
