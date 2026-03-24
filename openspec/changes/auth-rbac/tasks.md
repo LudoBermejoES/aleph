@@ -60,10 +60,10 @@
 - [x] 7.1 Test permission resolution engine: role hierarchy resolves correctly (DM > player > spectator)
 - [x] 7.2 Test permission resolution engine: entity-level override trumps role-level default
 - [x] 7.3 Test permission resolution engine: explicit deny beats implicit allow at same level
-- [ ] 7.4 Test named permission grants: user with `manage_calendar` permission passes check, user without fails
+- [x] 7.4 Test named permission grants: user with `manage_calendar` permission passes check, user without fails
 - [x] 7.5 Test LRU permission cache: repeated lookups return cached result; invalidation clears entry
 - [ ] 7.6 Test `getVisibleEntitiesQuery()` SQL builder: returns only entities matching user's visibility level
-- [ ] 7.7 Test invitation token generation: produces valid token; expired token is rejected
+- [x] 7.7 Test invitation token generation: produces valid token; expired token is rejected
 
 ### Integration Tests (@nuxt/test-utils)
 
