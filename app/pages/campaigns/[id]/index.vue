@@ -57,6 +57,15 @@
           </Card>
         </NuxtLink>
 
+        <NuxtLink :to="`/campaigns/${campaignId}/graph`">
+          <Card class="hover:border-primary/50 transition-colors cursor-pointer">
+            <CardHeader>
+              <CardTitle class="text-lg">Relationship Graph</CardTitle>
+              <CardDescription>Visualize connections between entities</CardDescription>
+            </CardHeader>
+          </Card>
+        </NuxtLink>
+
         <NuxtLink :to="`/campaigns/${campaignId}/members`">
           <Card class="hover:border-primary/50 transition-colors cursor-pointer">
             <CardHeader>
