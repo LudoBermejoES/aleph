@@ -23,7 +23,7 @@
 - [x] 3.4 Create `GET /api/campaigns/:id`: get campaign details
 - [x] 3.5 Create `PUT /api/campaigns/:id`: update campaign settings
 - [x] 3.6 Create `DELETE /api/campaigns/:id`: delete campaign (DM only)
-- [ ] 3.7 Create campaign list page and campaign creation dialog
+- [x] 3.7 Create campaign list page and campaign creation dialog
 
 ## 4. Membership & Roles
 

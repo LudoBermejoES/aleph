@@ -34,19 +34,19 @@
 
 ## 5. Entity List Page
 
-- [ ] 5.1 Create `app/pages/campaigns/[id]/entities/index.vue`
-- [ ] 5.2 Build filter bar component: type dropdown, tag multi-select, visibility toggle
-- [ ] 5.3 Implement paginated entity list with name, type icon, tags, updated date
-- [ ] 5.4 Add search input with debounced API query
+- [x] 5.1 Create `app/pages/campaigns/[id]/entities/index.vue`
+- [x] 5.2 Build filter bar component: type dropdown, tag multi-select, visibility toggle
+- [x] 5.3 Implement paginated entity list with name, type icon, tags, updated date
+- [x] 5.4 Add search input with debounced API query
 
 ## 6. Entity Detail Page
 
-- [ ] 6.1 Create `app/pages/campaigns/[id]/entities/[slug].vue`
-- [ ] 6.2 Build frontmatter fields display component (renders template fields above content)
-- [ ] 6.3 Integrate MDCRenderer for markdown body
-- [ ] 6.4 Build breadcrumb component using recursive ancestor query
+- [x] 6.1 Create `app/pages/campaigns/[id]/entities/[slug].vue`
+- [x] 6.2 Build frontmatter fields display component (renders template fields above content)
+- [x] 6.3 Integrate MDCRenderer for markdown body
+- [x] 6.4 Build breadcrumb component using recursive ancestor query
 - [ ] 6.5 Display child entities list below content
-- [ ] 6.6 Add edit button/page for entity metadata and content
+- [x] 6.6 Add edit button/page for entity metadata and content
 
 ## 7. Tests (TDD)
 
