@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm'
 import { useDb } from '../../../../utils/db'
 import { campaignMembers } from '../../../../db/schema/campaign-members'
-import { users } from '../../../../db/schema/users'
+import { user } from '../../../../db/schema/auth'
 
 export default defineEventHandler(async (event) => {
   const campaignId = getRouterParam(event, 'id')!
@@ -10,13 +10,13 @@ export default defineEventHandler(async (event) => {
   const members = db.select({
     id: campaignMembers.id,
     userId: campaignMembers.userId,
-    username: users.username,
-    email: users.email,
+    name: user.name,
+    email: user.email,
     role: campaignMembers.role,
     joinedAt: campaignMembers.joinedAt,
   })
     .from(campaignMembers)
-    .innerJoin(users, eq(campaignMembers.userId, users.id))
+    .innerJoin(user, eq(campaignMembers.userId, user.id))
     .where(eq(campaignMembers.campaignId, campaignId))
     .all()
 

@@ -129,9 +129,9 @@ describe('Permission Resolution', () => {
     const now = Date.now()
     // Create prerequisite users for FK constraints
     testDb.sqlite.exec(`
-      INSERT INTO users (id, username, email, password_hash, system_role, created_at, updated_at)
-      VALUES ('user-1', 'player1', 'player@test.com', 'hash', 'user', ${now}, ${now}),
-             ('dm-user', 'dm', 'dm@test.com', 'hash', 'user', ${now}, ${now})
+      INSERT INTO user (id, name, email, email_verified, created_at, updated_at)
+      VALUES ('user-1', 'player1', 'player@test.com', 0, ${now}, ${now}),
+             ('dm-user', 'dm', 'dm@test.com', 0, ${now}, ${now})
     `)
     testDb.sqlite.exec(`
       INSERT INTO entity_permissions (id, entity_id, target_user_id, target_role, permission, effect, granted_by, created_at)
@@ -148,9 +148,9 @@ describe('Permission Resolution', () => {
   it('explicit deny beats implicit allow at same level', async () => {
     const now = Date.now()
     testDb.sqlite.exec(`
-      INSERT INTO users (id, username, email, password_hash, system_role, created_at, updated_at)
-      VALUES ('user-1', 'player1', 'player@test.com', 'hash', 'user', ${now}, ${now}),
-             ('dm-user', 'dm', 'dm@test.com', 'hash', 'user', ${now}, ${now})
+      INSERT INTO user (id, name, email, email_verified, created_at, updated_at)
+      VALUES ('user-1', 'player1', 'player@test.com', 0, ${now}, ${now}),
+             ('dm-user', 'dm', 'dm@test.com', 0, ${now}, ${now})
     `)
     testDb.sqlite.exec(`
       INSERT INTO entity_permissions (id, entity_id, target_user_id, target_role, permission, effect, granted_by, created_at)

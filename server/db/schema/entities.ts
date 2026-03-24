@@ -1,6 +1,6 @@
 import { sqliteTable, text, integer, uniqueIndex } from 'drizzle-orm/sqlite-core'
 import { campaigns } from './campaigns'
-import { users } from './users'
+import { user } from './auth'
 
 export const entities = sqliteTable('entities', {
   id: text('id').primaryKey(),
@@ -13,7 +13,7 @@ export const entities = sqliteTable('entities', {
   contentHash: text('content_hash'),
   parentId: text('parent_id'),
   templateId: text('template_id'),
-  createdBy: text('created_by').notNull().references(() => users.id),
+  createdBy: text('created_by').notNull().references(() => user.id),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
   updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
 }, (table) => [

@@ -96,10 +96,15 @@ export async function writeEntityFile(
   await mkdir(dirname(filePath), { recursive: true })
 
   const now = new Date().toISOString()
-  const fm = {
+  const fm: Record<string, unknown> = {
     ...frontmatter,
     modified: now,
     created: frontmatter.created || now,
+  }
+
+  // Strip undefined values (gray-matter/js-yaml cannot serialize them)
+  for (const key of Object.keys(fm)) {
+    if (fm[key] === undefined) delete fm[key]
   }
 
   const markdown = matter.stringify(content, fm)

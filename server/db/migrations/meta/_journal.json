@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1774333223338,
-      "tag": "0000_perpetual_tag",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1774334752680,
-      "tag": "0001_slimy_quasar",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1774335745789,
-      "tag": "0002_clear_thunderbolts",
+      "when": 1774339095169,
+      "tag": "0000_lethal_mephistopheles",
       "breakpoints": true
     }
   ]
