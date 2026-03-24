@@ -54,9 +54,9 @@
 - [x] 6.3 Test frontmatter serialization: round-trip parse → serialize produces identical output
 - [x] 6.4 Test slug generation: converts "The Lost Temple" to "the-lost-temple"; handles unicode and special characters
 - [x] 6.5 Test content hash: identical content produces same hash; different content produces different hash
-- [ ] 6.6 Test `remarkStripSecrets` plugin: `:::secret dm` block removed for player role, preserved for DM role
-- [ ] 6.7 Test `remarkStripSecrets` plugin: `:::secret player:alice` block visible to alice, hidden from bob
-- [ ] 6.8 Test `remarkStripSecrets` plugin: non-secret content passes through unmodified
+- [x] 6.6 Test `remarkStripSecrets` plugin: `:::secret dm` block removed for player role, preserved for DM role
+- [x] 6.7 Test `remarkStripSecrets` plugin: `:::secret player:alice` block visible to alice, hidden from bob
+- [x] 6.8 Test `remarkStripSecrets` plugin: non-secret content passes through unmodified
 - [x] 6.9 Test file CRUD operations (temp dir): writeEntityFile creates file with frontmatter + body; readEntityFile returns parsed result; deleteEntityFile removes file
 
 ### Integration Tests (@nuxt/test-utils)

@@ -19,23 +19,23 @@ const ROLE_HIERARCHY: Record<string, number> = {
  * Remark plugin that strips :::secret fences based on user role.
  *
  * Syntax:
- *   :::secret dm          -- visible to DM and Co-DM only
- *   :::secret editor      -- visible to Editor+
- *   :::secret player:alice,bob  -- visible to specific users + DM
+ *   :::secret{.dm}                -- visible to DM and Co-DM only
+ *   :::secret{.editor}            -- visible to Editor+
+ *   :::secret{.player:alice,bob}  -- visible to specific users + DM/Co-DM
  */
 export const remarkStripSecrets: Plugin<[StripSecretsOptions], Root> = (options) => {
   const { userRole, userId } = options
 
   return (tree) => {
     visit(tree, (node: any, index, parent) => {
-      // remark-directive parses :::name into containerDirective nodes
       if (node.type !== 'containerDirective' || node.name !== 'secret') return
 
       const attrs = node.attributes || {}
+      // remark-directive puts :::secret{.dm} as class="dm"
+      // and :::secret{.player:alice,bob} as class="player:alice,bob"
       const secretSpec = attrs.class || attrs.id || ''
 
       // Parse the secret spec
-      // "dm" -> role-based, "player:alice,bob" -> user-specific
       const colonIndex = secretSpec.indexOf(':')
       let requiredRole: string
       let allowedUsers: string[] = []
@@ -47,15 +47,18 @@ export const remarkStripSecrets: Plugin<[StripSecretsOptions], Root> = (options)
         requiredRole = secretSpec || 'dm'
       }
 
-      // DM always sees everything
-      if (ROLE_HIERARCHY[userRole] >= ROLE_HIERARCHY.dm) return
+      // DM and Co-DM always see everything
+      if ((ROLE_HIERARCHY[userRole] ?? 0) >= (ROLE_HIERARCHY['co_dm'] ?? 4)) return
 
-      // Check user-specific access
-      if (allowedUsers.length > 0 && userId && allowedUsers.includes(userId)) return
-
-      // Check role-based access
-      const requiredLevel = ROLE_HIERARCHY[requiredRole] ?? ROLE_HIERARCHY.dm
-      if (ROLE_HIERARCHY[userRole] >= requiredLevel) return
+      // User-specific secret: only listed users (+ DM/Co-DM) can see
+      if (allowedUsers.length > 0) {
+        if (userId && allowedUsers.includes(userId)) return
+        // Not in the list -> remove
+      } else {
+        // Role-based secret: anyone at or above the required role can see
+        const requiredLevel = ROLE_HIERARCHY[requiredRole] ?? 5
+        if ((ROLE_HIERARCHY[userRole] ?? 0) >= requiredLevel) return
+      }
 
       // Remove the node
       if (parent && typeof index === 'number') {
