@@ -1,44 +1,59 @@
 # Tasks: Collaboration
 
-## 1. Service Layer (`server/services/collaboration.ts`)
+## 1. Service Layer -- TDD (tests first)
 
-- [ ] 1.1 Implement `markdownToTiptap(md)` -- converts markdown to Tiptap JSON
-- [ ] 1.2 Implement `tiptapToMarkdown(json)` -- converts Tiptap JSON back to markdown
-- [ ] 1.3 Implement `mergeFrontmatter(existing, updated)` -- merges frontmatter preserving created date
-- [ ] 1.4 Implement `isRoundTripSafe(markdown)` -- verifies markdown survives round-trip
+### 1a. Write unit tests (RED phase)
+
+- [ ] 1.1 Test markdownToTiptap: standard markdown (headings, bold, lists) produces correct Tiptap JSON nodes
+- [ ] 1.2 Test markdownToTiptap: `:entity-link` MDC produces entity-link Tiptap node with slug attribute
+- [ ] 1.3 Test tiptapToMarkdown: Tiptap JSON with headings/bold/lists produces correct markdown string
+- [ ] 1.4 Test tiptapToMarkdown: entity-link Tiptap node produces `:entity-link{slug}` MDC syntax
+- [ ] 1.5 Test round-trip: markdown → Tiptap JSON → markdown produces identical output (isRoundTripSafe)
+- [ ] 1.6 Test round-trip: `:::secret{.dm}` block with content round-trips correctly
+- [ ] 1.7 Test mergeFrontmatter: unchanged fields preserved, changed fields updated
+- [ ] 1.8 Test mergeFrontmatter: created_at never overwritten
+- [ ] 1.9 Test mergeFrontmatter: new fields added, missing fields use defaults
+
+### 1b. Implement services (GREEN phase)
+
+- [ ] 1.10 Implement `markdownToTiptap(md)` using @tiptap/markdown parse
+- [ ] 1.11 Implement `tiptapToMarkdown(json)` using @tiptap/markdown serialize
+- [ ] 1.12 Implement `mergeFrontmatter(existing, updated)` preserving created_at
+- [ ] 1.13 Implement `isRoundTripSafe(markdown)` using parse+serialize comparison
+- [ ] 1.14 Verify all unit tests pass
 
 ## 2. Tiptap 3 Editor Integration
 
 - [ ] 2.1 Install Tiptap 3 with StarterKit, Placeholder, Typography, Link, Image, Table extensions
 - [ ] 2.2 Install and configure @tiptap/markdown for bidirectional serialization
-- [ ] 2.3 Create `MarkdownEditor.vue` component wrapping Tiptap
-- [ ] 2.4 Implement load flow using `markdownToTiptap` service: read .md → gray-matter parse → setContent
+- [ ] 2.3 Create `MarkdownEditor.vue` component wrapping Tiptap with toolbar
+- [ ] 2.4 Implement load flow: read .md → gray-matter parse → editor.setContent(markdown)
 - [ ] 2.5 Build custom Tiptap node for `:entity-link` MDC component
-- [ ] 2.6 Build custom Tiptap node for `::secret` block MDC component
+- [ ] 2.6 Build custom Tiptap node for `:::secret` block MDC component
 - [ ] 2.7 Replace existing markdown textarea with MarkdownEditor on entity edit pages
 
 ## 3. Y.js + Hocuspocus Setup
 
-- [ ] 3.1 Install @hocuspocus/server and configure as standalone process
-- [ ] 3.2 Implement `onLoadDocument`: read .md file, parse via `markdownToTiptap` service, hydrate Y.js doc
-- [ ] 3.3 Implement `onStoreDocument`: serialize Y.js via `tiptapToMarkdown` service → write .md file
-- [ ] 3.4 Implement `onAuthenticate`: validate session token and check RBAC permissions
-- [ ] 3.5 Configure document naming convention: `campaign:{id}:entity:{slug}`
+- [ ] 3.1 Install @hocuspocus/server and configure as Nitro plugin
+- [ ] 3.2 Implement `onLoadDocument`: read .md file → markdownToTiptap → hydrate Y.js doc
+- [ ] 3.3 Implement `onStoreDocument`: Y.js → tiptapToMarkdown → mergeFrontmatter → write .md
+- [ ] 3.4 Implement `onAuthenticate`: validate session token + RBAC permission check
+- [ ] 3.5 Configure document naming: `campaign:{id}:entity:{slug}`
 - [ ] 3.6 Add debounced auto-save (2s after last change)
 
 ## 4. Collaborative Editing
 
 - [ ] 4.1 Install @tiptap/extension-collaboration and @tiptap/extension-collaboration-cursor
-- [ ] 4.2 Connect Tiptap editor to Hocuspocus via Y.js provider
-- [ ] 4.3 Implement cursor awareness with user name labels and deterministic colors
-- [ ] 4.4 Test multi-user concurrent editing and conflict resolution
+- [ ] 4.2 Connect Tiptap editor to Hocuspocus via HocuspocusProvider
+- [ ] 4.3 Implement cursor awareness with user name labels and colors
+- [ ] 4.4 Handle connection/disconnection gracefully
 
 ## 5. Save Pipeline
 
-- [ ] 5.1 Wire save chain: Y.js → `tiptapToMarkdown` service → `mergeFrontmatter` service → write .md file
+- [ ] 5.1 Wire save chain: Y.js → tiptapToMarkdown → mergeFrontmatter → write .md file
 - [ ] 5.2 Update content_hash in SQLite after save
 - [ ] 5.3 Trigger FTS5 re-index after save
-- [ ] 5.4 Handle save errors gracefully (retry, notify user)
+- [ ] 5.4 Handle save errors (retry with exponential backoff, notify user)
 
 ## 6. WebSocket (CrossWS) Setup
 
@@ -56,38 +71,43 @@
 
 ## 8. Live Notifications
 
-- [ ] 8.1 Emit WebSocket notifications from API mutation handlers (entity CRUD, session status)
+- [ ] 8.1 Emit WebSocket notifications from API mutation handlers
 - [ ] 8.2 Create `useCampaignNotifications()` composable for client-side listening
 - [ ] 8.3 Build toast notification component for live updates
-- [ ] 8.4 Filter notifications by relevance (don't notify the user who made the change)
+- [ ] 8.4 Filter notifications by relevance (don't notify actor)
 
 ## 9. Tests (TDD)
 
-### Unit Tests -- Service Functions (Vitest)
+### Unit Tests -- Service Functions
 
-- [ ] 9.1 Test `isRoundTripSafe`: markdown round-trip (markdown → Tiptap JSON → markdown) produces identical output
-- [ ] 9.2 Test `mergeFrontmatter`: existing frontmatter fields preserved when no changes made
-- [ ] 9.3 Test `mergeFrontmatter`: changing a field updates that field; unchanged fields remain intact
-- [ ] 9.4 Test `mergeFrontmatter`: created_at field is never overwritten even if updated payload includes it
-- [ ] 9.5 Test `markdownToTiptap`: converts markdown with `:entity-link` MDC to correct Tiptap JSON node
-- [ ] 9.6 Test `tiptapToMarkdown`: converts Tiptap JSON with entity-link node back to correct MDC syntax
-- [ ] 9.7 Test `markdownToTiptap` + `tiptapToMarkdown`: `::secret` block with role/user annotations round-trips correctly
-- [ ] 9.8 Test content hash computation: saving document produces content_hash matching new content
-
-### Schema Tests (`:memory:` SQLite)
-
-- [ ] 9.9 Test content_hash column on entities table: updated after save; non-null constraint
+- [ ] 9.1 Test markdownToTiptap: headings, bold, lists → correct JSON
+- [ ] 9.2 Test markdownToTiptap: entity-link MDC → correct node
+- [ ] 9.3 Test tiptapToMarkdown: JSON → correct markdown
+- [ ] 9.4 Test tiptapToMarkdown: entity-link node → MDC syntax
+- [ ] 9.5 Test isRoundTripSafe: identical output after round-trip
+- [ ] 9.6 Test secret block round-trip with role annotations
+- [ ] 9.7 Test mergeFrontmatter: preserve unchanged, update changed, protect created_at
+- [ ] 9.8 Test content hash: saving produces correct hash
 
 ### Integration Tests (API)
 
-- [ ] 9.10 Test WebSocket authentication: connection with valid session token succeeds; connection without token is rejected
-- [ ] 9.11 Test WebSocket disconnection: client disconnect triggers presence:leave after grace period
-- [ ] 9.12 Test save pipeline: Y.js doc change → auto-save writes .md file with correct content and frontmatter
-- [ ] 9.13 Test FTS5 re-index after save: editing entity content updates search index; new terms are searchable
-- [ ] 9.14 Test Hocuspocus onAuthenticate: user without edit permission on entity is rejected; user with permission is accepted
-- [ ] 9.15 Test presence system: two users connect to same campaign room; presence:list returns both users; one disconnects → list returns one
+- [ ] 9.9 Test WebSocket auth: valid token connects, invalid rejected
+- [ ] 9.10 Test WebSocket disconnect: presence:leave after grace period
+- [ ] 9.11 Test save pipeline: edit → auto-save → .md file updated with correct content
+- [ ] 9.12 Test FTS5 re-index after collab save: new terms searchable
+- [ ] 9.13 Test Hocuspocus onAuthenticate: RBAC check (editor allowed, visitor rejected)
+- [ ] 9.14 Test presence: two users connect → both in list → one disconnects → one remains
+
+### E2E Tests (Playwright)
+
+- [ ] 9.15 Test: open entity edit → Tiptap editor renders with existing content
+- [ ] 9.16 Test: type in Tiptap editor → save → reload → content persisted
+- [ ] 9.17 Test: entity-link autocomplete → type @ → see entity suggestions
+- [ ] 9.18 Test: two browser contexts edit same entity → both see each other's cursors
+- [ ] 9.19 Test: presence avatars show when another user is in the campaign
 
 ### Component Tests
 
-- [ ] 9.16 Test MarkdownEditor component: mounts with initial markdown content; emits update on edit
-- [ ] 9.17 Test presence avatar component: renders correct number of user avatars for connected users
+- [ ] 9.20 Test MarkdownEditor: mounts with markdown, emits on edit
+- [ ] 9.21 Test presence avatar: renders correct number of user avatars
+- [ ] 9.22 Test toast notification: displays and auto-dismisses
