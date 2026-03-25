@@ -298,17 +298,19 @@ async function getWsToken(sessionCookie: string): Promise<string> {
 
 function connectCampaignWs(token: string, campaignId: string): Promise<{ ws: WebSocket; messages: any[]; connected: boolean }> {
   return new Promise((resolve) => {
+    let resolved = false
     const messages: any[] = []
     const ws = new WebSocket(`${WS_BASE}/api/ws?token=${encodeURIComponent(token)}&campaignId=${encodeURIComponent(campaignId)}`)
 
     const timeout = setTimeout(() => {
-      resolve({ ws, messages, connected: false })
+      if (!resolved) { resolved = true; resolve({ ws, messages, connected: false }) }
     }, 5000)
 
     ws.on('open', () => {
-      clearTimeout(timeout)
-      // Collect messages for a bit then resolve
-      setTimeout(() => resolve({ ws, messages, connected: true }), 500)
+      // Server validates after WS open — wait to see if it closes us
+      setTimeout(() => {
+        if (!resolved) { resolved = true; clearTimeout(timeout); resolve({ ws, messages, connected: true }) }
+      }, 1500)
     })
 
     ws.on('message', (data: Buffer) => {
@@ -316,15 +318,11 @@ function connectCampaignWs(token: string, campaignId: string): Promise<{ ws: Web
     })
 
     ws.on('error', () => {
-      clearTimeout(timeout)
-      resolve({ ws, messages, connected: false })
+      if (!resolved) { resolved = true; clearTimeout(timeout); resolve({ ws, messages, connected: false }) }
     })
 
     ws.on('close', (code: number) => {
-      clearTimeout(timeout)
-      if (code !== 1000) {
-        resolve({ ws, messages, connected: false })
-      }
+      if (!resolved) { resolved = true; clearTimeout(timeout); resolve({ ws, messages, connected: false }) }
     })
   })
 }

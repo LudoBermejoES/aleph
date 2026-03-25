@@ -63,15 +63,15 @@
 - [x] 7.6 Test `DELETE /api/campaigns/:id/entities/:slug`: removes DB row + .md file, subsequent GET returns 404
 - [x] 7.7 Test entity list endpoint: filters by type, tag, visibility, and parent_id return correct subsets
 - [x] 7.8 Test entity list endpoint: pagination (page + limit params) returns correct page with total count
-- [ ] 7.9 Test entity list endpoint: permission-filtered results exclude entities user cannot see
+- [ ] 7.9 Test entity list endpoint: permission-filtered results exclude entities user cannot see (RED: test written, skipped — needs RBAC filtering)
 - [x] 7.10 Test entity CRUD endpoints enforce RBAC: player cannot delete entity, DM can
 - [x] 7.11 Test template CRUD: create template with fields, assign to entity, verify fields appear in entity response
-- [ ] 7.12 Test custom field values: entity stores and returns custom field values from template
+- [ ] 7.12 Test custom field values: entity stores and returns custom field values from template (RED: test written, skipped — needs fields API)
 - [x] 7.13 Test tagging: create tag, assign to entity, filter entity list by tag returns correct results
 - [x] 7.14 Test hierarchical nesting: create parent → child entities, GET child returns parent in breadcrumb, GET parent lists children
 
 ### Component Tests (@vue/test-utils)
 
-- [ ] 7.15 Test filter bar component: type dropdown, tag multi-select, and visibility toggle emit correct filter params
-- [ ] 7.16 Test breadcrumb component: renders ancestor chain with correct links
-- [ ] 7.17 Test frontmatter fields display component: renders template fields with correct values
+- [x] 7.15 Test filter bar component: type dropdown, tag multi-select, and visibility toggle emit correct filter params
+- [x] 7.16 Test breadcrumb component: renders ancestor chain with correct links
+- [x] 7.17 Test frontmatter fields display component: renders template fields with correct values
