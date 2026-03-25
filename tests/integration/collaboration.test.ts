@@ -1,19 +1,12 @@
 import { describe, it, expect, beforeAll } from 'vitest'
 import { WebSocket } from 'ws'
+import { HocuspocusProvider } from '@hocuspocus/provider'
+import * as Y from 'yjs'
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 const WS_BASE = BASE_URL.replace('http', 'ws')
 const WS_URL = process.env.TEST_WS_URL || 'ws://localhost:3334'
 
-// Check if Hocuspocus is running before WebSocket tests
-async function isHocuspocusRunning(): Promise<boolean> {
-  return new Promise((resolve) => {
-    const ws = new WebSocket(WS_URL)
-    const timeout = setTimeout(() => { ws.close(); resolve(false) }, 2000)
-    ws.on('open', () => { clearTimeout(timeout); ws.close(); resolve(true) })
-    ws.on('error', () => { clearTimeout(timeout); resolve(false) })
-  })
-}
 
 async function api(path: string, opts?: any) {
   return fetch(`${BASE_URL}${path}`, {
@@ -23,41 +16,42 @@ async function api(path: string, opts?: any) {
   })
 }
 
-function connectHocuspocus(documentName: string, token: string): Promise<{ ws: WebSocket; connected: boolean; error?: string }> {
+function connectHocuspocus(documentName: string, token: string): Promise<{ provider: HocuspocusProvider; connected: boolean; error?: string }> {
   return new Promise((resolve) => {
-    const ws = new WebSocket(`${WS_URL}/${documentName}`, {
-      headers: { Authorization: `Bearer ${token}` },
+    let resolved = false
+    const ydoc = new Y.Doc()
+
+    const provider = new HocuspocusProvider({
+      url: WS_URL,
+      name: documentName,
+      document: ydoc,
+      token,
+      onAuthenticated() {
+        if (!resolved) {
+          resolved = true
+          resolve({ provider, connected: true })
+        }
+      },
+      onAuthenticationFailed({ reason }: { reason: string }) {
+        if (!resolved) {
+          resolved = true
+          resolve({ provider, connected: false, error: reason })
+        }
+      },
     })
 
-    const timeout = setTimeout(() => {
-      ws.close()
-      resolve({ ws, connected: false, error: 'timeout' })
-    }, 5000)
-
-    ws.on('open', () => {
-      clearTimeout(timeout)
-      resolve({ ws, connected: true })
-    })
-
-    ws.on('error', (err: Error) => {
-      clearTimeout(timeout)
-      resolve({ ws, connected: false, error: err.message })
-    })
-
-    ws.on('close', (code: number) => {
-      clearTimeout(timeout)
-      if (code !== 1000) {
-        resolve({ ws, connected: false, error: `closed with code ${code}` })
+    // Timeout fallback
+    setTimeout(() => {
+      if (!resolved) {
+        resolved = true
+        provider.destroy()
+        resolve({ provider, connected: false, error: 'timeout' })
       }
-    })
+    }, 8000)
   })
 }
 
-// Hocuspocus tests require the collaboration server on port 3334.
-// Skip entire suite if Hocuspocus is not running (e.g. dev server needs restart).
-const hocuspocusAvailable = await isHocuspocusRunning()
-
-describe.skipIf(!hocuspocusAvailable)('Hocuspocus Authentication (integration)', () => {
+describe('Hocuspocus Authentication (integration)', () => {
   const dmEmail = `collab-dm-${Date.now()}@example.com`
   const playerEmail = `collab-player-${Date.now()}@example.com`
   let dmCookie = ''
@@ -121,33 +115,32 @@ describe.skipIf(!hocuspocusAvailable)('Hocuspocus Authentication (integration)',
 
   it('DM (editor+ role) can connect to Hocuspocus', async () => {
     const docName = `campaign:${campaignId}:entity:${entitySlug}`
-    const { ws, connected } = await connectHocuspocus(docName, dmCookie)
+    const { provider, connected } = await connectHocuspocus(docName, dmCookie)
     expect(connected).toBe(true)
-    ws.close()
+    provider.destroy()
   })
 
   it('player role is rejected by Hocuspocus (insufficient permissions)', async () => {
     const docName = `campaign:${campaignId}:entity:${entitySlug}`
-    const { ws, connected } = await connectHocuspocus(docName, playerCookie)
+    const { provider, connected } = await connectHocuspocus(docName, playerCookie)
     expect(connected).toBe(false)
-    ws.close()
+    provider.destroy()
   })
 
   it('invalid token is rejected by Hocuspocus', async () => {
     const docName = `campaign:${campaignId}:entity:${entitySlug}`
-    const { ws, connected } = await connectHocuspocus(docName, 'invalid-token-xxx')
+    const { provider, connected } = await connectHocuspocus(docName, 'invalid-token-xxx')
     expect(connected).toBe(false)
-    ws.close()
+    provider.destroy()
   })
 
   it('invalid document name format is rejected', async () => {
-    const { ws, connected } = await connectHocuspocus('bad-format', dmCookie)
+    const { provider, connected } = await connectHocuspocus('bad-format', dmCookie)
     expect(connected).toBe(false)
-    ws.close()
+    provider.destroy()
   })
 
   it('non-member cannot connect', async () => {
-    // Register a completely separate user who is not a member of the campaign
     const outsiderEmail = `outsider-${Date.now()}@example.com`
     await api('/api/auth/sign-up/email', {
       method: 'POST',
@@ -160,9 +153,9 @@ describe.skipIf(!hocuspocusAvailable)('Hocuspocus Authentication (integration)',
     const outsiderCookie = (outsiderLogin.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1] || ''
 
     const docName = `campaign:${campaignId}:entity:${entitySlug}`
-    const { ws, connected } = await connectHocuspocus(docName, outsiderCookie)
+    const { provider, connected } = await connectHocuspocus(docName, outsiderCookie)
     expect(connected).toBe(false)
-    ws.close()
+    provider.destroy()
   })
 })
 
@@ -326,20 +319,7 @@ function connectCampaignWs(token: string, campaignId: string): Promise<{ ws: Web
   })
 }
 
-// Check if the CrossWS endpoint is available
-async function isCrossWsAvailable(): Promise<boolean> {
-  return new Promise((resolve) => {
-    const ws = new WebSocket(`${WS_BASE}/api/ws?token=test&campaignId=test`)
-    const timeout = setTimeout(() => { ws.close(); resolve(false) }, 2000)
-    ws.on('open', () => { clearTimeout(timeout); ws.close(); resolve(true) })
-    ws.on('message', () => { clearTimeout(timeout); ws.close(); resolve(true) })
-    ws.on('error', () => { clearTimeout(timeout); resolve(false) })
-  })
-}
-
-const crossWsAvailable = await isCrossWsAvailable()
-
-describe.skipIf(!crossWsAvailable)('CrossWS /api/ws Authentication (integration)', () => {
+describe('CrossWS /api/ws Authentication (integration)', () => {
   const dmEmail = `ws-dm-${Date.now()}@example.com`
   let dmToken = ''
   let campaignId = ''
@@ -402,7 +382,7 @@ describe.skipIf(!crossWsAvailable)('CrossWS /api/ws Authentication (integration)
   })
 })
 
-describe.skipIf(!crossWsAvailable)('CrossWS Presence (integration)', () => {
+describe('CrossWS Presence (integration)', () => {
   const dm1Email = `ws-pres1-${Date.now()}@example.com`
   const dm2Email = `ws-pres2-${Date.now()}@example.com`
   let dm1Token = ''
