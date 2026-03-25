@@ -8,9 +8,71 @@
 
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-2xl font-bold">Characters</h1>
-      <NuxtLink :to="`/campaigns/${campaignId}/entities`">
-        <Button variant="outline" size="sm">All Entities</Button>
-      </NuxtLink>
+      <div class="flex gap-2">
+        <NuxtLink :to="`/campaigns/${campaignId}/entities`">
+          <Button variant="outline" size="sm">All Entities</Button>
+        </NuxtLink>
+        <Dialog v-model:open="showCreate">
+          <DialogTrigger as-child><Button data-testid="new-character-btn">New Character</Button></DialogTrigger>
+          <DialogContent class="max-w-lg max-h-[90vh] overflow-y-auto">
+            <DialogHeader><DialogTitle>Create Character</DialogTitle></DialogHeader>
+            <form @submit.prevent="createCharacter" class="space-y-4">
+              <div class="grid grid-cols-2 gap-4">
+                <div class="col-span-2">
+                  <label class="text-sm font-medium">Name *</label>
+                  <input v-model="form.name" required class="w-full mt-1 px-3 py-2 rounded border border-input bg-background" placeholder="Strahd von Zarovich" />
+                </div>
+                <div>
+                  <label class="text-sm font-medium">Type</label>
+                  <select v-model="form.characterType" class="w-full mt-1 px-3 py-2 rounded border border-input bg-background">
+                    <option value="npc">NPC</option>
+                    <option value="pc">PC</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-sm font-medium">Status</label>
+                  <select v-model="form.status" class="w-full mt-1 px-3 py-2 rounded border border-input bg-background">
+                    <option value="alive">Alive</option>
+                    <option value="dead">Dead</option>
+                    <option value="missing">Missing</option>
+                    <option value="unknown">Unknown</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-sm font-medium">Race</label>
+                  <input v-model="form.race" class="w-full mt-1 px-3 py-2 rounded border border-input bg-background" placeholder="Human, Elf, Dwarf..." />
+                </div>
+                <div>
+                  <label class="text-sm font-medium">Class</label>
+                  <input v-model="form.class" class="w-full mt-1 px-3 py-2 rounded border border-input bg-background" placeholder="Fighter, Wizard..." />
+                </div>
+                <div>
+                  <label class="text-sm font-medium">Alignment</label>
+                  <input v-model="form.alignment" class="w-full mt-1 px-3 py-2 rounded border border-input bg-background" placeholder="Lawful Good, Chaotic Evil..." />
+                </div>
+                <div>
+                  <label class="text-sm font-medium">Visibility</label>
+                  <select v-model="form.visibility" class="w-full mt-1 px-3 py-2 rounded border border-input bg-background">
+                    <option value="members">Members</option>
+                    <option value="public">Public</option>
+                    <option value="editors">Editors</option>
+                    <option value="dm_only">DM Only</option>
+                    <option value="private">Private</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label class="text-sm font-medium">Description</label>
+                <MarkdownEditor v-model="form.content" placeholder="Write a description..." class="mt-1" />
+              </div>
+              <div class="flex justify-end gap-2">
+                <Button type="button" variant="outline" @click="showCreate = false">Cancel</Button>
+                <Button type="submit" :disabled="creating">{{ creating ? 'Creating...' : 'Create' }}</Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
 
     <!-- PC/NPC Toggle -->
@@ -21,7 +83,7 @@
     </div>
 
     <div class="flex gap-6">
-      <!-- NPC Folder Sidebar (7.7) -->
+      <!-- NPC Folder Sidebar -->
       <aside v-if="filter === 'npc' && folders.length" class="w-48 shrink-0" data-testid="folder-sidebar">
         <h3 class="text-sm font-semibold mb-2">Folders</h3>
         <button
@@ -61,7 +123,7 @@
             </div>
           </NuxtLink>
         </div>
-        <p v-else class="text-muted-foreground text-center py-8">No characters yet.</p>
+        <p v-else class="text-muted-foreground text-center py-8">No characters yet. Click "New Character" to create one.</p>
       </div>
     </div>
   </div>
@@ -69,11 +131,35 @@
 
 <script setup lang="ts">
 const route = useRoute()
+const router = useRouter()
 const campaignId = route.params.id as string
 const chars = ref<any[]>([])
 const folders = ref<any[]>([])
 const filter = ref('all')
 const selectedFolder = ref('')
+const showCreate = ref(false)
+const creating = ref(false)
+const form = ref({
+  name: '', characterType: 'npc', race: '', class: '', alignment: '',
+  status: 'alive', visibility: 'members', content: '',
+})
+
+async function createCharacter() {
+  creating.value = true
+  try {
+    const res = await $fetch(`/api/campaigns/${campaignId}/characters`, {
+      method: 'POST',
+      body: form.value,
+    }) as any
+    showCreate.value = false
+    form.value = { name: '', characterType: 'npc', race: '', class: '', alignment: '', status: 'alive', visibility: 'members', content: '' }
+    await router.push(`/campaigns/${campaignId}/characters/${res.slug}`)
+  } catch (e: any) {
+    alert(e.data?.message || 'Failed to create character')
+  } finally {
+    creating.value = false
+  }
+}
 
 async function load() {
   try {
