@@ -7,6 +7,7 @@ import { hasMinRole } from '../../../../utils/permissions'
 import { writeEntityFile, slugify, resolveEntityPath } from '../../../../services/content'
 import { indexEntity } from '../../../../services/search'
 import { logger } from '../../../../utils/logger'
+import { invalidateAutomatonCache } from '../../../../services/autolink'
 import { join } from 'path'
 import type { CampaignRole } from '../../../../utils/permissions'
 
@@ -75,6 +76,9 @@ export default defineEventHandler(async (event) => {
 
   // Index in FTS5
   indexEntity(sqlite, id, campaignId, name.trim(), aliases || [], tags || [], content || '')
+
+  // Invalidate autolink cache so new entity name is included in future matches
+  invalidateAutomatonCache(campaignId)
 
   logger.debug('Entity created', { entityId: id, name, type, campaignId })
 

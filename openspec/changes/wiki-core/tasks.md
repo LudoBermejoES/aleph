@@ -68,7 +68,7 @@
 - [x] 7.11 Test template CRUD: create template with fields, assign to entity, verify fields appear in entity response
 - [ ] 7.12 Test custom field values: entity stores and returns custom field values from template
 - [x] 7.13 Test tagging: create tag, assign to entity, filter entity list by tag returns correct results
-- [ ] 7.14 Test hierarchical nesting: create parent → child entities, GET child returns parent in breadcrumb, GET parent lists children
+- [x] 7.14 Test hierarchical nesting: create parent → child entities, GET child returns parent in breadcrumb, GET parent lists children
 
 ### Component Tests (@vue/test-utils)
 

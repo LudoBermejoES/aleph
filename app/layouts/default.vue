@@ -10,6 +10,7 @@
       <nav class="flex-1 p-2 space-y-1 overflow-auto">
         <!-- Campaign sidebar when inside a campaign -->
         <template v-if="campaignId">
+          <p v-if="campaignName" class="px-3 py-1 text-xs font-semibold text-sidebar-foreground/70 uppercase tracking-wider">{{ campaignName }}</p>
           <NuxtLink :to="`/campaigns/${campaignId}`"
             class="block px-3 py-2 rounded text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent transition-colors">
             Dashboard
@@ -49,11 +50,24 @@ import { authSignOut } from '~/composables/useAuth'
 const route = useRoute()
 
 const userName = ref('')
+const campaignName = ref('')
 
 const campaignId = computed(() => {
   const match = route.path.match(/^\/campaigns\/([^/]+)/)
   return match ? match[1] : null
 })
+
+// Fetch campaign name when inside a campaign
+watch(campaignId, async (id) => {
+  if (id) {
+    try {
+      const data = await $fetch(`/api/campaigns/${id}`) as any
+      campaignName.value = data?.name || ''
+    } catch { campaignName.value = '' }
+  } else {
+    campaignName.value = ''
+  }
+}, { immediate: true })
 
 const campaignLinks = computed(() => {
   if (!campaignId.value) return []

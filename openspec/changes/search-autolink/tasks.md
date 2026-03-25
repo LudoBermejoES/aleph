@@ -44,7 +44,7 @@
 
 - [x] 6.1 Create `entity_mentions` schema + migration
 - [x] 6.2 Scan campaign markdown service (scanCampaignMentions)
-- [ ] 6.3 Wire scan into entity create/rename hooks
+- [x] 6.3 Wire scan into entity create/rename hooks
 - [ ] 6.4 Background task for large campaigns
 - [x] 6.5 "Referenced by" section on entity detail page
 
