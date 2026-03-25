@@ -36,7 +36,7 @@
 - [x] 3.3 Implement `onStoreDocument`: Y.js → tiptapToMarkdown → mergeFrontmatter → write .md
 - [x] 3.4 Implement `onAuthenticate`: validate session + campaign membership + editor+ role check
 - [x] 3.5 Configure document naming: `campaign:{id}:entity:{slug}`
-- [ ] 3.6 Add debounced auto-save (2s after last change) -- Hocuspocus handles this internally
+- [x] 3.6 Add debounced auto-save (2s after last change) -- Hocuspocus handles this internally
 
 ## 4. Collaborative Editing
 
@@ -50,28 +50,28 @@
 - [x] 5.1 Wire save chain: onStoreDocument → tiptapToMarkdown → mergeFrontmatter → write .md
 - [x] 5.2 Update content_hash in SQLite after save
 - [x] 5.3 Trigger FTS5 re-index after save
-- [ ] 5.4 Handle save errors (retry with exponential backoff, notify user)
+- [x] 5.4 Handle save errors (retry with exponential backoff, notify user)
 
 ## 6. WebSocket (CrossWS) Setup
 
-- [ ] 6.1 Configure Nitro experimental WebSocket with CrossWS
-- [ ] 6.2 Create `/api/ws` endpoint with campaign-scoped room management
-- [ ] 6.3 Implement message routing for presence and notification types
-- [ ] 6.4 Add authentication on WebSocket upgrade (validate session)
+- [x] 6.1 Configure Nitro experimental WebSocket with CrossWS
+- [x] 6.2 Create `/api/ws` endpoint with campaign-scoped room management
+- [x] 6.3 Implement message routing for presence and notification types
+- [x] 6.4 Add authentication on WebSocket upgrade (validate session)
 
 ## 7. Presence System
 
-- [ ] 7.1 Implement server-side presence tracking (Map<campaignId, Set<user>>)
-- [ ] 7.2 Handle presence:join / presence:leave / presence:list messages
-- [ ] 7.3 Add 5s grace period on disconnect before removing user
-- [ ] 7.4 Build presence avatar component for campaign header
+- [x] 7.1 Implement server-side presence tracking (Map<campaignId, Set<user>>)
+- [x] 7.2 Handle presence:join / presence:leave / presence:list messages
+- [x] 7.3 Add 5s grace period on disconnect before removing user
+- [x] 7.4 Build presence avatar component for campaign header
 
 ## 8. Live Notifications
 
-- [ ] 8.1 Emit WebSocket notifications from API mutation handlers
-- [ ] 8.2 Create `useCampaignNotifications()` composable for client-side listening
-- [ ] 8.3 Build toast notification component for live updates
-- [ ] 8.4 Filter notifications by relevance (don't notify actor)
+- [x] 8.1 Emit WebSocket notifications from API mutation handlers
+- [x] 8.2 Create `useCampaignNotifications()` composable for client-side listening
+- [x] 8.3 Build toast notification component for live updates
+- [x] 8.4 Filter notifications by relevance (don't notify actor)
 
 ## 9. Tests (TDD)
 
@@ -86,11 +86,11 @@
 ### Integration Tests (API)
 
 - [x] 9.9 Test WebSocket auth: valid token connects, invalid rejected (skipped when Hocuspocus unavailable)
-- [ ] 9.10 Test WebSocket disconnect: presence:leave after grace period
+- [x] 9.10 Test WebSocket disconnect: presence:leave after grace period
 - [x] 9.11 Test save pipeline: edit → auto-save → .md file updated with correct content
 - [x] 9.12 Test FTS5 re-index after collab save: new terms searchable
 - [x] 9.13 Test Hocuspocus onAuthenticate: RBAC check (editor allowed, visitor rejected) (skipped when Hocuspocus unavailable)
-- [ ] 9.14 Test presence: two users connect → both in list → one disconnects → one remains
+- [x] 9.14 Test presence: two users connect → both in list → one disconnects → one remains
 
 ### E2E Tests (Playwright)
 
@@ -103,5 +103,5 @@
 ### Component Tests
 
 - [ ] 9.20 Test MarkdownEditor: mounts with markdown, emits on edit
-- [ ] 9.21 Test presence avatar: renders correct number of user avatars
-- [ ] 9.22 Test toast notification: displays and auto-dismisses
+- [x] 9.21 Test presence avatar: renders correct number of user avatars
+- [x] 9.22 Test toast notification: displays and auto-dismisses

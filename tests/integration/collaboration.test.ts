@@ -2,6 +2,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 import { WebSocket } from 'ws'
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
+const WS_BASE = BASE_URL.replace('http', 'ws')
 const WS_URL = process.env.TEST_WS_URL || 'ws://localhost:3334'
 
 // Check if Hocuspocus is running before WebSocket tests
@@ -104,11 +105,17 @@ describe.skipIf(!hocuspocusAvailable)('Hocuspocus Authentication (integration)',
     })
     playerCookie = (playerLogin.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1] || ''
 
-    // Add player to campaign as 'player' role (not editor)
-    await api(`/api/campaigns/${campaignId}/members`, {
+    // Add player to campaign via invite/join flow as 'player' role (not editor)
+    const invite = await api(`/api/campaigns/${campaignId}/invite`, {
       method: 'POST',
       headers: { Cookie: `better-auth.session_token=${dmCookie}` },
-      body: { email: playerEmail, role: 'player' },
+      body: { role: 'player' },
+    })
+    const { token: inviteToken } = await invite.json()
+    await api(`/api/campaigns/${campaignId}/join`, {
+      method: 'POST',
+      headers: { Cookie: `better-auth.session_token=${playerCookie}` },
+      body: { token: inviteToken },
     })
   })
 
@@ -281,5 +288,189 @@ describe('Save Pipeline (integration)', () => {
     })
     const results2 = await search2.json()
     expect(results2.results?.length).toBeGreaterThanOrEqual(1)
+  })
+})
+
+// --- CrossWS WebSocket Integration Tests ---
+
+function connectCampaignWs(token: string, campaignId: string): Promise<{ ws: WebSocket; messages: any[]; connected: boolean }> {
+  return new Promise((resolve) => {
+    const messages: any[] = []
+    const ws = new WebSocket(`${WS_BASE}/api/ws?token=${encodeURIComponent(token)}&campaignId=${encodeURIComponent(campaignId)}`)
+
+    const timeout = setTimeout(() => {
+      resolve({ ws, messages, connected: false })
+    }, 5000)
+
+    ws.on('open', () => {
+      clearTimeout(timeout)
+      // Collect messages for a bit then resolve
+      setTimeout(() => resolve({ ws, messages, connected: true }), 500)
+    })
+
+    ws.on('message', (data: Buffer) => {
+      try { messages.push(JSON.parse(data.toString())) } catch { /* ignore */ }
+    })
+
+    ws.on('error', () => {
+      clearTimeout(timeout)
+      resolve({ ws, messages, connected: false })
+    })
+
+    ws.on('close', (code: number) => {
+      clearTimeout(timeout)
+      if (code !== 1000) {
+        resolve({ ws, messages, connected: false })
+      }
+    })
+  })
+}
+
+// Check if the CrossWS endpoint is available
+async function isCrossWsAvailable(): Promise<boolean> {
+  return new Promise((resolve) => {
+    const ws = new WebSocket(`${WS_BASE}/api/ws?token=test&campaignId=test`)
+    const timeout = setTimeout(() => { ws.close(); resolve(false) }, 2000)
+    ws.on('open', () => { clearTimeout(timeout); ws.close(); resolve(true) })
+    ws.on('message', () => { clearTimeout(timeout); ws.close(); resolve(true) })
+    ws.on('error', () => { clearTimeout(timeout); resolve(false) })
+  })
+}
+
+const crossWsAvailable = await isCrossWsAvailable()
+
+describe.skipIf(!crossWsAvailable)('CrossWS /api/ws Authentication (integration)', () => {
+  const dmEmail = `ws-dm-${Date.now()}@example.com`
+  let dmToken = ''
+  let campaignId = ''
+
+  beforeAll(async () => {
+    await api('/api/auth/sign-up/email', {
+      method: 'POST',
+      body: { name: 'WS DM', email: dmEmail, password: 'password123' },
+    })
+    const login = await api('/api/auth/sign-in/email', {
+      method: 'POST',
+      body: { email: dmEmail, password: 'password123' },
+    })
+    dmToken = (login.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1] || ''
+
+    const camp = await api('/api/campaigns', {
+      method: 'POST',
+      headers: { Cookie: `better-auth.session_token=${dmToken}` },
+      body: { name: `WS Test ${Date.now()}` },
+    })
+    campaignId = (await camp.json()).id
+  })
+
+  it('authenticated member connects and receives presence:list', async () => {
+    const { ws, messages, connected } = await connectCampaignWs(dmToken, campaignId)
+    expect(connected).toBe(true)
+    const presenceMsg = messages.find((m: any) => m.type === 'presence:list')
+    expect(presenceMsg).toBeDefined()
+    expect(presenceMsg.users).toBeInstanceOf(Array)
+    ws.close()
+  })
+
+  it('invalid token is rejected', async () => {
+    const { ws, connected } = await connectCampaignWs('invalid-xxx', campaignId)
+    expect(connected).toBe(false)
+    ws.close()
+  })
+
+  it('missing campaignId is rejected', async () => {
+    const { ws, connected } = await connectCampaignWs(dmToken, '')
+    expect(connected).toBe(false)
+    ws.close()
+  })
+
+  it('non-member is rejected', async () => {
+    const outsiderEmail = `ws-outsider-${Date.now()}@example.com`
+    await api('/api/auth/sign-up/email', {
+      method: 'POST',
+      body: { name: 'WS Outsider', email: outsiderEmail, password: 'password123' },
+    })
+    const login = await api('/api/auth/sign-in/email', {
+      method: 'POST',
+      body: { email: outsiderEmail, password: 'password123' },
+    })
+    const outsiderToken = (login.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1] || ''
+
+    const { ws, connected } = await connectCampaignWs(outsiderToken, campaignId)
+    expect(connected).toBe(false)
+    ws.close()
+  })
+})
+
+describe.skipIf(!crossWsAvailable)('CrossWS Presence (integration)', () => {
+  const dm1Email = `ws-pres1-${Date.now()}@example.com`
+  const dm2Email = `ws-pres2-${Date.now()}@example.com`
+  let dm1Token = ''
+  let dm2Token = ''
+  let campaignId = ''
+
+  beforeAll(async () => {
+    // Register DM1
+    await api('/api/auth/sign-up/email', {
+      method: 'POST',
+      body: { name: 'WS Pres1', email: dm1Email, password: 'password123' },
+    })
+    const login1 = await api('/api/auth/sign-in/email', {
+      method: 'POST',
+      body: { email: dm1Email, password: 'password123' },
+    })
+    dm1Token = (login1.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1] || ''
+
+    // Create campaign
+    const camp = await api('/api/campaigns', {
+      method: 'POST',
+      headers: { Cookie: `better-auth.session_token=${dm1Token}` },
+      body: { name: `WS Pres ${Date.now()}` },
+    })
+    campaignId = (await camp.json()).id
+
+    // Register DM2
+    await api('/api/auth/sign-up/email', {
+      method: 'POST',
+      body: { name: 'WS Pres2', email: dm2Email, password: 'password123' },
+    })
+    const login2 = await api('/api/auth/sign-in/email', {
+      method: 'POST',
+      body: { email: dm2Email, password: 'password123' },
+    })
+    dm2Token = (login2.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1] || ''
+
+    // Invite DM2 to campaign via invite/join flow
+    const invite = await api(`/api/campaigns/${campaignId}/invite`, {
+      method: 'POST',
+      headers: { Cookie: `better-auth.session_token=${dm1Token}` },
+      body: { role: 'editor' },
+    })
+    const { token: inviteToken } = await invite.json()
+
+    await api(`/api/campaigns/${campaignId}/join`, {
+      method: 'POST',
+      headers: { Cookie: `better-auth.session_token=${dm2Token}` },
+      body: { token: inviteToken },
+    })
+  })
+
+  it('two users connect and both appear in presence list', async () => {
+    const conn1 = await connectCampaignWs(dm1Token, campaignId)
+    expect(conn1.connected).toBe(true)
+
+    const conn2 = await connectCampaignWs(dm2Token, campaignId)
+    expect(conn2.connected).toBe(true)
+
+    // Request fresh presence list from conn2
+    conn2.ws.send(JSON.stringify({ type: 'presence:list' }))
+    await new Promise(resolve => setTimeout(resolve, 300))
+
+    const presenceMsg = conn2.messages.filter((m: any) => m.type === 'presence:list').pop()
+    expect(presenceMsg).toBeDefined()
+    expect(presenceMsg.users.length).toBeGreaterThanOrEqual(2)
+
+    conn1.ws.close()
+    conn2.ws.close()
   })
 })
