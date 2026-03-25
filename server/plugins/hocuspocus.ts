@@ -5,6 +5,7 @@ import { readEntityFile, writeEntityFile, contentHash } from '../services/conten
 import { indexEntity } from '../services/search'
 import { auth } from '../utils/auth'
 import { logger } from '../utils/logger'
+import { validateWsToken } from '../services/ws-token'
 import { eq, and } from 'drizzle-orm'
 import { entities } from '../db/schema/entities'
 import { campaignMembers } from '../db/schema/campaign-members'
@@ -22,11 +23,16 @@ export default defineNitroPlugin(async () => {
       async onAuthenticate({ token, documentName }) {
         if (!token) throw new Error('No auth token')
 
-        // Validate session via Better Auth
-        const session = await auth.api.getSession({
-          headers: new Headers({ cookie: `better-auth.session_token=${token}` }),
-        })
-        if (!session) throw new Error('Invalid session')
+        // Try WS token first (from /api/ws/token endpoint), then fall back to session cookie
+        let userId: string | null = validateWsToken(token)
+        if (!userId) {
+          // Fall back to session cookie validation
+          const session = await auth.api.getSession({
+            headers: new Headers({ cookie: `better-auth.session_token=${token}` }),
+          })
+          if (!session) throw new Error('Invalid session')
+          userId = session.user.id
+        }
 
         // Parse document name: campaign:{id}:entity:{slug}
         const parts = documentName.split(':')
@@ -38,7 +44,7 @@ export default defineNitroPlugin(async () => {
         // Check campaign membership
         const membership = useDb().select()
           .from(campaignMembers)
-          .where(and(eq(campaignMembers.campaignId, campaignId), eq(campaignMembers.userId, session.user.id)))
+          .where(and(eq(campaignMembers.campaignId, campaignId), eq(campaignMembers.userId, userId)))
           .get()
 
         if (!membership) throw new Error('Not a campaign member')
@@ -49,7 +55,7 @@ export default defineNitroPlugin(async () => {
           throw new Error('Insufficient permissions to edit')
         }
 
-        return { user: session.user, campaignId, role: membership.role }
+        return { user: { id: userId }, campaignId, role: membership.role }
       },
 
       async onLoadDocument({ document, documentName, context }) {

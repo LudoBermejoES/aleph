@@ -85,23 +85,21 @@
 
 ### Integration Tests (API)
 
-- [x] 9.9 Test WebSocket auth: valid token connects, invalid rejected (skipped when Hocuspocus unavailable)
-- [x] 9.10 Test WebSocket disconnect: presence:leave after grace period
+- [x] 9.9 Test WebSocket auth: valid token connects, invalid rejected- [x] 9.10 Test WebSocket disconnect: presence:leave after grace period
 - [x] 9.11 Test save pipeline: edit → auto-save → .md file updated with correct content
 - [x] 9.12 Test FTS5 re-index after collab save: new terms searchable
-- [x] 9.13 Test Hocuspocus onAuthenticate: RBAC check (editor allowed, visitor rejected) (skipped when Hocuspocus unavailable)
-- [x] 9.14 Test presence: two users connect → both in list → one disconnects → one remains
+- [x] 9.13 Test Hocuspocus onAuthenticate: RBAC check (editor allowed, visitor rejected)- [x] 9.14 Test presence: two users connect → both in list → one disconnects → one remains
 
 ### E2E Tests (Playwright)
 
-- [ ] 9.15 Test: open entity edit → Tiptap editor renders with existing content
-- [ ] 9.16 Test: type in Tiptap editor → save → reload → content persisted
-- [ ] 9.17 Test: entity-link autocomplete → type @ → see entity suggestions
-- [ ] 9.18 Test: two browser contexts edit same entity → both see each other's cursors
-- [ ] 9.19 Test: presence avatars show when another user is in the campaign
+- [x] 9.15 Test: open entity edit → Tiptap editor renders with existing content
+- [x] 9.16 Test: type in Tiptap editor → save → reload → content persisted
+- [ ] 9.17 Test: entity-link autocomplete → type @ → see entity suggestions (blocked: needs autocomplete UI from search-autolink change)
+- [x] 9.18 Test: two browser contexts edit same entity → both see each other's cursors
+- [x] 9.19 Test: presence avatars show when another user is in the campaign
 
 ### Component Tests
 
-- [ ] 9.20 Test MarkdownEditor: mounts with markdown, emits on edit
+- [x] 9.20 Test MarkdownEditor: mounts with markdown, emits on edit
 - [x] 9.21 Test presence avatar: renders correct number of user avatars
 - [x] 9.22 Test toast notification: displays and auto-dismisses
