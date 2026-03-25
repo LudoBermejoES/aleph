@@ -36,7 +36,7 @@
 
 - [x] 5.1 Implement character connection CRUD (GET list, POST create)
 - [x] 5.2 Implement character folder CRUD with nesting (GET list, POST create)
-- [ ] 5.3 Implement character-to-folder assignment
+- [x] 5.3 Implement character-to-folder assignment
 
 ## 6. Duplicate Endpoint
 
@@ -50,10 +50,10 @@
 - [x] 7.2 Create `app/pages/campaigns/[id]/characters/[slug].vue` (character detail)
 - [x] 7.3 Build stat group display component with secret stat hiding
 - [x] 7.4 Build abilities list component grouped by type
-- [ ] 7.5 Build connections section component
-- [ ] 7.6 Build character edit form with player-editable field restrictions
-- [ ] 7.7 Build NPC folder sidebar with drag-and-drop organization
-- [ ] 7.8 Build mount/companion display as nested entries under parent character
+- [x] 7.5 Build connections section component
+- [x] 7.6 Build character edit form with player-editable field restrictions
+- [x] 7.7 Build NPC folder sidebar with drag-and-drop organization
+- [x] 7.8 Build mount/companion display as nested entries under parent character
 
 ## 8. Tests (TDD)
 
@@ -78,12 +78,19 @@
 - [x] 8.11 Test ability CRUD via API
 - [x] 8.12 Test character list filter by type
 - [x] 8.13 Test duplicate endpoint: creates copy with (Copy) suffix
-- [ ] 8.14 Test player ownership restriction: player can edit own character only
-- [ ] 8.15 Test NPC secret visibility: secrets stripped for non-DM
-- [ ] 8.16 Test stat bulk update with player_editable enforcement
-- [ ] 8.17 Test character folder assignment
+- [x] 8.14 Test player ownership restriction: player can edit own character only
+- [x] 8.15 Test NPC secret visibility: secrets stripped for non-DM
+- [x] 8.16 Test stat bulk update with player_editable enforcement
+- [x] 8.17 Test character folder assignment
 
 ### Component Tests
 
-- [ ] 8.18 Test stat group display component
-- [ ] 8.19 Test character edit form
+- [x] 8.18 Test stat group display component
+- [x] 8.19 Test character edit form
+
+### E2E Tests (Playwright)
+
+- [x] 8.20 E2E: navigate to characters page
+- [x] 8.21 E2E: create character via API and view detail
+- [x] 8.22 E2E: character edit form saves changes
+- [x] 8.23 E2E: PC/NPC filter toggle

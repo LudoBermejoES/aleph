@@ -38,6 +38,7 @@ export default defineEventHandler(async (event) => {
   if (body.alignment !== undefined) charUpdates.alignment = body.alignment
   if (body.status !== undefined) charUpdates.status = body.status
   if (body.locationEntityId !== undefined) charUpdates.locationEntityId = body.locationEntityId
+  if (body.folderId !== undefined) charUpdates.folderId = body.folderId
 
   if (Object.keys(charUpdates).length > 0) {
     db.update(characters).set(charUpdates).where(eq(characters.id, character.id)).run()
@@ -45,7 +46,7 @@ export default defineEventHandler(async (event) => {
 
   // Update entity/content
   let existing
-  try { existing = await readEntityFile(entity.filePath) } catch { existing = { frontmatter: { type: 'character', name: entity.name }, content: '' } }
+  try { existing = await readEntityFile(entity.filePath) } catch { existing = { frontmatter: { type: 'character', name: entity.name, aliases: [], tags: [], visibility: 'members' as const, fields: {} }, content: '' } }
 
   const updatedFm = {
     ...existing.frontmatter,

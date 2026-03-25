@@ -14,9 +14,12 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const { stats } = body // Array of { statDefinitionId, value }
 
-  if (!stats?.length) {
+  if (!Array.isArray(stats)) {
     throw createError({ statusCode: 400, message: 'Stats array is required' })
   }
+
+  // Empty array is a no-op
+  if (stats.length === 0) return { success: true }
 
   const db = useDb()
 

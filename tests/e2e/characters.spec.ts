@@ -37,6 +37,40 @@ test.describe('Characters', () => {
     await expect(page.locator('main h1')).toContainText(charName, { timeout: 10000 })
   })
 
+  test('character detail shows edit form and saves changes', async ({ page }) => {
+    await registerAndLogin(page, 'Char Editor')
+    await createCampaign(page, `Edit Camp ${uid()}`)
+
+    const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
+    await page.evaluate(async (id) => {
+      await fetch(`/api/campaigns/${id}/characters`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: 'Editable NPC', characterType: 'npc', race: 'Elf', alignment: 'Neutral', content: '# Editable' }),
+      })
+    }, campaignId)
+
+    await page.click('aside >> text=Characters')
+    await page.waitForLoadState('networkidle')
+    await page.click('main >> text=Editable NPC')
+    await page.waitForURL('**/characters/**', { timeout: 15000 })
+    await expect(page.locator('main h1')).toContainText('Editable NPC', { timeout: 10000 })
+
+    // Click Edit
+    await page.click('[data-testid="edit-character"]')
+    await expect(page.locator('[data-testid="character-edit-form"]')).toBeVisible({ timeout: 5000 })
+
+    // Change status to dead
+    await page.selectOption('[data-testid="character-edit-form"] select', 'dead')
+
+    // Save
+    await page.click('[data-testid="save-character"]')
+    await page.waitForTimeout(1000)
+
+    // Verify the status changed
+    await expect(page.locator('main')).toContainText('dead', { timeout: 5000 })
+  })
+
   test('PC/NPC filter toggle', async ({ page }) => {
     await registerAndLogin(page, 'Filter Tester')
     await createCampaign(page, `Filter Camp ${uid()}`)
