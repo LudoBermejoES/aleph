@@ -67,7 +67,7 @@
 
 ### Integration Tests (API)
 
-- [ ] 8.8 Test retroactive linking on entity creation
-- [ ] 8.9 Test mentions API
+- [x] 8.8 Test retroactive linking on entity creation
+- [x] 8.9 Test mentions API
 - [x] 8.10 Test search with type filter
 - [x] 8.11 Test search permission filtering

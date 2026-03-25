@@ -57,5 +57,5 @@
 
 ## 7. Component Tests
 
-- [ ] 7.1 Test auth middleware: redirects when no session, passes when valid
-- [ ] 7.2 Test CampaignSidebar highlights active section
+- [x] 7.1 Test auth middleware: redirects when no session, passes when valid
+- [x] 7.2 Test CampaignSidebar highlights active section
