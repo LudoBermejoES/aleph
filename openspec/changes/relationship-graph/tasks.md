@@ -73,11 +73,11 @@
 - [x] 9.10 Test graph endpoint returns nodes/edges with colors
 - [x] 9.11 Test custom relation type creation
 - [x] 9.12 Test 17 built-in types seeded
-- [ ] 9.13 Test relation visibility filtering
+- [x] 9.13 Test relation visibility filtering
 - [x] 9.14 Test relation with non-existent entity returns 404
 - [x] 9.15 Test builtin relation type cannot be modified (403)
 
 ### Component Tests
 
-- [ ] 9.16 Test filter panel
-- [ ] 9.17 Test attitude range slider
+- [x] 9.16 Test filter panel
+- [x] 9.17 Test attitude range slider

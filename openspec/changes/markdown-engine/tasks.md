@@ -68,7 +68,7 @@
 
 ### Filesystem Watcher Tests (Vitest, temp dir)
 
-- [ ] 6.14 Test watcher detects new .md file: entity metadata row created in :memory: SQLite, FTS5 entry indexed
-- [ ] 6.15 Test watcher detects file change: updated content hash triggers re-index; unchanged hash skips re-index
-- [ ] 6.16 Test watcher detects file delete: entity metadata and FTS5 entry removed
+- [x] 6.14 Test watcher detects new .md file: entity metadata row created in :memory: SQLite, FTS5 entry indexed
+- [x] 6.15 Test watcher detects file change: updated content hash triggers re-index; unchanged hash skips re-index
+- [x] 6.16 Test watcher detects file delete: entity metadata and FTS5 entry removed
 - [x] 6.17 Test FTS5 search ranking: exact title match ranks higher than body mention
