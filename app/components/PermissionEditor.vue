@@ -22,7 +22,6 @@
 </template>
 
 <script setup lang="ts">
-import { Button } from '~/components/ui/button'
 
 interface PermissionEntry {
   id: string

@@ -45,7 +45,6 @@
 </template>
 
 <script setup lang="ts">
-import { Button } from '~/components/ui/button'
 
 const route = useRoute()
 const campaignId = route.params.id as string

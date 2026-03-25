@@ -60,9 +60,6 @@
 </template>
 
 <script setup lang="ts">
-import { Button } from '~/components/ui/button'
-import { Input } from '~/components/ui/input'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '~/components/ui/dialog'
 
 const route = useRoute()
 const campaignId = route.params.id as string

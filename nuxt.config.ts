@@ -3,6 +3,8 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
 
   devtools: { enabled: true },
+  ssr: false, // SPA mode -- avoids SSR crashes from client-only libs (leaflet, v-network-graph)
+  pages: true,
 
   modules: [
     '@nuxtjs/tailwindcss',
@@ -20,6 +22,13 @@ export default defineNuxtConfig({
   shadcn: {
     prefix: '',
     componentDir: './app/components/ui',
+  },
+
+  components: {
+    dirs: [
+      { path: '~/components/ui', pathPrefix: false, extensions: ['vue'] },
+      { path: '~/components', pathPrefix: false, extensions: ['vue'] },
+    ],
   },
 
   tailwindcss: {

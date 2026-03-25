@@ -2,17 +2,18 @@ import { defineConfig } from '@playwright/test'
 
 export default defineConfig({
   testDir: './tests/e2e',
-  fullyParallel: true,
+  fullyParallel: false, // sequential for auth tests
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
-  reporter: 'html',
+  workers: 1,
+  reporter: process.env.CI ? 'github' : 'line',
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL: 'http://localhost:3333',
     trace: 'on-first-retry',
   },
   webServer: {
-    command: 'npm run build && npm run preview',
-    port: 3000,
-    reuseExistingServer: !process.env.CI,
+    command: 'npx nuxt dev --port 3333',
+    port: 3333,
+    reuseExistingServer: true, // use already-running dev server
+    timeout: 30000,
   },
 })

@@ -53,10 +53,6 @@
 </template>
 
 <script setup lang="ts">
-import { Card, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
-import { Button } from '~/components/ui/button'
-import { Input } from '~/components/ui/input'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '~/components/ui/dialog'
 
 const campaigns = ref<any[]>([])
 const loading = ref(true)
@@ -76,17 +72,20 @@ async function loadCampaigns() {
 }
 
 async function createCampaign() {
+  console.log('[Aleph] createCampaign called, name:', newCampaign.name)
   creating.value = true
   try {
     const result = await $fetch('/api/campaigns', {
       method: 'POST',
       body: { name: newCampaign.name, description: newCampaign.description },
     })
+    console.log('[Aleph] Campaign created:', (result as any).id, (result as any).slug)
     showCreateDialog.value = false
     newCampaign.name = ''
     newCampaign.description = ''
     navigateTo(`/campaigns/${(result as any).id}`)
   } catch (e: any) {
+    console.error('[Aleph] Campaign creation failed:', e.data?.message || e.message || e)
     alert(e.data?.message || 'Failed to create campaign')
   } finally {
     creating.value = false
