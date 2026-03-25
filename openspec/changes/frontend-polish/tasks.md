@@ -138,11 +138,17 @@ Replace all create dialogs with dedicated `/new` pages for full-screen forms wit
 - [ ] 10.18 Update shops/index.vue — replace Dialog with NuxtLink to /shops/new
 - [ ] 10.19 Update graph.vue — replace Dialog with NuxtLink to /relations/new
 
-### 10c. Tests
+### 10c. Update Existing E2E Tests (dialog → full page selectors)
 
-- [ ] 10.20 E2E: create character via full page form
-- [ ] 10.21 E2E: create entity via full page form
-- [ ] 10.22 E2E: create calendar via full page form
+- [ ] 10.20 Update tests/e2e/entities.spec.ts — entity creation uses /entities/new page instead of dialog
+- [ ] 10.21 Update tests/e2e/create-dialogs.spec.ts — rename file to create-pages.spec.ts, rewrite character/calendar/timeline tests for full page forms
+- [ ] 10.22 Note: helpers.ts createCampaign() and members.spec.ts invite dialog stay unchanged (simple actions)
+
+### 10d. New E2E Tests
+
+- [ ] 10.23 E2E: create character via full page form
+- [ ] 10.24 E2E: create entity via full page form
+- [ ] 10.25 E2E: create calendar via full page form
 
 ### Integration Tests
 
