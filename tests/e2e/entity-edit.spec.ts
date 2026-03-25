@@ -10,30 +10,32 @@ test.describe('Entity Editing', () => {
 
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
     const entityName = `Editable ${uid()}`
-    await page.evaluate(async ([id, name]) => {
-      await fetch(`/api/campaigns/${id}/entities`, {
+    const slug = await page.evaluate(async ([id, name]) => {
+      const r = await fetch(`/api/campaigns/${id}/entities`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, type: 'note', content: '# Original\n\nOriginal content.' }),
       })
+      return (await r.json()).slug
     }, [campaignId, entityName])
 
-    // Navigate to entity
-    await page.click('aside >> text=Wiki')
-    await page.waitForLoadState('networkidle')
-    await page.click(`main >> text=${entityName}`)
-    await page.waitForURL('**/entities/**', { timeout: 15000 })
+    // Navigate directly to entity detail page
+    await page.goto(`http://localhost:3333/campaigns/${campaignId}/entities/${slug}`)
+    await page.waitForLoadState('domcontentloaded')
+    await expect(page.locator('main h1').first()).toContainText(entityName, { timeout: 15000 })
 
     // Click Edit
     await page.click('main >> button:has-text("Edit")')
-    await page.waitForTimeout(500)
+    await page.waitForTimeout(1500)
 
-    // Verify edit mode shows textarea
-    const textarea = page.locator('main textarea')
-    await expect(textarea).toBeVisible({ timeout: 5000 })
+    // Verify edit mode shows Tiptap ProseMirror editor
+    const prosemirror = page.locator('main .ProseMirror')
+    await expect(prosemirror).toBeVisible({ timeout: 10000 })
 
-    // Change content
-    await textarea.fill('# Updated\n\nNew content here.')
+    // Clear existing content and type new content
+    await prosemirror.click()
+    await page.keyboard.press('Control+a')
+    await page.keyboard.type('New content here')
     await page.click('main >> button:has-text("Save")')
     await page.waitForTimeout(2000)
 
