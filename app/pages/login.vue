@@ -28,9 +28,8 @@
 </template>
 
 <script setup lang="ts">
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
-import { Input } from '~/components/ui/input'
-import { Button } from '~/components/ui/button'
+// Components auto-imported by Nuxt from app/components/
+import { authSignIn } from '~/composables/useAuth'
 
 definePageMeta({ layout: 'auth' })
 
@@ -42,13 +41,11 @@ async function handleLogin() {
   error.value = ''
   loading.value = true
   try {
-    await $fetch('/api/auth/sign-in/email', {
-      method: 'POST',
-      body: { email: form.email, password: form.password },
-    })
-    navigateTo('/')
-  } catch (e: any) {
-    error.value = e.data?.message || 'Invalid credentials'
+    await authSignIn(form.email, form.password)
+    // Full reload to pick up the session cookie
+    window.location.href = '/'
+  } catch (e: unknown) {
+    error.value = (e as { data?: { message?: string } })?.data?.message || 'Invalid credentials'
   } finally {
     loading.value = false
   }

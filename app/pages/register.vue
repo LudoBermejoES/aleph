@@ -32,9 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
-import { Input } from '~/components/ui/input'
-import { Button } from '~/components/ui/button'
+import { authSignUp } from '~/composables/useAuth'
 
 definePageMeta({ layout: 'auth' })
 
@@ -46,13 +44,10 @@ async function handleRegister() {
   error.value = ''
   loading.value = true
   try {
-    await $fetch('/api/auth/sign-up/email', {
-      method: 'POST',
-      body: { name: form.name, email: form.email, password: form.password },
-    })
-    navigateTo('/')
-  } catch (e: any) {
-    error.value = e.data?.message || 'Registration failed'
+    await authSignUp(form.name, form.email, form.password)
+    window.location.href = '/'
+  } catch (e: unknown) {
+    error.value = (e as { data?: { message?: string } })?.data?.message || 'Registration failed'
   } finally {
     loading.value = false
   }
