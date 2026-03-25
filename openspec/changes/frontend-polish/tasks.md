@@ -109,6 +109,41 @@
 - [x] 9.17 Forward/reverse label inputs, attitude slider (-100 to +100)
 - [x] 9.18 Submit calls POST /api/campaigns/:id/relations, reload graph
 
+## 10. Convert Create Dialogs to Full Pages
+
+Replace all create dialogs with dedicated `/new` pages for full-screen forms with MarkdownEditor.
+
+### 10a. Create Pages (replace dialogs with NuxtLink to /new route)
+
+- [ ] 10.1 Create `app/pages/campaigns/[id]/entities/new.vue` — full-page entity form (name, type, visibility, tags, content with MarkdownEditor)
+- [ ] 10.2 Create `app/pages/campaigns/[id]/characters/new.vue` — full-page character form (name, type pc/npc, race, class, alignment, status, owner dropdown for PCs, visibility, content)
+- [ ] 10.3 Create `app/pages/campaigns/[id]/calendars/new.vue` — full-page calendar form (name, current date, dynamic month list, weekday names, moons, seasons)
+- [ ] 10.4 Create `app/pages/campaigns/[id]/timelines/new.vue` — timeline form (name, description)
+- [ ] 10.5 Create `app/pages/campaigns/[id]/sessions/new.vue` — session form (name, scheduled date, description, content)
+- [ ] 10.6 Create `app/pages/campaigns/[id]/maps/new.vue` — map form (name, dimensions, image upload)
+- [ ] 10.7 Create `app/pages/campaigns/[id]/quests/new.vue` — quest form (name, status, parent quest, content)
+- [ ] 10.8 Create `app/pages/campaigns/[id]/items/new.vue` — item form (name, description, weight, value, rarity)
+- [ ] 10.9 Create `app/pages/campaigns/[id]/shops/new.vue` — shop form (name, description, location)
+- [ ] 10.10 Create `app/pages/campaigns/[id]/relations/new.vue` — relation form (source/target entity search, type, labels, attitude slider)
+
+### 10b. Update List Pages (replace Dialog with NuxtLink)
+
+- [ ] 10.11 Update entities/index.vue — replace Dialog with NuxtLink to /entities/new
+- [ ] 10.12 Update characters/index.vue — replace Dialog with NuxtLink to /characters/new
+- [ ] 10.13 Update calendars/index.vue — replace Dialog with NuxtLink to /calendars/new and /timelines/new
+- [ ] 10.14 Update sessions/index.vue — replace Dialog with NuxtLink to /sessions/new
+- [ ] 10.15 Update maps/index.vue — replace Dialog with NuxtLink to /maps/new
+- [ ] 10.16 Update quests/index.vue — replace Dialog with NuxtLink to /quests/new
+- [ ] 10.17 Update items/index.vue — replace Dialog with NuxtLink to /items/new
+- [ ] 10.18 Update shops/index.vue — replace Dialog with NuxtLink to /shops/new
+- [ ] 10.19 Update graph.vue — replace Dialog with NuxtLink to /relations/new
+
+### 10c. Tests
+
+- [ ] 10.20 E2E: create character via full page form
+- [ ] 10.21 E2E: create entity via full page form
+- [ ] 10.22 E2E: create calendar via full page form
+
 ### Integration Tests
 
 - [ ] 9.19 Test character create via API with all fields returns correct response
