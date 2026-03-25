@@ -103,8 +103,7 @@ describe('Secret Block Rendering (6.12, 6.13)', () => {
     expect(data.content).toContain('Hidden treasure location.')
   })
 
-  // RED: secret block stripping not yet implemented in entity detail API
-  it.skip('player content has secret blocks stripped (6.12)', async () => {
+  it('player content has secret blocks stripped (6.12)', async () => {
     const res = await api(`/api/campaigns/${campaignId}/entities/${entitySlug}`, { method: 'GET', headers: { Cookie: playerCookie } })
     const data = await res.json()
     expect(data.content).toContain('Public info.')
