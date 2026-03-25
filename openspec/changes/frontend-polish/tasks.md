@@ -59,3 +59,65 @@
 
 - [x] 7.1 Test auth middleware: redirects when no session, passes when valid
 - [x] 7.2 Test CampaignSidebar highlights active section
+
+## 8. Rich Text Editor Enhancement
+
+- [ ] 8.1 Add strikethrough button (~~text~~)
+- [ ] 8.2 Add ordered list button (1. 2. 3.)
+- [ ] 8.3 Add horizontal rule / separator button (---)
+- [ ] 8.4 Add link insert button (URL input dialog)
+- [ ] 8.5 Add code block button (``` fenced blocks)
+- [ ] 8.6 Add task list / checkbox button
+- [ ] 8.7 Add undo/redo buttons
+- [ ] 8.8 Add table insert button (with row/col picker)
+- [ ] 8.9 Install @tiptap/extension-link, @tiptap/extension-task-list, @tiptap/extension-task-item, @tiptap/extension-table
+
+### Unit Tests
+
+- [ ] 8.10 Test toolbar button state reflects active marks/nodes
+- [ ] 8.11 Test link insertion produces correct markdown
+
+## 9. Create Dialogs (Missing Create Buttons)
+
+### 9a. Character Create Dialog
+
+- [ ] 9.1 Add "New Character" button + dialog to characters/index.vue
+- [ ] 9.2 Form fields: name, characterType (pc/npc), race, class, alignment, status, visibility
+- [ ] 9.3 PC-specific: ownerUserId dropdown (campaign members)
+- [ ] 9.4 Content field with MarkdownEditor
+- [ ] 9.5 Submit calls POST /api/campaigns/:id/characters, navigate to detail
+
+### 9b. Calendar Create Dialog
+
+- [ ] 9.6 Add "New Calendar" button + dialog to calendars/index.vue
+- [ ] 9.7 Form fields: name, current year/month/day
+- [ ] 9.8 Dynamic month list: add/remove months with name + days per month
+- [ ] 9.9 Optional weekday names list
+- [ ] 9.10 Submit calls POST /api/campaigns/:id/calendars, navigate to detail
+
+### 9c. Timeline Create Dialog
+
+- [ ] 9.11 Add "New Timeline" button + dialog to calendars/index.vue
+- [ ] 9.12 Form fields: name, description
+- [ ] 9.13 Submit calls POST /api/campaigns/:id/timelines, navigate to detail
+
+### 9d. Relation Create Dialog
+
+- [ ] 9.14 Add "New Relation" button + dialog to graph.vue
+- [ ] 9.15 Entity picker dropdowns for source and target (search campaign entities)
+- [ ] 9.16 Relation type dropdown (loads from /api/campaigns/:id/relation-types)
+- [ ] 9.17 Forward/reverse label inputs, attitude slider (-100 to +100)
+- [ ] 9.18 Submit calls POST /api/campaigns/:id/relations, reload graph
+
+### Integration Tests
+
+- [ ] 9.19 Test character create via API with all fields returns correct response
+- [ ] 9.20 Test calendar create with configJson returns correct nested structure
+- [ ] 9.21 Test relation create validates source/target entities exist
+
+### E2E Tests
+
+- [ ] 9.22 E2E: create character via dialog, verify in list
+- [ ] 9.23 E2E: create calendar via dialog, verify month grid renders
+- [ ] 9.24 E2E: create timeline via dialog, verify in list
+- [ ] 9.25 E2E: create relation via dialog, verify in graph
