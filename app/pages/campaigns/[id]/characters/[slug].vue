@@ -29,42 +29,9 @@
             Companion of another character
           </p>
         </div>
-        <Button v-if="!editing" variant="outline" size="sm" data-testid="edit-character" @click="editing = true">Edit</Button>
-        <div v-else class="flex gap-2">
-          <Button size="sm" data-testid="save-character" @click="save">Save</Button>
-          <Button variant="outline" size="sm" @click="editing = false">Cancel</Button>
-        </div>
-      </div>
-
-      <!-- Edit Form (7.6) -->
-      <div v-if="editing" class="mb-6 p-4 rounded-lg border border-border space-y-4" data-testid="character-edit-form">
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label class="text-sm font-medium">Name</label>
-            <input v-model="editForm.name" class="w-full mt-1 px-3 py-2 rounded border border-input bg-background" />
-          </div>
-          <div>
-            <label class="text-sm font-medium">Race</label>
-            <input v-model="editForm.race" class="w-full mt-1 px-3 py-2 rounded border border-input bg-background" />
-          </div>
-          <div>
-            <label class="text-sm font-medium">Class</label>
-            <input v-model="editForm.class" class="w-full mt-1 px-3 py-2 rounded border border-input bg-background" />
-          </div>
-          <div>
-            <label class="text-sm font-medium">Alignment</label>
-            <input v-model="editForm.alignment" class="w-full mt-1 px-3 py-2 rounded border border-input bg-background" />
-          </div>
-          <div>
-            <label class="text-sm font-medium">Status</label>
-            <select v-model="editForm.status" class="w-full mt-1 px-3 py-2 rounded border border-input bg-background">
-              <option value="alive">Alive</option>
-              <option value="dead">Dead</option>
-              <option value="missing">Missing</option>
-              <option value="unknown">Unknown</option>
-            </select>
-          </div>
-        </div>
+        <NuxtLink :to="`/campaigns/${campaignId}/characters/${slug}/edit`">
+          <Button variant="outline" size="sm" data-testid="edit-character">Edit</Button>
+        </NuxtLink>
       </div>
 
       <!-- Stats -->
@@ -135,8 +102,6 @@ const slug = route.params.slug as string
 const character = ref<any>(null)
 const connections = ref<any[]>([])
 const companions = ref<any[]>([])
-const editing = ref(false)
-const editForm = ref({ name: '', race: '', class: '', alignment: '', status: 'alive' })
 
 // Age calculation (7.1, 7.2)
 const calculatedAge = computed(() => {
@@ -160,13 +125,6 @@ const calculatedAge = computed(() => {
 async function load() {
   try {
     character.value = await $fetch(`/api/campaigns/${campaignId}/characters/${slug}`)
-    editForm.value = {
-      name: character.value.name || '',
-      race: character.value.race || '',
-      class: character.value.class || '',
-      alignment: character.value.alignment || '',
-      status: character.value.status || 'alive',
-    }
   } catch {
     character.value = null
   }
@@ -184,19 +142,6 @@ async function load() {
     companions.value = all
   } catch {
     companions.value = []
-  }
-}
-
-async function save() {
-  try {
-    await $fetch(`/api/campaigns/${campaignId}/characters/${slug}`, {
-      method: 'PUT',
-      body: editForm.value,
-    })
-    editing.value = false
-    await load()
-  } catch (e: any) {
-    alert(e.data?.message || 'Failed to save')
   }
 }
 

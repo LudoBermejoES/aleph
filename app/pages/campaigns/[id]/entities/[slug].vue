@@ -20,11 +20,9 @@
             <span v-for="tag in (entity.frontmatter?.tags || [])" :key="tag" class="text-xs px-2 py-1 rounded bg-primary/10 text-primary">{{ tag }}</span>
           </div>
         </div>
-        <div class="flex gap-2">
-          <Button variant="outline" size="sm" @click="editing = !editing">
-            {{ editing ? 'Cancel' : 'Edit' }}
-          </Button>
-        </div>
+        <NuxtLink :to="`/campaigns/${campaignId}/entities/${slug}/edit`">
+          <Button variant="outline" size="sm">Edit</Button>
+        </NuxtLink>
       </div>
 
       <!-- Frontmatter Fields -->
@@ -35,27 +33,8 @@
         </span>
       </div>
 
-      <!-- Edit Mode -->
-      <div v-if="editing" class="space-y-4 mb-6">
-        <div class="space-y-2">
-          <label class="text-sm font-medium">Name</label>
-          <Input v-model="editForm.name" />
-        </div>
-        <div class="space-y-2">
-          <label class="text-sm font-medium">Content</label>
-          <MarkdownEditor
-            v-model="editForm.content"
-            placeholder="Start writing your entity content..."
-            :collaborative="isCollaborative"
-            :document-name="`campaign:${campaignId}:entity:${slug}`"
-            :user-name="userName"
-          />
-        </div>
-        <Button @click="saveEntity" :disabled="saving">{{ saving ? 'Saving...' : 'Save' }}</Button>
-      </div>
-
       <!-- Markdown Content -->
-      <div v-else class="prose dark:prose-invert max-w-none">
+      <div class="prose dark:prose-invert max-w-none">
         <MDC v-if="entity.content" :value="entity.content" />
         <p v-else class="text-muted-foreground italic">No content yet. Click Edit to add some.</p>
       </div>
