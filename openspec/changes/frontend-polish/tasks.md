@@ -156,9 +156,80 @@ Replace all create dialogs with dedicated `/new` pages for full-screen forms wit
 - [ ] 9.20 Test calendar create with configJson returns correct nested structure
 - [ ] 9.21 Test relation create validates source/target entities exist
 
-### E2E Tests
+### E2E Tests (legacy — replaced by section 11)
 
 - [x] 9.22 E2E: create character via dialog, verify in list
 - [x] 9.23 E2E: create calendar via dialog, verify month grid renders
 - [x] 9.24 E2E: create timeline via dialog, verify in list
 - [ ] 9.25 E2E: create relation via dialog, verify in graph
+
+## 11. Thorough E2E Create Tests (all fields + detail verification)
+
+Rewrite create E2E tests to fill every form field and verify each persisted value on the detail page.
+
+### 11a. Entity Create (full fields)
+
+- [ ] 11.1 Fill name, select type from dropdown, set visibility to dm_only, add tags
+- [ ] 11.2 Type rich content in MarkdownEditor (heading + paragraph)
+- [ ] 11.3 Submit → verify detail page shows name, type badge, visibility
+- [ ] 11.4 Verify markdown content rendered (heading + paragraph visible)
+
+### 11b. Character Create (full fields)
+
+- [ ] 11.5 Fill name, select NPC type, set race, class, alignment, status=alive, visibility
+- [ ] 11.6 Switch to PC type → verify owner dropdown appears, select a member
+- [ ] 11.7 Type character description in MarkdownEditor
+- [ ] 11.8 Submit → verify detail page shows name, type badge, race, class, alignment, status
+- [ ] 11.9 Verify markdown content rendered on detail page
+
+### 11c. Calendar Create (full fields)
+
+- [ ] 11.10 Fill name, set current year/month/day
+- [ ] 11.11 Add 3 months with custom names and day counts
+- [ ] 11.12 Set weekday names (comma-separated)
+- [ ] 11.13 Submit → verify calendar grid renders with correct month name
+- [ ] 11.14 Verify correct number of day cells in grid
+
+### 11d. Timeline Create (full fields)
+
+- [ ] 11.15 Fill name and description
+- [ ] 11.16 Submit → verify timeline detail page shows name
+- [ ] 11.17 Verify chronicle view renders (empty state)
+
+### 11e. Session Create (full fields)
+
+- [ ] 11.18 Fill title, set scheduled date, select status
+- [ ] 11.19 Type session notes in MarkdownEditor
+- [ ] 11.20 Submit → verify session detail page shows title, status, date
+- [ ] 11.21 Verify markdown notes rendered
+
+### 11f. Map Create (full fields)
+
+- [ ] 11.22 Fill map name, set visibility
+- [ ] 11.23 Submit → verify map detail page shows name
+- [ ] 11.24 Verify map viewer component renders
+
+### 11g. Quest Create (full fields)
+
+- [ ] 11.25 Fill name, set status to active, mark as secret
+- [ ] 11.26 Type quest details in MarkdownEditor
+- [ ] 11.27 Submit → verify quest appears in quest list with correct status
+
+### 11h. Item Create (full fields)
+
+- [ ] 11.28 Fill name, select rarity (legendary), set type, weight, size
+- [ ] 11.29 Add description text
+- [ ] 11.30 Submit → verify item appears in item list with correct rarity badge
+
+### 11i. Shop Create (full fields)
+
+- [ ] 11.31 Fill shop name and description
+- [ ] 11.32 Submit → verify shop detail page shows name and description
+
+### 11j. Relation Create (full fields)
+
+- [ ] 11.33 Create two entities via API first
+- [ ] 11.34 Navigate to /relations/new, search and select source entity
+- [ ] 11.35 Search and select target entity
+- [ ] 11.36 Set forward/reverse labels, select relation type, adjust attitude slider
+- [ ] 11.37 Submit → verify relation appears in graph (both nodes + edge visible)
