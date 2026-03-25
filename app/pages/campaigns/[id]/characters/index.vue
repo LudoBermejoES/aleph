@@ -38,6 +38,13 @@
                     <option value="unknown">Unknown</option>
                   </select>
                 </div>
+                <div v-if="form.characterType === 'pc'">
+                  <label class="text-sm font-medium">Owner (Player)</label>
+                  <select v-model="form.ownerUserId" class="w-full mt-1 px-3 py-2 rounded border border-input bg-background">
+                    <option value="">-- No owner --</option>
+                    <option v-for="m in members" :key="m.userId" :value="m.userId">{{ m.name }} ({{ m.role }})</option>
+                  </select>
+                </div>
                 <div>
                   <label class="text-sm font-medium">Race</label>
                   <input v-model="form.race" class="w-full mt-1 px-3 py-2 rounded border border-input bg-background" placeholder="Human, Elf, Dwarf..." />
@@ -139,9 +146,10 @@ const filter = ref('all')
 const selectedFolder = ref('')
 const showCreate = ref(false)
 const creating = ref(false)
+const members = ref<any[]>([])
 const form = ref({
   name: '', characterType: 'npc', race: '', class: '', alignment: '',
-  status: 'alive', visibility: 'members', content: '',
+  status: 'alive', visibility: 'members', content: '', ownerUserId: '',
 })
 
 async function createCharacter() {
@@ -152,7 +160,7 @@ async function createCharacter() {
       body: form.value,
     }) as any
     showCreate.value = false
-    form.value = { name: '', characterType: 'npc', race: '', class: '', alignment: '', status: 'alive', visibility: 'members', content: '' }
+    form.value = { name: '', characterType: 'npc', race: '', class: '', alignment: '', status: 'alive', visibility: 'members', content: '', ownerUserId: '' }
     await router.push(`/campaigns/${campaignId}/characters/${res.slug}`)
   } catch (e: any) {
     alert(e.data?.message || 'Failed to create character')
@@ -180,7 +188,11 @@ async function loadFolders() {
   }
 }
 
+async function loadMembers() {
+  try { members.value = await $fetch(`/api/campaigns/${campaignId}/members`) as any[] } catch { members.value = [] }
+}
+
 onMounted(async () => {
-  await Promise.all([load(), loadFolders()])
+  await Promise.all([load(), loadFolders(), loadMembers()])
 })
 </script>
