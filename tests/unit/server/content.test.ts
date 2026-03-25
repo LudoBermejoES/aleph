@@ -95,6 +95,54 @@ describe('Frontmatter Schema', () => {
   })
 })
 
+describe('Content Hash — save produces correct hash', () => {
+  let testDir: TestContentDir
+
+  beforeEach(() => {
+    testDir = createTestContentDir()
+  })
+
+  afterEach(() => {
+    testDir.cleanup()
+  })
+
+  it('writeEntityFile returns hash matching readEntityFile hash', async () => {
+    const filePath = join(testDir.root, 'npc', 'vistani.md')
+    const fm = {
+      type: 'character' as const,
+      name: 'Vistani Elder',
+      aliases: [] as string[],
+      tags: ['npc'],
+      visibility: 'members' as const,
+      fields: {},
+    }
+    const body = '# Vistani Elder\n\nA wise traveler.'
+
+    const writeHash = await writeEntityFile(filePath, fm, body)
+    const readResult = await readEntityFile(filePath)
+
+    expect(writeHash).toBe(readResult.contentHash)
+    expect(writeHash).toMatch(/^[a-f0-9]{32}$/)
+  })
+
+  it('hash changes when content is modified', async () => {
+    const filePath = join(testDir.root, 'npc', 'madam-eva.md')
+    const fm = {
+      type: 'character' as const,
+      name: 'Madam Eva',
+      aliases: [] as string[],
+      tags: [],
+      visibility: 'members' as const,
+      fields: {},
+    }
+
+    const hash1 = await writeEntityFile(filePath, fm, '# Madam Eva\n\nOriginal content.')
+    const hash2 = await writeEntityFile(filePath, fm, '# Madam Eva\n\nUpdated content.')
+
+    expect(hash1).not.toBe(hash2)
+  })
+})
+
 describe('File CRUD (temp dir)', () => {
   let testDir: TestContentDir
 
