@@ -13,7 +13,7 @@
         <h1 class="text-2xl font-bold">{{ calendar.name }}</h1>
         <div class="flex items-center gap-2">
           <span class="text-sm text-muted-foreground">
-            Current: Year {{ calendar.currentYear }}, {{ monthName(calendar.currentMonth) }} {{ calendar.currentDay }}
+            Current: Year {{ currentDate.year }}, {{ monthName(currentDate.month) }} {{ currentDate.day }}
           </span>
           <Button variant="outline" size="sm" data-testid="advance-date" @click="showAdvance = !showAdvance">
             Advance Date
@@ -87,7 +87,14 @@ const viewYear = ref(1)
 const showAdvance = ref(false)
 const advanceDays = ref(1)
 
+const currentDate = computed(() => {
+  if (calendar.value?.currentDate) return calendar.value.currentDate
+  return { year: calendar.value?.currentYear || 1, month: calendar.value?.currentMonth || 1, day: calendar.value?.currentDay || 1 }
+})
+
 const config = computed(() => {
+  // The GET endpoint returns parsed `config` object, but also raw `configJson`
+  if (calendar.value?.config) return calendar.value.config
   if (!calendar.value?.configJson) return null
   try { return typeof calendar.value.configJson === 'string' ? JSON.parse(calendar.value.configJson) : calendar.value.configJson } catch { return null }
 })
@@ -117,7 +124,7 @@ function monthName(m: number) {
 }
 
 function isCurrentDay(day: number) {
-  return calendar.value && viewYear.value === calendar.value.currentYear && viewMonth.value === calendar.value.currentMonth && day === calendar.value.currentDay
+  return calendar.value && viewYear.value === currentDate.value.year && viewMonth.value === currentDate.value.month && day === currentDate.value.day
 }
 
 function seasonColor(day: number) {
@@ -176,10 +183,10 @@ async function advanceDate() {
       method: 'PATCH',
       body: { days: advanceDays.value },
     }) as any
-    if (res.currentYear) {
-      calendar.value.currentYear = res.currentYear
-      calendar.value.currentMonth = res.currentMonth
-      calendar.value.currentDay = res.currentDay
+    if (res.currentDate) {
+      calendar.value.currentDate = res.currentDate
+    } else if (res.currentYear) {
+      calendar.value.currentDate = { year: res.currentYear, month: res.currentMonth, day: res.currentDay }
     }
     showAdvance.value = false
     await load()
@@ -191,8 +198,8 @@ async function advanceDate() {
 async function load() {
   try {
     calendar.value = await $fetch(`/api/campaigns/${campaignId}/calendars/${calendarId}`)
-    viewMonth.value = calendar.value.currentMonth || 1
-    viewYear.value = calendar.value.currentYear || 1
+    viewMonth.value = currentDate.value.month || 1
+    viewYear.value = currentDate.value.year || 1
   } catch {
     calendar.value = null
   }

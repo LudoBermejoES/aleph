@@ -18,8 +18,14 @@ export default defineEventHandler(async (event) => {
     id: calId,
     campaignId,
     name: body.name,
-    configJson: JSON.stringify({ months: body.months || [], weekdays: body.weekdays || [], yearLength: body.yearLength || 360 }),
-    currentDateJson: body.currentDate ? JSON.stringify(body.currentDate) : JSON.stringify({ year: 1, month: 1, day: 1 }),
+    configJson: body.configJson
+      ? (typeof body.configJson === 'string' ? body.configJson : JSON.stringify(body.configJson))
+      : JSON.stringify({ months: body.months || [], weekdays: body.weekdays || [], yearLength: body.yearLength || 360 }),
+    currentDateJson: body.currentDate
+      ? JSON.stringify(body.currentDate)
+      : (body.currentYear
+        ? JSON.stringify({ year: body.currentYear, month: body.currentMonth || 1, day: body.currentDay || 1 })
+        : JSON.stringify({ year: 1, month: 1, day: 1 })),
     createdAt: now,
     updatedAt: now,
   }).run()
