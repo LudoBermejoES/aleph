@@ -42,8 +42,8 @@
           <Input v-model="editForm.name" />
         </div>
         <div class="space-y-2">
-          <label class="text-sm font-medium">Content (Markdown)</label>
-          <textarea v-model="editForm.content" rows="15" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono"></textarea>
+          <label class="text-sm font-medium">Content</label>
+          <MarkdownEditorClient v-model="editForm.content" placeholder="Start writing your entity content..." />
         </div>
         <Button @click="saveEntity" :disabled="saving">{{ saving ? 'Saving...' : 'Save' }}</Button>
       </div>

@@ -4,33 +4,33 @@
 
 ### 1a. Write unit tests (RED phase)
 
-- [ ] 1.1 Test markdownToTiptap: standard markdown (headings, bold, lists) produces correct Tiptap JSON nodes
+- [x] 1.1 Test markdownToTiptap: standard markdown (headings, bold, lists) produces correct Tiptap JSON nodes
 - [ ] 1.2 Test markdownToTiptap: `:entity-link` MDC produces entity-link Tiptap node with slug attribute
-- [ ] 1.3 Test tiptapToMarkdown: Tiptap JSON with headings/bold/lists produces correct markdown string
+- [x] 1.3 Test tiptapToMarkdown: Tiptap JSON with headings/bold/lists produces correct markdown string
 - [ ] 1.4 Test tiptapToMarkdown: entity-link Tiptap node produces `:entity-link{slug}` MDC syntax
-- [ ] 1.5 Test round-trip: markdown → Tiptap JSON → markdown produces identical output (isRoundTripSafe)
+- [x] 1.5 Test round-trip: markdown → Tiptap JSON → markdown produces identical output (isRoundTripSafe)
 - [ ] 1.6 Test round-trip: `:::secret{.dm}` block with content round-trips correctly
-- [ ] 1.7 Test mergeFrontmatter: unchanged fields preserved, changed fields updated
-- [ ] 1.8 Test mergeFrontmatter: created_at never overwritten
-- [ ] 1.9 Test mergeFrontmatter: new fields added, missing fields use defaults
+- [x] 1.7 Test mergeFrontmatter: unchanged fields preserved, changed fields updated
+- [x] 1.8 Test mergeFrontmatter: created_at never overwritten
+- [x] 1.9 Test mergeFrontmatter: new fields added, missing fields use defaults
 
 ### 1b. Implement services (GREEN phase)
 
-- [ ] 1.10 Implement `markdownToTiptap(md)` using @tiptap/markdown parse
-- [ ] 1.11 Implement `tiptapToMarkdown(json)` using @tiptap/markdown serialize
-- [ ] 1.12 Implement `mergeFrontmatter(existing, updated)` preserving created_at
-- [ ] 1.13 Implement `isRoundTripSafe(markdown)` using parse+serialize comparison
-- [ ] 1.14 Verify all unit tests pass
+- [x] 1.10 Implement `markdownToTiptap(md)` using editor.markdown.parse() + jsdom shim
+- [x] 1.11 Implement `tiptapToMarkdown(json)` using editor.getMarkdown()
+- [x] 1.12 Implement `mergeFrontmatter(existing, updated)` preserving created_at
+- [x] 1.13 Implement `isRoundTripSafe(markdown)` using parse+serialize comparison
+- [x] 1.14 Verify all unit tests pass
 
 ## 2. Tiptap 3 Editor Integration
 
-- [ ] 2.1 Install Tiptap 3 with StarterKit, Placeholder, Typography, Link, Image, Table extensions
-- [ ] 2.2 Install and configure @tiptap/markdown for bidirectional serialization
-- [ ] 2.3 Create `MarkdownEditor.vue` component wrapping Tiptap with toolbar
-- [ ] 2.4 Implement load flow: read .md → gray-matter parse → editor.setContent(markdown)
+- [x] 2.1 Install Tiptap 3 with StarterKit, Placeholder, Typography, Link, Image, Table extensions
+- [x] 2.2 Install and configure @tiptap/markdown for bidirectional serialization
+- [x] 2.3 Create `MarkdownEditor.client.vue` component wrapping Tiptap with toolbar
+- [x] 2.4 Implement load flow: read .md → markdown.parse() → setContent
 - [ ] 2.5 Build custom Tiptap node for `:entity-link` MDC component
 - [ ] 2.6 Build custom Tiptap node for `:::secret` block MDC component
-- [ ] 2.7 Replace existing markdown textarea with MarkdownEditor on entity edit pages
+- [x] 2.7 Replace existing markdown textarea with MarkdownEditor on entity edit pages
 
 ## 3. Y.js + Hocuspocus Setup
 
