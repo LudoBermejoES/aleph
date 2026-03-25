@@ -123,7 +123,7 @@ test.describe('Multi-User Collaboration', () => {
     }, [campaignId, inviteToken])
 
     // Both users navigate to the entity and enter edit mode
-    const entityUrl = `http://localhost:3333/campaigns/${campaignId}/entities/${slug}`
+    const entityUrl = `http://localhost:3333/campaigns/${campaignId}/entities/${slug}?collab=true`
 
     await page1.goto(entityUrl)
     await page1.waitForLoadState('domcontentloaded')
