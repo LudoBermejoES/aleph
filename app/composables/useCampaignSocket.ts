@@ -24,19 +24,24 @@ export function useCampaignSocket(campaignId: Ref<string | undefined>) {
 
   let ws: WebSocket | null = null
 
-  function connect() {
+  async function connect() {
     if (!campaignId.value || ws) return
 
-    // Get session token from cookie for auth
-    const sessionCookie = document.cookie
-      .split('; ')
-      .find(c => c.startsWith('better-auth.session_token='))
-      ?.split('=')[1] || ''
+    // Fetch a short-lived WS token via HTTP (HttpOnly session cookie sent automatically)
+    let wsToken: string
+    try {
+      const res = await fetch('/api/ws/token', { credentials: 'include' })
+      if (!res.ok) return
+      const data = await res.json()
+      wsToken = data.token
+    } catch {
+      return
+    }
 
-    if (!sessionCookie) return
+    if (!wsToken) return
 
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-    const url = `${protocol}//${window.location.host}/api/ws?token=${encodeURIComponent(sessionCookie)}&campaignId=${encodeURIComponent(campaignId.value)}`
+    const url = `${protocol}//${window.location.host}/api/ws?token=${encodeURIComponent(wsToken)}&campaignId=${encodeURIComponent(campaignId.value)}`
 
     ws = new WebSocket(url)
 
