@@ -13,7 +13,7 @@ let server: Server | null = null
 
 export default defineNitroPlugin(async () => {
   try {
-    server = Server.configure({
+    server = new Server({
       port: 3334,
       quiet: true,
       debounce: 2000, // 2s after last change before onStoreDocument fires
@@ -155,7 +155,10 @@ export default defineNitroPlugin(async () => {
 
     server.listen()
     logger.info('Hocuspocus collaboration server started on port 3334')
-  } catch (err) {
-    logger.warn('Hocuspocus: failed to start (collaboration disabled)', { error: err })
+  } catch (err: any) {
+    logger.warn('Hocuspocus: failed to start (collaboration disabled)', {
+      error: err?.message || String(err),
+      stack: err?.stack,
+    })
   }
 })
