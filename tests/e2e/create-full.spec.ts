@@ -352,21 +352,27 @@ test.describe('Thorough Relation Create (11j)', () => {
     await targetDropdown.click()
     await expect(page.locator('.text-primary:has-text("RelTarget Entity")')).toBeVisible({ timeout: 3000 })
 
-    // 11.36 Set labels and attitude
+    // 11.36 Set labels, relation type, and attitude
     await page.fill('input[placeholder="allies with"]:first-of-type', 'rules over')
     await page.fill('input[placeholder="allies with"]:last-of-type', 'ruled by')
+
+    // Select first available relation type (required field)
+    const typeSelect = page.locator('select:has(option[value=""])').last()
+    const options = await typeSelect.locator('option:not([value=""])').all()
+    if (options.length > 0) {
+      const val = await options[0].getAttribute('value')
+      if (val) await typeSelect.selectOption(val)
+    }
+
     // Adjust attitude slider to positive
     await page.locator('input[type="range"]').fill('75')
 
-    // Debug: check form state before submit
-    const sourceSelected = await page.locator('.text-primary:has-text("RelSource")').isVisible().catch(() => false)
-    const targetSelected = await page.locator('.text-primary:has-text("RelTarget")').isVisible().catch(() => false)
-    console.log('Source selected:', sourceSelected, 'Target selected:', targetSelected)
-
-    // 11.37 Submit — if entities not selected, the button will be disabled
+    // 11.37 Submit
     const submitBtn = page.locator('button:has-text("Create Relation")')
     const isEnabled = await submitBtn.isEnabled()
-    console.log('Submit button enabled:', isEnabled)
+
+    // Dismiss any alert that might appear from API errors
+    page.on('dialog', dialog => dialog.dismiss())
 
     if (!isEnabled) {
       // Fallback: create relation via API and navigate manually
