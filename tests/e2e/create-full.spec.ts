@@ -335,19 +335,22 @@ test.describe('Thorough Relation Create (11j)', () => {
     await page.goto(`${BASE}/campaigns/${campaignId}/relations/new`)
     await page.waitForLoadState('networkidle')
 
-    // 11.34 Search and select source
+    // 11.34 Search and select source — use the search result buttons inside the dropdown
     const sourceInput = page.locator('input[placeholder="Search entities..."]').first()
     await sourceInput.fill('RelSource')
-    await expect(page.locator('text=RelSource Entity').first()).toBeVisible({ timeout: 8000 })
-    await page.locator('text=RelSource Entity').first().click()
-    await expect(page.locator('text=Selected: RelSource Entity')).toBeVisible({ timeout: 3000 })
+    const sourceDropdown = page.locator('.border.border-border.rounded.mt-1 button:has-text("RelSource Entity")').first()
+    await expect(sourceDropdown).toBeVisible({ timeout: 8000 })
+    await sourceDropdown.click()
+    // Verify selected
+    await expect(page.locator('.text-primary:has-text("RelSource Entity")')).toBeVisible({ timeout: 3000 })
 
     // 11.35 Search and select target
     const targetInput = page.locator('input[placeholder="Search entities..."]').nth(1)
     await targetInput.fill('RelTarget')
-    await expect(page.locator('text=RelTarget Entity').first()).toBeVisible({ timeout: 8000 })
-    await page.locator('text=RelTarget Entity').first().click()
-    await expect(page.locator('text=Selected: RelTarget Entity')).toBeVisible({ timeout: 3000 })
+    const targetDropdown = page.locator('.border.border-border.rounded.mt-1 button:has-text("RelTarget Entity")').last()
+    await expect(targetDropdown).toBeVisible({ timeout: 8000 })
+    await targetDropdown.click()
+    await expect(page.locator('.text-primary:has-text("RelTarget Entity")')).toBeVisible({ timeout: 3000 })
 
     // 11.36 Set labels and attitude
     await page.fill('input[placeholder="allies with"]:first-of-type', 'rules over')
