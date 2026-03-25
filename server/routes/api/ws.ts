@@ -1,6 +1,6 @@
 import type { Peer } from 'crossws'
-import { auth } from '../../utils/auth'
 import { useDb } from '../../utils/db'
+import { validateWsToken } from '../../services/ws-token'
 import { eq, and } from 'drizzle-orm'
 import { campaignMembers } from '../../db/schema/campaign-members'
 import { logger } from '../../utils/logger'
@@ -8,7 +8,6 @@ import { registerBroadcast } from '../../utils/broadcast'
 import {
   addUserPresence,
   scheduleRemoval,
-  cancelRemoval,
   getPresenceList,
 } from '../../services/presence'
 
@@ -61,21 +60,11 @@ export default defineWebSocketHandler({
       return
     }
 
-    // Validate session via Better Auth
-    let session
-    try {
-      session = await auth.api.getSession({
-        headers: new Headers({ cookie: `better-auth.session_token=${token}` }),
-      })
-    } catch {
-      peer.send(JSON.stringify({ type: 'error', message: 'Invalid session' }))
-      peer.close(4001, 'Invalid session')
-      return
-    }
-
-    if (!session) {
-      peer.send(JSON.stringify({ type: 'error', message: 'Invalid session' }))
-      peer.close(4001, 'Invalid session')
+    // Validate short-lived WS token (issued by GET /api/ws/token)
+    const userId = validateWsToken(token)
+    if (!userId) {
+      peer.send(JSON.stringify({ type: 'error', message: 'Invalid or expired token' }))
+      peer.close(4001, 'Invalid or expired token')
       return
     }
 
@@ -83,7 +72,7 @@ export default defineWebSocketHandler({
     const db = useDb()
     const membership = db.select()
       .from(campaignMembers)
-      .where(and(eq(campaignMembers.campaignId, campaignId), eq(campaignMembers.userId, session.user.id)))
+      .where(and(eq(campaignMembers.campaignId, campaignId), eq(campaignMembers.userId, userId)))
       .get()
 
     if (!membership) {
@@ -92,10 +81,15 @@ export default defineWebSocketHandler({
       return
     }
 
+    // Look up user name
+    const user = db.select().from(campaignMembers)
+      .where(eq(campaignMembers.userId, userId))
+      .get()
+
     // Store context on peer
     const context: PeerContext = {
-      userId: session.user.id,
-      userName: session.user.name,
+      userId,
+      userName: user?.userId || 'Unknown', // Will improve once we query auth user table
       campaignId,
       role: membership.role,
     }
@@ -106,13 +100,13 @@ export default defineWebSocketHandler({
     peer.subscribe(`campaign:${campaignId}`)
 
     // Add to presence (also cancels any pending removal)
-    addUserPresence(campaignId, session.user.id, session.user.name, membership.role)
+    addUserPresence(campaignId, userId, context.userName, membership.role)
 
     // Notify others
     peer.publish(`campaign:${campaignId}`, JSON.stringify({
       type: 'presence:join',
       campaignId,
-      user: { userId: session.user.id, name: session.user.name, role: membership.role },
+      user: { userId, name: context.userName, role: membership.role },
     }))
 
     // Send current presence list to the connecting peer
@@ -122,7 +116,7 @@ export default defineWebSocketHandler({
       users: getPresenceList(campaignId),
     }))
 
-    logger.debug('WebSocket: user connected', { userId: session.user.id, campaignId })
+    logger.debug('WebSocket: user connected', { userId, campaignId })
   },
 
   message(peer, message) {

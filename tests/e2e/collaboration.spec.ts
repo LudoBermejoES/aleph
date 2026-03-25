@@ -80,10 +80,7 @@ test.describe('Tiptap Editor (Collaboration)', () => {
 })
 
 test.describe('Presence Avatars (Collaboration)', () => {
-  // Skip: Better Auth uses HttpOnly cookies that JS can't read,
-  // so useCampaignSocket can't extract the session token for WebSocket auth.
-  // Needs a dedicated /api/ws/token endpoint or non-HttpOnly token.
-  test.skip('presence avatars show when user is in a campaign (9.19)', async ({ page }) => {
+  test('presence avatars show when user is in a campaign (9.19)', async ({ page }) => {
     await registerAndLogin(page, 'PresUser')
     await createCampaign(page, `Pres Camp ${uid()}`)
     await page.waitForTimeout(5000)

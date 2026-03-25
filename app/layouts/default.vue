@@ -10,7 +10,10 @@
       <nav class="flex-1 p-2 space-y-1 overflow-auto">
         <!-- Campaign sidebar when inside a campaign -->
         <template v-if="campaignId">
-          <p v-if="campaignName" class="px-3 py-1 text-xs font-semibold text-sidebar-foreground/70 uppercase tracking-wider">{{ campaignName }}</p>
+          <div class="flex items-center justify-between px-3 py-1">
+            <p v-if="campaignName" class="text-xs font-semibold text-sidebar-foreground/70 uppercase tracking-wider">{{ campaignName }}</p>
+            <PresenceAvatars :users="presenceUsers" :max-visible="4" />
+          </div>
           <NuxtLink :to="`/campaigns/${campaignId}`"
             class="block px-3 py-2 rounded text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent transition-colors">
             Dashboard
@@ -57,8 +60,8 @@ const campaignId = computed(() => {
   return match ? match[1] : undefined
 })
 
-// Presence system — disabled until WebSocket auth is compatible with HttpOnly cookies
-// const { presenceUsers } = useCampaignSocket(campaignId)
+// Presence system
+const { presenceUsers } = useCampaignSocket(campaignId)
 
 // Fetch campaign name when inside a campaign
 watch(campaignId, async (id) => {

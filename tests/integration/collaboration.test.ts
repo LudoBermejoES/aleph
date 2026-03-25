@@ -286,6 +286,16 @@ describe('Save Pipeline (integration)', () => {
 
 // --- CrossWS WebSocket Integration Tests ---
 
+/** Fetch a short-lived WS token using a session cookie */
+async function getWsToken(sessionCookie: string): Promise<string> {
+  const res = await api('/api/ws/token', {
+    method: 'GET',
+    headers: { Cookie: `better-auth.session_token=${sessionCookie}` },
+  })
+  const data = await res.json()
+  return data.token
+}
+
 function connectCampaignWs(token: string, campaignId: string): Promise<{ ws: WebSocket; messages: any[]; connected: boolean }> {
   return new Promise((resolve) => {
     const messages: any[] = []
@@ -344,7 +354,8 @@ describe('CrossWS /api/ws Authentication (integration)', () => {
   })
 
   it('authenticated member connects and receives presence:list', async () => {
-    const { ws, messages, connected } = await connectCampaignWs(dmToken, campaignId)
+    const wsToken = await getWsToken(dmToken)
+    const { ws, messages, connected } = await connectCampaignWs(wsToken, campaignId)
     expect(connected).toBe(true)
     const presenceMsg = messages.find((m: any) => m.type === 'presence:list')
     expect(presenceMsg).toBeDefined()
@@ -359,7 +370,8 @@ describe('CrossWS /api/ws Authentication (integration)', () => {
   })
 
   it('missing campaignId is rejected', async () => {
-    const { ws, connected } = await connectCampaignWs(dmToken, '')
+    const wsToken = await getWsToken(dmToken)
+    const { ws, connected } = await connectCampaignWs(wsToken, '')
     expect(connected).toBe(false)
     ws.close()
   })
@@ -374,9 +386,10 @@ describe('CrossWS /api/ws Authentication (integration)', () => {
       method: 'POST',
       body: { email: outsiderEmail, password: 'password123' },
     })
-    const outsiderToken = (login.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1] || ''
+    const outsiderCookie = (login.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1] || ''
+    const outsiderWsToken = await getWsToken(outsiderCookie)
 
-    const { ws, connected } = await connectCampaignWs(outsiderToken, campaignId)
+    const { ws, connected } = await connectCampaignWs(outsiderWsToken, campaignId)
     expect(connected).toBe(false)
     ws.close()
   })
@@ -436,10 +449,12 @@ describe('CrossWS Presence (integration)', () => {
   })
 
   it('two users connect and both appear in presence list', async () => {
-    const conn1 = await connectCampaignWs(dm1Token, campaignId)
+    const ws1Token = await getWsToken(dm1Token)
+    const conn1 = await connectCampaignWs(ws1Token, campaignId)
     expect(conn1.connected).toBe(true)
 
-    const conn2 = await connectCampaignWs(dm2Token, campaignId)
+    const ws2Token = await getWsToken(dm2Token)
+    const conn2 = await connectCampaignWs(ws2Token, campaignId)
     expect(conn2.connected).toBe(true)
 
     // Request fresh presence list from conn2
