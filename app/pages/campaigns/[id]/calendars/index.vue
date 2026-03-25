@@ -23,7 +23,7 @@
           <div>
             <span class="font-medium">{{ cal.name }}</span>
             <span class="text-sm text-muted-foreground ml-2">
-              Current: Year {{ cal.currentYear }}, Month {{ cal.currentMonth }}, Day {{ cal.currentDay }}
+              Current: Year {{ cal.currentDate?.year || cal.currentYear }}, Month {{ cal.currentDate?.month || cal.currentMonth }}, Day {{ cal.currentDate?.day || cal.currentDay }}
             </span>
           </div>
           <span class="text-xs text-muted-foreground">{{ cal.config?.months?.length || 0 }} months, {{ cal.moons?.length || 0 }} moons</span>

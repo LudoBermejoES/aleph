@@ -336,17 +336,18 @@ test.describe('Thorough Relation Create (11j)', () => {
     await page.waitForLoadState('networkidle')
 
     // 11.34 Search and select source
-    await page.fill('input[placeholder="Search entities..."]:first-of-type', 'RelSource')
-    await page.waitForTimeout(500) // debounce
-    await expect(page.locator('button:has-text("RelSource Entity")')).toBeVisible({ timeout: 5000 })
-    await page.click('button:has-text("RelSource Entity")')
+    const sourceInput = page.locator('input[placeholder="Search entities..."]').first()
+    await sourceInput.fill('RelSource')
+    await expect(page.locator('text=RelSource Entity').first()).toBeVisible({ timeout: 8000 })
+    await page.locator('text=RelSource Entity').first().click()
+    await expect(page.locator('text=Selected: RelSource Entity')).toBeVisible({ timeout: 3000 })
 
     // 11.35 Search and select target
     const targetInput = page.locator('input[placeholder="Search entities..."]').nth(1)
     await targetInput.fill('RelTarget')
-    await page.waitForTimeout(500)
-    await expect(page.locator('button:has-text("RelTarget Entity")')).toBeVisible({ timeout: 5000 })
-    await page.click('button:has-text("RelTarget Entity")')
+    await expect(page.locator('text=RelTarget Entity').first()).toBeVisible({ timeout: 8000 })
+    await page.locator('text=RelTarget Entity').first().click()
+    await expect(page.locator('text=Selected: RelTarget Entity')).toBeVisible({ timeout: 3000 })
 
     // 11.36 Set labels and attitude
     await page.fill('input[placeholder="allies with"]:first-of-type', 'rules over')
@@ -354,8 +355,10 @@ test.describe('Thorough Relation Create (11j)', () => {
     // Adjust attitude slider to positive
     await page.locator('input[type="range"]').fill('75')
 
-    // 11.37 Submit
-    await page.click('button:has-text("Create Relation")')
+    // 11.37 Submit — verify button is enabled first
+    const submitBtn = page.locator('button:has-text("Create Relation")')
+    await expect(submitBtn).toBeEnabled({ timeout: 5000 })
+    await submitBtn.click()
     await expect(async () => {
       expect(page.url()).toContain('/graph')
     }).toPass({ timeout: 15000 })
