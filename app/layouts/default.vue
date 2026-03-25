@@ -54,8 +54,11 @@ const campaignName = ref('')
 
 const campaignId = computed(() => {
   const match = route.path.match(/^\/campaigns\/([^/]+)/)
-  return match ? match[1] : null
+  return match ? match[1] : undefined
 })
+
+// Presence system — disabled until WebSocket auth is compatible with HttpOnly cookies
+// const { presenceUsers } = useCampaignSocket(campaignId)
 
 // Fetch campaign name when inside a campaign
 watch(campaignId, async (id) => {

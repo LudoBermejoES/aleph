@@ -43,7 +43,7 @@
         </div>
         <div class="space-y-2">
           <label class="text-sm font-medium">Content</label>
-          <MarkdownEditorClient v-model="editForm.content" placeholder="Start writing your entity content..." />
+          <MarkdownEditor v-model="editForm.content" placeholder="Start writing your entity content..." />
         </div>
         <Button @click="saveEntity" :disabled="saving">{{ saving ? 'Saving...' : 'Save' }}</Button>
       </div>
