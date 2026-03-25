@@ -32,6 +32,8 @@ import Collaboration from '@tiptap/extension-collaboration'
 import CollaborationCursor from '@tiptap/extension-collaboration-cursor'
 import { HocuspocusProvider } from '@hocuspocus/provider'
 import * as Y from 'yjs'
+import { EntityLink } from '../../server/extensions/entity-link'
+import { SecretBlock } from '../../server/extensions/secret-block'
 
 const props = defineProps<{
   modelValue: string
@@ -56,6 +58,8 @@ onMounted(() => {
 
   const extensions: any[] = [
     Markdown,
+    EntityLink,
+    SecretBlock,
     Placeholder.configure({ placeholder: props.placeholder || 'Start writing...' }),
   ]
 
