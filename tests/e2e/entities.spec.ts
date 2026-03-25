@@ -12,19 +12,21 @@ test.describe('Entity CRUD', () => {
     await page.waitForLoadState('networkidle')
     await expect(page.locator('main h1')).toContainText('Entities', { timeout: 10000 })
 
-    await page.click('main >> button:has-text("New Entity")')
-    await page.waitForSelector('[role="dialog"]', { timeout: 5000 })
+    // Click New Entity → navigates to /entities/new
+    await page.click('[data-testid="new-entity-btn"]')
+    await expect(async () => { expect(page.url()).toContain('/entities/new') }).toPass({ timeout: 10000 })
 
     const entityName = `Strahd ${uid()}`
-    await page.fill('[role="dialog"] input', entityName)
-    await page.fill('[role="dialog"] textarea', '# Strahd\n\nA powerful vampire lord.')
+    await page.fill('input[placeholder="Entity name"]', entityName)
 
-    await page.evaluate(() => {
-      const form = document.querySelector('[role="dialog"] form') as HTMLFormElement
-      if (form) form.requestSubmit()
-    })
+    // Submit
+    await page.click('button:has-text("Create Entity")')
 
-    await page.waitForURL('**/entities/**', { timeout: 15000 })
+    // Should navigate to entity detail
+    await expect(async () => {
+      expect(page.url()).toMatch(/\/entities\/[^/]+$/)
+      expect(page.url()).not.toContain('/new')
+    }).toPass({ timeout: 15000 })
     await expect(page.locator('main h1')).toContainText(entityName, { timeout: 10000 })
   })
 

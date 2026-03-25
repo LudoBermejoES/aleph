@@ -8,22 +8,9 @@
 
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-2xl font-bold">Quests</h1>
-      <Dialog v-model:open="showCreate">
-        <DialogTrigger as-child>
-          <Button>New Quest</Button>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader><DialogTitle>Create Quest</DialogTitle></DialogHeader>
-          <form @submit.prevent="create" class="space-y-4">
-            <Input v-model="form.name" placeholder="Quest name" required />
-            <textarea v-model="form.description" rows="3" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" placeholder="Description..." />
-            <div class="flex justify-end gap-2">
-              <Button type="button" variant="outline" @click="showCreate = false">Cancel</Button>
-              <Button type="submit">Create</Button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
+      <NuxtLink :to="`/campaigns/${campaignId}/quests/new`">
+        <Button data-testid="new-quest-btn">New Quest</Button>
+      </NuxtLink>
     </div>
 
     <div class="flex gap-2 mb-6">
@@ -59,9 +46,7 @@
 const route = useRoute()
 const campaignId = route.params.id as string
 const questList = ref<any[]>([])
-const showCreate = ref(false)
 const filter = ref('')
-const form = reactive({ name: '', description: '' })
 
 const rootQuests = computed(() => questList.value.filter(q => !q.parentQuestId))
 function childQuests(parentId: string) { return questList.value.filter(q => q.parentQuestId === parentId) }
@@ -72,16 +57,6 @@ async function load() {
     if (filter.value) params.status = filter.value
     questList.value = await $fetch(`/api/campaigns/${campaignId}/quests`, { params }) as any[]
   } catch { questList.value = [] }
-}
-
-async function create() {
-  try {
-    await $fetch(`/api/campaigns/${campaignId}/quests`, { method: 'POST', body: form })
-    showCreate.value = false
-    form.name = ''
-    form.description = ''
-    await load()
-  } catch (e: any) { alert(e.data?.message || 'Failed') }
 }
 
 onMounted(load)

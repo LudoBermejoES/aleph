@@ -8,22 +8,9 @@
 
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-2xl font-bold">Sessions</h1>
-      <Dialog v-model:open="showCreate">
-        <DialogTrigger as-child>
-          <Button>New Session</Button>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader><DialogTitle>Schedule Session</DialogTitle></DialogHeader>
-          <form @submit.prevent="create" class="space-y-4">
-            <Input v-model="form.title" placeholder="Session title (optional)" />
-            <Input v-model="form.scheduledDate" type="datetime-local" />
-            <div class="flex justify-end gap-2">
-              <Button type="button" variant="outline" @click="showCreate = false">Cancel</Button>
-              <Button type="submit">Create</Button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
+      <NuxtLink :to="`/campaigns/${campaignId}/sessions/new`">
+        <Button data-testid="new-session-btn">New Session</Button>
+      </NuxtLink>
     </div>
 
     <!-- Upcoming -->
@@ -64,24 +51,12 @@
 const route = useRoute()
 const campaignId = route.params.id as string
 const sessions = ref<any[]>([])
-const showCreate = ref(false)
-const form = reactive({ title: '', scheduledDate: '' })
 
 const upcoming = computed(() => sessions.value.filter(s => ['planned', 'active'].includes(s.status)))
 const past = computed(() => sessions.value.filter(s => ['completed', 'cancelled'].includes(s.status)))
 
 async function load() {
   try { sessions.value = await $fetch(`/api/campaigns/${campaignId}/sessions`) as any[] } catch { sessions.value = [] }
-}
-
-async function create() {
-  try {
-    const res = await $fetch(`/api/campaigns/${campaignId}/sessions`, {
-      method: 'POST', body: { title: form.title || undefined, scheduledDate: form.scheduledDate || undefined },
-    }) as any
-    showCreate.value = false
-    navigateTo(`/campaigns/${campaignId}/sessions/${res.slug}`)
-  } catch (e: any) { alert(e.data?.message || 'Failed') }
 }
 
 onMounted(load)
