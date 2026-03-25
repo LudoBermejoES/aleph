@@ -22,7 +22,7 @@
 
 - [x] 3.1 Wire calendar create with months, weekdays, moons, seasons
 - [x] 3.2 Wire calendar read (full nested structure)
-- [ ] 3.3 Wire calendar update (reorder months, rename)
+- [x] 3.3 Wire calendar update (reorder months, rename)
 - [x] 3.4 Wire current date advancement (PATCH) calling advanceDate service
 - [x] 3.5 Add RBAC checks (DM manages, players view)
 
@@ -30,7 +30,7 @@
 
 - [x] 4.1 Wire calendar event create
 - [ ] 4.2 Wire recurring event expansion at query time
-- [ ] 4.3 Wire event filtering by date range
+- [x] 4.3 Wire event filtering by date range
 - [ ] 4.4 Link events to entities via entity_id
 
 ## 5. Timeline API

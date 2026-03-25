@@ -42,14 +42,14 @@
 - [x] 6.1 Wire shop CRUD handlers (POST create, GET list)
 - [x] 6.2 Wire shop stock add handler (POST)
 - [x] 6.3 Wire buy handler (deduct wealth, add item, decrement stock, log transaction)
-- [ ] 6.4 Wire sell handler (add wealth, remove item, log transaction)
+- [x] 6.4 Wire sell handler (add wealth, remove item, log transaction)
 - [ ] 6.5 Wire player-owned shop: till balance, withdraw handler
 
 ## 7. Transaction Log
 
 - [x] 7.1 Record transactions (POST create)
 - [x] 7.2 Wire transaction history query (GET with type/entity filters)
-- [ ] 7.3 Ensure transactions are immutable (no update/delete)
+- [x] 7.3 Ensure transactions are immutable (no update/delete)
 
 ## 8. Inventory & Shop Pages
 

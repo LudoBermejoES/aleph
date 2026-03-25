@@ -4,6 +4,7 @@ import { entities } from '../../../../db/schema/entities'
 import { hasMinRole } from '../../../../utils/permissions'
 import { writeEntityFile, readEntityFile } from '../../../../services/content'
 import { indexEntity } from '../../../../services/search'
+import { invalidateAutomatonCache } from '../../../../services/autolink'
 import type { CampaignRole } from '../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
@@ -66,6 +67,9 @@ export default defineEventHandler(async (event) => {
     updatedFrontmatter.tags || [],
     updatedContent,
   )
+
+  // Invalidate autolink cache on name/alias change
+  invalidateAutomatonCache(campaignId)
 
   return { ...entity, name: updatedFrontmatter.name, contentHash: hash, updatedAt: now }
 })

@@ -27,7 +27,7 @@
 - [x] 3.1 Integrated campaign sidebar directly into default.vue layout
 - [x] 3.2 Show campaign sections (Wiki, Characters, Maps, etc.) when inside /campaigns/:id
 - [x] 3.3 Highlight active section with bg-sidebar-accent
-- [ ] 3.4 Show campaign name in sidebar header (needs API call)
+- [x] 3.4 Show campaign name in sidebar header (needs API call)
 
 ## 4. Logging & Observability
 
@@ -42,9 +42,9 @@
 - [x] 5.2 Test: Register new user → redirects to campaigns page
 - [x] 5.3 Test: Login with valid credentials → see campaigns list
 - [x] 5.4 Test: Login with invalid credentials → see error message
-- [ ] 5.5 Test: Create campaign → redirected to campaign dashboard (Playwright click issue)
-- [ ] 5.6 Test: Create entity → view entity with markdown rendered
-- [ ] 5.7 Test: Search (Ctrl+K) → type query → see results
+- [x] 5.5 Test: Create campaign → redirected to campaign dashboard (campaigns.spec.ts)
+- [x] 5.6 Test: Create entity → view entity with markdown rendered (entities.spec.ts)
+- [x] 5.7 Test: Search (Ctrl+K) → type query → see results (entities.spec.ts)
 - [x] 5.8 Test: Unauthenticated access to /campaigns → redirect to /login
 - [x] 5.9 Test: Health endpoint returns 200 with status ok
 

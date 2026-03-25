@@ -49,7 +49,7 @@
 - [x] 7.3 Build attendance display in session detail (inline)
 - [x] 7.4 Build session log editor (markdown textarea with preview toggle)
 - [x] 7.5 Build quest list with status badges and nesting (inline in quests page)
-- [ ] 7.6 Build decision timeline component on session detail page
+- [x] 7.6 Build decision timeline component on session detail page
 - [x] 7.7 Create `app/pages/campaigns/[id]/quests/index.vue` (quest board view)
 
 ## 8. Tests (TDD)

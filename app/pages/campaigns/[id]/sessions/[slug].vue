@@ -52,6 +52,30 @@
         </div>
         <Button v-if="editing" class="mt-2" @click="saveLog">Save Log</Button>
       </div>
+
+      <!-- Decision Timeline -->
+      <div v-if="decisions.length" class="mb-6">
+        <h2 class="text-lg font-semibold mb-3">Decisions</h2>
+        <div class="relative border-l-2 border-border ml-4 pl-6 space-y-4">
+          <div v-for="d in decisions" :key="d.id" class="relative">
+            <div class="absolute -left-[31px] w-4 h-4 rounded-full border-2 border-border bg-background" />
+            <div class="p-3 rounded border border-border">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="font-medium text-sm">{{ d.title }}</span>
+                <span class="text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground">{{ d.type }}</span>
+              </div>
+              <p v-if="d.description" class="text-xs text-muted-foreground">{{ d.description }}</p>
+              <div v-if="d.consequences?.length" class="mt-2 space-y-1">
+                <div v-for="c in d.consequences" :key="c.id" class="text-xs pl-3 border-l border-border">
+                  <span :class="c.revealed ? 'text-foreground' : 'text-muted-foreground italic'">
+                    {{ c.revealed ? c.description : '(Hidden consequence)' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -62,6 +86,7 @@ const route = useRoute()
 const campaignId = route.params.id as string
 const slug = route.params.slug as string
 const session = ref<any>(null)
+const decisions = ref<any[]>([])
 const editing = ref(false)
 const logContent = ref('')
 
@@ -69,6 +94,10 @@ async function load() {
   try {
     session.value = await $fetch(`/api/campaigns/${campaignId}/sessions/${slug}`)
     logContent.value = session.value?.logContent || ''
+    // Load decisions
+    try {
+      decisions.value = await $fetch(`/api/campaigns/${campaignId}/sessions/${slug}/decisions`) as any[]
+    } catch { decisions.value = [] }
   } catch { session.value = null }
 }
 
