@@ -28,10 +28,18 @@ import { Editor } from '@tiptap/core'
 import StarterKit from '@tiptap/starter-kit'
 import { Markdown } from '@tiptap/markdown'
 import Placeholder from '@tiptap/extension-placeholder'
+import Collaboration from '@tiptap/extension-collaboration'
+import CollaborationCursor from '@tiptap/extension-collaboration-cursor'
+import { HocuspocusProvider } from '@hocuspocus/provider'
+import * as Y from 'yjs'
 
 const props = defineProps<{
   modelValue: string
   placeholder?: string
+  collaborative?: boolean
+  documentName?: string // e.g. "campaign:123:entity:strahd"
+  userName?: string
+  userColor?: string
 }>()
 
 const emit = defineEmits<{
@@ -40,32 +48,68 @@ const emit = defineEmits<{
 
 const editorEl = ref<HTMLElement>()
 let editor: Editor | null = null
+let provider: HocuspocusProvider | null = null
+let ydoc: Y.Doc | null = null
 
 onMounted(() => {
   if (!editorEl.value) return
 
+  const extensions: any[] = [
+    Markdown,
+    Placeholder.configure({ placeholder: props.placeholder || 'Start writing...' }),
+  ]
+
+  if (props.collaborative && props.documentName) {
+    // Collaborative mode: use Y.js + Hocuspocus
+    ydoc = new Y.Doc()
+
+    // Get session token from cookie for auth
+    const sessionCookie = document.cookie
+      .split('; ')
+      .find(c => c.startsWith('better-auth.session_token='))
+      ?.split('=')[1] || ''
+
+    provider = new HocuspocusProvider({
+      url: `ws://${window.location.hostname}:3334`,
+      name: props.documentName,
+      document: ydoc,
+      token: sessionCookie,
+    })
+
+    extensions.push(
+      StarterKit.configure({ history: false }), // Disable built-in history (Y.js handles undo/redo)
+      Collaboration.configure({ document: ydoc }),
+      CollaborationCursor.configure({
+        provider,
+        user: {
+          name: props.userName || 'Anonymous',
+          color: props.userColor || '#' + Math.floor(Math.random() * 16777215).toString(16),
+        },
+      }),
+    )
+  } else {
+    // Solo mode: standard StarterKit with history
+    extensions.unshift(StarterKit)
+  }
+
   editor = new Editor({
     element: editorEl.value,
-    extensions: [
-      StarterKit,
-      Markdown,
-      Placeholder.configure({ placeholder: props.placeholder || 'Start writing...' }),
-    ],
+    extensions,
     content: '',
     onUpdate: ({ editor: e }) => {
       emit('update:modelValue', e.getMarkdown())
     },
   })
 
-  // Load initial markdown content
-  if (props.modelValue) {
+  // Load initial markdown (solo mode only -- collab mode loads from Hocuspocus)
+  if (!props.collaborative && props.modelValue) {
     const parsed = editor.markdown.parse(props.modelValue)
     editor.commands.setContent(parsed)
   }
 })
 
 watch(() => props.modelValue, (newVal) => {
-  if (!editor) return
+  if (!editor || props.collaborative) return // Don't update in collab mode
   const currentMd = editor.getMarkdown()
   if (newVal !== currentMd) {
     const parsed = editor.markdown.parse(newVal)
@@ -81,6 +125,10 @@ function toggleBlockquote() { editor?.chain().focus().toggleBlockquote().run() }
 function toggleCode() { editor?.chain().focus().toggleCode().run() }
 
 onUnmounted(() => {
+  provider?.destroy()
+  provider = null
+  ydoc?.destroy()
+  ydoc = null
   editor?.destroy()
   editor = null
 })
@@ -96,5 +144,26 @@ onUnmounted(() => {
   color: hsl(var(--muted-foreground));
   pointer-events: none;
   height: 0;
+}
+/* Collaboration cursor styles */
+.collaboration-cursor__caret {
+  position: relative;
+  border-left: 2px solid;
+  margin-left: -1px;
+  pointer-events: none;
+  word-break: normal;
+}
+.collaboration-cursor__label {
+  position: absolute;
+  top: -1.4em;
+  left: -1px;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: normal;
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px 3px 3px 0;
+  white-space: nowrap;
+  user-select: none;
+  color: white;
 }
 </style>

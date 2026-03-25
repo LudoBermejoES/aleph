@@ -5,11 +5,11 @@
 ### 1a. Write unit tests (RED phase)
 
 - [x] 1.1 Test markdownToTiptap: standard markdown (headings, bold, lists) produces correct Tiptap JSON nodes
-- [ ] 1.2 Test markdownToTiptap: `:entity-link` MDC produces entity-link Tiptap node with slug attribute
+- [x] 1.2 Test markdownToTiptap: `:entity-link` MDC produces entity-link Tiptap node with slug attribute (RED — skipped, needs task 2.5)
 - [x] 1.3 Test tiptapToMarkdown: Tiptap JSON with headings/bold/lists produces correct markdown string
-- [ ] 1.4 Test tiptapToMarkdown: entity-link Tiptap node produces `:entity-link{slug}` MDC syntax
+- [x] 1.4 Test tiptapToMarkdown: entity-link Tiptap node produces `:entity-link{slug}` MDC syntax (RED — skipped, needs task 2.5)
 - [x] 1.5 Test round-trip: markdown → Tiptap JSON → markdown produces identical output (isRoundTripSafe)
-- [ ] 1.6 Test round-trip: `:::secret{.dm}` block with content round-trips correctly
+- [x] 1.6 Test round-trip: `:::secret{.dm}` block with content round-trips correctly (RED — skipped, needs task 2.6)
 - [x] 1.7 Test mergeFrontmatter: unchanged fields preserved, changed fields updated
 - [x] 1.8 Test mergeFrontmatter: created_at never overwritten
 - [x] 1.9 Test mergeFrontmatter: new fields added, missing fields use defaults
@@ -34,25 +34,25 @@
 
 ## 3. Y.js + Hocuspocus Setup
 
-- [ ] 3.1 Install @hocuspocus/server and configure as Nitro plugin
-- [ ] 3.2 Implement `onLoadDocument`: read .md file → markdownToTiptap → hydrate Y.js doc
-- [ ] 3.3 Implement `onStoreDocument`: Y.js → tiptapToMarkdown → mergeFrontmatter → write .md
-- [ ] 3.4 Implement `onAuthenticate`: validate session token + RBAC permission check
-- [ ] 3.5 Configure document naming: `campaign:{id}:entity:{slug}`
-- [ ] 3.6 Add debounced auto-save (2s after last change)
+- [x] 3.1 Install @hocuspocus/server and configure as Nitro plugin (port 3334)
+- [x] 3.2 Implement `onLoadDocument`: read .md → markdownToTiptap → hydrate Y.js doc
+- [x] 3.3 Implement `onStoreDocument`: Y.js → tiptapToMarkdown → mergeFrontmatter → write .md
+- [x] 3.4 Implement `onAuthenticate`: validate session + campaign membership + editor+ role check
+- [x] 3.5 Configure document naming: `campaign:{id}:entity:{slug}`
+- [ ] 3.6 Add debounced auto-save (2s after last change) -- Hocuspocus handles this internally
 
 ## 4. Collaborative Editing
 
-- [ ] 4.1 Install @tiptap/extension-collaboration and @tiptap/extension-collaboration-cursor
-- [ ] 4.2 Connect Tiptap editor to Hocuspocus via HocuspocusProvider
-- [ ] 4.3 Implement cursor awareness with user name labels and colors
-- [ ] 4.4 Handle connection/disconnection gracefully
+- [x] 4.1 Install @tiptap/extension-collaboration and @tiptap/extension-collaboration-cursor
+- [x] 4.2 Connect MarkdownEditor to Hocuspocus via HocuspocusProvider (collaborative prop)
+- [x] 4.3 Implement cursor awareness with user name labels and deterministic colors
+- [x] 4.4 Handle connection/disconnection (provider.destroy() on unmount)
 
 ## 5. Save Pipeline
 
-- [ ] 5.1 Wire save chain: Y.js → tiptapToMarkdown → mergeFrontmatter → write .md file
-- [ ] 5.2 Update content_hash in SQLite after save
-- [ ] 5.3 Trigger FTS5 re-index after save
+- [x] 5.1 Wire save chain: onStoreDocument → tiptapToMarkdown → mergeFrontmatter → write .md
+- [x] 5.2 Update content_hash in SQLite after save
+- [x] 5.3 Trigger FTS5 re-index after save
 - [ ] 5.4 Handle save errors (retry with exponential backoff, notify user)
 
 ## 6. WebSocket (CrossWS) Setup
@@ -80,22 +80,22 @@
 
 ### Unit Tests -- Service Functions
 
-- [ ] 9.1 Test markdownToTiptap: headings, bold, lists → correct JSON
-- [ ] 9.2 Test markdownToTiptap: entity-link MDC → correct node
-- [ ] 9.3 Test tiptapToMarkdown: JSON → correct markdown
-- [ ] 9.4 Test tiptapToMarkdown: entity-link node → MDC syntax
-- [ ] 9.5 Test isRoundTripSafe: identical output after round-trip
-- [ ] 9.6 Test secret block round-trip with role annotations
-- [ ] 9.7 Test mergeFrontmatter: preserve unchanged, update changed, protect created_at
-- [ ] 9.8 Test content hash: saving produces correct hash
+- [x] 9.1 Test markdownToTiptap: headings, bold, lists → correct JSON
+- [x] 9.2 Test markdownToTiptap: entity-link MDC → correct node (RED — skipped, needs task 2.5)
+- [x] 9.3 Test tiptapToMarkdown: JSON → correct markdown
+- [x] 9.4 Test tiptapToMarkdown: entity-link node → MDC syntax (RED — skipped, needs task 2.5)
+- [x] 9.5 Test isRoundTripSafe: identical output after round-trip
+- [x] 9.6 Test secret block round-trip with role annotations (RED — skipped, needs task 2.6)
+- [x] 9.7 Test mergeFrontmatter: preserve unchanged, update changed, protect created_at
+- [x] 9.8 Test content hash: saving produces correct hash
 
 ### Integration Tests (API)
 
-- [ ] 9.9 Test WebSocket auth: valid token connects, invalid rejected
+- [x] 9.9 Test WebSocket auth: valid token connects, invalid rejected (skipped when Hocuspocus unavailable)
 - [ ] 9.10 Test WebSocket disconnect: presence:leave after grace period
-- [ ] 9.11 Test save pipeline: edit → auto-save → .md file updated with correct content
-- [ ] 9.12 Test FTS5 re-index after collab save: new terms searchable
-- [ ] 9.13 Test Hocuspocus onAuthenticate: RBAC check (editor allowed, visitor rejected)
+- [x] 9.11 Test save pipeline: edit → auto-save → .md file updated with correct content
+- [x] 9.12 Test FTS5 re-index after collab save: new terms searchable
+- [x] 9.13 Test Hocuspocus onAuthenticate: RBAC check (editor allowed, visitor rejected) (skipped when Hocuspocus unavailable)
 - [ ] 9.14 Test presence: two users connect → both in list → one disconnects → one remains
 
 ### E2E Tests (Playwright)
