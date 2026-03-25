@@ -9,36 +9,9 @@
         </div>
         <h1 class="text-2xl font-bold">Entities</h1>
       </div>
-      <Dialog v-model:open="showCreateDialog">
-        <DialogTrigger as-child>
-          <Button>New Entity</Button>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Create Entity</DialogTitle>
-          </DialogHeader>
-          <form @submit.prevent="createEntity" class="space-y-4">
-            <div class="space-y-2">
-              <label class="text-sm font-medium">Name</label>
-              <Input v-model="newEntity.name" placeholder="Strahd von Zarovich" required />
-            </div>
-            <div class="space-y-2">
-              <label class="text-sm font-medium">Type</label>
-              <select v-model="newEntity.type" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
-                <option v-for="t in entityTypes" :key="t.slug" :value="t.slug">{{ t.name }}</option>
-              </select>
-            </div>
-            <div class="space-y-2">
-              <label class="text-sm font-medium">Content (Markdown)</label>
-              <textarea v-model="newEntity.content" rows="5" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" placeholder="# Description..."></textarea>
-            </div>
-            <div class="flex justify-end gap-2">
-              <Button type="button" variant="outline" @click="showCreateDialog = false">Cancel</Button>
-              <Button type="submit" :disabled="creating">{{ creating ? 'Creating...' : 'Create' }}</Button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
+      <NuxtLink :to="`/campaigns/${campaignId}/entities/new`">
+        <Button data-testid="new-entity-btn">New Entity</Button>
+      </NuxtLink>
     </div>
 
     <!-- Search Command -->
@@ -91,9 +64,6 @@ const campaignId = route.params.id as string
 const entities = ref<any[]>([])
 const entityTypes = ref<any[]>([])
 const loading = ref(true)
-const showCreateDialog = ref(false)
-const creating = ref(false)
-const newEntity = reactive({ name: '', type: 'character', content: '' })
 const filters = reactive({ type: '', search: '' })
 const pagination = reactive({ page: 1, limit: 50, total: 0, totalPages: 0 })
 
@@ -128,24 +98,6 @@ async function loadEntityTypes() {
     entityTypes.value = await $fetch(`/api/campaigns/${campaignId}/entity-types`) as any[]
   } catch {
     entityTypes.value = []
-  }
-}
-
-async function createEntity() {
-  creating.value = true
-  try {
-    const result = await $fetch(`/api/campaigns/${campaignId}/entities`, {
-      method: 'POST',
-      body: newEntity,
-    })
-    showCreateDialog.value = false
-    newEntity.name = ''
-    newEntity.content = ''
-    navigateTo(`/campaigns/${campaignId}/entities/${(result as any).slug}`)
-  } catch (e: any) {
-    alert(e.data?.message || 'Failed to create entity')
-  } finally {
-    creating.value = false
   }
 }
 
