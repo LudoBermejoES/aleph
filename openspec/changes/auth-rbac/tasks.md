@@ -62,7 +62,7 @@
 - [x] 7.3 Test permission resolution engine: explicit deny beats implicit allow at same level
 - [x] 7.4 Test named permission grants: user with `manage_calendar` permission passes check, user without fails
 - [x] 7.5 Test LRU permission cache: repeated lookups return cached result; invalidation clears entry
-- [ ] 7.6 Test `getVisibleEntitiesQuery()` SQL builder: returns only entities matching user's visibility level
+- [x] 7.6 Test `getVisibleEntitiesQuery()` SQL builder: returns only entities matching user's visibility level
 - [x] 7.7 Test invitation token generation: produces valid token; expired token is rejected
 
 ### Integration Tests (@nuxt/test-utils)
@@ -78,6 +78,6 @@
 
 ### Component Tests (@vue/test-utils)
 
-- [ ] 7.16 Test login form component: submits credentials, displays validation errors on empty fields
-- [ ] 7.17 Test permission editor component: renders allow/deny toggles per role, emits correct payload on save
-- [ ] 7.18 Test visibility selector component: renders dropdown options, emits selected visibility level
+- [x] 7.16 Test login form component: submits credentials, displays validation errors on empty fields
+- [x] 7.17 Test permission editor component: renders allow/deny toggles per role, emits correct payload on save
+- [x] 7.18 Test visibility selector component: renders dropdown options, emits selected visibility level

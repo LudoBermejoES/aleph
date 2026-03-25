@@ -97,7 +97,18 @@
       "WebFetch(domain:nuxt.com)",
       "Bash(find C:/code/aleph/.nuxt -type f -name *.mjs -o -name *.js)",
       "Bash(taskkill //IM node.exe //F)",
-      "Bash(rm -rf c:/code/aleph/.nuxt c:/code/aleph/node_modules/.vite)"
+      "Bash(rm -rf c:/code/aleph/.nuxt c:/code/aleph/node_modules/.vite)",
+      "Bash(find /c/code/aleph/node_modules/@tiptap -path */starter-kit/src/* -name *.ts -type f)",
+      "Bash(find /c/code/aleph/node_modules/@tiptap -path */extensions/src/* -name *.ts -type f)",
+      "Bash(find /c/code/aleph/node_modules -path */nodes/* -name *.ts -type f)",
+      "Bash(find /c/code/aleph/node_modules/@tiptap -path */dist/* -name *.d.ts -type f)",
+      "Bash(node -e \"const { WebSocket } = require\\(''ws''\\); const ws = new WebSocket\\(''ws://localhost:3334''\\); ws.on\\(''open'', \\(\\) => { console.log\\(''Hocuspocus: RUNNING''\\); ws.close\\(\\); }\\); ws.on\\(''error'', \\(e\\) => { console.log\\(''Hocuspocus: NOT RUNNING -'', e.message\\); }\\); setTimeout\\(\\(\\) => process.exit\\(\\), 3000\\);\")",
+      "Bash(tasklist)",
+      "Bash(xargs kill:*)",
+      "Bash(while read:*)",
+      "Bash(do taskkill:*)",
+      "Bash(powershell -Command \"Get-NetTCPConnection -LocalPort 3333 -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_OwningProcess -Force -ErrorAction SilentlyContinue }\")",
+      "Bash(node -e \"const { WebSocket } = require\\(''ws''\\); const ws = new WebSocket\\(''ws://localhost:3334''\\); ws.on\\(''open'', \\(\\) => { console.log\\(''Hocuspocus: RUNNING''\\); ws.close\\(\\); process.exit\\(0\\); }\\); ws.on\\(''error'', \\(e\\) => { console.log\\(''Hocuspocus: NOT RUNNING -'', e.message\\); process.exit\\(1\\); }\\); setTimeout\\(\\(\\) => { console.log\\(''TIMEOUT''\\); process.exit\\(1\\); }, 3000\\);\")"
     ]
   }
 }

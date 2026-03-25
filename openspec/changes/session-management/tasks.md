@@ -90,5 +90,5 @@
 
 ### Component Tests
 
-- [ ] 8.26 Test attendance RSVP component
-- [ ] 8.27 Test quest list component with nesting
+- [x] 8.26 Test attendance RSVP component
+- [x] 8.27 Test quest list component with nesting
