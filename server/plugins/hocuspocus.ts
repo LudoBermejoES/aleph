@@ -16,6 +16,8 @@ export default defineNitroPlugin(async () => {
     server = Server.configure({
       port: 3334,
       quiet: true,
+      debounce: 2000, // 2s after last change before onStoreDocument fires
+      maxDebounce: 10000, // Force save at least every 10s during active editing
 
       async onAuthenticate({ token, documentName }) {
         if (!token) throw new Error('No auth token')
@@ -96,30 +98,53 @@ export default defineNitroPlugin(async () => {
 
         if (!entity) return
 
-        try {
-          // Convert Y.js document back to Tiptap JSON, then to markdown
-          const json = document.getJSON()
-          const markdown = tiptapToMarkdown(json || { type: 'doc', content: [] })
+        const maxRetries = 3
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+          try {
+            // Convert Y.js document back to Tiptap JSON, then to markdown
+            const json = document.getJSON()
+            const markdown = tiptapToMarkdown(json || { type: 'doc', content: [] })
 
-          // Read existing frontmatter
-          const existing = await readEntityFile(entity.filePath)
-          const mergedFm = mergeFrontmatter(existing.frontmatter as Record<string, unknown>, {})
+            // Read existing frontmatter
+            const existing = await readEntityFile(entity.filePath)
+            const mergedFm = mergeFrontmatter(existing.frontmatter as Record<string, unknown>, {})
 
-          // Write updated .md file
-          const hash = await writeEntityFile(entity.filePath, mergedFm as any, markdown)
+            // Write updated .md file
+            const hash = await writeEntityFile(entity.filePath, mergedFm as any, markdown)
 
-          // Update content hash in DB
-          db.update(entities)
-            .set({ contentHash: hash, updatedAt: new Date() })
-            .where(eq(entities.id, entity.id))
-            .run()
+            // Update content hash in DB
+            db.update(entities)
+              .set({ contentHash: hash, updatedAt: new Date() })
+              .where(eq(entities.id, entity.id))
+              .run()
 
-          // Re-index in FTS5
-          indexEntity(sqlite, entity.id, campaignId, entity.name, [], [], markdown)
+            // Re-index in FTS5
+            indexEntity(sqlite, entity.id, campaignId, entity.name, [], [], markdown)
 
-          logger.debug('Hocuspocus: document saved', { documentName, slug })
-        } catch (err) {
-          logger.error('Hocuspocus: failed to save document', { documentName, error: err })
+            logger.debug('Hocuspocus: document saved', { documentName, slug })
+            return // Success — exit retry loop
+          } catch (err) {
+            const isLastAttempt = attempt === maxRetries
+            if (isLastAttempt) {
+              logger.error('Hocuspocus: failed to save document after retries', {
+                documentName, attempts: maxRetries, error: err,
+              })
+              // Notify connected clients via Hocuspocus awareness
+              try {
+                document.broadcastStateless(JSON.stringify({
+                  type: 'save-error',
+                  message: `Failed to save ${slug} after ${maxRetries} attempts`,
+                }))
+              } catch { /* best-effort notification */ }
+            } else {
+              // Exponential backoff: 500ms, 1000ms
+              const delay = 500 * Math.pow(2, attempt - 1)
+              logger.warn('Hocuspocus: save failed, retrying', {
+                documentName, attempt, delay, error: err,
+              })
+              await new Promise(resolve => setTimeout(resolve, delay))
+            }
+          }
         }
       },
 
