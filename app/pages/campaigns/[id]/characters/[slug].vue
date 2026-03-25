@@ -22,6 +22,9 @@
             </span>
           </div>
           <!-- Mount/Companion indicator (7.8) -->
+          <span v-if="calculatedAge !== null" class="text-xs text-muted-foreground ml-2" data-testid="character-age">
+            Age: {{ calculatedAge }}
+          </span>
           <p v-if="character.isCompanionOf" class="text-xs text-muted-foreground mt-1">
             Companion of another character
           </p>
@@ -134,6 +137,25 @@ const connections = ref<any[]>([])
 const companions = ref<any[]>([])
 const editing = ref(false)
 const editForm = ref({ name: '', race: '', class: '', alignment: '', status: 'alive' })
+
+// Age calculation (7.1, 7.2)
+const calculatedAge = computed(() => {
+  if (!character.value?.frontmatter?.fields?.birthYear) return null
+  const birth = {
+    year: Number(character.value.frontmatter.fields.birthYear),
+    month: Number(character.value.frontmatter.fields.birthMonth || 1),
+    day: Number(character.value.frontmatter.fields.birthDay || 1),
+  }
+  const current = {
+    year: Number(character.value.frontmatter?.fields?.currentYear || character.value.currentYear || 0),
+    month: Number(character.value.frontmatter?.fields?.currentMonth || character.value.currentMonth || 1),
+    day: Number(character.value.frontmatter?.fields?.currentDay || character.value.currentDay || 1),
+  }
+  if (!current.year) return null
+  let age = current.year - birth.year
+  if (current.month < birth.month || (current.month === birth.month && current.day < birth.day)) age--
+  return Math.max(0, age)
+})
 
 async function load() {
   try {

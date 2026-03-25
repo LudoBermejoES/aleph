@@ -1,6 +1,7 @@
 import { eq } from 'drizzle-orm'
 import { useDb } from '../../../../../../utils/db'
 import { calendarEvents } from '../../../../../../db/schema/calendars'
+import { entities } from '../../../../../../db/schema/entities'
 
 export default defineEventHandler(async (event) => {
   const calendarId = getRouterParam(event, 'calendarId')!
@@ -10,7 +11,14 @@ export default defineEventHandler(async (event) => {
   let results = db.select().from(calendarEvents)
     .where(eq(calendarEvents.calendarId, calendarId))
     .all()
-    .map(e => ({ ...e, date: JSON.parse(e.dateJson), endDate: e.endDateJson ? JSON.parse(e.endDateJson) : null }))
+    .map(e => {
+      let linkedEntityName: string | null = null
+      if (e.linkedEntityId) {
+        const ent = db.select({ name: entities.name }).from(entities).where(eq(entities.id, e.linkedEntityId)).get()
+        linkedEntityName = ent?.name || null
+      }
+      return { ...e, date: JSON.parse(e.dateJson), endDate: e.endDateJson ? JSON.parse(e.endDateJson) : null, linkedEntityName }
+    })
 
   // Filter by date range
   if (query.from_year || query.to_year) {
