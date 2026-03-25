@@ -74,8 +74,8 @@
 
 ### Unit Tests
 
-- [ ] 8.10 Test toolbar button state reflects active marks/nodes
-- [ ] 8.11 Test link insertion produces correct markdown
+- [x] 8.10 Test toolbar button state reflects active marks/nodes
+- [x] 8.11 Test link insertion produces correct markdown
 
 ## 9. Create Dialogs (Missing Create Buttons)
 
@@ -83,7 +83,7 @@
 
 - [x] 9.1 Add "New Character" button + dialog to characters/index.vue
 - [x] 9.2 Form fields: name, characterType (pc/npc), race, class, alignment, status, visibility
-- [ ] 9.3 PC-specific: ownerUserId dropdown (campaign members)
+- [x] 9.3 PC-specific: ownerUserId dropdown (campaign members)
 - [x] 9.4 Content field with MarkdownEditor
 - [x] 9.5 Submit calls POST /api/campaigns/:id/characters, navigate to detail
 
@@ -92,7 +92,7 @@
 - [x] 9.6 Add "New Calendar" button + dialog to calendars/index.vue
 - [x] 9.7 Form fields: name, current year/month/day
 - [x] 9.8 Dynamic month list: add/remove months with name + days per month
-- [ ] 9.9 Optional weekday names list
+- [x] 9.9 Optional weekday names list
 - [x] 9.10 Submit calls POST /api/campaigns/:id/calendars, navigate to detail
 
 ### 9c. Timeline Create Dialog

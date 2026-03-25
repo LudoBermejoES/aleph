@@ -43,6 +43,11 @@
                 </div>
                 <p v-if="!calForm.months.length" class="text-sm text-muted-foreground">No months defined yet.</p>
               </div>
+              <div>
+                <label class="text-sm font-medium">Weekday Names (comma-separated)</label>
+                <input v-model="calForm.weekdaysRaw" class="w-full mt-1 px-3 py-2 rounded border border-input bg-background text-sm" placeholder="Sun, Mon, Tue, Wed, Thu, Fri, Sat" />
+                <p class="text-xs text-muted-foreground mt-1">Leave empty for default 7-day week.</p>
+              </div>
               <div class="flex justify-end gap-2">
                 <Button type="button" variant="outline" @click="showCalCreate = false">Cancel</Button>
                 <Button type="submit" :disabled="calCreating">{{ calCreating ? 'Creating...' : 'Create' }}</Button>
@@ -113,6 +118,7 @@ const calCreating = ref(false)
 const calForm = ref({
   name: '', currentYear: 1, currentMonth: 1, currentDay: 1,
   months: [{ name: '', days: 30 }] as Array<{ name: string; days: number }>,
+  weekdaysRaw: '',
 })
 
 function addMonth() {
@@ -123,11 +129,14 @@ async function createCalendar() {
   calCreating.value = true
   try {
     const yearLength = calForm.value.months.reduce((sum, m) => sum + m.days, 0)
+    const weekdays = calForm.value.weekdaysRaw.trim()
+      ? calForm.value.weekdaysRaw.split(',').map(s => s.trim()).filter(Boolean)
+      : undefined
     const res = await $fetch(`/api/campaigns/${campaignId}/calendars`, {
       method: 'POST',
       body: {
         name: calForm.value.name,
-        configJson: { months: calForm.value.months, yearLength },
+        configJson: { months: calForm.value.months, yearLength, ...(weekdays ? { weekdays } : {}) },
         currentYear: calForm.value.currentYear,
         currentMonth: calForm.value.currentMonth,
         currentDay: calForm.value.currentDay,

@@ -112,7 +112,11 @@
       "Bash(node -e \"const z = require\\(''zod''\\); console.log\\(''version:'', z.z?.version || z.ZodFirstPartyTypeKind ? ''v3'' : ''unknown''\\)\")",
       "Bash(grep '\"\"zod\"\"' package.json)",
       "Bash(node -e \"const z = require\\(''zod''\\); console.log\\(z.version || ''no version''\\)\")",
-      "Bash(node -e \"const {z} = require\\(''zod''\\); const s = z.object\\({fields: z.record\\(z.unknown\\(\\)\\).default\\({}\\)}\\); console.log\\(s.safeParse\\({fields: {a: 1}}\\)\\)\")"
+      "Bash(node -e \"const {z} = require\\(''zod''\\); const s = z.object\\({fields: z.record\\(z.unknown\\(\\)\\).default\\({}\\)}\\); console.log\\(s.safeParse\\({fields: {a: 1}}\\)\\)\")",
+      "Bash(node -e \"const m = require\\(''@tiptap/extension-table''\\); console.log\\(''Table:'', m.default ? ''default'' : ''named:'', Object.keys\\(m\\).slice\\(0,5\\)\\)\")",
+      "Bash(node -e \"const m = require\\(''@tiptap/extension-link''\\); console.log\\(''Link:'', m.default ? ''default'' : ''named:'', Object.keys\\(m\\).slice\\(0,5\\)\\)\")",
+      "Bash(node -e \"const m = require\\(''@tiptap/extension-task-list''\\); console.log\\(''TaskList:'', m.default ? ''default'' : ''named:'', Object.keys\\(m\\).slice\\(0,5\\)\\)\")",
+      "Bash(node -e \"const m = require\\(''@tiptap/extension-task-item''\\); console.log\\(''TaskItem:'', m.default ? ''default'' : ''named:'', Object.keys\\(m\\).slice\\(0,5\\)\\)\")"
     ]
   }
 }
