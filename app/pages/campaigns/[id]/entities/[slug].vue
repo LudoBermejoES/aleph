@@ -46,7 +46,7 @@
           <MarkdownEditor
             v-model="editForm.content"
             placeholder="Start writing your entity content..."
-            :collaborative="true"
+            :collaborative="isCollaborative"
             :document-name="`campaign:${campaignId}:entity:${slug}`"
             :user-name="userName"
           />
@@ -115,6 +115,9 @@
 const route = useRoute()
 const campaignId = route.params.id as string
 const slug = route.params.slug as string
+
+// Enable collaborative mode via ?collab=true query param
+const isCollaborative = computed(() => route.query.collab === 'true')
 
 const entity = ref<any>(null)
 const children = ref<any[]>([])
