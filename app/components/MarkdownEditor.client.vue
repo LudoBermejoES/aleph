@@ -53,7 +53,7 @@ let editor: Editor | null = null
 let provider: HocuspocusProvider | null = null
 let ydoc: Y.Doc | null = null
 
-onMounted(() => {
+onMounted(async () => {
   if (!editorEl.value) return
 
   const extensions: any[] = [
@@ -67,17 +67,21 @@ onMounted(() => {
     // Collaborative mode: use Y.js + Hocuspocus
     ydoc = new Y.Doc()
 
-    // Get session token from cookie for auth
-    const sessionCookie = document.cookie
-      .split('; ')
-      .find(c => c.startsWith('better-auth.session_token='))
-      ?.split('=')[1] || ''
+    // Fetch a short-lived WS token via HTTP (HttpOnly session cookie sent automatically)
+    let wsToken = ''
+    try {
+      const res = await fetch('/api/ws/token', { credentials: 'include' })
+      if (res.ok) {
+        const data = await res.json()
+        wsToken = data.token
+      }
+    } catch { /* fallback to empty token — Hocuspocus will reject */ }
 
     provider = new HocuspocusProvider({
       url: `ws://${window.location.hostname}:3334`,
       name: props.documentName,
       document: ydoc,
-      token: sessionCookie,
+      token: wsToken,
     })
 
     extensions.push(

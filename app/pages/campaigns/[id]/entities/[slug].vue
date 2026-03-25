@@ -43,7 +43,13 @@
         </div>
         <div class="space-y-2">
           <label class="text-sm font-medium">Content</label>
-          <MarkdownEditor v-model="editForm.content" placeholder="Start writing your entity content..." />
+          <MarkdownEditor
+            v-model="editForm.content"
+            placeholder="Start writing your entity content..."
+            :collaborative="true"
+            :document-name="`campaign:${campaignId}:entity:${slug}`"
+            :user-name="userName"
+          />
         </div>
         <Button @click="saveEntity" :disabled="saving">{{ saving ? 'Saving...' : 'Save' }}</Button>
       </div>
@@ -117,6 +123,13 @@ const mentions = ref<any[]>([])
 const editing = ref(false)
 const saving = ref(false)
 const editForm = reactive({ name: '', content: '' })
+const userName = ref('Anonymous')
+
+// Fetch current user name for collaborative cursor
+fetch('/api/auth/get-session', { credentials: 'include' })
+  .then(r => r.json())
+  .then(data => { if (data?.user?.name) userName.value = data.user.name })
+  .catch(() => {})
 
 async function loadEntity() {
   try {
