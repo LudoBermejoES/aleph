@@ -11,6 +11,8 @@ export default defineEventHandler(async (event) => {
   const characterType = query.type as string | undefined // pc, npc
   const status = query.status as string | undefined
   const search = query.search as string | undefined
+  const folderId = query.folderId as string | undefined
+  const companionOf = query.companionOf as string | undefined
 
   let q = db.select({
     id: characters.id,
@@ -25,6 +27,7 @@ export default defineEventHandler(async (event) => {
     visibility: entities.visibility,
     ownerUserId: characters.ownerUserId,
     isCompanionOf: characters.isCompanionOf,
+    folderId: characters.folderId,
     updatedAt: entities.updatedAt,
   })
     .from(characters)
@@ -43,6 +46,8 @@ export default defineEventHandler(async (event) => {
     const s = search.toLowerCase()
     filtered = filtered.filter(c => c.name.toLowerCase().includes(s))
   }
+  if (folderId) filtered = filtered.filter((c: any) => c.folderId === folderId)
+  if (companionOf) filtered = filtered.filter(c => c.isCompanionOf === companionOf)
 
   return filtered
 })

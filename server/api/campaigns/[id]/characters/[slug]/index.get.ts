@@ -2,7 +2,7 @@ import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
 import { entities } from '../../../../../db/schema/entities'
 import { characters, characterStats, statDefinitions, statGroups, abilities } from '../../../../../db/schema/characters'
-import { readEntityFile } from '../../../../../services/content'
+import { readEntityFile, stripSecretBlocks } from '../../../../../services/content'
 import { stripSecretStats, stripSecretAbilities } from '../../../../../services/characters'
 import type { CampaignRole } from '../../../../../utils/permissions'
 
@@ -63,7 +63,7 @@ export default defineEventHandler(async (event) => {
     ...entity,
     ...character,
     frontmatter: file.frontmatter,
-    content: file.content,
+    content: stripSecretBlocks(file.content, role),
     stats: filteredStats,
     abilities: charAbilities,
   }

@@ -20,46 +20,81 @@
       <Button :variant="filter === 'npc' ? 'default' : 'outline'" size="sm" @click="filter = 'npc'; load()">NPCs</Button>
     </div>
 
-    <div v-if="chars.length" class="space-y-2">
-      <NuxtLink
-        v-for="c in chars"
-        :key="c.id"
-        :to="`/campaigns/${campaignId}/characters/${c.slug}`"
-        class="block p-4 rounded-lg border border-border hover:border-primary/50 transition-colors"
-      >
-        <div class="flex items-center justify-between">
-          <div>
-            <span class="font-medium">{{ c.name }}</span>
-            <span class="text-xs ml-2 px-2 py-0.5 rounded bg-secondary text-secondary-foreground">{{ c.characterType }}</span>
-            <span v-if="c.race" class="text-xs ml-1 text-muted-foreground">{{ c.race }}</span>
-            <span v-if="c.class" class="text-xs ml-1 text-muted-foreground">{{ c.class }}</span>
-          </div>
-          <span :class="['text-xs px-2 py-0.5 rounded', c.status === 'alive' ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' : c.status === 'dead' ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300' : 'bg-secondary text-secondary-foreground']">
-            {{ c.status }}
-          </span>
+    <div class="flex gap-6">
+      <!-- NPC Folder Sidebar (7.7) -->
+      <aside v-if="filter === 'npc' && folders.length" class="w-48 shrink-0" data-testid="folder-sidebar">
+        <h3 class="text-sm font-semibold mb-2">Folders</h3>
+        <button
+          class="block w-full text-left text-sm px-2 py-1 rounded mb-1 hover:bg-secondary"
+          :class="{ 'bg-secondary font-medium': !selectedFolder }"
+          @click="selectedFolder = ''; load()"
+        >All NPCs</button>
+        <button
+          v-for="f in folders"
+          :key="f.id"
+          class="block w-full text-left text-sm px-2 py-1 rounded mb-1 hover:bg-secondary"
+          :class="{ 'bg-secondary font-medium': selectedFolder === f.id }"
+          @click="selectedFolder = f.id; load()"
+        >{{ f.name }}</button>
+      </aside>
+
+      <!-- Character List -->
+      <div class="flex-1">
+        <div v-if="chars.length" class="space-y-2">
+          <NuxtLink
+            v-for="c in chars"
+            :key="c.id"
+            :to="`/campaigns/${campaignId}/characters/${c.slug}`"
+            class="block p-4 rounded-lg border border-border hover:border-primary/50 transition-colors"
+          >
+            <div class="flex items-center justify-between">
+              <div>
+                <span class="font-medium">{{ c.name }}</span>
+                <span class="text-xs ml-2 px-2 py-0.5 rounded bg-secondary text-secondary-foreground">{{ c.characterType }}</span>
+                <span v-if="c.race" class="text-xs ml-1 text-muted-foreground">{{ c.race }}</span>
+                <span v-if="c.class" class="text-xs ml-1 text-muted-foreground">{{ c.class }}</span>
+                <span v-if="c.isCompanionOf" class="text-xs ml-1 text-muted-foreground italic">companion</span>
+              </div>
+              <span :class="['text-xs px-2 py-0.5 rounded', c.status === 'alive' ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' : c.status === 'dead' ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300' : 'bg-secondary text-secondary-foreground']">
+                {{ c.status }}
+              </span>
+            </div>
+          </NuxtLink>
         </div>
-      </NuxtLink>
+        <p v-else class="text-muted-foreground text-center py-8">No characters yet.</p>
+      </div>
     </div>
-    <p v-else class="text-muted-foreground text-center py-8">No characters yet.</p>
   </div>
 </template>
 
 <script setup lang="ts">
-
 const route = useRoute()
 const campaignId = route.params.id as string
 const chars = ref<any[]>([])
+const folders = ref<any[]>([])
 const filter = ref('all')
+const selectedFolder = ref('')
 
 async function load() {
   try {
     const params: Record<string, string> = {}
     if (filter.value !== 'all') params.type = filter.value
+    if (selectedFolder.value) params.folderId = selectedFolder.value
     chars.value = await $fetch(`/api/campaigns/${campaignId}/characters`, { params }) as any[]
   } catch {
     chars.value = []
   }
 }
 
-onMounted(load)
+async function loadFolders() {
+  try {
+    folders.value = await $fetch(`/api/campaigns/${campaignId}/character-folders`) as any[]
+  } catch {
+    folders.value = []
+  }
+}
+
+onMounted(async () => {
+  await Promise.all([load(), loadFolders()])
+})
 </script>
