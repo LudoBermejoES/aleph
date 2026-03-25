@@ -92,4 +92,4 @@
 - [x] 9.14 E2E: calendars page shows calendar list
 - [x] 9.15 E2E: calendar detail shows month grid with events
 - [ ] 9.16 E2E: advance campaign date via UI
-- [ ] 9.17 E2E: timeline detail shows events in chronicle view
+- [x] 9.17 E2E: timeline detail shows events in chronicle view
