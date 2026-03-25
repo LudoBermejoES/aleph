@@ -233,3 +233,61 @@ Rewrite create E2E tests to fill every form field and verify each persisted valu
 - [x] 11.35 Search and select target entity
 - [x] 11.36 Set forward/reverse labels, select relation type, adjust attitude slider
 - [x] 11.37 Submit → verify relation appears in graph (both nodes + edge visible)
+
+## 12. Unified Edit Pages (same form as /new, pre-filled)
+
+Create `/edit` pages that reuse the same full-screen form layout as `/new`, pre-populated with existing data. Detail pages link to `/edit` instead of showing inline edit forms.
+
+### 12a. Extract Shared Form Components
+
+- [ ] 12.1 Extract `app/components/forms/EntityForm.vue` — shared form used by both entities/new.vue and entities/[slug]/edit.vue
+- [ ] 12.2 Extract `app/components/forms/CharacterForm.vue` — shared form for characters
+- [ ] 12.3 Extract `app/components/forms/CalendarForm.vue` — shared form for calendars
+- [ ] 12.4 Extract `app/components/forms/TimelineForm.vue` — shared form for timelines
+- [ ] 12.5 Extract `app/components/forms/SessionForm.vue` — shared form for sessions
+- [ ] 12.6 Extract `app/components/forms/MapForm.vue` — shared form for maps
+- [ ] 12.7 Extract `app/components/forms/QuestForm.vue` — shared form for quests
+- [ ] 12.8 Extract `app/components/forms/ItemForm.vue` — shared form for items
+- [ ] 12.9 Extract `app/components/forms/ShopForm.vue` — shared form for shops
+- [ ] 12.10 Extract `app/components/forms/RelationForm.vue` — shared form for relations
+
+### 12b. Create Edit Pages
+
+- [ ] 12.11 Create `entities/[slug]/edit.vue` — loads entity, passes to EntityForm, calls PUT on submit
+- [ ] 12.12 Create `characters/[slug]/edit.vue` — loads character, passes to CharacterForm, calls PUT on submit
+- [ ] 12.13 Create `calendars/[calendarId]/edit.vue` — loads calendar, passes to CalendarForm, calls PUT on submit
+- [ ] 12.14 Create `timelines/[slug]/edit.vue` — loads timeline, passes to TimelineForm, calls PUT on submit
+- [ ] 12.15 Create `sessions/[slug]/edit.vue` — loads session, passes to SessionForm, calls PUT on submit
+- [ ] 12.16 Create `maps/[slug]/edit.vue` — loads map, passes to MapForm, calls PUT on submit
+- [ ] 12.17 Create `quests/[slug]/edit.vue` — loads quest, passes to QuestForm (no dedicated detail page yet)
+- [ ] 12.18 Create `items/[itemId]/edit.vue` — loads item, passes to ItemForm
+- [ ] 12.19 Create `shops/[slug]/edit.vue` — loads shop, passes to ShopForm
+- [ ] 12.20 Create `relations/[relationId]/edit.vue` — loads relation, passes to RelationForm
+
+### 12c. Update Detail Pages (Edit button → NuxtLink to /edit)
+
+- [ ] 12.21 Update entities/[slug].vue — Edit button navigates to /entities/:slug/edit
+- [ ] 12.22 Update characters/[slug].vue — Edit button navigates to /characters/:slug/edit
+- [ ] 12.23 Update calendars/[calendarId].vue — Edit button navigates to /calendars/:id/edit
+- [ ] 12.24 Update sessions/[slug].vue — Edit button navigates to /sessions/:slug/edit
+- [ ] 12.25 Update maps/[slug].vue — Edit button navigates to /maps/:slug/edit
+
+### 12d. Update /new Pages to Use Shared Form Components
+
+- [ ] 12.26 Update entities/new.vue — use EntityForm component
+- [ ] 12.27 Update characters/new.vue — use CharacterForm component
+- [ ] 12.28 Update calendars/new.vue — use CalendarForm component
+- [ ] 12.29 Update timelines/new.vue — use TimelineForm component
+- [ ] 12.30 Update sessions/new.vue — use SessionForm component
+- [ ] 12.31 Update maps/new.vue — use MapForm component
+- [ ] 12.32 Update quests/new.vue — use QuestForm component
+- [ ] 12.33 Update items/new.vue — use ItemForm component
+- [ ] 12.34 Update shops/new.vue — use ShopForm component
+- [ ] 12.35 Update relations/new.vue — use RelationForm component
+
+### 12e. Tests
+
+- [ ] 12.36 E2E: edit entity via /edit page, verify changes persisted
+- [ ] 12.37 E2E: edit character via /edit page, verify all fields updated
+- [ ] 12.38 E2E: edit calendar via /edit page, verify changes in grid
+- [ ] 12.39 Unit: form component emits correct payload for create vs edit mode
