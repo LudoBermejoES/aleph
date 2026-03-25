@@ -117,7 +117,7 @@
 
 ### E2E Tests
 
-- [ ] 9.22 E2E: create character via dialog, verify in list
-- [ ] 9.23 E2E: create calendar via dialog, verify month grid renders
-- [ ] 9.24 E2E: create timeline via dialog, verify in list
+- [x] 9.22 E2E: create character via dialog, verify in list
+- [x] 9.23 E2E: create calendar via dialog, verify month grid renders
+- [x] 9.24 E2E: create timeline via dialog, verify in list
 - [ ] 9.25 E2E: create relation via dialog, verify in graph
