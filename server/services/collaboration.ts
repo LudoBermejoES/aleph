@@ -19,6 +19,10 @@ export function mergeFrontmatter(
   return result
 }
 
+// --- Custom Extensions ---
+import { EntityLink } from '../extensions/entity-link'
+import { SecretBlock } from '../extensions/secret-block'
+
 // --- Tiptap Markdown Conversion (server-side with jsdom) ---
 
 let _domInitialized = false
@@ -49,7 +53,7 @@ export function markdownToTiptap(md: string): Record<string, unknown> {
   const { Markdown } = require('@tiptap/markdown')
 
   const editor = new Editor({
-    extensions: [StarterKit, Markdown],
+    extensions: [StarterKit, Markdown, EntityLink, SecretBlock],
     content: '',
   })
 
@@ -69,7 +73,7 @@ export function tiptapToMarkdown(json: Record<string, unknown>): string {
   const { Markdown } = require('@tiptap/markdown')
 
   const editor = new Editor({
-    extensions: [StarterKit, Markdown],
+    extensions: [StarterKit, Markdown, EntityLink, SecretBlock],
     content: json,
   })
 

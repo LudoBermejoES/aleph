@@ -5,12 +5,9 @@
 ### 1a. Write unit tests (RED phase)
 
 - [x] 1.1 Test markdownToTiptap: standard markdown (headings, bold, lists) produces correct Tiptap JSON nodes
-- [x] 1.2 Test markdownToTiptap: `:entity-link` MDC produces entity-link Tiptap node with slug attribute (RED — skipped, needs task 2.5)
-- [x] 1.3 Test tiptapToMarkdown: Tiptap JSON with headings/bold/lists produces correct markdown string
-- [x] 1.4 Test tiptapToMarkdown: entity-link Tiptap node produces `:entity-link{slug}` MDC syntax (RED — skipped, needs task 2.5)
-- [x] 1.5 Test round-trip: markdown → Tiptap JSON → markdown produces identical output (isRoundTripSafe)
-- [x] 1.6 Test round-trip: `:::secret{.dm}` block with content round-trips correctly (RED — skipped, needs task 2.6)
-- [x] 1.7 Test mergeFrontmatter: unchanged fields preserved, changed fields updated
+- [x] 1.2 Test markdownToTiptap: `:entity-link` MDC produces entity-link Tiptap node with slug attribute- [x] 1.3 Test tiptapToMarkdown: Tiptap JSON with headings/bold/lists produces correct markdown string
+- [x] 1.4 Test tiptapToMarkdown: entity-link Tiptap node produces `:entity-link{slug}` MDC syntax- [x] 1.5 Test round-trip: markdown → Tiptap JSON → markdown produces identical output (isRoundTripSafe)
+- [x] 1.6 Test round-trip: `:::secret{.dm}` block with content round-trips correctly- [x] 1.7 Test mergeFrontmatter: unchanged fields preserved, changed fields updated
 - [x] 1.8 Test mergeFrontmatter: created_at never overwritten
 - [x] 1.9 Test mergeFrontmatter: new fields added, missing fields use defaults
 
@@ -28,8 +25,8 @@
 - [x] 2.2 Install and configure @tiptap/markdown for bidirectional serialization
 - [x] 2.3 Create `MarkdownEditor.client.vue` component wrapping Tiptap with toolbar
 - [x] 2.4 Implement load flow: read .md → markdown.parse() → setContent
-- [ ] 2.5 Build custom Tiptap node for `:entity-link` MDC component
-- [ ] 2.6 Build custom Tiptap node for `:::secret` block MDC component
+- [x] 2.5 Build custom Tiptap node for `:entity-link` MDC component
+- [x] 2.6 Build custom Tiptap node for `:::secret` block MDC component
 - [x] 2.7 Replace existing markdown textarea with MarkdownEditor on entity edit pages
 
 ## 3. Y.js + Hocuspocus Setup
@@ -81,12 +78,9 @@
 ### Unit Tests -- Service Functions
 
 - [x] 9.1 Test markdownToTiptap: headings, bold, lists → correct JSON
-- [x] 9.2 Test markdownToTiptap: entity-link MDC → correct node (RED — skipped, needs task 2.5)
-- [x] 9.3 Test tiptapToMarkdown: JSON → correct markdown
-- [x] 9.4 Test tiptapToMarkdown: entity-link node → MDC syntax (RED — skipped, needs task 2.5)
-- [x] 9.5 Test isRoundTripSafe: identical output after round-trip
-- [x] 9.6 Test secret block round-trip with role annotations (RED — skipped, needs task 2.6)
-- [x] 9.7 Test mergeFrontmatter: preserve unchanged, update changed, protect created_at
+- [x] 9.2 Test markdownToTiptap: entity-link MDC → correct node- [x] 9.3 Test tiptapToMarkdown: JSON → correct markdown
+- [x] 9.4 Test tiptapToMarkdown: entity-link node → MDC syntax- [x] 9.5 Test isRoundTripSafe: identical output after round-trip
+- [x] 9.6 Test secret block round-trip with role annotations- [x] 9.7 Test mergeFrontmatter: preserve unchanged, update changed, protect created_at
 - [x] 9.8 Test content hash: saving produces correct hash
 
 ### Integration Tests (API)
