@@ -108,7 +108,11 @@
       "Bash(while read:*)",
       "Bash(do taskkill:*)",
       "Bash(powershell -Command \"Get-NetTCPConnection -LocalPort 3333 -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_OwningProcess -Force -ErrorAction SilentlyContinue }\")",
-      "Bash(node -e \"const { WebSocket } = require\\(''ws''\\); const ws = new WebSocket\\(''ws://localhost:3334''\\); ws.on\\(''open'', \\(\\) => { console.log\\(''Hocuspocus: RUNNING''\\); ws.close\\(\\); process.exit\\(0\\); }\\); ws.on\\(''error'', \\(e\\) => { console.log\\(''Hocuspocus: NOT RUNNING -'', e.message\\); process.exit\\(1\\); }\\); setTimeout\\(\\(\\) => { console.log\\(''TIMEOUT''\\); process.exit\\(1\\); }, 3000\\);\")"
+      "Bash(node -e \"const { WebSocket } = require\\(''ws''\\); const ws = new WebSocket\\(''ws://localhost:3334''\\); ws.on\\(''open'', \\(\\) => { console.log\\(''Hocuspocus: RUNNING''\\); ws.close\\(\\); process.exit\\(0\\); }\\); ws.on\\(''error'', \\(e\\) => { console.log\\(''Hocuspocus: NOT RUNNING -'', e.message\\); process.exit\\(1\\); }\\); setTimeout\\(\\(\\) => { console.log\\(''TIMEOUT''\\); process.exit\\(1\\); }, 3000\\);\")",
+      "Bash(node -e \"const z = require\\(''zod''\\); console.log\\(''version:'', z.z?.version || z.ZodFirstPartyTypeKind ? ''v3'' : ''unknown''\\)\")",
+      "Bash(grep '\"\"zod\"\"' package.json)",
+      "Bash(node -e \"const z = require\\(''zod''\\); console.log\\(z.version || ''no version''\\)\")",
+      "Bash(node -e \"const {z} = require\\(''zod''\\); const s = z.object\\({fields: z.record\\(z.unknown\\(\\)\\).default\\({}\\)}\\); console.log\\(s.safeParse\\({fields: {a: 1}}\\)\\)\")"
     ]
   }
 }
