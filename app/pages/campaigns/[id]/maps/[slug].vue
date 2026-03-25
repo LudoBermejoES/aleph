@@ -15,7 +15,12 @@
 
       <div class="flex items-start justify-between mb-6">
         <h1 class="text-2xl font-bold">{{ mapData.name }}</h1>
-        <span v-if="mapData.width" class="text-sm text-muted-foreground">{{ mapData.width }}x{{ mapData.height }}px</span>
+        <div class="flex items-center gap-2">
+          <NuxtLink :to="`/campaigns/${campaignId}/maps/${slug}/edit`">
+            <Button variant="outline" size="sm">Edit</Button>
+          </NuxtLink>
+          <span v-if="mapData.width" class="text-sm text-muted-foreground">{{ mapData.width }}x{{ mapData.height }}px</span>
+        </div>
       </div>
 
       <!-- Leaflet Map Viewer -->

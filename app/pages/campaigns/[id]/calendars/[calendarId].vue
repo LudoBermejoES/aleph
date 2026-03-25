@@ -15,6 +15,9 @@
           <span class="text-sm text-muted-foreground">
             Current: Year {{ currentDate.year }}, {{ monthName(currentDate.month) }} {{ currentDate.day }}
           </span>
+          <NuxtLink :to="`/campaigns/${campaignId}/calendars/${calendarId}/edit`">
+            <Button variant="outline" size="sm">Edit</Button>
+          </NuxtLink>
           <Button variant="outline" size="sm" data-testid="advance-date" @click="showAdvance = !showAdvance">
             Advance Date
           </Button>
