@@ -53,8 +53,7 @@ describe('Entity List Permission Filtering (7.9)', () => {
     expect(names).toContain('Secret NPC')
   })
 
-  // RED: needs server-side RBAC filtering in entity list endpoint
-  it.skip('player entity list excludes dm_only entities', async () => {
+  it('player entity list excludes dm_only entities', async () => {
     const res = await api(`/api/campaigns/${campaignId}/entities`, { method: 'GET', headers: { Cookie: playerCookie } })
     const data = await res.json()
     const names = data.entities?.map((e: any) => e.name) || []
@@ -77,8 +76,7 @@ describe('Custom Field Values (7.12)', () => {
     campaignId = (await camp.json()).id
   })
 
-  // RED: entity API doesn't store/return fields as a separate object yet
-  it.skip('entity stores and returns custom field values from frontmatter', async () => {
+  it('entity stores and returns custom field values from frontmatter', async () => {
     const entity = await api(`/api/campaigns/${campaignId}/entities`, {
       method: 'POST', headers: { Cookie: cookie },
       body: {

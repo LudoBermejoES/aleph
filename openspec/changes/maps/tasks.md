@@ -89,7 +89,7 @@
 - [x] 9.14 Test nested map breadcrumb: child returns 2-element breadcrumb
 - [x] 9.15 Test layer create with sort order
 - [x] 9.16 Test region create with GeoJSON, read returns valid GeoJSON
-- [ ] 9.17 Test pin visibility filtering for non-DM (RED: test written, skipped — needs pin RBAC filtering)
+- [x] 9.17 Test pin visibility filtering for non-DM
 - [x] 9.18 Test image upload endpoint
 - [x] 9.19 Test nested map listing with parent_map_id filter
 

@@ -36,11 +36,11 @@ describe('Map Pin Visibility Filtering (9.17)', () => {
     // Create pins with different visibility
     await api(`/api/campaigns/${campaignId}/maps/${mapSlug}/pins`, {
       method: 'POST', headers: { Cookie: dmCookie },
-      body: { label: 'Public Tavern', x: 100, y: 100, visibility: 'members' },
+      body: { label: 'Public Tavern', lat: 100, lng: 100, visibility: 'members' },
     })
     await api(`/api/campaigns/${campaignId}/maps/${mapSlug}/pins`, {
       method: 'POST', headers: { Cookie: dmCookie },
-      body: { label: 'Secret Lair', x: 500, y: 500, visibility: 'dm_only' },
+      body: { label: 'Secret Lair', lat: 500, lng: 500, visibility: 'dm_only' },
     })
 
     // Player setup
@@ -53,8 +53,7 @@ describe('Map Pin Visibility Filtering (9.17)', () => {
     await api(`/api/campaigns/${campaignId}/join`, { method: 'POST', headers: { Cookie: playerCookie }, body: { token: inviteToken } })
   })
 
-  // RED: pin visibility filtering not yet implemented in map detail API
-  it.skip('DM sees all pins including dm_only', async () => {
+  it('DM sees all pins including dm_only', async () => {
     const res = await api(`/api/campaigns/${campaignId}/maps/${mapSlug}`, { method: 'GET', headers: { Cookie: dmCookie } })
     const data = await res.json()
     const labels = data.pins?.map((p: any) => p.label) || []
@@ -62,8 +61,7 @@ describe('Map Pin Visibility Filtering (9.17)', () => {
     expect(labels).toContain('Secret Lair')
   })
 
-  // RED: pin visibility filtering not yet implemented in map detail API
-  it.skip('player does not see dm_only pins', async () => {
+  it('player does not see dm_only pins', async () => {
     const res = await api(`/api/campaigns/${campaignId}/maps/${mapSlug}`, { method: 'GET', headers: { Cookie: playerCookie } })
     const data = await res.json()
     const labels = data.pins?.map((p: any) => p.label) || []

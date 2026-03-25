@@ -18,7 +18,7 @@ export const baseEntityFrontmatter = z.object({
   parent: z.string().optional(),
   created: z.string().optional(),
   modified: z.string().optional(),
-  fields: z.record(z.unknown()).default({}),
+  fields: z.record(z.string(), z.any()).default({}),
 })
 
 export type EntityFrontmatter = z.infer<typeof baseEntityFrontmatter>
@@ -45,6 +45,34 @@ export function slugify(text: string): string {
 
 export function contentHash(content: string): string {
   return createHash('md5').update(content).digest('hex')
+}
+
+// --- Secret Block Stripping ---
+
+const ROLE_LEVEL: Record<string, number> = {
+  dm: 5, co_dm: 4, editor: 3, player: 2, visitor: 1,
+}
+
+/**
+ * Strip :::secret{.role} blocks from markdown content based on the user's campaign role.
+ * DM and Co-DM always see everything.
+ */
+export function stripSecretBlocks(content: string, userRole: string): string {
+  if ((ROLE_LEVEL[userRole] ?? 0) >= (ROLE_LEVEL['co_dm'] ?? 4)) return content
+
+  // Match :::secret{.SPEC}\n...\n:::\n patterns
+  return content.replace(
+    /:::secret\{\.([^}]*)\}\s*\n([\s\S]*?):::\s*\n?/g,
+    (_match, spec: string, _body: string) => {
+      const colonIndex = spec.indexOf(':')
+      const requiredRole = colonIndex !== -1 ? spec.substring(0, colonIndex) : (spec || 'dm')
+      const requiredLevel = ROLE_LEVEL[requiredRole] ?? 5
+      const userLevel = ROLE_LEVEL[userRole] ?? 0
+
+      if (userLevel >= requiredLevel) return _match // keep the block
+      return '' // strip the block
+    },
+  )
 }
 
 // --- File Path Resolution ---

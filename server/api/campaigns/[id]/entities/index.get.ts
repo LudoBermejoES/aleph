@@ -1,12 +1,23 @@
-import { eq, and, like, sql, desc } from 'drizzle-orm'
+import { eq, and, like, sql, desc, or, inArray } from 'drizzle-orm'
 import { useDb } from '../../../../utils/db'
 import { entities } from '../../../../db/schema/entities'
 import { entityTags } from '../../../../db/schema/entities'
+import { hasMinRole } from '../../../../utils/permissions'
+import type { CampaignRole } from '../../../../utils/permissions'
+
+const VISIBILITY_MIN_ROLE: Record<string, number> = {
+  public: 0, members: 2, editors: 3, dm_only: 4, private: 99,
+}
+const ROLE_LEVEL: Record<string, number> = {
+  dm: 5, co_dm: 4, editor: 3, player: 2, visitor: 1,
+}
 
 export default defineEventHandler(async (event) => {
   const campaignId = getRouterParam(event, 'id')!
   const query = getQuery(event)
   const db = useDb()
+  const role = (event.context.campaignRole || 'visitor') as CampaignRole
+  const userId = event.context.user?.id || ''
 
   const type = query.type as string | undefined
   const tag = query.tag as string | undefined
@@ -25,9 +36,23 @@ export default defineEventHandler(async (event) => {
   if (parentId) conditions.push(eq(entities.parentId, parentId))
   if (search) conditions.push(like(entities.name, `%${search}%`))
 
-  const where = conditions.length === 1 ? conditions[0] : and(...conditions)!
+  // RBAC: filter entities by visibility based on user's campaign role
+  if (!hasMinRole(role, 'co_dm')) {
+    const userLevel = ROLE_LEVEL[role] ?? 0
+    const visibleLevels = Object.entries(VISIBILITY_MIN_ROLE)
+      .filter(([, minLevel]) => userLevel >= minLevel)
+      .map(([vis]) => vis)
 
-  // TODO: permission filtering (exclude entities user cannot see)
+    // User can see entities matching their visibility level OR their own private entities
+    conditions.push(
+      or(
+        inArray(entities.visibility, visibleLevels),
+        and(eq(entities.visibility, 'private'), eq(entities.createdBy, userId)),
+      )!,
+    )
+  }
+
+  const where = conditions.length === 1 ? conditions[0] : and(...conditions)!
 
   const results = db.select().from(entities)
     .where(where)
