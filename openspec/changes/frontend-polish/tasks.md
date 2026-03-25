@@ -256,21 +256,21 @@ Create `/edit` pages that reuse the same full-screen form layout as `/new`, pre-
 - [x] 12.11 Create `entities/[slug]/edit.vue` — loads entity, passes to EntityForm, calls PUT on submit
 - [x] 12.12 Create `characters/[slug]/edit.vue` — loads character, passes to CharacterForm, calls PUT on submit
 - [x] 12.13 Create `calendars/[calendarId]/edit.vue` — loads calendar, passes to CalendarForm, calls PUT on submit
-- [ ] 12.14 Create `timelines/[slug]/edit.vue` — loads timeline, passes to TimelineForm, calls PUT on submit
+- [x] 12.14 Create `timelines/[slug]/edit.vue` — loads timeline, passes to TimelineForm, calls PUT on submit
 - [x] 12.15 Create `sessions/[slug]/edit.vue` — loads session, passes to SessionForm, calls PUT on submit
 - [x] 12.16 Create `maps/[slug]/edit.vue` — loads map, passes to MapForm, calls PUT on submit
-- [ ] 12.17 Create `quests/[slug]/edit.vue` — loads quest, passes to QuestForm
-- [ ] 12.18 Create `items/[itemId]/edit.vue` — loads item, passes to ItemForm
-- [ ] 12.19 Create `shops/[slug]/edit.vue` — loads shop, passes to ShopForm
-- [ ] 12.20 Create `relations/[relationId]/edit.vue` — loads relation, passes to RelationForm
+- [x] 12.17 Create `quests/[slug]/edit.vue` — loads quest, passes to QuestForm
+- [x] 12.18 Create `items/[itemId]/edit.vue` — loads item, passes to ItemForm
+- [x] 12.19 Create `shops/[slug]/edit.vue` — loads shop, passes to ShopForm
+- [x] 12.20 Create `relations/[relationId]/edit.vue` — loads relation, passes to RelationForm
 
 ### 12c. Update Detail Pages (Edit button → NuxtLink to /edit)
 
 - [x] 12.21 Update entities/[slug].vue — Edit button navigates to /entities/:slug/edit
 - [x] 12.22 Update characters/[slug].vue — Edit button navigates to /characters/:slug/edit
-- [ ] 12.23 Update calendars/[calendarId].vue — Edit button navigates to /calendars/:id/edit
-- [ ] 12.24 Update sessions/[slug].vue — Edit button navigates to /sessions/:slug/edit
-- [ ] 12.25 Update maps/[slug].vue — Edit button navigates to /maps/:slug/edit
+- [x] 12.23 Update calendars/[calendarId].vue — Edit button navigates to /calendars/:id/edit
+- [x] 12.24 Update sessions/[slug].vue — Edit button navigates to /sessions/:slug/edit
+- [x] 12.25 Update maps/[slug].vue — Edit button navigates to /maps/:slug/edit
 
 ### 12d. Update /new Pages to Use Shared Form Components
 

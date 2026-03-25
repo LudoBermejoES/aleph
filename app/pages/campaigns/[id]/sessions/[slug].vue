@@ -18,6 +18,9 @@
           </div>
         </div>
         <div class="flex gap-2">
+          <NuxtLink :to="`/campaigns/${campaignId}/sessions/${slug}/edit`">
+            <Button variant="outline" size="sm">Edit</Button>
+          </NuxtLink>
           <select @change="updateStatus(($event.target as HTMLSelectElement).value)" :value="session.status"
             class="rounded-md border border-input bg-background px-2 py-1 text-sm">
             <option value="planned">Planned</option>
