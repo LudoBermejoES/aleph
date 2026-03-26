@@ -19,7 +19,8 @@
     "test:coverage": "vitest run --coverage",
     "start:prod": "pm2-runtime ecosystem.config.cjs --env production",
     "pm2:status": "pm2 status",
-    "pm2:logs": "pm2 logs aleph"
+    "pm2:logs": "pm2 logs aleph",
+    "aleph": "node cli/bin/aleph.js"
   },
   "dependencies": {
     "@geoman-io/leaflet-geoman-free": "^2.19.2",
