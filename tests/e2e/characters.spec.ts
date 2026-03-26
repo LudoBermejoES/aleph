@@ -56,18 +56,22 @@ test.describe('Characters', () => {
     await page.waitForURL('**/characters/**', { timeout: 15000 })
     await expect(page.locator('main h1')).toContainText('Editable NPC', { timeout: 10000 })
 
-    // Click Edit
+    // Click Edit → navigates to /edit page
     await page.click('[data-testid="edit-character"]')
-    await expect(page.locator('[data-testid="character-edit-form"]')).toBeVisible({ timeout: 5000 })
+    await expect(async () => {
+      expect(page.url()).toContain('/edit')
+    }).toPass({ timeout: 10000 })
 
-    // Change status to dead
-    await page.selectOption('[data-testid="character-edit-form"] select', 'dead')
+    // Change status to dead on the edit page form
+    await page.selectOption('select:has(option[value="dead"])', 'dead')
 
     // Save
-    await page.click('[data-testid="save-character"]')
-    await page.waitForTimeout(1000)
+    await page.click('button:has-text("Save Changes")')
+    await expect(async () => {
+      expect(page.url()).not.toContain('/edit')
+    }).toPass({ timeout: 15000 })
 
-    // Verify the status changed
+    // Verify the status changed on detail page
     await expect(page.locator('main')).toContainText('dead', { timeout: 5000 })
   })
 

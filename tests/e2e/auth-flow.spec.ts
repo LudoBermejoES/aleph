@@ -12,8 +12,10 @@ test.describe('Health & Public Access', () => {
 
   test('unauthenticated access redirects to /login', async ({ page }) => {
     await page.goto(`${BASE}/`)
-    await page.waitForURL('**/login', { timeout: 15000 })
-    expect(page.url()).toContain('/login')
+    // SPA auth middleware redirects client-side — poll for URL change
+    await expect(async () => {
+      expect(page.url()).toContain('/login')
+    }).toPass({ timeout: 15000 })
   })
 
   test('login page renders form', async ({ page }) => {
