@@ -3,40 +3,40 @@
     <!-- Toolbar -->
     <div class="flex flex-wrap items-center gap-0.5 p-2 border-b border-border bg-muted/30">
       <!-- Undo/Redo -->
-      <button type="button" @click="undo" class="p-1.5 rounded text-xs hover:bg-accent" title="Undo (Ctrl+Z)">↩</button>
-      <button type="button" @click="redo" class="p-1.5 rounded text-xs hover:bg-accent" title="Redo (Ctrl+Shift+Z)">↪</button>
+      <button type="button" @mousedown.prevent="undo" class="p-1.5 rounded text-xs hover:bg-accent" title="Undo (Ctrl+Z)">↩</button>
+      <button type="button" @mousedown.prevent="redo" class="p-1.5 rounded text-xs hover:bg-accent" title="Redo (Ctrl+Shift+Z)">↪</button>
       <div class="w-px h-4 bg-border mx-1" />
 
       <!-- Text formatting -->
-      <button type="button" @click="toggleBold" :class="['p-1.5 rounded text-xs font-bold', editor?.isActive('bold') ? 'bg-accent' : 'hover:bg-accent']" title="Bold (Ctrl+B)">B</button>
-      <button type="button" @click="toggleItalic" :class="['p-1.5 rounded text-xs italic', editor?.isActive('italic') ? 'bg-accent' : 'hover:bg-accent']" title="Italic (Ctrl+I)">I</button>
-      <button type="button" @click="toggleStrike" :class="['p-1.5 rounded text-xs line-through', editor?.isActive('strike') ? 'bg-accent' : 'hover:bg-accent']" title="Strikethrough">S</button>
-      <button type="button" @click="toggleCode" :class="['p-1.5 rounded text-xs font-mono', editor?.isActive('code') ? 'bg-accent' : 'hover:bg-accent']" title="Inline Code">&lt;/&gt;</button>
+      <button type="button" @mousedown.prevent="toggleBold" :class="['p-1.5 rounded text-xs font-bold', editorState?.isBold ? 'bg-accent' : 'hover:bg-accent']" title="Bold (Ctrl+B)">B</button>
+      <button type="button" @mousedown.prevent="toggleItalic" :class="['p-1.5 rounded text-xs italic', editorState?.isItalic ? 'bg-accent' : 'hover:bg-accent']" title="Italic (Ctrl+I)">I</button>
+      <button type="button" @mousedown.prevent="toggleStrike" :class="['p-1.5 rounded text-xs line-through', editorState?.isStrike ? 'bg-accent' : 'hover:bg-accent']" title="Strikethrough">S</button>
+      <button type="button" @mousedown.prevent="toggleCode" :class="['p-1.5 rounded text-xs font-mono', editorState?.isCode ? 'bg-accent' : 'hover:bg-accent']" title="Inline Code">&lt;/&gt;</button>
       <div class="w-px h-4 bg-border mx-1" />
 
       <!-- Headings -->
-      <button type="button" @click="setHeading(1)" :class="['p-1.5 rounded text-xs', editor?.isActive('heading', { level: 1 }) ? 'bg-accent' : 'hover:bg-accent']" title="Heading 1">H1</button>
-      <button type="button" @click="setHeading(2)" :class="['p-1.5 rounded text-xs', editor?.isActive('heading', { level: 2 }) ? 'bg-accent' : 'hover:bg-accent']" title="Heading 2">H2</button>
-      <button type="button" @click="setHeading(3)" :class="['p-1.5 rounded text-xs', editor?.isActive('heading', { level: 3 }) ? 'bg-accent' : 'hover:bg-accent']" title="Heading 3">H3</button>
+      <button type="button" @mousedown.prevent="setHeading(1)" :class="['p-1.5 rounded text-xs', editorState?.isH1 ? 'bg-accent' : 'hover:bg-accent']" title="Heading 1">H1</button>
+      <button type="button" @mousedown.prevent="setHeading(2)" :class="['p-1.5 rounded text-xs', editorState?.isH2 ? 'bg-accent' : 'hover:bg-accent']" title="Heading 2">H2</button>
+      <button type="button" @mousedown.prevent="setHeading(3)" :class="['p-1.5 rounded text-xs', editorState?.isH3 ? 'bg-accent' : 'hover:bg-accent']" title="Heading 3">H3</button>
       <div class="w-px h-4 bg-border mx-1" />
 
       <!-- Lists -->
-      <button type="button" @click="toggleBulletList" :class="['p-1.5 rounded text-xs', editor?.isActive('bulletList') ? 'bg-accent' : 'hover:bg-accent']" title="Bullet List">• List</button>
-      <button type="button" @click="toggleOrderedList" :class="['p-1.5 rounded text-xs', editor?.isActive('orderedList') ? 'bg-accent' : 'hover:bg-accent']" title="Ordered List">1. List</button>
-      <button type="button" @click="toggleTaskList" :class="['p-1.5 rounded text-xs', editor?.isActive('taskList') ? 'bg-accent' : 'hover:bg-accent']" title="Task List">☑ Tasks</button>
+      <button type="button" @mousedown.prevent="toggleBulletList" :class="['p-1.5 rounded text-xs', editorState?.isBulletList ? 'bg-accent' : 'hover:bg-accent']" title="Bullet List">• List</button>
+      <button type="button" @mousedown.prevent="toggleOrderedList" :class="['p-1.5 rounded text-xs', editorState?.isOrderedList ? 'bg-accent' : 'hover:bg-accent']" title="Ordered List">1. List</button>
+      <button type="button" @mousedown.prevent="toggleTaskList" :class="['p-1.5 rounded text-xs', editorState?.isTaskList ? 'bg-accent' : 'hover:bg-accent']" title="Task List">☑ Tasks</button>
       <div class="w-px h-4 bg-border mx-1" />
 
       <!-- Blocks -->
-      <button type="button" @click="toggleBlockquote" :class="['p-1.5 rounded text-xs', editor?.isActive('blockquote') ? 'bg-accent' : 'hover:bg-accent']" title="Blockquote">❝ Quote</button>
-      <button type="button" @click="toggleCodeBlock" :class="['p-1.5 rounded text-xs font-mono', editor?.isActive('codeBlock') ? 'bg-accent' : 'hover:bg-accent']" title="Code Block">{} Block</button>
-      <button type="button" @click="insertHorizontalRule" class="p-1.5 rounded text-xs hover:bg-accent" title="Horizontal Rule">— HR</button>
+      <button type="button" @mousedown.prevent="toggleBlockquote" :class="['p-1.5 rounded text-xs', editorState?.isBlockquote ? 'bg-accent' : 'hover:bg-accent']" title="Blockquote">❝ Quote</button>
+      <button type="button" @mousedown.prevent="toggleCodeBlock" :class="['p-1.5 rounded text-xs font-mono', editorState?.isCodeBlock ? 'bg-accent' : 'hover:bg-accent']" title="Code Block">{} Block</button>
+      <button type="button" @mousedown.prevent="insertHorizontalRule" class="p-1.5 rounded text-xs hover:bg-accent" title="Horizontal Rule">— HR</button>
       <div class="w-px h-4 bg-border mx-1" />
 
       <!-- Link -->
-      <button type="button" @click="insertLink" :class="['p-1.5 rounded text-xs', editor?.isActive('link') ? 'bg-accent' : 'hover:bg-accent']" title="Insert Link">🔗 Link</button>
+      <button type="button" @mousedown.prevent="insertLink" :class="['p-1.5 rounded text-xs', editorState?.isLink ? 'bg-accent' : 'hover:bg-accent']" title="Insert Link">🔗 Link</button>
 
       <!-- Table -->
-      <button type="button" @click="insertTable" class="p-1.5 rounded text-xs hover:bg-accent" title="Insert Table">⊞ Table</button>
+      <button type="button" @mousedown.prevent="insertTable" class="p-1.5 rounded text-xs hover:bg-accent" title="Insert Table">⊞ Table</button>
     </div>
 
     <!-- Editor -->
@@ -82,6 +82,30 @@ const editorEl = ref<HTMLElement>()
 let editor: Editor | null = null
 let provider: HocuspocusProvider | null = null
 let ydoc: Y.Doc | null = null
+
+const editorState = reactive({
+  isBold: false, isItalic: false, isStrike: false, isCode: false,
+  isH1: false, isH2: false, isH3: false,
+  isBulletList: false, isOrderedList: false, isTaskList: false,
+  isBlockquote: false, isCodeBlock: false, isLink: false,
+})
+
+function updateEditorState() {
+  if (!editor) return
+  editorState.isBold = editor.isActive('bold')
+  editorState.isItalic = editor.isActive('italic')
+  editorState.isStrike = editor.isActive('strike')
+  editorState.isCode = editor.isActive('code')
+  editorState.isH1 = editor.isActive('heading', { level: 1 })
+  editorState.isH2 = editor.isActive('heading', { level: 2 })
+  editorState.isH3 = editor.isActive('heading', { level: 3 })
+  editorState.isBulletList = editor.isActive('bulletList')
+  editorState.isOrderedList = editor.isActive('orderedList')
+  editorState.isTaskList = editor.isActive('taskList')
+  editorState.isBlockquote = editor.isActive('blockquote')
+  editorState.isCodeBlock = editor.isActive('codeBlock')
+  editorState.isLink = editor.isActive('link')
+}
 
 async function initEditor() {
   if (!editorEl.value || editor) return
@@ -262,7 +286,9 @@ async function initEditor() {
     content: '',
     onUpdate: ({ editor: e }) => {
       emit('update:modelValue', e.getMarkdown())
+      updateEditorState()
     },
+    onSelectionUpdate: () => updateEditorState(),
   })
   } catch (e) {
     console.error('[Aleph] Editor init failed:', e)
