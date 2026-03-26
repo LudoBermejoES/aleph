@@ -16,6 +16,8 @@
       </div>
     </div>
 
+    <LoadingSkeleton v-if="loading" :rows="4" />
+    <template v-else>
     <div v-if="calendarList.length" class="space-y-4 mb-8">
       <h2 class="text-lg font-semibold">Calendars</h2>
       <NuxtLink v-for="cal in calendarList" :key="cal.id" :to="`/campaigns/${campaignId}/calendars/${cal.id}`" class="block p-4 rounded-lg border border-border hover:border-primary/50 transition-colors">
@@ -37,7 +39,9 @@
         <span class="text-sm text-muted-foreground ml-2">{{ tl.events?.length || 0 }} events</span>
       </NuxtLink>
     </div>
-    <p v-if="!calendarList.length && !timelineList.length" class="text-muted-foreground text-center py-8">No calendars or timelines yet.</p>
+    <EmptyState v-if="!calendarList.length && !timelineList.length" icon="📅" title="No calendars or timelines yet" description="Create a calendar or timeline to get started." />
+    </template>
+    <ErrorToast v-if="error" :message="error" @dismiss="dismissError" />
   </div>
 </template>
 
@@ -46,10 +50,17 @@ const route = useRoute()
 const campaignId = route.params.id as string
 const calendarList = ref<any[]>([])
 const timelineList = ref<any[]>([])
+const { loading, error, withLoading, dismissError } = useLoadingState()
 
 async function load() {
-  try { calendarList.value = await $fetch(`/api/campaigns/${campaignId}/calendars`) as any[] } catch { calendarList.value = [] }
-  try { timelineList.value = await $fetch(`/api/campaigns/${campaignId}/timelines`) as any[] } catch { timelineList.value = [] }
+  await withLoading(async () => {
+    const [cals, tls] = await Promise.all([
+      $fetch(`/api/campaigns/${campaignId}/calendars`).catch(() => []),
+      $fetch(`/api/campaigns/${campaignId}/timelines`).catch(() => []),
+    ])
+    calendarList.value = cals as any[]
+    timelineList.value = tls as any[]
+  })
 }
 
 onMounted(load)

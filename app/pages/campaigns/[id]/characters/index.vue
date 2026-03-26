@@ -45,7 +45,8 @@
 
       <!-- Character List -->
       <div class="flex-1">
-        <div v-if="chars.length" class="space-y-2">
+        <LoadingSkeleton v-if="loading" :rows="4" />
+        <div v-else-if="chars.length" class="space-y-2">
           <NuxtLink
             v-for="c in chars"
             :key="c.id"
@@ -66,9 +67,12 @@
             </div>
           </NuxtLink>
         </div>
-        <p v-else class="text-muted-foreground text-center py-8">No characters yet. Click "New Character" to create one.</p>
+        <EmptyState v-else icon="🧙" title="No characters yet" description="Create your first character to get started.">
+          <NuxtLink :to="`/campaigns/${campaignId}/characters/new`"><Button size="sm">New Character</Button></NuxtLink>
+        </EmptyState>
       </div>
     </div>
+    <ErrorToast v-if="error" :message="error" @dismiss="dismissError" />
   </div>
 </template>
 
@@ -79,16 +83,15 @@ const chars = ref<any[]>([])
 const folders = ref<any[]>([])
 const filter = ref('all')
 const selectedFolder = ref('')
+const { loading, error, withLoading, dismissError } = useLoadingState()
 
 async function load() {
-  try {
+  await withLoading(async () => {
     const params: Record<string, string> = {}
     if (filter.value !== 'all') params.type = filter.value
     if (selectedFolder.value) params.folderId = selectedFolder.value
     chars.value = await $fetch(`/api/campaigns/${campaignId}/characters`, { params }) as any[]
-  } catch {
-    chars.value = []
-  }
+  })
 }
 
 async function loadFolders() {

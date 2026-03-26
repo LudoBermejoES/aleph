@@ -50,10 +50,10 @@
 
 ## 6. Loading & Error States
 
-- [ ] 6.1 Add loading skeleton components for list pages
-- [ ] 6.2 Add error toast/notification system
-- [ ] 6.3 Add loading state to all page data fetches
-- [ ] 6.4 Add empty state illustrations
+- [x] 6.1 Add loading skeleton components for list pages
+- [x] 6.2 Add error toast/notification system
+- [x] 6.3 Add loading state to all page data fetches
+- [x] 6.4 Add empty state illustrations
 
 ## 7. Component Tests
 
@@ -152,16 +152,16 @@ Replace all create dialogs with dedicated `/new` pages for full-screen forms wit
 
 ### Integration Tests
 
-- [ ] 9.19 Test character create via API with all fields returns correct response
-- [ ] 9.20 Test calendar create with configJson returns correct nested structure
-- [ ] 9.21 Test relation create validates source/target entities exist
+- [x] 9.19 Test character create via API with all fields returns correct response
+- [x] 9.20 Test calendar create with configJson returns correct nested structure
+- [x] 9.21 Test relation create validates source/target entities exist
 
 ### E2E Tests (legacy — replaced by section 11)
 
 - [x] 9.22 E2E: create character via dialog, verify in list
 - [x] 9.23 E2E: create calendar via dialog, verify month grid renders
 - [x] 9.24 E2E: create timeline via dialog, verify in list
-- [ ] 9.25 E2E: create relation via dialog, verify in graph
+- [x] 9.25 E2E: create relation via full page form, verify in graph (covered by 11j in create-full.spec.ts)
 
 ## 11. Thorough E2E Create Tests (all fields + detail verification)
 

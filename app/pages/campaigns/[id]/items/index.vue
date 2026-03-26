@@ -16,7 +16,8 @@
         <option value="rare">Rare</option><option value="very_rare">Very Rare</option><option value="legendary">Legendary</option>
       </select>
     </div>
-    <div v-if="itemList.length" class="space-y-2">
+    <LoadingSkeleton v-if="loading" :rows="4" />
+    <div v-else-if="itemList.length" class="space-y-2">
       <div v-for="item in itemList" :key="item.id" class="p-3 rounded border border-border flex items-center justify-between">
         <div>
           <span class="font-medium">{{ item.name }}</span>
@@ -25,7 +26,8 @@
         <span v-if="item.priceJson" class="text-xs text-muted-foreground">{{ item.priceJson }}</span>
       </div>
     </div>
-    <p v-else class="text-muted-foreground text-center py-8">No items yet.</p>
+    <EmptyState v-else icon="🎒" title="No items yet" description="Create your first item to get started." />
+    <ErrorToast v-if="error" :message="error" @dismiss="dismissError" />
   </div>
 </template>
 
@@ -35,6 +37,7 @@ const route = useRoute()
 const campaignId = route.params.id as string
 const itemList = ref<any[]>([])
 const filter = ref('')
+const { loading, error, withLoading, dismissError } = useLoadingState()
 
 function rarityColor(r: string) {
   const map: Record<string, string> = {
@@ -46,11 +49,11 @@ function rarityColor(r: string) {
 }
 
 async function load() {
-  try {
+  await withLoading(async () => {
     const params: Record<string, string> = {}
     if (filter.value) params.rarity = filter.value
     itemList.value = await $fetch(`/api/campaigns/${campaignId}/items`, { params }) as any[]
-  } catch { itemList.value = [] }
+  })
 }
 
 onMounted(load)
