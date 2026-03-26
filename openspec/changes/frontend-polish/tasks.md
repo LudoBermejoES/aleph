@@ -287,7 +287,7 @@ Create `/edit` pages that reuse the same full-screen form layout as `/new`, pre-
 
 ### 12e. Tests
 
-- [ ] 12.36 E2E: edit entity via /edit page, verify changes persisted
-- [ ] 12.37 E2E: edit character via /edit page, verify all fields updated
-- [ ] 12.38 E2E: edit calendar via /edit page, verify changes in grid
-- [ ] 12.39 Unit: form component emits correct payload for create vs edit mode
+- [x] 12.36 E2E: edit entity via /edit page, verify changes persisted
+- [x] 12.37 E2E: edit character via /edit page, verify all fields updated
+- [x] 12.38 E2E: edit calendar via /edit page, verify changes in grid
+- [x] 12.39 Unit: form component emits correct payload for create vs edit mode
