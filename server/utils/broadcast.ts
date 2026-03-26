@@ -16,6 +16,15 @@ export function registerBroadcast(fn: BroadcastFn) {
 }
 
 /**
+ * Emit any typed message to all connected clients in a campaign.
+ * Silently no-ops if no WebSocket clients are connected.
+ */
+export function emitCampaignMessage(campaignId: string, payload: Record<string, unknown>) {
+  if (!_broadcastFn) return
+  _broadcastFn(campaignId, JSON.stringify({ campaignId, timestamp: Date.now(), ...payload }))
+}
+
+/**
  * Emit a notification to all connected clients in a campaign.
  * Silently no-ops if no WebSocket clients are connected.
  */

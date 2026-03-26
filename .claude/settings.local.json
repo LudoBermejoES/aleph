@@ -130,7 +130,10 @@
       "Bash(Format-Table)",
       "Bash(taskkill //F //IM node.exe)",
       "Bash(find c:/code/aleph/app -name *alendar* -o -name *imeline*)",
-      "Bash(find c:/code/aleph/app/pages/campaigns/[id]/calendars -type f)"
+      "Bash(find c:/code/aleph/app/pages/campaigns/[id]/calendars -type f)",
+      "Bash(find c:/code/aleph/app -name *[Dd]ice* -o -name *[Rr]oll*)",
+      "Bash(find c:/code/aleph/server -name *websocket* -o -name *ws* -o -name *watcher*)",
+      "Bash(cat c:/code/aleph/server/api/campaigns/[id]/roll.post.ts)"
     ]
   }
 }
