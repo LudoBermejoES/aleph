@@ -359,25 +359,6 @@ onUnmounted(() => {
 .ProseMirror:focus {
   outline: none;
 }
-.ProseMirror {
-  color: hsl(var(--foreground));
-}
-.ProseMirror h1, .ProseMirror h2, .ProseMirror h3,
-.ProseMirror h4, .ProseMirror h5, .ProseMirror h6 {
-  color: hsl(var(--foreground));
-}
-.ProseMirror blockquote {
-  border-left-color: hsl(var(--border));
-  color: hsl(var(--muted-foreground));
-}
-.ProseMirror code {
-  color: hsl(var(--foreground));
-  background: hsl(var(--muted));
-}
-.ProseMirror pre {
-  background: hsl(var(--muted));
-  color: hsl(var(--foreground));
-}
 .ProseMirror p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
   float: left;
