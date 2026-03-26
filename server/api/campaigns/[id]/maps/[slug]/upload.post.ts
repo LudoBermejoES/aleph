@@ -62,14 +62,24 @@ export default defineEventHandler(async (event) => {
     // sharp not installed -- use defaults
   }
 
+  const requiresTiling = needsTiling(width, height)
+
   // Update map record
   db.update(maps).set({
     imagePath: `/api/campaigns/${campaignId}/maps/${slug}/image`,
     width,
     height,
-    isTiled: needsTiling(width, height),
+    isTiled: false,
     updatedAt: new Date(),
   }).where(eq(maps.id, map.id)).run()
 
-  return { imagePath, width, height, needsTiling: needsTiling(width, height) }
+  // Kick off background tiling if needed
+  if (requiresTiling) {
+    const tilesDir = join(contentDir, 'tiles')
+    runTask('maps:tile', { payload: { mapId: map.id, imagePath, outputDir: tilesDir } }).catch(
+      (err: unknown) => console.error('Tiling task failed', err),
+    )
+  }
+
+  return { imagePath, width, height, needsTiling: requiresTiling }
 })
