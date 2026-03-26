@@ -29,8 +29,8 @@ export async function registerAndLogin(page: Page, name: string = 'E2E User'): P
   await page.fill('#email', email)
   await page.fill('#password', 'testpassword123')
   await page.click('button[type="submit"]')
-  // window.location.href = '/' causes full reload
-  await page.waitForURL(`${BASE}/`, { timeout: 30000 })
+  // window.location.href = '/' causes full reload — poll instead of strict waitForURL
+  await waitForSPANavigation(page, `${BASE}/`, 45000)
   await page.waitForLoadState('networkidle')
   return email
 }
