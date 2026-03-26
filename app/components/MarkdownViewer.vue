@@ -1,5 +1,5 @@
 <template>
-  <div class="prose dark:prose-invert max-w-none">
+  <div class="prose dark:prose-invert max-w-none text-foreground">
     <div v-if="loading" class="animate-pulse space-y-2">
       <div class="h-4 bg-muted rounded w-3/4"></div>
       <div class="h-4 bg-muted rounded w-1/2"></div>

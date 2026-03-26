@@ -34,7 +34,7 @@
       </div>
 
       <!-- Markdown Content -->
-      <div class="prose dark:prose-invert max-w-none">
+      <div class="prose dark:prose-invert max-w-none text-foreground">
         <MDC v-if="entity.content" :value="entity.content" />
         <p v-else class="text-muted-foreground italic">{{ $t('entities.noContent') }}</p>
       </div>

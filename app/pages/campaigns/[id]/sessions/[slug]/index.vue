@@ -49,7 +49,7 @@
           <Button variant="outline" size="sm" @click="editing = !editing">{{ editing ? $t('sessions.previewTab') : $t('sessions.editTab') }}</Button>
         </div>
         <textarea v-if="editing" v-model="logContent" rows="15" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono" />
-        <div v-else class="prose dark:prose-invert max-w-none">
+        <div v-else class="prose dark:prose-invert max-w-none text-foreground">
           <MDC v-if="session.logContent" :value="session.logContent" />
           <p v-else class="text-muted-foreground italic">{{ $t('sessions.noLog') }}</p>
         </div>
