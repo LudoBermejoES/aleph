@@ -13,7 +13,7 @@
     <Teleport to="body">
       <div v-if="open" class="fixed inset-0 z-50 flex items-start justify-center pt-[20vh]" @click.self="open = false">
         <div class="fixed inset-0 bg-black/50" @click="open = false" />
-        <div class="relative bg-background border border-border rounded-lg shadow-xl w-full max-w-lg">
+        <div class="relative z-10 bg-background border border-border rounded-lg shadow-xl w-full max-w-lg">
           <div class="flex items-center border-b border-border px-4">
             <svg class="w-4 h-4 text-muted-foreground shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
