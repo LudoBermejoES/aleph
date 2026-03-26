@@ -87,6 +87,9 @@ const campaignLinks = computed(() => {
     { to: `/campaigns/${id}/calendars`, label: 'Calendars' },
     { to: `/campaigns/${id}/items`, label: 'Items' },
     { to: `/campaigns/${id}/shops`, label: 'Shops' },
+    { to: `/campaigns/${id}/inventories`, label: 'Inventories' },
+    { to: `/campaigns/${id}/currencies`, label: 'Currencies' },
+    { to: `/campaigns/${id}/transactions`, label: 'Transactions' },
     { to: `/campaigns/${id}/graph`, label: 'Graph' },
     { to: `/campaigns/${id}/members`, label: 'Members' },
   ]
