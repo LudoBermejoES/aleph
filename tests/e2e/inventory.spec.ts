@@ -108,7 +108,7 @@ test.describe('Items & Shops', () => {
     await page.goto(`/campaigns/${campaignId}/currencies`)
     await page.waitForLoadState('networkidle')
 
-    await expect(page.locator('h1')).toContainText('Currencies', { timeout: 10000 })
+    await expect(page.locator('main h1')).toContainText('Currencies', { timeout: 10000 })
 
     await page.click('[data-testid="new-currency-btn"]')
     await page.waitForSelector('[data-testid="currency-form"]')
