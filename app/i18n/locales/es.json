@@ -27,7 +27,8 @@
     "date": "Fecha",
     "amount": "Cantidad",
     "item": "Objeto",
-    "quantity": "Cantidad"
+    "quantity": "Cantidad",
+    "saved": "¡Guardado!"
   },
   "auth": {
     "signIn": "Iniciar sesión",
@@ -84,7 +85,8 @@
     "graph": "Grafo de relaciones",
     "graphSubtitle": "Visualiza las conexiones entre entidades",
     "members": "Miembros",
-    "membersSubtitle": "Invita jugadores, gestiona roles y permisos"
+    "membersSubtitle": "Invita jugadores, gestiona roles y permisos",
+    "settings": "Configuración de Campaña"
   },
   "members": {
     "title": "Miembros",

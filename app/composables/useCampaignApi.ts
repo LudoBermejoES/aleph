@@ -38,7 +38,7 @@ export function useCampaignApi(campaignId: string) {
   // ─── Campaigns ──────────────────────────────────────────────────────────────
 
   function getCampaign() {
-    return $fetch<CampaignListItem>(`/api/campaigns/${campaignId}`)
+    return $fetch<Campaign>(`/api/campaigns/${campaignId}`)
   }
 
   // ─── Members ────────────────────────────────────────────────────────────────
@@ -445,6 +445,10 @@ export function listCampaigns(): Promise<CampaignListItem[]> {
   return $fetch<CampaignListItem[]>('/api/campaigns')
 }
 
-export function createCampaignEntry(body: { name: string; description?: string }): Promise<{ id: string; slug: string }> {
+export function createCampaignEntry(body: { name: string; description?: string; theme?: string }): Promise<{ id: string; slug: string }> {
   return $fetch<{ id: string; slug: string }>('/api/campaigns', { method: 'POST', body })
+}
+
+export function updateCampaignEntry(id: string, body: { name?: string; description?: string; isPublic?: boolean; theme?: string }): Promise<{ success: boolean }> {
+  return $fetch<{ success: boolean }>(`/api/campaigns/${id}`, { method: 'PUT', body })
 }

@@ -131,6 +131,20 @@
       </div>
     </div>
 
+    <!-- Campaign Settings (DM/Co-DM only) -->
+    <div v-if="campaign" class="mt-8 border-t border-border pt-8">
+      <h2 class="text-lg font-semibold mb-4">{{ $t('campaigns.settings') }}</h2>
+      <div class="max-w-sm space-y-4">
+        <ThemePicker v-model="selectedTheme" />
+        <div class="flex items-center gap-2">
+          <Button size="sm" @click="saveTheme" :disabled="savingTheme">
+            {{ savingTheme ? $t('common.saving') : $t('common.save') }}
+          </Button>
+          <span v-if="themeSaved" class="text-sm text-muted-foreground">{{ $t('common.saved') }}</span>
+        </div>
+      </div>
+    </div>
+
     <DiceRoller :campaign-id="campaignId" />
   </div>
 </template>
@@ -139,6 +153,28 @@
 
 const route = useRoute()
 const campaignId = route.params.id as string
+const { t } = useI18n()
 
-const { data: campaign } = await useFetch(`/api/campaigns/${campaignId}`)
+const { data: campaign } = await useFetch<{ id: string; name: string; description: string | null; theme: string | null }>(`/api/campaigns/${campaignId}`)
+
+const selectedTheme = ref(campaign.value?.theme || 'default')
+const savingTheme = ref(false)
+const themeSaved = ref(false)
+// Shared state with layout so the theme applies without a page reload
+const campaignTheme = useState<string | null>('campaignTheme')
+
+async function saveTheme() {
+  savingTheme.value = true
+  themeSaved.value = false
+  try {
+    await updateCampaignEntry(campaignId, { theme: selectedTheme.value })
+    campaignTheme.value = selectedTheme.value
+    themeSaved.value = true
+    setTimeout(() => { themeSaved.value = false }, 2000)
+  } catch (e: any) {
+    alert(e.data?.message || t('errors.failedSave'))
+  } finally {
+    savingTheme.value = false
+  }
+}
 </script>
