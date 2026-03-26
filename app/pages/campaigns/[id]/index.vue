@@ -84,6 +84,33 @@
           </Card>
         </NuxtLink>
 
+        <NuxtLink :to="`/campaigns/${campaignId}/inventories`">
+          <Card class="hover:border-primary/50 transition-colors cursor-pointer">
+            <CardHeader>
+              <CardTitle class="text-lg">Inventories</CardTitle>
+              <CardDescription>Character, party, and faction inventories</CardDescription>
+            </CardHeader>
+          </Card>
+        </NuxtLink>
+
+        <NuxtLink :to="`/campaigns/${campaignId}/currencies`">
+          <Card class="hover:border-primary/50 transition-colors cursor-pointer">
+            <CardHeader>
+              <CardTitle class="text-lg">Currencies</CardTitle>
+              <CardDescription>Define currencies and conversion rates</CardDescription>
+            </CardHeader>
+          </Card>
+        </NuxtLink>
+
+        <NuxtLink :to="`/campaigns/${campaignId}/transactions`">
+          <Card class="hover:border-primary/50 transition-colors cursor-pointer">
+            <CardHeader>
+              <CardTitle class="text-lg">Transactions</CardTitle>
+              <CardDescription>Immutable ledger of all wealth and item transfers</CardDescription>
+            </CardHeader>
+          </Card>
+        </NuxtLink>
+
         <NuxtLink :to="`/campaigns/${campaignId}/graph`">
           <Card class="hover:border-primary/50 transition-colors cursor-pointer">
             <CardHeader>
