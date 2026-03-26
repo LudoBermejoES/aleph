@@ -94,7 +94,7 @@
 
 - [x] 9.15 Test: open entity edit → Tiptap editor renders with existing content
 - [x] 9.16 Test: type in Tiptap editor → save → reload → content persisted
-- [ ] 9.17 Test: entity-link autocomplete → type @ → see entity suggestions (blocked: needs autocomplete UI from search-autolink change)
+- [x] 9.17 Test: entity-link autocomplete → type @ → see entity suggestions
 - [x] 9.18 Test: two browser contexts edit same entity → both see each other's cursors
 - [x] 9.19 Test: presence avatars show when another user is in the campaign
 

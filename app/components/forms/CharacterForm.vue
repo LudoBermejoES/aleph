@@ -54,7 +54,7 @@
 
     <div>
       <label class="text-sm font-medium">Description</label>
-      <MarkdownEditor v-model="form.content" placeholder="Write a character description..." class="mt-1" />
+      <MarkdownEditor v-model="form.content" placeholder="Write a character description... (type @ to link entities)" :campaign-id="campaignId" class="mt-1" />
     </div>
 
     <div class="flex justify-end gap-2">

@@ -21,7 +21,7 @@
     </div>
     <div>
       <label class="text-sm font-medium">Session Notes</label>
-      <MarkdownEditor v-model="form.content" placeholder="Write session notes..." class="mt-1" />
+      <MarkdownEditor v-model="form.content" placeholder="Write session notes... (type @ to link entities)" :campaign-id="campaignId" class="mt-1" />
     </div>
     <div class="flex justify-end gap-2">
       <slot name="cancel" />
@@ -33,6 +33,7 @@
 <script setup lang="ts">
 const props = defineProps<{
   modelValue: { title: string; scheduledDate: string; status: string; content: string }
+  campaignId?: string
   submitLabel?: string
   submitting?: boolean
 }>()

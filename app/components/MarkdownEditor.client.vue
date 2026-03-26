@@ -62,6 +62,10 @@ import { HocuspocusProvider } from '@hocuspocus/provider'
 import * as Y from 'yjs'
 import { EntityLink } from '../../server/extensions/entity-link'
 import { SecretBlock } from '../../server/extensions/secret-block'
+import { EntityMention } from '../extensions/entity-mention'
+import { VueRenderer } from '@tiptap/vue-3'
+import EntitySuggestionList from './EntitySuggestionList.vue'
+import tippy from 'tippy.js'
 
 const props = defineProps<{
   modelValue: string
@@ -70,6 +74,7 @@ const props = defineProps<{
   documentName?: string // e.g. "campaign:123:entity:strahd"
   userName?: string
   userColor?: string
+  campaignId?: string
 }>()
 
 const emit = defineEmits<{
@@ -97,6 +102,82 @@ onMounted(async () => {
     TableHeader,
     Placeholder.configure({ placeholder: props.placeholder || 'Start writing...' }),
   ]
+
+  // Add entity mention autocomplete if campaignId is provided
+  if (props.campaignId) {
+    extensions.push(
+      EntityMention.configure({
+        campaignId: props.campaignId,
+        suggestion: {
+          char: '@',
+          items: async ({ query }: { query: string }) => {
+            if (!query || query.length < 1) return []
+            try {
+              const res = await $fetch(`/api/campaigns/${props.campaignId}/entities`, {
+                params: { search: query, limit: 8 },
+              }) as any
+              return (res.entities || res || []).map((e: any) => ({
+                id: e.id,
+                name: e.name,
+                slug: e.slug,
+                type: e.type,
+              }))
+            } catch {
+              return []
+            }
+          },
+          command: ({ editor: ed, range, props: item }: any) => {
+            ed.chain().focus().deleteRange(range).insertContent({
+              type: 'entityMention',
+              attrs: { slug: item.slug, label: item.name, id: item.id },
+            }).run()
+          },
+          render: () => {
+            let component: any
+            let popup: any
+
+            return {
+              onStart: (renderProps: any) => {
+                component = new VueRenderer(EntitySuggestionList, {
+                  props: { items: renderProps.items, command: renderProps.command, query: renderProps.query },
+                  editor: renderProps.editor,
+                })
+
+                if (!renderProps.clientRect) return
+
+                popup = tippy('body', {
+                  getReferenceClientRect: renderProps.clientRect,
+                  appendTo: () => document.body,
+                  content: component.element,
+                  showOnCreate: true,
+                  interactive: true,
+                  trigger: 'manual',
+                  placement: 'bottom-start',
+                })
+              },
+              onUpdate: (renderProps: any) => {
+                component?.updateProps({ items: renderProps.items, command: renderProps.command, query: renderProps.query })
+                if (renderProps.clientRect && popup?.[0]) {
+                  popup[0].setProps({ getReferenceClientRect: renderProps.clientRect })
+                }
+              },
+              onKeyDown: (renderProps: any) => {
+                if (renderProps.event.key === 'Escape') {
+                  popup?.[0]?.hide()
+                  return true
+                }
+                return component?.ref?.onKeyDown?.(renderProps.event) || false
+              },
+              onExit: () => {
+                popup?.[0]?.destroy()
+                component?.destroy()
+              },
+            }
+          },
+        },
+      }),
+    )
+  }
 
   if (props.collaborative && props.documentName) {
     ydoc = new Y.Doc()
@@ -231,6 +312,15 @@ onUnmounted(() => {
 .ProseMirror th {
   background: hsl(var(--muted));
   font-weight: 600;
+}
+/* Entity mention styles */
+.entity-mention {
+  background: hsl(var(--primary) / 0.15);
+  color: hsl(var(--primary));
+  padding: 0.1rem 0.3rem;
+  border-radius: 0.25rem;
+  font-weight: 500;
+  cursor: pointer;
 }
 /* Collaboration cursor styles */
 .collaboration-cursor__caret {
