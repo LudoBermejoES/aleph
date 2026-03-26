@@ -21,9 +21,25 @@ The system SHALL support uploading custom map images and displaying them as pann
 - AND zoom levels are smooth and continuous
 - AND the map stays within bounds (no infinite scrolling past edges)
 
+### Requirement: Leaflet Integration
+
+The system SHALL render interactive maps using Leaflet.js with CRS.Simple.
+
+#### Scenario: Rendering a map with CRS.Simple
+- GIVEN a map entity with an uploaded image
+- WHEN the user navigates to the map view
+- THEN Leaflet.js initializes with CRS.Simple (non-geographic pixel coordinates)
+- AND the image is displayed as a tile layer bounded to its pixel dimensions
+
 ### Requirement: Map Pins (Markers)
 
 The system SHALL support placing interactive pins on maps that link to wiki entities.
+
+#### Scenario: Pin rendering on Leaflet map
+- GIVEN a map with associated pin records in the database
+- WHEN the Leaflet map finishes loading
+- THEN all pins are rendered as Leaflet markers at their stored x/y coordinates
+- AND each marker displays a tooltip on hover with the pin name
 
 #### Scenario: Creating a pin
 - GIVEN a DM editing a map
