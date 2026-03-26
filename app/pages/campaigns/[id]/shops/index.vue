@@ -10,7 +10,8 @@
         <Button data-testid="new-shop-btn">New Shop</Button>
       </NuxtLink>
     </div>
-    <div v-if="shopList.length" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <LoadingSkeleton v-if="loading" :rows="4" />
+    <div v-else-if="shopList.length" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       <Card v-for="shop in shopList" :key="shop.id" class="h-full">
         <CardHeader>
           <CardTitle class="text-lg">{{ shop.name }}</CardTitle>
@@ -18,7 +19,8 @@
         </CardHeader>
       </Card>
     </div>
-    <p v-else class="text-muted-foreground text-center py-8">No shops yet.</p>
+    <EmptyState v-else icon="🏪" title="No shops yet" description="Create your first shop to get started." />
+    <ErrorToast v-if="error" :message="error" @dismiss="dismissError" />
   </div>
 </template>
 
@@ -27,9 +29,12 @@
 const route = useRoute()
 const campaignId = route.params.id as string
 const shopList = ref<any[]>([])
+const { loading, error, withLoading, dismissError } = useLoadingState()
 
 async function load() {
-  try { shopList.value = await $fetch(`/api/campaigns/${campaignId}/shops`) as any[] } catch { shopList.value = [] }
+  await withLoading(async () => {
+    shopList.value = await $fetch(`/api/campaigns/${campaignId}/shops`) as any[]
+  })
 }
 
 onMounted(load)

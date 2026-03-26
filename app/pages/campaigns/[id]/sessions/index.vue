@@ -13,8 +13,10 @@
       </NuxtLink>
     </div>
 
+    <LoadingSkeleton v-if="loading" :rows="4" />
+
     <!-- Upcoming -->
-    <div v-if="upcoming.length" class="mb-8">
+    <div v-if="!loading && upcoming.length" class="mb-8">
       <h2 class="text-lg font-semibold mb-3">Upcoming</h2>
       <div class="space-y-2">
         <NuxtLink v-for="s in upcoming" :key="s.id" :to="`/campaigns/${campaignId}/sessions/${s.slug}`"
@@ -29,7 +31,7 @@
     </div>
 
     <!-- Past -->
-    <div v-if="past.length">
+    <div v-if="!loading && past.length">
       <h2 class="text-lg font-semibold mb-3">Past Sessions</h2>
       <div class="space-y-2">
         <NuxtLink v-for="s in past" :key="s.id" :to="`/campaigns/${campaignId}/sessions/${s.slug}`"
@@ -42,7 +44,8 @@
       </div>
     </div>
 
-    <p v-if="!upcoming.length && !past.length" class="text-muted-foreground text-center py-8">No sessions yet.</p>
+    <EmptyState v-if="!loading && !upcoming.length && !past.length" icon="📋" title="No sessions yet" description="Create your first session to get started." />
+    <ErrorToast v-if="error" :message="error" @dismiss="dismissError" />
   </div>
 </template>
 
@@ -51,12 +54,15 @@
 const route = useRoute()
 const campaignId = route.params.id as string
 const sessions = ref<any[]>([])
+const { loading, error, withLoading, dismissError } = useLoadingState()
 
 const upcoming = computed(() => sessions.value.filter(s => ['planned', 'active'].includes(s.status)))
 const past = computed(() => sessions.value.filter(s => ['completed', 'cancelled'].includes(s.status)))
 
 async function load() {
-  try { sessions.value = await $fetch(`/api/campaigns/${campaignId}/sessions`) as any[] } catch { sessions.value = [] }
+  await withLoading(async () => {
+    sessions.value = await $fetch(`/api/campaigns/${campaignId}/sessions`) as any[]
+  })
 }
 
 onMounted(load)

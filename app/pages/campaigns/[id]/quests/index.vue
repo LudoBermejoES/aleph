@@ -19,7 +19,8 @@
       <Button :variant="filter === 'completed' ? 'default' : 'outline'" size="sm" @click="filter = 'completed'; load()">Completed</Button>
     </div>
 
-    <div v-if="questList.length" class="space-y-2">
+    <LoadingSkeleton v-if="loading" :rows="4" />
+    <div v-else-if="questList.length" class="space-y-2">
       <div v-for="q in rootQuests" :key="q.id" class="space-y-1">
         <div class="p-3 rounded-lg border border-border">
           <div class="flex items-center justify-between">
@@ -37,7 +38,8 @@
         </div>
       </div>
     </div>
-    <p v-else class="text-muted-foreground text-center py-8">No quests yet.</p>
+    <EmptyState v-else icon="⚔️" title="No quests yet" description="Create your first quest to get started." />
+    <ErrorToast v-if="error" :message="error" @dismiss="dismissError" />
   </div>
 </template>
 
@@ -47,16 +49,17 @@ const route = useRoute()
 const campaignId = route.params.id as string
 const questList = ref<any[]>([])
 const filter = ref('')
+const { loading, error, withLoading, dismissError } = useLoadingState()
 
 const rootQuests = computed(() => questList.value.filter(q => !q.parentQuestId))
 function childQuests(parentId: string) { return questList.value.filter(q => q.parentQuestId === parentId) }
 
 async function load() {
-  try {
+  await withLoading(async () => {
     const params: Record<string, string> = {}
     if (filter.value) params.status = filter.value
     questList.value = await $fetch(`/api/campaigns/${campaignId}/quests`, { params }) as any[]
-  } catch { questList.value = [] }
+  })
 }
 
 onMounted(load)

@@ -13,7 +13,8 @@
       </NuxtLink>
     </div>
 
-    <div v-if="mapList.length" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <LoadingSkeleton v-if="loading" :rows="4" />
+    <div v-else-if="mapList.length" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       <NuxtLink v-for="m in mapList" :key="m.id" :to="`/campaigns/${campaignId}/maps/${m.slug}`">
         <Card class="hover:border-primary/50 transition-colors cursor-pointer h-full">
           <CardHeader>
@@ -23,7 +24,8 @@
         </Card>
       </NuxtLink>
     </div>
-    <p v-else class="text-muted-foreground text-center py-8">No maps yet. Create one to get started.</p>
+    <EmptyState v-else icon="🗺️" title="No maps yet" description="Create one to get started." />
+    <ErrorToast v-if="error" :message="error" @dismiss="dismissError" />
   </div>
 </template>
 
@@ -32,9 +34,12 @@
 const route = useRoute()
 const campaignId = route.params.id as string
 const mapList = ref<any[]>([])
+const { loading, error, withLoading, dismissError } = useLoadingState()
 
 async function load() {
-  try { mapList.value = await $fetch(`/api/campaigns/${campaignId}/maps?root=true`) as any[] } catch { mapList.value = [] }
+  await withLoading(async () => {
+    mapList.value = await $fetch(`/api/campaigns/${campaignId}/maps?root=true`) as any[]
+  })
 }
 
 onMounted(load)
