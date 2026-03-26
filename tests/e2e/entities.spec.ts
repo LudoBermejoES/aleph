@@ -20,7 +20,7 @@ test.describe('Entity CRUD', () => {
     await page.fill('input[placeholder="Entity name"]', entityName)
 
     // Submit
-    await page.click('button:has-text("Create Entity")')
+    await page.click('button[type="submit"]:has-text("Create")')
 
     // Should navigate to entity detail
     await expect(async () => {

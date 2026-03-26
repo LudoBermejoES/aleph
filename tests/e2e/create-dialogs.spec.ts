@@ -21,7 +21,7 @@ test.describe('Create Pages E2E', () => {
     await page.selectOption('select:has(option[value="npc"])', 'npc')
 
     // Submit
-    await page.click('button:has-text("Create Character")')
+    await page.click('button[type="submit"]:has-text("Create")')
 
     // Should navigate to character detail
     await expect(async () => {
@@ -48,7 +48,7 @@ test.describe('Create Pages E2E', () => {
     await page.fill('input[placeholder="Month name"]', 'Hammer')
 
     // Submit
-    await page.click('button:has-text("Create Calendar")')
+    await page.click('button[type="submit"]:has-text("Create")')
 
     // Should navigate to calendar detail with grid
     await expect(async () => {
@@ -74,7 +74,7 @@ test.describe('Create Pages E2E', () => {
     await page.fill('input[placeholder="Campaign Arc 1"]', `TestTimeline ${uid()}`)
 
     // Submit
-    await page.click('button:has-text("Create Timeline")')
+    await page.click('button[type="submit"]:has-text("Create")')
 
     // Should navigate to timeline detail
     await expect(async () => {

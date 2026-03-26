@@ -27,7 +27,7 @@ test.describe('Thorough Entity Create (11a)', () => {
     }
 
     // 11.3 Submit
-    await page.click('button:has-text("Create Entity")')
+    await page.click('button[type="submit"]:has-text("Create")')
     await expect(async () => {
       expect(page.url()).toMatch(/\/entities\/[^/]+$/)
       expect(page.url()).not.toContain('/new')
@@ -72,7 +72,7 @@ test.describe('Thorough Character Create (11b)', () => {
     }
 
     // 11.8 Submit
-    await page.click('button:has-text("Create Character")')
+    await page.click('button[type="submit"]:has-text("Create")')
     await expect(async () => {
       expect(page.url()).toMatch(/\/characters\/[^/]+$/)
       expect(page.url()).not.toContain('/new')
@@ -134,7 +134,7 @@ test.describe('Thorough Calendar Create (11c)', () => {
     await page.fill('input[placeholder*="Sun, Mon"]', 'Soldi, Lunedi, Martedi, Mertedi, Yovedi, Firedi, Sataredi')
 
     // 11.13 Submit
-    await page.click('button:has-text("Create Calendar")')
+    await page.click('button[type="submit"]:has-text("Create")')
     await expect(async () => {
       expect(page.url()).toMatch(/\/calendars\/[^/]+$/)
       expect(page.url()).not.toContain('/new')
@@ -167,7 +167,7 @@ test.describe('Thorough Timeline Create (11d)', () => {
     await page.fill('input[placeholder="Campaign Arc 1"]', tlName)
     await page.fill('textarea', 'The age when Strahd conquered Barovia.')
 
-    await page.click('button:has-text("Create Timeline")')
+    await page.click('button[type="submit"]:has-text("Create")')
     await expect(async () => {
       expect(page.url()).toMatch(/\/timelines\/[^/]+$/)
     }).toPass({ timeout: 15000 })
@@ -201,7 +201,7 @@ test.describe('Thorough Session Create (11e)', () => {
     }
 
     // 11.20 Submit
-    await page.click('button:has-text("Create Session")')
+    await page.click('button[type="submit"]:has-text("Create")')
     await expect(async () => {
       expect(page.url()).toMatch(/\/sessions\/[^/]+$/)
     }).toPass({ timeout: 15000 })
@@ -224,7 +224,7 @@ test.describe('Thorough Map Create (11f)', () => {
     const mapName = `Barovia Map ${uid()}`
     await page.fill('input[placeholder*="Barovia"]', mapName)
 
-    await page.click('button:has-text("Create Map")')
+    await page.click('button[type="submit"]:has-text("Create")')
     await expect(async () => {
       expect(page.url()).toMatch(/\/maps\/[^/]+$/)
     }).toPass({ timeout: 15000 })
@@ -254,7 +254,7 @@ test.describe('Thorough Quest Create (11g)', () => {
       await editor.pressSequentially('Find the three artifacts to defeat the vampire lord.')
     }
 
-    await page.click('button:has-text("Create Quest")')
+    await page.click('button[type="submit"]:has-text("Create")')
     await page.waitForLoadState('networkidle')
 
     // 11.27 Verify quest in list
@@ -281,7 +281,7 @@ test.describe('Thorough Item Create (11h)', () => {
     // 11.29 Description
     await page.fill('textarea', 'A radiant blade that burns undead.')
 
-    await page.click('button:has-text("Create Item")')
+    await page.click('button[type="submit"]:has-text("Create")')
     await page.waitForLoadState('networkidle')
 
     // 11.30 Verify in list with rarity
@@ -303,7 +303,7 @@ test.describe('Thorough Shop Create (11i)', () => {
     await page.fill('input[placeholder*="Potion"]', shopName)
     await page.fill('textarea', 'Overpriced goods in the village of Barovia.')
 
-    await page.click('button:has-text("Create Shop")')
+    await page.click('button[type="submit"]:has-text("Create")')
     await expect(async () => {
       expect(page.url()).toMatch(/\/shops\/[^/]+$/)
     }).toPass({ timeout: 15000 })
@@ -368,7 +368,7 @@ test.describe('Thorough Relation Create (11j)', () => {
     await page.locator('input[type="range"]').fill('75')
 
     // 11.37 Submit
-    const submitBtn = page.locator('button:has-text("Create Relation")')
+    const submitBtn = page.locator('button[type="submit"]:has-text("Create")')
     const isEnabled = await submitBtn.isEnabled()
 
     // Dismiss any alert that might appear from API errors

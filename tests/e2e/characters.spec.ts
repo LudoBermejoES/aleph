@@ -69,7 +69,7 @@ test.describe('Characters', () => {
     await page.selectOption('select:has(option[value="dead"])', 'dead')
 
     // Save
-    await page.click('button:has-text("Save Changes")')
+    await page.click('button[type="submit"]:has-text("Save")')
     await expect(async () => {
       const url = page.url()
       expect(url).toContain('/characters/')
