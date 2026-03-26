@@ -63,9 +63,6 @@ import * as Y from 'yjs'
 import { EntityLink } from '../../server/extensions/entity-link'
 import { SecretBlock } from '../../server/extensions/secret-block'
 import { EntityMention } from '../extensions/entity-mention'
-import { VueRenderer } from '@tiptap/vue-3'
-import EntitySuggestionList from './EntitySuggestionList.vue'
-import tippy from 'tippy.js'
 
 const props = defineProps<{
   modelValue: string
@@ -86,8 +83,8 @@ let editor: Editor | null = null
 let provider: HocuspocusProvider | null = null
 let ydoc: Y.Doc | null = null
 
-onMounted(async () => {
-  if (!editorEl.value) return
+async function initEditor() {
+  if (!editorEl.value || editor) return
 
   const extensions: any[] = [
     Markdown,
@@ -105,6 +102,7 @@ onMounted(async () => {
 
   // Add entity mention autocomplete if campaignId is provided
   if (props.campaignId) {
+    try {
     extensions.push(
       EntityMention.configure({
         campaignId: props.campaignId,
@@ -116,12 +114,13 @@ onMounted(async () => {
               const res = await $fetch(`/api/campaigns/${props.campaignId}/entities`, {
                 params: { search: query, limit: 8 },
               }) as any
-              return (res.entities || res || []).map((e: any) => ({
+              const items = (res.entities || res || []).map((e: any) => ({
                 id: e.id,
                 name: e.name,
                 slug: e.slug,
                 type: e.type,
               }))
+              return items
             } catch {
               return []
             }
@@ -133,50 +132,95 @@ onMounted(async () => {
             }).run()
           },
           render: () => {
-            let component: any
-            let popup: any
+            let dropdown: HTMLElement | null = null
+            let selectedIndex = 0
+            let currentItems: any[] = []
+            let currentCommand: any = null
+
+            function updateDropdown(items: any[], command: any, clientRect: (() => DOMRect) | null) {
+              currentItems = items
+              currentCommand = command
+              selectedIndex = 0
+
+              if (!items.length) {
+                removeDropdown()
+                return
+              }
+
+              if (!dropdown) {
+                dropdown = document.createElement('div')
+                dropdown.setAttribute('data-testid', 'entity-suggestions')
+                dropdown.className = 'fixed z-[9999] bg-popover border border-border rounded-lg shadow-lg overflow-hidden max-h-48 overflow-y-auto'
+                document.body.appendChild(dropdown)
+              }
+
+              if (clientRect) {
+                const rect = clientRect()
+                dropdown.style.left = `${rect.left}px`
+                dropdown.style.top = `${rect.bottom + 4}px`
+                dropdown.style.minWidth = '200px'
+              }
+
+              renderItems()
+            }
+
+            function renderItems() {
+              if (!dropdown) return
+              dropdown.innerHTML = ''
+              currentItems.forEach((item, i) => {
+                const btn = document.createElement('button')
+                btn.className = `block w-full text-left px-3 py-2 text-sm cursor-pointer ${i === selectedIndex ? 'bg-accent' : 'hover:bg-accent/50'}`
+                btn.innerHTML = `<span class="font-medium">${item.name}</span> <span class="text-xs text-muted-foreground ml-1">${item.type}</span>`
+                btn.addEventListener('mousedown', (e) => {
+                  e.preventDefault()
+                  currentCommand?.(item)
+                })
+                dropdown!.appendChild(btn)
+              })
+            }
+
+            function removeDropdown() {
+              dropdown?.remove()
+              dropdown = null
+              currentItems = []
+            }
 
             return {
               onStart: (renderProps: any) => {
-                component = new VueRenderer(EntitySuggestionList, {
-                  props: { items: renderProps.items, command: renderProps.command, query: renderProps.query },
-                  editor: renderProps.editor,
-                })
-
-                if (!renderProps.clientRect) return
-
-                popup = tippy('body', {
-                  getReferenceClientRect: renderProps.clientRect,
-                  appendTo: () => document.body,
-                  content: component.element,
-                  showOnCreate: true,
-                  interactive: true,
-                  trigger: 'manual',
-                  placement: 'bottom-start',
-                })
+                updateDropdown(renderProps.items, renderProps.command, renderProps.clientRect)
               },
               onUpdate: (renderProps: any) => {
-                component?.updateProps({ items: renderProps.items, command: renderProps.command, query: renderProps.query })
-                if (renderProps.clientRect && popup?.[0]) {
-                  popup[0].setProps({ getReferenceClientRect: renderProps.clientRect })
-                }
+                updateDropdown(renderProps.items, renderProps.command, renderProps.clientRect)
               },
               onKeyDown: (renderProps: any) => {
-                if (renderProps.event.key === 'Escape') {
-                  popup?.[0]?.hide()
+                if (!currentItems.length) return false
+                if (renderProps.event.key === 'Escape') { removeDropdown(); return true }
+                if (renderProps.event.key === 'ArrowDown') {
+                  selectedIndex = (selectedIndex + 1) % currentItems.length
+                  renderItems()
                   return true
                 }
-                return component?.ref?.onKeyDown?.(renderProps.event) || false
+                if (renderProps.event.key === 'ArrowUp') {
+                  selectedIndex = (selectedIndex + currentItems.length - 1) % currentItems.length
+                  renderItems()
+                  return true
+                }
+                if (renderProps.event.key === 'Enter') {
+                  const item = currentItems[selectedIndex]
+                  if (item) currentCommand?.(item)
+                  return true
+                }
+                return false
               },
-              onExit: () => {
-                popup?.[0]?.destroy()
-                component?.destroy()
-              },
+              onExit: () => { removeDropdown() },
             }
           },
         },
       }),
     )
+    } catch (e) {
+      console.warn('[Aleph:Mention] Failed to initialize entity mention, editor will work without @autocomplete:', e)
+    }
   }
 
   if (props.collaborative && props.documentName) {
@@ -213,6 +257,7 @@ onMounted(async () => {
     extensions.unshift(StarterKit)
   }
 
+  try {
   editor = new Editor({
     element: editorEl.value,
     extensions,
@@ -221,10 +266,25 @@ onMounted(async () => {
       emit('update:modelValue', e.getMarkdown())
     },
   })
+  } catch (e) {
+    console.error('[Aleph] Editor init failed:', e)
+  }
 
-  if (!props.collaborative && props.modelValue) {
+  if (!props.collaborative && props.modelValue && editor) {
     const parsed = editor.markdown.parse(props.modelValue)
     editor.commands.setContent(parsed)
+  }
+}
+
+// Try on mount, retry via watch if ref isn't ready yet (Suspense timing)
+onMounted(async () => {
+  await nextTick()
+  await initEditor()
+})
+
+watch(editorEl, async (el) => {
+  if (el && !editor) {
+    await initEditor()
   }
 })
 
