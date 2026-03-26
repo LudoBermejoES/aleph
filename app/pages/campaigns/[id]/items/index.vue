@@ -2,18 +2,22 @@
   <div class="p-8">
     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-1">
       <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">Campaign</NuxtLink>
-      <span>/</span><span>Items</span>
+      <span>/</span><span>{{ $t('items.title') }}</span>
     </div>
     <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold">Item Library</h1>
+      <h1 class="text-2xl font-bold">{{ $t('items.title') }}</h1>
       <NuxtLink :to="`/campaigns/${campaignId}/items/new`">
-        <Button data-testid="new-item-btn">New Item</Button>
+        <Button data-testid="new-item-btn">{{ $t('items.new') }}</Button>
       </NuxtLink>
     </div>
     <div class="flex gap-3 mb-4">
       <select v-model="filter" @change="load" class="rounded-md border border-input bg-background px-3 py-2 text-sm">
-        <option value="">All Rarities</option><option value="common">Common</option><option value="uncommon">Uncommon</option>
-        <option value="rare">Rare</option><option value="very_rare">Very Rare</option><option value="legendary">Legendary</option>
+        <option value="">{{ $t('items.allRarities') }}</option>
+        <option value="common">{{ $t('items.rarityCommon') }}</option>
+        <option value="uncommon">{{ $t('items.rarityUncommon') }}</option>
+        <option value="rare">{{ $t('items.rarityRare') }}</option>
+        <option value="very_rare">{{ $t('items.rarityVeryRare') }}</option>
+        <option value="legendary">{{ $t('items.rarityLegendary') }}</option>
       </select>
     </div>
     <LoadingSkeleton v-if="loading" :rows="4" />
@@ -26,7 +30,7 @@
         <span v-if="item.priceJson" class="text-xs text-muted-foreground">{{ item.priceJson }}</span>
       </div>
     </div>
-    <EmptyState v-else icon="🎒" title="No items yet" description="Create your first item to get started." />
+    <EmptyState v-else icon="🎒" :title="$t('items.empty')" :description="$t('items.emptyDescription')" />
     <ErrorToast v-if="error" :message="error" @dismiss="dismissError" />
   </div>
 </template>

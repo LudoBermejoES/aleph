@@ -1,16 +1,16 @@
 <template>
   <form @submit.prevent="$emit('submit')" class="space-y-6">
     <div>
-      <label class="text-sm font-medium">Timeline Name *</label>
-      <input v-model="form.name" required class="w-full mt-1 px-3 py-2 rounded border border-input bg-background" placeholder="Campaign Arc 1" />
+      <label class="text-sm font-medium">{{ $t('timelines.name') }}</label>
+      <input v-model="form.name" required class="w-full mt-1 px-3 py-2 rounded border border-input bg-background" :placeholder="$t('timelines.namePlaceholder')" />
     </div>
     <div>
-      <label class="text-sm font-medium">Description</label>
+      <label class="text-sm font-medium">{{ $t('items.description') }}</label>
       <textarea v-model="form.description" rows="4" class="w-full mt-1 px-3 py-2 rounded border border-input bg-background" placeholder="Optional description..." />
     </div>
     <div class="flex justify-end gap-2">
       <slot name="cancel" />
-      <Button type="submit" :disabled="submitting">{{ submitting ? 'Saving...' : submitLabel }}</Button>
+      <Button type="submit" :disabled="submitting">{{ submitting ? $t('common.saving') : submitLabel }}</Button>
     </div>
   </form>
 </template>

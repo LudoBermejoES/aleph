@@ -3,13 +3,13 @@
     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-1">
       <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">Campaign</NuxtLink>
       <span>/</span>
-      <span>Sessions</span>
+      <span>{{ $t('sessions.title') }}</span>
     </div>
 
     <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold">Sessions</h1>
+      <h1 class="text-2xl font-bold">{{ $t('sessions.title') }}</h1>
       <NuxtLink :to="`/campaigns/${campaignId}/sessions/new`">
-        <Button data-testid="new-session-btn">New Session</Button>
+        <Button data-testid="new-session-btn">{{ $t('sessions.new') }}</Button>
       </NuxtLink>
     </div>
 
@@ -17,7 +17,7 @@
 
     <!-- Upcoming -->
     <div v-if="!loading && upcoming.length" class="mb-8">
-      <h2 class="text-lg font-semibold mb-3">Upcoming</h2>
+      <h2 class="text-lg font-semibold mb-3">{{ $t('sessions.upcoming') }}</h2>
       <div class="space-y-2">
         <NuxtLink v-for="s in upcoming" :key="s.id" :to="`/campaigns/${campaignId}/sessions/${s.slug}`"
           class="block p-4 rounded-lg border border-border hover:border-primary/50 transition-colors">
@@ -32,7 +32,7 @@
 
     <!-- Past -->
     <div v-if="!loading && past.length">
-      <h2 class="text-lg font-semibold mb-3">Past Sessions</h2>
+      <h2 class="text-lg font-semibold mb-3">{{ $t('sessions.past') }}</h2>
       <div class="space-y-2">
         <NuxtLink v-for="s in past" :key="s.id" :to="`/campaigns/${campaignId}/sessions/${s.slug}`"
           class="block p-4 rounded-lg border border-border hover:border-primary/50 transition-colors">
@@ -44,7 +44,7 @@
       </div>
     </div>
 
-    <EmptyState v-if="!loading && !upcoming.length && !past.length" icon="📋" title="No sessions yet" description="Create your first session to get started." />
+    <EmptyState v-if="!loading && !upcoming.length && !past.length" icon="📋" :title="$t('sessions.empty')" :description="$t('sessions.emptyDescription')" />
     <ErrorToast v-if="error" :message="error" @dismiss="dismissError" />
   </div>
 </template>

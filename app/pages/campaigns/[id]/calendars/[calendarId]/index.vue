@@ -4,7 +4,7 @@
       <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
         <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">Campaign</NuxtLink>
         <span>/</span>
-        <NuxtLink :to="`/campaigns/${campaignId}/calendars`" class="hover:text-primary">Calendars</NuxtLink>
+        <NuxtLink :to="`/campaigns/${campaignId}/calendars`" class="hover:text-primary">{{ $t('calendars.title') }}</NuxtLink>
         <span>/</span>
         <span class="text-foreground">{{ calendar.name }}</span>
       </div>
@@ -13,22 +13,22 @@
         <h1 class="text-2xl font-bold">{{ calendar.name }}</h1>
         <div class="flex items-center gap-2">
           <span class="text-sm text-muted-foreground">
-            Current: Year {{ currentDate.year }}, {{ monthName(currentDate.month) }} {{ currentDate.day }}
+            {{ $t('calendars.currentDate', { year: currentDate.year, month: monthName(currentDate.month), day: currentDate.day }) }}
           </span>
           <NuxtLink :to="`/campaigns/${campaignId}/calendars/${calendarId}/edit`">
-            <Button variant="outline" size="sm">Edit</Button>
+            <Button variant="outline" size="sm">{{ $t('common.edit') }}</Button>
           </NuxtLink>
           <Button variant="outline" size="sm" data-testid="advance-date" @click="showAdvance = !showAdvance">
-            Advance Date
+            {{ $t('calendars.advanceDate') }}
           </Button>
         </div>
       </div>
 
       <!-- Advance Date Panel -->
       <div v-if="showAdvance" class="mb-4 p-4 rounded border border-border flex items-center gap-4" data-testid="advance-panel">
-        <label class="text-sm">Days:</label>
+        <label class="text-sm">{{ $t('calendars.days') }}</label>
         <input v-model.number="advanceDays" type="number" min="1" class="w-20 px-2 py-1 rounded border border-input bg-background" />
-        <Button size="sm" @click="advanceDate">Advance</Button>
+        <Button size="sm" @click="advanceDate">{{ $t('calendars.advance') }}</Button>
       </div>
 
       <!-- Month Navigation -->
@@ -82,6 +82,7 @@
 const route = useRoute()
 const campaignId = route.params.id as string
 const calendarId = route.params.calendarId as string
+const { t } = useI18n()
 
 import type { Calendar, CalendarEvent } from '~/types/api'
 
@@ -192,7 +193,7 @@ async function advanceDate() {
     showAdvance.value = false
     await load()
   } catch (e: any) {
-    alert(e.data?.message || 'Failed to advance date')
+    alert(e.data?.message || t('calendars.failedSave'))
   }
 }
 

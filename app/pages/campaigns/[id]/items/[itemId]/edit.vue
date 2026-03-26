@@ -3,15 +3,15 @@
     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
       <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">Campaign</NuxtLink>
       <span>/</span>
-      <NuxtLink :to="`/campaigns/${campaignId}/items`" class="hover:text-primary">Items</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}/items`" class="hover:text-primary">{{ $t('items.title') }}</NuxtLink>
       <span>/</span>
       <span>{{ form.name || 'Item' }}</span>
-      <span>/</span><span>Edit</span>
+      <span>/</span><span>{{ $t('common.edit') }}</span>
     </div>
-    <h1 class="text-2xl font-bold mb-6">Edit Item</h1>
-    <ItemForm v-if="loaded" v-model="form" submit-label="Save Changes" :submitting="submitting" @submit="save">
+    <h1 class="text-2xl font-bold mb-6">{{ $t('items.new') }}</h1>
+    <ItemForm v-if="loaded" v-model="form" :submit-label="$t('common.save')" :submitting="submitting" @submit="save">
       <template #cancel>
-        <NuxtLink :to="`/campaigns/${campaignId}/items`"><Button variant="outline">Cancel</Button></NuxtLink>
+        <NuxtLink :to="`/campaigns/${campaignId}/items`"><Button variant="outline">{{ $t('common.cancel') }}</Button></NuxtLink>
       </template>
     </ItemForm>
   </div>
@@ -25,6 +25,7 @@ const itemId = route.params.itemId as string
 const api = useCampaignApi(campaignId)
 const submitting = ref(false)
 const loaded = ref(false)
+const { t } = useI18n()
 const form = ref({ name: '', rarity: 'common', type: '', weight: '', size: '', description: '' })
 
 onMounted(async () => {
@@ -40,7 +41,7 @@ onMounted(async () => {
     }
     loaded.value = true
   } catch {
-    alert('Failed to load item')
+    alert(t('errors.failedLoad'))
     await router.push(`/campaigns/${campaignId}/items`)
   }
 })
@@ -51,7 +52,7 @@ async function save() {
     await api.updateItem(itemId, form.value)
     await router.push(`/campaigns/${campaignId}/items`)
   } catch (e: any) {
-    alert(e.data?.message || 'Failed to save')
+    alert(e.data?.message || t('items.failedSave'))
   } finally {
     submitting.value = false
   }

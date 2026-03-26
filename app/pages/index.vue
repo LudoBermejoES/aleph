@@ -2,30 +2,30 @@
   <div class="p-8">
     <div class="flex items-center justify-between mb-8">
       <div>
-        <h1 class="text-3xl font-bold">Campaigns</h1>
-        <p class="text-muted-foreground">Your TTRPG campaign management suite</p>
+        <h1 class="text-3xl font-bold">{{ $t('campaigns.title') }}</h1>
+        <p class="text-muted-foreground">{{ $t('campaigns.subtitle') }}</p>
       </div>
       <Dialog v-model:open="showCreateDialog">
         <DialogTrigger as-child>
-          <Button>New Campaign</Button>
+          <Button>{{ $t('campaigns.new') }}</Button>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Create Campaign</DialogTitle>
-            <DialogDescription>Give your new campaign a name to get started.</DialogDescription>
+            <DialogTitle>{{ $t('campaigns.createTitle') }}</DialogTitle>
+            <DialogDescription>{{ $t('campaigns.createDescription') }}</DialogDescription>
           </DialogHeader>
           <form @submit.prevent="createCampaign" class="space-y-4">
             <div class="space-y-2">
-              <label for="name" class="text-sm font-medium">Name</label>
+              <label for="name" class="text-sm font-medium">{{ $t('campaigns.name') }}</label>
               <Input id="name" v-model="newCampaign.name" placeholder="Curse of Strahd" required />
             </div>
             <div class="space-y-2">
-              <label for="description" class="text-sm font-medium">Description</label>
+              <label for="description" class="text-sm font-medium">{{ $t('campaigns.description') }}</label>
               <Input id="description" v-model="newCampaign.description" placeholder="Gothic horror in Barovia..." />
             </div>
             <div class="flex justify-end gap-2">
-              <Button type="button" variant="outline" @click="showCreateDialog = false">Cancel</Button>
-              <Button type="submit" :disabled="creating">{{ creating ? 'Creating...' : 'Create' }}</Button>
+              <Button type="button" variant="outline" @click="showCreateDialog = false">{{ $t('common.cancel') }}</Button>
+              <Button type="submit" :disabled="creating">{{ creating ? $t('campaigns.creating') : $t('common.create') }}</Button>
             </div>
           </form>
         </DialogContent>
@@ -47,13 +47,14 @@
     </div>
 
     <div v-else-if="!loading" class="text-center py-16">
-      <p class="text-muted-foreground mb-4">No campaigns yet. Create your first one to get started.</p>
+      <p class="text-muted-foreground mb-4">{{ $t('campaigns.empty') }}</p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 
+const { t } = useI18n()
 const campaigns = ref<any[]>([])
 const loading = ref(true)
 const showCreateDialog = ref(false)
@@ -83,7 +84,7 @@ async function createCampaign() {
     navigateTo(`/campaigns/${result.id}`)
   } catch (e: any) {
     console.error('[Aleph] Campaign creation failed:', e.data?.message || e.message || e)
-    alert(e.data?.message || 'Failed to create campaign')
+    alert(e.data?.message || t('campaigns.failedCreate'))
   } finally {
     creating.value = false
   }

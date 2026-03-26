@@ -3,13 +3,13 @@
     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
       <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">Campaign</NuxtLink>
       <span>/</span>
-      <NuxtLink :to="`/campaigns/${campaignId}/maps`" class="hover:text-primary">Maps</NuxtLink>
-      <span>/</span><span>New Map</span>
+      <NuxtLink :to="`/campaigns/${campaignId}/maps`" class="hover:text-primary">{{ $t('maps.title') }}</NuxtLink>
+      <span>/</span><span>{{ $t('maps.new') }}</span>
     </div>
-    <h1 class="text-2xl font-bold mb-6">Create Map</h1>
-    <MapForm ref="mapFormRef" v-model="form" submit-label="Create Map" :submitting="submitting" @submit="create">
+    <h1 class="text-2xl font-bold mb-6">{{ $t('maps.new') }}</h1>
+    <MapForm ref="mapFormRef" v-model="form" :submit-label="$t('common.create')" :submitting="submitting" @submit="create">
       <template #cancel>
-        <NuxtLink :to="`/campaigns/${campaignId}/maps`"><Button variant="outline">Cancel</Button></NuxtLink>
+        <NuxtLink :to="`/campaigns/${campaignId}/maps`"><Button variant="outline">{{ $t('common.cancel') }}</Button></NuxtLink>
       </template>
     </MapForm>
   </div>
@@ -19,6 +19,7 @@
 const route = useRoute()
 const campaignId = route.params.id as string
 const submitting = ref(false)
+const { t } = useI18n()
 const form = ref({ name: '', visibility: 'members' })
 const mapFormRef = ref<any>()
 
@@ -36,7 +37,7 @@ async function create() {
     }
     await navigateTo(`/campaigns/${campaignId}/maps/${res.slug}`)
   } catch (e: any) {
-    alert(e.data?.message || 'Failed to create map')
+    alert(e.data?.message || t('maps.failedSave'))
   } finally {
     submitting.value = false
   }

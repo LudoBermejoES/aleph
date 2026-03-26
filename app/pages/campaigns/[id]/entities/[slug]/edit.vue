@@ -3,15 +3,15 @@
     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
       <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">Campaign</NuxtLink>
       <span>/</span>
-      <NuxtLink :to="`/campaigns/${campaignId}/entities`" class="hover:text-primary">Wiki</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}/entities`" class="hover:text-primary">{{ $t('entities.title') }}</NuxtLink>
       <span>/</span>
       <NuxtLink :to="`/campaigns/${campaignId}/entities/${slug}`" class="hover:text-primary">{{ form.name || 'Entity' }}</NuxtLink>
-      <span>/</span><span>Edit</span>
+      <span>/</span><span>{{ $t('common.edit') }}</span>
     </div>
-    <h1 class="text-2xl font-bold mb-6">Edit Entity</h1>
-    <EntityForm v-if="loaded" v-model="form" :campaign-id="campaignId" submit-label="Save Changes" :submitting="submitting" @submit="save">
+    <h1 class="text-2xl font-bold mb-6">{{ $t('entities.new') }}</h1>
+    <EntityForm v-if="loaded" v-model="form" :campaign-id="campaignId" :submit-label="$t('common.save')" :submitting="submitting" @submit="save">
       <template #cancel>
-        <NuxtLink :to="`/campaigns/${campaignId}/entities/${slug}`"><Button variant="outline">Cancel</Button></NuxtLink>
+        <NuxtLink :to="`/campaigns/${campaignId}/entities/${slug}`"><Button variant="outline">{{ $t('common.cancel') }}</Button></NuxtLink>
       </template>
     </EntityForm>
   </div>
@@ -24,6 +24,7 @@ const campaignId = route.params.id as string
 const slug = route.params.slug as string
 const submitting = ref(false)
 const loaded = ref(false)
+const { t } = useI18n()
 const form = ref({ name: '', type: 'note', visibility: 'members', tagsRaw: '', content: '' })
 
 const api = useCampaignApi(campaignId)
@@ -40,7 +41,7 @@ onMounted(async () => {
     }
     loaded.value = true
   } catch {
-    alert('Failed to load entity')
+    alert(t('errors.failedLoad'))
     await router.push(`/campaigns/${campaignId}/entities/${slug}`)
   }
 })
@@ -52,7 +53,7 @@ async function save() {
     await api.updateEntity(slug, { ...form.value, tags })
     await router.push(`/campaigns/${campaignId}/entities/${slug}`)
   } catch (e: any) {
-    alert(e.data?.message || 'Failed to save')
+    alert(e.data?.message || t('entities.failedSave'))
   } finally {
     submitting.value = false
   }

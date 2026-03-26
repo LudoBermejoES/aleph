@@ -3,15 +3,15 @@
     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
       <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">Campaign</NuxtLink>
       <span>/</span>
-      <NuxtLink :to="`/campaigns/${campaignId}/calendars`" class="hover:text-primary">Calendars</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}/calendars`" class="hover:text-primary">{{ $t('calendars.title') }}</NuxtLink>
       <span>/</span>
       <NuxtLink :to="`/campaigns/${campaignId}/calendars/${calendarId}`" class="hover:text-primary">{{ form.name || 'Calendar' }}</NuxtLink>
-      <span>/</span><span>Edit</span>
+      <span>/</span><span>{{ $t('common.edit') }}</span>
     </div>
-    <h1 class="text-2xl font-bold mb-6">Edit Calendar</h1>
-    <CalendarForm v-if="loaded" v-model="form" submit-label="Save Changes" :submitting="submitting" @submit="save">
+    <h1 class="text-2xl font-bold mb-6">{{ $t('calendars.newCalendar') }}</h1>
+    <CalendarForm v-if="loaded" v-model="form" :submit-label="$t('common.save')" :submitting="submitting" @submit="save">
       <template #cancel>
-        <NuxtLink :to="`/campaigns/${campaignId}/calendars/${calendarId}`"><Button variant="outline">Cancel</Button></NuxtLink>
+        <NuxtLink :to="`/campaigns/${campaignId}/calendars/${calendarId}`"><Button variant="outline">{{ $t('common.cancel') }}</Button></NuxtLink>
       </template>
     </CalendarForm>
   </div>
@@ -24,6 +24,7 @@ const campaignId = route.params.id as string
 const calendarId = route.params.calendarId as string
 const submitting = ref(false)
 const loaded = ref(false)
+const { t } = useI18n()
 const form = ref({
   name: '', currentYear: 1, currentMonth: 1, currentDay: 1,
   months: [] as Array<{ name: string; days: number }>,
@@ -47,7 +48,7 @@ onMounted(async () => {
     }
     loaded.value = true
   } catch {
-    alert('Failed to load calendar')
+    alert(t('errors.failedLoad'))
     await router.push(`/campaigns/${campaignId}/calendars/${calendarId}`)
   }
 })
@@ -68,7 +69,7 @@ async function save() {
     })
     await router.push(`/campaigns/${campaignId}/calendars/${calendarId}`)
   } catch (e: any) {
-    alert(e.data?.message || 'Failed to save')
+    alert(e.data?.message || t('calendars.failedSave'))
   } finally {
     submitting.value = false
   }

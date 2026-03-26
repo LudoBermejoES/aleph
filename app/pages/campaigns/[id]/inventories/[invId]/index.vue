@@ -4,7 +4,7 @@
       <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
         <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">Campaign</NuxtLink>
         <span>/</span>
-        <NuxtLink :to="`/campaigns/${campaignId}/inventories`" class="hover:text-primary">Inventories</NuxtLink>
+        <NuxtLink :to="`/campaigns/${campaignId}/inventories`" class="hover:text-primary">{{ $t('inventories.title') }}</NuxtLink>
         <span>/</span>
         <span class="text-foreground">{{ inventory.name }}</span>
       </div>
@@ -20,7 +20,7 @@
           class="px-3 py-1.5 rounded-md border border-border text-sm hover:bg-accent"
           data-testid="transfer-btn"
         >
-          Transfer item
+          {{ $t('inventories.transferItem') }}
         </button>
       </div>
 
@@ -48,7 +48,7 @@
         </div>
       </div>
 
-      <EmptyState v-if="!inventory.items?.length" icon="🎒" title="Empty inventory" description="No items yet." />
+      <EmptyState v-if="!inventory.items?.length" icon="🎒" :title="$t('inventories.emptyInventory')" :description="$t('inventories.noItems')" />
     </div>
 
     <LoadingSkeleton v-if="loading" :rows="4" />
@@ -71,17 +71,18 @@ const route = useRoute()
 const campaignId = route.params.id as string
 const invId = route.params.invId as string
 const api = useCampaignApi(campaignId)
+const { t } = useI18n()
 const inventory = ref<any>(null)
 const loading = ref(true)
 const error = ref('')
 const showTransfer = ref(false)
 
 const positions = [
-  { key: 'equipped', label: 'Equipped' },
-  { key: 'backpack', label: 'Backpack' },
-  { key: 'storage', label: 'Storage' },
-  { key: 'trade', label: 'Trade' },
-  { key: 'custom', label: 'Other' },
+  { key: 'equipped', label: t('inventories.positionEquipped') },
+  { key: 'backpack', label: t('inventories.positionBackpack') },
+  { key: 'storage', label: t('inventories.positionStorage') },
+  { key: 'trade', label: t('inventories.positionTrade') },
+  { key: 'custom', label: t('inventories.positionOther') },
 ]
 
 const itemsByPosition = computed(() => {
@@ -110,9 +111,9 @@ async function load() {
     // Use list endpoint filtered by id
     const all = await api.getInventories()
     inventory.value = all.find((i: { id: string }) => i.id === invId) || null
-    if (!inventory.value) error.value = 'Inventory not found'
+    if (!inventory.value) error.value = t('common.noResults')
   } catch {
-    error.value = 'Failed to load inventory'
+    error.value = t('errors.failedLoad')
   } finally {
     loading.value = false
   }

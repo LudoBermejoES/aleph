@@ -3,37 +3,37 @@
     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-1">
       <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">Campaign</NuxtLink>
       <span>/</span>
-      <span>Characters</span>
+      <span>{{ $t('characters.title') }}</span>
     </div>
 
     <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold">Characters</h1>
+      <h1 class="text-2xl font-bold">{{ $t('characters.title') }}</h1>
       <div class="flex gap-2">
         <NuxtLink :to="`/campaigns/${campaignId}/entities`">
-          <Button variant="outline" size="sm">All Entities</Button>
+          <Button variant="outline" size="sm">{{ $t('characters.allEntities') }}</Button>
         </NuxtLink>
         <NuxtLink :to="`/campaigns/${campaignId}/characters/new`">
-          <Button data-testid="new-character-btn">New Character</Button>
+          <Button data-testid="new-character-btn">{{ $t('characters.new') }}</Button>
         </NuxtLink>
       </div>
     </div>
 
     <!-- PC/NPC Toggle -->
     <div class="flex gap-2 mb-6">
-      <Button :variant="filter === 'all' ? 'default' : 'outline'" size="sm" @click="filter = 'all'; load()">All</Button>
-      <Button :variant="filter === 'pc' ? 'default' : 'outline'" size="sm" @click="filter = 'pc'; load()">PCs</Button>
-      <Button :variant="filter === 'npc' ? 'default' : 'outline'" size="sm" @click="filter = 'npc'; load()">NPCs</Button>
+      <Button :variant="filter === 'all' ? 'default' : 'outline'" size="sm" @click="filter = 'all'; load()">{{ $t('characters.all') }}</Button>
+      <Button :variant="filter === 'pc' ? 'default' : 'outline'" size="sm" @click="filter = 'pc'; load()">{{ $t('characters.pcs') }}</Button>
+      <Button :variant="filter === 'npc' ? 'default' : 'outline'" size="sm" @click="filter = 'npc'; load()">{{ $t('characters.npcs') }}</Button>
     </div>
 
     <div class="flex gap-6">
       <!-- NPC Folder Sidebar -->
       <aside v-if="filter === 'npc' && folders.length" class="w-48 shrink-0" data-testid="folder-sidebar">
-        <h3 class="text-sm font-semibold mb-2">Folders</h3>
+        <h3 class="text-sm font-semibold mb-2">{{ $t('characters.folders') }}</h3>
         <button
           class="block w-full text-left text-sm px-2 py-1 rounded mb-1 hover:bg-secondary"
           :class="{ 'bg-secondary font-medium': !selectedFolder }"
           @click="selectedFolder = ''; load()"
-        >All NPCs</button>
+        >{{ $t('characters.allNpcs') }}</button>
         <button
           v-for="f in folders"
           :key="f.id"
@@ -59,7 +59,7 @@
                 <span class="text-xs ml-2 px-2 py-0.5 rounded bg-secondary text-secondary-foreground">{{ c.characterType }}</span>
                 <span v-if="c.race" class="text-xs ml-1 text-muted-foreground">{{ c.race }}</span>
                 <span v-if="c.class" class="text-xs ml-1 text-muted-foreground">{{ c.class }}</span>
-                <span v-if="c.isCompanionOf" class="text-xs ml-1 text-muted-foreground italic">companion</span>
+                <span v-if="c.isCompanionOf" class="text-xs ml-1 text-muted-foreground italic">{{ $t('characters.companion') }}</span>
               </div>
               <span :class="['text-xs px-2 py-0.5 rounded', c.status === 'alive' ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' : c.status === 'dead' ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300' : 'bg-secondary text-secondary-foreground']">
                 {{ c.status }}
@@ -67,8 +67,8 @@
             </div>
           </NuxtLink>
         </div>
-        <EmptyState v-else icon="🧙" title="No characters yet" description="Create your first character to get started.">
-          <NuxtLink :to="`/campaigns/${campaignId}/characters/new`"><Button size="sm">New Character</Button></NuxtLink>
+        <EmptyState v-else icon="🧙" :title="$t('characters.empty')" :description="$t('characters.emptyDescription')">
+          <NuxtLink :to="`/campaigns/${campaignId}/characters/new`"><Button size="sm">{{ $t('characters.new') }}</Button></NuxtLink>
         </EmptyState>
       </div>
     </div>

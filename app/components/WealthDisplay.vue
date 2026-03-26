@@ -1,6 +1,6 @@
 <template>
   <div data-testid="wealth-display">
-    <div v-if="loading" class="text-xs text-muted-foreground">Loading wealth…</div>
+    <div v-if="loading" class="text-xs text-muted-foreground">{{ $t('wealth.loading') }}</div>
     <div v-else-if="balances.length" class="flex flex-wrap gap-2">
       <div
         v-for="b in balances"
@@ -12,7 +12,7 @@
         <span class="text-muted-foreground">{{ b.currencySymbol || b.currencyName }}</span>
       </div>
     </div>
-    <p v-else class="text-sm text-muted-foreground">No wealth recorded.</p>
+    <p v-else class="text-sm text-muted-foreground">{{ $t('wealth.noWealth') }}</p>
   </div>
 </template>
 

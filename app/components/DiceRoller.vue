@@ -2,8 +2,8 @@
   <div v-if="visible" class="fixed bottom-4 right-4 w-80 bg-background border border-border rounded-lg shadow-xl z-40">
     <!-- Header -->
     <div class="flex items-center justify-between p-3 border-b border-border cursor-move">
-      <h3 class="text-sm font-semibold">Dice Roller</h3>
-      <button @click="visible = false" class="text-muted-foreground hover:text-foreground text-xs">Close</button>
+      <h3 class="text-sm font-semibold">{{ $t('dice.title') }}</h3>
+      <button @click="visible = false" class="text-muted-foreground hover:text-foreground text-xs">{{ $t('dice.close') }}</button>
     </div>
 
     <!-- Quick Roll Buttons -->
@@ -19,26 +19,26 @@
       <input
         v-model="formula"
         @keydown.enter="rollFormula"
-        placeholder="2d6+4, 4d6kh3, d20..."
+        :placeholder="$t('dice.expressionPlaceholder')"
         class="flex-1 rounded-md border border-input bg-background px-2 py-1 text-sm"
         data-testid="formula-input"
       />
-      <button @click="rollFormula" class="px-3 py-1 rounded-md bg-primary text-primary-foreground text-sm" data-testid="roll-btn">Roll</button>
+      <button @click="rollFormula" class="px-3 py-1 rounded-md bg-primary text-primary-foreground text-sm" data-testid="roll-btn">{{ $t('dice.roll') }}</button>
     </div>
 
     <!-- Modifier Controls -->
     <div class="px-3 pb-2 flex items-center gap-2">
-      <span class="text-xs text-muted-foreground">Modifier</span>
+      <span class="text-xs text-muted-foreground">{{ $t('dice.modifier') }}</span>
       <button @click="modifier--" class="w-6 h-6 rounded border border-border text-xs hover:bg-accent" data-testid="mod-dec">−</button>
       <span class="text-sm font-medium w-8 text-center" data-testid="mod-value">{{ modifier >= 0 ? '+' + modifier : modifier }}</span>
       <button @click="modifier++" class="w-6 h-6 rounded border border-border text-xs hover:bg-accent" data-testid="mod-inc">+</button>
-      <button v-if="modifier !== 0" @click="modifier = 0" class="text-xs text-muted-foreground hover:text-foreground">reset</button>
+      <button v-if="modifier !== 0" @click="modifier = 0" class="text-xs text-muted-foreground hover:text-foreground">{{ $t('dice.reset') }}</button>
     </div>
 
     <!-- Log to session toggle -->
     <div v-if="sessionId" class="px-3 pb-1 flex items-center gap-2">
       <input id="log-session" v-model="logToSession" type="checkbox" class="rounded" data-testid="log-session-toggle" />
-      <label for="log-session" class="text-xs text-muted-foreground cursor-pointer">Log to session</label>
+      <label for="log-session" class="text-xs text-muted-foreground cursor-pointer">{{ $t('dice.logToSession') }}</label>
     </div>
 
     <!-- Error -->
@@ -71,7 +71,7 @@
     v-if="!visible"
     @click="visible = true"
     class="fixed bottom-4 right-4 w-12 h-12 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center text-lg z-40 hover:scale-105 transition-transform"
-    title="Dice Roller"
+    :title="$t('dice.title')"
   >
     🎲
   </button>

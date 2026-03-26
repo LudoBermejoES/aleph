@@ -1,6 +1,6 @@
 <template>
   <div data-testid="inventory-panel">
-    <div v-if="loading" class="text-xs text-muted-foreground">Loading inventory…</div>
+    <div v-if="loading" class="text-xs text-muted-foreground">{{ $t('inventoryPanel.loading') }}</div>
     <div v-else-if="inventory">
       <div class="flex items-center justify-between mb-3">
         <h3 class="font-semibold text-sm">{{ inventory.name }}</h3>
@@ -10,7 +10,7 @@
           class="text-xs text-primary hover:underline"
           data-testid="transfer-item-btn"
         >
-          Transfer item
+          {{ $t('inventoryPanel.transferItem') }}
         </button>
       </div>
 
@@ -35,9 +35,9 @@
         </div>
       </div>
 
-      <EmptyState v-if="!inventory.items?.length" icon="🎒" title="Empty inventory" description="No items yet." />
+      <EmptyState v-if="!inventory.items?.length" icon="🎒" :title="$t('inventoryPanel.emptyInventory')" :description="$t('inventories.noItems')" />
     </div>
-    <p v-else class="text-sm text-muted-foreground">No inventory found.</p>
+    <p v-else class="text-sm text-muted-foreground">{{ $t('inventoryPanel.noInventory') }}</p>
 
     <ItemTransferDialog
       v-if="showTransfer && inventory"
@@ -51,6 +51,8 @@
 </template>
 
 <script setup lang="ts">
+const { t } = useI18n()
+
 const props = defineProps<{
   campaignId: string
   ownerId: string
@@ -61,17 +63,17 @@ const inventory = ref<any>(null)
 const loading = ref(true)
 const showTransfer = ref(false)
 
-const positions = [
-  { key: 'equipped', label: 'Equipped' },
-  { key: 'backpack', label: 'Backpack' },
-  { key: 'storage', label: 'Storage' },
-  { key: 'trade', label: 'Trade' },
-  { key: 'custom', label: 'Other' },
-]
+const positions = computed(() => [
+  { key: 'equipped', label: t('inventories.positionEquipped') },
+  { key: 'backpack', label: t('inventories.positionBackpack') },
+  { key: 'storage', label: t('inventories.positionStorage') },
+  { key: 'trade', label: t('inventories.positionTrade') },
+  { key: 'custom', label: t('inventories.positionOther') },
+])
 
 const itemsByPosition = computed(() => {
   const items = inventory.value?.items || []
-  return positions.reduce((acc: Record<string, any[]>, pos) => {
+  return positions.value.reduce((acc: Record<string, any[]>, pos) => {
     acc[pos.key] = items.filter((i: any) => i.position === pos.key)
     return acc
   }, {})

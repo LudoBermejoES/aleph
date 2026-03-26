@@ -3,13 +3,13 @@
     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
       <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">Campaign</NuxtLink>
       <span>/</span>
-      <NuxtLink :to="`/campaigns/${campaignId}/graph`" class="hover:text-primary">Graph</NuxtLink>
-      <span>/</span><span>New Relation</span>
+      <NuxtLink :to="`/campaigns/${campaignId}/graph`" class="hover:text-primary">{{ $t('graph.title') }}</NuxtLink>
+      <span>/</span><span>{{ $t('relations.new') }}</span>
     </div>
-    <h1 class="text-2xl font-bold mb-6">Create Relation</h1>
-    <RelationForm v-model="form" :campaign-id="campaignId" submit-label="Create Relation" :submitting="submitting" @submit="create">
+    <h1 class="text-2xl font-bold mb-6">{{ $t('relations.new') }}</h1>
+    <RelationForm v-model="form" :campaign-id="campaignId" :submit-label="$t('common.create')" :submitting="submitting" @submit="create">
       <template #cancel>
-        <NuxtLink :to="`/campaigns/${campaignId}/graph`"><Button variant="outline">Cancel</Button></NuxtLink>
+        <NuxtLink :to="`/campaigns/${campaignId}/graph`"><Button variant="outline">{{ $t('common.cancel') }}</Button></NuxtLink>
       </template>
     </RelationForm>
   </div>
@@ -20,6 +20,7 @@ const route = useRoute()
 const router = useRouter()
 const campaignId = route.params.id as string
 const submitting = ref(false)
+const { t } = useI18n()
 const form = ref({
   sourceEntityId: '', sourceEntityName: '',
   targetEntityId: '', targetEntityName: '',
@@ -42,7 +43,7 @@ async function create() {
     })
     await router.push(`/campaigns/${campaignId}/graph`)
   } catch (e: any) {
-    alert(e.data?.message || 'Failed to create relation')
+    alert(e.data?.message || t('relations.failedSave'))
   } finally {
     submitting.value = false
   }

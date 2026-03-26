@@ -4,7 +4,7 @@
       <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
         <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">Campaign</NuxtLink>
         <span>/</span>
-        <NuxtLink :to="`/campaigns/${campaignId}/calendars`" class="hover:text-primary">Calendars</NuxtLink>
+        <NuxtLink :to="`/campaigns/${campaignId}/calendars`" class="hover:text-primary">{{ $t('calendars.title') }}</NuxtLink>
         <span>/</span>
         <span class="text-foreground">{{ timeline.name }}</span>
       </div>
@@ -13,11 +13,11 @@
         <h1 class="text-2xl font-bold">{{ timeline.name }}</h1>
         <div class="flex items-center gap-2">
           <div class="flex gap-2" data-testid="view-switcher">
-            <Button :variant="view === 'chronicle' ? 'default' : 'outline'" size="sm" @click="view = 'chronicle'">Chronicle</Button>
-            <Button :variant="view === 'gantt' ? 'default' : 'outline'" size="sm" @click="view = 'gantt'">Gantt</Button>
-            <Button :variant="view === 'calendar' ? 'default' : 'outline'" size="sm" @click="view = 'calendar'">Calendar</Button>
+            <Button :variant="view === 'chronicle' ? 'default' : 'outline'" size="sm" @click="view = 'chronicle'">{{ $t('timelines.chronicle') }}</Button>
+            <Button :variant="view === 'gantt' ? 'default' : 'outline'" size="sm" @click="view = 'gantt'">{{ $t('timelines.gantt') }}</Button>
+            <Button :variant="view === 'calendar' ? 'default' : 'outline'" size="sm" @click="view = 'calendar'">{{ $t('timelines.calendar') }}</Button>
           </div>
-          <Button size="sm" data-testid="add-event-btn" @click="showAddEvent = !showAddEvent">+ Add Event</Button>
+          <Button size="sm" data-testid="add-event-btn" @click="showAddEvent = !showAddEvent">{{ $t('timelines.addEvent') }}</Button>
         </div>
       </div>
 
@@ -25,35 +25,35 @@
       <form v-if="showAddEvent" data-testid="add-event-form" class="mb-6 p-4 border border-border rounded-lg space-y-3" @submit.prevent="addEvent">
         <div class="grid grid-cols-2 gap-3">
           <div class="col-span-2">
-            <label class="text-sm font-medium">Event Name *</label>
-            <input v-model="newEvent.name" required placeholder="Battle of Barovia" class="w-full mt-1 px-3 py-2 rounded border border-input bg-background text-sm" />
+            <label class="text-sm font-medium">{{ $t('timelines.eventName') }}</label>
+            <input v-model="newEvent.name" required :placeholder="$t('timelines.eventNamePlaceholder')" class="w-full mt-1 px-3 py-2 rounded border border-input bg-background text-sm" />
           </div>
           <div class="col-span-2">
-            <label class="text-sm font-medium">Description</label>
-            <input v-model="newEvent.description" placeholder="Optional description" class="w-full mt-1 px-3 py-2 rounded border border-input bg-background text-sm" />
+            <label class="text-sm font-medium">{{ $t('timelines.eventDescription') }}</label>
+            <input v-model="newEvent.description" :placeholder="$t('timelines.eventDescriptionPlaceholder')" class="w-full mt-1 px-3 py-2 rounded border border-input bg-background text-sm" />
           </div>
           <div>
-            <label class="text-sm font-medium">Year</label>
+            <label class="text-sm font-medium">{{ $t('timelines.year') }}</label>
             <input v-model.number="newEvent.year" type="number" class="w-full mt-1 px-3 py-2 rounded border border-input bg-background text-sm" />
           </div>
           <div>
-            <label class="text-sm font-medium">Month</label>
+            <label class="text-sm font-medium">{{ $t('timelines.month') }}</label>
             <input v-model.number="newEvent.month" type="number" min="1" class="w-full mt-1 px-3 py-2 rounded border border-input bg-background text-sm" />
           </div>
           <div>
-            <label class="text-sm font-medium">Day</label>
+            <label class="text-sm font-medium">{{ $t('timelines.day') }}</label>
             <input v-model.number="newEvent.day" type="number" min="1" class="w-full mt-1 px-3 py-2 rounded border border-input bg-background text-sm" />
           </div>
         </div>
         <div class="flex justify-end gap-2">
-          <Button type="button" variant="outline" size="sm" @click="showAddEvent = false">Cancel</Button>
-          <Button type="submit" size="sm" :disabled="addingEvent">{{ addingEvent ? 'Adding…' : 'Add Event' }}</Button>
+          <Button type="button" variant="outline" size="sm" @click="showAddEvent = false">{{ $t('common.cancel') }}</Button>
+          <Button type="submit" size="sm" :disabled="addingEvent">{{ addingEvent ? $t('timelines.adding') : $t('timelines.addEventButton') }}</Button>
         </div>
       </form>
 
       <!-- Chronicle View (8.3) -->
       <div v-if="view === 'chronicle'" data-testid="chronicle-view" class="space-y-4">
-        <div v-if="!timeline.events?.length" class="text-muted-foreground text-center py-8">No events yet.</div>
+        <div v-if="!timeline.events?.length" class="text-muted-foreground text-center py-8">{{ $t('timelines.noEvents') }}</div>
         <div
           v-for="(ev, i) in timeline.events"
           :key="ev.id"
@@ -67,7 +67,7 @@
           <!-- Event content -->
           <div class="pb-6">
             <div class="text-xs text-muted-foreground">
-              Year {{ ev.date?.year }}, Month {{ ev.date?.month }}, Day {{ ev.date?.day }}
+              {{ $t('timelines.eventDate', { year: ev.date?.year, month: ev.date?.month, day: ev.date?.day }) }}
             </div>
             <h3 class="font-medium">{{ ev.name }}</h3>
             <p v-if="ev.description" class="text-sm text-muted-foreground mt-1">{{ ev.description }}</p>
@@ -77,7 +77,7 @@
 
       <!-- Gantt View (8.4) -->
       <div v-if="view === 'gantt'" data-testid="gantt-view" class="space-y-2">
-        <div v-if="!timeline.events?.length" class="text-muted-foreground text-center py-8">No events yet.</div>
+        <div v-if="!timeline.events?.length" class="text-muted-foreground text-center py-8">{{ $t('timelines.noEvents') }}</div>
         <div v-for="ev in timeline.events" :key="ev.id" class="flex items-center gap-2">
           <span class="text-xs text-muted-foreground w-24 shrink-0">Y{{ ev.date?.year }}M{{ ev.date?.month }}</span>
           <div class="h-6 rounded bg-primary/30 flex items-center px-2 text-xs" :style="{ minWidth: '100px' }">
@@ -89,8 +89,8 @@
       <!-- Calendar Overlay View (8.5) -->
       <div v-if="view === 'calendar'" data-testid="calendar-overlay-view">
         <div v-if="!calendar" class="text-muted-foreground text-center py-8">
-          No calendar configured for this campaign.
-          <NuxtLink :to="`/campaigns/${campaignId}/calendars`" class="underline ml-1">Set up a calendar</NuxtLink>
+          {{ $t('timelines.noCalendar') }}
+          <NuxtLink :to="`/campaigns/${campaignId}/calendars`" class="underline ml-1">{{ $t('timelines.setupCalendar') }}</NuxtLink>
         </div>
         <div v-else>
           <!-- Month navigation -->
@@ -128,6 +128,7 @@
 const route = useRoute()
 const campaignId = route.params.id as string
 const slug = route.params.slug as string
+const { t } = useI18n()
 import type { Timeline } from '~/types/api'
 
 const timeline = ref<Timeline | null>(null)
@@ -151,7 +152,7 @@ async function addEvent() {
     newEvent.value = { name: '', description: '', year: 1, month: 1, day: 1 }
     await load()
   } catch (e: any) {
-    alert(e.data?.message || 'Failed to add event')
+    alert(e.data?.message || t('timelines.failedSave'))
   } finally {
     addingEvent.value = false
   }

@@ -3,13 +3,13 @@
     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-1">
       <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">Campaign</NuxtLink>
       <span>/</span>
-      <span>Inventories</span>
+      <span>{{ $t('inventories.title') }}</span>
     </div>
 
     <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold">Inventories</h1>
+      <h1 class="text-2xl font-bold">{{ $t('inventories.title') }}</h1>
       <button @click="showForm = !showForm" class="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm" data-testid="new-inventory-btn">
-        {{ showForm ? 'Cancel' : 'New Inventory' }}
+        {{ showForm ? $t('common.cancel') : $t('inventories.new') }}
       </button>
     </div>
 
@@ -17,37 +17,37 @@
     <div v-if="showForm" class="mb-6 p-4 rounded-lg border border-border space-y-3" data-testid="inventory-form">
       <div class="grid grid-cols-2 gap-3">
         <div>
-          <label class="text-sm font-medium block mb-1">Name</label>
-          <input v-model="form.name" placeholder="Party Stash" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" data-testid="inv-name" />
+          <label class="text-sm font-medium block mb-1">{{ $t('inventories.name') }}</label>
+          <input v-model="form.name" :placeholder="$t('inventories.namePlaceholder')" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" data-testid="inv-name" />
         </div>
         <div>
-          <label class="text-sm font-medium block mb-1">Type</label>
+          <label class="text-sm font-medium block mb-1">{{ $t('inventories.type') }}</label>
           <select v-model="form.ownerType" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" data-testid="inv-owner-type">
-            <option value="party">Party</option>
-            <option value="faction">Faction</option>
-            <option value="character">Character</option>
-            <option value="shop">Shop</option>
+            <option value="party">{{ $t('inventories.typeParty') }}</option>
+            <option value="faction">{{ $t('inventories.typeFaction') }}</option>
+            <option value="character">{{ $t('inventories.typeCharacter') }}</option>
+            <option value="shop">{{ $t('inventories.typeShop') }}</option>
           </select>
         </div>
         <div class="col-span-2">
-          <label class="text-sm font-medium block mb-1">Owner ID</label>
-          <input v-model="form.ownerId" placeholder="party-id or faction-id" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" data-testid="inv-owner-id" />
+          <label class="text-sm font-medium block mb-1">{{ $t('inventories.ownerId') }}</label>
+          <input v-model="form.ownerId" :placeholder="$t('inventories.ownerIdPlaceholder')" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" data-testid="inv-owner-id" />
         </div>
       </div>
       <p v-if="formError" class="text-sm text-destructive">{{ formError }}</p>
       <button @click="create" :disabled="!form.name.trim() || !form.ownerId.trim() || saving" class="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm disabled:opacity-50" data-testid="inv-save">
-        {{ saving ? 'Saving…' : 'Save' }}
+        {{ saving ? $t('common.saving') : $t('common.save') }}
       </button>
     </div>
 
     <!-- Filter by owner type -->
     <div class="flex gap-3 mb-4">
       <select v-model="ownerTypeFilter" @change="load" class="rounded-md border border-input bg-background px-3 py-2 text-sm" data-testid="inv-type-filter">
-        <option value="">All Types</option>
-        <option value="character">Character</option>
-        <option value="party">Party</option>
-        <option value="faction">Faction</option>
-        <option value="shop">Shop</option>
+        <option value="">{{ $t('inventories.allTypes') }}</option>
+        <option value="character">{{ $t('inventories.typeCharacter') }}</option>
+        <option value="party">{{ $t('inventories.typeParty') }}</option>
+        <option value="faction">{{ $t('inventories.typeFaction') }}</option>
+        <option value="shop">{{ $t('inventories.typeShop') }}</option>
       </select>
     </div>
 
@@ -65,11 +65,11 @@
             <span class="font-medium">{{ inv.name }}</span>
             <span class="text-xs ml-2 px-2 py-0.5 rounded bg-secondary text-secondary-foreground">{{ inv.ownerType }}</span>
           </div>
-          <span class="text-sm text-muted-foreground">{{ inv.items?.length ?? 0 }} items</span>
+          <span class="text-sm text-muted-foreground">{{ inv.items?.length ?? 0 }} {{ $t('inventories.items') }}</span>
         </div>
       </NuxtLink>
     </div>
-    <EmptyState v-else icon="🎒" title="No inventories yet" description="Inventories are created automatically with characters." />
+    <EmptyState v-else icon="🎒" :title="$t('inventories.empty')" :description="$t('inventories.emptyDescription')" />
 
     <ErrorToast v-if="error" :message="error" @dismiss="error = ''" />
   </div>
@@ -79,6 +79,7 @@
 const route = useRoute()
 const campaignId = route.params.id as string
 const api = useCampaignApi(campaignId)
+const { t } = useI18n()
 const inventoryList = ref<any[]>([])
 const loading = ref(true)
 const error = ref('')
@@ -95,7 +96,7 @@ async function load() {
     if (ownerTypeFilter.value) params.owner_type = ownerTypeFilter.value
     inventoryList.value = await api.getInventories(params)
   } catch {
-    error.value = 'Failed to load inventories'
+    error.value = t('errors.failedLoad')
   } finally {
     loading.value = false
   }
@@ -111,7 +112,7 @@ async function create() {
     showForm.value = false
     await load()
   } catch (e: any) {
-    formError.value = e.data?.message || 'Failed to create inventory'
+    formError.value = e.data?.message || t('inventories.failedSave')
   } finally {
     saving.value = false
   }

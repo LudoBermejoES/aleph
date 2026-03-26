@@ -3,20 +3,20 @@
     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-1">
       <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">Campaign</NuxtLink>
       <span>/</span>
-      <span>Quests</span>
+      <span>{{ $t('quests.title') }}</span>
     </div>
 
     <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold">Quests</h1>
+      <h1 class="text-2xl font-bold">{{ $t('quests.title') }}</h1>
       <NuxtLink :to="`/campaigns/${campaignId}/quests/new`">
-        <Button data-testid="new-quest-btn">New Quest</Button>
+        <Button data-testid="new-quest-btn">{{ $t('quests.new') }}</Button>
       </NuxtLink>
     </div>
 
     <div class="flex gap-2 mb-6">
-      <Button :variant="filter === '' ? 'default' : 'outline'" size="sm" @click="filter = ''; load()">All</Button>
-      <Button :variant="filter === 'active' ? 'default' : 'outline'" size="sm" @click="filter = 'active'; load()">Active</Button>
-      <Button :variant="filter === 'completed' ? 'default' : 'outline'" size="sm" @click="filter = 'completed'; load()">Completed</Button>
+      <Button :variant="filter === '' ? 'default' : 'outline'" size="sm" @click="filter = ''; load()">{{ $t('characters.all') }}</Button>
+      <Button :variant="filter === 'active' ? 'default' : 'outline'" size="sm" @click="filter = 'active'; load()">{{ $t('quests.active') }}</Button>
+      <Button :variant="filter === 'completed' ? 'default' : 'outline'" size="sm" @click="filter = 'completed'; load()">{{ $t('quests.completed') }}</Button>
     </div>
 
     <LoadingSkeleton v-if="loading" :rows="4" />
@@ -38,7 +38,7 @@
         </div>
       </div>
     </div>
-    <EmptyState v-else icon="⚔️" title="No quests yet" description="Create your first quest to get started." />
+    <EmptyState v-else icon="⚔️" :title="$t('quests.empty')" :description="$t('quests.emptyDescription')" />
     <ErrorToast v-if="error" :message="error" @dismiss="dismissError" />
   </div>
 </template>

@@ -2,12 +2,12 @@
   <div class="p-8">
     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-1">
       <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">Campaign</NuxtLink>
-      <span>/</span><span>Shops</span>
+      <span>/</span><span>{{ $t('shops.title') }}</span>
     </div>
     <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold">Shops</h1>
+      <h1 class="text-2xl font-bold">{{ $t('shops.title') }}</h1>
       <NuxtLink :to="`/campaigns/${campaignId}/shops/new`">
-        <Button data-testid="new-shop-btn">New Shop</Button>
+        <Button data-testid="new-shop-btn">{{ $t('shops.new') }}</Button>
       </NuxtLink>
     </div>
     <LoadingSkeleton v-if="loading" :rows="4" />
@@ -19,7 +19,7 @@
         </CardHeader>
       </Card>
     </div>
-    <EmptyState v-else icon="🏪" title="No shops yet" description="Create your first shop to get started." />
+    <EmptyState v-else icon="🏪" :title="$t('shops.empty')" :description="$t('shops.emptyDescription')" />
     <ErrorToast v-if="error" :message="error" @dismiss="dismissError" />
   </div>
 </template>

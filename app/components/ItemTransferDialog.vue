@@ -1,14 +1,14 @@
 <template>
   <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" @click.self="$emit('close')">
     <div class="bg-background rounded-lg border border-border w-full max-w-md p-6 shadow-xl" data-testid="transfer-dialog">
-      <h2 class="text-lg font-semibold mb-4">Transfer Item</h2>
+      <h2 class="text-lg font-semibold mb-4">{{ $t('itemTransfer.title') }}</h2>
 
       <div class="space-y-4">
         <!-- Item selector -->
         <div>
-          <label class="text-sm font-medium block mb-1">Item</label>
+          <label class="text-sm font-medium block mb-1">{{ $t('itemTransfer.item') }}</label>
           <select v-model="selectedItemId" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" data-testid="transfer-item-select">
-            <option value="">Select item…</option>
+            <option value="">{{ $t('itemTransfer.selectItem') }}</option>
             <option v-for="it in items" :key="it.id" :value="it.itemId">
               {{ it.itemName }} (×{{ it.quantity }})
             </option>
@@ -17,7 +17,7 @@
 
         <!-- Quantity -->
         <div>
-          <label class="text-sm font-medium block mb-1">Quantity</label>
+          <label class="text-sm font-medium block mb-1">{{ $t('itemTransfer.quantity') }}</label>
           <input
             v-model.number="quantity"
             type="number"
@@ -30,9 +30,9 @@
 
         <!-- Target inventory -->
         <div>
-          <label class="text-sm font-medium block mb-1">To Inventory</label>
+          <label class="text-sm font-medium block mb-1">{{ $t('itemTransfer.toInventory') }}</label>
           <select v-model="targetInventoryId" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" data-testid="transfer-target-select">
-            <option value="">Select target…</option>
+            <option value="">{{ $t('itemTransfer.selectTarget') }}</option>
             <option v-for="inv in targetInventories" :key="inv.id" :value="inv.id">
               {{ inv.name }} ({{ inv.ownerType }})
             </option>
@@ -43,14 +43,14 @@
       </div>
 
       <div class="flex justify-end gap-2 mt-6">
-        <button @click="$emit('close')" class="px-4 py-2 rounded-md border border-border text-sm hover:bg-accent">Cancel</button>
+        <button @click="$emit('close')" class="px-4 py-2 rounded-md border border-border text-sm hover:bg-accent">{{ $t('common.cancel') }}</button>
         <button
           @click="submit"
           :disabled="!canSubmit || loading"
           class="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm disabled:opacity-50"
           data-testid="transfer-submit"
         >
-          {{ loading ? 'Transferring…' : 'Transfer' }}
+          {{ loading ? $t('itemTransfer.transferring') : $t('common.transfer') }}
         </button>
       </div>
     </div>
