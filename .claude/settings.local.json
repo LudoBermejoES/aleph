@@ -118,7 +118,17 @@
       "Bash(node -e \"const m = require\\(''@tiptap/extension-task-list''\\); console.log\\(''TaskList:'', m.default ? ''default'' : ''named:'', Object.keys\\(m\\).slice\\(0,5\\)\\)\")",
       "Bash(node -e \"const m = require\\(''@tiptap/extension-task-item''\\); console.log\\(''TaskItem:'', m.default ? ''default'' : ''named:'', Object.keys\\(m\\).slice\\(0,5\\)\\)\")",
       "Bash(for d:*)",
-      "Read(//c/code/aleph/app/pages/campaigns/[id]/**)"
+      "Read(//c/code/aleph/app/pages/campaigns/[id]/**)",
+      "Bash(find c:/code/aleph -name *.test.ts -o -name *.spec.ts)",
+      "Bash(find c:/code/aleph -name *.test.ts -not -path */node_modules/*)",
+      "Bash(npx wait-on:*)",
+      "Bash(npx nuxi:*)",
+      "Bash(pkill -f \"nuxt dev\")",
+      "Bash(Get-Process)",
+      "Bash(Where-Object { $_rocessName -match \"node\" })",
+      "Bash(Select-Object Id, ProcessName)",
+      "Bash(Format-Table)",
+      "Bash(taskkill //F //IM node.exe)"
     ]
   }
 }
