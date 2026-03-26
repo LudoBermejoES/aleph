@@ -63,6 +63,7 @@
 <script setup lang="ts">
 const route = useRoute()
 const campaignId = route.params.id as string
+const api = useCampaignApi(campaignId)
 const currencyList = ref<any[]>([])
 const loading = ref(true)
 const error = ref('')
@@ -74,7 +75,7 @@ const form = ref({ name: '', symbol: '', valueInBase: 1, sortOrder: 0 })
 async function load() {
   loading.value = true
   try {
-    currencyList.value = await $fetch(`/api/campaigns/${campaignId}/currencies`) as any[]
+    currencyList.value = await api.getCurrencies()
   } catch {
     error.value = 'Failed to load currencies'
   } finally {
@@ -87,10 +88,7 @@ async function create() {
   saving.value = true
   formError.value = ''
   try {
-    await $fetch(`/api/campaigns/${campaignId}/currencies`, {
-      method: 'POST',
-      body: form.value,
-    })
+    await api.createCurrency(form.value)
     form.value = { name: '', symbol: '', valueInBase: 1, sortOrder: 0 }
     showForm.value = false
     await load()

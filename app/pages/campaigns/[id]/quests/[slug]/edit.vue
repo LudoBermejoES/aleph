@@ -26,9 +26,11 @@ const submitting = ref(false)
 const loaded = ref(false)
 const form = ref({ name: '', status: 'active', parentQuestId: '', isSecret: false, content: '' })
 
+const api = useCampaignApi(campaignId)
+
 onMounted(async () => {
   try {
-    const q = await $fetch(`/api/campaigns/${campaignId}/quests/${slug}`) as any
+    const q = await api.getQuest(slug) as any
     form.value = {
       name: q.name || '',
       status: q.status || 'active',
@@ -46,7 +48,7 @@ onMounted(async () => {
 async function save() {
   submitting.value = true
   try {
-    await $fetch(`/api/campaigns/${campaignId}/quests/${slug}`, { method: 'PUT', body: form.value })
+    await api.updateQuest(slug, form.value)
     await router.push(`/campaigns/${campaignId}/quests`)
   } catch (e: any) {
     alert(e.data?.message || 'Failed to save')

@@ -29,9 +29,11 @@ const form = ref({
   relationTypeId: '', attitude: 0, description: '',
 })
 
+const api = useCampaignApi(campaignId)
+
 onMounted(async () => {
   try {
-    const rel = await $fetch(`/api/campaigns/${campaignId}/relations/${relationId}`) as any
+    const rel = await api.getRelation(relationId)
     form.value = {
       sourceEntityId: rel.sourceEntityId || '',
       sourceEntityName: rel.sourceEntityName || rel.sourceEntityId || '',
@@ -53,15 +55,12 @@ onMounted(async () => {
 async function save() {
   submitting.value = true
   try {
-    await $fetch(`/api/campaigns/${campaignId}/relations/${relationId}`, {
-      method: 'PUT',
-      body: {
-        forwardLabel: form.value.forwardLabel,
-        reverseLabel: form.value.reverseLabel,
-        relationTypeId: form.value.relationTypeId || undefined,
-        attitude: form.value.attitude,
-        description: form.value.description || undefined,
-      },
+    await api.updateRelation(relationId, {
+      forwardLabel: form.value.forwardLabel,
+      reverseLabel: form.value.reverseLabel,
+      relationTypeId: form.value.relationTypeId || undefined,
+      attitude: form.value.attitude,
+      description: form.value.description || undefined,
     })
     await router.push(`/campaigns/${campaignId}/graph`)
   } catch (e: any) {

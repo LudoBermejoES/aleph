@@ -67,6 +67,7 @@
 <script setup lang="ts">
 const route = useRoute()
 const campaignId = route.params.id as string
+const api = useCampaignApi(campaignId)
 const txList = ref<any[]>([])
 const loading = ref(true)
 const error = ref('')
@@ -94,7 +95,7 @@ async function load() {
   try {
     const params: Record<string, string> = {}
     if (typeFilter.value) params.type = typeFilter.value
-    txList.value = await $fetch(`/api/campaigns/${campaignId}/transactions`, { params }) as any[]
+    txList.value = await api.getTransactions(params)
   } catch {
     error.value = 'Failed to load transactions'
   } finally {

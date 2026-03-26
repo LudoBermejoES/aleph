@@ -54,16 +54,18 @@
 </template>
 
 <script setup lang="ts">
+import type { GraphData } from '~/types/api'
 const route = useRoute()
 const campaignId = route.params.id as string
-const graphData = ref<any>(null)
+const api = useCampaignApi(campaignId)
+const graphData = ref<GraphData | null>(null)
 const selectedTypes = ref(new Set<string>())
 
 // Graph
 const entityTypes = computed(() => {
   if (!graphData.value) return []
   const types = new Set<string>()
-  for (const node of Object.values(graphData.value.nodes) as any[]) {
+  for (const node of Object.values(graphData.value.nodes)) {
     types.add(node.type)
   }
   return Array.from(types).sort()
@@ -101,7 +103,7 @@ function onNodeClick(nodeId: string) {
 }
 
 async function load() {
-  try { graphData.value = await $fetch(`/api/campaigns/${campaignId}/graph`) } catch { graphData.value = null }
+  try { graphData.value = await api.getGraph() } catch { graphData.value = null }
   if (graphData.value) {
     selectedTypes.value = new Set(entityTypes.value)
   }

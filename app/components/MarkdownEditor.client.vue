@@ -111,10 +111,8 @@ async function initEditor() {
           items: async ({ query }: { query: string }) => {
             if (!query || query.length < 1) return []
             try {
-              const res = await $fetch(`/api/campaigns/${props.campaignId}/entities`, {
-                params: { search: query, limit: 8 },
-              }) as any
-              const items = (res.entities || res || []).map((e: any) => ({
+              const res = await useCampaignApi(props.campaignId).getEntities({ search: query, limit: '8' })
+              const items = res.entities.map((e) => ({
                 id: e.id,
                 name: e.name,
                 slug: e.slug,

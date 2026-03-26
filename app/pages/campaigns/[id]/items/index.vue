@@ -35,6 +35,7 @@
 
 const route = useRoute()
 const campaignId = route.params.id as string
+const api = useCampaignApi(campaignId)
 const itemList = ref<any[]>([])
 const filter = ref('')
 const { loading, error, withLoading, dismissError } = useLoadingState()
@@ -52,7 +53,7 @@ async function load() {
   await withLoading(async () => {
     const params: Record<string, string> = {}
     if (filter.value) params.rarity = filter.value
-    itemList.value = await $fetch(`/api/campaigns/${campaignId}/items`, { params }) as any[]
+    itemList.value = await api.getItems(params)
   })
 }
 

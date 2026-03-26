@@ -53,15 +53,18 @@
 
 const route = useRoute()
 const campaignId = route.params.id as string
-const sessions = ref<any[]>([])
+import type { GameSession } from '~/types/api'
+
+const sessions = ref<GameSession[]>([])
 const { loading, error, withLoading, dismissError } = useLoadingState()
+const api = useCampaignApi(campaignId)
 
 const upcoming = computed(() => sessions.value.filter(s => ['planned', 'active'].includes(s.status)))
 const past = computed(() => sessions.value.filter(s => ['completed', 'cancelled'].includes(s.status)))
 
 async function load() {
   await withLoading(async () => {
-    sessions.value = await $fetch(`/api/campaigns/${campaignId}/sessions`) as any[]
+    sessions.value = await api.getSessions()
   })
 }
 

@@ -34,10 +34,11 @@
 const route = useRoute()
 const campaignId = route.params.id as string
 const slug = route.params.slug as string
+const api = useCampaignApi(campaignId)
 const shop = ref<any>(null)
 
 async function load() {
-  try { shop.value = await $fetch(`/api/campaigns/${campaignId}/shops/${slug}`) } catch { shop.value = null }
+  try { shop.value = await api.getShop(slug) } catch { shop.value = null }
 }
 
 onMounted(load)

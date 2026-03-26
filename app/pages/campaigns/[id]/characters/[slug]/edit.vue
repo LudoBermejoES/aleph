@@ -29,9 +29,11 @@ const form = ref({
   status: 'alive', visibility: 'members', content: '', ownerUserId: '',
 })
 
+const api = useCampaignApi(campaignId)
+
 onMounted(async () => {
   try {
-    const char = await $fetch(`/api/campaigns/${campaignId}/characters/${slug}`) as any
+    const char = await api.getCharacter(slug)
     form.value = {
       name: char.name || '',
       characterType: char.characterType || 'npc',
@@ -53,9 +55,7 @@ onMounted(async () => {
 async function save() {
   submitting.value = true
   try {
-    await $fetch(`/api/campaigns/${campaignId}/characters/${slug}`, {
-      method: 'PUT', body: form.value,
-    })
+    await api.updateCharacter(slug, form.value)
     await router.push(`/campaigns/${campaignId}/characters/${slug}`)
   } catch (e: any) {
     alert(e.data?.message || 'Failed to save')

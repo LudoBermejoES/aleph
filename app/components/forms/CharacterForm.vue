@@ -85,6 +85,6 @@ const form = computed({
 })
 
 onMounted(async () => {
-  try { members.value = await $fetch(`/api/campaigns/${props.campaignId}/members`) as any[] } catch { members.value = [] }
+  try { members.value = await useCampaignApi(props.campaignId).getMembers() } catch { members.value = [] }
 })
 </script>

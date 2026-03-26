@@ -28,12 +28,13 @@
 
 const route = useRoute()
 const campaignId = route.params.id as string
+const api = useCampaignApi(campaignId)
 const shopList = ref<any[]>([])
 const { loading, error, withLoading, dismissError } = useLoadingState()
 
 async function load() {
   await withLoading(async () => {
-    shopList.value = await $fetch(`/api/campaigns/${campaignId}/shops`) as any[]
+    shopList.value = await api.getShops()
   })
 }
 

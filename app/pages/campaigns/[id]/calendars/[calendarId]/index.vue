@@ -83,8 +83,11 @@ const route = useRoute()
 const campaignId = route.params.id as string
 const calendarId = route.params.calendarId as string
 
-const calendar = ref<any>(null)
-const events = ref<any[]>([])
+import type { Calendar, CalendarEvent } from '~/types/api'
+
+const calendar = ref<Calendar | null>(null)
+const events = ref<CalendarEvent[]>([])
+const api = useCampaignApi(campaignId)
 const viewMonth = ref(1)
 const viewYear = ref(1)
 const showAdvance = ref(false)
@@ -182,14 +185,9 @@ function nextMonth() {
 
 async function advanceDate() {
   try {
-    const res = await $fetch(`/api/campaigns/${campaignId}/calendars/${calendarId}/advance`, {
-      method: 'PATCH',
-      body: { days: advanceDays.value },
-    }) as any
-    if (res.currentDate) {
+    const res = await api.advanceCalendarDate(calendarId, { days: advanceDays.value })
+    if (calendar.value) {
       calendar.value.currentDate = res.currentDate
-    } else if (res.currentYear) {
-      calendar.value.currentDate = { year: res.currentYear, month: res.currentMonth, day: res.currentDay }
     }
     showAdvance.value = false
     await load()
@@ -199,21 +197,10 @@ async function advanceDate() {
 }
 
 async function load() {
-  try {
-    calendar.value = await $fetch(`/api/campaigns/${campaignId}/calendars/${calendarId}`)
-    viewMonth.value = currentDate.value.month || 1
-    viewYear.value = currentDate.value.year || 1
-  } catch {
-    calendar.value = null
-  }
-
-  try {
-    events.value = await $fetch(`/api/campaigns/${campaignId}/calendars/${calendarId}/events`, {
-      params: { from_year: viewYear.value, to_year: viewYear.value },
-    }) as any[]
-  } catch {
-    events.value = []
-  }
+  calendar.value = await api.getCalendar(calendarId).catch(() => null)
+  viewMonth.value = currentDate.value.month || 1
+  viewYear.value = currentDate.value.year || 1
+  events.value = await api.getCalendarEvents(calendarId, { from_year: viewYear.value, to_year: viewYear.value }).catch(() => [])
 }
 
 onMounted(load)

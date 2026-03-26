@@ -22,13 +22,14 @@ const route = useRoute()
 const router = useRouter()
 const campaignId = route.params.id as string
 const slug = route.params.slug as string
+const api = useCampaignApi(campaignId)
 const submitting = ref(false)
 const loaded = ref(false)
 const form = ref({ name: '', description: '' })
 
 onMounted(async () => {
   try {
-    const shop = await $fetch(`/api/campaigns/${campaignId}/shops/${slug}`) as any
+    const shop = await api.getShop(slug)
     form.value = { name: shop.name || '', description: shop.description || '' }
     loaded.value = true
   } catch {
@@ -40,7 +41,7 @@ onMounted(async () => {
 async function save() {
   submitting.value = true
   try {
-    await $fetch(`/api/campaigns/${campaignId}/shops/${slug}`, { method: 'PUT', body: form.value })
+    await api.updateShop(slug, form.value)
     await router.push(`/campaigns/${campaignId}/shops/${slug}`)
   } catch (e: any) {
     alert(e.data?.message || 'Failed to save')

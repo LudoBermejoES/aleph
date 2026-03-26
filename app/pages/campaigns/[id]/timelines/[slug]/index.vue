@@ -128,7 +128,10 @@
 const route = useRoute()
 const campaignId = route.params.id as string
 const slug = route.params.slug as string
-const timeline = ref<any>(null)
+import type { Timeline } from '~/types/api'
+
+const timeline = ref<Timeline | null>(null)
+const api = useCampaignApi(campaignId)
 const view = ref<'chronicle' | 'gantt' | 'calendar'>('chronicle')
 
 // Add event form
@@ -139,13 +142,10 @@ const newEvent = ref({ name: '', description: '', year: 1, month: 1, day: 1 })
 async function addEvent() {
   addingEvent.value = true
   try {
-    await $fetch(`/api/campaigns/${campaignId}/timelines/${slug}/events`, {
-      method: 'POST',
-      body: {
-        name: newEvent.value.name,
-        description: newEvent.value.description || undefined,
-        date: { year: newEvent.value.year, month: newEvent.value.month, day: newEvent.value.day },
-      },
+    await api.createTimelineEvent(slug, {
+      name: newEvent.value.name,
+      description: newEvent.value.description || undefined,
+      date: { year: newEvent.value.year, month: newEvent.value.month, day: newEvent.value.day },
     })
     showAddEvent.value = false
     newEvent.value = { name: '', description: '', year: 1, month: 1, day: 1 }
@@ -205,21 +205,15 @@ function calNextMonth() {
 }
 
 async function load() {
-  try {
-    timeline.value = await $fetch(`/api/campaigns/${campaignId}/timelines/${slug}`)
-  } catch {
-    timeline.value = null
-  }
+  timeline.value = await api.getTimeline(slug).catch(() => null)
   // Load first campaign calendar for the overlay view
-  try {
-    const cals = await $fetch(`/api/campaigns/${campaignId}/calendars`) as any[]
-    if (cals?.length) {
-      calendar.value = cals[0]
-      const cd = cals[0].currentDate || {}
-      calViewMonth.value = cd.month || 1
-      calViewYear.value = cd.year || 1
-    }
-  } catch {
+  const cals = await api.getCalendars().catch(() => [])
+  if (cals?.length) {
+    calendar.value = cals[0]
+    const cd = cals[0].currentDate || {}
+    calViewMonth.value = cd.month || 1
+    calViewYear.value = cd.year || 1
+  } else {
     calendar.value = null
   }
 }

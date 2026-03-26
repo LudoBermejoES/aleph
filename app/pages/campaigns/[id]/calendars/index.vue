@@ -48,18 +48,21 @@
 <script setup lang="ts">
 const route = useRoute()
 const campaignId = route.params.id as string
-const calendarList = ref<any[]>([])
-const timelineList = ref<any[]>([])
+import type { Calendar, Timeline } from '~/types/api'
+
+const calendarList = ref<Calendar[]>([])
+const timelineList = ref<Timeline[]>([])
 const { loading, error, withLoading, dismissError } = useLoadingState()
+const api = useCampaignApi(campaignId)
 
 async function load() {
   await withLoading(async () => {
     const [cals, tls] = await Promise.all([
-      $fetch(`/api/campaigns/${campaignId}/calendars`).catch(() => []),
-      $fetch(`/api/campaigns/${campaignId}/timelines`).catch(() => []),
+      api.getCalendars().catch(() => []),
+      api.getTimelines().catch(() => []),
     ])
-    calendarList.value = cals as any[]
-    timelineList.value = tls as any[]
+    calendarList.value = cals
+    timelineList.value = tls
   })
 }
 

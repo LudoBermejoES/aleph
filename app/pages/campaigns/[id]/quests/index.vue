@@ -47,8 +47,11 @@
 
 const route = useRoute()
 const campaignId = route.params.id as string
-const questList = ref<any[]>([])
+import type { Quest } from '~/types/api'
+
+const questList = ref<Quest[]>([])
 const filter = ref('')
+const api = useCampaignApi(campaignId)
 const { loading, error, withLoading, dismissError } = useLoadingState()
 
 const rootQuests = computed(() => questList.value.filter(q => !q.parentQuestId))
@@ -58,7 +61,7 @@ async function load() {
   await withLoading(async () => {
     const params: Record<string, string> = {}
     if (filter.value) params.status = filter.value
-    questList.value = await $fetch(`/api/campaigns/${campaignId}/quests`, { params }) as any[]
+    questList.value = await api.getQuests(params)
   })
 }
 

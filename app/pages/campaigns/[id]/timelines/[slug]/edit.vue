@@ -26,9 +26,11 @@ const submitting = ref(false)
 const loaded = ref(false)
 const form = ref({ name: '', description: '' })
 
+const api = useCampaignApi(campaignId)
+
 onMounted(async () => {
   try {
-    const tl = await $fetch(`/api/campaigns/${campaignId}/timelines/${slug}`) as any
+    const tl = await api.getTimeline(slug)
     form.value = { name: tl.name || '', description: tl.description || '' }
     loaded.value = true
   } catch {
@@ -40,7 +42,7 @@ onMounted(async () => {
 async function save() {
   submitting.value = true
   try {
-    await $fetch(`/api/campaigns/${campaignId}/timelines/${slug}`, { method: 'PUT', body: form.value })
+    await api.updateTimeline(slug, form.value)
     await router.push(`/campaigns/${campaignId}/timelines/${slug}`)
   } catch (e: any) {
     alert(e.data?.message || 'Failed to save')

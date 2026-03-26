@@ -25,12 +25,12 @@ const form = ref({
   status: 'alive', visibility: 'members', content: '', ownerUserId: '',
 })
 
+const api = useCampaignApi(campaignId)
+
 async function create() {
   submitting.value = true
   try {
-    const res = await $fetch(`/api/campaigns/${campaignId}/characters`, {
-      method: 'POST', body: form.value,
-    }) as any
+    const res = await api.createCharacter(form.value)
     await router.push(`/campaigns/${campaignId}/characters/${res.slug}`)
   } catch (e: any) {
     alert(e.data?.message || 'Failed to create character')

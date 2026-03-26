@@ -63,7 +63,7 @@ const newCampaign = reactive({ name: '', description: '' })
 async function loadCampaigns() {
   loading.value = true
   try {
-    campaigns.value = await $fetch('/api/campaigns') as any[]
+    campaigns.value = await listCampaigns()
   } catch {
     campaigns.value = []
   } finally {
@@ -75,15 +75,12 @@ async function createCampaign() {
   console.log('[Aleph] createCampaign called, name:', newCampaign.name)
   creating.value = true
   try {
-    const result = await $fetch('/api/campaigns', {
-      method: 'POST',
-      body: { name: newCampaign.name, description: newCampaign.description },
-    })
-    console.log('[Aleph] Campaign created:', (result as any).id, (result as any).slug)
+    const result = await createCampaignEntry({ name: newCampaign.name, description: newCampaign.description })
+    console.log('[Aleph] Campaign created:', result.id, result.slug)
     showCreateDialog.value = false
     newCampaign.name = ''
     newCampaign.description = ''
-    navigateTo(`/campaigns/${(result as any).id}`)
+    navigateTo(`/campaigns/${result.id}`)
   } catch (e: any) {
     console.error('[Aleph] Campaign creation failed:', e.data?.message || e.message || e)
     alert(e.data?.message || 'Failed to create campaign')

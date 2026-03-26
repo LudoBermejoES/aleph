@@ -19,13 +19,14 @@
 const route = useRoute()
 const router = useRouter()
 const campaignId = route.params.id as string
+const api = useCampaignApi(campaignId)
 const submitting = ref(false)
 const form = ref({ name: '', rarity: 'common', type: '', weight: '', size: '', description: '' })
 
 async function create() {
   submitting.value = true
   try {
-    await $fetch(`/api/campaigns/${campaignId}/items`, { method: 'POST', body: form.value })
+    await api.createItem(form.value)
     await router.push(`/campaigns/${campaignId}/items`)
   } catch (e: any) {
     alert(e.data?.message || 'Failed to create item')

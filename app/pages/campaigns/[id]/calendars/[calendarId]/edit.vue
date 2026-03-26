@@ -30,9 +30,11 @@ const form = ref({
   weekdaysRaw: '',
 })
 
+const api = useCampaignApi(campaignId)
+
 onMounted(async () => {
   try {
-    const cal = await $fetch(`/api/campaigns/${campaignId}/calendars/${calendarId}`) as any
+    const cal = await api.getCalendar(calendarId)
     const config = cal.config || {}
     const cd = cal.currentDate || {}
     form.value = {
@@ -53,19 +55,16 @@ onMounted(async () => {
 async function save() {
   submitting.value = true
   try {
-    const yearLength = form.value.months.reduce((sum, m) => sum + m.days, 0)
+    const yearLength = form.value.months.reduce((sum: number, m: { days: number }) => sum + m.days, 0)
     const weekdays = form.value.weekdaysRaw.trim()
-      ? form.value.weekdaysRaw.split(',').map(s => s.trim()).filter(Boolean)
+      ? form.value.weekdaysRaw.split(',').map((s: string) => s.trim()).filter(Boolean)
       : undefined
-    await $fetch(`/api/campaigns/${campaignId}/calendars/${calendarId}`, {
-      method: 'PUT',
-      body: {
-        name: form.value.name,
-        configJson: { months: form.value.months, yearLength, ...(weekdays ? { weekdays } : {}) },
-        currentYear: form.value.currentYear,
-        currentMonth: form.value.currentMonth,
-        currentDay: form.value.currentDay,
-      },
+    await api.updateCalendar(calendarId, {
+      name: form.value.name,
+      configJson: { months: form.value.months, yearLength, ...(weekdays ? { weekdays } : {}) },
+      currentYear: form.value.currentYear,
+      currentMonth: form.value.currentMonth,
+      currentDay: form.value.currentDay,
     })
     await router.push(`/campaigns/${campaignId}/calendars/${calendarId}`)
   } catch (e: any) {

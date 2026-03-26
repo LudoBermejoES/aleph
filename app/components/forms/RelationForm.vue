@@ -93,8 +93,8 @@ function searchEntities(field: 'source' | 'target') {
       return
     }
     try {
-      const res = await $fetch(`/api/campaigns/${props.campaignId}/entities`, { params: { search: q, limit: 10 } }) as any
-      const results = res.entities || res || []
+      const res = await useCampaignApi(props.campaignId).getEntities({ search: q, limit: '10' })
+      const results = res.entities
       if (field === 'source') search.value.sourceResults = results
       else search.value.targetResults = results
     } catch { /* ignore */ }
@@ -116,6 +116,6 @@ function selectEntity(field: 'source' | 'target', entity: any) {
 }
 
 onMounted(async () => {
-  try { relationTypes.value = await $fetch(`/api/campaigns/${props.campaignId}/relation-types`) as any[] } catch { relationTypes.value = [] }
+  try { relationTypes.value = await useCampaignApi(props.campaignId).getRelationTypes() } catch { relationTypes.value = [] }
 })
 </script>

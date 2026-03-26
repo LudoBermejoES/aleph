@@ -61,6 +61,6 @@ const form = computed({
 })
 
 onMounted(async () => {
-  try { entityTypes.value = await $fetch(`/api/campaigns/${props.campaignId}/entity-types`) as any[] } catch { entityTypes.value = [] }
+  try { entityTypes.value = await useCampaignApi(props.campaignId).getEntityTypes() } catch { entityTypes.value = [] }
 })
 </script>

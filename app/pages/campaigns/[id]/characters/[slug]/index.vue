@@ -111,9 +111,11 @@
 const route = useRoute()
 const campaignId = route.params.id as string
 const slug = route.params.slug as string
-const character = ref<any>(null)
-const connections = ref<any[]>([])
-const companions = ref<any[]>([])
+import type { Character, CharacterConnection } from '~/types/api'
+
+const character = ref<Character | null>(null)
+const connections = ref<CharacterConnection[]>([])
+const companions = ref<Character[]>([])
 
 // Age calculation (7.1, 7.2)
 const calculatedAge = computed(() => {
@@ -134,27 +136,16 @@ const calculatedAge = computed(() => {
   return Math.max(0, age)
 })
 
+const api = useCampaignApi(campaignId)
+
 async function load() {
-  try {
-    character.value = await $fetch(`/api/campaigns/${campaignId}/characters/${slug}`)
-  } catch {
-    character.value = null
-  }
+  character.value = await api.getCharacter(slug).catch(() => null)
 
   // Load connections
-  try {
-    connections.value = await $fetch(`/api/campaigns/${campaignId}/characters/${slug}/connections`) as any[]
-  } catch {
-    connections.value = []
-  }
+  connections.value = await api.getCharacterConnections(slug).catch(() => [])
 
   // Load companions (characters where isCompanionOf = this character's id)
-  try {
-    const all = await $fetch(`/api/campaigns/${campaignId}/characters`, { params: { companionOf: character.value?.id } }) as any[]
-    companions.value = all
-  } catch {
-    companions.value = []
-  }
+  companions.value = await api.getCharacters({ companionOf: character.value?.id ?? '' }).catch(() => [])
 }
 
 onMounted(load)

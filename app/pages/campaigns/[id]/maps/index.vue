@@ -33,12 +33,15 @@
 
 const route = useRoute()
 const campaignId = route.params.id as string
-const mapList = ref<any[]>([])
+import type { CampaignMap } from '~/types/api'
+
+const mapList = ref<CampaignMap[]>([])
 const { loading, error, withLoading, dismissError } = useLoadingState()
+const api = useCampaignApi(campaignId)
 
 async function load() {
   await withLoading(async () => {
-    mapList.value = await $fetch(`/api/campaigns/${campaignId}/maps?root=true`) as any[]
+    mapList.value = await api.getMaps({ root: 'true' })
   })
 }
 

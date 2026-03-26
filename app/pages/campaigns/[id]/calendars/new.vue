@@ -33,16 +33,14 @@ async function create() {
     const weekdays = form.value.weekdaysRaw.trim()
       ? form.value.weekdaysRaw.split(',').map(s => s.trim()).filter(Boolean)
       : undefined
-    const res = await $fetch(`/api/campaigns/${campaignId}/calendars`, {
-      method: 'POST',
-      body: {
-        name: form.value.name,
-        configJson: { months: form.value.months, yearLength, ...(weekdays ? { weekdays } : {}) },
-        currentYear: form.value.currentYear,
-        currentMonth: form.value.currentMonth,
-        currentDay: form.value.currentDay,
-      },
-    }) as any
+    const api = useCampaignApi(campaignId)
+    const res = await api.createCalendar({
+      name: form.value.name,
+      configJson: { months: form.value.months, yearLength, ...(weekdays ? { weekdays } : {}) },
+      currentYear: form.value.currentYear,
+      currentMonth: form.value.currentMonth,
+      currentDay: form.value.currentDay,
+    })
     await router.push(`/campaigns/${campaignId}/calendars/${res.id}`)
   } catch (e: any) {
     alert(e.data?.message || 'Failed to create calendar')
