@@ -22,18 +22,27 @@ test.describe('Session Log', () => {
     await page.click('main >> text=Session With Log')
     await page.waitForURL('**/sessions/**', { timeout: 15000 })
 
-    // Click Edit on session log
+    // Click Edit → navigates to /edit page
     await page.click('main >> button:has-text("Edit")')
-    await page.waitForTimeout(500)
+    await expect(async () => {
+      expect(page.url()).toContain('/edit')
+    }).toPass({ timeout: 10000 })
 
-    const textarea = page.locator('main textarea')
-    await expect(textarea).toBeVisible({ timeout: 5000 })
-    await textarea.fill('# Session 1 Log\n\nThe party entered the dungeon.')
-    await page.click('main >> button:has-text("Save")')
-    await page.waitForTimeout(2000)
+    // Type in MarkdownEditor (ProseMirror)
+    const editor = page.locator('.ProseMirror')
+    if (await editor.isVisible({ timeout: 5000 }).catch(() => false)) {
+      await editor.click()
+      await editor.pressSequentially('The party entered the dungeon.')
+    }
 
-    // Click Preview to see rendered markdown
-    await expect(page.locator('main >> text=entered the dungeon')).toBeVisible({ timeout: 10000 })
+    // Save
+    await page.click('button:has-text("Save Changes")')
+    await expect(async () => {
+      expect(page.url()).not.toContain('/edit')
+    }).toPass({ timeout: 15000 })
+
+    // Verify content rendered on detail page
+    await expect(page.locator('main')).toContainText('entered the dungeon', { timeout: 10000 })
   })
 
   test('change session status', async ({ page }) => {
