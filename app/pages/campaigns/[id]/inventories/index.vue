@@ -8,6 +8,36 @@
 
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-2xl font-bold">Inventories</h1>
+      <button @click="showForm = !showForm" class="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm" data-testid="new-inventory-btn">
+        {{ showForm ? 'Cancel' : 'New Inventory' }}
+      </button>
+    </div>
+
+    <!-- Create form (party/faction inventories; characters get one automatically) -->
+    <div v-if="showForm" class="mb-6 p-4 rounded-lg border border-border space-y-3" data-testid="inventory-form">
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="text-sm font-medium block mb-1">Name</label>
+          <input v-model="form.name" placeholder="Party Stash" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" data-testid="inv-name" />
+        </div>
+        <div>
+          <label class="text-sm font-medium block mb-1">Type</label>
+          <select v-model="form.ownerType" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" data-testid="inv-owner-type">
+            <option value="party">Party</option>
+            <option value="faction">Faction</option>
+            <option value="character">Character</option>
+            <option value="shop">Shop</option>
+          </select>
+        </div>
+        <div class="col-span-2">
+          <label class="text-sm font-medium block mb-1">Owner ID</label>
+          <input v-model="form.ownerId" placeholder="party-id or faction-id" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" data-testid="inv-owner-id" />
+        </div>
+      </div>
+      <p v-if="formError" class="text-sm text-destructive">{{ formError }}</p>
+      <button @click="create" :disabled="!form.name.trim() || !form.ownerId.trim() || saving" class="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm disabled:opacity-50" data-testid="inv-save">
+        {{ saving ? 'Saving…' : 'Save' }}
+      </button>
     </div>
 
     <!-- Filter by owner type -->
@@ -52,6 +82,10 @@ const inventoryList = ref<any[]>([])
 const loading = ref(true)
 const error = ref('')
 const ownerTypeFilter = ref('')
+const showForm = ref(false)
+const saving = ref(false)
+const formError = ref('')
+const form = ref({ name: '', ownerType: 'party', ownerId: '' })
 
 async function load() {
   loading.value = true
@@ -63,6 +97,22 @@ async function load() {
     error.value = 'Failed to load inventories'
   } finally {
     loading.value = false
+  }
+}
+
+async function create() {
+  if (!form.value.name.trim() || !form.value.ownerId.trim()) return
+  saving.value = true
+  formError.value = ''
+  try {
+    await $fetch(`/api/campaigns/${campaignId}/inventories`, { method: 'POST', body: form.value })
+    form.value = { name: '', ownerType: 'party', ownerId: '' }
+    showForm.value = false
+    await load()
+  } catch (e: any) {
+    formError.value = e.data?.message || 'Failed to create inventory'
+  } finally {
+    saving.value = false
   }
 }
 
