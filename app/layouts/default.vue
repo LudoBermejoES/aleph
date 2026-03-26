@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-screen bg-background text-foreground">
+  <div class="flex h-screen bg-background text-foreground" :data-theme="campaignTheme || undefined">
     <!-- Sidebar -->
     <aside class="w-64 border-r border-border bg-sidebar-background flex flex-col shrink-0">
       <NuxtLink to="/" class="block p-4 border-b border-sidebar-border hover:bg-sidebar-accent transition-colors">
@@ -43,8 +43,8 @@
       </div>
     </aside>
 
-    <!-- Main content — theme applied here so sidebar always uses default -->
-    <main class="flex-1 overflow-auto" :data-theme="campaignTheme || undefined">
+    <!-- Main content -->
+    <main class="flex-1 overflow-auto">
       <slot />
     </main>
 
