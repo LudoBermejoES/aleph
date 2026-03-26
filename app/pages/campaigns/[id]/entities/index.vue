@@ -14,11 +14,6 @@
       </NuxtLink>
     </div>
 
-    <!-- Search Command -->
-    <div class="mb-6 max-w-xs">
-      <SearchCommand :campaign-id="campaignId" />
-    </div>
-
     <!-- Filters -->
     <div class="flex gap-3 mb-6">
       <select v-model="filters.type" @change="loadEntities" class="rounded-md border border-input bg-background px-3 py-2 text-sm">

@@ -47,6 +47,9 @@
     <main class="flex-1 overflow-auto">
       <slot />
     </main>
+
+    <!-- Global search — available on all campaign pages via Ctrl+K -->
+    <SearchCommand v-if="campaignId" :campaign-id="campaignId" />
   </div>
 </template>
 
