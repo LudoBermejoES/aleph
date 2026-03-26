@@ -109,4 +109,87 @@ test.describe('Calendar & Timeline E2E', () => {
     await expect(page.locator('main')).toContainText('Arrival in Barovia')
     await expect(page.locator('main')).toContainText('The party crossed the mists')
   })
+
+  test('add timeline event via UI form', async ({ page }) => {
+    await registerAndLogin(page, 'TLAddEv')
+    await createCampaign(page, `TLAdd ${uid()}`)
+    const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
+
+    // Create timeline via API
+    const tlRes = await page.evaluate(async (id) => {
+      const res = await fetch(`/api/campaigns/${id}/timelines`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: 'Test Timeline' }),
+      })
+      return res.json()
+    }, campaignId) as any
+
+    // Navigate to timeline detail
+    await page.goto(`${BASE}/campaigns/${campaignId}/timelines/${tlRes.slug}`)
+    await page.waitForLoadState('networkidle')
+
+    // Form is hidden initially
+    await expect(page.locator('[data-testid="add-event-form"]')).toBeHidden()
+
+    // Open the form
+    await page.click('[data-testid="add-event-btn"]')
+    await expect(page.locator('[data-testid="add-event-form"]')).toBeVisible()
+
+    // Fill in event details
+    await page.locator('[data-testid="add-event-form"] input[placeholder*="Event Name"], [data-testid="add-event-form"] input[placeholder*="Battle"]').fill('Fall of Strahd')
+    await page.locator('[data-testid="add-event-form"] input[placeholder*="description"]').fill('The vampire was finally defeated.')
+    const numInputs = page.locator('[data-testid="add-event-form"] input[type="number"]')
+    await numInputs.nth(0).fill('1492') // year
+    await numInputs.nth(1).fill('3')    // month
+    await numInputs.nth(2).fill('15')   // day
+
+    // Submit
+    await page.locator('[data-testid="add-event-form"] button[type="submit"]').click()
+
+    // Form closes and event appears in chronicle
+    await expect(page.locator('[data-testid="add-event-form"]')).toBeHidden({ timeout: 5000 })
+    await expect(page.locator('[data-testid="chronicle-view"]')).toContainText('Fall of Strahd', { timeout: 5000 })
+    await expect(page.locator('[data-testid="chronicle-view"]')).toContainText('The vampire was finally defeated.')
+  })
+
+  test('advance campaign date via UI (9.16)', async ({ page }) => {
+    await registerAndLogin(page, 'AdvDate')
+    await createCampaign(page, `AdvCamp ${uid()}`)
+    const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
+
+    // Create calendar via API
+    const calRes = await page.evaluate(async (id) => {
+      const res = await fetch(`/api/campaigns/${id}/calendars`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: 'Advance Test Cal',
+          configJson: JSON.stringify({
+            months: [{ name: 'Hammer', days: 30 }, { name: 'Alturiak', days: 30 }],
+            yearLength: 60,
+          }),
+          currentYear: 1492, currentMonth: 1, currentDay: 1,
+        }),
+      })
+      return res.json()
+    }, campaignId) as any
+
+    // Navigate to calendar detail
+    await page.goto(`${BASE}/campaigns/${campaignId}/calendars/${calRes.id}`)
+    await page.waitForLoadState('networkidle')
+
+    // Initial date shown
+    await expect(page.locator('main')).toContainText('Year 1492', { timeout: 10000 })
+
+    // Open advance panel and advance by 5 days
+    await page.click('[data-testid="advance-date"]')
+    await expect(page.locator('[data-testid="advance-panel"]')).toBeVisible()
+    await page.locator('[data-testid="advance-panel"] input[type="number"]').fill('5')
+    await page.locator('[data-testid="advance-panel"] button', { hasText: 'Advance' }).click()
+
+    // Panel should close and date should reflect Day 6
+    await expect(page.locator('[data-testid="advance-panel"]')).toBeHidden({ timeout: 5000 })
+    await expect(page.locator('main')).toContainText('6', { timeout: 5000 })
+  })
 })
