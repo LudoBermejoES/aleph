@@ -356,6 +356,9 @@ onUnmounted(() => {
 </script>
 
 <style>
+.ProseMirror {
+  color: hsl(var(--foreground));
+}
 .ProseMirror:focus {
   outline: none;
 }

@@ -100,7 +100,7 @@
       </div>
 
       <!-- Markdown Content -->
-      <div class="prose dark:prose-invert max-w-none">
+      <div class="prose dark:prose-invert max-w-none text-foreground">
         <MDC v-if="character.content" :value="character.content" />
       </div>
     </div>
