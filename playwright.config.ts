@@ -13,7 +13,7 @@ export default defineConfig({
   webServer: {
     command: 'npx nuxt dev --port 3333',
     port: 3333,
-    reuseExistingServer: true, // use already-running dev server
-    timeout: 30000,
+    reuseExistingServer: !process.env.CI, // in CI always start fresh, locally reuse if running
+    timeout: 120000, // 2 min for first Nuxt build
   },
 })

@@ -15,6 +15,7 @@
     "test:unit": "vitest run --dir tests/unit",
     "test:integration": "vitest run --dir tests/integration",
     "test:e2e": "playwright test",
+    "test:all": "start-server-and-test 'npx nuxt dev --port 3333' http://localhost:3333 'npm run test:unit && npm run test:integration && npm run test:e2e'",
     "test:coverage": "vitest run --coverage",
     "start:prod": "pm2-runtime ecosystem.config.cjs --env production",
     "pm2:status": "pm2 status",
@@ -88,6 +89,7 @@
     "eslint": "^9.39.4",
     "jsdom": "^29.0.1",
     "ofetch": "^1.5.1",
+    "start-server-and-test": "^3.0.0",
     "typescript": "5.7",
     "vitest": "^4.1.1"
   }
