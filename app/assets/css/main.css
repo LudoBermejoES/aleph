@@ -85,4 +85,34 @@ body {
   --tw-prose-pre-bg: hsl(var(--muted));
   --tw-prose-th-borders: hsl(var(--border));
   --tw-prose-td-borders: hsl(var(--border));
+  color: hsl(var(--foreground));
+}
+
+.prose * {
+  color: inherit;
+}
+
+.prose a {
+  color: hsl(var(--primary));
+}
+
+.prose blockquote, .prose blockquote p {
+  color: hsl(var(--muted-foreground));
+}
+
+.prose code {
+  color: hsl(var(--foreground));
+  background: hsl(var(--muted));
+  padding: 0.1em 0.3em;
+  border-radius: 0.25rem;
+}
+
+.prose pre {
+  background: hsl(var(--muted));
+  color: hsl(var(--foreground));
+}
+
+.prose pre code {
+  background: transparent;
+  padding: 0;
 }
