@@ -324,11 +324,20 @@ function toggleBold() { editor?.chain().focus().toggleBold().run() }
 function toggleItalic() { editor?.chain().focus().toggleItalic().run() }
 function toggleStrike() { editor?.chain().focus().toggleStrike().run() }
 function toggleCode() { editor?.chain().focus().toggleCode().run() }
-function setHeading(level: 1 | 2 | 3) { editor?.chain().focus().toggleHeading({ level }).run() }
-function toggleBulletList() { editor?.chain().focus().toggleBulletList().run() }
+function setHeading(level: 1 | 2 | 3) {
+  const result = editor?.chain().focus().toggleHeading({ level }).run()
+  console.log('[editor] toggleHeading', level, result, 'editor:', !!editor, 'canRun:', editor?.can().toggleHeading({ level }))
+}
+function toggleBulletList() {
+  const result = editor?.chain().focus().toggleBulletList().run()
+  console.log('[editor] toggleBulletList', result, 'canRun:', editor?.can().toggleBulletList())
+}
 function toggleOrderedList() { editor?.chain().focus().toggleOrderedList().run() }
 function toggleTaskList() { editor?.chain().focus().toggleTaskList().run() }
-function toggleBlockquote() { editor?.chain().focus().toggleBlockquote().run() }
+function toggleBlockquote() {
+  const result = editor?.chain().focus().toggleBlockquote().run()
+  console.log('[editor] toggleBlockquote', result, 'canRun:', editor?.can().toggleBlockquote())
+}
 function toggleCodeBlock() { editor?.chain().focus().toggleCodeBlock().run() }
 function insertHorizontalRule() { editor?.chain().focus().setHorizontalRule().run() }
 function undo() { editor?.chain().focus().undo().run() }
