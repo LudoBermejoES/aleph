@@ -15,7 +15,7 @@ Use the `aleph` CLI to fulfil the user's request.
    ```bash
    cat ~/.aleph/config.json 2>/dev/null || echo "not configured"
    ```
-   If not configured, tell the user to run `aleph login` first (or offer to run it interactively).
+   Config must have both `url` and `apiKey` fields. If missing or `apiKey` is absent, tell the user to run `aleph login` (which creates an API key and stores it). Do not reference `token` — that field is no longer used.
 
 2. **Map the request to a CLI command**
 
