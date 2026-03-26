@@ -54,12 +54,16 @@
 ## 8. Inventory & Shop Pages
 
 - [x] 8.1 Create `app/pages/campaigns/[id]/items/index.vue` (item library with rarity filter)
-- [ ] 8.2 Build inventory panel component
-- [ ] 8.3 Build item transfer dialog
-- [ ] 8.4 Build wealth display component
+- [x] 8.2 Build `app/components/InventoryPanel.vue` (inventory items with position slots)
+- [x] 8.3 Build `app/components/ItemTransferDialog.vue` (transfer items between inventories)
+- [x] 8.4 Build `app/components/WealthDisplay.vue` (currency balances grid)
 - [x] 8.5 Create `app/pages/campaigns/[id]/shops/index.vue` (shop list)
 - [x] 8.6 Create shop detail page with stock display
-- [ ] 8.7 Build transaction history table
+- [x] 8.7 Create `app/pages/campaigns/[id]/transactions/index.vue` (transaction history table)
+- [x] 8.8 Create `app/pages/campaigns/[id]/inventories/index.vue` (list all campaign inventories)
+- [x] 8.9 Create `app/pages/campaigns/[id]/inventories/[invId]/index.vue` (inventory detail with items)
+- [x] 8.10 Create `app/pages/campaigns/[id]/currencies/index.vue` (manage campaign currencies)
+- [x] 8.11 Add inventory + wealth sections to character detail page
 
 ## 9. Tests (TDD)
 
@@ -84,5 +88,5 @@
 
 ### Component Tests
 
-- [ ] 9.14 Test wealth display component
-- [ ] 9.15 Test item transfer dialog
+- [x] 9.14 Test wealth display component
+- [x] 9.15 Test item transfer dialog
