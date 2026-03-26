@@ -29,9 +29,7 @@ const loading = ref(true)
 async function load() {
   loading.value = true
   try {
-    balances.value = await $fetch(`/api/campaigns/${props.campaignId}/wealth`, {
-      params: { owner_id: props.ownerId, owner_type: props.ownerType },
-    }) as any[]
+    balances.value = await useCampaignApi(props.campaignId).getWealth({ owner_id: props.ownerId, owner_type: props.ownerType })
   } catch {
     balances.value = []
   } finally {

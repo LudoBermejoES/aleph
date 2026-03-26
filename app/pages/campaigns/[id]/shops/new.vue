@@ -18,13 +18,14 @@
 <script setup lang="ts">
 const route = useRoute()
 const campaignId = route.params.id as string
+const api = useCampaignApi(campaignId)
 const submitting = ref(false)
 const form = ref({ name: '', description: '' })
 
 async function create() {
   submitting.value = true
   try {
-    const res = await $fetch(`/api/campaigns/${campaignId}/shops`, { method: 'POST', body: form.value }) as any
+    const res = await api.createShop(form.value)
     await navigateTo(`/campaigns/${campaignId}/shops/${res.slug}`)
   } catch (e: any) {
     alert(e.data?.message || 'Failed to create shop')

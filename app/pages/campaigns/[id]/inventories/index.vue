@@ -78,6 +78,7 @@
 <script setup lang="ts">
 const route = useRoute()
 const campaignId = route.params.id as string
+const api = useCampaignApi(campaignId)
 const inventoryList = ref<any[]>([])
 const loading = ref(true)
 const error = ref('')
@@ -92,7 +93,7 @@ async function load() {
   try {
     const params: Record<string, string> = {}
     if (ownerTypeFilter.value) params.owner_type = ownerTypeFilter.value
-    inventoryList.value = await $fetch(`/api/campaigns/${campaignId}/inventories`, { params }) as any[]
+    inventoryList.value = await api.getInventories(params)
   } catch {
     error.value = 'Failed to load inventories'
   } finally {
@@ -105,7 +106,7 @@ async function create() {
   saving.value = true
   formError.value = ''
   try {
-    await $fetch(`/api/campaigns/${campaignId}/inventories`, { method: 'POST', body: form.value })
+    await api.createInventory(form.value)
     form.value = { name: '', ownerType: 'party', ownerId: '' }
     showForm.value = false
     await load()

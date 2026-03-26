@@ -72,10 +72,13 @@
 const route = useRoute()
 const campaignId = route.params.id as string
 const slug = route.params.slug as string
-const mapData = ref<any>(null)
+import type { CampaignMap } from '~/types/api'
+
+const mapData = ref<CampaignMap | null>(null)
+const api = useCampaignApi(campaignId)
 
 async function load() {
-  try { mapData.value = await $fetch(`/api/campaigns/${campaignId}/maps/${slug}`) } catch { mapData.value = null }
+  mapData.value = await api.getMap(slug).catch(() => null)
 }
 
 function onPinClick(pin: any) {
@@ -90,10 +93,7 @@ function onPinShiftClick(pin: any) {
 
 async function onRegionCreated(geojson: Record<string, unknown>) {
   try {
-    await $fetch(`/api/campaigns/${campaignId}/maps/${slug}/regions`, {
-      method: 'POST',
-      body: { geojson, name: 'New Region' },
-    })
+    await api.updateMapRegions(slug, { geojson, name: 'New Region' })
   } catch (e: unknown) {
     alert((e as { data?: { message?: string } })?.data?.message || 'Failed to save region')
   }

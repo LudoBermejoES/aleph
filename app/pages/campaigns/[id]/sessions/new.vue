@@ -22,10 +22,12 @@ const campaignId = route.params.id as string
 const submitting = ref(false)
 const form = ref({ title: '', scheduledDate: '', status: 'planned', content: '' })
 
+const api = useCampaignApi(campaignId)
+
 async function create() {
   submitting.value = true
   try {
-    const res = await $fetch(`/api/campaigns/${campaignId}/sessions`, { method: 'POST', body: form.value }) as any
+    const res = await api.createSession(form.value)
     await router.push(`/campaigns/${campaignId}/sessions/${res.slug}`)
   } catch (e: any) {
     alert(e.data?.message || 'Failed to create session')

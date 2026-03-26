@@ -22,10 +22,12 @@ const campaignId = route.params.id as string
 const submitting = ref(false)
 const form = ref({ name: '', status: 'active', parentQuestId: '', isSecret: false, content: '' })
 
+const api = useCampaignApi(campaignId)
+
 async function create() {
   submitting.value = true
   try {
-    await $fetch(`/api/campaigns/${campaignId}/quests`, { method: 'POST', body: form.value })
+    await api.createQuest(form.value)
     await router.push(`/campaigns/${campaignId}/quests`)
   } catch (e: any) {
     alert(e.data?.message || 'Failed to create quest')

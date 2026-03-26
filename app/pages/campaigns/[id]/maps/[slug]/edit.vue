@@ -27,9 +27,11 @@ const loaded = ref(false)
 const form = ref({ name: '', visibility: 'members' })
 const mapFormRef = ref<any>()
 
+const api = useCampaignApi(campaignId)
+
 onMounted(async () => {
   try {
-    const map = await $fetch(`/api/campaigns/${campaignId}/maps/${slug}`) as any
+    const map = await api.getMap(slug)
     form.value = { name: map.name || '', visibility: map.visibility || 'members' }
     loaded.value = true
   } catch {
@@ -41,12 +43,12 @@ onMounted(async () => {
 async function save() {
   submitting.value = true
   try {
-    await $fetch(`/api/campaigns/${campaignId}/maps/${slug}`, { method: 'PUT', body: form.value })
+    await api.updateMap(slug, form.value)
     const file = mapFormRef.value?.fileInput?.files?.[0]
     if (file) {
       const formData = new FormData()
       formData.append('image', file)
-      await $fetch(`/api/campaigns/${campaignId}/maps/${slug}/upload`, { method: 'POST', body: formData })
+      await api.uploadMapImage(slug, formData)
     }
     await router.push(`/campaigns/${campaignId}/maps/${slug}`)
   } catch (e: any) {

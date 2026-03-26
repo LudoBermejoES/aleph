@@ -98,10 +98,13 @@ const slug = route.params.slug as string
 // Enable collaborative mode via ?collab=true query param
 const isCollaborative = computed(() => route.query.collab === 'true')
 
-const entity = ref<any>(null)
-const children = ref<any[]>([])
+import type { Entity, Mention } from '~/types/api'
+
+const entity = ref<Entity | null>(null)
+const children = ref<Entity[]>([])
 const graphData = ref<any>(null)
-const mentions = ref<any[]>([])
+const mentions = ref<Mention[]>([])
+const api = useCampaignApi(campaignId)
 const editing = ref(false)
 const saving = ref(false)
 const editForm = reactive({ name: '', content: '' })
@@ -115,45 +118,29 @@ fetch('/api/auth/get-session', { credentials: 'include' })
 
 async function loadEntity() {
   try {
-    entity.value = await $fetch(`/api/campaigns/${campaignId}/entities/${slug}`)
+    entity.value = await api.getEntity(slug)
     editForm.name = entity.value.name
     editForm.content = entity.value.content || ''
     // Load child entities
     if (entity.value?.id) {
-      const result = await $fetch(`/api/campaigns/${campaignId}/entities`, {
-        params: { parent_id: entity.value.id },
-      }) as any
+      const result = await api.getEntities({ parent_id: entity.value.id })
       children.value = result.entities || []
     }
     // Load relationship graph for this entity
     if (entity.value?.id) {
-      try {
-        const relations = await $fetch(`/api/campaigns/${campaignId}/relations`, {
-          params: { entity_id: entity.value.id },
-        }) as any[]
-        // Build mini graph from entity-centered relations
-        const nodes: Record<string, { name: string; type: string }> = {}
-        const edges: Record<string, { source: string; target: string; label: string; color: string }> = {}
-        nodes[entity.value.id] = { name: entity.value.name, type: entity.value.type }
-        for (const rel of relations) {
-          nodes[rel.relatedEntityId] = { name: rel.relatedEntityId, type: 'entity' }
-          edges[rel.id] = {
-            source: rel.sourceEntityId,
-            target: rel.targetEntityId,
-            label: rel.label,
-            color: '#9ca3af',
-          }
-        }
-        graphData.value = relations.length ? { nodes, edges } : null
-      } catch { graphData.value = null }
+      const relations = await api.getRelations({ entity_id: entity.value.id }).catch(() => [])
+      const nodes: Record<string, { name: string; type: string }> = {}
+      const edges: Record<string, { source: string; target: string; label: string; color: string }> = {}
+      nodes[entity.value.id] = { name: entity.value.name, type: entity.value.type }
+      for (const rel of relations) {
+        nodes[rel.relatedEntityId || rel.targetEntityId] = { name: rel.relatedEntityId || rel.targetEntityId, type: 'entity' }
+        edges[rel.id] = { source: rel.sourceEntityId, target: rel.targetEntityId, label: rel.label || rel.forwardLabel, color: '#9ca3af' }
+      }
+      graphData.value = relations.length ? { nodes, edges } : null
     }
     // Load mentions ("Referenced by")
     if (entity.value?.id) {
-      try {
-        mentions.value = await $fetch(`/api/campaigns/${campaignId}/mentions`, {
-          params: { entity_id: entity.value.id },
-        }) as any[]
-      } catch { mentions.value = [] }
+      mentions.value = await api.getMentions({ entity_id: entity.value.id }).catch(() => [])
     }
   } catch {
     entity.value = null
@@ -163,10 +150,7 @@ async function loadEntity() {
 async function saveEntity() {
   saving.value = true
   try {
-    await $fetch(`/api/campaigns/${campaignId}/entities/${slug}`, {
-      method: 'PUT',
-      body: { name: editForm.name, content: editForm.content },
-    })
+    await api.updateEntity(slug, { name: editForm.name, content: editForm.content })
     await loadEntity()
     editing.value = false
   } catch (e: any) {

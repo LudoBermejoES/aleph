@@ -70,6 +70,7 @@
 const route = useRoute()
 const campaignId = route.params.id as string
 const invId = route.params.invId as string
+const api = useCampaignApi(campaignId)
 const inventory = ref<any>(null)
 const loading = ref(true)
 const error = ref('')
@@ -107,8 +108,8 @@ async function load() {
   loading.value = true
   try {
     // Use list endpoint filtered by id
-    const all = await $fetch(`/api/campaigns/${campaignId}/inventories`) as any[]
-    inventory.value = all.find((i: any) => i.id === invId) || null
+    const all = await api.getInventories()
+    inventory.value = all.find((i: { id: string }) => i.id === invId) || null
     if (!inventory.value) error.value = 'Inventory not found'
   } catch {
     error.value = 'Failed to load inventory'

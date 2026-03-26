@@ -78,6 +78,7 @@
 
 const route = useRoute()
 const campaignId = route.params.id as string
+const api = useCampaignApi(campaignId)
 
 const members = ref<any[]>([])
 const showInviteDialog = ref(false)
@@ -87,7 +88,7 @@ const inviteToken = ref('')
 
 async function loadMembers() {
   try {
-    members.value = await $fetch(`/api/campaigns/${campaignId}/members`) as any[]
+    members.value = await api.getMembers()
   } catch {
     members.value = []
   }
@@ -97,10 +98,7 @@ async function generateInvite() {
   inviting.value = true
   inviteToken.value = ''
   try {
-    const result = await $fetch(`/api/campaigns/${campaignId}/invite`, {
-      method: 'POST',
-      body: { role: inviteRole.value },
-    }) as any
+    const result = await api.createInvite({ role: inviteRole.value })
     inviteToken.value = result.token
   } catch (e: any) {
     alert(e.data?.message || 'Failed to generate invite')
@@ -111,10 +109,7 @@ async function generateInvite() {
 
 async function changeRole(userId: string, newRole: string) {
   try {
-    await $fetch(`/api/campaigns/${campaignId}/members/${userId}`, {
-      method: 'PUT',
-      body: { role: newRole },
-    })
+    await api.updateMember(userId, { role: newRole })
     await loadMembers()
   } catch (e: any) {
     alert(e.data?.message || 'Failed to change role')
@@ -124,7 +119,7 @@ async function changeRole(userId: string, newRole: string) {
 async function removeMember(userId: string) {
   if (!confirm('Remove this member?')) return
   try {
-    await $fetch(`/api/campaigns/${campaignId}/members/${userId}`, { method: 'DELETE' })
+    await api.removeMember(userId)
     await loadMembers()
   } catch (e: any) {
     alert(e.data?.message || 'Failed to remove member')

@@ -26,9 +26,11 @@ const submitting = ref(false)
 const loaded = ref(false)
 const form = ref({ title: '', scheduledDate: '', status: 'planned', content: '' })
 
+const api = useCampaignApi(campaignId)
+
 onMounted(async () => {
   try {
-    const session = await $fetch(`/api/campaigns/${campaignId}/sessions/${slug}`) as any
+    const session = await api.getSession(slug)
     form.value = {
       title: session.title || '',
       scheduledDate: session.scheduledDate ? new Date(session.scheduledDate).toISOString().split('T')[0] : '',
@@ -45,7 +47,7 @@ onMounted(async () => {
 async function save() {
   submitting.value = true
   try {
-    await $fetch(`/api/campaigns/${campaignId}/sessions/${slug}`, { method: 'PUT', body: form.value })
+    await api.updateSession(slug, form.value)
     await router.push(`/campaigns/${campaignId}/sessions/${slug}`)
   } catch (e: any) {
     alert(e.data?.message || 'Failed to save')

@@ -30,17 +30,15 @@ const form = ref({
 async function create() {
   submitting.value = true
   try {
-    await $fetch(`/api/campaigns/${campaignId}/relations`, {
-      method: 'POST',
-      body: {
-        sourceEntityId: form.value.sourceEntityId,
-        targetEntityId: form.value.targetEntityId,
-        forwardLabel: form.value.forwardLabel,
-        reverseLabel: form.value.reverseLabel,
-        relationTypeId: form.value.relationTypeId || undefined,
-        attitude: form.value.attitude,
-        description: form.value.description || undefined,
-      },
+    const api = useCampaignApi(campaignId)
+    await api.createRelation({
+      sourceEntityId: form.value.sourceEntityId,
+      targetEntityId: form.value.targetEntityId,
+      forwardLabel: form.value.forwardLabel,
+      reverseLabel: form.value.reverseLabel,
+      relationTypeId: form.value.relationTypeId || undefined,
+      attitude: form.value.attitude,
+      description: form.value.description || undefined,
     })
     await router.push(`/campaigns/${campaignId}/graph`)
   } catch (e: any) {

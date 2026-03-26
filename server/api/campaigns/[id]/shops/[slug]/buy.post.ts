@@ -32,7 +32,8 @@ export default defineEventHandler(async (event) => {
     .get()
 
   const price = body.price || 0
-  if (buyerWealth && buyerWealth.amount < price) {
+  const buyerBalance = buyerWealth?.amount ?? 0
+  if (buyerBalance < price) {
     throw createError({ statusCode: 400, message: 'Insufficient funds' })
   }
 

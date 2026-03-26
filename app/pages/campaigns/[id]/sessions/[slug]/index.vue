@@ -88,32 +88,30 @@
 const route = useRoute()
 const campaignId = route.params.id as string
 const slug = route.params.slug as string
-const session = ref<any>(null)
-const decisions = ref<any[]>([])
+import type { GameSession, SessionDecision } from '~/types/api'
+
+const session = ref<GameSession | null>(null)
+const decisions = ref<SessionDecision[]>([])
 const editing = ref(false)
 const logContent = ref('')
+const api = useCampaignApi(campaignId)
 
 async function load() {
-  try {
-    session.value = await $fetch(`/api/campaigns/${campaignId}/sessions/${slug}`)
-    logContent.value = session.value?.logContent || ''
-    // Load decisions
-    try {
-      decisions.value = await $fetch(`/api/campaigns/${campaignId}/sessions/${slug}/decisions`) as any[]
-    } catch { decisions.value = [] }
-  } catch { session.value = null }
+  session.value = await api.getSession(slug).catch(() => null)
+  logContent.value = session.value?.logContent || ''
+  decisions.value = await api.getSessionDecisions(slug).catch(() => [])
 }
 
 async function updateStatus(status: string) {
   try {
-    await $fetch(`/api/campaigns/${campaignId}/sessions/${slug}`, { method: 'PUT', body: { status } })
+    await api.updateSession(slug, { status })
     await load()
   } catch (e: any) { alert(e.data?.message || 'Failed') }
 }
 
 async function saveLog() {
   try {
-    await $fetch(`/api/campaigns/${campaignId}/sessions/${slug}`, { method: 'PUT', body: { content: logContent.value } })
+    await api.updateSession(slug, { content: logContent.value })
     await load()
     editing.value = false
   } catch (e: any) { alert(e.data?.message || 'Failed') }

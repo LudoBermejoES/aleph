@@ -111,9 +111,7 @@ function doSearch() {
   debounceTimer = setTimeout(async () => {
     searching.value = true
     try {
-      const res = await $fetch(`/api/campaigns/${props.campaignId}/search`, {
-        params: { q: query.value },
-      }) as any
+      const res = await useCampaignApi(props.campaignId).search({ q: query.value })
       results.value = res.results
     } catch {
       results.value = []

@@ -22,13 +22,14 @@ const route = useRoute()
 const router = useRouter()
 const campaignId = route.params.id as string
 const itemId = route.params.itemId as string
+const api = useCampaignApi(campaignId)
 const submitting = ref(false)
 const loaded = ref(false)
 const form = ref({ name: '', rarity: 'common', type: '', weight: '', size: '', description: '' })
 
 onMounted(async () => {
   try {
-    const item = await $fetch(`/api/campaigns/${campaignId}/items/${itemId}`) as any
+    const item = await api.getItem(itemId)
     form.value = {
       name: item.name || '',
       rarity: item.rarity || 'common',
@@ -47,7 +48,7 @@ onMounted(async () => {
 async function save() {
   submitting.value = true
   try {
-    await $fetch(`/api/campaigns/${campaignId}/items/${itemId}`, { method: 'PUT', body: form.value })
+    await api.updateItem(itemId, form.value)
     await router.push(`/campaigns/${campaignId}/items`)
   } catch (e: any) {
     alert(e.data?.message || 'Failed to save')

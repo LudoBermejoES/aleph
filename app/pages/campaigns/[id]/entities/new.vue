@@ -22,13 +22,13 @@ const campaignId = route.params.id as string
 const submitting = ref(false)
 const form = ref({ name: '', type: 'note', visibility: 'members', tagsRaw: '', content: '' })
 
+const api = useCampaignApi(campaignId)
+
 async function create() {
   submitting.value = true
   try {
-    const tags = form.value.tagsRaw.split(',').map(t => t.trim()).filter(Boolean)
-    const res = await $fetch(`/api/campaigns/${campaignId}/entities`, {
-      method: 'POST', body: { ...form.value, tags },
-    }) as any
+    const tags = form.value.tagsRaw.split(',').map((t: string) => t.trim()).filter(Boolean)
+    const res = await api.createEntity({ ...form.value, tags })
     await router.push(`/campaigns/${campaignId}/entities/${res.slug}`)
   } catch (e: any) {
     alert(e.data?.message || 'Failed to create entity')

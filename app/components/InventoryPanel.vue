@@ -92,9 +92,7 @@ function rarityColor(r: string) {
 async function load() {
   loading.value = true
   try {
-    const all = await $fetch(`/api/campaigns/${props.campaignId}/inventories`, {
-      params: { owner_id: props.ownerId, owner_type: props.ownerType },
-    }) as any[]
+    const all = await useCampaignApi(props.campaignId).getInventories({ owner_id: props.ownerId, owner_type: props.ownerType })
     inventory.value = all[0] || null
   } catch {
     inventory.value = null

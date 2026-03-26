@@ -67,7 +67,7 @@ const { presenceUsers } = useCampaignSocket(campaignId)
 watch(campaignId, async (id) => {
   if (id) {
     try {
-      const data = await $fetch(`/api/campaigns/${id}`) as any
+      const data = await useCampaignApi(id).getCampaign()
       campaignName.value = data?.name || ''
     } catch { campaignName.value = '' }
   } else {

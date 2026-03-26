@@ -79,27 +79,26 @@
 <script setup lang="ts">
 const route = useRoute()
 const campaignId = route.params.id as string
-const chars = ref<any[]>([])
-const folders = ref<any[]>([])
+import type { Character, CharacterFolder } from '~/types/api'
+
+const chars = ref<Character[]>([])
+const folders = ref<CharacterFolder[]>([])
 const filter = ref('all')
 const selectedFolder = ref('')
 const { loading, error, withLoading, dismissError } = useLoadingState()
+const api = useCampaignApi(campaignId)
 
 async function load() {
   await withLoading(async () => {
     const params: Record<string, string> = {}
     if (filter.value !== 'all') params.type = filter.value
     if (selectedFolder.value) params.folderId = selectedFolder.value
-    chars.value = await $fetch(`/api/campaigns/${campaignId}/characters`, { params }) as any[]
+    chars.value = await api.getCharacters(params)
   })
 }
 
 async function loadFolders() {
-  try {
-    folders.value = await $fetch(`/api/campaigns/${campaignId}/character-folders`) as any[]
-  } catch {
-    folders.value = []
-  }
+  folders.value = await api.getCharacterFolders().catch(() => [])
 }
 
 onMounted(async () => {

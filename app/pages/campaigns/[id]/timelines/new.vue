@@ -22,10 +22,12 @@ const campaignId = route.params.id as string
 const submitting = ref(false)
 const form = ref({ name: '', description: '' })
 
+const api = useCampaignApi(campaignId)
+
 async function create() {
   submitting.value = true
   try {
-    const res = await $fetch(`/api/campaigns/${campaignId}/timelines`, { method: 'POST', body: form.value }) as any
+    const res = await api.createTimeline(form.value)
     await router.push(`/campaigns/${campaignId}/timelines/${res.slug}`)
   } catch (e: any) {
     alert(e.data?.message || 'Failed to create timeline')

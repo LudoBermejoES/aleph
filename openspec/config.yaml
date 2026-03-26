@@ -2,19 +2,22 @@ schema: spec-driven
 
 context: |
   Project: Aleph - A TTRPG Campaign Management Suite (named after the Borges short story)
-  Tech stack: Node.js (latest LTS), Vue.js 3 (latest), SQLite
-  Backend framework: TBD (Nuxt.js recommended for Vue.js SSR + API)
-  Domain: Tabletop RPG campaign management, worldbuilding, session tracking
-  Target: Web application with role-based access control
-  Phase: Study / Requirements gathering
+  Tech stack: Nuxt 4 (Vue 3, Vite, Nitro), SQLite (via Drizzle ORM), better-auth, Hocuspocus (real-time collaboration), Tailwind CSS, shadcn-vue
+  Architecture: Full-stack Nuxt app — pages and components in app/, server API routes in server/api/, DB schema in server/db/schema/, migrations in server/db/migrations/
+  Domain: Tabletop RPG campaign management — entities/wiki, characters, sessions, quests, maps, calendars, timelines, relations, inventories, shops, currencies
+  Auth: better-auth with email/password; role-based access (dm, co_dm, editor, player, visitor) enforced per campaign
+  Testing: Vitest for unit + integration tests, Playwright for E2E; integration tests require a running server on port 3333
+  Phase: Active development — core features implemented, iterating on polish, performance, and new features
 
 rules:
   proposal:
-    - Focus on feature discovery and competitive analysis
-    - Always reference which existing tools inspired each requirement
+    - Focus on the problem being solved and why it matters for the existing codebase
+    - Identify which files and areas are affected
   specs:
     - Use Given/When/Then format for scenarios
-    - Include role-based permission context in requirements
+    - Include role-based permission context where relevant
+    - Reference existing API routes or components when describing behaviour
   tasks:
-    - Tasks should be research-oriented for the study phase
-    - Each task should produce a clear deliverable or finding
+    - Tasks should be concrete and implementable — each maps to specific file changes
+    - Order tasks so foundational work (types, composables, utilities) comes before consumers
+    - Verification tasks (build, test, lint) should be the final group

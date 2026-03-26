@@ -22,15 +22,17 @@ const submitting = ref(false)
 const form = ref({ name: '', visibility: 'members' })
 const mapFormRef = ref<any>()
 
+const api = useCampaignApi(campaignId)
+
 async function create() {
   submitting.value = true
   try {
-    const res = await $fetch(`/api/campaigns/${campaignId}/maps`, { method: 'POST', body: form.value }) as any
+    const res = await api.createMap(form.value)
     const file = mapFormRef.value?.fileInput?.files?.[0]
     if (file) {
       const formData = new FormData()
       formData.append('image', file)
-      await $fetch(`/api/campaigns/${campaignId}/maps/${res.slug}/upload`, { method: 'POST', body: formData })
+      await api.uploadMapImage(res.slug, formData)
     }
     await navigateTo(`/campaigns/${campaignId}/maps/${res.slug}`)
   } catch (e: any) {

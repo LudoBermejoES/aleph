@@ -26,9 +26,11 @@ const submitting = ref(false)
 const loaded = ref(false)
 const form = ref({ name: '', type: 'note', visibility: 'members', tagsRaw: '', content: '' })
 
+const api = useCampaignApi(campaignId)
+
 onMounted(async () => {
   try {
-    const entity = await $fetch(`/api/campaigns/${campaignId}/entities/${slug}`) as any
+    const entity = await api.getEntity(slug)
     form.value = {
       name: entity.name || '',
       type: entity.type || 'note',
@@ -46,10 +48,8 @@ onMounted(async () => {
 async function save() {
   submitting.value = true
   try {
-    const tags = form.value.tagsRaw.split(',').map(t => t.trim()).filter(Boolean)
-    await $fetch(`/api/campaigns/${campaignId}/entities/${slug}`, {
-      method: 'PUT', body: { ...form.value, tags },
-    })
+    const tags = form.value.tagsRaw.split(',').map((t: string) => t.trim()).filter(Boolean)
+    await api.updateEntity(slug, { ...form.value, tags })
     await router.push(`/campaigns/${campaignId}/entities/${slug}`)
   } catch (e: any) {
     alert(e.data?.message || 'Failed to save')

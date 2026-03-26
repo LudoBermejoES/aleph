@@ -82,8 +82,8 @@ const canSubmit = computed(
 
 async function loadTargets() {
   try {
-    const all = await $fetch(`/api/campaigns/${props.campaignId}/inventories`) as any[]
-    targetInventories.value = all.filter(i => i.id !== props.fromInventoryId)
+    const all = await useCampaignApi(props.campaignId).getInventories()
+    targetInventories.value = all.filter((i: { id: string }) => i.id !== props.fromInventoryId)
   } catch {
     targetInventories.value = []
   }
@@ -94,9 +94,8 @@ async function submit() {
   loading.value = true
   error.value = ''
   try {
-    await $fetch(`/api/campaigns/${props.campaignId}/inventories/${props.fromInventoryId}/transfer`, {
-      method: 'POST',
-      body: { toInventoryId: targetInventoryId.value, itemId: selectedItemId.value, quantity: quantity.value },
+    await useCampaignApi(props.campaignId).transferInventoryItems(props.fromInventoryId, {
+      toInventoryId: targetInventoryId.value, itemId: selectedItemId.value, quantity: quantity.value,
     })
     emit('transferred')
   } catch (e: any) {

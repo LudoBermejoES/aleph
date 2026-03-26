@@ -103,12 +103,9 @@ async function roll(f: string) {
   try {
     const body: Record<string, unknown> = { formula: fullFormula }
     if (logToSession.value && props.sessionId) body.sessionId = props.sessionId
-    const result = await $fetch(`/api/campaigns/${props.campaignId}/roll`, {
-      method: 'POST',
-      body,
-    })
+    const result = await useCampaignApi(props.campaignId).roll(body)
     lastResult.value = result
-    rollLog.value.unshift({ formula: fullFormula, total: (result as any).total })
+    rollLog.value.unshift({ formula: fullFormula, total: result.total })
     if (rollLog.value.length > 50) rollLog.value.pop()
   } catch (e: any) {
     error.value = e.data?.message || 'Roll failed'

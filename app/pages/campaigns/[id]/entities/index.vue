@@ -61,11 +61,14 @@
 const route = useRoute()
 const campaignId = route.params.id as string
 
-const entities = ref<any[]>([])
-const entityTypes = ref<any[]>([])
+import type { Entity, EntityType } from '~/types/api'
+
+const entities = ref<Entity[]>([])
+const entityTypes = ref<EntityType[]>([])
 const loading = ref(true)
 const filters = reactive({ type: '', search: '' })
 const pagination = reactive({ page: 1, limit: 50, total: 0, totalPages: 0 })
+const api = useCampaignApi(campaignId)
 
 let searchTimeout: ReturnType<typeof setTimeout>
 function debouncedSearch() {
@@ -83,7 +86,7 @@ async function loadEntities() {
     if (filters.type) params.type = filters.type
     if (filters.search) params.search = filters.search
 
-    const result = await $fetch(`/api/campaigns/${campaignId}/entities`, { params }) as any
+    const result = await api.getEntities(params)
     entities.value = result.entities
     Object.assign(pagination, result.pagination)
   } catch {
@@ -94,11 +97,7 @@ async function loadEntities() {
 }
 
 async function loadEntityTypes() {
-  try {
-    entityTypes.value = await $fetch(`/api/campaigns/${campaignId}/entity-types`) as any[]
-  } catch {
-    entityTypes.value = []
-  }
+  entityTypes.value = await api.getEntityTypes().catch(() => [])
 }
 
 function goToPage(page: number) {
