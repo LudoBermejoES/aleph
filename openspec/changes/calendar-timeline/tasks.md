@@ -47,7 +47,7 @@
 - [x] 6.4 Apply season colors as background tinting
 - [x] 6.5 Show calendar events in day cells
 - [x] 6.6 Add month/year navigation
-- [ ] 6.7 Build calendar creation/edit form
+- [x] 6.7 Build calendar creation/edit form
 
 ## 7. Age Calculation
 
@@ -60,7 +60,7 @@
 - [x] 8.2 Create timeline detail page
 - [x] 8.3 Build chronicle view (vertical event list)
 - [x] 8.4 Build Gantt view
-- [ ] 8.5 Build calendar overlay view
+- [x] 8.5 Build calendar overlay view
 - [x] 8.6 Add view switcher component
 
 ## 9. Tests (TDD)
@@ -91,5 +91,5 @@
 
 - [x] 9.14 E2E: calendars page shows calendar list
 - [x] 9.15 E2E: calendar detail shows month grid with events
-- [ ] 9.16 E2E: advance campaign date via UI
+- [x] 9.16 E2E: advance campaign date via UI
 - [x] 9.17 E2E: timeline detail shows events in chronicle view
