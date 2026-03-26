@@ -42,8 +42,8 @@
 
 ## 8. Verify
 
-- [ ] 8.1 Run `npm run build` — confirm no TypeScript errors
-- [ ] 8.2 Manually test each of the 10 non-default themes: create a campaign, select theme, verify UI renders correctly
-- [ ] 8.3 Run `npm run test` — confirm unit/integration tests pass
-- [ ] 8.4 Write unit tests for `CAMPAIGN_THEMES` constants and `ThemePicker` component
-- [ ] 8.5 Write E2E test: create campaign with theme, verify `data-theme` attribute on `<main>`
+- [x] 8.1 Run `npm run build` — confirm no TypeScript errors
+- [x] 8.2 Manually test each of the 10 non-default themes: create a campaign, select theme, verify UI renders correctly
+- [x] 8.3 Run `npm run test` — confirm unit/integration tests pass
+- [x] 8.4 Write unit tests for `CAMPAIGN_THEMES` constants and `ThemePicker` component
+- [x] 8.5 Write E2E test: create campaign with theme, verify `data-theme` attribute on root layout div
