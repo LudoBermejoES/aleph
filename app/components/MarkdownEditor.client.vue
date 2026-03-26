@@ -265,7 +265,7 @@ async function initEditor() {
     })
 
     extensions.push(
-      StarterKit.configure({ history: false }),
+      StarterKit.configure({ history: false, link: false }),
       Collaboration.configure({ document: ydoc }),
       CollaborationCursor.configure({
         provider,
@@ -276,7 +276,7 @@ async function initEditor() {
       }),
     )
   } else {
-    extensions.unshift(StarterKit)
+    extensions.unshift(StarterKit.configure({ link: false }))
   }
 
   try {
