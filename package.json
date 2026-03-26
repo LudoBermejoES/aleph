@@ -13,7 +13,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:unit": "vitest run tests/unit/",
-    "test:integration": "vitest run tests/integration/",
+    "test:integration": "start-server-and-test 'npx nuxt dev --port 3333' http://localhost:3333 'vitest run tests/integration/'",
     "test:e2e": "playwright test",
     "test:all": "start-server-and-test 'npx nuxt dev --port 3333' http://localhost:3333 'npm run test:unit && npm run test:integration && npm run test:e2e'",
     "test:coverage": "vitest run --coverage",
