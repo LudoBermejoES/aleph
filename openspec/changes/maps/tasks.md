@@ -34,7 +34,7 @@
 ## 5. Tiling Pipeline
 
 - [x] 5.1 Implement `generateTiles` with sharp (256x256 tiles, PNG)
-- [ ] 5.2 Create background Nitro task for tiling on upload (manual call for now)
+- [x] 5.2 Create background Nitro task for tiling on upload (manual call for now)
 - [x] 5.3 Store tiles at `content/campaigns/{slug}/maps/{map}/tiles/{z}/{x}/{y}.png`
 - [x] 5.4 Update map record with `is_tiled = true` on upload
 - [x] 5.5 Add tile serving endpoint
