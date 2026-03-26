@@ -2,6 +2,7 @@ import { randomUUID } from 'crypto'
 import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
 import { inventories, inventoryItems, items, transactions } from '../../../../../db/schema/inventory'
+import { characters } from '../../../../../db/schema/characters'
 import { canTransferItem } from '../../../../../services/inventory'
 import { hasMinRole } from '../../../../../utils/permissions'
 import type { CampaignRole } from '../../../../../utils/permissions'
@@ -12,9 +13,21 @@ export default defineEventHandler(async (event) => {
 
   const campaignId = getRouterParam(event, 'id')!
   const fromInventoryId = getRouterParam(event, 'inventoryId')!
+  const userId = event.context.user?.id
   const body = await readBody(event)
   const { toInventoryId, itemId, quantity } = body
   const db = useDb()
+
+  // RBAC: players can only manage inventories belonging to their own characters; DM/editor manage all
+  if (role === 'player' && userId) {
+    const sourceInv = db.select().from(inventories).where(eq(inventories.id, fromInventoryId)).get()
+    if (sourceInv?.ownerType === 'character') {
+      const ownerChar = db.select().from(characters)
+        .where(and(eq(characters.id, sourceInv.ownerId), eq(characters.ownerUserId, userId)))
+        .get()
+      if (!ownerChar) throw createError({ statusCode: 403, message: 'You can only manage your own character\'s inventory' })
+    }
+  }
 
   // Validate source
   const sourceItem = db.select().from(inventoryItems)

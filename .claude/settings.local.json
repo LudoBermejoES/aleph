@@ -133,7 +133,15 @@
       "Bash(find c:/code/aleph/app/pages/campaigns/[id]/calendars -type f)",
       "Bash(find c:/code/aleph/app -name *[Dd]ice* -o -name *[Rr]oll*)",
       "Bash(find c:/code/aleph/server -name *websocket* -o -name *ws* -o -name *watcher*)",
-      "Bash(cat c:/code/aleph/server/api/campaigns/[id]/roll.post.ts)"
+      "Bash(cat c:/code/aleph/server/api/campaigns/[id]/roll.post.ts)",
+      "Bash(head -60 c:/code/aleph/app/pages/campaigns/[id]/characters/[slug]/index.vue)",
+      "Bash(wc -l c:/code/aleph/app/pages/campaigns/[id]/characters/[slug]/index.vue)",
+      "Bash(cat c:/code/aleph/app/pages/campaigns/[id]/items/index.vue)",
+      "Bash(cat c:/code/aleph/app/pages/campaigns/[id]/shops/[slug]/index.vue)",
+      "Bash(cat c:/code/aleph/app/pages/campaigns/[id]/characters/[slug]/index.vue)",
+      "Bash(cat c:/code/aleph/server/api/campaigns/[id]/inventories/[inventoryId]/transfer.post.ts)",
+      "Bash(cat c:/code/aleph/server/api/campaigns/[id]/currencies/index.post.ts)",
+      "Bash(cat c:/code/aleph/server/api/campaigns/[id]/shops/[slug]/index.get.ts)"
     ]
   }
 }
