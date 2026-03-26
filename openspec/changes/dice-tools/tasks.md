@@ -41,19 +41,19 @@
 
 ## 3. WebSocket Broadcasting
 
-- [ ] 3.1 Implement dice:roll message type on campaign WebSocket
-- [ ] 3.2 Broadcast roll results to all connected campaign members
-- [ ] 3.3 Graceful degradation when WebSocket unavailable
+- [x] 3.1 Implement dice:roll message type on campaign WebSocket
+- [x] 3.2 Broadcast roll results to all connected campaign members
+- [x] 3.3 Graceful degradation when WebSocket unavailable
 
 ## 4. Dice Roller UI
 
 - [x] 4.1 Create `DiceRoller.vue` floating panel component
 - [x] 4.2 Quick-roll buttons for standard dice (d4, d6, d8, d10, d12, d20, d100)
 - [x] 4.3 Formula text input with submit on Enter
-- [ ] 4.4 Modifier +/- controls
+- [x] 4.4 Modifier +/- controls
 - [x] 4.5 Result display with total and expandable individual die values
 - [x] 4.6 Roll log feed (last 50, own rolls)
-- [ ] 4.7 "Log to session" toggle
+- [x] 4.7 "Log to session" toggle
 - [x] 4.8 Panel toggle button in campaign toolbar
 
 ## 5. Integration Tests (API)
@@ -66,6 +66,6 @@
 
 ## 6. Component Tests
 
-- [ ] 6.1 Test DiceRoller: quick-roll button triggers roll, displays result
-- [ ] 6.2 Test formula input: Enter submits, invalid shows error
-- [ ] 6.3 Test roll log feed: displays rolls in order
+- [x] 6.1 Test DiceRoller: quick-roll button triggers roll, displays result
+- [x] 6.2 Test formula input: Enter submits, invalid shows error
+- [x] 6.3 Test roll log feed: displays rolls in order

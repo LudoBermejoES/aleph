@@ -151,6 +151,20 @@ export default defineWebSocketHandler({
         break
       }
 
+      case 'dice:roll': {
+        // Client broadcasts a roll result to all campaign members
+        peer.publish(`campaign:${context.campaignId}`, JSON.stringify({
+          type: 'dice:roll',
+          campaignId: context.campaignId,
+          userId: context.userId,
+          userName: context.userName,
+          formula: data.formula,
+          result: data.result,
+          timestamp: Date.now(),
+        }))
+        break
+      }
+
       default:
         logger.debug('WebSocket: unknown message type', { type: data.type, userId: context.userId })
     }
