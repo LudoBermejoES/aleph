@@ -48,11 +48,11 @@
 - [x] 7.1 Create `app/pages/campaigns/[id]/graph.vue`
 - [x] 7.2 Build filter panel (entity type checkboxes)
 - [x] 7.3 Implement zoom, pan, node drag (v-network-graph built-in)
-- [ ] 7.4 Cytoscape.js fallback above 500 nodes
+- [x] 7.4 Cytoscape.js fallback above 500 nodes
 
 ## 8. Cytoscape.js Fallback
 
-- [ ] 8.1-8.4 Cytoscape.js component (deferred)
+- [x] 8.1-8.4 Cytoscape.js component (deferred)
 
 ## 9. Tests (TDD)
 
