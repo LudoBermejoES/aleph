@@ -2,6 +2,7 @@ import { randomUUID } from 'crypto'
 import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
 import { inventories, inventoryItems, items } from '../../../../../db/schema/inventory'
+import { characters } from '../../../../../db/schema/characters'
 import { hasMinRole } from '../../../../../utils/permissions'
 import type { CampaignRole } from '../../../../../utils/permissions'
 
@@ -10,11 +11,20 @@ export default defineEventHandler(async (event) => {
   if (!hasMinRole(role, 'player')) throw createError({ statusCode: 403, message: 'Players or above can manage inventory' })
 
   const inventoryId = getRouterParam(event, 'inventoryId')!
+  const userId = event.context.user?.id
   const body = await readBody(event)
   const db = useDb()
 
   const inv = db.select().from(inventories).where(eq(inventories.id, inventoryId)).get()
   if (!inv) throw createError({ statusCode: 404, message: 'Inventory not found' })
+
+  // RBAC: players can only add items to their own character's inventory
+  if (role === 'player' && userId && inv.ownerType === 'character') {
+    const ownerChar = db.select().from(characters)
+      .where(and(eq(characters.id, inv.ownerId), eq(characters.ownerUserId, userId)))
+      .get()
+    if (!ownerChar) throw createError({ statusCode: 403, message: 'You can only manage your own character\'s inventory' })
+  }
 
   // Check if stackable item already exists
   const item = db.select().from(items).where(eq(items.id, body.itemId)).get()

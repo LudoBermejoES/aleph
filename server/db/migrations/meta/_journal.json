@@ -71,6 +71,13 @@
       "when": 1774449635629,
       "tag": "0009_milky_quicksilver",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1774525338506,
+      "tag": "0010_brief_christian_walker",
+      "breakpoints": true
     }
   ]
 }

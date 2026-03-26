@@ -25,6 +25,7 @@ export default defineEventHandler(async (event) => {
     type: body.type || null,
     propertiesJson: body.properties ? JSON.stringify(body.properties) : null,
     stackable: body.stackable ?? true,
+    entityId: body.entityId || null,
     createdAt: new Date(),
   }).run()
 

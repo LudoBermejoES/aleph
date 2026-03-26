@@ -15,6 +15,7 @@ export const items = sqliteTable('items', {
   imagePath: text('image_path'),
   propertiesJson: text('properties_json'),
   stackable: integer('stackable', { mode: 'boolean' }).notNull().default(true),
+  entityId: text('entity_id'), // optional link to a wiki entity
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
 })
 

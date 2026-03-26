@@ -21,21 +21,21 @@
 
 - [x] 3.1 Wire item CRUD handlers (POST create, GET list)
 - [x] 3.2 Wire item list with filters: rarity, type, search
-- [ ] 3.3 Link items to wiki entities optionally
+- [x] 3.3 Link items to wiki entities optionally
 
 ## 4. Inventory API
 
 - [x] 4.1 Wire inventory CRUD handlers (POST create, GET list with items)
 - [x] 4.2 Wire inventory item add handler (stackable auto-merge)
 - [x] 4.3 Wire item transfer handler calling canTransferItem + transaction logging
-- [ ] 4.4 Add RBAC: players manage own character inventory, DM manages all
+- [x] 4.4 Add RBAC: players manage own character inventory, DM manages all
 
 ## 5. Currency & Wealth API
 
 - [x] 5.1 Wire currency CRUD handlers (POST create, GET list with sort)
 - [x] 5.2 Wire wealth query handler (GET with owner_id + owner_type)
-- [ ] 5.3 Wire currency conversion endpoint
-- [ ] 5.4 Wire wealth modification only via transaction creation
+- [x] 5.3 Wire currency conversion endpoint
+- [x] 5.4 Wire wealth modification only via transaction creation
 
 ## 6. Shop API
 
@@ -43,7 +43,7 @@
 - [x] 6.2 Wire shop stock add handler (POST)
 - [x] 6.3 Wire buy handler (deduct wealth, add item, decrement stock, log transaction)
 - [x] 6.4 Wire sell handler (add wealth, remove item, log transaction)
-- [ ] 6.5 Wire player-owned shop: till balance, withdraw handler
+- [x] 6.5 Wire player-owned shop: till balance, withdraw handler
 
 ## 7. Transaction Log
 
@@ -81,10 +81,10 @@
 - [x] 9.7 Test currency CRUD: create with conversion rate, list sorted
 - [x] 9.8 Test shop CRUD: create, list returns shop
 - [x] 9.9 Test transaction log: create, list returns entry
-- [ ] 9.10 Test item transfer atomicity
-- [ ] 9.11 Test shop purchase flow
-- [ ] 9.12 Test transaction immutability (no PUT/DELETE)
-- [ ] 9.13 Test inventory RBAC
+- [x] 9.10 Test item transfer atomicity
+- [x] 9.11 Test shop purchase flow
+- [x] 9.12 Test transaction immutability (no PUT/DELETE)
+- [x] 9.13 Test inventory RBAC
 
 ### Component Tests
 

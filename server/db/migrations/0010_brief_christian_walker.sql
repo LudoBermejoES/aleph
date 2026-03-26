@@ -1,0 +1,1 @@
+ALTER TABLE `items` ADD `entity_id` text;
