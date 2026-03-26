@@ -3,40 +3,40 @@
     <!-- Toolbar -->
     <div class="flex flex-wrap items-center gap-0.5 p-2 border-b border-border bg-muted/30">
       <!-- Undo/Redo -->
-      <button @click="undo" class="p-1.5 rounded text-xs hover:bg-accent" title="Undo (Ctrl+Z)">↩</button>
-      <button @click="redo" class="p-1.5 rounded text-xs hover:bg-accent" title="Redo (Ctrl+Shift+Z)">↪</button>
+      <button type="button" @click="undo" class="p-1.5 rounded text-xs hover:bg-accent" title="Undo (Ctrl+Z)">↩</button>
+      <button type="button" @click="redo" class="p-1.5 rounded text-xs hover:bg-accent" title="Redo (Ctrl+Shift+Z)">↪</button>
       <div class="w-px h-4 bg-border mx-1" />
 
       <!-- Text formatting -->
-      <button @click="toggleBold" :class="['p-1.5 rounded text-xs font-bold', editor?.isActive('bold') ? 'bg-accent' : 'hover:bg-accent']" title="Bold (Ctrl+B)">B</button>
-      <button @click="toggleItalic" :class="['p-1.5 rounded text-xs italic', editor?.isActive('italic') ? 'bg-accent' : 'hover:bg-accent']" title="Italic (Ctrl+I)">I</button>
-      <button @click="toggleStrike" :class="['p-1.5 rounded text-xs line-through', editor?.isActive('strike') ? 'bg-accent' : 'hover:bg-accent']" title="Strikethrough">S</button>
-      <button @click="toggleCode" :class="['p-1.5 rounded text-xs font-mono', editor?.isActive('code') ? 'bg-accent' : 'hover:bg-accent']" title="Inline Code">&lt;/&gt;</button>
+      <button type="button" @click="toggleBold" :class="['p-1.5 rounded text-xs font-bold', editor?.isActive('bold') ? 'bg-accent' : 'hover:bg-accent']" title="Bold (Ctrl+B)">B</button>
+      <button type="button" @click="toggleItalic" :class="['p-1.5 rounded text-xs italic', editor?.isActive('italic') ? 'bg-accent' : 'hover:bg-accent']" title="Italic (Ctrl+I)">I</button>
+      <button type="button" @click="toggleStrike" :class="['p-1.5 rounded text-xs line-through', editor?.isActive('strike') ? 'bg-accent' : 'hover:bg-accent']" title="Strikethrough">S</button>
+      <button type="button" @click="toggleCode" :class="['p-1.5 rounded text-xs font-mono', editor?.isActive('code') ? 'bg-accent' : 'hover:bg-accent']" title="Inline Code">&lt;/&gt;</button>
       <div class="w-px h-4 bg-border mx-1" />
 
       <!-- Headings -->
-      <button @click="setHeading(1)" :class="['p-1.5 rounded text-xs', editor?.isActive('heading', { level: 1 }) ? 'bg-accent' : 'hover:bg-accent']" title="Heading 1">H1</button>
-      <button @click="setHeading(2)" :class="['p-1.5 rounded text-xs', editor?.isActive('heading', { level: 2 }) ? 'bg-accent' : 'hover:bg-accent']" title="Heading 2">H2</button>
-      <button @click="setHeading(3)" :class="['p-1.5 rounded text-xs', editor?.isActive('heading', { level: 3 }) ? 'bg-accent' : 'hover:bg-accent']" title="Heading 3">H3</button>
+      <button type="button" @click="setHeading(1)" :class="['p-1.5 rounded text-xs', editor?.isActive('heading', { level: 1 }) ? 'bg-accent' : 'hover:bg-accent']" title="Heading 1">H1</button>
+      <button type="button" @click="setHeading(2)" :class="['p-1.5 rounded text-xs', editor?.isActive('heading', { level: 2 }) ? 'bg-accent' : 'hover:bg-accent']" title="Heading 2">H2</button>
+      <button type="button" @click="setHeading(3)" :class="['p-1.5 rounded text-xs', editor?.isActive('heading', { level: 3 }) ? 'bg-accent' : 'hover:bg-accent']" title="Heading 3">H3</button>
       <div class="w-px h-4 bg-border mx-1" />
 
       <!-- Lists -->
-      <button @click="toggleBulletList" :class="['p-1.5 rounded text-xs', editor?.isActive('bulletList') ? 'bg-accent' : 'hover:bg-accent']" title="Bullet List">• List</button>
-      <button @click="toggleOrderedList" :class="['p-1.5 rounded text-xs', editor?.isActive('orderedList') ? 'bg-accent' : 'hover:bg-accent']" title="Ordered List">1. List</button>
-      <button @click="toggleTaskList" :class="['p-1.5 rounded text-xs', editor?.isActive('taskList') ? 'bg-accent' : 'hover:bg-accent']" title="Task List">☑ Tasks</button>
+      <button type="button" @click="toggleBulletList" :class="['p-1.5 rounded text-xs', editor?.isActive('bulletList') ? 'bg-accent' : 'hover:bg-accent']" title="Bullet List">• List</button>
+      <button type="button" @click="toggleOrderedList" :class="['p-1.5 rounded text-xs', editor?.isActive('orderedList') ? 'bg-accent' : 'hover:bg-accent']" title="Ordered List">1. List</button>
+      <button type="button" @click="toggleTaskList" :class="['p-1.5 rounded text-xs', editor?.isActive('taskList') ? 'bg-accent' : 'hover:bg-accent']" title="Task List">☑ Tasks</button>
       <div class="w-px h-4 bg-border mx-1" />
 
       <!-- Blocks -->
-      <button @click="toggleBlockquote" :class="['p-1.5 rounded text-xs', editor?.isActive('blockquote') ? 'bg-accent' : 'hover:bg-accent']" title="Blockquote">❝ Quote</button>
-      <button @click="toggleCodeBlock" :class="['p-1.5 rounded text-xs font-mono', editor?.isActive('codeBlock') ? 'bg-accent' : 'hover:bg-accent']" title="Code Block">{} Block</button>
-      <button @click="insertHorizontalRule" class="p-1.5 rounded text-xs hover:bg-accent" title="Horizontal Rule">— HR</button>
+      <button type="button" @click="toggleBlockquote" :class="['p-1.5 rounded text-xs', editor?.isActive('blockquote') ? 'bg-accent' : 'hover:bg-accent']" title="Blockquote">❝ Quote</button>
+      <button type="button" @click="toggleCodeBlock" :class="['p-1.5 rounded text-xs font-mono', editor?.isActive('codeBlock') ? 'bg-accent' : 'hover:bg-accent']" title="Code Block">{} Block</button>
+      <button type="button" @click="insertHorizontalRule" class="p-1.5 rounded text-xs hover:bg-accent" title="Horizontal Rule">— HR</button>
       <div class="w-px h-4 bg-border mx-1" />
 
       <!-- Link -->
-      <button @click="insertLink" :class="['p-1.5 rounded text-xs', editor?.isActive('link') ? 'bg-accent' : 'hover:bg-accent']" title="Insert Link">🔗 Link</button>
+      <button type="button" @click="insertLink" :class="['p-1.5 rounded text-xs', editor?.isActive('link') ? 'bg-accent' : 'hover:bg-accent']" title="Insert Link">🔗 Link</button>
 
       <!-- Table -->
-      <button @click="insertTable" class="p-1.5 rounded text-xs hover:bg-accent" title="Insert Table">⊞ Table</button>
+      <button type="button" @click="insertTable" class="p-1.5 rounded text-xs hover:bg-accent" title="Insert Table">⊞ Table</button>
     </div>
 
     <!-- Editor -->
