@@ -12,7 +12,7 @@ import { join } from 'path'
 export default defineEventHandler(async (event) => {
   const user = event.context.user
   const body = await readBody(event)
-  const { name, description, isPublic } = body
+  const { name, description, isPublic, theme } = body
 
   if (!name?.trim()) {
     throw createError({ statusCode: 400, message: 'Campaign name is required' })
@@ -34,6 +34,7 @@ export default defineEventHandler(async (event) => {
     slug,
     description: description || null,
     isPublic: isPublic || false,
+    theme: theme || null,
     contentDir,
     createdBy: user.id,
     createdAt: now,

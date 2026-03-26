@@ -43,8 +43,8 @@
       </div>
     </aside>
 
-    <!-- Main content -->
-    <main class="flex-1 overflow-auto">
+    <!-- Main content — theme applied here so sidebar always uses default -->
+    <main class="flex-1 overflow-auto" :data-theme="campaignTheme || undefined">
       <slot />
     </main>
 
@@ -61,6 +61,8 @@ const route = useRoute()
 
 const userName = ref('')
 const campaignName = ref('')
+// Shared state so campaign pages can update theme without full reload
+const campaignTheme = useState<string | null>('campaignTheme', () => null)
 
 const campaignId = computed(() => {
   const match = route.path.match(/^\/campaigns\/([^/]+)/)
@@ -70,15 +72,20 @@ const campaignId = computed(() => {
 // Presence system
 const { presenceUsers } = useCampaignSocket(campaignId)
 
-// Fetch campaign name when inside a campaign
+// Fetch campaign name and theme when inside a campaign
 watch(campaignId, async (id) => {
   if (id) {
     try {
       const data = await useCampaignApi(id).getCampaign()
       campaignName.value = data?.name || ''
-    } catch { campaignName.value = '' }
+      campaignTheme.value = data?.theme || null
+    } catch {
+      campaignName.value = ''
+      campaignTheme.value = null
+    }
   } else {
     campaignName.value = ''
+    campaignTheme.value = null
   }
 }, { immediate: true })
 
