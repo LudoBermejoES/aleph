@@ -26,9 +26,18 @@
       </div>
     </div>
 
-    <!-- Graph -->
+    <!-- Graph: Cytoscape fallback above 500 nodes, v-network-graph below -->
     <div v-if="graphData && Object.keys(filteredNodes).length">
+      <CytoscapeGraphView
+        v-if="Object.keys(filteredNodes).length > 500"
+        :nodes="filteredNodes"
+        :edges="filteredEdges"
+        :height="600"
+        :campaign-id="campaignId"
+        @node-click="onNodeClick"
+      />
       <EntityGraphView
+        v-else
         :nodes="filteredNodes"
         :edges="filteredEdges"
         :height="600"
@@ -37,6 +46,7 @@
       />
       <p class="text-xs text-muted-foreground mt-2">
         {{ Object.keys(filteredNodes).length }} nodes, {{ Object.keys(filteredEdges).length }} edges
+        <span v-if="Object.keys(filteredNodes).length > 500" class="ml-2 text-amber-600">(large graph — using Cytoscape renderer)</span>
       </p>
     </div>
     <p v-else class="text-muted-foreground text-center py-16">No relationships yet. Click "New Relation" to connect entities.</p>

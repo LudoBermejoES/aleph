@@ -77,6 +77,110 @@ describe('Filter panel logic (9.16)', () => {
   })
 })
 
+// --- 7.4: Cytoscape renderer threshold ---
+
+describe('Graph renderer selection (7.4)', () => {
+  const CYTOSCAPE_THRESHOLD = 500
+
+  function selectRenderer(nodeCount: number): 'cytoscape' | 'v-network-graph' {
+    return nodeCount > CYTOSCAPE_THRESHOLD ? 'cytoscape' : 'v-network-graph'
+  }
+
+  it('uses v-network-graph for 0 nodes', () => {
+    expect(selectRenderer(0)).toBe('v-network-graph')
+  })
+
+  it('uses v-network-graph at exactly 500 nodes', () => {
+    expect(selectRenderer(500)).toBe('v-network-graph')
+  })
+
+  it('uses cytoscape at 501 nodes', () => {
+    expect(selectRenderer(501)).toBe('cytoscape')
+  })
+
+  it('uses cytoscape for large graphs', () => {
+    expect(selectRenderer(2000)).toBe('cytoscape')
+  })
+})
+
+// --- 8.1-8.4: CytoscapeGraphView element mapping ---
+
+describe('CytoscapeGraphView element mapping (8.1-8.4)', () => {
+  const TYPE_COLORS: Record<string, string> = {
+    character: '#3b82f6',
+    location: '#10b981',
+    organization: '#f59e0b',
+    item: '#8b5cf6',
+    event: '#ef4444',
+  }
+
+  function getNodeColor(type: string): string {
+    return TYPE_COLORS[type?.toLowerCase()] ?? '#6b7280'
+  }
+
+  function buildCytoscapeElements(
+    nodes: Record<string, { name: string; type: string }>,
+    edges: Record<string, { source: string; target: string; label: string; color: string }>,
+  ) {
+    return [
+      ...Object.entries(nodes).map(([id, node]) => ({
+        data: { id, label: `${node.name}\n(${node.type})`, color: getNodeColor(node.type) },
+      })),
+      ...Object.entries(edges).map(([id, edge]) => ({
+        data: { id, source: edge.source, target: edge.target, label: edge.label, color: edge.color || '#9ca3af' },
+      })),
+    ]
+  }
+
+  const nodes = {
+    n1: { name: 'Strahd', type: 'character' },
+    n2: { name: 'Barovia', type: 'location' },
+  }
+  const edges = {
+    e1: { source: 'n1', target: 'n2', label: 'rules', color: '#10b981' },
+  }
+
+  it('produces one element per node and edge', () => {
+    const els = buildCytoscapeElements(nodes, edges)
+    expect(els).toHaveLength(3)
+  })
+
+  it('node element has id, label, and color', () => {
+    const els = buildCytoscapeElements(nodes, edges)
+    const strahd = els.find(e => e.data.id === 'n1')!
+    expect(strahd.data.label).toContain('Strahd')
+    expect(strahd.data.label).toContain('character')
+    expect(strahd.data.color).toBe('#3b82f6')
+  })
+
+  it('edge element has source, target, label, and color', () => {
+    const els = buildCytoscapeElements(nodes, edges)
+    const edge = els.find(e => e.data.id === 'e1')! as { data: { id: string; source: string; target: string; label: string; color: string } }
+    expect(edge.data.source).toBe('n1')
+    expect(edge.data.target).toBe('n2')
+    expect(edge.data.label).toBe('rules')
+    expect(edge.data.color).toBe('#10b981')
+  })
+
+  it('unknown entity type gets fallback gray color', () => {
+    expect(getNodeColor('deity')).toBe('#6b7280')
+    expect(getNodeColor('')).toBe('#6b7280')
+  })
+
+  it('all known types have distinct colors', () => {
+    const colors = Object.values(TYPE_COLORS)
+    const unique = new Set(colors)
+    expect(unique.size).toBe(colors.length)
+  })
+
+  it('edge without color falls back to gray', () => {
+    const edgesNoColor = { e1: { source: 'n1', target: 'n2', label: 'test', color: '' } }
+    const els = buildCytoscapeElements(nodes, edgesNoColor)
+    const edge = els.find(e => e.data.id === 'e1')!
+    expect(edge.data.color).toBe('#9ca3af')
+  })
+})
+
 // --- 9.17: Attitude range slider logic ---
 
 describe('Attitude range slider logic (9.17)', () => {
