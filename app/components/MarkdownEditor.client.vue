@@ -49,7 +49,6 @@ import { Editor } from '@tiptap/core'
 import StarterKit from '@tiptap/starter-kit'
 import { Markdown } from '@tiptap/markdown'
 import Placeholder from '@tiptap/extension-placeholder'
-import Link from '@tiptap/extension-link'
 import TaskList from '@tiptap/extension-task-list'
 import TaskItem from '@tiptap/extension-task-item'
 import { Table } from '@tiptap/extension-table'
@@ -114,7 +113,6 @@ async function initEditor() {
     Markdown,
     EntityLink,
     SecretBlock,
-    Link.configure({ openOnClick: false, HTMLAttributes: { class: 'text-primary underline' } }),
     TaskList,
     TaskItem.configure({ nested: true }),
     Table.configure({ resizable: true }),
@@ -265,7 +263,7 @@ async function initEditor() {
     })
 
     extensions.push(
-      StarterKit.configure({ history: false, link: false }),
+      StarterKit.configure({ history: false, link: { openOnClick: false, HTMLAttributes: { class: 'text-primary underline' } } }),
       Collaboration.configure({ document: ydoc }),
       CollaborationCursor.configure({
         provider,
@@ -276,7 +274,7 @@ async function initEditor() {
       }),
     )
   } else {
-    extensions.unshift(StarterKit.configure({ link: false }))
+    extensions.unshift(StarterKit.configure({ link: { openOnClick: false, HTMLAttributes: { class: 'text-primary underline' } } }))
   }
 
   try {
