@@ -1,11 +1,8 @@
-# Spec: i18n UI Strings
+# i18n-ui-strings Specification
 
 ## Purpose
-
-All user-facing strings in pages and components MUST be sourced from locale files rather than hardcoded in templates. This covers labels, button text, placeholders, empty states, error messages, and status indicators.
-
+TBD - created by archiving change internationalization. Update Purpose after archive.
 ## Requirements
-
 ### Requirement: No Hardcoded UI Strings
 
 Every user-visible string rendered by Vue components MUST use a translation key via `$t()` or `useI18n().t()`.
@@ -38,3 +35,4 @@ Data that comes from the database (campaign names, character names, entity conte
 - GIVEN a campaign named "La Maldición de Strahd"
 - WHEN displayed in the campaign list
 - THEN the name is shown as-is regardless of active locale
+

@@ -1,11 +1,8 @@
-# Spec: i18n Core
+# i18n-core Specification
 
 ## Purpose
-
-Translation infrastructure for Aleph — locale configuration, language detection, switching, and the translation key system that all UI components depend on.
-
+TBD - created by archiving change internationalization. Update Purpose after archive.
 ## Requirements
-
 ### Requirement: Locale Configuration
 
 The app MUST support at least two locales: `en` (English, default) and `es` (Spanish).
@@ -42,3 +39,4 @@ The app MUST fall back to English if a translation key is missing in the active 
 - GIVEN the active locale is Spanish
 - WHEN a component renders a key that has no Spanish translation
 - THEN the English string is displayed (no raw key shown to the user)
+
