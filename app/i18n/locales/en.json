@@ -470,6 +470,27 @@
     "selectTarget": "Select target…",
     "transferring": "Transferring…"
   },
+  "settings": {
+    "title": "Settings"
+  },
+  "apiKeys": {
+    "title": "API Keys",
+    "description": "Generate API keys to authenticate the aleph-cli and other tools without using your password.",
+    "empty": "No API keys yet. Generate one below.",
+    "name": "Name",
+    "prefix": "Key Prefix",
+    "created": "Created",
+    "lastUsed": "Last Used",
+    "revoke": "Revoke",
+    "revokeConfirm": "Revoke this API key? It will stop working immediately and cannot be undone.",
+    "namePlaceholder": "e.g. aleph-cli, home-server",
+    "generate": "Generate Key",
+    "newKeyTitle": "Your New API Key",
+    "newKeyWarning": "Copy this key now — it will not be shown again.",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "doneHidden": "I've copied it — close"
+  },
   "errors": {
     "generic": "Something went wrong",
     "notFound": "Not found",

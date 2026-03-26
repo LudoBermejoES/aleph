@@ -35,9 +35,14 @@
       <div class="p-3 border-t border-sidebar-border">
         <p v-if="userName" class="text-xs text-muted-foreground mb-1">{{ userName }}</p>
         <div class="flex items-center justify-between mt-1">
-          <button @click="handleLogout" class="text-xs text-muted-foreground hover:text-foreground transition-colors">
-            {{ $t('auth.signOut') }}
-          </button>
+          <div class="flex items-center gap-3">
+            <button @click="handleLogout" class="text-xs text-muted-foreground hover:text-foreground transition-colors">
+              {{ $t('auth.signOut') }}
+            </button>
+            <NuxtLink to="/settings" class="text-xs text-muted-foreground hover:text-foreground transition-colors">
+              {{ $t('settings.title') }}
+            </NuxtLink>
+          </div>
           <LanguageSwitcher />
         </div>
       </div>

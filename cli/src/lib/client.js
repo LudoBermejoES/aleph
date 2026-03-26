@@ -11,7 +11,7 @@ export async function request(method, path, body) {
   const options = {
     method,
     headers: {
-      'Authorization': `Bearer ${config.token}`,
+      'X-API-Key': config.apiKey,
       'Content-Type': 'application/json',
     },
   }
@@ -47,7 +47,7 @@ export const put = (path, body) => request('PUT', path, body)
 export const del = (path) => request('DELETE', path)
 
 /**
- * Unauthenticated POST — used for login before token exists.
+ * Unauthenticated POST — used for login before API key exists.
  */
 export async function postUnauthenticated(baseUrl, path, body) {
   const url = `${baseUrl.replace(/\/$/, '')}${path}`
