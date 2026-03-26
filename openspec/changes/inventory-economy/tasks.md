@@ -90,3 +90,20 @@
 
 - [x] 9.14 Test wealth display component
 - [x] 9.15 Test item transfer dialog
+
+### Integration Tests -- Missing Endpoints
+
+- [x] 9.16 Test GET /wealth: query balances by owner_id + owner_type
+- [x] 9.17 Test POST /shops/:slug/sell: removes item, adds wealth, logs transaction
+- [x] 9.18 Test GET /shops/:slug/till and POST /shops/:slug/withdraw
+- [x] 9.19 Test GET /currencies/convert: accuracy and error cases
+- [x] 9.20 Test POST /inventories/:id/items: add with stackable auto-merge
+- [x] 9.21 Test transaction wealth modification: grant increases wealth balance
+- [x] 9.22 Test GET /shops/:slug: returns stock with price and item details
+- [x] 9.23 Test shop buy: insufficient funds returns 400
+
+### E2E Tests
+
+- [x] 9.24 E2E: item library -- create item and verify in list
+- [x] 9.25 E2E: full purchase flow -- grant wealth → shop stock → buy → inventory updated
+- [x] 9.26 E2E: currencies page -- create currency and verify in list

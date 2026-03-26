@@ -141,7 +141,9 @@
       "Bash(cat c:/code/aleph/app/pages/campaigns/[id]/characters/[slug]/index.vue)",
       "Bash(cat c:/code/aleph/server/api/campaigns/[id]/inventories/[inventoryId]/transfer.post.ts)",
       "Bash(cat c:/code/aleph/server/api/campaigns/[id]/currencies/index.post.ts)",
-      "Bash(cat c:/code/aleph/server/api/campaigns/[id]/shops/[slug]/index.get.ts)"
+      "Bash(cat c:/code/aleph/server/api/campaigns/[id]/shops/[slug]/index.get.ts)",
+      "Bash(find /c/code/aleph/server/api/campaigns -type d -name *inventory* -o -type d -name *items* -o -type d -name *currencies* -o -type d -name *shops* -o -type d -name *transactions*)",
+      "Bash(find /c/code/aleph/tests/e2e -type f -name *.test.ts)"
     ]
   }
 }

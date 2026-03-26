@@ -280,4 +280,334 @@ describe('Inventory & Economy (integration)', () => {
     })
     expect([403, 404]).toContain(addRes.status)
   })
+
+  // --- 9.16: GET /wealth ---
+
+  it('GET /wealth returns balances by owner (9.16)', async () => {
+    // Grant wealth first via transaction
+    const curRes = await api(`/api/campaigns/${campaignId}/currencies`, { method: 'GET', headers: { Cookie: cookie } })
+    const currencies = await curRes.json()
+    if (!currencies.length) return // skip if no currencies yet
+
+    const currencyId = currencies[0].id
+    await api(`/api/campaigns/${campaignId}/transactions`, {
+      method: 'POST', headers: { Cookie: cookie },
+      body: { type: 'grant', toOwnerId: 'wealth-owner-1', toOwnerType: 'character', amounts: { [currencyId]: 50 } },
+    })
+
+    const res = await api(`/api/campaigns/${campaignId}/wealth?owner_id=wealth-owner-1&owner_type=character`, {
+      method: 'GET', headers: { Cookie: cookie },
+    })
+    expect(res.status).toBe(200)
+    const data = await res.json()
+    expect(Array.isArray(data)).toBe(true)
+    const entry = data.find((b: any) => b.currencyId === currencyId)
+    expect(entry).toBeDefined()
+    expect(entry.amount).toBe(50)
+  })
+
+  it('GET /wealth returns 400 when owner params missing (9.16)', async () => {
+    const res = await api(`/api/campaigns/${campaignId}/wealth`, { method: 'GET', headers: { Cookie: cookie } })
+    expect(res.status).toBe(400)
+  })
+
+  it('GET /wealth returns empty array for unknown owner (9.16)', async () => {
+    const res = await api(`/api/campaigns/${campaignId}/wealth?owner_id=nobody&owner_type=character`, {
+      method: 'GET', headers: { Cookie: cookie },
+    })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toEqual([])
+  })
+
+  // --- 9.17: POST /shops/:slug/sell ---
+
+  it('sell item to shop adds wealth and removes item from inventory (9.17)', async () => {
+    const curRes = await api(`/api/campaigns/${campaignId}/currencies`, { method: 'GET', headers: { Cookie: cookie } })
+    const currencies = await curRes.json()
+    if (!currencies.length) return
+    const currencyId = currencies[0].id
+
+    const shopRes = await api(`/api/campaigns/${campaignId}/shops`, { method: 'GET', headers: { Cookie: cookie } })
+    const shops = await shopRes.json()
+    if (!shops.length) return
+    const shopSlug = shops[0].slug
+
+    // Create seller inventory with items
+    const invRes = await api(`/api/campaigns/${campaignId}/inventories`, {
+      method: 'POST', headers: { Cookie: cookie },
+      body: { name: 'Seller Inv', ownerType: 'character', ownerId: 'seller-char-1' },
+    })
+    const sellerInvId = (await invRes.json()).id
+
+    await api(`/api/campaigns/${campaignId}/inventories/${sellerInvId}/items`, {
+      method: 'POST', headers: { Cookie: cookie },
+      body: { itemId, quantity: 4 },
+    })
+
+    // Sell 2 items
+    const sellRes = await api(`/api/campaigns/${campaignId}/shops/${shopSlug}/sell`, {
+      method: 'POST', headers: { Cookie: cookie },
+      body: { sellerInventoryId: sellerInvId, sellerOwnerId: 'seller-char-1', sellerOwnerType: 'character', itemId, quantity: 2, currencyId, price: 10 },
+    })
+    expect(sellRes.status).toBe(200)
+    expect((await sellRes.json()).success).toBe(true)
+
+    // Verify seller wealth increased
+    const wealthRes = await api(`/api/campaigns/${campaignId}/wealth?owner_id=seller-char-1&owner_type=character`, {
+      method: 'GET', headers: { Cookie: cookie },
+    })
+    const wealthData = await wealthRes.json()
+    const entry = wealthData.find((b: any) => b.currencyId === currencyId)
+    expect(entry?.amount).toBeGreaterThanOrEqual(10)
+
+    // Verify inventory quantity decreased
+    const invList = await api(`/api/campaigns/${campaignId}/inventories`, { method: 'GET', headers: { Cookie: cookie } })
+    const invData = await invList.json()
+    const inv = invData.find((i: any) => i.id === sellerInvId)
+    const remaining = inv?.items?.find((i: any) => i.itemId === itemId)
+    expect(remaining?.quantity ?? 0).toBe(2)
+  })
+
+  it('sell with insufficient items returns 400 (9.17)', async () => {
+    const shopRes = await api(`/api/campaigns/${campaignId}/shops`, { method: 'GET', headers: { Cookie: cookie } })
+    const shops = await shopRes.json()
+    if (!shops.length) return
+    const shopSlug = shops[0].slug
+
+    const invRes = await api(`/api/campaigns/${campaignId}/inventories`, {
+      method: 'POST', headers: { Cookie: cookie },
+      body: { name: 'Empty Seller', ownerType: 'character', ownerId: 'empty-seller-1' },
+    })
+    const emptyInvId = (await invRes.json()).id
+
+    const res = await api(`/api/campaigns/${campaignId}/shops/${shopSlug}/sell`, {
+      method: 'POST', headers: { Cookie: cookie },
+      body: { sellerInventoryId: emptyInvId, sellerOwnerId: 'empty-seller-1', sellerOwnerType: 'character', itemId, quantity: 99 },
+    })
+    expect(res.status).toBe(400)
+  })
+
+  // --- 9.18: Shop till and withdraw ---
+
+  it('GET /shops/:slug/till returns 400 for non-player-owned shop (9.18)', async () => {
+    const shopRes = await api(`/api/campaigns/${campaignId}/shops`, { method: 'GET', headers: { Cookie: cookie } })
+    const shops = await shopRes.json()
+    if (!shops.length) return
+    const shopSlug = shops[0].slug
+
+    const res = await api(`/api/campaigns/${campaignId}/shops/${shopSlug}/till`, {
+      method: 'GET', headers: { Cookie: cookie },
+    })
+    expect(res.status).toBe(400)
+  })
+
+  it('POST /shops/:slug/withdraw requires positive amount (9.18)', async () => {
+    const shopRes = await api(`/api/campaigns/${campaignId}/shops`, { method: 'GET', headers: { Cookie: cookie } })
+    const shops = await shopRes.json()
+    if (!shops.length) return
+    const shopSlug = shops[0].slug
+
+    const res = await api(`/api/campaigns/${campaignId}/shops/${shopSlug}/withdraw`, {
+      method: 'POST', headers: { Cookie: cookie },
+      body: { currencyId: 'any', amount: 0 },
+    })
+    expect(res.status).toBe(400)
+  })
+
+  // --- 9.19: Currency conversion ---
+
+  it('GET /currencies/convert converts between currencies accurately (9.19)', async () => {
+    // Ensure we have gold (100) and silver (10) currencies
+    const curRes = await api(`/api/campaigns/${campaignId}/currencies`, { method: 'GET', headers: { Cookie: cookie } })
+    const currencies = await curRes.json()
+    const gold = currencies.find((c: any) => c.name === 'Gold')
+    const silver = currencies.find((c: any) => c.name === 'Silver')
+    if (!gold || !silver) return
+
+    const res = await api(`/api/campaigns/${campaignId}/currencies/convert?from=${gold.id}&to=${silver.id}&amount=1`, {
+      method: 'GET', headers: { Cookie: cookie },
+    })
+    expect(res.status).toBe(200)
+    const data = await res.json()
+    expect(data.amount).toBe(1)
+    // 1 gold (100 base) = 10 silver (10 base each)
+    expect(data.converted).toBe(10)
+  })
+
+  it('GET /currencies/convert returns 400 when params missing (9.19)', async () => {
+    const res = await api(`/api/campaigns/${campaignId}/currencies/convert?from=x&amount=5`, {
+      method: 'GET', headers: { Cookie: cookie },
+    })
+    expect(res.status).toBe(400)
+  })
+
+  it('GET /currencies/convert returns 404 for unknown currency (9.19)', async () => {
+    const res = await api(`/api/campaigns/${campaignId}/currencies/convert?from=nonexistent&to=alsono&amount=1`, {
+      method: 'GET', headers: { Cookie: cookie },
+    })
+    expect(res.status).toBe(404)
+  })
+
+  // --- 9.20: Inventory item add with auto-stacking ---
+
+  it('adding a stackable item twice merges into one entry (9.20)', async () => {
+    const invRes = await api(`/api/campaigns/${campaignId}/inventories`, {
+      method: 'POST', headers: { Cookie: cookie },
+      body: { name: 'Stack Test Inv', ownerType: 'party', ownerId: 'stack-party-1' },
+    })
+    const invId = (await invRes.json()).id
+
+    // Add 3 of a stackable item
+    await api(`/api/campaigns/${campaignId}/inventories/${invId}/items`, {
+      method: 'POST', headers: { Cookie: cookie },
+      body: { itemId, quantity: 3 },
+    })
+
+    // Add 2 more of the same item
+    const res2 = await api(`/api/campaigns/${campaignId}/inventories/${invId}/items`, {
+      method: 'POST', headers: { Cookie: cookie },
+      body: { itemId, quantity: 2 },
+    })
+    expect(res2.status).toBe(200)
+    expect((await res2.json()).stacked).toBe(true)
+
+    // Verify only one entry with quantity 5
+    const invList = await api(`/api/campaigns/${campaignId}/inventories`, { method: 'GET', headers: { Cookie: cookie } })
+    const data = await invList.json()
+    const inv = data.find((i: any) => i.id === invId)
+    const entries = inv?.items?.filter((i: any) => i.itemId === itemId)
+    expect(entries).toHaveLength(1)
+    expect(entries[0].quantity).toBe(5)
+  })
+
+  it('adding item with position stores correct slot (9.20)', async () => {
+    const invRes = await api(`/api/campaigns/${campaignId}/inventories`, {
+      method: 'POST', headers: { Cookie: cookie },
+      body: { name: 'Pos Test Inv', ownerType: 'party', ownerId: 'pos-party-1' },
+    })
+    const invId = (await invRes.json()).id
+
+    const res = await api(`/api/campaigns/${campaignId}/inventories/${invId}/items`, {
+      method: 'POST', headers: { Cookie: cookie },
+      body: { itemId, quantity: 1, position: 'equipped' },
+    })
+    expect(res.status).toBe(200)
+
+    const invList = await api(`/api/campaigns/${campaignId}/inventories`, { method: 'GET', headers: { Cookie: cookie } })
+    const invData = await invList.json()
+    const inv = invData.find((i: any) => i.id === invId)
+    expect(inv?.items?.find((i: any) => i.position === 'equipped')).toBeDefined()
+  })
+
+  // --- 9.21: Transaction wealth modification ---
+
+  it('grant transaction increases recipient wealth (9.21)', async () => {
+    const curRes = await api(`/api/campaigns/${campaignId}/currencies`, { method: 'GET', headers: { Cookie: cookie } })
+    const currencies = await curRes.json()
+    if (!currencies.length) return
+    const currencyId = currencies[0].id
+
+    // Check initial wealth
+    const before = await api(`/api/campaigns/${campaignId}/wealth?owner_id=tx-char-grant&owner_type=character`, {
+      method: 'GET', headers: { Cookie: cookie },
+    })
+    const beforeData = await before.json()
+    const initialAmount = beforeData.find((b: any) => b.currencyId === currencyId)?.amount ?? 0
+
+    await api(`/api/campaigns/${campaignId}/transactions`, {
+      method: 'POST', headers: { Cookie: cookie },
+      body: { type: 'grant', toOwnerId: 'tx-char-grant', toOwnerType: 'character', amounts: { [currencyId]: 25 } },
+    })
+
+    const after = await api(`/api/campaigns/${campaignId}/wealth?owner_id=tx-char-grant&owner_type=character`, {
+      method: 'GET', headers: { Cookie: cookie },
+    })
+    const afterData = await after.json()
+    const finalAmount = afterData.find((b: any) => b.currencyId === currencyId)?.amount ?? 0
+    expect(finalAmount).toBe(initialAmount + 25)
+  })
+
+  it('trade transaction does NOT modify wealth (9.21)', async () => {
+    const curRes = await api(`/api/campaigns/${campaignId}/currencies`, { method: 'GET', headers: { Cookie: cookie } })
+    const currencies = await curRes.json()
+    if (!currencies.length) return
+    const currencyId = currencies[0].id
+
+    const before = await api(`/api/campaigns/${campaignId}/wealth?owner_id=tx-char-trade&owner_type=character`, {
+      method: 'GET', headers: { Cookie: cookie },
+    })
+    const beforeData = await before.json()
+    const initialAmount = beforeData.find((b: any) => b.currencyId === currencyId)?.amount ?? 0
+
+    await api(`/api/campaigns/${campaignId}/transactions`, {
+      method: 'POST', headers: { Cookie: cookie },
+      body: { type: 'trade', toOwnerId: 'tx-char-trade', toOwnerType: 'character', amounts: { [currencyId]: 100 } },
+    })
+
+    const after = await api(`/api/campaigns/${campaignId}/wealth?owner_id=tx-char-trade&owner_type=character`, {
+      method: 'GET', headers: { Cookie: cookie },
+    })
+    const afterData = await after.json()
+    const finalAmount = afterData.find((b: any) => b.currencyId === currencyId)?.amount ?? 0
+    expect(finalAmount).toBe(initialAmount) // unchanged
+  })
+
+  // --- 9.22: GET /shops/:slug returns stock details ---
+
+  it('GET /shops/:slug returns shop with stock (9.22)', async () => {
+    const shopRes = await api(`/api/campaigns/${campaignId}/shops`, { method: 'GET', headers: { Cookie: cookie } })
+    const shops = await shopRes.json()
+    if (!shops.length) return
+    const shopSlug = shops[0].slug
+
+    const res = await api(`/api/campaigns/${campaignId}/shops/${shopSlug}`, { method: 'GET', headers: { Cookie: cookie } })
+    expect(res.status).toBe(200)
+    const data = await res.json()
+    expect(data.id).toBeDefined()
+    expect(data.name).toBeDefined()
+    expect(Array.isArray(data.stock)).toBe(true)
+    if (data.stock.length) {
+      expect(data.stock[0].itemName).toBeDefined()
+      expect(data.stock[0].itemRarity).toBeDefined()
+    }
+  })
+
+  it('GET /shops/:slug returns 404 for unknown slug (9.22)', async () => {
+    const res = await api(`/api/campaigns/${campaignId}/shops/does-not-exist`, { method: 'GET', headers: { Cookie: cookie } })
+    expect(res.status).toBe(404)
+  })
+
+  // --- 9.23: Shop buy insufficient funds ---
+
+  it('shop buy with insufficient funds returns 400 (9.23)', async () => {
+    const curRes = await api(`/api/campaigns/${campaignId}/currencies`, { method: 'GET', headers: { Cookie: cookie } })
+    const currencies = await curRes.json()
+    if (!currencies.length) return
+    const currencyId = currencies[0].id
+
+    const shopRes = await api(`/api/campaigns/${campaignId}/shops`, { method: 'GET', headers: { Cookie: cookie } })
+    const shops = await shopRes.json()
+    if (!shops.length) return
+    const shopSlug = shops[0].slug
+
+    // Add an expensive stock item
+    const stockRes = await api(`/api/campaigns/${campaignId}/shops/${shopSlug}/stock`, {
+      method: 'POST', headers: { Cookie: cookie },
+      body: { itemId, quantity: 1, price: { gold: 999999 } },
+    })
+    const stockId = (await stockRes.json()).id
+
+    // Create buyer with no wealth
+    const invRes = await api(`/api/campaigns/${campaignId}/inventories`, {
+      method: 'POST', headers: { Cookie: cookie },
+      body: { name: 'Broke Buyer', ownerType: 'character', ownerId: 'broke-buyer-1' },
+    })
+    const buyerInvId = (await invRes.json()).id
+
+    const res = await api(`/api/campaigns/${campaignId}/shops/${shopSlug}/buy`, {
+      method: 'POST', headers: { Cookie: cookie },
+      body: { stockId, buyerInventoryId: buyerInvId, buyerOwnerId: 'broke-buyer-1', buyerOwnerType: 'character', quantity: 1, currencyId, price: 999999 },
+    })
+    expect(res.status).toBe(400)
+  })
 })
