@@ -62,13 +62,18 @@ test.describe('Characters', () => {
       expect(page.url()).toContain('/edit')
     }).toPass({ timeout: 10000 })
 
+    // Wait for edit form to load
+    await expect(page.locator('input[placeholder*="Character name"]')).toBeVisible({ timeout: 10000 })
+
     // Change status to dead on the edit page form
     await page.selectOption('select:has(option[value="dead"])', 'dead')
 
     // Save
     await page.click('button:has-text("Save Changes")')
     await expect(async () => {
-      expect(page.url()).not.toContain('/edit')
+      const url = page.url()
+      expect(url).toContain('/characters/')
+      expect(url).not.toMatch(/\/edit$/)
     }).toPass({ timeout: 15000 })
 
     // Verify the status changed on detail page
