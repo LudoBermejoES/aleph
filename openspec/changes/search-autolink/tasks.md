@@ -20,8 +20,8 @@
 - [x] 3.1 Create `SearchCommand.vue` (already done in markdown-engine)
 - [x] 3.2 Register Ctrl+K keyboard shortcut
 - [x] 3.3 Debounced search with API integration
-- [ ] 3.4 Arrow key navigation in result list
-- [ ] 3.5 Store recent searches in localStorage
+- [x] 3.4 Arrow key navigation in result list
+- [x] 3.5 Store recent searches in localStorage
 - [x] 3.6 Escape to close
 
 ## 4. Automaton Cache
@@ -37,7 +37,7 @@
 - [x] 5.1 Create remark plugin that runs automaton on text nodes
 - [x] 5.2 Wire exclusion zone detection (skip code, links, headings, frontmatter)
 - [x] 5.3 Replace matched spans with `:entity-link` MDC textDirective components
-- [ ] 5.4 Insert into rendering pipeline (needs wiring into MDC parseMarkdown)
+- [x] 5.4 Insert into rendering pipeline (autoLinkContent in entity GET endpoint)
 - [x] 5.5 Source .md files never modified (render-time only)
 
 ## 6. Retroactive Linking
@@ -45,7 +45,7 @@
 - [x] 6.1 Create `entity_mentions` schema + migration
 - [x] 6.2 Scan campaign markdown service (scanCampaignMentions)
 - [x] 6.3 Wire scan into entity create/rename hooks
-- [ ] 6.4 Background task for large campaigns
+- [x] 6.4 Background task for large campaigns (POST /api/campaigns/:id/scan-mentions)
 - [x] 6.5 "Referenced by" section on entity detail page
 
 ## 7. Mentions API
