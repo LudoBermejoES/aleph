@@ -30,7 +30,7 @@
 
     <div>
       <label class="text-sm font-medium">Content</label>
-      <MarkdownEditor v-model="form.content" placeholder="Write entity content..." class="mt-1" />
+      <MarkdownEditor v-model="form.content" placeholder="Write entity content... (type @ to link entities)" :campaign-id="campaignId" class="mt-1" />
     </div>
 
     <div class="flex justify-end gap-2">

@@ -30,7 +30,7 @@
     </div>
     <div>
       <label class="text-sm font-medium">Description</label>
-      <MarkdownEditor v-model="form.content" placeholder="Quest details..." class="mt-1" />
+      <MarkdownEditor v-model="form.content" placeholder="Quest details... (type @ to link entities)" :campaign-id="campaignId" class="mt-1" />
     </div>
     <div class="flex justify-end gap-2">
       <slot name="cancel" />
