@@ -3,20 +3,20 @@
     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-1">
       <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">Campaign</NuxtLink>
       <span>/</span>
-      <span>Relationship Graph</span>
+      <span>{{ $t('graph.title') }}</span>
     </div>
 
     <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold">Relationship Graph</h1>
+      <h1 class="text-2xl font-bold">{{ $t('graph.title') }}</h1>
       <NuxtLink :to="`/campaigns/${campaignId}/relations/new`">
-        <Button data-testid="new-relation-btn">New Relation</Button>
+        <Button data-testid="new-relation-btn">{{ $t('graph.new') }}</Button>
       </NuxtLink>
     </div>
 
     <!-- Filter Panel -->
     <div v-if="graphData && Object.keys(graphData.nodes).length" class="flex gap-4 mb-4 flex-wrap">
       <div class="space-y-1">
-        <label class="text-xs font-medium text-muted-foreground">Entity Types</label>
+        <label class="text-xs font-medium text-muted-foreground">{{ $t('graph.entityTypes') }}</label>
         <div class="flex gap-2">
           <label v-for="t in entityTypes" :key="t" class="flex items-center gap-1 text-xs">
             <input type="checkbox" :checked="selectedTypes.has(t)" @change="toggleType(t)" />
@@ -45,11 +45,11 @@
         @node-click="onNodeClick"
       />
       <p class="text-xs text-muted-foreground mt-2">
-        {{ Object.keys(filteredNodes).length }} nodes, {{ Object.keys(filteredEdges).length }} edges
-        <span v-if="Object.keys(filteredNodes).length > 500" class="ml-2 text-amber-600">(large graph — using Cytoscape renderer)</span>
+        {{ $t('graph.stats', { nodes: Object.keys(filteredNodes).length, edges: Object.keys(filteredEdges).length }) }}
+        <span v-if="Object.keys(filteredNodes).length > 500" class="ml-2 text-amber-600">{{ $t('timelines.largeGraph') }}</span>
       </p>
     </div>
-    <p v-else class="text-muted-foreground text-center py-16">No relationships yet. Click "New Relation" to connect entities.</p>
+    <p v-else class="text-muted-foreground text-center py-16">{{ $t('graph.empty') }}</p>
   </div>
 </template>
 

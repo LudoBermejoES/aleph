@@ -4,7 +4,7 @@
       <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
         <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">Campaign</NuxtLink>
         <span>/</span>
-        <NuxtLink :to="`/campaigns/${campaignId}/characters`" class="hover:text-primary">Characters</NuxtLink>
+        <NuxtLink :to="`/campaigns/${campaignId}/characters`" class="hover:text-primary">{{ $t('characters.title') }}</NuxtLink>
         <span>/</span>
         <span class="text-foreground">{{ character.name }}</span>
       </div>
@@ -23,20 +23,20 @@
           </div>
           <!-- Mount/Companion indicator (7.8) -->
           <span v-if="calculatedAge !== null" class="text-xs text-muted-foreground ml-2" data-testid="character-age">
-            Age: {{ calculatedAge }}
+            {{ $t('characters.age') }} {{ calculatedAge }}
           </span>
           <p v-if="character.isCompanionOf" class="text-xs text-muted-foreground mt-1">
-            Companion of another character
+            {{ $t('characters.companionOf') }}
           </p>
         </div>
         <NuxtLink :to="`/campaigns/${campaignId}/characters/${slug}/edit`">
-          <Button variant="outline" size="sm" data-testid="edit-character">Edit</Button>
+          <Button variant="outline" size="sm" data-testid="edit-character">{{ $t('common.edit') }}</Button>
         </NuxtLink>
       </div>
 
       <!-- Stats -->
       <div v-if="character.stats?.length" class="mb-6" data-testid="character-stats">
-        <h2 class="text-lg font-semibold mb-3">Stats</h2>
+        <h2 class="text-lg font-semibold mb-3">{{ $t('characters.stats') }}</h2>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
           <div v-for="stat in character.stats" :key="stat.id" class="p-2 rounded border border-border text-center">
             <div class="text-xs text-muted-foreground">{{ stat.defName }}</div>
@@ -47,7 +47,7 @@
 
       <!-- Abilities -->
       <div v-if="character.abilities?.length" class="mb-6" data-testid="character-abilities">
-        <h2 class="text-lg font-semibold mb-3">Abilities</h2>
+        <h2 class="text-lg font-semibold mb-3">{{ $t('characters.abilities') }}</h2>
         <div class="space-y-2">
           <div v-for="ab in character.abilities" :key="ab.id" class="p-3 rounded border border-border">
             <div class="flex items-center gap-2">
@@ -61,7 +61,7 @@
 
       <!-- Connections (7.5) -->
       <div v-if="connections.length" class="mb-6" data-testid="character-connections">
-        <h2 class="text-lg font-semibold mb-3">Connections</h2>
+        <h2 class="text-lg font-semibold mb-3">{{ $t('characters.connections') }}</h2>
         <div class="space-y-2">
           <div v-for="conn in connections" :key="conn.id" class="flex items-center gap-2 p-2 rounded border border-border">
             <span class="font-medium">{{ conn.targetEntityName || conn.targetEntityId }}</span>
@@ -73,7 +73,7 @@
 
       <!-- Companions/Mounts (7.8) -->
       <div v-if="companions.length" class="mb-6" data-testid="character-companions">
-        <h2 class="text-lg font-semibold mb-3">Companions</h2>
+        <h2 class="text-lg font-semibold mb-3">{{ $t('characters.companions') }}</h2>
         <div class="space-y-2">
           <NuxtLink
             v-for="comp in companions"
@@ -89,13 +89,13 @@
 
       <!-- Wealth (inventory-economy) -->
       <div v-if="character.id" class="mb-6" data-testid="character-wealth">
-        <h2 class="text-lg font-semibold mb-3">Wealth</h2>
+        <h2 class="text-lg font-semibold mb-3">{{ $t('characters.wealth') }}</h2>
         <WealthDisplay :campaign-id="campaignId" :owner-id="character.id" owner-type="character" />
       </div>
 
       <!-- Inventory (inventory-economy) -->
       <div v-if="character.id" class="mb-6" data-testid="character-inventory">
-        <h2 class="text-lg font-semibold mb-3">Inventory</h2>
+        <h2 class="text-lg font-semibold mb-3">{{ $t('characters.inventory') }}</h2>
         <InventoryPanel :campaign-id="campaignId" :owner-id="character.id" owner-type="character" />
       </div>
 

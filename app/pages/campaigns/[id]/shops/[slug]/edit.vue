@@ -3,15 +3,15 @@
     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
       <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">Campaign</NuxtLink>
       <span>/</span>
-      <NuxtLink :to="`/campaigns/${campaignId}/shops`" class="hover:text-primary">Shops</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}/shops`" class="hover:text-primary">{{ $t('shops.title') }}</NuxtLink>
       <span>/</span>
       <NuxtLink :to="`/campaigns/${campaignId}/shops/${slug}`" class="hover:text-primary">{{ form.name || 'Shop' }}</NuxtLink>
-      <span>/</span><span>Edit</span>
+      <span>/</span><span>{{ $t('common.edit') }}</span>
     </div>
-    <h1 class="text-2xl font-bold mb-6">Edit Shop</h1>
-    <ShopForm v-if="loaded" v-model="form" submit-label="Save Changes" :submitting="submitting" @submit="save">
+    <h1 class="text-2xl font-bold mb-6">{{ $t('shops.new') }}</h1>
+    <ShopForm v-if="loaded" v-model="form" :submit-label="$t('common.save')" :submitting="submitting" @submit="save">
       <template #cancel>
-        <NuxtLink :to="`/campaigns/${campaignId}/shops/${slug}`"><Button variant="outline">Cancel</Button></NuxtLink>
+        <NuxtLink :to="`/campaigns/${campaignId}/shops/${slug}`"><Button variant="outline">{{ $t('common.cancel') }}</Button></NuxtLink>
       </template>
     </ShopForm>
   </div>
@@ -25,6 +25,7 @@ const slug = route.params.slug as string
 const api = useCampaignApi(campaignId)
 const submitting = ref(false)
 const loaded = ref(false)
+const { t } = useI18n()
 const form = ref({ name: '', description: '' })
 
 onMounted(async () => {
@@ -33,7 +34,7 @@ onMounted(async () => {
     form.value = { name: shop.name || '', description: shop.description || '' }
     loaded.value = true
   } catch {
-    alert('Failed to load shop')
+    alert(t('errors.failedLoad'))
     await router.push(`/campaigns/${campaignId}/shops/${slug}`)
   }
 })
@@ -44,7 +45,7 @@ async function save() {
     await api.updateShop(slug, form.value)
     await router.push(`/campaigns/${campaignId}/shops/${slug}`)
   } catch (e: any) {
-    alert(e.data?.message || 'Failed to save')
+    alert(e.data?.message || t('shops.failedSave'))
   } finally {
     submitting.value = false
   }

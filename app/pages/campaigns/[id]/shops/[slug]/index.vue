@@ -4,7 +4,7 @@
       <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
         <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">Campaign</NuxtLink>
         <span>/</span>
-        <NuxtLink :to="`/campaigns/${campaignId}/shops`" class="hover:text-primary">Shops</NuxtLink>
+        <NuxtLink :to="`/campaigns/${campaignId}/shops`" class="hover:text-primary">{{ $t('shops.title') }}</NuxtLink>
         <span>/</span>
         <span class="text-foreground">{{ shop.name }}</span>
       </div>
@@ -12,7 +12,7 @@
       <h1 class="text-2xl font-bold mb-2">{{ shop.name }}</h1>
       <p v-if="shop.description" class="text-muted-foreground mb-6">{{ shop.description }}</p>
 
-      <h2 class="text-lg font-semibold mb-3">Stock</h2>
+      <h2 class="text-lg font-semibold mb-3">{{ $t('shops.stock') }}</h2>
       <div v-if="shop.stock?.length" class="space-y-2">
         <div v-for="item in shop.stock" :key="item.id" class="p-3 rounded border border-border flex items-center justify-between">
           <div>
@@ -20,12 +20,12 @@
             <span :class="['text-xs ml-2 px-2 py-0.5 rounded', item.itemRarity === 'legendary' ? 'bg-amber-100 text-amber-700' : 'bg-secondary text-secondary-foreground']">{{ item.itemRarity }}</span>
           </div>
           <div class="flex items-center gap-3">
-            <span class="text-sm text-muted-foreground">{{ item.quantity === -1 ? '∞' : item.quantity }} in stock</span>
+            <span class="text-sm text-muted-foreground">{{ item.quantity === -1 ? $t('shops.unlimited') : item.quantity }} {{ $t('shops.inStock') }}</span>
             <span v-if="item.itemPriceJson" class="text-sm">{{ item.priceOverrideJson || item.itemPriceJson }}</span>
           </div>
         </div>
       </div>
-      <p v-else class="text-muted-foreground">No stock yet.</p>
+      <p v-else class="text-muted-foreground">{{ $t('shops.noStock') }}</p>
     </div>
   </div>
 </template>

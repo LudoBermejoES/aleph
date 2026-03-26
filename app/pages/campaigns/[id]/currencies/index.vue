@@ -3,13 +3,13 @@
     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-1">
       <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">Campaign</NuxtLink>
       <span>/</span>
-      <span>Currencies</span>
+      <span>{{ $t('currencies.title') }}</span>
     </div>
 
     <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold">Currencies</h1>
+      <h1 class="text-2xl font-bold">{{ $t('currencies.title') }}</h1>
       <button @click="showForm = !showForm" class="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm" data-testid="new-currency-btn">
-        {{ showForm ? 'Cancel' : 'New Currency' }}
+        {{ showForm ? $t('common.cancel') : $t('currencies.new') }}
       </button>
     </div>
 
@@ -17,25 +17,25 @@
     <div v-if="showForm" class="mb-6 p-4 rounded-lg border border-border space-y-3" data-testid="currency-form">
       <div class="grid grid-cols-2 gap-3">
         <div>
-          <label class="text-sm font-medium block mb-1">Name</label>
-          <input v-model="form.name" placeholder="Gold" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" data-testid="currency-name" />
+          <label class="text-sm font-medium block mb-1">{{ $t('currencies.name') }}</label>
+          <input v-model="form.name" :placeholder="$t('currencies.namePlaceholder')" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" data-testid="currency-name" />
         </div>
         <div>
-          <label class="text-sm font-medium block mb-1">Symbol</label>
-          <input v-model="form.symbol" placeholder="gp" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" data-testid="currency-symbol" />
+          <label class="text-sm font-medium block mb-1">{{ $t('currencies.symbol') }}</label>
+          <input v-model="form.symbol" :placeholder="$t('currencies.symbolPlaceholder')" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" data-testid="currency-symbol" />
         </div>
         <div>
-          <label class="text-sm font-medium block mb-1">Value in base units</label>
+          <label class="text-sm font-medium block mb-1">{{ $t('currencies.valueInBaseUnits') }}</label>
           <input v-model.number="form.valueInBase" type="number" min="1" placeholder="100" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" data-testid="currency-value" />
         </div>
         <div>
-          <label class="text-sm font-medium block mb-1">Sort order</label>
+          <label class="text-sm font-medium block mb-1">{{ $t('currencies.sortOrder') }}</label>
           <input v-model.number="form.sortOrder" type="number" min="0" placeholder="0" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" data-testid="currency-sort" />
         </div>
       </div>
       <p v-if="formError" class="text-sm text-destructive">{{ formError }}</p>
       <button @click="create" :disabled="!form.name.trim() || saving" class="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm disabled:opacity-50" data-testid="currency-save">
-        {{ saving ? 'Saving…' : 'Save' }}
+        {{ saving ? $t('common.saving') : $t('common.save') }}
       </button>
     </div>
 
@@ -51,10 +51,10 @@
           <span class="font-medium">{{ c.name }}</span>
           <span v-if="c.symbol" class="text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground">{{ c.symbol }}</span>
         </div>
-        <span class="text-sm text-muted-foreground">1 base = {{ c.valueInBase }} units</span>
+        <span class="text-sm text-muted-foreground">{{ $t('currencies.baseConversion', { value: c.valueInBase }) }}</span>
       </div>
     </div>
-    <EmptyState v-else icon="💰" title="No currencies yet" description="Create currencies to track character wealth." />
+    <EmptyState v-else icon="💰" :title="$t('currencies.empty')" :description="$t('currencies.emptyDescription')" />
 
     <ErrorToast v-if="error" :message="error" @dismiss="error = ''" />
   </div>
@@ -64,6 +64,7 @@
 const route = useRoute()
 const campaignId = route.params.id as string
 const api = useCampaignApi(campaignId)
+const { t } = useI18n()
 const currencyList = ref<any[]>([])
 const loading = ref(true)
 const error = ref('')
@@ -77,7 +78,7 @@ async function load() {
   try {
     currencyList.value = await api.getCurrencies()
   } catch {
-    error.value = 'Failed to load currencies'
+    error.value = t('errors.failedLoad')
   } finally {
     loading.value = false
   }
@@ -93,7 +94,7 @@ async function create() {
     showForm.value = false
     await load()
   } catch (e: any) {
-    formError.value = e.data?.message || 'Failed to create currency'
+    formError.value = e.data?.message || t('currencies.failedSave')
   } finally {
     saving.value = false
   }

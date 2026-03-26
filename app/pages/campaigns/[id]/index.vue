@@ -7,7 +7,7 @@
           <p v-if="campaign.description" class="text-muted-foreground">{{ campaign.description }}</p>
         </div>
         <NuxtLink to="/">
-          <Button variant="outline" size="sm">Back to Campaigns</Button>
+          <Button variant="outline" size="sm">{{ $t('campaigns.backToCampaigns') }}</Button>
         </NuxtLink>
       </div>
 
@@ -15,8 +15,8 @@
         <NuxtLink :to="`/campaigns/${campaignId}/entities`">
           <Card class="hover:border-primary/50 transition-colors cursor-pointer">
             <CardHeader>
-              <CardTitle class="text-lg">Wiki</CardTitle>
-              <CardDescription>Characters, locations, factions, items, and lore</CardDescription>
+              <CardTitle class="text-lg">{{ $t('campaigns.wiki') }}</CardTitle>
+              <CardDescription>{{ $t('campaigns.wikiSubtitle') }}</CardDescription>
             </CardHeader>
           </Card>
         </NuxtLink>
@@ -24,8 +24,8 @@
         <NuxtLink :to="`/campaigns/${campaignId}/characters`">
           <Card class="hover:border-primary/50 transition-colors cursor-pointer">
             <CardHeader>
-              <CardTitle class="text-lg">Characters</CardTitle>
-              <CardDescription>PCs, NPCs, stats, and abilities</CardDescription>
+              <CardTitle class="text-lg">{{ $t('campaigns.characters') }}</CardTitle>
+              <CardDescription>{{ $t('campaigns.charactersSubtitle') }}</CardDescription>
             </CardHeader>
           </Card>
         </NuxtLink>
@@ -33,8 +33,8 @@
         <NuxtLink :to="`/campaigns/${campaignId}/maps`">
           <Card class="hover:border-primary/50 transition-colors cursor-pointer">
             <CardHeader>
-              <CardTitle class="text-lg">Maps</CardTitle>
-              <CardDescription>Interactive maps with pins, layers, and regions</CardDescription>
+              <CardTitle class="text-lg">{{ $t('campaigns.maps') }}</CardTitle>
+              <CardDescription>{{ $t('campaigns.mapsSubtitle') }}</CardDescription>
             </CardHeader>
           </Card>
         </NuxtLink>
@@ -42,8 +42,8 @@
         <NuxtLink :to="`/campaigns/${campaignId}/sessions`">
           <Card class="hover:border-primary/50 transition-colors cursor-pointer">
             <CardHeader>
-              <CardTitle class="text-lg">Sessions</CardTitle>
-              <CardDescription>Session logs, scheduling, and attendance</CardDescription>
+              <CardTitle class="text-lg">{{ $t('campaigns.sessions') }}</CardTitle>
+              <CardDescription>{{ $t('campaigns.sessionsSubtitle') }}</CardDescription>
             </CardHeader>
           </Card>
         </NuxtLink>
@@ -51,8 +51,8 @@
         <NuxtLink :to="`/campaigns/${campaignId}/calendars`">
           <Card class="hover:border-primary/50 transition-colors cursor-pointer">
             <CardHeader>
-              <CardTitle class="text-lg">Calendars & Timelines</CardTitle>
-              <CardDescription>Custom calendars, moons, seasons, and timelines</CardDescription>
+              <CardTitle class="text-lg">{{ $t('campaigns.calendarsTimelines') }}</CardTitle>
+              <CardDescription>{{ $t('campaigns.calendarsTimelinesSubtitle') }}</CardDescription>
             </CardHeader>
           </Card>
         </NuxtLink>
@@ -60,8 +60,8 @@
         <NuxtLink :to="`/campaigns/${campaignId}/quests`">
           <Card class="hover:border-primary/50 transition-colors cursor-pointer">
             <CardHeader>
-              <CardTitle class="text-lg">Quests</CardTitle>
-              <CardDescription>Quest tracking with sub-quests and status</CardDescription>
+              <CardTitle class="text-lg">{{ $t('campaigns.quests') }}</CardTitle>
+              <CardDescription>{{ $t('campaigns.questsSubtitle') }}</CardDescription>
             </CardHeader>
           </Card>
         </NuxtLink>
@@ -69,8 +69,8 @@
         <NuxtLink :to="`/campaigns/${campaignId}/items`">
           <Card class="hover:border-primary/50 transition-colors cursor-pointer">
             <CardHeader>
-              <CardTitle class="text-lg">Items</CardTitle>
-              <CardDescription>Item library, inventories, and loot</CardDescription>
+              <CardTitle class="text-lg">{{ $t('campaigns.items') }}</CardTitle>
+              <CardDescription>{{ $t('campaigns.itemsSubtitle') }}</CardDescription>
             </CardHeader>
           </Card>
         </NuxtLink>
@@ -78,8 +78,8 @@
         <NuxtLink :to="`/campaigns/${campaignId}/shops`">
           <Card class="hover:border-primary/50 transition-colors cursor-pointer">
             <CardHeader>
-              <CardTitle class="text-lg">Shops</CardTitle>
-              <CardDescription>In-game shops with stock and purchasing</CardDescription>
+              <CardTitle class="text-lg">{{ $t('campaigns.shops') }}</CardTitle>
+              <CardDescription>{{ $t('campaigns.shopsSubtitle') }}</CardDescription>
             </CardHeader>
           </Card>
         </NuxtLink>
@@ -87,8 +87,8 @@
         <NuxtLink :to="`/campaigns/${campaignId}/inventories`">
           <Card class="hover:border-primary/50 transition-colors cursor-pointer">
             <CardHeader>
-              <CardTitle class="text-lg">Inventories</CardTitle>
-              <CardDescription>Character, party, and faction inventories</CardDescription>
+              <CardTitle class="text-lg">{{ $t('campaigns.inventories') }}</CardTitle>
+              <CardDescription>{{ $t('campaigns.inventoriesSubtitle') }}</CardDescription>
             </CardHeader>
           </Card>
         </NuxtLink>
@@ -96,8 +96,8 @@
         <NuxtLink :to="`/campaigns/${campaignId}/currencies`">
           <Card class="hover:border-primary/50 transition-colors cursor-pointer">
             <CardHeader>
-              <CardTitle class="text-lg">Currencies</CardTitle>
-              <CardDescription>Define currencies and conversion rates</CardDescription>
+              <CardTitle class="text-lg">{{ $t('campaigns.currencies') }}</CardTitle>
+              <CardDescription>{{ $t('campaigns.currenciesSubtitle') }}</CardDescription>
             </CardHeader>
           </Card>
         </NuxtLink>
@@ -105,8 +105,8 @@
         <NuxtLink :to="`/campaigns/${campaignId}/transactions`">
           <Card class="hover:border-primary/50 transition-colors cursor-pointer">
             <CardHeader>
-              <CardTitle class="text-lg">Transactions</CardTitle>
-              <CardDescription>Immutable ledger of all wealth and item transfers</CardDescription>
+              <CardTitle class="text-lg">{{ $t('campaigns.transactions') }}</CardTitle>
+              <CardDescription>{{ $t('campaigns.transactionsSubtitle') }}</CardDescription>
             </CardHeader>
           </Card>
         </NuxtLink>
@@ -114,8 +114,8 @@
         <NuxtLink :to="`/campaigns/${campaignId}/graph`">
           <Card class="hover:border-primary/50 transition-colors cursor-pointer">
             <CardHeader>
-              <CardTitle class="text-lg">Relationship Graph</CardTitle>
-              <CardDescription>Visualize connections between entities</CardDescription>
+              <CardTitle class="text-lg">{{ $t('campaigns.graph') }}</CardTitle>
+              <CardDescription>{{ $t('campaigns.graphSubtitle') }}</CardDescription>
             </CardHeader>
           </Card>
         </NuxtLink>
@@ -123,8 +123,8 @@
         <NuxtLink :to="`/campaigns/${campaignId}/members`">
           <Card class="hover:border-primary/50 transition-colors cursor-pointer">
             <CardHeader>
-              <CardTitle class="text-lg">Members</CardTitle>
-              <CardDescription>Invite players, manage roles and permissions</CardDescription>
+              <CardTitle class="text-lg">{{ $t('campaigns.members') }}</CardTitle>
+              <CardDescription>{{ $t('campaigns.membersSubtitle') }}</CardDescription>
             </CardHeader>
           </Card>
         </NuxtLink>

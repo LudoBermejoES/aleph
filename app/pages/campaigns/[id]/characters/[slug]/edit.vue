@@ -3,15 +3,15 @@
     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
       <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">Campaign</NuxtLink>
       <span>/</span>
-      <NuxtLink :to="`/campaigns/${campaignId}/characters`" class="hover:text-primary">Characters</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}/characters`" class="hover:text-primary">{{ $t('characters.title') }}</NuxtLink>
       <span>/</span>
       <NuxtLink :to="`/campaigns/${campaignId}/characters/${slug}`" class="hover:text-primary">{{ form.name || 'Character' }}</NuxtLink>
-      <span>/</span><span>Edit</span>
+      <span>/</span><span>{{ $t('common.edit') }}</span>
     </div>
-    <h1 class="text-2xl font-bold mb-6">Edit Character</h1>
-    <CharacterForm v-if="loaded" v-model="form" :campaign-id="campaignId" submit-label="Save Changes" :submitting="submitting" @submit="save">
+    <h1 class="text-2xl font-bold mb-6">{{ $t('characters.edit') }}</h1>
+    <CharacterForm v-if="loaded" v-model="form" :campaign-id="campaignId" :submit-label="$t('common.save')" :submitting="submitting" @submit="save">
       <template #cancel>
-        <NuxtLink :to="`/campaigns/${campaignId}/characters/${slug}`"><Button variant="outline">Cancel</Button></NuxtLink>
+        <NuxtLink :to="`/campaigns/${campaignId}/characters/${slug}`"><Button variant="outline">{{ $t('common.cancel') }}</Button></NuxtLink>
       </template>
     </CharacterForm>
   </div>
@@ -24,6 +24,7 @@ const campaignId = route.params.id as string
 const slug = route.params.slug as string
 const submitting = ref(false)
 const loaded = ref(false)
+const { t } = useI18n()
 const form = ref({
   name: '', characterType: 'npc', race: '', class: '', alignment: '',
   status: 'alive', visibility: 'members', content: '', ownerUserId: '',
@@ -47,7 +48,7 @@ onMounted(async () => {
     }
     loaded.value = true
   } catch {
-    alert('Failed to load character')
+    alert(t('errors.failedLoad'))
     await router.push(`/campaigns/${campaignId}/characters/${slug}`)
   }
 })
@@ -58,7 +59,7 @@ async function save() {
     await api.updateCharacter(slug, form.value)
     await router.push(`/campaigns/${campaignId}/characters/${slug}`)
   } catch (e: any) {
-    alert(e.data?.message || 'Failed to save')
+    alert(e.data?.message || t('characters.failedSave'))
   } finally {
     submitting.value = false
   }

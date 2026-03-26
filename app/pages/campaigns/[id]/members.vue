@@ -3,34 +3,34 @@
     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-1">
       <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">Campaign</NuxtLink>
       <span>/</span>
-      <span>Members</span>
+      <span>{{ $t('members.title') }}</span>
     </div>
 
     <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold">Members</h1>
+      <h1 class="text-2xl font-bold">{{ $t('members.title') }}</h1>
       <Dialog v-model:open="showInviteDialog">
         <DialogTrigger as-child>
-          <Button size="sm">Invite Member</Button>
+          <Button size="sm">{{ $t('members.invite') }}</Button>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Invite Member</DialogTitle>
-            <DialogDescription>Generate an invitation link to share.</DialogDescription>
+            <DialogTitle>{{ $t('members.invite') }}</DialogTitle>
+            <DialogDescription>{{ $t('members.inviteDescription') }}</DialogDescription>
           </DialogHeader>
           <div class="space-y-4">
             <div class="space-y-2">
-              <label class="text-sm font-medium">Role</label>
+              <label class="text-sm font-medium">{{ $t('members.role') }}</label>
               <select v-model="inviteRole" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
-                <option value="player">Player</option>
-                <option value="editor">Editor</option>
-                <option value="co_dm">Co-DM</option>
+                <option value="player">{{ $t('members.player') }}</option>
+                <option value="editor">{{ $t('members.editor') }}</option>
+                <option value="co_dm">{{ $t('members.coDm') }}</option>
               </select>
             </div>
             <Button @click="generateInvite" :disabled="inviting">
-              {{ inviting ? 'Generating...' : 'Generate Link' }}
+              {{ inviting ? $t('members.generating') : $t('members.generateLink') }}
             </Button>
             <div v-if="inviteToken" class="p-3 bg-muted rounded text-sm break-all">
-              <p class="text-xs text-muted-foreground mb-1">Share this token with the player:</p>
+              <p class="text-xs text-muted-foreground mb-1">{{ $t('members.shareToken') }}</p>
               <code>{{ inviteToken }}</code>
             </div>
           </div>
@@ -55,18 +55,18 @@
             class="rounded-md border border-input bg-background px-2 py-1 text-sm"
             :disabled="member.role === 'dm'"
           >
-            <option value="dm" disabled>DM</option>
-            <option value="co_dm">Co-DM</option>
-            <option value="editor">Editor</option>
-            <option value="player">Player</option>
-            <option value="visitor">Visitor</option>
+            <option value="dm" disabled>{{ $t('members.dm') }}</option>
+            <option value="co_dm">{{ $t('members.coDm') }}</option>
+            <option value="editor">{{ $t('members.editor') }}</option>
+            <option value="player">{{ $t('members.player') }}</option>
+            <option value="visitor">{{ $t('members.visitor') }}</option>
           </select>
           <button
             v-if="member.role !== 'dm'"
             @click="removeMember(member.userId)"
             class="text-xs text-destructive hover:underline"
           >
-            Remove
+            {{ $t('members.remove') }}
           </button>
         </div>
       </div>
@@ -79,6 +79,7 @@
 const route = useRoute()
 const campaignId = route.params.id as string
 const api = useCampaignApi(campaignId)
+const { t } = useI18n()
 
 const members = ref<any[]>([])
 const showInviteDialog = ref(false)
@@ -101,7 +102,7 @@ async function generateInvite() {
     const result = await api.createInvite({ role: inviteRole.value })
     inviteToken.value = result.token
   } catch (e: any) {
-    alert(e.data?.message || 'Failed to generate invite')
+    alert(e.data?.message || t('members.failedInvite'))
   } finally {
     inviting.value = false
   }
@@ -112,17 +113,17 @@ async function changeRole(userId: string, newRole: string) {
     await api.updateMember(userId, { role: newRole })
     await loadMembers()
   } catch (e: any) {
-    alert(e.data?.message || 'Failed to change role')
+    alert(e.data?.message || t('errors.failedSave'))
   }
 }
 
 async function removeMember(userId: string) {
-  if (!confirm('Remove this member?')) return
+  if (!confirm(t('members.removeConfirm'))) return
   try {
     await api.removeMember(userId)
     await loadMembers()
   } catch (e: any) {
-    alert(e.data?.message || 'Failed to remove member')
+    alert(e.data?.message || t('common.remove'))
   }
 }
 

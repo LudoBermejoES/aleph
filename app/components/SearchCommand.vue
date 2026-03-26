@@ -5,8 +5,8 @@
       @click="open = true"
       class="flex items-center gap-2 px-3 py-1.5 text-sm text-muted-foreground border border-border rounded-md hover:bg-accent transition-colors w-full"
     >
-      <span>Search...</span>
-      <kbd class="ml-auto text-xs bg-muted px-1.5 py-0.5 rounded">Ctrl+K</kbd>
+      <span>{{ $t('search.placeholder') }}</span>
+      <kbd class="ml-auto text-xs bg-muted px-1.5 py-0.5 rounded">{{ $t('search.shortcut') }}</kbd>
     </button>
 
     <!-- Overlay -->
@@ -26,14 +26,14 @@
               @keydown.arrow-down.prevent="moveSelection(1)"
               @keydown.arrow-up.prevent="moveSelection(-1)"
               @keydown.enter.prevent="selectCurrent"
-              placeholder="Search entities..."
+              :placeholder="$t('search.placeholder')"
               class="flex-1 px-3 py-3 bg-transparent text-sm outline-none"
             />
           </div>
           <div class="max-h-64 overflow-auto p-2">
             <!-- Recent searches -->
             <div v-if="!query && recentSearches.length" class="mb-2">
-              <p class="text-xs text-muted-foreground px-3 py-1">Recent</p>
+              <p class="text-xs text-muted-foreground px-3 py-1">{{ $t('search.recent') }}</p>
               <button
                 v-for="(recent, i) in recentSearches"
                 :key="i"
@@ -56,8 +56,8 @@
                 <span v-html="result.snippet" class="block text-xs text-muted-foreground mt-0.5" />
               </NuxtLink>
             </div>
-            <p v-else-if="query && !searching" class="px-3 py-4 text-sm text-muted-foreground text-center">No results.</p>
-            <p v-else-if="!query && !recentSearches.length" class="px-3 py-4 text-sm text-muted-foreground text-center">Start typing to search...</p>
+            <p v-else-if="query && !searching" class="px-3 py-4 text-sm text-muted-foreground text-center">{{ $t('search.noResults') }}</p>
+            <p v-else-if="!query && !recentSearches.length" class="px-3 py-4 text-sm text-muted-foreground text-center">{{ $t('search.startTyping') }}</p>
           </div>
         </div>
       </div>

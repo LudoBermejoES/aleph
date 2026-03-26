@@ -3,13 +3,13 @@
     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
       <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">Campaign</NuxtLink>
       <span>/</span>
-      <NuxtLink :to="`/campaigns/${campaignId}/characters`" class="hover:text-primary">Characters</NuxtLink>
-      <span>/</span><span>New Character</span>
+      <NuxtLink :to="`/campaigns/${campaignId}/characters`" class="hover:text-primary">{{ $t('characters.title') }}</NuxtLink>
+      <span>/</span><span>{{ $t('characters.new') }}</span>
     </div>
-    <h1 class="text-2xl font-bold mb-6">Create Character</h1>
-    <CharacterForm v-model="form" :campaign-id="campaignId" submit-label="Create Character" :submitting="submitting" @submit="create">
+    <h1 class="text-2xl font-bold mb-6">{{ $t('characters.new') }}</h1>
+    <CharacterForm v-model="form" :campaign-id="campaignId" :submit-label="$t('common.create')" :submitting="submitting" @submit="create">
       <template #cancel>
-        <NuxtLink :to="`/campaigns/${campaignId}/characters`"><Button variant="outline">Cancel</Button></NuxtLink>
+        <NuxtLink :to="`/campaigns/${campaignId}/characters`"><Button variant="outline">{{ $t('common.cancel') }}</Button></NuxtLink>
       </template>
     </CharacterForm>
   </div>
@@ -20,6 +20,7 @@ const route = useRoute()
 const router = useRouter()
 const campaignId = route.params.id as string
 const submitting = ref(false)
+const { t } = useI18n()
 const form = ref({
   name: '', characterType: 'npc', race: '', class: '', alignment: '',
   status: 'alive', visibility: 'members', content: '', ownerUserId: '',
@@ -33,7 +34,7 @@ async function create() {
     const res = await api.createCharacter(form.value)
     await router.push(`/campaigns/${campaignId}/characters/${res.slug}`)
   } catch (e: any) {
-    alert(e.data?.message || 'Failed to create character')
+    alert(e.data?.message || t('characters.failedSave'))
   } finally {
     submitting.value = false
   }

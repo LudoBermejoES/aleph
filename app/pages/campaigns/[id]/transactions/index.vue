@@ -3,24 +3,24 @@
     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-1">
       <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">Campaign</NuxtLink>
       <span>/</span>
-      <span>Transactions</span>
+      <span>{{ $t('transactions.title') }}</span>
     </div>
 
     <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold">Transaction History</h1>
+      <h1 class="text-2xl font-bold">{{ $t('transactions.title') }}</h1>
     </div>
 
     <!-- Filters -->
     <div class="flex gap-3 mb-4">
       <select v-model="typeFilter" @change="load" class="rounded-md border border-input bg-background px-3 py-2 text-sm" data-testid="tx-type-filter">
-        <option value="">All Types</option>
-        <option value="purchase">Purchase</option>
-        <option value="sale">Sale</option>
-        <option value="transfer">Transfer</option>
-        <option value="trade">Trade</option>
-        <option value="deposit">Deposit</option>
-        <option value="withdrawal">Withdrawal</option>
-        <option value="grant">Grant</option>
+        <option value="">{{ $t('transactions.allTypes') }}</option>
+        <option value="purchase">{{ $t('transactions.typePurchase') }}</option>
+        <option value="sale">{{ $t('transactions.typeSale') }}</option>
+        <option value="transfer">{{ $t('transactions.typeTransfer') }}</option>
+        <option value="trade">{{ $t('transactions.typeTrade') }}</option>
+        <option value="deposit">{{ $t('transactions.typeDeposit') }}</option>
+        <option value="withdrawal">{{ $t('transactions.typeWithdrawal') }}</option>
+        <option value="grant">{{ $t('transactions.typeGrant') }}</option>
       </select>
     </div>
 
@@ -29,11 +29,11 @@
       <table class="w-full text-sm">
         <thead>
           <tr class="border-b border-border bg-muted/50">
-            <th class="px-4 py-2 text-left font-medium text-muted-foreground">Type</th>
-            <th class="px-4 py-2 text-left font-medium text-muted-foreground">Description</th>
-            <th class="px-4 py-2 text-left font-medium text-muted-foreground">Item</th>
-            <th class="px-4 py-2 text-right font-medium text-muted-foreground">Amount</th>
-            <th class="px-4 py-2 text-right font-medium text-muted-foreground">Date</th>
+            <th class="px-4 py-2 text-left font-medium text-muted-foreground">{{ $t('transactions.typeLabel') }}</th>
+            <th class="px-4 py-2 text-left font-medium text-muted-foreground">{{ $t('transactions.description') }}</th>
+            <th class="px-4 py-2 text-left font-medium text-muted-foreground">{{ $t('transactions.item') }}</th>
+            <th class="px-4 py-2 text-right font-medium text-muted-foreground">{{ $t('transactions.amount') }}</th>
+            <th class="px-4 py-2 text-right font-medium text-muted-foreground">{{ $t('transactions.date') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -46,19 +46,19 @@
             <td class="px-4 py-2">
               <span :class="['px-2 py-0.5 rounded text-xs', typeColor(tx.type)]">{{ tx.type }}</span>
             </td>
-            <td class="px-4 py-2 text-muted-foreground">{{ tx.description || '—' }}</td>
-            <td class="px-4 py-2">{{ tx.itemId ? tx.itemId : '—' }}</td>
+            <td class="px-4 py-2 text-muted-foreground">{{ tx.description || $t('transactions.empty') }}</td>
+            <td class="px-4 py-2">{{ tx.itemId ? tx.itemId : $t('transactions.empty') }}</td>
             <td class="px-4 py-2 text-right">
               <span v-if="tx.amount">{{ tx.amount }}</span>
               <span v-else-if="tx.quantity">×{{ tx.quantity }}</span>
-              <span v-else>—</span>
+              <span v-else>{{ $t('transactions.empty') }}</span>
             </td>
             <td class="px-4 py-2 text-right text-muted-foreground">{{ formatDate(tx.createdAt) }}</td>
           </tr>
         </tbody>
       </table>
     </div>
-    <EmptyState v-else icon="📜" title="No transactions yet" description="Transactions appear here after purchases, transfers, and grants." />
+    <EmptyState v-else icon="📜" :title="$t('transactions.noTransactions')" :description="$t('transactions.noTransactionsDescription')" />
 
     <ErrorToast v-if="error" :message="error" @dismiss="error = ''" />
   </div>
@@ -68,6 +68,7 @@
 const route = useRoute()
 const campaignId = route.params.id as string
 const api = useCampaignApi(campaignId)
+const { t } = useI18n()
 const txList = ref<any[]>([])
 const loading = ref(true)
 const error = ref('')
@@ -97,7 +98,7 @@ async function load() {
     if (typeFilter.value) params.type = typeFilter.value
     txList.value = await api.getTransactions(params)
   } catch {
-    error.value = 'Failed to load transactions'
+    error.value = t('errors.failedLoad')
   } finally {
     loading.value = false
   }

@@ -5,7 +5,7 @@
       <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
         <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">Campaign</NuxtLink>
         <span>/</span>
-        <NuxtLink :to="`/campaigns/${campaignId}/entities`" class="hover:text-primary">Wiki</NuxtLink>
+        <NuxtLink :to="`/campaigns/${campaignId}/entities`" class="hover:text-primary">{{ $t('entities.title') }}</NuxtLink>
         <span>/</span>
         <span class="text-foreground">{{ entity.name }}</span>
       </div>
@@ -21,13 +21,13 @@
           </div>
         </div>
         <NuxtLink :to="`/campaigns/${campaignId}/entities/${slug}/edit`">
-          <Button variant="outline" size="sm">Edit</Button>
+          <Button variant="outline" size="sm">{{ $t('common.edit') }}</Button>
         </NuxtLink>
       </div>
 
       <!-- Frontmatter Fields -->
       <div v-if="entity.frontmatter?.aliases?.length" class="mb-4 p-3 rounded border border-border bg-muted/30">
-        <span class="text-xs font-medium text-muted-foreground">Also known as: </span>
+        <span class="text-xs font-medium text-muted-foreground">{{ $t('entities.alsoKnownAs') }}</span>
         <span v-for="(alias, i) in entity.frontmatter.aliases" :key="alias" class="text-sm">
           {{ alias }}<span v-if="i < entity.frontmatter.aliases.length - 1">, </span>
         </span>
@@ -36,12 +36,12 @@
       <!-- Markdown Content -->
       <div class="prose dark:prose-invert max-w-none">
         <MDC v-if="entity.content" :value="entity.content" />
-        <p v-else class="text-muted-foreground italic">No content yet. Click Edit to add some.</p>
+        <p v-else class="text-muted-foreground italic">{{ $t('entities.noContent') }}</p>
       </div>
 
       <!-- Child Entities -->
       <div v-if="children.length" class="mt-8 border-t border-border pt-6">
-        <h2 class="text-lg font-semibold mb-3">Contains</h2>
+        <h2 class="text-lg font-semibold mb-3">{{ $t('entities.contains') }}</h2>
         <div class="space-y-1">
           <NuxtLink
             v-for="child in children"
@@ -56,7 +56,7 @@
       </div>
       <!-- Relationship Graph -->
       <div v-if="graphData && Object.keys(graphData.nodes).length" class="mt-8 border-t border-border pt-6">
-        <h2 class="text-lg font-semibold mb-3">Relationships</h2>
+        <h2 class="text-lg font-semibold mb-3">{{ $t('entities.relationships') }}</h2>
         <EntityGraphView
           :nodes="graphData.nodes"
           :edges="graphData.edges"
@@ -68,7 +68,7 @@
 
       <!-- Referenced By (mentions) -->
       <div v-if="mentions.length" class="mt-8 border-t border-border pt-6">
-        <h2 class="text-lg font-semibold mb-3">Referenced By</h2>
+        <h2 class="text-lg font-semibold mb-3">{{ $t('entities.referencedBy') }}</h2>
         <div class="space-y-1">
           <NuxtLink
             v-for="m in mentions"
@@ -78,13 +78,13 @@
           >
             <span class="font-medium">{{ m.sourceName }}</span>
             <span class="text-xs ml-2 text-muted-foreground">{{ m.sourceType }}</span>
-            <span class="text-xs ml-2 text-muted-foreground">({{ m.count }} mention{{ m.count > 1 ? 's' : '' }})</span>
+            <span class="text-xs ml-2 text-muted-foreground">({{ m.count }} {{ $t('entities.mentions') }})</span>
           </NuxtLink>
         </div>
       </div>
     </div>
     <div v-else class="text-center py-16">
-      <p class="text-muted-foreground">Loading...</p>
+      <p class="text-muted-foreground">{{ $t('common.loading') }}</p>
     </div>
   </div>
 </template>
@@ -94,6 +94,7 @@
 const route = useRoute()
 const campaignId = route.params.id as string
 const slug = route.params.slug as string
+const { t } = useI18n()
 
 // Enable collaborative mode via ?collab=true query param
 const isCollaborative = computed(() => route.query.collab === 'true')
@@ -154,7 +155,7 @@ async function saveEntity() {
     await loadEntity()
     editing.value = false
   } catch (e: any) {
-    alert(e.data?.message || 'Failed to save')
+    alert(e.data?.message || t('entities.failedSave'))
   } finally {
     saving.value = false
   }

@@ -3,13 +3,13 @@
     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
       <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">Campaign</NuxtLink>
       <span>/</span>
-      <NuxtLink :to="`/campaigns/${campaignId}/calendars`" class="hover:text-primary">Calendars</NuxtLink>
-      <span>/</span><span>New Timeline</span>
+      <NuxtLink :to="`/campaigns/${campaignId}/calendars`" class="hover:text-primary">{{ $t('calendars.title') }}</NuxtLink>
+      <span>/</span><span>{{ $t('timelines.new') }}</span>
     </div>
-    <h1 class="text-2xl font-bold mb-6">Create Timeline</h1>
-    <TimelineForm v-model="form" submit-label="Create Timeline" :submitting="submitting" @submit="create">
+    <h1 class="text-2xl font-bold mb-6">{{ $t('timelines.new') }}</h1>
+    <TimelineForm v-model="form" :submit-label="$t('common.create')" :submitting="submitting" @submit="create">
       <template #cancel>
-        <NuxtLink :to="`/campaigns/${campaignId}/calendars`"><Button variant="outline">Cancel</Button></NuxtLink>
+        <NuxtLink :to="`/campaigns/${campaignId}/calendars`"><Button variant="outline">{{ $t('common.cancel') }}</Button></NuxtLink>
       </template>
     </TimelineForm>
   </div>
@@ -20,6 +20,7 @@ const route = useRoute()
 const router = useRouter()
 const campaignId = route.params.id as string
 const submitting = ref(false)
+const { t } = useI18n()
 const form = ref({ name: '', description: '' })
 
 const api = useCampaignApi(campaignId)
@@ -30,7 +31,7 @@ async function create() {
     const res = await api.createTimeline(form.value)
     await router.push(`/campaigns/${campaignId}/timelines/${res.slug}`)
   } catch (e: any) {
-    alert(e.data?.message || 'Failed to create timeline')
+    alert(e.data?.message || t('timelines.failedSave'))
   } finally {
     submitting.value = false
   }
