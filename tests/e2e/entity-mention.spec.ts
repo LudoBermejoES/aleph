@@ -34,7 +34,7 @@ test.describe('Entity @mention autocomplete (9.17)', () => {
     await page.waitForLoadState('networkidle')
 
     // Wait for the form to render
-    await expect(page.locator('h1:has-text("Create Entity")')).toBeVisible({ timeout: 15000 })
+    await expect(page.locator('h1:has-text("New Entity")')).toBeVisible({ timeout: 15000 })
 
     // Fill name so the form is valid
     await page.fill('input[placeholder="Entity name"]', `MentionTest ${uid()}`)

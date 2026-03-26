@@ -32,7 +32,7 @@ test.describe('Edit Entity via /edit page (12.36)', () => {
     await page.selectOption('select:has(option[value="dm_only"])', 'dm_only')
 
     // Submit
-    await page.click('button:has-text("Save Changes")')
+    await page.click('button[type="submit"]:has-text("Save")')
     await expect(async () => {
       expect(page.url()).toContain(`/entities/${slug}`)
       expect(page.url()).not.toContain('/edit')
@@ -76,7 +76,7 @@ test.describe('Edit Character via /edit page (12.37)', () => {
     await page.selectOption('select:has(option[value="dead"])', 'dead')
 
     // Submit
-    await page.click('button:has-text("Save Changes")')
+    await page.click('button[type="submit"]:has-text("Save")')
     await expect(async () => {
       expect(page.url()).toContain(`/characters/${slug}`)
       expect(page.url()).not.toContain('/edit')
@@ -119,7 +119,7 @@ test.describe('Edit Calendar via /edit page (12.38)', () => {
     await nameInput.fill('Renamed Calendar')
 
     // Submit
-    await page.click('button:has-text("Save Changes")')
+    await page.click('button[type="submit"]:has-text("Save")')
     await expect(async () => {
       expect(page.url()).toContain(`/calendars/${calId}`)
       expect(page.url()).not.toContain('/edit')

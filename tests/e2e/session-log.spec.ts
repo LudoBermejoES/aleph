@@ -36,7 +36,7 @@ test.describe('Session Log', () => {
     }
 
     // Save
-    await page.click('button:has-text("Save Changes")')
+    await page.click('button[type="submit"]:has-text("Save")')
     await expect(async () => {
       expect(page.url()).not.toContain('/edit')
     }).toPass({ timeout: 15000 })
