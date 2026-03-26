@@ -1,41 +1,48 @@
-import { eq } from 'drizzle-orm'
+import { and, eq, isNull } from 'drizzle-orm'
 import { auth } from '../utils/auth'
 import { useDb } from '../utils/db'
 import { logger } from '../utils/logger'
-import { session as sessionTable, user as userTable } from '../db/schema/auth'
+import { hashApiKey } from '../utils/apiKey'
+import { apiKey as apiKeyTable, user as userTable } from '../db/schema/auth'
 
 export default defineEventHandler(async (event) => {
   const path = getRequestURL(event).pathname
 
   // Skip auth routes (Better Auth handles its own auth)
   if (path.startsWith('/api/auth/')) return
-  // Skip CLI token endpoints (handle their own auth)
-  if (path === '/api/cli/token') return
   // Skip health endpoint (no auth required)
   if (path === '/api/health') return
   // Skip non-API routes (pages are handled by client-side middleware)
   if (!path.startsWith('/api/')) return
 
-  // Support CLI bearer token auth (Authorization: Bearer <token>)
-  const authHeader = getHeader(event, 'authorization')
-  if (authHeader?.startsWith('Bearer ')) {
-    const token = authHeader.slice(7)
+  // Support API key auth (X-API-Key header)
+  const apiKeyHeader = getHeader(event, 'x-api-key')
+  if (apiKeyHeader) {
     const db = useDb()
+    const hash = hashApiKey(apiKeyHeader)
     const row = db
-      .select({ session: sessionTable, user: userTable })
-      .from(sessionTable)
-      .innerJoin(userTable, eq(sessionTable.userId, userTable.id))
-      .where(eq(sessionTable.token, token))
+      .select({ key: apiKeyTable, user: userTable })
+      .from(apiKeyTable)
+      .innerJoin(userTable, eq(apiKeyTable.userId, userTable.id))
+      .where(and(eq(apiKeyTable.keyHash, hash), isNull(apiKeyTable.revokedAt)))
       .get()
 
-    if (!row || row.session.expiresAt < new Date()) {
-      logger.debug('Auth rejected: invalid or expired CLI token', { path })
+    if (!row) {
+      logger.debug('Auth rejected: invalid or revoked API key', { path })
       throw createError({ statusCode: 401, message: 'Unauthorized' })
     }
 
-    logger.debug('Auth accepted (CLI token)', { path, userId: row.user.id })
+    logger.debug('Auth accepted (API key)', { path, userId: row.user.id })
     event.context.user = { id: row.user.id, email: row.user.email, name: row.user.name }
-    event.context.session = row.session
+
+    // Update lastUsedAt asynchronously (fire-and-forget)
+    setImmediate(() => {
+      db.update(apiKeyTable)
+        .set({ lastUsedAt: new Date() })
+        .where(eq(apiKeyTable.id, row.key.id))
+        .run()
+    })
+
     return
   }
 

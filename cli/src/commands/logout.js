@@ -4,14 +4,14 @@ import { success } from '../lib/output.js'
 
 export function makeLogoutCommand() {
   return new Command('logout')
-    .description('Revoke CLI token and clear stored credentials')
+    .description('Revoke stored API key and clear credentials')
     .action(async () => {
       const config = getConfig()
-      if (config.token && config.url) {
+      if (config.apiKey && config.apiKeyId && config.url) {
         try {
-          await fetch(`${config.url.replace(/\/$/, '')}/api/cli/token`, {
+          await fetch(`${config.url.replace(/\/$/, '')}/api/apikeys/${config.apiKeyId}`, {
             method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${config.token}` },
+            headers: { 'X-API-Key': config.apiKey },
           })
         } catch {
           // Ignore network errors on logout

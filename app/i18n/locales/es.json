@@ -470,6 +470,27 @@
     "selectTarget": "Seleccionar destino…",
     "transferring": "Transfiriendo…"
   },
+  "settings": {
+    "title": "Configuración"
+  },
+  "apiKeys": {
+    "title": "Claves de API",
+    "description": "Genera claves de API para autenticar aleph-cli y otras herramientas sin usar tu contraseña.",
+    "empty": "Aún no tienes claves de API. Genera una abajo.",
+    "name": "Nombre",
+    "prefix": "Prefijo de Clave",
+    "created": "Creada",
+    "lastUsed": "Último Uso",
+    "revoke": "Revocar",
+    "revokeConfirm": "¿Revocar esta clave de API? Dejará de funcionar de inmediato y no se puede deshacer.",
+    "namePlaceholder": "ej. aleph-cli, servidor-casa",
+    "generate": "Generar Clave",
+    "newKeyTitle": "Tu Nueva Clave de API",
+    "newKeyWarning": "Copia esta clave ahora — no se mostrará de nuevo.",
+    "copy": "Copiar",
+    "copied": "¡Copiado!",
+    "doneHidden": "La copié — cerrar"
+  },
   "errors": {
     "generic": "Algo salió mal",
     "notFound": "No encontrado",
