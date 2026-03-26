@@ -87,6 +87,18 @@
         </div>
       </div>
 
+      <!-- Wealth (inventory-economy) -->
+      <div v-if="character.id" class="mb-6" data-testid="character-wealth">
+        <h2 class="text-lg font-semibold mb-3">Wealth</h2>
+        <WealthDisplay :campaign-id="campaignId" :owner-id="character.id" owner-type="character" />
+      </div>
+
+      <!-- Inventory (inventory-economy) -->
+      <div v-if="character.id" class="mb-6" data-testid="character-inventory">
+        <h2 class="text-lg font-semibold mb-3">Inventory</h2>
+        <InventoryPanel :campaign-id="campaignId" :owner-id="character.id" owner-type="character" />
+      </div>
+
       <!-- Markdown Content -->
       <div class="prose dark:prose-invert max-w-none">
         <MDC v-if="character.content" :value="character.content" />
