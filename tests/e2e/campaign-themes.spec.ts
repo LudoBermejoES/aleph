@@ -45,9 +45,9 @@ test.describe('Campaign Themes', () => {
     await page.waitForURL(/\/campaigns\//, { timeout: 15000 })
     await page.waitForLoadState('networkidle')
 
-    // The <main> element should have data-theme="cyberpunk"
-    const main = page.locator('main')
-    await expect(main).toHaveAttribute('data-theme', 'cyberpunk', { timeout: 10000 })
+    // The root layout div should have data-theme="cyberpunk"
+    const root = page.locator('div.flex.h-screen').first()
+    await expect(root).toHaveAttribute('data-theme', 'cyberpunk', { timeout: 10000 })
   })
 
   test('changing theme on dashboard settings applies it reactively', async ({ page }) => {
@@ -63,9 +63,9 @@ test.describe('Campaign Themes', () => {
     // Save — the settings section has a Save button
     await page.locator('main button:has-text("Save")').click()
 
-    // After save, main should have data-theme="dark-fantasy"
-    const main = page.locator('main')
-    await expect(main).toHaveAttribute('data-theme', 'dark-fantasy', { timeout: 10000 })
+    // After save, root layout div should have data-theme="dark-fantasy"
+    const root = page.locator('div.flex.h-screen').first()
+    await expect(root).toHaveAttribute('data-theme', 'dark-fantasy', { timeout: 10000 })
   })
 
   test('campaign with default theme has no data-theme attribute on main', async ({ page }) => {
@@ -74,9 +74,8 @@ test.describe('Campaign Themes', () => {
     await page.waitForLoadState('networkidle')
 
     // With 'default' theme, data-theme should be absent (we pass undefined, not "default")
-    const main = page.locator('main')
-    // data-theme should not be set or should be "default" — either way no crash
-    const attr = await main.getAttribute('data-theme')
+    const root = page.locator('div.flex.h-screen').first()
+    const attr = await root.getAttribute('data-theme')
     expect(attr === null || attr === 'default').toBe(true)
   })
 })
