@@ -4,14 +4,14 @@ description: Use the aleph CLI to manage campaigns, entities, characters, sessio
 license: MIT
 metadata:
   author: aleph
-  version: "1.0"
+  version: "1.1"
 ---
 
 You have access to the `aleph` CLI tool at `node /Users/ludo/code/aleph/cli/bin/aleph.js` (or `npm run aleph -- <args>` from the project root). Use it to interact with the running Aleph server.
 
 ## Setup
 
-Config is stored at `~/.aleph/config.json`. Check if it exists before running commands that require auth:
+Config is stored at `~/.aleph/config.json`. It contains `url`, `apiKey`, and `apiKeyId`. Check if it exists before running commands that require auth:
 ```bash
 cat ~/.aleph/config.json 2>/dev/null || echo "not configured"
 ```
@@ -19,13 +19,15 @@ cat ~/.aleph/config.json 2>/dev/null || echo "not configured"
 To log in (if not already):
 ```bash
 node /Users/ludo/code/aleph/cli/bin/aleph.js login
-# prompts for URL, email, password — stores token automatically
+# prompts for URL, email, password — creates an API key and stores it automatically
 ```
 
-To set URL and token manually:
+To set URL manually (then use `aleph login` to generate the key):
 ```bash
-node /Users/ludo/code/aleph/cli/bin/aleph.js config set --url http://localhost:3333 --token <token>
+node /Users/ludo/code/aleph/cli/bin/aleph.js config set --url http://localhost:3333
 ```
+
+> **Note**: Authentication uses `X-API-Key` headers, not `Authorization: Bearer`. The stored credential is `apiKey` (not `token`). If the config has an old `token` field but no `apiKey`, the CLI will prompt to re-login.
 
 ## Command Reference
 
@@ -33,10 +35,10 @@ All commands support `--json` for machine-readable output. Always use `--json` w
 
 ### Authentication
 ```bash
-aleph login                          # interactive: prompts for URL, email, password
-aleph logout                         # invalidate token
-aleph config show                    # show current URL and masked token
-aleph config set --url <url> --token <token>
+aleph login                          # interactive: prompts for URL, email, password — creates and stores an API key
+aleph logout                         # revokes the stored API key and clears config
+aleph config show                    # show current URL and masked API key
+aleph config set --url <url>         # set server URL
 ```
 
 ### Campaigns
@@ -100,10 +102,11 @@ Examples: `aleph roll 2d6+3`, `aleph roll 1d20`, `aleph roll 4d6`
 
 ## How to Use This Skill
 
-1. **Before any command**, check config exists and the server is reachable:
+1. **Before any command**, check config exists:
    ```bash
-   cat ~/.aleph/config.json 2>/dev/null && curl -s $(node -e "const c=require(process.env.HOME+'/.aleph/config.json');process.stdout.write(c.url)") /api/health 2>/dev/null | head -1
+   cat ~/.aleph/config.json 2>/dev/null | node -e "const d=require('fs').readFileSync('/dev/stdin','utf8'); const c=JSON.parse(d); console.log('url:', c.url, '| apiKey:', c.apiKey ? c.apiKey.slice(0,14)+'...' : 'MISSING')"
    ```
+   If `apiKey` is missing or config doesn't exist, prompt the user to run `aleph login`.
 
 2. **Always use `--json`** when parsing output. The human-readable format uses chalk colors that may not parse cleanly.
 
@@ -113,13 +116,13 @@ Examples: `aleph roll 2d6+3`, `aleph roll 1d20`, `aleph roll 4d6`
 
 5. **Error handling**: The CLI exits with code `2` on API errors and writes the error to stderr. Check `$?` after commands if needed.
 
+6. **API key management**: Users can also manage API keys in the web UI at `/settings` (API Keys section). This is useful if the CLI key needs to be rotated or revoked.
+
 ## Workflow Examples
 
 **Find a campaign and list its NPCs:**
 ```bash
-# Get campaign id
 CAMPAIGN=$(node /Users/ludo/code/aleph/cli/bin/aleph.js campaign list --json | node -e "const d=require('fs').readFileSync('/dev/stdin','utf8');console.log(JSON.parse(d)[0].id)")
-# List NPCs
 node /Users/ludo/code/aleph/cli/bin/aleph.js entity list --campaign $CAMPAIGN --type npc --json
 ```
 
