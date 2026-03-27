@@ -59,10 +59,13 @@ export function makeRelationCommand() {
       if (opts.json) {
         print(data, { json: true })
       } else {
+        const entityRes = await get(`/api/campaigns/${opts.campaign}/entities?limit=500`)
+        const allEntities = Array.isArray(entityRes) ? entityRes : (entityRes.entities ?? [])
+        const nameMap = Object.fromEntries(allEntities.map(e => [e.id, e.name]))
         print(data.map(r => ({
           id: r.id,
-          source: r.sourceEntityId,
-          target: r.targetEntityId,
+          source: nameMap[r.sourceEntityId] ?? r.sourceEntityId,
+          target: nameMap[r.targetEntityId] ?? r.targetEntityId,
           forward: r.forwardLabel || '',
           reverse: r.reverseLabel || '',
           attitude: r.attitude ?? 0,
