@@ -4,7 +4,7 @@ description: Use the aleph CLI to manage campaigns, entities, characters, locati
 license: MIT
 metadata:
   author: aleph
-  version: "1.4"
+  version: "1.6"
 ---
 
 You have access to the `aleph` CLI. Run it as `aleph` if installed globally (`npm i -g aleph-cli`), or `npx aleph-cli` otherwise.
@@ -74,6 +74,8 @@ aleph character create --campaign <id> --name <name> [--class <class>] [--json]
 aleph character show --campaign <id> <slug> [--json]
 aleph character update --campaign <id> <slug> [--name <n>] [--race <r>] [--class <c>] [--alignment <a>] [--status <s>] [--content <md>] [--stdin]
 aleph character upload-portrait --campaign <id> --slug <slug> --file <path>
+aleph character connect <slug> --campaign <id> --target <entity-slug> [--label <text>] [--description <text>] [--json]
+aleph character connections <slug> --campaign <id> [--json]
 ```
 
 `upload-portrait` accepts PNG, JPEG, or WebP files up to 10 MB. The portrait is shown on the character detail page in the web UI.
@@ -129,6 +131,16 @@ aleph location org-remove <slug> --campaign <id> --org <organizationId>
 ```
 
 Subtypes: `country`, `region`, `city`, `town`, `village`, `dungeon`, `lair`, `building`, `room`, `wilderness`, `other`
+
+### Relations
+
+```bash
+aleph relation create --campaign <id> --source <entity-slug> --target <entity-slug> [--type <type-slug>] [--forward <label>] [--reverse <label>] [--attitude <-100..100>] [--description <text>] [--json]
+aleph relation list --campaign <id> [--entity <entity-slug>] [--json]
+aleph relation delete <relationId> --campaign <id> [--yes]
+```
+
+Relations are bidirectional links between any two entities with forward/reverse labels and an optional attitude score (-100 = hostile, 0 = neutral, 100 = allied).
 
 ### Dice Rolls
 ```bash

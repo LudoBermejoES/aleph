@@ -89,6 +89,19 @@ export async function postMultipart(path, filePath, fieldName = 'file') {
 }
 
 /**
+ * Resolve an entity slug to its UUID within a campaign.
+ * Exits with code 2 if the entity is not found.
+ */
+export async function resolveEntitySlug(campaignId, slug) {
+  const entity = await get(`/api/campaigns/${campaignId}/entities/${slug}`)
+  if (!entity || !entity.id) {
+    process.stderr.write(`Error: Entity not found: ${slug}\n`)
+    process.exit(2)
+  }
+  return entity.id
+}
+
+/**
  * Unauthenticated POST — used for login before API key exists.
  */
 export async function postUnauthenticated(baseUrl, path, body) {

@@ -4,7 +4,7 @@ description: Use the aleph CLI to manage campaigns, entities, characters, locati
 license: MIT
 metadata:
   author: aleph
-  version: "1.5"
+  version: "1.7"
 ---
 
 You have access to the `aleph` CLI tool at `node /Users/ludo/code/aleph/cli/bin/aleph.js` (or `npm run aleph -- <args>` from the project root). Use it to interact with the running Aleph server.
@@ -70,6 +70,8 @@ node /Users/ludo/code/aleph/cli/bin/aleph.js character create --campaign <id> --
 node /Users/ludo/code/aleph/cli/bin/aleph.js character show --campaign <id> <slug> [--json]
 node /Users/ludo/code/aleph/cli/bin/aleph.js character update --campaign <id> <slug> [--name <n>] [--race <r>] [--class <c>] [--alignment <a>] [--status <s>] [--content <md>] [--stdin]
 node /Users/ludo/code/aleph/cli/bin/aleph.js character upload-portrait --campaign <id> --slug <slug> --file <path>
+node /Users/ludo/code/aleph/cli/bin/aleph.js character connect <slug> --campaign <id> --target <entity-slug> [--label <text>] [--description <text>] [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js character connections <slug> --campaign <id> [--json]
 ```
 
 `upload-portrait` accepts PNG, JPEG, or WebP files up to 10 MB.
@@ -120,6 +122,16 @@ node /Users/ludo/code/aleph/cli/bin/aleph.js location org-remove <slug> --campai
 ```
 
 Subtypes: `country`, `region`, `city`, `town`, `village`, `dungeon`, `lair`, `building`, `room`, `wilderness`, `other`
+
+### Relations
+
+```bash
+node /Users/ludo/code/aleph/cli/bin/aleph.js relation create --campaign <id> --source <entity-slug> --target <entity-slug> [--type <type-slug>] [--forward <label>] [--reverse <label>] [--attitude <-100..100>] [--description <text>] [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js relation list --campaign <id> [--entity <entity-slug>] [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js relation delete <relationId> --campaign <id> [--yes]
+```
+
+Relations are bidirectional links between any two entities with forward/reverse labels and an optional attitude score (-100 = hostile, 0 = neutral, 100 = allied).
 
 ### Search
 ```bash
