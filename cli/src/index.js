@@ -14,6 +14,7 @@ import { makeMemberCommand } from './commands/member.js'
 import { makeSearchCommand } from './commands/search.js'
 import { makeRollCommand } from './commands/roll.js'
 import { makeOrganizationCommand } from './commands/organization.js'
+import { makeLocationCommand } from './commands/location.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const pkg = JSON.parse(readFileSync(join(__dirname, '../package.json'), 'utf8'))
@@ -38,5 +39,6 @@ program.addCommand(makeMemberCommand())
 program.addCommand(makeSearchCommand())
 program.addCommand(makeRollCommand())
 program.addCommand(makeOrganizationCommand())
+program.addCommand(makeLocationCommand())
 
 program.parse(process.argv)

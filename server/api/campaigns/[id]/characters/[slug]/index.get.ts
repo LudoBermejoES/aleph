@@ -59,9 +59,23 @@ export default defineEventHandler(async (event) => {
     file = { frontmatter: {}, content: '', contentHash: '' }
   }
 
+  // Resolve location name if set
+  let locationName: string | null = null
+  let locationSlug: string | null = null
+  if (character.locationEntityId) {
+    const locationEntity = db.select({ name: entities.name, slug: entities.slug })
+      .from(entities)
+      .where(eq(entities.id, character.locationEntityId))
+      .get()
+    locationName = locationEntity?.name ?? null
+    locationSlug = locationEntity?.slug ?? null
+  }
+
   return {
     ...entity,
     ...character,
+    locationName,
+    locationSlug,
     frontmatter: file.frontmatter,
     content: stripSecretBlocks(file.content, role),
     stats: filteredStats,

@@ -1,10 +1,10 @@
 ---
 name: aleph-cli
-description: Use the aleph CLI to manage campaigns, entities, characters, organizations, sessions, members, search, and dice rolls. Use when the user asks to list/create/edit/delete anything in Aleph, or when you need to query campaign data to answer questions.
+description: Use the aleph CLI to manage campaigns, entities, characters, locations, organizations, sessions, members, search, and dice rolls. Use when the user asks to list/create/edit/delete anything in Aleph, or when you need to query campaign data to answer questions.
 license: MIT
 metadata:
   author: aleph
-  version: "1.2"
+  version: "1.3"
 ---
 
 You have access to the `aleph` CLI tool at `node /Users/ludo/code/aleph/cli/bin/aleph.js` (or `npm run aleph -- <args>` from the project root). Use it to interact with the running Aleph server.
@@ -98,6 +98,24 @@ node /Users/ludo/code/aleph/cli/bin/aleph.js organization member-remove <slug> -
 
 Types: `faction`, `guild`, `army`, `cult`, `government`, `other`
 Statuses: `active`, `inactive`, `secret`, `dissolved`
+
+### Locations
+
+```bash
+node /Users/ludo/code/aleph/cli/bin/aleph.js location list --campaign <id> [--search <q>] [--subtype <subtype>] [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js location create --campaign <id> --name <name> [--subtype <subtype>] [--parent <id>] [--visibility <vis>] [--content <text>] [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js location show <slug> --campaign <id> [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js location edit <slug> --campaign <id> [--name <name>] [--subtype <subtype>] [--parent <id>] [--visibility <vis>] [--content <text>] [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js location delete <slug> --campaign <id> [--yes]
+node /Users/ludo/code/aleph/cli/bin/aleph.js location inhabitants <slug> --campaign <id> [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js location inhabitant-add <slug> --campaign <id> --character <characterId>
+node /Users/ludo/code/aleph/cli/bin/aleph.js location inhabitant-remove <slug> --campaign <id> --character <characterId>
+node /Users/ludo/code/aleph/cli/bin/aleph.js location organizations <slug> --campaign <id> [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js location org-add <slug> --campaign <id> --org <organizationId>
+node /Users/ludo/code/aleph/cli/bin/aleph.js location org-remove <slug> --campaign <id> --org <organizationId>
+```
+
+Subtypes: `country`, `region`, `city`, `town`, `village`, `dungeon`, `lair`, `building`, `room`, `wilderness`, `other`
 
 ### Search
 ```bash

@@ -23,7 +23,7 @@ const submitting = ref(false)
 const { t } = useI18n()
 const form = ref({
   name: '', characterType: 'npc', race: '', class: '', alignment: '',
-  status: 'alive', visibility: 'members', content: '', ownerUserId: '',
+  status: 'alive', visibility: 'members', content: '', ownerUserId: '', locationId: '',
 })
 
 const api = useCampaignApi(campaignId)
@@ -32,7 +32,8 @@ const charForm = ref<any>(null)
 async function create() {
   submitting.value = true
   try {
-    const res = await api.createCharacter(form.value)
+    const { locationId, ...rest } = form.value
+    const res = await api.createCharacter({ ...rest, locationEntityId: locationId || undefined })
     await charForm.value?.saveMemberships(res.slug)
     charForm.value?.clearDraft()
     await router.push(`/campaigns/${campaignId}/characters/${res.slug}`)

@@ -415,6 +415,60 @@ export function useCampaignApi(campaignId: string) {
     return $fetch(`${base}/organizations/${slug}/members/${characterId}`, { method: 'DELETE' })
   }
 
+  // ─── Locations ──────────────────────────────────────────────────────────────
+
+  function getLocations(params?: { parentId?: string; subtype?: string; search?: string }) {
+    return $fetch<any[]>(`${base}/locations`, { params })
+  }
+
+  function getLocation(slug: string) {
+    return $fetch<any>(`${base}/locations/${slug}`)
+  }
+
+  function createLocation(body: { name: string; subtype?: string; parentId?: string; visibility?: string; content?: string }) {
+    return $fetch<any>(`${base}/locations`, { method: 'POST', body })
+  }
+
+  function updateLocation(slug: string, body: { name?: string; subtype?: string; parentId?: string | null; visibility?: string; content?: string }) {
+    return $fetch<any>(`${base}/locations/${slug}`, { method: 'PUT', body })
+  }
+
+  function deleteLocation(slug: string) {
+    return $fetch(`${base}/locations/${slug}`, { method: 'DELETE' })
+  }
+
+  function getSubLocations(slug: string) {
+    return $fetch<any[]>(`${base}/locations/${slug}/sub-locations`)
+  }
+
+  function getLocationInhabitants(slug: string) {
+    return $fetch<any[]>(`${base}/locations/${slug}/inhabitants`)
+  }
+
+  function addLocationInhabitant(slug: string, characterId: string) {
+    return $fetch(`${base}/locations/${slug}/inhabitants`, { method: 'POST', body: { characterId } })
+  }
+
+  function removeLocationInhabitant(slug: string, characterId: string) {
+    return $fetch(`${base}/locations/${slug}/inhabitants/${characterId}`, { method: 'DELETE' })
+  }
+
+  function getLocationOrganizations(slug: string) {
+    return $fetch<any[]>(`${base}/locations/${slug}/organizations`)
+  }
+
+  function addLocationOrganization(slug: string, organizationId: string) {
+    return $fetch(`${base}/locations/${slug}/organizations`, { method: 'POST', body: { organizationId } })
+  }
+
+  function removeLocationOrganization(slug: string, organizationId: string) {
+    return $fetch(`${base}/locations/${slug}/organizations/${organizationId}`, { method: 'DELETE' })
+  }
+
+  function getOrganizationLocations(orgSlug: string) {
+    return $fetch<any[]>(`${base}/organizations/${orgSlug}/locations`)
+  }
+
   function getGraph() {
     return $fetch<GraphData>(`${base}/graph`)
   }
@@ -475,6 +529,11 @@ export function useCampaignApi(campaignId: string) {
     // Organizations
     getOrganizations, getOrganization, createOrganization, updateOrganization, deleteOrganization,
     addOrganizationMember, removeOrganizationMember,
+    // Locations
+    getLocations, getLocation, createLocation, updateLocation, deleteLocation,
+    getSubLocations, getLocationInhabitants, addLocationInhabitant, removeLocationInhabitant,
+    getLocationOrganizations, addLocationOrganization, removeLocationOrganization,
+    getOrganizationLocations,
   }
 }
 

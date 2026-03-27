@@ -74,6 +74,20 @@
           </Button>
         </div>
       </div>
+
+      <!-- Locations section -->
+      <div class="mt-6">
+        <h2 class="text-lg font-semibold mb-3">{{ $t('locations.title') }}</h2>
+        <div v-if="orgLocations.length" class="space-y-2 mb-2">
+          <NuxtLink
+            v-for="loc in orgLocations"
+            :key="loc.id"
+            :to="`/campaigns/${campaignId}/locations/${loc.slug}`"
+            class="block p-2 rounded border border-border hover:bg-accent/30 text-sm font-medium"
+          >{{ loc.name }}</NuxtLink>
+        </div>
+        <p v-else class="text-sm text-muted-foreground">{{ $t('locations.noOrganizations') }}</p>
+      </div>
     </div>
     <div v-else class="text-center py-12 text-muted-foreground">
       <p>Organization not found.</p>
@@ -90,6 +104,7 @@ const api = useCampaignApi(campaignId)
 const org = ref<any>(null)
 const loading = ref(true)
 const allCharacters = ref<any[]>([])
+const orgLocations = ref<any[]>([])
 const newMemberId = ref('')
 const newMemberRole = ref('')
 const addingMember = ref(false)
@@ -101,12 +116,14 @@ const availableCharacters = computed(() => {
 
 async function load() {
   loading.value = true
-  const [orgData, chars] = await Promise.all([
+  const [orgData, chars, locs] = await Promise.all([
     api.getOrganization(slug).catch(() => null),
     api.getCharacters({}).catch(() => []),
+    api.getOrganizationLocations(slug).catch(() => []),
   ])
   org.value = orgData
   allCharacters.value = chars
+  orgLocations.value = locs
   loading.value = false
 }
 
