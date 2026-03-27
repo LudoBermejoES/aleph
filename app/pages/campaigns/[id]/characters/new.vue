@@ -7,7 +7,7 @@
       <span>/</span><span>{{ $t('characters.new') }}</span>
     </div>
     <h1 class="text-2xl font-bold mb-6">{{ $t('characters.new') }}</h1>
-    <CharacterForm v-model="form" :campaign-id="campaignId" :submit-label="$t('common.create')" :submitting="submitting" @submit="create">
+    <CharacterForm ref="charForm" v-model="form" :campaign-id="campaignId" :submit-label="$t('common.create')" :submitting="submitting" @submit="create">
       <template #cancel>
         <NuxtLink :to="`/campaigns/${campaignId}/characters`"><Button variant="outline">{{ $t('common.cancel') }}</Button></NuxtLink>
       </template>
@@ -27,11 +27,13 @@ const form = ref({
 })
 
 const api = useCampaignApi(campaignId)
+const charForm = ref<any>(null)
 
 async function create() {
   submitting.value = true
   try {
     const res = await api.createCharacter(form.value)
+    await charForm.value?.saveMemberships(res.slug)
     await router.push(`/campaigns/${campaignId}/characters/${res.slug}`)
   } catch (e: any) {
     alert(e.data?.message || t('characters.failedSave'))

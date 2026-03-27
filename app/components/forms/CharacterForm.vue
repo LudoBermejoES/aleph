@@ -57,6 +57,24 @@
       <MarkdownEditor v-model="form.content" :placeholder="$t('characters.descriptionPlaceholder')" :campaign-id="campaignId" class="mt-1" />
     </div>
 
+    <!-- Organizations -->
+    <div v-if="organizations.length">
+      <label class="text-sm font-medium block mb-2">{{ $t('organizations.title') }}</label>
+      <div class="space-y-2 mb-3">
+        <div v-for="(mem, i) in pendingMemberships" :key="i" class="flex items-center gap-2">
+          <select v-model="mem.organizationId" class="flex-1 px-3 py-2 rounded border border-input bg-background text-sm">
+            <option value="">{{ $t('organizations.selectOrganization') }}</option>
+            <option v-for="org in organizations" :key="org.id" :value="org.id">{{ org.name }}</option>
+          </select>
+          <input v-model="mem.role" class="w-40 px-3 py-2 rounded border border-input bg-background text-sm" :placeholder="$t('organizations.memberRolePlaceholder')" />
+          <button type="button" class="text-destructive text-sm hover:underline" @click="pendingMemberships.splice(i, 1)">{{ $t('common.remove') }}</button>
+        </div>
+      </div>
+      <button type="button" class="text-sm text-primary hover:underline" @click="pendingMemberships.push({ organizationId: '', role: '' })">
+        {{ $t('organizations.addOrganization') }}
+      </button>
+    </div>
+
     <div class="flex justify-end gap-2">
       <slot name="cancel" />
       <Button type="submit" :disabled="submitting">{{ submitting ? $t('common.saving') : submitLabel }}</Button>
@@ -68,6 +86,7 @@
 const props = defineProps<{
   modelValue: { name: string; characterType: string; race: string; class: string; alignment: string; status: string; visibility: string; content: string; ownerUserId: string }
   campaignId: string
+  characterSlug?: string  // present on edit, absent on create
   submitLabel?: string
   submitting?: boolean
 }>()
@@ -77,7 +96,10 @@ const emit = defineEmits<{
   submit: []
 }>()
 
+const api = useCampaignApi(props.campaignId)
 const members = ref<any[]>([])
+const organizations = ref<any[]>([])
+const pendingMemberships = ref<{ organizationId: string; role: string }[]>([])
 
 const form = computed({
   get: () => props.modelValue,
@@ -85,6 +107,54 @@ const form = computed({
 })
 
 onMounted(async () => {
-  try { members.value = await useCampaignApi(props.campaignId).getMembers() } catch { members.value = [] }
+  const [ms, orgs] = await Promise.all([
+    api.getMembers().catch(() => []),
+    api.getOrganizations().catch(() => []),
+  ])
+  members.value = ms
+  organizations.value = orgs
+
+  // Load existing memberships when editing
+  if (props.characterSlug) {
+    const existing = await api.getCharacterOrganizations(props.characterSlug).catch(() => [])
+    pendingMemberships.value = existing.map((m: any) => ({
+      organizationId: m.organizationId,
+      role: m.role || '',
+    }))
+  }
 })
+
+/**
+ * Called by the parent after the character is created/saved.
+ * Diffs against current server state and applies adds/removes.
+ */
+async function saveMemberships(characterSlug: string) {
+  const current = await api.getCharacterOrganizations(characterSlug).catch(() => [])
+  const currentIds = new Set(current.map((m: any) => m.organizationId))
+
+  const desired = pendingMemberships.value.filter(m => m.organizationId)
+  const desiredMap = new Map(desired.map(m => [m.organizationId, m.role]))
+
+  // Remove memberships no longer in the list
+  for (const m of current) {
+    if (!desiredMap.has(m.organizationId)) {
+      const org = organizations.value.find(o => o.id === m.organizationId)
+      if (org) await api.removeOrganizationMember(org.slug, m.characterId).catch(() => {})
+    }
+  }
+
+  // Add new memberships
+  for (const [orgId, role] of desiredMap) {
+    if (!currentIds.has(orgId)) {
+      const org = organizations.value.find(o => o.id === orgId)
+      if (org) {
+        const chars = await api.getCharacters({}).catch(() => [])
+        const char = chars.find((c: any) => c.slug === characterSlug)
+        if (char) await api.addOrganizationMember(org.slug, { characterId: char.id, role: role || undefined }).catch(() => {})
+      }
+    }
+  }
+}
+
+defineExpose({ saveMemberships })
 </script>

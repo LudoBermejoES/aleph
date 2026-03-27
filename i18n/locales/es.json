@@ -511,7 +511,9 @@
       "dissolved": "Disuelto"
     },
     "confirmDelete": "Eliminar Organización",
-    "confirmDeleteMessage": "¿Estás seguro de que quieres eliminar esta organización? Esta acción no se puede deshacer."
+    "confirmDeleteMessage": "¿Estás seguro de que quieres eliminar esta organización? Esta acción no se puede deshacer.",
+    "selectOrganization": "Seleccionar organización",
+    "addOrganization": "+ Añadir Organización"
   },
   "settings": {
     "title": "Configuración"

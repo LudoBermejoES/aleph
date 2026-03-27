@@ -31,7 +31,7 @@
           <h2 class="text-lg font-semibold">{{ $t('organizations.members') }}</h2>
         </div>
 
-        <div v-if="org.members?.length" class="space-y-2 mb-4">
+        <div v-if="org.members?.length" class="space-y-2 mb-4" data-testid="member-list">
           <div
             v-for="member in org.members"
             :key="member.characterId"

@@ -43,15 +43,11 @@ Both skill files must be updated together whenever CLI commands change.
 
 Auth: CLI stores `apiKey` + `apiKeyId` in `~/.aleph/config.json`. Sends `X-API-Key: <raw>` header. Keys are sha256-hashed server-side. Managed at `POST/GET/DELETE /api/apikeys`.
 
-## i18n — always update all three copies
+## i18n — canonical locale directory
 
-There are three locale directories that must always be kept in sync. **All i18n changes must be applied to all three:**
+The **only** locale directory that matters is `i18n/locales/` (project root). This is where `@nuxtjs/i18n` resolves files from: it combines `rootDir + restructureDir ("i18n") + langDir ("locales/")`.
 
-- `locales/` — loaded by Nuxt i18n at runtime (`langDir: 'locales/'` in `nuxt.config.ts`)
-- `app/i18n/locales/` — used by the app build
-- `i18n/locales/` — also loaded by Nitro at build time
-
-If you add or change any key in one, copy the same change to the other two. Failing to do so causes `ENOENT` errors at startup.
+**Always edit `i18n/locales/en.json` and `i18n/locales/es.json`** — never `locales/` or `app/i18n/locales/` (those are stale duplicates that may exist but are not loaded).
 
 ## openspec workflow
 
