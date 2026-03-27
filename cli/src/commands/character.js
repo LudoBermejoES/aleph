@@ -1,5 +1,5 @@
 import { Command } from 'commander'
-import { get, post, put, postMultipart, resolveEntitySlug } from '../lib/client.js'
+import { get, post, put, del, postMultipart, resolveEntitySlug } from '../lib/client.js'
 import { print, success } from '../lib/output.js'
 import { existsSync } from 'fs'
 
@@ -160,6 +160,23 @@ export function makeCharacterCommand() {
         const nameMap = Object.fromEntries(allEntities.map(e => [e.id, e.name]))
         print(data.map(c => ({ id: c.id, target: nameMap[c.targetEntityId] ?? c.targetEntityId, label: c.label || '', description: c.description || '' })))
       }
+    })
+
+  cmd
+    .command('connection-delete <slug> <connectionId>')
+    .description('Delete a connection from a character')
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .option('--yes', 'Skip confirmation prompt')
+    .action(async (slug, connectionId, opts) => {
+      if (!opts.yes) {
+        const { createInterface } = await import('readline')
+        const rl = createInterface({ input: process.stdin, output: process.stdout })
+        const answer = await new Promise(resolve => rl.question(`Delete connection ${connectionId}? (y/N) `, resolve))
+        rl.close()
+        if (answer.toLowerCase() !== 'y') { process.stdout.write('Aborted.\n'); process.exit(0) }
+      }
+      await del(`/api/campaigns/${opts.campaign}/characters/${slug}/connections/${connectionId}`)
+      success(`Connection deleted: ${connectionId}`)
     })
 
   return cmd
