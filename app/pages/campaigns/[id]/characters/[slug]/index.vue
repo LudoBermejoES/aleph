@@ -94,6 +94,24 @@
         </div>
       </div>
 
+      <!-- Entity Relations -->
+      <div v-if="relations.length" class="mb-6" data-testid="character-relations">
+        <h2 class="text-lg font-semibold mb-3">{{ $t('characters.relations') }}</h2>
+        <div class="space-y-2">
+          <div v-for="rel in relations" :key="rel.id" class="flex items-center gap-2 p-2 rounded border border-border">
+            <span class="text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground">{{ rel.label }}</span>
+            <NuxtLink
+              v-if="rel.relatedEntitySlug"
+              :to="`/campaigns/${campaignId}/characters/${rel.relatedEntitySlug}`"
+              class="font-medium hover:underline"
+            >{{ rel.relatedEntityName || rel.relatedEntitySlug }}</NuxtLink>
+            <span v-else class="font-medium">{{ rel.relatedEntityName || rel.relatedEntityId }}</span>
+            <span v-if="rel.attitude !== null && rel.attitude !== undefined && rel.attitude !== 0" :class="['text-xs', rel.attitude > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400']">{{ rel.attitude > 0 ? '+' : '' }}{{ rel.attitude }}</span>
+            <span v-if="rel.description" class="text-sm text-muted-foreground">{{ rel.description }}</span>
+          </div>
+        </div>
+      </div>
+
       <!-- Companions/Mounts (7.8) -->
       <div v-if="companions.length" class="mb-6" data-testid="character-companions">
         <h2 class="text-lg font-semibold mb-3">{{ $t('characters.companions') }}</h2>
@@ -151,10 +169,11 @@
 const route = useRoute()
 const campaignId = route.params.id as string
 const slug = route.params.slug as string
-import type { Character, CharacterConnection } from '~/types/api'
+import type { Character, CharacterConnection, EntityRelation } from '~/types/api'
 
 const character = ref<Character | null>(null)
 const connections = ref<CharacterConnection[]>([])
+const relations = ref<(EntityRelation & { relatedEntityName?: string; relatedEntitySlug?: string; relatedEntityType?: string })[]>([])
 const companions = ref<Character[]>([])
 const characterOrgs = ref<any[]>([])
 
@@ -190,6 +209,19 @@ async function load() {
 
   // Load connections
   connections.value = await api.getCharacterConnections(character.value?.slug ?? slug).catch(() => [])
+
+  // Load entity relations (bidirectional)
+  if (character.value?.entityId || character.value?.id) {
+    const entityId = character.value.entityId ?? character.value.id
+    const rawRelations = await api.getRelations({ entity_id: entityId }).catch(() => [])
+    // Resolve related entity names via character list
+    const chars = await api.getCharacters().catch(() => [])
+    const charMap: Record<string, Character> = Object.fromEntries(chars.map((c: Character) => [c.entityId ?? c.id, c]))
+    relations.value = rawRelations.map((r: EntityRelation) => {
+      const relChar = r.relatedEntityId ? charMap[r.relatedEntityId] : undefined
+      return { ...r, relatedEntityName: relChar?.name, relatedEntitySlug: relChar?.slug, relatedEntityType: 'character' }
+    })
+  }
 
   // Load companions (characters where isCompanionOf = this character's id)
   companions.value = await api.getCharacters({ companionOf: character.value?.id ?? '' }).catch(() => [])
