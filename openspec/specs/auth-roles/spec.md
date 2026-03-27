@@ -4,8 +4,7 @@
 TBD - created by archiving change campaign-manager-study. Update Purpose after archive.
 ## Requirements
 ### Requirement: User Authentication
-
-The system SHALL support secure user registration, login, and session management.
+The system SHALL support secure user registration, login, and session management. In addition, the system SHALL support API key authentication via the `X-API-Key` request header.
 
 #### Scenario: User registration
 - GIVEN a visitor on the registration page
@@ -36,6 +35,17 @@ The system SHALL support secure user registration, login, and session management
 - GIVEN an Admin enables 2FA on their account
 - WHEN they log in with valid credentials
 - THEN they are prompted for a TOTP code before the session is established
+
+#### Scenario: API key authentication
+- GIVEN a request with header `X-API-Key: <valid raw key>`
+- WHEN the middleware receives the request
+- THEN it hashes the key (sha256), looks up the matching non-revoked `api_key` row, and sets the user context
+- AND the request proceeds with full user identity (same as cookie session)
+
+#### Scenario: Revoked or unknown API key rejected
+- GIVEN a request with header `X-API-Key: <revoked or unknown key>`
+- WHEN the middleware receives the request
+- THEN it returns 401 Unauthorized
 
 ### Requirement: Role Hierarchy
 
