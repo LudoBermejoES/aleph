@@ -1,5 +1,5 @@
 import { Command } from 'commander'
-import { get, post, put, postMultipart } from '../lib/client.js'
+import { get, post, put, postMultipart, resolveEntitySlug } from '../lib/client.js'
 import { print, success } from '../lib/output.js'
 import { existsSync } from 'fs'
 
@@ -122,6 +122,41 @@ export function makeCharacterCommand() {
         'portrait',
       )
       success(`Portrait uploaded: ${data.portraitUrl}`)
+    })
+
+  cmd
+    .command('connect <slug>')
+    .description('Connect a character to an entity')
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .requiredOption('--target <slug>', 'Target entity slug')
+    .option('--label <text>', 'Connection label')
+    .option('--description <text>', 'Connection description')
+    .option('--json', 'Output as JSON')
+    .action(async (slug, opts) => {
+      const targetEntityId = await resolveEntitySlug(opts.campaign, opts.target)
+      const body = { targetEntityId }
+      if (opts.label !== undefined) body.label = opts.label
+      if (opts.description !== undefined) body.description = opts.description
+      const data = await post(`/api/campaigns/${opts.campaign}/characters/${slug}/connections`, body)
+      if (opts.json) {
+        print(data, { json: true })
+      } else {
+        success(`Connection created: ${data.id}`)
+      }
+    })
+
+  cmd
+    .command('connections <slug>')
+    .description('List connections for a character')
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .option('--json', 'Output as JSON')
+    .action(async (slug, opts) => {
+      const data = await get(`/api/campaigns/${opts.campaign}/characters/${slug}/connections`)
+      if (opts.json) {
+        print(data, { json: true })
+      } else {
+        print(data.map(c => ({ id: c.id, targetEntityId: c.targetEntityId, label: c.label || '', description: c.description || '' })))
+      }
     })
 
   return cmd
