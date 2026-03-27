@@ -19,6 +19,8 @@ rules:
     - Use Given/When/Then format for scenarios
     - Include role-based permission context where relevant
     - Reference existing API routes or components when describing behaviour
+    - Each scenario is a potential test case — write them so they can be directly translated into unit, integration, or E2E tests
+    - If the capability involves a server API endpoint, include scenarios for both authenticated (valid key/session) and unauthenticated requests
   tasks:
     - Tasks should be concrete and implementable — each maps to specific file changes
     - Order tasks so foundational work (types, composables, utilities) comes before consumers
