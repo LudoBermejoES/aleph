@@ -103,6 +103,11 @@
     "removeConfirm": "¿Eliminar a este miembro?",
     "failedInvite": "Error al generar la invitación"
   },
+  "character": {
+    "uploadPortrait": "Subir retrato",
+    "portraitAlt": "Retrato de {name}",
+    "noPortrait": "Sin retrato"
+  },
   "characters": {
     "title": "Personajes",
     "new": "Nuevo personaje",

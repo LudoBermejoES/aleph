@@ -4,7 +4,7 @@ description: Use the aleph CLI to manage campaigns, entities, characters, locati
 license: MIT
 metadata:
   author: aleph
-  version: "1.3"
+  version: "1.4"
 ---
 
 You have access to the `aleph` CLI tool at `node /Users/ludo/code/aleph/cli/bin/aleph.js` (or `npm run aleph -- <args>` from the project root). Use it to interact with the running Aleph server.
@@ -65,10 +65,13 @@ Use `--stdin` on `entity edit` to pipe Markdown content from a file: `cat notes.
 
 ### Characters
 ```bash
-aleph character list --campaign <id> [--json]
-aleph character create --campaign <id> --name <name> [--class <class>] [--json]
-aleph character show --campaign <id> <slug> [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js character list --campaign <id> [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js character create --campaign <id> --name <name> [--class <class>] [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js character show --campaign <id> <slug> [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js character upload-portrait --campaign <id> --slug <slug> --file <path>
 ```
+
+`upload-portrait` accepts PNG, JPEG, or WebP files up to 10 MB.
 
 ### Sessions
 ```bash

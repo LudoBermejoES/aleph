@@ -28,6 +28,7 @@ export default defineEventHandler(async (event) => {
     ownerUserId: characters.ownerUserId,
     isCompanionOf: characters.isCompanionOf,
     folderId: characters.folderId,
+    portraitUrl: characters.portraitUrl,
     updatedAt: entities.updatedAt,
   })
     .from(characters)

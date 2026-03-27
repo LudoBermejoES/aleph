@@ -4,7 +4,7 @@ description: Use the aleph CLI to manage campaigns, entities, characters, locati
 license: MIT
 metadata:
   author: aleph
-  version: "1.2"
+  version: "1.3"
 ---
 
 You have access to the `aleph` CLI. Run it as `aleph` if installed globally (`npm i -g aleph-cli`), or `npx aleph-cli` otherwise.
@@ -72,7 +72,10 @@ Pipe content from a file: `cat notes.md | aleph entity edit --campaign <id> <slu
 aleph character list --campaign <id> [--json]
 aleph character create --campaign <id> --name <name> [--class <class>] [--json]
 aleph character show --campaign <id> <slug> [--json]
+aleph character upload-portrait --campaign <id> --slug <slug> --file <path>
 ```
+
+`upload-portrait` accepts PNG, JPEG, or WebP files up to 10 MB. The portrait is shown on the character detail page in the web UI.
 
 ### Sessions
 ```bash

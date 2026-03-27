@@ -15,6 +15,7 @@ export const characters = sqliteTable('characters', {
   ownerUserId: text('owner_user_id').references(() => user.id),
   isCompanionOf: text('is_companion_of'), // character_id for mounts/companions
   folderId: text('folder_id'), // references character_folders.id
+  portraitUrl: text('portrait_url'),
 })
 
 export const statGroups = sqliteTable('stat_groups', {
