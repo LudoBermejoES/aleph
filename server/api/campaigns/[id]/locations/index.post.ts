@@ -3,7 +3,8 @@ import { eq, and } from 'drizzle-orm'
 import { useDb, useSqlite } from '../../../../utils/db'
 import { entities } from '../../../../db/schema/entities'
 import { hasMinRole } from '../../../../utils/permissions'
-import { writeEntityFile, slugify, resolveEntityPath } from '../../../../services/content'
+import { writeEntityFile, resolveEntityPath } from '../../../../services/content'
+import { ensureUniqueSlug } from '../../../../utils/content-helpers'
 import { indexEntity } from '../../../../services/search'
 import { invalidateAutomatonCache } from '../../../../services/autolink'
 import { join } from 'path'
@@ -42,11 +43,7 @@ export default defineEventHandler(async (event) => {
   const id = randomUUID()
   const now = new Date()
 
-  let slug = slugify(name)
-  const existing = db.select().from(entities)
-    .where(and(eq(entities.campaignId, campaignId), eq(entities.slug, slug)))
-    .get()
-  if (existing) slug = `${slug}-${Date.now().toString(36)}`
+  const slug = ensureUniqueSlug(db, campaignId, name)
 
   const contentDir = join(process.cwd(), campaign.contentDir)
   const filePath = resolveEntityPath(contentDir, 'location', slug)

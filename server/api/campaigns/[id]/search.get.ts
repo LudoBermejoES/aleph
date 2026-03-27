@@ -2,19 +2,8 @@ import { eq } from 'drizzle-orm'
 import { useDb, useSqlite } from '../../../utils/db'
 import { searchEntities } from '../../../services/search'
 import { entities } from '../../../db/schema/entities'
+import { ROLE_LEVEL, VISIBILITY_MIN_ROLE } from '../../../utils/permissions'
 import type { CampaignRole } from '../../../utils/permissions'
-
-const VISIBILITY_MIN_ROLE: Record<string, number> = {
-  public: 0,
-  members: 2,
-  editors: 3,
-  dm_only: 4,
-  private: 99,
-}
-
-const ROLE_LEVEL: Record<string, number> = {
-  dm: 5, co_dm: 4, editor: 3, player: 2, visitor: 1,
-}
 
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)

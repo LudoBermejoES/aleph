@@ -1,17 +1,10 @@
-import { eq, and, like, sql, or, inArray } from 'drizzle-orm'
+import { eq, and, like, sql, inArray } from 'drizzle-orm'
 import { useDb } from '../../../../utils/db'
 import { entities } from '../../../../db/schema/entities'
 import { characters } from '../../../../db/schema/characters'
-import { hasMinRole } from '../../../../utils/permissions'
-import { readEntityFile } from '../../../../services/content'
+import { buildVisibilityFilter } from '../../../../utils/permissions'
+import { safeReadEntityFile } from '../../../../utils/content-helpers'
 import type { CampaignRole } from '../../../../utils/permissions'
-
-const VISIBILITY_MIN_ROLE: Record<string, number> = {
-  public: 0, members: 2, editors: 3, dm_only: 4, private: 99,
-}
-const ROLE_LEVEL: Record<string, number> = {
-  dm: 5, co_dm: 4, editor: 3, player: 2, visitor: 1,
-}
 
 export default defineEventHandler(async (event) => {
   const campaignId = getRouterParam(event, 'id')!
@@ -35,18 +28,7 @@ export default defineEventHandler(async (event) => {
   if (search) conditions.push(like(entities.name, `%${search}%`))
 
   // RBAC visibility filter
-  if (!hasMinRole(role, 'co_dm')) {
-    const userLevel = ROLE_LEVEL[role] ?? 0
-    const visibleLevels = Object.entries(VISIBILITY_MIN_ROLE)
-      .filter(([, minLevel]) => userLevel >= minLevel)
-      .map(([vis]) => vis)
-    conditions.push(
-      or(
-        inArray(entities.visibility, visibleLevels),
-        and(eq(entities.visibility, 'private'), eq(entities.createdBy, userId)),
-      )!,
-    )
-  }
+  buildVisibilityFilter(role, userId, conditions, entities.visibility, entities.createdBy)
 
   const results = db.select().from(entities)
     .where(and(...conditions))
@@ -91,12 +73,8 @@ export default defineEventHandler(async (event) => {
   // Read subtypes from files in parallel
   const subtypeMap = new Map<string, string>()
   await Promise.all(results.map(async (loc) => {
-    try {
-      const file = await readEntityFile(loc.filePath)
-      subtypeMap.set(loc.id, (file.frontmatter?.fields as any)?.subtype ?? 'other')
-    } catch {
-      subtypeMap.set(loc.id, 'other')
-    }
+    const file = await safeReadEntityFile(loc.filePath)
+    subtypeMap.set(loc.id, (file?.frontmatter?.fields as any)?.subtype ?? 'other')
   }))
 
   const enriched = results.map((loc) => {
