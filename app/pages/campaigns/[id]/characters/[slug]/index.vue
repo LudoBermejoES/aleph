@@ -112,6 +112,18 @@
         </div>
       </div>
 
+      <!-- Relationship Graph -->
+      <div v-if="graphData" class="mb-6" data-testid="character-graph">
+        <h2 class="text-lg font-semibold mb-3">{{ $t('characters.graph') }}</h2>
+        <EntityGraphView
+          :nodes="graphData.nodes"
+          :edges="graphData.edges"
+          :height="350"
+          :campaign-id="campaignId"
+          @node-click="onGraphNodeClick"
+        />
+      </div>
+
       <!-- Companions/Mounts (7.8) -->
       <div v-if="companions.length" class="mb-6" data-testid="character-companions">
         <h2 class="text-lg font-semibold mb-3">{{ $t('characters.companions') }}</h2>
@@ -176,6 +188,7 @@ const connections = ref<CharacterConnection[]>([])
 const relations = ref<(EntityRelation & { relatedEntityName?: string; relatedEntitySlug?: string; relatedEntityType?: string })[]>([])
 const companions = ref<Character[]>([])
 const characterOrgs = ref<any[]>([])
+const allChars = ref<Character[]>([])
 
 // Age calculation (7.1, 7.2)
 const calculatedAge = computed(() => {
@@ -196,6 +209,99 @@ const calculatedAge = computed(() => {
   return Math.max(0, age)
 })
 
+function computeAttitudeColor(score: number | null | undefined): string {
+  if (score === null || score === undefined || score === 0) return '#9ca3af'
+  const clamped = Math.max(-100, Math.min(100, score))
+  if (clamped < 0) {
+    const t = Math.abs(clamped) / 100
+    const r = Math.round(156 + t * (239 - 156))
+    const g = Math.round(163 - t * (163 - 68))
+    const b = Math.round(175 - t * (175 - 68))
+    return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
+  }
+  const t = clamped / 100
+  const r = Math.round(156 - t * (156 - 34))
+  const g = Math.round(163 + t * (197 - 163))
+  const b = Math.round(175 - t * (175 - 94))
+  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
+}
+
+const charPortraitMap = computed<Record<string, string | null>>(() =>
+  Object.fromEntries(allChars.value.map((c: Character) => [c.entityId ?? c.id, c.portraitUrl ?? null]))
+)
+
+const graphData = computed(() => {
+  if (!character.value?.entityId) return null
+  const entityId = character.value.entityId
+  if (!relations.value.length && !connections.value.length) return null
+
+  const nodes: Record<string, { name: string; type: string; image?: string | null }> = {}
+  const edges: Record<string, { source: string; target: string; label: string; color: string }> = {}
+
+  // Center node
+  nodes[entityId] = { name: character.value.name, type: 'character', image: character.value.portraitUrl ?? null }
+
+  // Relation edges
+  for (const rel of relations.value) {
+    if (!rel.relatedEntityId) continue
+    nodes[rel.relatedEntityId] = {
+      name: rel.relatedEntityName ?? rel.relatedEntityId,
+      type: rel.relatedEntityType ?? 'character',
+      image: charPortraitMap.value[rel.relatedEntityId] ?? null,
+    }
+    edges[rel.id] = {
+      source: rel.sourceEntityId,
+      target: rel.targetEntityId,
+      label: rel.label ?? rel.forwardLabel ?? '',
+      color: computeAttitudeColor(rel.attitude),
+    }
+  }
+
+  // Connection edges (directional, no attitude)
+  for (const conn of connections.value) {
+    if (!conn.targetEntityId) continue
+    if (!nodes[conn.targetEntityId]) {
+      nodes[conn.targetEntityId] = {
+        name: (conn as any).targetEntityName ?? conn.targetEntityId,
+        type: (conn as any).targetEntityType ?? 'character',
+        image: charPortraitMap.value[conn.targetEntityId] ?? null,
+      }
+    }
+    edges[conn.id] = {
+      source: entityId,
+      target: conn.targetEntityId,
+      label: conn.label ?? '',
+      color: '#9ca3af',
+    }
+  }
+
+  return { nodes, edges }
+})
+
+const nodeSlugMap = computed<Record<string, { slug: string; type: string }>>(() => {
+  const map: Record<string, { slug: string; type: string }> = {}
+  if (character.value?.entityId)
+    map[character.value.entityId] = { slug: character.value.slug, type: 'character' }
+  for (const rel of relations.value) {
+    if (rel.relatedEntityId && rel.relatedEntitySlug)
+      map[rel.relatedEntityId] = { slug: rel.relatedEntitySlug, type: rel.relatedEntityType ?? 'character' }
+  }
+  for (const conn of connections.value) {
+    if (conn.targetEntityId && (conn as any).targetEntitySlug)
+      map[conn.targetEntityId] = { slug: (conn as any).targetEntitySlug, type: (conn as any).targetEntityType ?? 'character' }
+  }
+  return map
+})
+
+function onGraphNodeClick(nodeId: string) {
+  const node = nodeSlugMap.value[nodeId]
+  if (!node) { navigateTo(`/campaigns/${campaignId}/graph`); return }
+  if (node.type === 'character')
+    navigateTo(`/campaigns/${campaignId}/characters/${node.slug}`)
+  else
+    navigateTo(`/campaigns/${campaignId}/entities/${node.slug}`)
+}
+
 const api = useCampaignApi(campaignId)
 const canEdit = ref(false)
 
@@ -210,13 +316,14 @@ async function load() {
   // Load connections
   connections.value = await api.getCharacterConnections(character.value?.slug ?? slug).catch(() => [])
 
+  // Load all characters once — used for relations name resolution, graph portraits, and companions
+  allChars.value = await api.getCharacters().catch(() => [])
+  const charMap: Record<string, Character> = Object.fromEntries(allChars.value.map((c: Character) => [c.entityId ?? c.id, c]))
+
   // Load entity relations (bidirectional)
   if (character.value?.entityId || character.value?.id) {
     const entityId = character.value.entityId ?? character.value.id
     const rawRelations = await api.getRelations({ entity_id: entityId }).catch(() => [])
-    // Resolve related entity names via character list
-    const chars = await api.getCharacters().catch(() => [])
-    const charMap: Record<string, Character> = Object.fromEntries(chars.map((c: Character) => [c.entityId ?? c.id, c]))
     relations.value = rawRelations.map((r: EntityRelation) => {
       const relChar = r.relatedEntityId ? charMap[r.relatedEntityId] : undefined
       return { ...r, relatedEntityName: relChar?.name, relatedEntitySlug: relChar?.slug, relatedEntityType: 'character' }
@@ -224,7 +331,7 @@ async function load() {
   }
 
   // Load companions (characters where isCompanionOf = this character's id)
-  companions.value = await api.getCharacters({ companionOf: character.value?.id ?? '' }).catch(() => [])
+  companions.value = allChars.value.filter((c: Character) => c.isCompanionOf === character.value?.id)
 
   // Load organization memberships
   characterOrgs.value = await api.getCharacterOrganizations(slug).catch(() => [])

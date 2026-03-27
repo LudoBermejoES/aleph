@@ -7,7 +7,43 @@
           :edges="graphEdges"
           :configs="configs"
           :event-handlers="eventHandlers"
-        />
+        >
+          <template #override-node="{ nodeId, scale, config }">
+            <template v-if="props.nodes[nodeId]?.image">
+              <!-- Circular portrait image -->
+              <defs>
+                <clipPath :id="`clip-${nodeId}`">
+                  <circle :r="config.radius * scale" cx="0" cy="0" />
+                </clipPath>
+              </defs>
+              <circle
+                :r="config.radius * scale"
+                cx="0"
+                cy="0"
+                fill="#e5e7eb"
+                stroke="#d1d5db"
+                stroke-width="1.5"
+              />
+              <image
+                :href="props.nodes[nodeId].image"
+                :x="-(config.radius * scale)"
+                :y="-(config.radius * scale)"
+                :width="config.radius * scale * 2"
+                :height="config.radius * scale * 2"
+                :clip-path="`url(#clip-${nodeId})`"
+                preserveAspectRatio="xMidYMid slice"
+              />
+            </template>
+            <!-- No image: plain colored circle -->
+            <circle
+              v-else
+              :r="config.radius * scale"
+              cx="0"
+              cy="0"
+              :fill="nodeTypeColor(nodeId)"
+            />
+          </template>
+        </v-network-graph>
       </div>
       <div v-else class="flex items-center justify-center h-full text-muted-foreground">
         <p>No relationships to display.</p>
@@ -22,7 +58,7 @@ import 'v-network-graph/lib/style.css'
 import { defineConfigs } from 'v-network-graph'
 
 const props = defineProps<{
-  nodes: Record<string, { name: string; type: string }>
+  nodes: Record<string, { name: string; type: string; image?: string | null }>
   edges: Record<string, { source: string; target: string; label: string; color: string; attitude?: number }>
   height?: number
   campaignId?: string
@@ -31,6 +67,19 @@ const props = defineProps<{
 const emit = defineEmits<{
   nodeClick: [nodeId: string]
 }>()
+
+const TYPE_COLORS: Record<string, string> = {
+  character: '#3b82f6',
+  location: '#10b981',
+  organization: '#f59e0b',
+  item: '#8b5cf6',
+  event: '#ef4444',
+}
+
+function nodeTypeColor(nodeId: string): string {
+  const type = props.nodes[nodeId]?.type?.toLowerCase() ?? ''
+  return TYPE_COLORS[type] ?? '#6b7280'
+}
 
 const hasData = computed(() => Object.keys(props.nodes || {}).length > 0)
 
@@ -58,7 +107,7 @@ const configs = defineConfigs({
   node: {
     normal: {
       radius: 20,
-      color: '#3b82f6',
+      color: (node: any) => nodeTypeColor(node.id),
     },
     label: {
       fontSize: 11,
