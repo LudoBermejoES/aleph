@@ -122,6 +122,12 @@ jobs:
             cd "$DEPLOY_PATH"
             npm ci --production 2>/dev/null || npm install --production
 
+            # Rebuild native addons for this server's architecture
+            # (CI builds on x64, server is aarch64 — binaries must be recompiled)
+            echo "Rebuilding native modules for $(uname -m)..."
+            cd "$DEPLOY_PATH/.output/server"
+            npm rebuild better-sqlite3
+
             # Ensure data directories exist
             mkdir -p "$DEPLOY_PATH/data" "$DEPLOY_PATH/content" "$DEPLOY_PATH/logs"
 
@@ -152,7 +158,7 @@ jobs:
             # Start/restart PM2
             echo "Starting PM2..."
             cd "$DEPLOY_PATH"
-            pm2 restart aleph || pm2 start ecosystem.config.cjs --env production
+            pm2 restart aleph --update-env || pm2 start ecosystem.config.cjs --env production
             pm2 save
 
             # Cleanup
