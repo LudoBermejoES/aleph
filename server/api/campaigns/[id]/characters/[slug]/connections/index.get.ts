@@ -16,8 +16,23 @@ export default defineEventHandler(async (event) => {
   const character = db.select().from(characters).where(eq(characters.entityId, entity.id)).get()
   if (!character) throw createError({ statusCode: 404, message: 'Character data not found' })
 
-  return db.select().from(characterConnections)
+  const targetEntities = db.select({
+    id: entities.id,
+    name: entities.name,
+    slug: entities.slug,
+    type: entities.type,
+  }).from(entities).where(eq(entities.campaignId, campaignId)).all()
+  const entityMap = Object.fromEntries(targetEntities.map(e => [e.id, e]))
+
+  const conns = db.select().from(characterConnections)
     .where(eq(characterConnections.characterId, character.id))
     .orderBy(characterConnections.sortOrder)
     .all()
+
+  return conns.map(c => ({
+    ...c,
+    targetEntityName: entityMap[c.targetEntityId]?.name ?? null,
+    targetEntitySlug: entityMap[c.targetEntityId]?.slug ?? null,
+    targetEntityType: entityMap[c.targetEntityId]?.type ?? null,
+  }))
 })
