@@ -23,6 +23,8 @@ test.describe('Campaign CRUD', () => {
     await expect(main.locator('text=Sessions').first()).toBeVisible()
   })
 
+  // Note: sidebar links are inside collapsible groups. Visibility relies on groups being
+  // expanded by default (no localStorage state in a fresh browser context).
   test('campaign sidebar shows navigation', async ({ page }) => {
     await registerAndLogin(page, 'Sidebar Viewer')
     await createCampaign(page, `Sidebar ${uid()}`)

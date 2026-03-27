@@ -11,6 +11,8 @@ test.describe('Navigation', () => {
     await expect(page.locator('text=404')).toBeVisible({ timeout: 10000 })
   })
 
+  // Note: sidebar links are inside collapsible groups. These clicks rely on groups being
+  // expanded by default (no localStorage state in a fresh browser context).
   test('sidebar navigation between sections', async ({ page }) => {
     await registerAndLogin(page, 'Sidebar Nav')
     await createCampaign(page, `Nav Camp ${uid()}`)

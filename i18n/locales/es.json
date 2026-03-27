@@ -434,7 +434,13 @@
     "graph": "Grafo",
     "members": "Miembros",
     "organizations": "Organizaciones",
-    "locations": "Lugares"
+    "locations": "Lugares",
+    "group": {
+      "world": "Mundo",
+      "story": "Historia",
+      "economy": "Economía",
+      "campaign": "Campaña"
+    }
   },
   "search": {
     "placeholder": "Buscar...",

@@ -40,6 +40,8 @@ export async function registerAndLogin(page: Page, name: string = 'E2E User'): P
  * Returns the campaign URL path.
  */
 export async function createCampaign(page: Page, name: string): Promise<string> {
+  await page.goto(`${BASE}/`)
+  await page.waitForLoadState('networkidle')
   await page.waitForSelector('button:has-text("New Campaign")', { timeout: 15000 })
   await page.click('button:has-text("New Campaign")')
   await page.waitForSelector('input[placeholder*="Curse"]', { timeout: 5000 })
