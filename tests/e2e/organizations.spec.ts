@@ -189,7 +189,7 @@ test.describe('Organization detail page', () => {
     await page.goto(`${page.url().split('/campaigns/')[0]}/campaigns/${campaignId}/organizations/${slug}`)
     await page.waitForLoadState('networkidle')
 
-    await expect(page.locator('main >> button:has-text("Edit"), main >> a:has-text("Edit")')).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('main a[href*="/edit"]')).toBeVisible({ timeout: 10000 })
   })
 })
 
@@ -201,7 +201,7 @@ test.describe('Organization edit flow', () => {
     await createCampaign(page, `Org Edit Camp ${uid()}`)
 
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
-    const originalName = `Edit Me ${uid()}`
+    const originalName = `Modifiable ${uid()}`
 
     const slug = await page.evaluate(async ([id, name]) => {
       const res = await fetch(`/api/campaigns/${id}/organizations`, {
@@ -216,7 +216,7 @@ test.describe('Organization edit flow', () => {
     await page.goto(`${base}/campaigns/${campaignId}/organizations/${slug}`)
     await page.waitForLoadState('networkidle')
 
-    await page.click('main >> a:has-text("Edit"), main >> button:has-text("Edit")')
+    await page.click('main a[href*="/edit"]')
     await page.waitForURL('**/edit', { timeout: 10000 })
 
     // Change status to dissolved
@@ -291,7 +291,7 @@ test.describe('Organization member management', () => {
     await page.waitForLoadState('networkidle')
 
     // Select character from dropdown
-    await page.selectOption('select', { label: 'Frodo Baggins' })
+    await page.selectOption('main select', { label: 'Frodo Baggins' })
 
     // Enter a role
     await page.fill('input[placeholder*="Ring-bearer"]', 'Ring-bearer')
@@ -300,8 +300,8 @@ test.describe('Organization member management', () => {
     await page.click('button:has-text("Add Member")')
 
     // Member should appear in the list
-    await expect(page.locator('main')).toContainText('Frodo Baggins', { timeout: 10000 })
-    await expect(page.locator('main')).toContainText('Ring-bearer', { timeout: 5000 })
+    await expect(page.locator('[data-testid="member-list"]')).toContainText('Frodo Baggins', { timeout: 10000 })
+    await expect(page.locator('[data-testid="member-list"]')).toContainText('Ring-bearer', { timeout: 5000 })
   })
 
   test('DM removes a member and they disappear from list', async ({ page }) => {
@@ -338,12 +338,12 @@ test.describe('Organization member management', () => {
     await page.goto(`${base}/campaigns/${campaignId}/organizations/${slug}`)
     await page.waitForLoadState('networkidle')
 
-    await expect(page.locator('main')).toContainText('Removable Hero', { timeout: 10000 })
+    await expect(page.locator('[data-testid="member-list"]')).toContainText('Removable Hero', { timeout: 10000 })
 
     // Click Remove
     await page.click('button:has-text("Remove")')
 
-    await expect(page.locator('main')).not.toContainText('Removable Hero', { timeout: 10000 })
+    await expect(page.locator('[data-testid="member-list"]')).not.toBeAttached({ timeout: 10000 })
     await expect(page.locator('main')).toContainText('No members yet', { timeout: 5000 })
   })
 

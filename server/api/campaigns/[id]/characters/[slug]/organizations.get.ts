@@ -24,6 +24,7 @@ export default defineEventHandler(async (event) => {
     organizationName: organizations.name,
     organizationSlug: organizations.slug,
     role: organizationMembers.role,
+    characterId: organizationMembers.characterId,
   })
     .from(organizationMembers)
     .innerJoin(organizations, eq(organizationMembers.organizationId, organizations.id))
