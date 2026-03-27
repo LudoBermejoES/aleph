@@ -37,6 +37,13 @@
 
       <!-- Table -->
       <button type="button" @mousedown.prevent="insertTable" class="p-1.5 rounded text-xs hover:bg-accent" title="Insert Table">⊞ Table</button>
+
+      <!-- Image (only shown when campaignId provided) -->
+      <template v-if="campaignId">
+        <div class="w-px h-4 bg-border mx-1" />
+        <button type="button" @mousedown.prevent="triggerImagePicker" class="p-1.5 rounded text-xs hover:bg-accent" title="Insert Image">🖼 Image</button>
+        <input ref="imageInputEl" type="file" accept="image/png,image/jpeg,image/webp,image/gif" class="hidden" @change="onImageFilePicked" />
+      </template>
     </div>
 
     <!-- Editor -->
@@ -59,9 +66,15 @@ import Collaboration from '@tiptap/extension-collaboration'
 import CollaborationCursor from '@tiptap/extension-collaboration-cursor'
 import { HocuspocusProvider } from '@hocuspocus/provider'
 import * as Y from 'yjs'
+import { ImagePlus } from 'tiptap-image-plus'
+import { FileHandler } from '@tiptap/extension-file-handler'
 import { EntityLink } from '../../server/extensions/entity-link'
 import { SecretBlock } from '../../server/extensions/secret-block'
 import { EntityMention } from '../extensions/entity-mention'
+import { uploadImage } from '../composables/useImageUpload'
+
+// Override the node name back to 'image' so @tiptap/markdown serialises it as ![](url)
+const ImagePlusFixed = ImagePlus.extend({ name: 'image' })
 
 const props = defineProps<{
   modelValue: string
@@ -78,6 +91,7 @@ const emit = defineEmits<{
 }>()
 
 const editorEl = ref<HTMLElement>()
+const imageInputEl = ref<HTMLInputElement>()
 let editor: Editor | null = null
 let provider: HocuspocusProvider | null = null
 let ydoc: Y.Doc | null = null
@@ -120,6 +134,27 @@ async function initEditor() {
     TableCell,
     TableHeader,
     Placeholder.configure({ placeholder: props.placeholder || 'Start writing...' }),
+    ImagePlusFixed.configure({ allowBase64: false }),
+    ...(props.campaignId ? [FileHandler.configure({
+      allowedMimeTypes: ['image/png', 'image/jpeg', 'image/webp', 'image/gif'],
+      onPaste: async (ed, files) => {
+        for (const file of files) {
+          try {
+            const url = await uploadImage(props.campaignId!, file)
+            ed.chain().focus().setImage({ src: url }).run()
+          } catch { /* silently skip */ }
+        }
+      },
+      onDrop: async (ed, files, pos) => {
+        for (const file of files) {
+          try {
+            const url = await uploadImage(props.campaignId!, file)
+            ed.chain().focus().setImage({ src: url }).run()
+            ed.commands.setNodeSelection(pos)
+          } catch { /* silently skip */ }
+        }
+      },
+    })] : []),
   ]
 
   // Add entity mention autocomplete if campaignId is provided
@@ -345,6 +380,24 @@ function insertTable() {
   editor?.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
 }
 
+function triggerImagePicker() {
+  imageInputEl.value?.click()
+}
+
+async function onImageFilePicked(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file || !props.campaignId) return
+  try {
+    const url = await uploadImage(props.campaignId, file)
+    editor?.chain().focus().setImage({ src: url }).run()
+  } catch {
+    // silently skip
+  } finally {
+    input.value = ''
+  }
+}
+
 onUnmounted(() => {
   provider?.destroy()
   provider = null
@@ -406,6 +459,16 @@ onUnmounted(() => {
   border-radius: 0.25rem;
   font-weight: 500;
   cursor: pointer;
+}
+/* Image styles */
+.ProseMirror img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.25rem;
+  cursor: default;
+}
+.ProseMirror img.ProseMirror-selectednode {
+  outline: 2px solid hsl(var(--primary));
 }
 /* Collaboration cursor styles */
 .collaboration-cursor__caret {
