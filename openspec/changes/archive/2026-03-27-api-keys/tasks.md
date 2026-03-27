@@ -53,7 +53,7 @@
 ## 9. Verify
 
 - [x] 9.1 Run `npm run test:unit` — all unit tests pass (472 pass)
-- [ ] 9.2 Run `npm run test:integration` — all integration tests pass (requires server on port 3333)
+- [x] 9.2 Run `npm run test:integration` — all integration tests pass (requires server on port 3333)
 - [ ] 9.3 Manual smoke test: `aleph login` → stores `apiKey` in `~/.aleph/config.json` → `aleph campaign list` succeeds using `X-API-Key` header
 - [ ] 9.4 Manual smoke test: settings page shows API Keys section, key can be generated and revoked
 - [ ] 9.5 Run `npm run build` — no type errors

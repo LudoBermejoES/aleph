@@ -94,6 +94,20 @@ Roles: `player`, `editor`, `co_dm`
 aleph search --campaign <id> <query> [--json]
 ```
 
+### Organizations
+```bash
+aleph organization list --campaign <id> [--json]
+aleph organization create --campaign <id> --name <name> [--type <type>] [--status <status>] [--description <desc>] [--json]
+aleph organization show <slug> --campaign <id> [--json]
+aleph organization edit <slug> --campaign <id> [--name <name>] [--type <type>] [--status <status>] [--description <desc>] [--json]
+aleph organization delete <slug> --campaign <id> [--yes]
+aleph organization member-add <slug> --campaign <id> --character <characterId> [--role <role>] [--json]
+aleph organization member-remove <slug> --campaign <id> --character <characterId>
+```
+
+Types: `faction`, `guild`, `army`, `cult`, `government`, `other`
+Statuses: `active`, `inactive`, `secret`, `dissolved`
+
 ### Dice Rolls
 ```bash
 aleph roll <formula> [--json]                      # local (offline)

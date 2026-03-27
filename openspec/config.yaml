@@ -25,5 +25,5 @@ rules:
     - Tasks should be concrete and implementable — each maps to specific file changes
     - Order tasks so foundational work (types, composables, utilities) comes before consumers
     - Every change MUST include a testing group with unit tests (Vitest), integration tests (Vitest + running server), and E2E tests (Playwright) where applicable — skip a level only if there is a clear reason (e.g. pure UI with no logic = no unit test needed)
-    - If the change affects any server API endpoint, auth flow, or data model, include a task to update aleph-cli (cli/ directory) — commands, client.js, config.js, login/logout, or the shareable skill at docs/claude-skill.md
+    - If the change affects any server API endpoint, auth flow, or data model, include tasks to update: (1) aleph-cli commands in cli/src/commands/, (2) docs/claude-skill.md (shareable skill, uses "aleph"/"npx aleph-cli"), (3) .claude/skills/aleph-cli/SKILL.md (local skill, uses "node .../cli/bin/aleph.js", bump version in frontmatter) — both skill files must always be updated together
     - Verification tasks (build, test, lint) should be the final group

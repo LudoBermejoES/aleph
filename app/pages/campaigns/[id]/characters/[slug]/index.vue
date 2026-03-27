@@ -99,6 +99,23 @@
         <InventoryPanel :campaign-id="campaignId" :owner-id="character.id" owner-type="character" />
       </div>
 
+      <!-- Organizations (organizations change) -->
+      <div class="mb-6" data-testid="character-organizations">
+        <h2 class="text-lg font-semibold mb-3">{{ $t('organizations.title') }}</h2>
+        <div v-if="characterOrgs.length" class="space-y-2">
+          <NuxtLink
+            v-for="mem in characterOrgs"
+            :key="mem.organizationId"
+            :to="`/campaigns/${campaignId}/organizations/${mem.organizationSlug}`"
+            class="block p-3 rounded border border-border hover:border-primary/50 transition-colors"
+          >
+            <span class="font-medium">{{ mem.organizationName }}</span>
+            <span v-if="mem.role" class="text-sm text-muted-foreground ml-2">— {{ mem.role }}</span>
+          </NuxtLink>
+        </div>
+        <p v-else class="text-sm text-muted-foreground">{{ $t('organizations.noMembers') }}</p>
+      </div>
+
       <!-- Markdown Content -->
       <div class="prose dark:prose-invert max-w-none text-foreground">
         <MDC v-if="character.content" :value="character.content" />
@@ -116,6 +133,7 @@ import type { Character, CharacterConnection } from '~/types/api'
 const character = ref<Character | null>(null)
 const connections = ref<CharacterConnection[]>([])
 const companions = ref<Character[]>([])
+const characterOrgs = ref<any[]>([])
 
 // Age calculation (7.1, 7.2)
 const calculatedAge = computed(() => {
@@ -146,6 +164,9 @@ async function load() {
 
   // Load companions (characters where isCompanionOf = this character's id)
   companions.value = await api.getCharacters({ companionOf: character.value?.id ?? '' }).catch(() => [])
+
+  // Load organization memberships
+  characterOrgs.value = await api.getCharacterOrganizations(slug).catch(() => [])
 }
 
 onMounted(load)

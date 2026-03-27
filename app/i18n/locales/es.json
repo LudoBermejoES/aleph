@@ -27,8 +27,7 @@
     "date": "Fecha",
     "amount": "Cantidad",
     "item": "Objeto",
-    "quantity": "Cantidad",
-    "saved": "¡Guardado!"
+    "quantity": "Cantidad"
   },
   "auth": {
     "signIn": "Iniciar sesión",
@@ -85,8 +84,7 @@
     "graph": "Grafo de relaciones",
     "graphSubtitle": "Visualiza las conexiones entre entidades",
     "members": "Miembros",
-    "membersSubtitle": "Invita jugadores, gestiona roles y permisos",
-    "settings": "Configuración de Campaña"
+    "membersSubtitle": "Invita jugadores, gestiona roles y permisos"
   },
   "members": {
     "title": "Miembros",
@@ -432,7 +430,8 @@
     "currencies": "Monedas",
     "transactions": "Transacciones",
     "graph": "Grafo",
-    "members": "Miembros"
+    "members": "Miembros",
+    "organizations": "Organizaciones"
   },
   "search": {
     "placeholder": "Buscar...",
@@ -470,6 +469,50 @@
     "selectTarget": "Seleccionar destino…",
     "transferring": "Transfiriendo…"
   },
+  "errors": {
+    "generic": "Algo salió mal",
+    "notFound": "No encontrado",
+    "forbidden": "No tienes permiso para hacer eso",
+    "failedLoad": "Error al cargar",
+    "failedSave": "Error al guardar"
+  },
+  "organizations": {
+    "title": "Organizaciones",
+    "new": "Nueva Organización",
+    "edit": "Editar Organización",
+    "empty": "No hay organizaciones todavía",
+    "emptyDescription": "Crea tu primera organización para empezar.",
+    "name": "Nombre *",
+    "namePlaceholder": "Nombre de la organización",
+    "description": "Descripción",
+    "descriptionPlaceholder": "Describe la organización...",
+    "type": "Tipo",
+    "status": "Estado",
+    "members": "Miembros",
+    "noMembers": "Sin miembros todavía",
+    "addMember": "Añadir Miembro",
+    "removeMember": "Eliminar",
+    "memberRole": "Rol",
+    "memberRolePlaceholder": "Portador del Anillo, Consejero, Miembro...",
+    "selectCharacter": "Seleccionar personaje",
+    "memberCount": "{count} miembro | {count} miembros",
+    "types": {
+      "faction": "Facción",
+      "guild": "Gremio",
+      "army": "Ejército",
+      "cult": "Culto",
+      "government": "Gobierno",
+      "other": "Otro"
+    },
+    "statuses": {
+      "active": "Activo",
+      "inactive": "Inactivo",
+      "secret": "Secreto",
+      "dissolved": "Disuelto"
+    },
+    "confirmDelete": "Eliminar Organización",
+    "confirmDeleteMessage": "¿Estás seguro de que quieres eliminar esta organización? Esta acción no se puede deshacer."
+  },
   "settings": {
     "title": "Configuración"
   },
@@ -490,12 +533,5 @@
     "copy": "Copiar",
     "copied": "¡Copiado!",
     "doneHidden": "La copié — cerrar"
-  },
-  "errors": {
-    "generic": "Algo salió mal",
-    "notFound": "No encontrado",
-    "forbidden": "No tienes permiso para hacer eso",
-    "failedLoad": "Error al cargar",
-    "failedSave": "Error al guardar"
   }
 }

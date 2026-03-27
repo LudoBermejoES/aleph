@@ -1,10 +1,10 @@
 ---
 name: aleph-cli
-description: Use the aleph CLI to manage campaigns, entities, characters, sessions, members, search, and dice rolls. Use when the user asks to list/create/edit/delete anything in Aleph, or when you need to query campaign data to answer questions.
+description: Use the aleph CLI to manage campaigns, entities, characters, organizations, sessions, members, search, and dice rolls. Use when the user asks to list/create/edit/delete anything in Aleph, or when you need to query campaign data to answer questions.
 license: MIT
 metadata:
   author: aleph
-  version: "1.1"
+  version: "1.2"
 ---
 
 You have access to the `aleph` CLI tool at `node /Users/ludo/code/aleph/cli/bin/aleph.js` (or `npm run aleph -- <args>` from the project root). Use it to interact with the running Aleph server.
@@ -84,6 +84,20 @@ aleph member invite --campaign <id> --role <role> [--expires <days>] [--json]
 ```
 
 Roles: `player`, `editor`, `co_dm`
+
+### Organizations
+```bash
+node /Users/ludo/code/aleph/cli/bin/aleph.js organization list --campaign <id> [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js organization create --campaign <id> --name <name> [--type <type>] [--status <status>] [--description <desc>] [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js organization show <slug> --campaign <id> [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js organization edit <slug> --campaign <id> [--name <name>] [--type <type>] [--status <status>] [--description <desc>] [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js organization delete <slug> --campaign <id> [--yes]
+node /Users/ludo/code/aleph/cli/bin/aleph.js organization member-add <slug> --campaign <id> --character <characterId> [--role <role>] [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js organization member-remove <slug> --campaign <id> --character <characterId>
+```
+
+Types: `faction`, `guild`, `army`, `cult`, `government`, `other`
+Statuses: `active`, `inactive`, `secret`, `dissolved`
 
 ### Search
 ```bash

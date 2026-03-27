@@ -140,7 +140,7 @@
     "visibilityDmOnly": "DM Only",
     "visibilityPrivate": "Private",
     "description": "Description",
-    "descriptionPlaceholder": "Write a character description... (type {'@'} to link entities)",
+    "descriptionPlaceholder": "Write a character description... (type @ to link entities)",
     "age": "Age:",
     "companionOf": "Companion of another character",
     "stats": "Stats",
@@ -171,7 +171,7 @@
     "tags": "Tags (comma-separated)",
     "tagsPlaceholder": "npc, barovia, undead",
     "content": "Content",
-    "contentPlaceholder": "Write entity content... (type {'@'} to link entities)",
+    "contentPlaceholder": "Write entity content... (type @ to link entities)",
     "failedSave": "Failed to save entity"
   },
   "sessions": {
@@ -199,7 +199,7 @@
     "titlePlaceholder": "Leave empty for auto-numbered title",
     "scheduledDate": "Scheduled Date",
     "notes": "Session Notes",
-    "notesPlaceholder": "Write session notes... (type {'@'} to link entities)",
+    "notesPlaceholder": "Write session notes... (type @ to link entities)",
     "failedSave": "Failed to save session"
   },
   "quests": {
@@ -216,7 +216,7 @@
     "noParent": "-- None (root quest) --",
     "secret": "Secret (DM only)",
     "description": "Description",
-    "descriptionPlaceholder": "Quest details... (type {'@'} to link entities)",
+    "descriptionPlaceholder": "Quest details... (type @ to link entities)",
     "statusOpen": "Open",
     "statusFailed": "Failed",
     "statusAbandoned": "Abandoned",
@@ -430,7 +430,8 @@
     "currencies": "Currencies",
     "transactions": "Transactions",
     "graph": "Graph",
-    "members": "Members"
+    "members": "Members",
+    "organizations": "Organizations"
   },
   "search": {
     "placeholder": "Search...",
@@ -474,5 +475,63 @@
     "forbidden": "You don't have permission to do that",
     "failedLoad": "Failed to load",
     "failedSave": "Failed to save"
+  },
+  "organizations": {
+    "title": "Organizations",
+    "new": "New Organization",
+    "edit": "Edit Organization",
+    "empty": "No organizations yet",
+    "emptyDescription": "Create your first organization to get started.",
+    "name": "Name *",
+    "namePlaceholder": "Organization name",
+    "description": "Description",
+    "descriptionPlaceholder": "Describe the organization...",
+    "type": "Type",
+    "status": "Status",
+    "members": "Members",
+    "noMembers": "No members yet",
+    "addMember": "Add Member",
+    "removeMember": "Remove",
+    "memberRole": "Role",
+    "memberRolePlaceholder": "Ring-bearer, Advisor, Member...",
+    "selectCharacter": "Select character",
+    "memberCount": "{count} member | {count} members",
+    "types": {
+      "faction": "Faction",
+      "guild": "Guild",
+      "army": "Army",
+      "cult": "Cult",
+      "government": "Government",
+      "other": "Other"
+    },
+    "statuses": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "secret": "Secret",
+      "dissolved": "Dissolved"
+    },
+    "confirmDelete": "Delete Organization",
+    "confirmDeleteMessage": "Are you sure you want to delete this organization? This action cannot be undone."
+  },
+  "settings": {
+    "title": "Settings"
+  },
+  "apiKeys": {
+    "title": "API Keys",
+    "description": "Generate API keys to authenticate the aleph-cli and other tools without using your password.",
+    "empty": "No API keys yet. Generate one below.",
+    "name": "Name",
+    "prefix": "Key Prefix",
+    "created": "Created",
+    "lastUsed": "Last Used",
+    "revoke": "Revoke",
+    "revokeConfirm": "Revoke this API key? It will stop working immediately and cannot be undone.",
+    "namePlaceholder": "e.g. aleph-cli, home-server",
+    "generate": "Generate Key",
+    "newKeyTitle": "Your New API Key",
+    "newKeyWarning": "Copy this key now — it will not be shown again.",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "doneHidden": "I've copied it — close"
   }
 }
