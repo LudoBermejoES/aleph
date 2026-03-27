@@ -30,7 +30,7 @@
 
     <div>
       <label class="text-sm font-medium">{{ $t('entities.content') }}</label>
-      <MarkdownEditor v-model="form.content" :placeholder="$t('entities.contentPlaceholder')" :campaign-id="campaignId" class="mt-1" />
+      <MarkdownEditor v-model="form.content" :placeholder="$t('entities.contentPlaceholder')" :campaign-id="campaignId" :draft-key="draftKey" class="mt-1" />
     </div>
 
     <div class="flex justify-end gap-2">
@@ -44,6 +44,7 @@
 const props = defineProps<{
   modelValue: { name: string; type: string; visibility: string; tagsRaw: string; content: string }
   campaignId: string
+  entitySlug?: string
   submitLabel?: string
   submitting?: boolean
 }>()
@@ -59,6 +60,14 @@ const form = computed({
   get: () => props.modelValue,
   set: (val) => emit('update:modelValue', val),
 })
+
+const draftKey = computed(() => `aleph:draft:${props.campaignId}:entity:${props.entitySlug ?? 'new'}`)
+
+function clearDraft() {
+  try { localStorage.removeItem(draftKey.value) } catch { /* ignore */ }
+}
+
+defineExpose({ clearDraft })
 
 onMounted(async () => {
   try { entityTypes.value = await useCampaignApi(props.campaignId).getEntityTypes() } catch { entityTypes.value = [] }

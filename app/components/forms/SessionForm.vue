@@ -21,7 +21,7 @@
     </div>
     <div>
       <label class="text-sm font-medium">{{ $t('sessions.notes') }}</label>
-      <MarkdownEditor v-model="form.content" :placeholder="$t('sessions.notesPlaceholder')" :campaign-id="campaignId" class="mt-1" />
+      <MarkdownEditor v-model="form.content" :placeholder="$t('sessions.notesPlaceholder')" :campaign-id="campaignId" :draft-key="draftKey" class="mt-1" />
     </div>
     <div class="flex justify-end gap-2">
       <slot name="cancel" />
@@ -34,6 +34,7 @@
 const props = defineProps<{
   modelValue: { title: string; scheduledDate: string; status: string; content: string }
   campaignId?: string
+  sessionSlug?: string
   submitLabel?: string
   submitting?: boolean
 }>()
@@ -44,4 +45,15 @@ const form = computed({
   get: () => props.modelValue,
   set: (val) => {},
 })
+
+const draftKey = computed(() =>
+  props.campaignId ? `aleph:draft:${props.campaignId}:session:${props.sessionSlug ?? 'new'}` : null,
+)
+
+function clearDraft() {
+  if (!draftKey.value) return
+  try { localStorage.removeItem(draftKey.value) } catch { /* ignore */ }
+}
+
+defineExpose({ clearDraft })
 </script>

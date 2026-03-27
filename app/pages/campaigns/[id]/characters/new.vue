@@ -34,6 +34,7 @@ async function create() {
   try {
     const res = await api.createCharacter(form.value)
     await charForm.value?.saveMemberships(res.slug)
+    charForm.value?.clearDraft()
     await router.push(`/campaigns/${campaignId}/characters/${res.slug}`)
   } catch (e: any) {
     alert(e.data?.message || t('characters.failedSave'))

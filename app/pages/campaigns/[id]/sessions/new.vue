@@ -7,7 +7,7 @@
       <span>/</span><span>{{ $t('sessions.new') }}</span>
     </div>
     <h1 class="text-2xl font-bold mb-6">{{ $t('sessions.new') }}</h1>
-    <SessionForm v-model="form" :submit-label="$t('common.create')" :submitting="submitting" @submit="create">
+    <SessionForm ref="sessionForm" v-model="form" :campaign-id="campaignId" :submit-label="$t('common.create')" :submitting="submitting" @submit="create">
       <template #cancel>
         <NuxtLink :to="`/campaigns/${campaignId}/sessions`"><Button variant="outline">{{ $t('common.cancel') }}</Button></NuxtLink>
       </template>
@@ -24,11 +24,13 @@ const { t } = useI18n()
 const form = ref({ title: '', scheduledDate: '', status: 'planned', content: '' })
 
 const api = useCampaignApi(campaignId)
+const sessionForm = ref<any>(null)
 
 async function create() {
   submitting.value = true
   try {
     const res = await api.createSession(form.value)
+    sessionForm.value?.clearDraft()
     await router.push(`/campaigns/${campaignId}/sessions/${res.slug}`)
   } catch (e: any) {
     alert(e.data?.message || t('sessions.failedSave'))

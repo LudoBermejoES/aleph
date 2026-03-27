@@ -30,7 +30,7 @@
     </div>
     <div>
       <label class="text-sm font-medium">{{ $t('quests.description') }}</label>
-      <MarkdownEditor v-model="form.content" :placeholder="$t('quests.descriptionPlaceholder')" :campaign-id="campaignId" class="mt-1" />
+      <MarkdownEditor v-model="form.content" :placeholder="$t('quests.descriptionPlaceholder')" :campaign-id="campaignId" :draft-key="draftKey" class="mt-1" />
     </div>
     <div class="flex justify-end gap-2">
       <slot name="cancel" />
@@ -43,6 +43,7 @@
 const props = defineProps<{
   modelValue: { name: string; status: string; parentQuestId: string; isSecret: boolean; content: string }
   campaignId: string
+  questSlug?: string
   submitLabel?: string
   submitting?: boolean
 }>()
@@ -53,8 +54,16 @@ const quests = ref<any[]>([])
 
 const form = computed({
   get: () => props.modelValue,
-  set: (val) => {},
+  set: (_val) => {},
 })
+
+const draftKey = computed(() => `aleph:draft:${props.campaignId}:quest:${props.questSlug ?? 'new'}`)
+
+function clearDraft() {
+  try { localStorage.removeItem(draftKey.value) } catch { /* ignore */ }
+}
+
+defineExpose({ clearDraft })
 
 onMounted(async () => {
   try { quests.value = await useCampaignApi(props.campaignId).getQuests() } catch { quests.value = [] }
