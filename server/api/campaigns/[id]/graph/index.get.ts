@@ -1,7 +1,8 @@
-import { eq } from 'drizzle-orm'
+import { eq, inArray } from 'drizzle-orm'
 import { useDb } from '../../../../utils/db'
 import { entities } from '../../../../db/schema/entities'
 import { entityRelations } from '../../../../db/schema/relations'
+import { characters } from '../../../../db/schema/characters'
 import { computeAttitudeColor } from '../../../../services/relationships'
 import { filterPinsByVisibility } from '../../../../services/maps'
 import type { CampaignRole } from '../../../../utils/permissions'
@@ -32,9 +33,19 @@ export default defineEventHandler(async (event) => {
     if (ent) nodes[eid] = ent
   }
 
+  // Fetch portrait URLs for character entities
+  const entityIdList = Array.from(entityIds)
+  const charRows = entityIdList.length > 0
+    ? db.select({ entityId: characters.entityId, portraitUrl: characters.portraitUrl })
+        .from(characters)
+        .where(inArray(characters.entityId, entityIdList))
+        .all()
+    : []
+  const portraitMap = Object.fromEntries(charRows.map(c => [c.entityId, c.portraitUrl]))
+
   // Build v-network-graph format
   const graphNodes = Object.fromEntries(
-    Object.entries(nodes).map(([id, n]) => [id, { name: n.name, type: n.type }])
+    Object.entries(nodes).map(([id, n]) => [id, { name: n.name, type: n.type, image: portraitMap[id] ?? null }])
   )
 
   const graphEdges = Object.fromEntries(
