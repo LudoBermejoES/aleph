@@ -1,16 +1,11 @@
+
 import { eq, and, inArray } from 'drizzle-orm'
 import { useDb } from '../../../../utils/db'
 import { entities } from '../../../../db/schema/entities'
-import { readEntityFile, stripSecretBlocks } from '../../../../services/content'
-import { hasMinRole } from '../../../../utils/permissions'
+import { stripSecretBlocks } from '../../../../services/content'
+import { safeReadEntityFile } from '../../../../utils/content-helpers'
+import { hasMinRole, ROLE_LEVEL, VISIBILITY_MIN_ROLE } from '../../../../utils/permissions'
 import type { CampaignRole } from '../../../../utils/permissions'
-
-const VISIBILITY_MIN_ROLE: Record<string, number> = {
-  public: 0, members: 2, editors: 3, dm_only: 4, private: 99,
-}
-const ROLE_LEVEL: Record<string, number> = {
-  dm: 5, co_dm: 4, editor: 3, player: 2, visitor: 1,
-}
 
 export default defineEventHandler(async (event) => {
   const campaignId = getRouterParam(event, 'id')!
@@ -47,12 +42,8 @@ export default defineEventHandler(async (event) => {
     currentParentId = parent.parentId
   }
 
-  let file
-  try {
-    file = await readEntityFile(entity.filePath)
-  } catch {
-    file = { frontmatter: { fields: { subtype: 'other' } }, content: '', contentHash: '' }
-  }
+  const file = await safeReadEntityFile(entity.filePath)
+    ?? { frontmatter: { fields: { subtype: 'other' } }, content: '', contentHash: '' }
 
   const subtype = (file.frontmatter?.fields as any)?.subtype ?? 'other'
 

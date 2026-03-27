@@ -2,7 +2,7 @@ import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
 import { entities } from '../../../../../db/schema/entities'
 import { characters } from '../../../../../db/schema/characters'
-import { readEntityFile } from '../../../../../services/content'
+import { safeReadEntityFile } from '../../../../../utils/content-helpers'
 
 export default defineEventHandler(async (event) => {
   const campaignId = getRouterParam(event, 'id')!
@@ -39,12 +39,8 @@ export default defineEventHandler(async (event) => {
   // Read subtypes from files in parallel
   const subtypeMap = new Map<string, string>()
   await Promise.all(children.map(async (c) => {
-    try {
-      const file = await readEntityFile(c.filePath)
-      subtypeMap.set(c.id, (file.frontmatter?.fields as any)?.subtype ?? 'other')
-    } catch {
-      subtypeMap.set(c.id, 'other')
-    }
+    const file = await safeReadEntityFile(c.filePath)
+    subtypeMap.set(c.id, (file?.frontmatter?.fields as any)?.subtype ?? 'other')
   }))
 
   return children.map(c => ({

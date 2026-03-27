@@ -1,4 +1,4 @@
-import { eq, and, or, sql } from 'drizzle-orm'
+import { eq, and, or, inArray } from 'drizzle-orm'
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 import { campaignMembers, campaignMemberPermissions } from '../db/schema/campaign-members'
 import { entityPermissions, entitySpecificViewers } from '../db/schema/permissions'
@@ -25,7 +25,9 @@ export const ROLE_HIERARCHY: Record<CampaignRole, number> = {
   visitor: 1,
 }
 
-const VISIBILITY_MIN_ROLE: Record<string, number> = {
+export const ROLE_LEVEL = ROLE_HIERARCHY
+
+export const VISIBILITY_MIN_ROLE: Record<string, number> = {
   public: 0,
   members: 2,    // player+
   editors: 3,    // editor+
@@ -49,6 +51,31 @@ export interface CampaignContext extends UserContext {
  */
 export function hasMinRole(role: CampaignRole, minRole: CampaignRole): boolean {
   return ROLE_HIERARCHY[role] >= ROLE_HIERARCHY[minRole]
+}
+
+/**
+ * Append a Drizzle visibility condition to a conditions array.
+ * No-op for co_dm and above (they can see everything).
+ * Imported by list endpoints that build SQL WHERE conditions arrays.
+ */
+export function buildVisibilityFilter(
+  role: CampaignRole,
+  userId: string,
+  conditions: any[],
+  visibilityCol: any,
+  createdByCol: any,
+): void {
+  if (hasMinRole(role, 'co_dm')) return
+  const userLevel = ROLE_LEVEL[role] ?? 0
+  const visibleLevels = Object.entries(VISIBILITY_MIN_ROLE)
+    .filter(([, minLevel]) => userLevel >= minLevel)
+    .map(([vis]) => vis)
+  conditions.push(
+    or(
+      inArray(visibilityCol, visibleLevels),
+      and(eq(visibilityCol, 'private'), eq(createdByCol, userId)),
+    )!,
+  )
 }
 
 /**

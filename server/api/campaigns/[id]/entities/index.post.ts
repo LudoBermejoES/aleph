@@ -1,10 +1,10 @@
 import { randomUUID } from 'crypto'
-import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../utils/db'
 import { useSqlite } from '../../../../utils/db'
 import { entities } from '../../../../db/schema/entities'
 import { hasMinRole } from '../../../../utils/permissions'
-import { writeEntityFile, slugify, resolveEntityPath } from '../../../../services/content'
+import { writeEntityFile, resolveEntityPath } from '../../../../services/content'
+import { ensureUniqueSlug } from '../../../../utils/content-helpers'
 import { indexEntity } from '../../../../services/search'
 import { logger } from '../../../../utils/logger'
 import { invalidateAutomatonCache } from '../../../../services/autolink'
@@ -32,13 +32,7 @@ export default defineEventHandler(async (event) => {
   const now = new Date()
 
   // Generate unique slug (scoped to campaign)
-  let slug = slugify(name)
-  const existing = db.select().from(entities)
-    .where(and(eq(entities.campaignId, campaignId), eq(entities.slug, slug)))
-    .get()
-  if (existing) {
-    slug = `${slug}-${Date.now().toString(36)}`
-  }
+  const slug = ensureUniqueSlug(db, campaignId, name)
 
   // Write .md file
   const contentDir = join(process.cwd(), campaign.contentDir)
