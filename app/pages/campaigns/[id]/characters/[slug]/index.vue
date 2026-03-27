@@ -82,7 +82,12 @@
         <h2 class="text-lg font-semibold mb-3">{{ $t('characters.connections') }}</h2>
         <div class="space-y-2">
           <div v-for="conn in connections" :key="conn.id" class="flex items-center gap-2 p-2 rounded border border-border">
-            <span class="font-medium">{{ conn.targetEntityName || conn.targetEntityId }}</span>
+            <NuxtLink
+              v-if="conn.targetEntitySlug"
+              :to="conn.targetEntityType === 'character' ? `/campaigns/${campaignId}/characters/${conn.targetEntitySlug}` : `/campaigns/${campaignId}/entities/${conn.targetEntitySlug}`"
+              class="font-medium hover:underline"
+            >{{ conn.targetEntityName || conn.targetEntitySlug }}</NuxtLink>
+            <span v-else class="font-medium">{{ conn.targetEntityName || conn.targetEntityId }}</span>
             <span v-if="conn.label" class="text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground">{{ conn.label }}</span>
             <span v-if="conn.description" class="text-sm text-muted-foreground">{{ conn.description }}</span>
           </div>
