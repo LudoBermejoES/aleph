@@ -7,6 +7,7 @@
           :edges="graphEdges"
           :configs="configs"
           :layouts="radialLayouts"
+          :layout-handler="props.centerNodeId ? undefined : forceLayout"
           :event-handlers="eventHandlers"
         >
           <template #override-node="{ nodeId, scale, config }">
@@ -57,6 +58,7 @@
 import { VNetworkGraph } from 'v-network-graph'
 import 'v-network-graph/lib/style.css'
 import { defineConfigs } from 'v-network-graph'
+import { ForceLayout } from 'v-network-graph/lib/force-layout'
 
 const props = defineProps<{
   nodes: Record<string, { name: string; type: string; image?: string | null }>
@@ -101,6 +103,8 @@ const radialLayouts = computed(() => {
 
   return { nodes: positions }
 })
+
+const forceLayout = new ForceLayout({ positionFixedByDrag: true })
 
 const graphNodes = computed(() => {
   const result: Record<string, { name: string }> = {}
