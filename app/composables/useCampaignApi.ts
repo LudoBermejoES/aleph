@@ -115,6 +115,10 @@ export function useCampaignApi(campaignId: string) {
     return $fetch(`${base}/characters/${slug}`, { method: 'DELETE' })
   }
 
+  function getCharacterOrganizations(slug: string) {
+    return $fetch<any[]>(`${base}/characters/${slug}/organizations`)
+  }
+
   function getCharacterConnections(slug: string) {
     return $fetch<CharacterConnection[]>(`${base}/characters/${slug}/connections`)
   }
@@ -381,6 +385,36 @@ export function useCampaignApi(campaignId: string) {
 
   // ─── Graph ──────────────────────────────────────────────────────────────────
 
+  // ─── Organizations ──────────────────────────────────────────────────────────
+
+  function getOrganizations() {
+    return $fetch<any[]>(`${base}/organizations`)
+  }
+
+  function getOrganization(slug: string) {
+    return $fetch<any>(`${base}/organizations/${slug}`)
+  }
+
+  function createOrganization(body: { name: string; description?: string; type?: string; status?: string }) {
+    return $fetch<any>(`${base}/organizations`, { method: 'POST', body })
+  }
+
+  function updateOrganization(slug: string, body: { name?: string; description?: string; type?: string; status?: string }) {
+    return $fetch<any>(`${base}/organizations/${slug}`, { method: 'PUT', body })
+  }
+
+  function deleteOrganization(slug: string) {
+    return $fetch(`${base}/organizations/${slug}`, { method: 'DELETE' })
+  }
+
+  function addOrganizationMember(slug: string, body: { characterId: string; role?: string }) {
+    return $fetch<any>(`${base}/organizations/${slug}/members`, { method: 'POST', body })
+  }
+
+  function removeOrganizationMember(slug: string, characterId: string) {
+    return $fetch(`${base}/organizations/${slug}/members/${characterId}`, { method: 'DELETE' })
+  }
+
   function getGraph() {
     return $fetch<GraphData>(`${base}/graph`)
   }
@@ -407,7 +441,7 @@ export function useCampaignApi(campaignId: string) {
     getEntityTypes, getTags, getMentions,
     // Characters
     getCharacters, getCharacter, createCharacter, updateCharacter, deleteCharacter,
-    getCharacterConnections, getCharacterFolders,
+    getCharacterConnections, getCharacterFolders, getCharacterOrganizations,
     // Sessions
     getSessions, getSession, createSession, updateSession, deleteSession,
     getSessionDecisions,
@@ -438,6 +472,9 @@ export function useCampaignApi(campaignId: string) {
     getGraph,
     // Search & dice
     search, roll,
+    // Organizations
+    getOrganizations, getOrganization, createOrganization, updateOrganization, deleteOrganization,
+    addOrganizationMember, removeOrganizationMember,
   }
 }
 

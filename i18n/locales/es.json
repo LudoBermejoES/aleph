@@ -430,7 +430,8 @@
     "currencies": "Monedas",
     "transactions": "Transacciones",
     "graph": "Grafo",
-    "members": "Miembros"
+    "members": "Miembros",
+    "organizations": "Organizaciones"
   },
   "search": {
     "placeholder": "Buscar...",
@@ -474,5 +475,63 @@
     "forbidden": "No tienes permiso para hacer eso",
     "failedLoad": "Error al cargar",
     "failedSave": "Error al guardar"
+  },
+  "organizations": {
+    "title": "Organizaciones",
+    "new": "Nueva Organización",
+    "edit": "Editar Organización",
+    "empty": "No hay organizaciones todavía",
+    "emptyDescription": "Crea tu primera organización para empezar.",
+    "name": "Nombre *",
+    "namePlaceholder": "Nombre de la organización",
+    "description": "Descripción",
+    "descriptionPlaceholder": "Describe la organización...",
+    "type": "Tipo",
+    "status": "Estado",
+    "members": "Miembros",
+    "noMembers": "Sin miembros todavía",
+    "addMember": "Añadir Miembro",
+    "removeMember": "Eliminar",
+    "memberRole": "Rol",
+    "memberRolePlaceholder": "Portador del Anillo, Consejero, Miembro...",
+    "selectCharacter": "Seleccionar personaje",
+    "memberCount": "{count} miembro | {count} miembros",
+    "types": {
+      "faction": "Facción",
+      "guild": "Gremio",
+      "army": "Ejército",
+      "cult": "Culto",
+      "government": "Gobierno",
+      "other": "Otro"
+    },
+    "statuses": {
+      "active": "Activo",
+      "inactive": "Inactivo",
+      "secret": "Secreto",
+      "dissolved": "Disuelto"
+    },
+    "confirmDelete": "Eliminar Organización",
+    "confirmDeleteMessage": "¿Estás seguro de que quieres eliminar esta organización? Esta acción no se puede deshacer."
+  },
+  "settings": {
+    "title": "Configuración"
+  },
+  "apiKeys": {
+    "title": "Claves de API",
+    "description": "Genera claves de API para autenticar aleph-cli y otras herramientas sin usar tu contraseña.",
+    "empty": "Aún no tienes claves de API. Genera una abajo.",
+    "name": "Nombre",
+    "prefix": "Prefijo de Clave",
+    "created": "Creada",
+    "lastUsed": "Último Uso",
+    "revoke": "Revocar",
+    "revokeConfirm": "¿Revocar esta clave de API? Dejará de funcionar de inmediato y no se puede deshacer.",
+    "namePlaceholder": "ej. aleph-cli, servidor-casa",
+    "generate": "Generar Clave",
+    "newKeyTitle": "Tu Nueva Clave de API",
+    "newKeyWarning": "Copia esta clave ahora — no se mostrará de nuevo.",
+    "copy": "Copiar",
+    "copied": "¡Copiado!",
+    "doneHidden": "La copié — cerrar"
   }
 }

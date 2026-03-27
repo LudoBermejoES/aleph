@@ -100,6 +100,7 @@ const campaignLinks = computed(() => {
   return [
     { to: `/campaigns/${id}/entities`, label: t('layout.wiki') },
     { to: `/campaigns/${id}/characters`, label: t('layout.characters') },
+    { to: `/campaigns/${id}/organizations`, label: t('layout.organizations') },
     { to: `/campaigns/${id}/maps`, label: t('layout.maps') },
     { to: `/campaigns/${id}/sessions`, label: t('layout.sessions') },
     { to: `/campaigns/${id}/quests`, label: t('layout.quests') },
