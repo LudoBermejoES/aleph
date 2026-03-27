@@ -2,6 +2,7 @@ import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
 import { entities } from '../../../../../db/schema/entities'
 import { characters } from '../../../../../db/schema/characters'
+import { readEntityFile } from '../../../../../services/content'
 
 export default defineEventHandler(async (event) => {
   const campaignId = getRouterParam(event, 'id')!
@@ -35,10 +36,22 @@ export default defineEventHandler(async (event) => {
     if (c.locationEntityId) inhabitantCountMap.set(c.locationEntityId, (inhabitantCountMap.get(c.locationEntityId) ?? 0) + 1)
   }
 
+  // Read subtypes from files in parallel
+  const subtypeMap = new Map<string, string>()
+  await Promise.all(children.map(async (c) => {
+    try {
+      const file = await readEntityFile(c.filePath)
+      subtypeMap.set(c.id, (file.frontmatter?.fields as any)?.subtype ?? 'other')
+    } catch {
+      subtypeMap.set(c.id, 'other')
+    }
+  }))
+
   return children.map(c => ({
     id: c.id,
     name: c.name,
     slug: c.slug,
+    subtype: subtypeMap.get(c.id) ?? 'other',
     visibility: c.visibility,
     childCount: childCountMap.get(c.id) ?? 0,
     inhabitantCount: inhabitantCountMap.get(c.id) ?? 0,
