@@ -120,6 +120,7 @@
           :edges="graphData.edges"
           :height="350"
           :campaign-id="campaignId"
+          :center-node-id="character?.entityId"
           @node-click="onGraphNodeClick"
         />
       </div>

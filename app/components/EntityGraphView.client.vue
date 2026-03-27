@@ -6,6 +6,7 @@
           :nodes="graphNodes"
           :edges="graphEdges"
           :configs="configs"
+          :layouts="radialLayouts"
           :event-handlers="eventHandlers"
         >
           <template #override-node="{ nodeId, scale, config }">
@@ -62,6 +63,7 @@ const props = defineProps<{
   edges: Record<string, { source: string; target: string; label: string; color: string; attitude?: number }>
   height?: number
   campaignId?: string
+  centerNodeId?: string
 }>()
 
 const emit = defineEmits<{
@@ -82,6 +84,23 @@ function nodeTypeColor(nodeId: string): string {
 }
 
 const hasData = computed(() => Object.keys(props.nodes || {}).length > 0)
+
+const radialLayouts = computed(() => {
+  const nodeIds = Object.keys(props.nodes || {})
+  if (!props.centerNodeId || nodeIds.length === 0) return { nodes: {} }
+
+  const positions: Record<string, { x: number; y: number }> = {}
+  positions[props.centerNodeId] = { x: 0, y: 0 }
+
+  const others = nodeIds.filter(id => id !== props.centerNodeId)
+  const radius = Math.max(160, others.length * 30)
+  others.forEach((id, i) => {
+    const angle = (2 * Math.PI * i) / others.length - Math.PI / 2
+    positions[id] = { x: Math.cos(angle) * radius, y: Math.sin(angle) * radius }
+  })
+
+  return { nodes: positions }
+})
 
 const graphNodes = computed(() => {
   const result: Record<string, { name: string }> = {}
