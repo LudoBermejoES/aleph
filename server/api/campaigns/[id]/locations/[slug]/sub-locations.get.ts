@@ -40,7 +40,7 @@ export default defineEventHandler(async (event) => {
   const subtypeMap = new Map<string, string>()
   await Promise.all(children.map(async (c) => {
     const file = await safeReadEntityFile(c.filePath)
-    subtypeMap.set(c.id, (file?.frontmatter?.fields as any)?.subtype ?? 'other')
+    subtypeMap.set(c.id, file?.frontmatter?.fields?.subtype as string ?? 'other')
   }))
 
   return children.map(c => ({

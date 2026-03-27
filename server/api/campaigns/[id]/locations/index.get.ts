@@ -74,7 +74,7 @@ export default defineEventHandler(async (event) => {
   const subtypeMap = new Map<string, string>()
   await Promise.all(results.map(async (loc) => {
     const file = await safeReadEntityFile(loc.filePath)
-    subtypeMap.set(loc.id, (file?.frontmatter?.fields as any)?.subtype ?? 'other')
+    subtypeMap.set(loc.id, file?.frontmatter?.fields?.subtype as string ?? 'other')
   }))
 
   const enriched = results.map((loc) => {

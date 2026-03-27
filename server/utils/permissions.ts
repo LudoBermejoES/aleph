@@ -1,4 +1,5 @@
 import { eq, and, or, inArray } from 'drizzle-orm'
+import type { Column, SQL } from 'drizzle-orm'
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 import { campaignMembers, campaignMemberPermissions } from '../db/schema/campaign-members'
 import { entityPermissions, entitySpecificViewers } from '../db/schema/permissions'
@@ -61,9 +62,9 @@ export function hasMinRole(role: CampaignRole, minRole: CampaignRole): boolean {
 export function buildVisibilityFilter(
   role: CampaignRole,
   userId: string,
-  conditions: any[],
-  visibilityCol: any,
-  createdByCol: any,
+  conditions: SQL[],
+  visibilityCol: Column,
+  createdByCol: Column,
 ): void {
   if (hasMinRole(role, 'co_dm')) return
   const userLevel = ROLE_LEVEL[role] ?? 0
