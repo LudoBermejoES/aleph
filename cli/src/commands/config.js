@@ -9,13 +9,13 @@ export function makeConfigCommand() {
     .command('set')
     .description('Set server URL and/or token')
     .option('--url <url>', 'Aleph server URL (e.g. http://localhost:3000)')
-    .option('--token <token>', 'API bearer token')
+    .option('--api-key <key>', 'API key (from Settings → API Keys)')
     .action((opts) => {
-      if (!opts.url && !opts.token) {
-        process.stderr.write('Provide --url and/or --token\n')
+      if (!opts.url && !opts.apiKey) {
+        process.stderr.write('Provide --url and/or --api-key\n')
         process.exit(1)
       }
-      setConfig({ url: opts.url, token: opts.token })
+      setConfig({ url: opts.url, apiKey: opts.apiKey })
       success('Config saved to ' + getConfigPath())
     })
 
@@ -25,11 +25,11 @@ export function makeConfigCommand() {
     .action(() => {
       const config = getConfig()
       info('Config file: ' + getConfigPath())
-      console.log('url:   ' + (config.url || '(not set)'))
-      const masked = config.token
-        ? config.token.slice(0, 6) + '***' + config.token.slice(-4)
+      console.log('url:     ' + (config.url || '(not set)'))
+      const masked = config.apiKey
+        ? config.apiKey.slice(0, 10) + '***' + config.apiKey.slice(-4)
         : '(not set)'
-      console.log('token: ' + masked)
+      console.log('api-key: ' + masked)
     })
 
   return cmd
