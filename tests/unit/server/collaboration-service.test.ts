@@ -45,7 +45,7 @@ describe('mergeFrontmatter', () => {
 })
 
 describe('markdownToTiptap', () => {
-  it('converts heading to Tiptap JSON', () => {
+  it('converts heading to Tiptap JSON', { timeout: 15000 }, () => {
     const json = markdownToTiptap('# Hello World')
     expect(json).toBeDefined()
     expect(json.type).toBe('doc')

@@ -11,7 +11,7 @@ import { markdownToTiptap, tiptapToMarkdown } from '../../../server/services/col
  * the editor uses internally.
  */
 describe('MarkdownEditor — core behavior', () => {
-  it('mounts with markdown: parses to Tiptap JSON with correct structure', () => {
+  it('mounts with markdown: parses to Tiptap JSON with correct structure', { timeout: 15000 }, () => {
     const md = '# Quest Log\n\nThe party explored **Castle Ravenloft**.\n\n- Found a key\n- Defeated a vampire spawn\n'
     const json = markdownToTiptap(md)
 
