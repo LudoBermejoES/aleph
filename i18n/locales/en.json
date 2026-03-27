@@ -154,6 +154,7 @@
     "abilities": "Abilities",
     "connections": "Connections",
     "relations": "Relations",
+    "graph": "Relationship Graph",
     "companions": "Companions",
     "wealth": "Wealth",
     "inventory": "Inventory",
