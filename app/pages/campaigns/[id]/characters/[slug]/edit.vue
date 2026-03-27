@@ -59,6 +59,7 @@ async function save() {
   try {
     await api.updateCharacter(slug, form.value)
     await charForm.value?.saveMemberships(slug)
+    charForm.value?.clearDraft()
     await router.push(`/campaigns/${campaignId}/characters/${slug}`)
   } catch (e: any) {
     alert(e.data?.message || t('characters.failedSave'))

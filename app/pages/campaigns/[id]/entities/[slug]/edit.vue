@@ -9,7 +9,7 @@
       <span>/</span><span>{{ $t('common.edit') }}</span>
     </div>
     <h1 class="text-2xl font-bold mb-6">{{ $t('entities.new') }}</h1>
-    <EntityForm v-if="loaded" v-model="form" :campaign-id="campaignId" :submit-label="$t('common.save')" :submitting="submitting" @submit="save">
+    <EntityForm ref="entityForm" v-if="loaded" v-model="form" :campaign-id="campaignId" :entity-slug="slug" :submit-label="$t('common.save')" :submitting="submitting" @submit="save">
       <template #cancel>
         <NuxtLink :to="`/campaigns/${campaignId}/entities/${slug}`"><Button variant="outline">{{ $t('common.cancel') }}</Button></NuxtLink>
       </template>
@@ -28,6 +28,7 @@ const { t } = useI18n()
 const form = ref({ name: '', type: 'note', visibility: 'members', tagsRaw: '', content: '' })
 
 const api = useCampaignApi(campaignId)
+const entityForm = ref<any>(null)
 
 onMounted(async () => {
   try {
@@ -51,6 +52,7 @@ async function save() {
   try {
     const tags = form.value.tagsRaw.split(',').map((t: string) => t.trim()).filter(Boolean)
     await api.updateEntity(slug, { ...form.value, tags })
+    entityForm.value?.clearDraft()
     await router.push(`/campaigns/${campaignId}/entities/${slug}`)
   } catch (e: any) {
     alert(e.data?.message || t('entities.failedSave'))

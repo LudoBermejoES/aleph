@@ -1,5 +1,13 @@
 <template>
   <div class="border border-border rounded-lg overflow-hidden">
+    <!-- Draft restore banner -->
+    <div v-if="hasDraft" class="flex items-center justify-between gap-2 px-3 py-2 bg-yellow-50 dark:bg-yellow-900/20 border-b border-yellow-200 dark:border-yellow-700 text-sm">
+      <span class="text-yellow-800 dark:text-yellow-200">You have unsaved changes from a previous session.</span>
+      <div class="flex gap-2 shrink-0">
+        <button type="button" class="px-2 py-0.5 rounded bg-yellow-200 dark:bg-yellow-700 hover:bg-yellow-300 dark:hover:bg-yellow-600 text-yellow-900 dark:text-yellow-100 text-xs font-medium" @click="onRestoreDraft">Restore draft</button>
+        <button type="button" class="px-2 py-0.5 rounded hover:bg-yellow-100 dark:hover:bg-yellow-800 text-yellow-700 dark:text-yellow-300 text-xs" @click="onDiscardDraft">Discard</button>
+      </div>
+    </div>
     <!-- Toolbar -->
     <div class="flex flex-wrap items-center gap-0.5 p-2 border-b border-border bg-muted/30">
       <!-- Undo/Redo -->
@@ -72,6 +80,7 @@ import { EntityLink } from '../../server/extensions/entity-link'
 import { SecretBlock } from '../../server/extensions/secret-block'
 import { EntityMention } from '../extensions/entity-mention'
 import { uploadImage } from '../composables/useImageUpload'
+import { useEditorDraft } from '../composables/useEditorDraft'
 
 // Override the node name back to 'image' so @tiptap/markdown serialises it as ![](url)
 const ImagePlusFixed = ImagePlus.extend({ name: 'image' })
@@ -84,6 +93,7 @@ const props = defineProps<{
   userName?: string
   userColor?: string
   campaignId?: string
+  draftKey?: string | null
 }>()
 
 const emit = defineEmits<{
@@ -95,6 +105,22 @@ const imageInputEl = ref<HTMLInputElement>()
 let editor: Editor | null = null
 let provider: HocuspocusProvider | null = null
 let ydoc: Y.Doc | null = null
+
+const draftKeyRef = computed(() => props.draftKey ?? null)
+const serverContentRef = computed(() => props.modelValue)
+const { hasDraft, draftContent, scheduleDraftWrite, discardDraft } = useEditorDraft(draftKeyRef, serverContentRef)
+
+function onRestoreDraft() {
+  if (!editor || draftContent.value === null) return
+  const parsed = editor.markdown.parse(draftContent.value)
+  editor.commands.setContent(parsed)
+  emit('update:modelValue', draftContent.value)
+  discardDraft()
+}
+
+function onDiscardDraft() {
+  discardDraft()
+}
 
 const editorState = reactive({
   isBold: false, isItalic: false, isStrike: false, isCode: false,
@@ -318,7 +344,9 @@ async function initEditor() {
     extensions,
     content: '',
     onUpdate: ({ editor: e }) => {
-      emit('update:modelValue', e.getMarkdown())
+      const md = e.getMarkdown()
+      emit('update:modelValue', md)
+      scheduleDraftWrite(md)
       updateEditorState()
     },
     onSelectionUpdate: () => updateEditorState(),

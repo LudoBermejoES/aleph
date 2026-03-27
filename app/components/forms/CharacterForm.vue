@@ -54,7 +54,7 @@
 
     <div>
       <label class="text-sm font-medium">{{ $t('characters.description') }}</label>
-      <MarkdownEditor v-model="form.content" :placeholder="$t('characters.descriptionPlaceholder')" :campaign-id="campaignId" class="mt-1" />
+      <MarkdownEditor v-model="form.content" :placeholder="$t('characters.descriptionPlaceholder')" :campaign-id="campaignId" :draft-key="draftKey" class="mt-1" />
     </div>
 
     <!-- Organizations -->
@@ -90,6 +90,8 @@ const props = defineProps<{
   submitLabel?: string
   submitting?: boolean
 }>()
+
+const draftKey = computed(() => `aleph:draft:${props.campaignId}:character:${props.characterSlug ?? 'new'}`)
 
 const emit = defineEmits<{
   'update:modelValue': [value: typeof props.modelValue]
@@ -156,5 +158,9 @@ async function saveMemberships(characterSlug: string) {
   }
 }
 
-defineExpose({ saveMemberships })
+function clearDraft() {
+  try { localStorage.removeItem(draftKey.value) } catch { /* ignore */ }
+}
+
+defineExpose({ saveMemberships, clearDraft })
 </script>
