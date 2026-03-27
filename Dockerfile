@@ -17,10 +17,10 @@ COPY --from=build /app/ecosystem.config.cjs /app/ecosystem.config.cjs
 
 RUN mkdir -p /app/data /app/content /app/logs
 
-EXPOSE 3000
+EXPOSE 3033
 
 ENV NODE_ENV=production
-ENV NITRO_PORT=3000
+ENV NITRO_PORT=3033
 ENV NITRO_HOST=0.0.0.0
 
 CMD ["pm2-runtime", "ecosystem.config.cjs", "--env", "production"]

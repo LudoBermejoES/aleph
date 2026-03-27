@@ -6,7 +6,7 @@ module.exports = {
     exec_mode: 'fork',
     env_production: {
       NODE_ENV: 'production',
-      NITRO_PORT: 3000,
+      NITRO_PORT: 3033,
       NITRO_HOST: '0.0.0.0',
     },
     log_date_format: 'YYYY-MM-DD HH:mm:ss Z',

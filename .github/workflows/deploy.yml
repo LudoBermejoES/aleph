@@ -1,0 +1,167 @@
+name: Deploy Aleph
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests
+        run: npx vitest run tests/unit/
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Nuxt app
+        run: npm run build
+
+      - name: Create deployment archive
+        run: |
+          mkdir -p /tmp/aleph-deploy
+
+          # Copy built output and essential files
+          cp -r .output /tmp/aleph-deploy/
+          cp -r server/db/migrations /tmp/aleph-deploy/migrations
+          cp ecosystem.config.cjs /tmp/aleph-deploy/
+          cp package.json /tmp/aleph-deploy/
+          cp package-lock.json /tmp/aleph-deploy/
+
+          cd /tmp/aleph-deploy
+          tar -czf $GITHUB_WORKSPACE/aleph.tar.gz .
+
+          cd $GITHUB_WORKSPACE
+          echo "Archive created:"
+          ls -lh aleph.tar.gz
+
+      - name: Upload archive to server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          source: "aleph.tar.gz"
+          target: "/tmp/"
+
+      - name: Deploy to server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            set -e
+
+            # Load NVM
+            export NVM_DIR="/var/www/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+            DEPLOY_PATH="/var/www/aleph"
+            BACKUP_PATH="/var/www/aleph-backup-$(date +%Y%m%d-%H%M%S)"
+
+            # Backup current data
+            if [ -d "$DEPLOY_PATH" ]; then
+              echo "Creating backup at $BACKUP_PATH..."
+              mkdir -p "$BACKUP_PATH"
+              [ -d "$DEPLOY_PATH/data" ] && cp -r "$DEPLOY_PATH/data" "$BACKUP_PATH/"
+              [ -d "$DEPLOY_PATH/content" ] && cp -r "$DEPLOY_PATH/content" "$BACKUP_PATH/"
+              [ -d "$DEPLOY_PATH/logs" ] && cp -r "$DEPLOY_PATH/logs" "$BACKUP_PATH/"
+              [ -f "$DEPLOY_PATH/.env" ] && cp "$DEPLOY_PATH/.env" "$BACKUP_PATH/"
+            fi
+
+            # Stop PM2 process
+            echo "Stopping PM2..."
+            pm2 stop aleph 2>/dev/null || echo "Process not running"
+
+            # Clean old code but preserve data dirs
+            mkdir -p "$DEPLOY_PATH"
+            cd "$DEPLOY_PATH"
+            find . -maxdepth 1 ! -name '.' ! -name '..' ! -name 'data' ! -name 'content' ! -name 'logs' ! -name '.env' -exec rm -rf {} + 2>/dev/null || true
+
+            # Extract new code
+            echo "Extracting new version..."
+            tar -xzf /tmp/aleph.tar.gz -C "$DEPLOY_PATH"
+
+            # Restore migrations to expected path
+            mkdir -p "$DEPLOY_PATH/server/db"
+            mv "$DEPLOY_PATH/migrations" "$DEPLOY_PATH/server/db/migrations"
+
+            # Install production dependencies
+            echo "Installing dependencies..."
+            cd "$DEPLOY_PATH"
+            npm ci --production 2>/dev/null || npm install --production
+
+            # Ensure data directories exist
+            mkdir -p "$DEPLOY_PATH/data" "$DEPLOY_PATH/content" "$DEPLOY_PATH/logs"
+
+            # Restore data from backup if directories are empty
+            if [ -d "$BACKUP_PATH" ]; then
+              echo "Restoring data from backup..."
+              [ -d "$BACKUP_PATH/data" ] && [ ! "$(ls -A $DEPLOY_PATH/data 2>/dev/null)" ] && cp -r "$BACKUP_PATH/data/"* "$DEPLOY_PATH/data/" 2>/dev/null || true
+              [ -d "$BACKUP_PATH/content" ] && [ ! "$(ls -A $DEPLOY_PATH/content 2>/dev/null)" ] && cp -r "$BACKUP_PATH/content/"* "$DEPLOY_PATH/content/" 2>/dev/null || true
+              [ -f "$BACKUP_PATH/.env" ] && [ ! -f "$DEPLOY_PATH/.env" ] && cp "$BACKUP_PATH/.env" "$DEPLOY_PATH/.env"
+            fi
+
+            # Create .env if missing
+            if [ ! -f "$DEPLOY_PATH/.env" ]; then
+              echo "WARNING: No .env file — creating template..."
+              cat > "$DEPLOY_PATH/.env" << 'ENVEOF'
+            NODE_ENV=production
+            NITRO_PORT=3033
+            NITRO_HOST=0.0.0.0
+            BETTER_AUTH_SECRET=CHANGE_ME
+            BETTER_AUTH_URL=https://aleph.ludobermejo.es
+            ENVEOF
+            fi
+
+            # Set permissions
+            chown -R www-data:www-data "$DEPLOY_PATH"
+            chmod 750 "$DEPLOY_PATH/data" "$DEPLOY_PATH/content" "$DEPLOY_PATH/logs"
+
+            # Start/restart PM2
+            echo "Starting PM2..."
+            cd "$DEPLOY_PATH"
+            pm2 restart aleph || pm2 start ecosystem.config.cjs --env production
+            pm2 save
+
+            # Cleanup
+            rm -f /tmp/aleph.tar.gz
+
+            # Rotate backups (keep last 3)
+            cd /var/www
+            ls -td aleph-backup-* 2>/dev/null | tail -n +4 | xargs rm -rf 2>/dev/null || true
+
+            echo ""
+            echo "Deployment complete!"
+            pm2 list
