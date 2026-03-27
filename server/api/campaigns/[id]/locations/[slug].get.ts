@@ -45,7 +45,7 @@ export default defineEventHandler(async (event) => {
   const file = await safeReadEntityFile(entity.filePath)
     ?? { frontmatter: { fields: { subtype: 'other' } }, content: '', contentHash: '' }
 
-  const subtype = (file.frontmatter?.fields as any)?.subtype ?? 'other'
+  const subtype = file.frontmatter?.fields?.subtype as string ?? 'other'
 
   return {
     ...entity,
