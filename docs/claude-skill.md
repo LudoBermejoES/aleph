@@ -1,10 +1,10 @@
 ---
 name: aleph-cli
-description: Use the aleph CLI to manage campaigns, entities, characters, sessions, members, search, and dice rolls. Use when the user asks to list/create/edit/delete anything in Aleph, or when you need to query campaign data to answer questions.
+description: Use the aleph CLI to manage campaigns, entities, characters, locations, organizations, sessions, members, search, and dice rolls. Use when the user asks to list/create/edit/delete anything in Aleph, or when you need to query campaign data to answer questions.
 license: MIT
 metadata:
   author: aleph
-  version: "1.1"
+  version: "1.2"
 ---
 
 You have access to the `aleph` CLI. Run it as `aleph` if installed globally (`npm i -g aleph-cli`), or `npx aleph-cli` otherwise.
@@ -107,6 +107,24 @@ aleph organization member-remove <slug> --campaign <id> --character <characterId
 
 Types: `faction`, `guild`, `army`, `cult`, `government`, `other`
 Statuses: `active`, `inactive`, `secret`, `dissolved`
+
+### Locations
+
+```bash
+aleph location list --campaign <id> [--search <q>] [--subtype <subtype>] [--json]
+aleph location create --campaign <id> --name <name> [--subtype <subtype>] [--parent <id>] [--visibility <vis>] [--content <text>] [--json]
+aleph location show <slug> --campaign <id> [--json]
+aleph location edit <slug> --campaign <id> [--name <name>] [--subtype <subtype>] [--parent <id>] [--visibility <vis>] [--content <text>] [--json]
+aleph location delete <slug> --campaign <id> [--yes]
+aleph location inhabitants <slug> --campaign <id> [--json]
+aleph location inhabitant-add <slug> --campaign <id> --character <characterId>
+aleph location inhabitant-remove <slug> --campaign <id> --character <characterId>
+aleph location organizations <slug> --campaign <id> [--json]
+aleph location org-add <slug> --campaign <id> --org <organizationId>
+aleph location org-remove <slug> --campaign <id> --org <organizationId>
+```
+
+Subtypes: `country`, `region`, `city`, `town`, `village`, `dungeon`, `lair`, `building`, `room`, `wilderness`, `other`
 
 ### Dice Rolls
 ```bash

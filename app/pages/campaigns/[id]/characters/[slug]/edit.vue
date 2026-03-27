@@ -27,7 +27,7 @@ const loaded = ref(false)
 const { t } = useI18n()
 const form = ref({
   name: '', characterType: 'npc', race: '', class: '', alignment: '',
-  status: 'alive', visibility: 'members', content: '', ownerUserId: '',
+  status: 'alive', visibility: 'members', content: '', ownerUserId: '', locationId: '',
 })
 
 const api = useCampaignApi(campaignId)
@@ -46,6 +46,7 @@ onMounted(async () => {
       visibility: char.visibility || 'members',
       content: char.content || '',
       ownerUserId: char.ownerUserId || '',
+      locationId: char.locationEntityId || '',
     }
     loaded.value = true
   } catch {
@@ -57,7 +58,8 @@ onMounted(async () => {
 async function save() {
   submitting.value = true
   try {
-    await api.updateCharacter(slug, form.value)
+    const { locationId, ...rest } = form.value
+    await api.updateCharacter(slug, { ...rest, locationEntityId: locationId || null })
     await charForm.value?.saveMemberships(slug)
     charForm.value?.clearDraft()
     await router.push(`/campaigns/${campaignId}/characters/${slug}`)

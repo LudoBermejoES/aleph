@@ -50,6 +50,13 @@
           <option value="private">{{ $t('characters.visibilityPrivate') }}</option>
         </select>
       </div>
+      <div v-if="locations.length">
+        <label class="text-sm font-medium">{{ $t('characters.currentLocation') }}</label>
+        <select v-model="form.locationId" class="w-full mt-1 px-3 py-2 rounded border border-input bg-background">
+          <option value="">{{ $t('characters.noLocation') }}</option>
+          <option v-for="loc in locations" :key="loc.id" :value="loc.id">{{ loc.name }}</option>
+        </select>
+      </div>
     </div>
 
     <div>
@@ -84,7 +91,7 @@
 
 <script setup lang="ts">
 const props = defineProps<{
-  modelValue: { name: string; characterType: string; race: string; class: string; alignment: string; status: string; visibility: string; content: string; ownerUserId: string }
+  modelValue: { name: string; characterType: string; race: string; class: string; alignment: string; status: string; visibility: string; content: string; ownerUserId: string; locationId: string }
   campaignId: string
   characterSlug?: string  // present on edit, absent on create
   submitLabel?: string
@@ -101,6 +108,7 @@ const emit = defineEmits<{
 const api = useCampaignApi(props.campaignId)
 const members = ref<any[]>([])
 const organizations = ref<any[]>([])
+const locations = ref<any[]>([])
 const pendingMemberships = ref<{ organizationId: string; role: string }[]>([])
 
 const form = computed({
@@ -109,12 +117,14 @@ const form = computed({
 })
 
 onMounted(async () => {
-  const [ms, orgs] = await Promise.all([
+  const [ms, orgs, locs] = await Promise.all([
     api.getMembers().catch(() => []),
     api.getOrganizations().catch(() => []),
+    api.getLocations().catch(() => []),
   ])
   members.value = ms
   organizations.value = orgs
+  locations.value = locs
 
   // Load existing memberships when editing
   if (props.characterSlug) {

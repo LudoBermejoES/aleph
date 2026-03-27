@@ -21,6 +21,9 @@
               {{ character.status }}
             </span>
           </div>
+          <NuxtLink v-if="character.locationSlug" :to="`/campaigns/${campaignId}/locations/${character.locationSlug}`" class="text-xs text-muted-foreground hover:text-primary ml-1" data-testid="character-location">
+            📍 {{ character.locationName }}
+          </NuxtLink>
           <!-- Mount/Companion indicator (7.8) -->
           <span v-if="calculatedAge !== null" class="text-xs text-muted-foreground ml-2" data-testid="character-age">
             {{ $t('characters.age') }} {{ calculatedAge }}
