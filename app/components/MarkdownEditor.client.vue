@@ -71,7 +71,7 @@ import { TableRow } from '@tiptap/extension-table-row'
 import { TableCell } from '@tiptap/extension-table-cell'
 import { TableHeader } from '@tiptap/extension-table-header'
 import Collaboration from '@tiptap/extension-collaboration'
-import CollaborationCursor from '@tiptap/extension-collaboration-cursor'
+import CollaborationCaret from '@tiptap/extension-collaboration-caret'
 import { HocuspocusProvider } from '@hocuspocus/provider'
 import * as Y from 'yjs'
 import { ImagePlus } from 'tiptap-image-plus'
@@ -326,7 +326,7 @@ async function initEditor() {
     extensions.push(
       StarterKit.configure({ history: false, link: { openOnClick: false, HTMLAttributes: { class: 'text-primary underline' } } }),
       Collaboration.configure({ document: ydoc }),
-      CollaborationCursor.configure({
+      CollaborationCaret.configure({
         provider,
         user: {
           name: props.userName || 'Anonymous',
@@ -498,15 +498,15 @@ onUnmounted(() => {
 .ProseMirror img.ProseMirror-selectednode {
   outline: 2px solid hsl(var(--primary));
 }
-/* Collaboration cursor styles */
-.collaboration-cursor__caret {
+/* Collaboration caret styles */
+.collaboration-carets__caret {
   position: relative;
   border-left: 2px solid;
   margin-left: -1px;
   pointer-events: none;
   word-break: normal;
 }
-.collaboration-cursor__label {
+.collaboration-carets__label {
   position: absolute;
   top: -1.4em;
   left: -1px;

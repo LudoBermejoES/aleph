@@ -146,8 +146,8 @@ test.describe('Multi-User Collaboration', () => {
 
     // Check for collaboration cursor elements (the other user's cursor label)
     // When two users are connected, Hocuspocus sends awareness data that renders cursor labels
-    const cursor1 = page1.locator('.collaboration-cursor__label')
-    const cursor2 = page2.locator('.collaboration-cursor__label')
+    const cursor1 = page1.locator('.collaboration-carets__label')
+    const cursor2 = page2.locator('.collaboration-carets__label')
 
     // At least one page should see the other user's cursor
     const hasCursors = await Promise.race([
