@@ -3,6 +3,7 @@ import { useDb } from '../../../../utils/db'
 import { entities } from '../../../../db/schema/entities'
 import { characters } from '../../../../db/schema/characters'
 import { hasMinRole } from '../../../../utils/permissions'
+import { readEntityFile } from '../../../../services/content'
 import type { CampaignRole } from '../../../../utils/permissions'
 
 const VISIBILITY_MIN_ROLE: Record<string, number> = {
@@ -87,11 +88,23 @@ export default defineEventHandler(async (event) => {
     for (const p of parents) parentMap.set(p.id, p.name)
   }
 
+  // Read subtypes from files in parallel
+  const subtypeMap = new Map<string, string>()
+  await Promise.all(results.map(async (loc) => {
+    try {
+      const file = await readEntityFile(loc.filePath)
+      subtypeMap.set(loc.id, (file.frontmatter?.fields as any)?.subtype ?? 'other')
+    } catch {
+      subtypeMap.set(loc.id, 'other')
+    }
+  }))
+
   const enriched = results.map((loc) => {
     return {
       id: loc.id,
       name: loc.name,
       slug: loc.slug,
+      subtype: subtypeMap.get(loc.id) ?? 'other',
       parentId: loc.parentId,
       parentName: loc.parentId ? (parentMap.get(loc.parentId) ?? null) : null,
       visibility: loc.visibility,
@@ -101,7 +114,9 @@ export default defineEventHandler(async (event) => {
     }
   })
 
-  // Subtype filter happens after enrichment (subtype not in DB)
-  // For now return all and let client filter; subtype stored in file only
+  // Apply subtype filter now that we have the values
+  if (subtype) {
+    return enriched.filter(l => l.subtype === subtype)
+  }
   return enriched
 })
