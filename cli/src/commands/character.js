@@ -1,6 +1,7 @@
 import { Command } from 'commander'
-import { get, post } from '../lib/client.js'
+import { get, post, postMultipart } from '../lib/client.js'
 import { print, success } from '../lib/output.js'
+import { existsSync } from 'fs'
 
 export function makeCharacterCommand() {
   const cmd = new Command('character').description('Manage characters')
@@ -48,8 +49,34 @@ export function makeCharacterCommand() {
       if (opts.json) {
         print(data, { json: true })
       } else {
-        print({ name: data.name, slug: data.slug, type: data.type || '', class: data.class || '', race: data.race || '' })
+        print({
+          name: data.name,
+          slug: data.slug,
+          type: data.characterType || '',
+          class: data.class || '',
+          race: data.race || '',
+          portrait: data.portraitUrl || '(none)',
+        })
       }
+    })
+
+  cmd
+    .command('upload-portrait')
+    .description('Upload a portrait image for a character')
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .requiredOption('--slug <slug>', 'Character slug')
+    .requiredOption('--file <path>', 'Path to image file (png, jpg, webp)')
+    .action(async (opts) => {
+      if (!existsSync(opts.file)) {
+        process.stderr.write(`Error: File not found: ${opts.file}\n`)
+        process.exit(1)
+      }
+      const data = await postMultipart(
+        `/api/campaigns/${opts.campaign}/characters/${opts.slug}/portrait`,
+        opts.file,
+        'portrait',
+      )
+      success(`Portrait uploaded: ${data.portraitUrl}`)
     })
 
   return cmd

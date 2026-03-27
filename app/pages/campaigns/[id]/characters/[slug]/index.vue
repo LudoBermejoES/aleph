@@ -9,7 +9,20 @@
         <span class="text-foreground">{{ character.name }}</span>
       </div>
 
-      <div class="flex items-start justify-between mb-6">
+      <div class="flex gap-6 mb-6">
+        <!-- Portrait -->
+        <CharacterPortrait
+          :portrait-url="character.portraitUrl ?? null"
+          :name="character.name"
+          :editable="canEdit"
+          :campaign-id="campaignId"
+          :character-slug="slug"
+          size="lg"
+          @uploaded="url => { if (character) character.portraitUrl = url }"
+        />
+
+        <div class="flex-1">
+      <div class="flex items-start justify-between mb-4">
         <div>
           <h1 class="text-3xl font-bold">{{ character.name }}</h1>
           <div class="flex items-center gap-2 mt-2">
@@ -36,6 +49,8 @@
           <Button variant="outline" size="sm" data-testid="edit-character">{{ $t('common.edit') }}</Button>
         </NuxtLink>
       </div>
+        </div><!-- end flex-1 -->
+      </div><!-- end portrait+header flex -->
 
       <!-- Stats -->
       <div v-if="character.stats?.length" class="mb-6" data-testid="character-stats">
@@ -158,12 +173,18 @@ const calculatedAge = computed(() => {
 })
 
 const api = useCampaignApi(campaignId)
+const canEdit = ref(false)
 
 async function load() {
-  character.value = await api.getCharacter(slug).catch(() => null)
+  const [char, campaign] = await Promise.all([
+    api.getCharacter(slug).catch(() => null),
+    api.getCampaign().catch(() => null),
+  ])
+  character.value = char
+  canEdit.value = ['dm', 'co_dm', 'editor'].includes(campaign?.role ?? '')
 
   // Load connections
-  connections.value = await api.getCharacterConnections(slug).catch(() => [])
+  connections.value = await api.getCharacterConnections(character.value?.slug ?? slug).catch(() => [])
 
   // Load companions (characters where isCompanionOf = this character's id)
   companions.value = await api.getCharacters({ companionOf: character.value?.id ?? '' }).catch(() => [])

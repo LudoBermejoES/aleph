@@ -76,6 +76,7 @@ export default defineEventHandler(async (event) => {
     ...character,
     locationName,
     locationSlug,
+    portraitUrl: character.portraitUrl ?? null,
     frontmatter: file.frontmatter,
     content: stripSecretBlocks(file.content, role),
     stats: filteredStats,
