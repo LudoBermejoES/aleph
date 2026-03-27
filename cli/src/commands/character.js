@@ -155,7 +155,10 @@ export function makeCharacterCommand() {
       if (opts.json) {
         print(data, { json: true })
       } else {
-        print(data.map(c => ({ id: c.id, targetEntityId: c.targetEntityId, label: c.label || '', description: c.description || '' })))
+        const entityRes = await get(`/api/campaigns/${opts.campaign}/entities?limit=500`)
+        const allEntities = Array.isArray(entityRes) ? entityRes : (entityRes.entities ?? [])
+        const nameMap = Object.fromEntries(allEntities.map(e => [e.id, e.name]))
+        print(data.map(c => ({ id: c.id, target: nameMap[c.targetEntityId] ?? c.targetEntityId, label: c.label || '', description: c.description || '' })))
       }
     })
 
