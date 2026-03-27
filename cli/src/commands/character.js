@@ -69,6 +69,7 @@ export function makeCharacterCommand() {
     .option('--class <class>', 'Class')
     .option('--alignment <alignment>', 'Alignment')
     .option('--status <status>', 'Status (alive, dead, missing, unknown)')
+    .option('--type <type>', 'Character type (pc, npc)')
     .option('--content <markdown>', 'Markdown content (biography, notes)')
     .option('--stdin', 'Read markdown content from stdin')
     .option('--json', 'Output as JSON')
@@ -83,6 +84,7 @@ export function makeCharacterCommand() {
       if (opts.class !== undefined) body.class = opts.class
       if (opts.alignment !== undefined) body.alignment = opts.alignment
       if (opts.status !== undefined) body.status = opts.status
+      if (opts.type !== undefined) body.characterType = opts.type
       if (opts.stdin) {
         body.content = await new Promise((resolve) => {
           let data = ''
@@ -94,7 +96,7 @@ export function makeCharacterCommand() {
         body.content = opts.content
       }
       if (Object.keys(body).length === 0) {
-        process.stderr.write('Error: provide at least one field to update (--name, --race, --class, --alignment, --status, --content, --stdin)\n')
+        process.stderr.write('Error: provide at least one field to update (--name, --race, --class, --alignment, --status, --type, --content, --stdin)\n')
         process.exit(1)
       }
       const data = await put(`/api/campaigns/${opts.campaign}/characters/${slug}`, body)

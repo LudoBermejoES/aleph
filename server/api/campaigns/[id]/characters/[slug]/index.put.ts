@@ -37,6 +37,7 @@ export default defineEventHandler(async (event) => {
   if (body.class !== undefined) charUpdates.class = body.class
   if (body.alignment !== undefined) charUpdates.alignment = body.alignment
   if (body.status !== undefined) charUpdates.status = body.status
+  if (body.characterType !== undefined) charUpdates.characterType = body.characterType
   if (body.locationEntityId !== undefined) charUpdates.locationEntityId = body.locationEntityId
   if (body.folderId !== undefined) charUpdates.folderId = body.folderId
 

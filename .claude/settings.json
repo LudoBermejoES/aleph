@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(CAMP=753b7958-d63b-4053-bcb5-1ac44b0f96e0 node /Users/ludo/code/aleph/cli/bin/aleph.js character connections atropos --campaign $CAMP --json)",
+      "Bash(node -e \"const d=[];process.stdin.on\\(''''data'''',c=>d.push\\(c\\)\\);process.stdin.on\\(''''end'''',\\(\\)=>{:*)",
+      "Bash(node /Users/ludo/code/aleph/cli/bin/aleph.js character connection-delete garra 57178e4a-5a0e-472d-87d4-d72cb3daf8a9 --campaign $CAMP --yes)",
+      "Read(//Users/ludo/.aleph/**)",
+      "Bash(cat ~/.aleph/*.json)",
+      "Read(//Users/ludo/**)",
+      "Bash(for slug:*)",
+      "Bash(do)",
+      "Bash(node /Users/ludo/code/aleph/cli/bin/aleph.js character update $slug --campaign $CAMP --type pc)",
+      "Bash(echo \"✓ $slug → pc\")"
+    ]
+  }
+}
