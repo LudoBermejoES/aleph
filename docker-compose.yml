@@ -2,7 +2,7 @@ services:
   aleph:
     build: .
     ports:
-      - "3000:3000"
+      - "3033:3033"
     volumes:
       - aleph-data:/app/data
       - aleph-content:/app/content
