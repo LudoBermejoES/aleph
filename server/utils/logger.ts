@@ -50,14 +50,11 @@ if (isProduction) {
   )
 }
 
-// Extend npm levels to include http between info and verbose
-const levels = { ...winston.config.npm.levels, http: 2 }
-// Ensure colors include http
 winston.addColors({ http: 'magenta' })
 
 export const logger = winston.createLogger({
   level: logLevel,
-  levels,
+  levels: winston.config.npm.levels,
   transports,
 })
 
