@@ -24,8 +24,8 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, watch } from 'vue'
-import type { Map as LeafletMap, ImageOverlay, Marker } from 'leaflet'
+import { onMounted, onUnmounted } from 'vue'
+import type { Map as LeafletMap, Marker } from 'leaflet'
 
 const props = defineProps<{
   imagePath?: string
@@ -84,38 +84,35 @@ let markers: Marker[] = []
 onMounted(async () => {
   if (!mapContainer.value) return
 
-  // Dynamic import to avoid SSR issues
   const L = await import('leaflet')
   await import('leaflet/dist/leaflet.css')
 
   const imgWidth = props.width || 1024
   const imgHeight = props.height || 768
+  const maxDim = Math.max(imgWidth, imgHeight)
+  const maxZoom = Math.ceil(Math.log2(maxDim / 256))
   const bounds = L.latLngBounds([0, 0], [imgHeight, imgWidth])
 
   map = L.map(mapContainer.value, {
     crs: L.CRS.Simple,
-    minZoom: -2,
-    maxZoom: 4,
-    maxBounds: bounds.pad(0.5),
+    minZoom: 0,
+    maxZoom,
+    maxBounds: bounds.pad(0.25),
     zoomSnap: 0.5,
   })
 
   map.fitBounds(bounds)
 
-  // Add map image layer
-  if (props.isTiled && props.tileUrl) {
-    // Tiled map -- use L.tileLayer
+  // Always use tileLayer — all maps are tiled
+  if (props.tileUrl) {
     L.tileLayer(props.tileUrl, {
-      minZoom: -2,
-      maxZoom: 4,
       tileSize: 256,
+      minZoom: 0,
+      maxZoom,
       noWrap: true,
+      bounds,
     }).addTo(map)
-  } else if (props.imagePath) {
-    // Non-tiled -- use image overlay
-    L.imageOverlay(props.imagePath, bounds).addTo(map)
   } else {
-    // No image yet
     map.setView([imgHeight / 2, imgWidth / 2], 0)
   }
 
@@ -166,12 +163,10 @@ onMounted(async () => {
 function renderPins(L: typeof import('leaflet')) {
   if (!map || !props.pins) return
 
-  // Clear existing markers
   markers.forEach(m => m.remove())
   markers = []
 
   for (const pin of props.pins) {
-    // Check group visibility
     if (pin.groupId && groupVisibility[pin.groupId] === false) continue
 
     const color = pin.color || '#3b82f6'
@@ -184,7 +179,6 @@ function renderPins(L: typeof import('leaflet')) {
 
     const marker = L.marker([pin.lat, pin.lng], { icon: divIcon }).addTo(map)
 
-    // Popup
     const popupContent = `
       <div style="min-width:120px;">
         <strong>${pin.label || 'Pin'}</strong>
@@ -213,7 +207,6 @@ function toggleLayer(layerId: string) {
 
 function toggleGroup(groupId: string) {
   groupVisibility[groupId] = !groupVisibility[groupId]
-  // Re-render pins with updated group visibility
   if (map) {
     import('leaflet').then(L => renderPins(L))
   }
