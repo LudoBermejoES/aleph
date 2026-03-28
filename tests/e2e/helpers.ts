@@ -18,12 +18,29 @@ async function waitForSPANavigation(page: Page, pattern: string | RegExp, timeou
 }
 
 /**
+ * Navigate with automatic retry on ERR_ABORTED.
+ * Under load the Nitro server occasionally drops the first connection.
+ */
+async function gotoWithRetry(page: Page, url: string, retries = 3): Promise<void> {
+  for (let i = 0; i < retries; i++) {
+    try {
+      await page.goto(url, { waitUntil: 'domcontentloaded' })
+      return
+    } catch (err: any) {
+      if (i === retries - 1) throw err
+      // Back off before retrying
+      await page.waitForTimeout(500 * (i + 1))
+    }
+  }
+}
+
+/**
  * Register a new user and land on the home page (authenticated).
  * Returns the email used.
  */
 export async function registerAndLogin(page: Page, name: string = 'E2E User'): Promise<string> {
   const email = `e2e-${Date.now()}-${Math.random().toString(36).slice(2, 6)}@example.com`
-  await page.goto(`${BASE}/register`, { waitUntil: 'domcontentloaded' })
+  await gotoWithRetry(page, `${BASE}/register`)
   await page.waitForSelector('form', { timeout: 15000 })
   await page.fill('#name', name)
   await page.fill('#email', email)
@@ -40,7 +57,7 @@ export async function registerAndLogin(page: Page, name: string = 'E2E User'): P
  * Returns the campaign URL path.
  */
 export async function createCampaign(page: Page, name: string): Promise<string> {
-  await page.goto(`${BASE}/`, { waitUntil: 'domcontentloaded' })
+  await gotoWithRetry(page, `${BASE}/`)
   await page.waitForLoadState('networkidle')
   await page.waitForSelector('button:has-text("New Campaign")', { timeout: 15000 })
   await page.click('button:has-text("New Campaign")')

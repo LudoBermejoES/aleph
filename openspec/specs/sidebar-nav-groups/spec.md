@@ -1,41 +1,20 @@
-# sidebar-nav-groups Specification
+## MODIFIED Requirements
 
-## Purpose
-TBD - created by archiving change sidebar-groups. Update Purpose after archive.
-## Requirements
-### Requirement: Campaign nav links are organized into named groups
-The sidebar SHALL display campaign navigation links organized into collapsible groups: World, Story, Economy, and Campaign.
+### Requirement: Sidebar nav links display icons
+Every nav link in `app/layouts/default.vue` SHALL render a leading icon from `ICONS` before its text label. The icon SHALL be `w-4 h-4 shrink-0` and the link SHALL use `flex items-center gap-2`.
 
-#### Scenario: Groups render with labels
-- **WHEN** a user is inside a campaign
-- **THEN** the sidebar shows 4 section headers (World, Story, Economy, Campaign) each with their respective links beneath
+#### Scenario: All Campaigns link has icon
+- **WHEN** the sidebar is rendered outside a campaign
+- **THEN** the "All Campaigns" link shows a `LayoutDashboard` icon before the label
 
-#### Scenario: All groups are expanded by default
-- **WHEN** a user visits a campaign for the first time (no localStorage state)
-- **THEN** all 4 groups are expanded and all 15 links are visible
+#### Scenario: Campaign section links have icons
+- **WHEN** the sidebar is rendered inside a campaign
+- **THEN** each link (Wiki, Characters, Organizations, Locations, Maps, Sessions, Quests, Calendars, Items, Shops, Inventories, Currencies, Transactions, Graph, Members) shows its assigned icon
 
-### Requirement: Groups are collapsible
-Each group SHALL be toggled open or closed by clicking its header.
+#### Scenario: Nav group headers have icons
+- **WHEN** a collapsible nav group header is rendered
+- **THEN** the group button shows a thematic icon: Globe (World), BookMarked (Story), Landmark (Economy), Shield (Campaign)
 
-#### Scenario: Collapsing a group hides its links
-- **WHEN** a user clicks a group header
-- **THEN** the group's links are hidden and only the header remains visible
-
-#### Scenario: Expanding a group shows its links
-- **WHEN** a user clicks a collapsed group header
-- **THEN** the group's links become visible again
-
-### Requirement: Collapsed state persists across navigation
-The open/closed state of each group SHALL be stored in `localStorage` and restored on subsequent page loads.
-
-#### Scenario: State survives navigation
-- **WHEN** a user collapses a group and navigates to another page
-- **THEN** the group remains collapsed when they return
-
-### Requirement: Active group is always expanded
-If the current route is within a group, that group SHALL be forced open regardless of its stored collapsed state.
-
-#### Scenario: Navigating to a link in a collapsed group
-- **WHEN** the current route matches a link inside a collapsed group
-- **THEN** that group is automatically expanded
-
+#### Scenario: Sign out and Settings links have icons
+- **WHEN** the bottom user section of the sidebar is rendered
+- **THEN** Sign Out shows a `LogOut` icon and Settings shows a `Settings` icon

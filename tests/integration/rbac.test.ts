@@ -67,11 +67,7 @@ describe('Entity RBAC (integration)', () => {
   })
 
   it('DM can set entity permission overrides', async () => {
-    const entData = await (await api(`/api/campaigns/${campaignId}/entities/${entitySlug}`, {
-      method: 'GET', headers: { Cookie: dmCookie },
-    })).json()
-
-    const res = await api(`/api/campaigns/${campaignId}/entities/${entData.id}/permissions`, {
+    const res = await api(`/api/campaigns/${campaignId}/entities/${entitySlug}/permissions`, {
       method: 'PUT', headers: { Cookie: dmCookie },
       body: { targetRole: 'player', permission: 'view', effect: 'deny' },
     })
@@ -79,11 +75,7 @@ describe('Entity RBAC (integration)', () => {
   })
 
   it('player cannot set entity permission overrides (403)', async () => {
-    const entData = await (await api(`/api/campaigns/${campaignId}/entities/${entitySlug}`, {
-      method: 'GET', headers: { Cookie: dmCookie },
-    })).json()
-
-    const res = await api(`/api/campaigns/${campaignId}/entities/${entData.id}/permissions`, {
+    const res = await api(`/api/campaigns/${campaignId}/entities/${entitySlug}/permissions`, {
       method: 'PUT', headers: { Cookie: playerCookie },
       body: { targetRole: 'player', permission: 'view', effect: 'allow' },
     })
@@ -154,8 +146,8 @@ describe('Template & Tag CRUD (integration)', () => {
     const ent = await entRes.json()
     expect(ent.id).toBeDefined()
 
-    // Assign tag (uses entity ID, not slug)
-    const patchRes = await api(`/api/campaigns/${campaignId}/entities/${ent.id}/tags`, {
+    // Assign tag (uses slug)
+    const patchRes = await api(`/api/campaigns/${campaignId}/entities/${ent.slug}/tags`, {
       method: 'PATCH', headers: { Cookie: cookie },
       body: { add: [tag.id] },
     })

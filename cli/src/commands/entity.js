@@ -1,8 +1,8 @@
 import { Command } from 'commander'
 import { confirm } from '@inquirer/prompts'
-import { get, post, put, del } from '../lib/client.js'
+import { get, post, put, del, postMultipart } from '../lib/client.js'
 import { print, success } from '../lib/output.js'
-import { readFileSync } from 'fs'
+import { readFileSync, existsSync } from 'fs'
 
 export function makeEntityCommand() {
   const cmd = new Command('entity').description('Manage wiki entities')
@@ -99,6 +99,30 @@ export function makeEntityCommand() {
       }
       await del(`/api/campaigns/${opts.campaign}/entities/${slug}`)
       success(`Entity "${slug}" deleted.`)
+    })
+
+  cmd
+    .command('upload-image')
+    .description('Upload an image for an entity')
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .requiredOption('--slug <slug>', 'Entity slug')
+    .requiredOption('--file <path>', 'Path to image file (png, jpg, webp)')
+    .option('--json', 'Output as JSON')
+    .action(async (opts) => {
+      if (!existsSync(opts.file)) {
+        process.stderr.write(`Error: File not found: ${opts.file}\n`)
+        process.exit(1)
+      }
+      const data = await postMultipart(
+        `/api/campaigns/${opts.campaign}/entities/${opts.slug}/image`,
+        opts.file,
+        'image',
+      )
+      if (opts.json) {
+        print(data, { json: true })
+      } else {
+        success(`Image uploaded: ${data.imageUrl}`)
+      }
     })
 
   return cmd

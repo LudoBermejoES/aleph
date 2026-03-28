@@ -109,6 +109,11 @@
     "portraitAlt": "{name} portrait",
     "noPortrait": "No portrait"
   },
+  "entity": {
+    "uploadImage": "Upload image",
+    "imageAlt": "{name} image",
+    "noImage": "No image"
+  },
   "characters": {
     "title": "Characters",
     "new": "New Character",

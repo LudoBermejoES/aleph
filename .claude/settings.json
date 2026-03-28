@@ -13,7 +13,36 @@
       "Bash(echo \"✓ $slug → pc\")",
       "WebFetch(domain:dash14.github.io)",
       "Bash(grep -r \"override-back\\\\|layers\\\\|override-node-label\\\\|pointerover\\\\|dblclick\\\\|getNodePosition\\\\|translateFromSvgCoord\\\\|vNetworkGraphRef\\\\|graphRef\" /Users/ludo/code/aleph/node_modules/v-network-graph/lib/ --include=*.js -l)",
-      "Bash(node -e \"const v = require\\(''''/Users/ludo/code/aleph/node_modules/v-network-graph/lib/index.js''''\\); console.log\\(Object.keys\\(v\\)\\)\")"
+      "Bash(node -e \"const v = require\\(''''/Users/ludo/code/aleph/node_modules/v-network-graph/lib/index.js''''\\); console.log\\(Object.keys\\(v\\)\\)\")",
+      "Bash(find /Users/ludo/code/aleph/public -type f -name *icon* -o -name *apple*)",
+      "Bash(find /Users/ludo/code/aleph/app/components -type f -name *.vue)",
+      "Bash(grep -E \"index|^[^/]*\\\\.vue$\")",
+      "Bash(echo -n \"Adding $slug... \")",
+      "Bash(node /Users/ludo/code/aleph/cli/bin/aleph.js organization member-add la-familia --campaign $CAMP --character $slug)",
+      "Bash(node /Users/ludo/code/aleph/cli/bin/aleph.js organization edit --help)",
+      "Bash(node /Users/ludo/code/aleph/cli/bin/aleph.js organization edit la-familia --campaign 753b7958-d63b-4053-bcb5-1ac44b0f96e0 --status active)",
+      "Bash(echo -n \"Updating $slug to pc... \")",
+      "Bash(node /Users/ludo/code/aleph/cli/bin/aleph.js character edit $slug --campaign $CAMP --type pc)",
+      "Bash(grep -r \"{{ $t\\(\" /Users/ludo/code/aleph/app/pages --include=\"*.vue\" -h)",
+      "Bash(xargs ls:*)",
+      "Bash(grep -roh \"{{ $t\\(''''common\\\\.[a-zA-Z]*''''\\)\" /Users/ludo/code/aleph --include=\"*.vue\")",
+      "Bash(cat /Users/ludo/code/aleph/app/pages/campaigns/[id]/index.vue)",
+      "Bash(npm link:*)",
+      "Bash(aleph --version)",
+      "Bash(aleph --help)",
+      "Bash(grep -E \"\\\\.\\(vue|tsx|ts\\)$\")",
+      "Bash(ls -la /Users/ludo/code/aleph/app/pages/campaigns/[id])",
+      "Bash(sqlite3 /Users/ludo/code/aleph/data/aleph.db \"ALTER TABLE entities ADD COLUMN image_url text;\")",
+      "Bash(sqlite3 /Users/ludo/code/aleph/data/aleph.db \"PRAGMA table_info\\(entities\\);\")",
+      "Bash(ls /Users/ludo/code/aleph/server/api/campaigns/[id]/entities/)",
+      "Edit(/.claude/skills/aleph-cli/**)",
+      "Bash(ls /Users/ludo/code/aleph/server/api/campaigns/[id]/entities/[entityId]/)",
+      "Bash(ls /Users/ludo/code/aleph/server/api/campaigns/[id]/index.get.ts)"
+    ],
+    "additionalDirectories": [
+      "/Users/ludo/code/arcadia/.claude/skills",
+      "/Users/ludo/code/arcadia/.claude",
+      "/Users/ludo/code/aleph/server/api/campaigns/[id]/entities"
     ]
   }
 }
