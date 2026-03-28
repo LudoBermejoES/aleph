@@ -39,11 +39,12 @@
       <EntityGraphView
         v-else
         :nodes="filteredNodes"
-        :edges="filteredEdges"
+        :edges="coloredEdges"
         :height="600"
         :campaign-id="campaignId"
         @node-click="onNodeClick"
       />
+      <GraphLegend :edges="filteredEdges" />
       <p class="text-xs text-muted-foreground mt-2">
         {{ $t('graph.stats', { nodes: Object.keys(filteredNodes).length, edges: Object.keys(filteredEdges).length }) }}
         <span v-if="Object.keys(filteredNodes).length > 500" class="ml-2 text-amber-600">{{ $t('timelines.largeGraph') }}</span>
@@ -55,6 +56,7 @@
 
 <script setup lang="ts">
 import type { GraphData } from '~/types/api'
+import { relationTypeColor } from '~/utils/graph-helpers'
 const route = useRoute()
 const campaignId = route.params.id as string
 const api = useCampaignApi(campaignId)
@@ -87,6 +89,15 @@ const filteredEdges = computed(() => {
   const result: Record<string, any> = {}
   for (const [id, edge] of Object.entries(graphData.value.edges) as [string, any][]) {
     if (nodeIds.has(edge.source) && nodeIds.has(edge.target)) result[id] = edge
+  }
+  return result
+})
+
+// Apply relation type color palette for campaign graph
+const coloredEdges = computed(() => {
+  const result: Record<string, any> = {}
+  for (const [id, edge] of Object.entries(filteredEdges.value) as [string, any][]) {
+    result[id] = { ...edge, color: relationTypeColor(edge.relationTypeSlug ?? 'custom') }
   }
   return result
 })

@@ -419,6 +419,9 @@ export interface GraphNode {
   id: string
   name: string
   type: string
+  slug?: string
+  image?: string | null
+  organizations?: Array<{ slug: string; name: string }>
 }
 
 export interface GraphEdge {
@@ -428,6 +431,7 @@ export interface GraphEdge {
   label: string
   attitude: number | null
   color: string | null
+  relationTypeSlug?: string
 }
 
 // ─── Misc ─────────────────────────────────────────────────────────────────────
