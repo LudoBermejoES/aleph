@@ -37,12 +37,21 @@ export default defineEventHandler(async (event) => {
 
   // Optional type filter
   const typeFilter = query.type as string | undefined
-  const finalResults = typeFilter
+  const filteredByType = typeFilter
     ? filtered.filter(r => {
         const ent = db.select({ type: entities.type }).from(entities).where(eq(entities.id, r.entityId)).get()
         return ent?.type === typeFilter
       })
     : filtered
+
+  // Enrich results with slug and type
+  const finalResults = filteredByType.map(r => {
+    const ent = db.select({ slug: entities.slug, type: entities.type })
+      .from(entities)
+      .where(eq(entities.id, r.entityId))
+      .get()
+    return { ...r, slug: ent?.slug ?? null, type: ent?.type ?? null }
+  })
 
   return { results: finalResults, query: q }
 })
