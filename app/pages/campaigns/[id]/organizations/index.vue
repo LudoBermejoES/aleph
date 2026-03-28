@@ -25,8 +25,10 @@
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2">
             <span class="font-medium">{{ org.name }}</span>
-            <span class="text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground">{{ $t(`organizations.types.${org.type}`) }}</span>
-            <span class="text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground">{{ $t(`organizations.statuses.${org.status}`) }}</span>
+            <span class="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground">
+              <component :is="{ faction: ICONS.orgFaction, guild: ICONS.orgGuild, army: ICONS.orgArmy, cult: ICONS.orgCult, government: ICONS.orgGovernment }[org.type] ?? ICONS.orgOther" class="w-3 h-3" />{{ $t(`organizations.types.${org.type}`) }}</span>
+            <span class="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground">
+              <component :is="org.status === 'active' ? ICONS.orgActive : org.status === 'inactive' ? ICONS.orgInactive : org.status === 'secret' ? ICONS.orgSecret : ICONS.orgDissolved" class="w-3 h-3" />{{ $t(`organizations.statuses.${org.status}`) }}</span>
           </div>
           <span class="text-sm text-muted-foreground">{{ org.memberCount }} {{ org.memberCount === 1 ? 'member' : 'members' }}</span>
         </div>
@@ -41,6 +43,7 @@
 </template>
 
 <script setup lang="ts">
+import { ICONS } from '~/utils/icons'
 const route = useRoute()
 const campaignId = route.params.id as string
 const api = useCampaignApi(campaignId)

@@ -58,13 +58,15 @@
                 <CharacterPortrait :portrait-url="c.portraitUrl ?? null" :name="c.name" :editable="false" size="sm" />
                 <div>
                 <span class="font-medium">{{ c.name }}</span>
-                <span class="text-xs ml-2 px-2 py-0.5 rounded bg-secondary text-secondary-foreground">{{ c.characterType }}</span>
+                <span class="inline-flex items-center gap-1 text-xs ml-2 px-2 py-0.5 rounded bg-secondary text-secondary-foreground">
+                  <component :is="c.characterType === 'pc' ? ICONS.pc : ICONS.npc" class="w-3 h-3" />{{ c.characterType }}</span>
                 <span v-if="c.race" class="text-xs ml-1 text-muted-foreground">{{ c.race }}</span>
                 <span v-if="c.class" class="text-xs ml-1 text-muted-foreground">{{ c.class }}</span>
                 <span v-if="c.isCompanionOf" class="text-xs ml-1 text-muted-foreground italic">{{ $t('characters.companion') }}</span>
                 </div>
               </div>
-              <span :class="['text-xs px-2 py-0.5 rounded', c.status === 'alive' ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' : c.status === 'dead' ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300' : 'bg-secondary text-secondary-foreground']">
+              <span :class="['inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded', c.status === 'alive' ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' : c.status === 'dead' ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300' : 'bg-secondary text-secondary-foreground']">
+                <component :is="ICONS[c.status as 'alive' | 'dead' | 'missing' | 'unknown'] ?? ICONS.unknown" class="w-3 h-3" />
                 {{ c.status }}
               </span>
             </div>
@@ -80,6 +82,7 @@
 </template>
 
 <script setup lang="ts">
+import { ICONS } from '~/utils/icons'
 const route = useRoute()
 const campaignId = route.params.id as string
 import type { Character, CharacterFolder } from '~/types/api'

@@ -23,7 +23,8 @@
           class="block p-4 rounded-lg border border-border hover:border-primary/50 transition-colors">
           <div class="flex items-center justify-between">
             <span class="font-medium">#{{ s.sessionNumber }} {{ s.title }}</span>
-            <span class="text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">{{ s.status }}</span>
+            <span class="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
+              <component :is="s.status === 'planned' ? ICONS.sessionPlanned : ICONS.sessionActive" class="w-3 h-3" />{{ s.status }}</span>
           </div>
           <span v-if="s.scheduledDate" class="text-xs text-muted-foreground">{{ new Date(s.scheduledDate).toLocaleDateString() }}</span>
         </NuxtLink>
@@ -38,7 +39,8 @@
           class="block p-4 rounded-lg border border-border hover:border-primary/50 transition-colors">
           <div class="flex items-center justify-between">
             <span class="font-medium">#{{ s.sessionNumber }} {{ s.title }}</span>
-            <span class="text-xs px-2 py-0.5 rounded bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">{{ s.status }}</span>
+            <span class="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
+              <component :is="s.status === 'completed' ? ICONS.sessionCompleted : ICONS.sessionCancelled" class="w-3 h-3" />{{ s.status }}</span>
           </div>
         </NuxtLink>
       </div>
@@ -50,7 +52,7 @@
 </template>
 
 <script setup lang="ts">
-
+import { ICONS } from '~/utils/icons'
 const route = useRoute()
 const campaignId = route.params.id as string
 import type { GameSession } from '~/types/api'
