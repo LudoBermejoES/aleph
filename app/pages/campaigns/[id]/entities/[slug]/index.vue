@@ -10,8 +10,18 @@
         <span class="text-foreground">{{ entity.name }}</span>
       </div>
 
-      <!-- Header -->
-      <div class="flex items-start justify-between mb-6">
+      <!-- Header with image -->
+      <div class="flex items-start gap-6 mb-6">
+        <EntityImage
+          :image-url="entity.imageUrl ?? null"
+          :name="entity.name"
+          :editable="canEdit"
+          :campaign-id="campaignId"
+          :entity-slug="slug"
+          size="lg"
+          @uploaded="url => { if (entity) entity.imageUrl = url }"
+        />
+        <div class="flex-1 flex items-start justify-between">
         <div>
           <h1 class="text-3xl font-bold">{{ entity.name }}</h1>
           <div class="flex items-center gap-2 mt-2">
@@ -23,6 +33,7 @@
         <NuxtLink :to="`/campaigns/${campaignId}/entities/${slug}/edit`">
           <Button variant="outline" size="sm">{{ $t('common.edit') }}</Button>
         </NuxtLink>
+      </div>
       </div>
 
       <!-- Frontmatter Fields -->
@@ -105,6 +116,7 @@ const entity = ref<Entity | null>(null)
 const children = ref<Entity[]>([])
 const graphData = ref<any>(null)
 const mentions = ref<Mention[]>([])
+const canEdit = ref(false)
 const api = useCampaignApi(campaignId)
 const editing = ref(false)
 const saving = ref(false)
@@ -119,7 +131,12 @@ fetch('/api/auth/get-session', { credentials: 'include' })
 
 async function loadEntity() {
   try {
-    entity.value = await api.getEntity(slug)
+    const [entityData, campaign] = await Promise.all([
+      api.getEntity(slug),
+      api.getCampaign().catch(() => null),
+    ])
+    entity.value = entityData
+    canEdit.value = ['dm', 'co_dm', 'editor'].includes(campaign?.role ?? '')
     editForm.name = entity.value.name
     editForm.content = entity.value.content || ''
     // Load child entities

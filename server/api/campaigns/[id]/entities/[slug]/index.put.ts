@@ -1,11 +1,11 @@
 import { eq, and } from 'drizzle-orm'
-import { useDb, useSqlite } from '../../../../utils/db'
-import { entities } from '../../../../db/schema/entities'
-import { hasMinRole } from '../../../../utils/permissions'
-import { writeEntityFile, readEntityFile } from '../../../../services/content'
-import { indexEntity } from '../../../../services/search'
-import { invalidateAutomatonCache } from '../../../../services/autolink'
-import type { CampaignRole } from '../../../../utils/permissions'
+import { useDb, useSqlite } from '../../../../../utils/db'
+import { entities } from '../../../../../db/schema/entities'
+import { hasMinRole } from '../../../../../utils/permissions'
+import { writeEntityFile, readEntityFile } from '../../../../../services/content'
+import { indexEntity } from '../../../../../services/search'
+import { invalidateAutomatonCache } from '../../../../../services/autolink'
+import type { CampaignRole } from '../../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
   const role = event.context.campaignRole as CampaignRole

@@ -32,9 +32,17 @@
         class="block p-4 rounded-lg border border-border hover:border-primary/50 transition-colors"
       >
         <div class="flex items-center justify-between">
-          <div>
-            <span class="font-medium">{{ entity.name }}</span>
-            <span class="text-xs ml-2 px-2 py-0.5 rounded bg-secondary text-secondary-foreground">{{ entity.type }}</span>
+          <div class="flex items-center gap-3">
+            <EntityImage
+              v-if="entity.imageUrl"
+              :image-url="entity.imageUrl"
+              :name="entity.name"
+              size="sm"
+            />
+            <div>
+              <span class="font-medium">{{ entity.name }}</span>
+              <span class="text-xs ml-2 px-2 py-0.5 rounded bg-secondary text-secondary-foreground">{{ entity.type }}</span>
+            </div>
           </div>
           <span class="text-xs text-muted-foreground">{{ entity.visibility }}</span>
         </div>

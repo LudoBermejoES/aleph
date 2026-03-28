@@ -9,6 +9,17 @@
       <span>/</span><span>{{ $t('common.edit') }}</span>
     </div>
     <h1 class="text-2xl font-bold mb-6">{{ $t('entities.new') }}</h1>
+    <div v-if="loaded" class="mb-6">
+      <EntityImage
+        :image-url="entityImageUrl"
+        :name="form.name"
+        :editable="true"
+        :campaign-id="campaignId"
+        :entity-slug="slug"
+        size="lg"
+        @uploaded="url => entityImageUrl = url"
+      />
+    </div>
     <EntityForm ref="entityForm" v-if="loaded" v-model="form" :campaign-id="campaignId" :entity-slug="slug" :submit-label="$t('common.save')" :submitting="submitting" @submit="save">
       <template #cancel>
         <NuxtLink :to="`/campaigns/${campaignId}/entities/${slug}`"><Button variant="outline">{{ $t('common.cancel') }}</Button></NuxtLink>
@@ -26,6 +37,7 @@ const submitting = ref(false)
 const loaded = ref(false)
 const { t } = useI18n()
 const form = ref({ name: '', type: 'note', visibility: 'members', tagsRaw: '', content: '' })
+const entityImageUrl = ref<string | null>(null)
 
 const api = useCampaignApi(campaignId)
 const entityForm = ref<any>(null)
@@ -33,6 +45,7 @@ const entityForm = ref<any>(null)
 onMounted(async () => {
   try {
     const entity = await api.getEntity(slug)
+    entityImageUrl.value = entity.imageUrl ?? null
     form.value = {
       name: entity.name || '',
       type: entity.type || 'note',

@@ -7,7 +7,7 @@ import remarkStringify from 'remark-stringify'
 import type { CampaignRole } from '../../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
-  const entityId = getRouterParam(event, 'entityId')!
+  const entityId = getRouterParam(event, 'slug')!
   const campaignRole = (event.context.campaignRole || 'visitor') as CampaignRole
   const userId = event.context.user?.name
 

@@ -1,6 +1,7 @@
 import { randomUUID } from 'crypto'
-import { eq } from 'drizzle-orm'
+import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
+import { entities } from '../../../../../db/schema/entities'
 import { entityPermissions } from '../../../../../db/schema/permissions'
 import { hasMinRole, invalidatePermissionCache } from '../../../../../utils/permissions'
 import { auditLogFromEvent } from '../../../../../utils/audit'
@@ -13,7 +14,16 @@ export default defineEventHandler(async (event) => {
   }
 
   const body = await readBody(event)
-  const entityId = getRouterParam(event, 'entityId')!
+  const slug = getRouterParam(event, 'slug')!
+  const campaignId = getRouterParam(event, 'id')!
+  const db = useDb()
+
+  // Resolve slug to entity ID
+  const entity = db.select().from(entities)
+    .where(and(eq(entities.campaignId, campaignId), eq(entities.slug, slug)))
+    .get()
+  if (!entity) throw createError({ statusCode: 404, message: 'Entity not found' })
+  const entityId = entity.id
   const { targetUserId, targetRole, permission, effect } = body
 
   if (!permission || !effect) {
@@ -23,8 +33,6 @@ export default defineEventHandler(async (event) => {
   if (!targetUserId && !targetRole) {
     throw createError({ statusCode: 400, message: 'Either targetUserId or targetRole is required' })
   }
-
-  const db = useDb()
 
   db.insert(entityPermissions).values({
     id: randomUUID(),

@@ -1,9 +1,9 @@
 import { eq, and } from 'drizzle-orm'
-import { useDb } from '../../../../utils/db'
-import { entities } from '../../../../db/schema/entities'
-import { readEntityFile, stripSecretBlocks } from '../../../../services/content'
-import { autoLinkContent } from '../../../../services/autolink-render'
-import type { CampaignRole } from '../../../../utils/permissions'
+import { useDb } from '../../../../../utils/db'
+import { entities } from '../../../../../db/schema/entities'
+import { readEntityFile, stripSecretBlocks } from '../../../../../services/content'
+import { autoLinkContent } from '../../../../../services/autolink-render'
+import type { CampaignRole } from '../../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
   const campaignId = getRouterParam(event, 'id')!

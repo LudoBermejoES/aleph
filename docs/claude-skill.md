@@ -62,10 +62,12 @@ aleph entity create --campaign <id> --name <name> --type <type> [--content <mark
 aleph entity show --campaign <id> <slug> [--json]
 aleph entity edit --campaign <id> <slug> [--name <name>] [--content <markdown>] [--stdin] [--json]
 aleph entity delete --campaign <id> <slug> [--yes]
+aleph entity upload-image --campaign <id> --slug <slug> --file <path> [--json]
 ```
 
 Entity types: `location`, `faction`, `npc`, `creature`, `item`, `lore`, `event`, or any custom string.
 Pipe content from a file: `cat notes.md | aleph entity edit --campaign <id> <slug> --stdin`
+`upload-image` accepts PNG, JPEG, or WebP files up to 10 MB. The image is shown on the entity detail page in the web UI.
 
 ### Characters
 ```bash

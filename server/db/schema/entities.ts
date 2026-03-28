@@ -11,6 +11,7 @@ export const entities = sqliteTable('entities', {
   filePath: text('file_path').notNull(),
   visibility: text('visibility').notNull().default('members'),
   contentHash: text('content_hash'),
+  imageUrl: text('image_url'),
   parentId: text('parent_id'),
   templateId: text('template_id'),
   createdBy: text('created_by').notNull().references(() => user.id),
