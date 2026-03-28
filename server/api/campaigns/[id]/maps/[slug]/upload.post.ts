@@ -3,6 +3,7 @@ import { useDb } from '../../../../../utils/db'
 import { maps } from '../../../../../db/schema/maps'
 import { hasMinRole } from '../../../../../utils/permissions'
 import { validateMapImage, needsTiling } from '../../../../../services/maps'
+import { logger } from '../../../../../utils/logger'
 import { writeFile, mkdir } from 'fs/promises'
 import { join, extname } from 'path'
 import type { CampaignRole } from '../../../../../utils/permissions'
@@ -77,7 +78,7 @@ export default defineEventHandler(async (event) => {
   if (requiresTiling) {
     const tilesDir = join(contentDir, 'tiles')
     runTask('maps:tile', { payload: { mapId: map.id, imagePath, outputDir: tilesDir } }).catch(
-      (err: unknown) => console.error('Tiling task failed', err),
+      (err: unknown) => logger.error('Tiling task failed', { error: err }),
     )
   }
 

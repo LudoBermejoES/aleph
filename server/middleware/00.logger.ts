@@ -25,13 +25,14 @@ export default defineEventHandler((event) => {
   event.node.res.on('finish', () => {
     const duration = Math.round(performance.now() - start)
     const status = event.node.res.statusCode
+    const meta = { requestId, method, path, status, duration }
 
-    logger.http('request', {
-      requestId,
-      method,
-      path,
-      status,
-      duration,
-    })
+    if (status >= 500) {
+      logger.error(`${method} ${path} ${status} ${duration}ms`, meta)
+    } else if (status >= 400) {
+      logger.warn(`${method} ${path} ${status} ${duration}ms`, meta)
+    } else {
+      logger.info(`${method} ${path} ${status} ${duration}ms`, meta)
+    }
   })
 })
