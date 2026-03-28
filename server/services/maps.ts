@@ -80,16 +80,9 @@ export function computeBreadcrumb(sqlite: Database.Database, mapId: string): Bre
 // --- Tile Generation ---
 
 /**
- * Check if an image needs tiling (width or height > 4096px).
- */
-export function needsTiling(width: number, height: number): boolean {
-  return width > 4096 || height > 4096
-}
-
-/**
  * Compute tile levels needed for given image dimensions.
  */
 export function computeTileLevels(width: number, height: number, tileSize: number = 256): number {
   const maxDim = Math.max(width, height)
-  return Math.ceil(Math.log2(maxDim / tileSize)) + 1
+  return Math.ceil(Math.log2(maxDim / tileSize))
 }

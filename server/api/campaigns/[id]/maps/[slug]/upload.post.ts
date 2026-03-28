@@ -2,7 +2,7 @@ import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
 import { maps } from '../../../../../db/schema/maps'
 import { hasMinRole } from '../../../../../utils/permissions'
-import { validateMapImage, needsTiling } from '../../../../../services/maps'
+import { validateMapImage } from '../../../../../services/maps'
 import { logger } from '../../../../../utils/logger'
 import { writeFile, mkdir } from 'fs/promises'
 import { join, extname } from 'path'
@@ -63,8 +63,6 @@ export default defineEventHandler(async (event) => {
     // sharp not installed -- use defaults
   }
 
-  const requiresTiling = needsTiling(width, height)
-
   // Update map record
   db.update(maps).set({
     imagePath: `/api/campaigns/${campaignId}/maps/${slug}/image`,
@@ -74,13 +72,11 @@ export default defineEventHandler(async (event) => {
     updatedAt: new Date(),
   }).where(eq(maps.id, map.id)).run()
 
-  // Kick off background tiling if needed
-  if (requiresTiling) {
-    const tilesDir = join(contentDir, 'tiles')
-    runTask('maps:tile', { payload: { mapId: map.id, imagePath, outputDir: tilesDir } }).catch(
-      (err: unknown) => logger.error('Tiling task failed', { error: err }),
-    )
-  }
+  // Always kick off background tiling
+  const tilesDir = join(contentDir, 'tiles')
+  runTask('maps:tile', { payload: { mapId: map.id, imagePath, outputDir: tilesDir } }).catch(
+    (err: unknown) => logger.error('Tiling task failed', { error: err }),
+  )
 
-  return { imagePath, width, height, needsTiling: requiresTiling }
+  return { imagePath, width, height }
 })

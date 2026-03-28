@@ -85,26 +85,31 @@ describe('Map Tiling Background Task (5.2)', () => {
     const data = await res.json()
     expect(data.width).toBeGreaterThan(0)
     expect(data.height).toBeGreaterThan(0)
-    expect(typeof data.needsTiling).toBe('boolean')
-    expect(data.needsTiling).toBe(false) // 1×1 image does not need tiling
     uploadedImagePath = data.imagePath
     expect(uploadedImagePath).toBeTruthy()
   })
 
-  it('map isTiled is false immediately after upload (task runs in background)', async () => {
-    const res = await api(`/api/campaigns/${campaignId}/maps/${mapSlug}`, {
-      method: 'GET',
-      headers: { Cookie: cookie },
-    })
-    expect(res.status).toBe(200)
-    const data = await res.json()
-    expect(data.isTiled).toBe(false)
+  it('map isTiled becomes true after background tiling completes', async () => {
+    // Always-tile: isTiled starts false and flips to true once the background task finishes.
+    // For a 1×1 PNG this happens near-instantly; poll for up to 5s.
+    let isTiled = false
+    for (let i = 0; i < 10; i++) {
+      const res = await api(`/api/campaigns/${campaignId}/maps/${mapSlug}`, {
+        method: 'GET',
+        headers: { Cookie: cookie },
+      })
+      expect(res.status).toBe(200)
+      const data = await res.json()
+      if (data.isTiled) { isTiled = true; break }
+      await new Promise(r => setTimeout(r, 500))
+    }
+    expect(isTiled).toBe(true)
   })
 
-  it('maps:tile task updates isTiled to true when invoked via Nitro task endpoint', async () => {
-    // The maps:tile task requires `nitro.experimental.tasks: true` and a server restart
-    // to register the new task file. Skip gracefully if not yet available.
-    const outputDir = fsjoin(fsdir(uploadedImagePath), 'tiles')
+  it('maps:tile task endpoint returns success or is not registered', async () => {
+    // The /_nitro/tasks endpoint requires `nitro.experimental.tasks: true`.
+    // Skip gracefully if not available or returns HTML (non-JSON).
+    const outputDir = fsjoin(fsdir(uploadedImagePath || '/tmp/x'), 'tiles')
 
     const res = await fetch(`${BASE_URL}/_nitro/tasks/maps:tile`, {
       method: 'POST',
@@ -115,21 +120,19 @@ describe('Map Tiling Background Task (5.2)', () => {
     })
 
     if (res.status === 404) {
-      console.warn('Skipping: maps:tile task not registered (server needs restart after adding server/tasks/maps/tile.ts)')
+      console.warn('Skipping: maps:tile task endpoint not registered')
+      return
+    }
+
+    const contentType = res.headers.get('content-type') || ''
+    if (!contentType.includes('application/json')) {
+      console.warn('Skipping: /_nitro/tasks endpoint returned non-JSON (tasks not enabled)')
       return
     }
 
     expect(res.status).toBe(200)
     const result = await res.json()
     expect(result.result).toBe('success')
-
-    // Map record should now have isTiled = true
-    const mapRes = await api(`/api/campaigns/${campaignId}/maps/${mapSlug}`, {
-      method: 'GET',
-      headers: { Cookie: cookie },
-    })
-    const mapData = await mapRes.json()
-    expect(mapData.isTiled).toBe(true)
   })
 
   it('upload rejects non-image file', async () => {
