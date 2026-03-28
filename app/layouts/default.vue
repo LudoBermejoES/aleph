@@ -2,9 +2,12 @@
   <div class="flex h-screen bg-background text-foreground" :data-theme="campaignTheme || undefined">
     <!-- Sidebar -->
     <aside class="w-64 border-r border-border bg-sidebar-background flex flex-col shrink-0">
-      <NuxtLink to="/" class="block p-4 border-b border-sidebar-border hover:bg-sidebar-accent transition-colors">
-        <h1 class="text-xl font-bold text-sidebar-primary">{{ $t('layout.appName') }}</h1>
-        <p class="text-xs text-sidebar-foreground/60">{{ $t('layout.appSubtitle') }}</p>
+      <NuxtLink to="/" class="flex items-center gap-3 p-4 border-b border-sidebar-border hover:bg-sidebar-accent transition-colors">
+        <img src="~/assets/logo/aleph.png" alt="Aleph" class="w-9 h-9 shrink-0" />
+        <div>
+          <h1 class="text-xl font-bold text-sidebar-primary leading-tight">{{ $t('layout.appName') }}</h1>
+          <p class="text-xs text-sidebar-foreground/60">{{ $t('layout.appSubtitle') }}</p>
+        </div>
       </NuxtLink>
 
       <nav class="flex-1 p-2 space-y-1 overflow-auto">
