@@ -84,7 +84,8 @@
     "graph": "Grafo de relaciones",
     "graphSubtitle": "Visualiza las conexiones entre entidades",
     "members": "Miembros",
-    "membersSubtitle": "Invita jugadores, gestiona roles y permisos"
+    "membersSubtitle": "Invita jugadores, gestiona roles y permisos",
+    "settings": "Configuración de la Campaña"
   },
   "members": {
     "title": "Miembros",

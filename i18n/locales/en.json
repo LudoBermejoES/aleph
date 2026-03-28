@@ -84,7 +84,8 @@
     "graph": "Relationship Graph",
     "graphSubtitle": "Visualize connections between entities",
     "members": "Members",
-    "membersSubtitle": "Invite players, manage roles and permissions"
+    "membersSubtitle": "Invite players, manage roles and permissions",
+    "settings": "Campaign Settings"
   },
   "members": {
     "title": "Members",
