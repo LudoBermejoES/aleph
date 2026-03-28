@@ -60,6 +60,7 @@
     "clsx": "^2.1.1",
     "cytoscape": "^3.33.1",
     "cytoscape-cose-bilkent": "^4.1.0",
+    "d3-force": "^3.0.0",
     "drizzle-orm": "^0.45.1",
     "gray-matter": "^4.0.3",
     "leaflet": "^1.9.4",
