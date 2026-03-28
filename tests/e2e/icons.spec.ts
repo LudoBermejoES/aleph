@@ -52,13 +52,13 @@ test('13.3 campaign dashboard cards each contain an svg icon', async () => {
   await page.goto(`${BASE}${campaignPath}`, { waitUntil: 'domcontentloaded' })
   await page.waitForLoadState('networkidle')
 
-  // Every card in the dashboard grid should have an svg
-  const cards = page.locator('.grid a [data-slot="card-header"]')
-  const count = await cards.count()
+  // Every card link in the dashboard grid should contain an svg icon
+  const cardLinks = page.locator('.grid > a')
+  const count = await cardLinks.count()
   expect(count).toBeGreaterThanOrEqual(13)
 
   for (let i = 0; i < count; i++) {
-    const card = cards.nth(i)
+    const card = cardLinks.nth(i)
     await expect(card.locator('svg').first()).toBeVisible({ timeout: 5000 })
   }
 })

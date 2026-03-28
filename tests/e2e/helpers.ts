@@ -23,7 +23,7 @@ async function waitForSPANavigation(page: Page, pattern: string | RegExp, timeou
  */
 export async function registerAndLogin(page: Page, name: string = 'E2E User'): Promise<string> {
   const email = `e2e-${Date.now()}-${Math.random().toString(36).slice(2, 6)}@example.com`
-  await page.goto(`${BASE}/register`)
+  await page.goto(`${BASE}/register`, { waitUntil: 'domcontentloaded' })
   await page.waitForSelector('form', { timeout: 15000 })
   await page.fill('#name', name)
   await page.fill('#email', email)
@@ -40,7 +40,7 @@ export async function registerAndLogin(page: Page, name: string = 'E2E User'): P
  * Returns the campaign URL path.
  */
 export async function createCampaign(page: Page, name: string): Promise<string> {
-  await page.goto(`${BASE}/`)
+  await page.goto(`${BASE}/`, { waitUntil: 'domcontentloaded' })
   await page.waitForLoadState('networkidle')
   await page.waitForSelector('button:has-text("New Campaign")', { timeout: 15000 })
   await page.click('button:has-text("New Campaign")')
