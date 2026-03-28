@@ -50,6 +50,7 @@ test.describe('Secret Content Blocks', () => {
     const playerContext = await browser.newContext()
     const playerPage = await playerContext.newPage()
     await registerAndLogin(playerPage, 'Player Seeker')
+    await playerPage.goto(`${BASE}/`, { waitUntil: 'domcontentloaded' })
     await playerPage.evaluate(async ([id, token]) => {
       await fetch(`/api/campaigns/${id}/join`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
