@@ -15,6 +15,7 @@
         <NuxtLink :to="`/campaigns/${campaignId}/entities`">
           <Card class="hover:border-primary/50 transition-colors cursor-pointer">
             <CardHeader>
+              <component :is="ICONS.wiki" class="w-6 h-6 mb-1 text-primary" />
               <CardTitle class="text-lg">{{ $t('campaigns.wiki') }}</CardTitle>
               <CardDescription>{{ $t('campaigns.wikiSubtitle') }}</CardDescription>
             </CardHeader>
@@ -24,6 +25,7 @@
         <NuxtLink :to="`/campaigns/${campaignId}/characters`">
           <Card class="hover:border-primary/50 transition-colors cursor-pointer">
             <CardHeader>
+              <component :is="ICONS.characters" class="w-6 h-6 mb-1 text-primary" />
               <CardTitle class="text-lg">{{ $t('campaigns.characters') }}</CardTitle>
               <CardDescription>{{ $t('campaigns.charactersSubtitle') }}</CardDescription>
             </CardHeader>
@@ -33,6 +35,7 @@
         <NuxtLink :to="`/campaigns/${campaignId}/maps`">
           <Card class="hover:border-primary/50 transition-colors cursor-pointer">
             <CardHeader>
+              <component :is="ICONS.maps" class="w-6 h-6 mb-1 text-primary" />
               <CardTitle class="text-lg">{{ $t('campaigns.maps') }}</CardTitle>
               <CardDescription>{{ $t('campaigns.mapsSubtitle') }}</CardDescription>
             </CardHeader>
@@ -42,6 +45,7 @@
         <NuxtLink :to="`/campaigns/${campaignId}/sessions`">
           <Card class="hover:border-primary/50 transition-colors cursor-pointer">
             <CardHeader>
+              <component :is="ICONS.sessions" class="w-6 h-6 mb-1 text-primary" />
               <CardTitle class="text-lg">{{ $t('campaigns.sessions') }}</CardTitle>
               <CardDescription>{{ $t('campaigns.sessionsSubtitle') }}</CardDescription>
             </CardHeader>
@@ -51,6 +55,7 @@
         <NuxtLink :to="`/campaigns/${campaignId}/calendars`">
           <Card class="hover:border-primary/50 transition-colors cursor-pointer">
             <CardHeader>
+              <component :is="ICONS.calendars" class="w-6 h-6 mb-1 text-primary" />
               <CardTitle class="text-lg">{{ $t('campaigns.calendarsTimelines') }}</CardTitle>
               <CardDescription>{{ $t('campaigns.calendarsTimelinesSubtitle') }}</CardDescription>
             </CardHeader>
@@ -60,6 +65,7 @@
         <NuxtLink :to="`/campaigns/${campaignId}/quests`">
           <Card class="hover:border-primary/50 transition-colors cursor-pointer">
             <CardHeader>
+              <component :is="ICONS.quests" class="w-6 h-6 mb-1 text-primary" />
               <CardTitle class="text-lg">{{ $t('campaigns.quests') }}</CardTitle>
               <CardDescription>{{ $t('campaigns.questsSubtitle') }}</CardDescription>
             </CardHeader>
@@ -69,6 +75,7 @@
         <NuxtLink :to="`/campaigns/${campaignId}/items`">
           <Card class="hover:border-primary/50 transition-colors cursor-pointer">
             <CardHeader>
+              <component :is="ICONS.items" class="w-6 h-6 mb-1 text-primary" />
               <CardTitle class="text-lg">{{ $t('campaigns.items') }}</CardTitle>
               <CardDescription>{{ $t('campaigns.itemsSubtitle') }}</CardDescription>
             </CardHeader>
@@ -78,6 +85,7 @@
         <NuxtLink :to="`/campaigns/${campaignId}/shops`">
           <Card class="hover:border-primary/50 transition-colors cursor-pointer">
             <CardHeader>
+              <component :is="ICONS.shops" class="w-6 h-6 mb-1 text-primary" />
               <CardTitle class="text-lg">{{ $t('campaigns.shops') }}</CardTitle>
               <CardDescription>{{ $t('campaigns.shopsSubtitle') }}</CardDescription>
             </CardHeader>
@@ -87,6 +95,7 @@
         <NuxtLink :to="`/campaigns/${campaignId}/inventories`">
           <Card class="hover:border-primary/50 transition-colors cursor-pointer">
             <CardHeader>
+              <component :is="ICONS.inventories" class="w-6 h-6 mb-1 text-primary" />
               <CardTitle class="text-lg">{{ $t('campaigns.inventories') }}</CardTitle>
               <CardDescription>{{ $t('campaigns.inventoriesSubtitle') }}</CardDescription>
             </CardHeader>
@@ -96,6 +105,7 @@
         <NuxtLink :to="`/campaigns/${campaignId}/currencies`">
           <Card class="hover:border-primary/50 transition-colors cursor-pointer">
             <CardHeader>
+              <component :is="ICONS.currencies" class="w-6 h-6 mb-1 text-primary" />
               <CardTitle class="text-lg">{{ $t('campaigns.currencies') }}</CardTitle>
               <CardDescription>{{ $t('campaigns.currenciesSubtitle') }}</CardDescription>
             </CardHeader>
@@ -105,6 +115,7 @@
         <NuxtLink :to="`/campaigns/${campaignId}/transactions`">
           <Card class="hover:border-primary/50 transition-colors cursor-pointer">
             <CardHeader>
+              <component :is="ICONS.transactions" class="w-6 h-6 mb-1 text-primary" />
               <CardTitle class="text-lg">{{ $t('campaigns.transactions') }}</CardTitle>
               <CardDescription>{{ $t('campaigns.transactionsSubtitle') }}</CardDescription>
             </CardHeader>
@@ -114,6 +125,7 @@
         <NuxtLink :to="`/campaigns/${campaignId}/graph`">
           <Card class="hover:border-primary/50 transition-colors cursor-pointer">
             <CardHeader>
+              <component :is="ICONS.graph" class="w-6 h-6 mb-1 text-primary" />
               <CardTitle class="text-lg">{{ $t('campaigns.graph') }}</CardTitle>
               <CardDescription>{{ $t('campaigns.graphSubtitle') }}</CardDescription>
             </CardHeader>
@@ -123,6 +135,7 @@
         <NuxtLink :to="`/campaigns/${campaignId}/members`">
           <Card class="hover:border-primary/50 transition-colors cursor-pointer">
             <CardHeader>
+              <component :is="ICONS.members" class="w-6 h-6 mb-1 text-primary" />
               <CardTitle class="text-lg">{{ $t('campaigns.members') }}</CardTitle>
               <CardDescription>{{ $t('campaigns.membersSubtitle') }}</CardDescription>
             </CardHeader>
@@ -150,6 +163,7 @@
 </template>
 
 <script setup lang="ts">
+import { ICONS } from '~/utils/icons'
 
 const route = useRoute()
 const campaignId = route.params.id as string
