@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "/Users/ludo/code/aleph/logs/.2e2baf4e44dcfb4f60dea22a7dc38ee65f7f7ddf-audit.json",
+    "files": [
+        {
+            "date": 1774714176532,
+            "name": "/Users/ludo/code/aleph/logs/error-2026-03-28.log",
+            "hash": "05ad21587e6a78ebf6faf8475f303600dfdda1310ccb7d9bcd22dd362c44aa81"
+        }
+    ],
+    "hashType": "sha256"
+}
