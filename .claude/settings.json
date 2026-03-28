@@ -37,12 +37,17 @@
       "Bash(ls /Users/ludo/code/aleph/server/api/campaigns/[id]/entities/)",
       "Edit(/.claude/skills/aleph-cli/**)",
       "Bash(ls /Users/ludo/code/aleph/server/api/campaigns/[id]/entities/[entityId]/)",
-      "Bash(ls /Users/ludo/code/aleph/server/api/campaigns/[id]/index.get.ts)"
+      "Bash(ls /Users/ludo/code/aleph/server/api/campaigns/[id]/index.get.ts)",
+      "Bash(ls -la /Users/ludo/code/aleph/app/pages/campaigns/[id]/maps/)",
+      "Bash(grep -r \"width\\\\|height\\\\|fixed\" /Users/ludo/code/aleph/app/components/MapViewer.client.vue /Users/ludo/code/aleph/app/pages/campaigns/[id]/maps/[slug]/index.vue)",
+      "Bash(find /Users/ludo/code/arcadia -name *map* -o -name *mapa*)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3333/)"
     ],
     "additionalDirectories": [
       "/Users/ludo/code/arcadia/.claude/skills",
       "/Users/ludo/code/arcadia/.claude",
-      "/Users/ludo/code/aleph/server/api/campaigns/[id]/entities"
+      "/Users/ludo/code/aleph/server/api/campaigns/[id]/entities",
+      "/Users/ludo/code/arcadia/.claude/skills/aleph-cli"
     ]
   }
 }
