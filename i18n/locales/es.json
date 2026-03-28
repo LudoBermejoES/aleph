@@ -324,7 +324,13 @@
     "new": "Nueva relación",
     "entityTypes": "Tipos de entidad",
     "empty": "Aún no hay relaciones. Haz clic en \"Nueva relación\" para conectar entidades.",
-    "stats": "{nodes} nodos, {edges} aristas"
+    "stats": "{nodes} nodos, {edges} aristas",
+    "legend": {
+      "title": "Tipos de relación"
+    },
+    "tooltip": {
+      "connections": "conexiones"
+    }
   },
   "inventories": {
     "title": "Inventarios",

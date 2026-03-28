@@ -324,7 +324,13 @@
     "new": "New Relation",
     "entityTypes": "Entity Types",
     "empty": "No relationships yet. Click \"New Relation\" to connect entities.",
-    "stats": "{nodes} nodes, {edges} edges"
+    "stats": "{nodes} nodes, {edges} edges",
+    "legend": {
+      "title": "Relation Types"
+    },
+    "tooltip": {
+      "connections": "connections"
+    }
   },
   "inventories": {
     "title": "Inventories",

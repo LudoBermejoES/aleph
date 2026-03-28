@@ -10,7 +10,10 @@
       "Bash(for slug:*)",
       "Bash(do)",
       "Bash(node /Users/ludo/code/aleph/cli/bin/aleph.js character update $slug --campaign $CAMP --type pc)",
-      "Bash(echo \"✓ $slug → pc\")"
+      "Bash(echo \"✓ $slug → pc\")",
+      "WebFetch(domain:dash14.github.io)",
+      "Bash(grep -r \"override-back\\\\|layers\\\\|override-node-label\\\\|pointerover\\\\|dblclick\\\\|getNodePosition\\\\|translateFromSvgCoord\\\\|vNetworkGraphRef\\\\|graphRef\" /Users/ludo/code/aleph/node_modules/v-network-graph/lib/ --include=*.js -l)",
+      "Bash(node -e \"const v = require\\(''''/Users/ludo/code/aleph/node_modules/v-network-graph/lib/index.js''''\\); console.log\\(Object.keys\\(v\\)\\)\")"
     ]
   }
 }
