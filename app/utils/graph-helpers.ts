@@ -159,17 +159,27 @@ export function createGraphSimulation(
   links: SimLink[],
   degreeMap: Record<string, number>,
 ) {
+  // Seed random initial positions so nodes don't all start at (0,0),
+  // which causes the simulation to collapse into a line.
+  const spread = Math.max(200, nodes.length * 30)
+  for (const node of nodes) {
+    if (node.x === undefined || node.x === 0) {
+      node.x = (Math.random() - 0.5) * spread
+      node.y = (Math.random() - 0.5) * spread
+    }
+  }
+
   const linkForce = forceLink<SimNode, SimLink>(links)
     .id((d: SimNode) => d.id)
-    .distance(100)
-    .iterations(2)
+    .distance(120)
+    .iterations(3)
 
   const sim = forceSimulation<SimNode>(nodes)
-    .force('charge', forceManyBody<SimNode>().strength(-200).distanceMax(400))
+    .force('charge', forceManyBody<SimNode>().strength(-400).distanceMax(600))
     .force('link', linkForce)
-    .force('collide', forceCollide<SimNode>().radius((d: SimNode) => computeNodeRadius(degreeMap[d.id] ?? 0) + 8).iterations(2))
-    .force('center', forceCenter(0, 0).strength(0.05))
-    .alphaDecay(0.015)
+    .force('collide', forceCollide<SimNode>().radius((d: SimNode) => computeNodeRadius(degreeMap[d.id] ?? 0) + 12).iterations(3))
+    .force('center', forceCenter(0, 0).strength(0.08))
+    .alphaDecay(0.01)
 
   // Cluster force: nudge nodes toward their organization centroid each tick
   sim.on('tick.cluster', () => {
