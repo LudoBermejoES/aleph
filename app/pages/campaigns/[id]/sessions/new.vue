@@ -21,7 +21,7 @@ const router = useRouter()
 const campaignId = route.params.id as string
 const submitting = ref(false)
 const { t } = useI18n()
-const form = ref({ title: '', scheduledDate: '', status: 'planned', content: '' })
+const form = ref({ title: '', scheduledDate: '', status: 'planned', content: '', groupSlug: '' })
 
 const api = useCampaignApi(campaignId)
 const sessionForm = ref<any>(null)

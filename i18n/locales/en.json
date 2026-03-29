@@ -231,7 +231,33 @@
     "scheduledDate": "Scheduled Date",
     "notes": "Session Notes",
     "notesPlaceholder": "Write session notes... (type {'@'} to link entities)",
-    "failedSave": "Failed to save session"
+    "failedSave": "Failed to save session",
+    "groups": "Groups",
+    "allGroups": "All Groups",
+    "noGroup": "No Group",
+    "group": "Group",
+    "content": {
+      "manualNotes": "Manual Notes",
+      "aiNotes": "AI Notes",
+      "summary": "Summary",
+      "empty": "No content yet. Start writing..."
+    }
+  },
+  "sessionGroups": {
+    "title": "Session Groups",
+    "new": "New Group",
+    "edit": "Edit Group",
+    "delete": "Delete Group",
+    "uploadImage": "Upload Image",
+    "name": "Group Name",
+    "namePlaceholder": "e.g. La Familia",
+    "description": "Description",
+    "descriptionPlaceholder": "Describe this group...",
+    "empty": "No session groups yet",
+    "emptyDescription": "Create groups to organize your sessions.",
+    "confirmDelete": "Delete this group? Sessions in this group will be unassigned.",
+    "failedSave": "Failed to save group",
+    "failedDelete": "Failed to delete group"
   },
   "quests": {
     "title": "Quests",

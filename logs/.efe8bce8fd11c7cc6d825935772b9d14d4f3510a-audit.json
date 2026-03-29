@@ -9,6 +9,11 @@
             "date": 1774714176533,
             "name": "/Users/ludo/code/aleph/logs/combined-2026-03-28.log",
             "hash": "c5cca4bead0c32c55c433fea9e6ca3f1d6840a66414ca08033675a3d9e4ae776"
+        },
+        {
+            "date": 1774785128827,
+            "name": "/Users/ludo/code/aleph/logs/combined-2026-03-29.log",
+            "hash": "855f012e4ed98de2f187e362d07b48678118f70b599eba1fb4004c419bddcb7d"
         }
     ],
     "hashType": "sha256"

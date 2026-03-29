@@ -154,6 +154,32 @@ export function useCampaignApi(campaignId: string) {
     return $fetch(`${base}/sessions/${slug}`, { method: 'DELETE' })
   }
 
+  function getSessionContent(slug: string) {
+    return $fetch<Record<string, string | null>>(`${base}/sessions/${slug}/content`)
+  }
+
+  function updateSessionContent(slug: string, type: string, content: string) {
+    return $fetch(`${base}/sessions/${slug}/content`, { method: 'PUT', body: { type, content } })
+  }
+
+  // ─── Session Groups ──────────────────────────────────────────────────────────
+
+  function getSessionGroups() {
+    return $fetch<any[]>(`${base}/session-groups`)
+  }
+
+  function createSessionGroup(body: Record<string, unknown>) {
+    return $fetch<any>(`${base}/session-groups`, { method: 'POST', body })
+  }
+
+  function updateSessionGroup(slug: string, body: Record<string, unknown>) {
+    return $fetch<any>(`${base}/session-groups/${slug}`, { method: 'PUT', body })
+  }
+
+  function deleteSessionGroup(slug: string) {
+    return $fetch(`${base}/session-groups/${slug}`, { method: 'DELETE' })
+  }
+
   function getSessionDecisions(slug: string) {
     return $fetch<SessionDecision[]>(`${base}/sessions/${slug}/decisions`)
   }
@@ -503,6 +529,8 @@ export function useCampaignApi(campaignId: string) {
     getCharacterConnections, getCharacterFolders, getCharacterOrganizations,
     // Sessions
     getSessions, getSession, createSession, updateSession, deleteSession,
+    getSessionContent, updateSessionContent,
+    getSessionGroups, createSessionGroup, updateSessionGroup, deleteSessionGroup,
     getSessionDecisions,
     // Quests
     getQuests, getQuest, createQuest, updateQuest, deleteQuest,

@@ -25,7 +25,7 @@ const slug = route.params.slug as string
 const submitting = ref(false)
 const loaded = ref(false)
 const { t } = useI18n()
-const form = ref({ title: '', scheduledDate: '', status: 'planned', content: '' })
+const form = ref({ title: '', scheduledDate: '', status: 'planned', content: '', groupSlug: '' })
 
 const api = useCampaignApi(campaignId)
 const sessionForm = ref<any>(null)
@@ -38,6 +38,7 @@ onMounted(async () => {
       scheduledDate: session.scheduledDate ? new Date(session.scheduledDate).toISOString().split('T')[0] : '',
       status: session.status || 'planned',
       content: session.logContent || '',
+      groupSlug: (session as any).groupSlug || '',
     }
     loaded.value = true
   } catch {

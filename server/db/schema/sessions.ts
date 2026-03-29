@@ -1,6 +1,20 @@
-import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core'
+import { sqliteTable, text, integer, unique } from 'drizzle-orm/sqlite-core'
 import { campaigns } from './campaigns'
 import { user } from './auth'
+
+export const sessionGroups = sqliteTable('session_groups', {
+  id: text('id').primaryKey(),
+  campaignId: text('campaign_id').notNull().references(() => campaigns.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  slug: text('slug').notNull(),
+  description: text('description'),
+  imageUrl: text('image_url'),
+  sortOrder: integer('sort_order').notNull().default(0),
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
+}, t => ({
+  uniqSlug: unique().on(t.campaignId, t.slug),
+}))
 
 export const arcs = sqliteTable('arcs', {
   id: text('id').primaryKey(),
@@ -32,6 +46,7 @@ export const gameSessions = sqliteTable('game_sessions', {
   summary: text('summary'),
   arcId: text('arc_id').references(() => arcs.id),
   chapterId: text('chapter_id').references(() => chapters.id),
+  groupId: text('group_id').references(() => sessionGroups.id, { onDelete: 'set null' }),
   logFilePath: text('log_file_path'),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
   updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
@@ -80,3 +95,14 @@ export const consequences = sqliteTable('consequences', {
   entityId: text('entity_id'),
   revealed: integer('revealed', { mode: 'boolean' }).notNull().default(false),
 })
+
+export const sessionContents = sqliteTable('session_contents', {
+  id: text('id').primaryKey(),
+  sessionId: text('session_id').notNull().references(() => gameSessions.id, { onDelete: 'cascade' }),
+  type: text('type').notNull(), // 'manual_notes' | 'ai_notes' | 'summary'
+  content: text('content'),
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
+}, t => ({
+  uniqType: unique().on(t.sessionId, t.type),
+}))

@@ -14,6 +14,7 @@
           <h1 class="text-3xl font-bold">#{{ session.sessionNumber }} {{ session.title }}</h1>
           <div class="flex items-center gap-2 mt-2">
             <span :class="['text-xs px-2 py-1 rounded', session.status === 'completed' ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' : 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300']">{{ session.status }}</span>
+            <span v-if="session.groupName" class="text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground">{{ session.groupName }}</span>
             <span v-if="session.scheduledDate" class="text-xs text-muted-foreground">{{ new Date(session.scheduledDate).toLocaleString() }}</span>
           </div>
         </div>
@@ -54,6 +55,34 @@
           <p v-else class="text-muted-foreground italic">{{ $t('sessions.noLog') }}</p>
         </div>
         <Button v-if="editing" class="mt-2" @click="saveLog">{{ $t('sessions.saveLog') }}</Button>
+      </div>
+
+      <!-- Content tabs: Manual Notes / AI Notes / Summary -->
+      <div class="mb-6">
+        <div class="flex gap-1 mb-4 border-b border-border">
+          <button v-for="tab in contentTabs" :key="tab.key"
+            @click="activeContentTab = tab.key"
+            :class="['px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px', activeContentTab === tab.key ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground']">
+            {{ tab.label }}
+          </button>
+        </div>
+        <div v-if="contentLoading" class="text-sm text-muted-foreground">{{ $t('common.loading') }}</div>
+        <div v-else>
+          <div class="flex items-center justify-between mb-2">
+            <span />
+            <Button variant="outline" size="sm" @click="editingContent = !editingContent">
+              {{ editingContent ? $t('sessions.previewTab') : $t('sessions.editTab') }}
+            </Button>
+          </div>
+          <textarea v-if="editingContent" v-model="contentDraft[activeContentTab]" rows="12"
+            :placeholder="$t('sessions.content.empty')"
+            class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono" />
+          <div v-else class="prose dark:prose-invert max-w-none text-foreground">
+            <MDC v-if="contentDraft[activeContentTab]" :value="contentDraft[activeContentTab]" />
+            <p v-else class="text-muted-foreground italic">{{ $t('sessions.content.empty') }}</p>
+          </div>
+          <Button v-if="editingContent" class="mt-2" @click="saveContent">{{ $t('sessions.saveLog') }}</Button>
+        </div>
       </div>
 
       <!-- Decision Timeline -->
@@ -97,10 +126,38 @@ const editing = ref(false)
 const logContent = ref('')
 const api = useCampaignApi(campaignId)
 
+// Content tabs
+const contentTabs = [
+  { key: 'manual_notes', label: t('sessions.content.manualNotes') },
+  { key: 'ai_notes', label: t('sessions.content.aiNotes') },
+  { key: 'summary', label: t('sessions.content.summary') },
+]
+const activeContentTab = ref('manual_notes')
+const editingContent = ref(false)
+const contentLoading = ref(false)
+const contentDraft = ref<Record<string, string>>({ manual_notes: '', ai_notes: '', summary: '' })
+
 async function load() {
   session.value = await api.getSession(slug).catch(() => null)
   logContent.value = session.value?.logContent || ''
   decisions.value = await api.getSessionDecisions(slug).catch(() => [])
+  await loadContent()
+}
+
+async function loadContent() {
+  contentLoading.value = true
+  try {
+    const data = await api.getSessionContent(slug)
+    contentDraft.value = {
+      manual_notes: (data.manual_notes as string) || '',
+      ai_notes: (data.ai_notes as string) || '',
+      summary: (data.summary as string) || '',
+    }
+  } catch {
+    // no content yet
+  } finally {
+    contentLoading.value = false
+  }
 }
 
 async function updateStatus(status: string) {
@@ -115,6 +172,13 @@ async function saveLog() {
     await api.updateSession(slug, { content: logContent.value })
     await load()
     editing.value = false
+  } catch (e: any) { alert(e.data?.message || t('errors.failedSave')) }
+}
+
+async function saveContent() {
+  try {
+    await api.updateSessionContent(slug, activeContentTab.value, contentDraft.value[activeContentTab.value])
+    editingContent.value = false
   } catch (e: any) { alert(e.data?.message || t('errors.failedSave')) }
 }
 

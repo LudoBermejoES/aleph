@@ -84,9 +84,16 @@ aleph character connections <slug> --campaign <id> [--json]
 
 ### Sessions
 ```bash
-aleph session list --campaign <id> [--json]
-aleph session create --campaign <id> --title <title> --date <YYYY-MM-DD> [--json]
-aleph session show --campaign <id> <slug> [--json]
+aleph session list --campaign <id> [--group <slug>] [--json]
+aleph session create --campaign <id> --title <title> [--date <YYYY-MM-DD>] [--group <slug>] [--json]
+aleph session show --campaign <id> <slug> [--json]   # includes groupName, hasManualNotes/hasAiNotes/hasSummary
+```
+
+### Session Groups
+```bash
+aleph session-group list --campaign <id> [--json]
+aleph session-group create --campaign <id> --name <name> [--description <desc>] [--json]
+aleph session-group delete <slug> --campaign <id>    # sessions in group become unassigned
 ```
 
 ### Members

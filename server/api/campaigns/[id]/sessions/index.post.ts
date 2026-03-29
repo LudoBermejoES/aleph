@@ -1,7 +1,7 @@
 import { randomUUID } from 'crypto'
-import { eq, sql } from 'drizzle-orm'
+import { eq, sql, and } from 'drizzle-orm'
 import { useDb } from '../../../../utils/db'
-import { gameSessions } from '../../../../db/schema/sessions'
+import { gameSessions, sessionGroups } from '../../../../db/schema/sessions'
 import { hasMinRole } from '../../../../utils/permissions'
 import { slugify, writeEntityFile, resolveEntityPath } from '../../../../services/content'
 import { join } from 'path'
@@ -43,6 +43,16 @@ export default defineEventHandler(async (event) => {
   }
   await writeEntityFile(logPath, frontmatter, body.content || `# ${title}\n\nSession notes...`)
 
+  // Resolve groupSlug to groupId if provided
+  let groupId: string | null = null
+  if (body.groupSlug) {
+    const group = db.select({ id: sessionGroups.id }).from(sessionGroups)
+      .where(and(eq(sessionGroups.campaignId, campaignId), eq(sessionGroups.slug, body.groupSlug)))
+      .get()
+    if (!group) throw createError({ statusCode: 404, message: `Session group "${body.groupSlug}" not found` })
+    groupId = group.id
+  }
+
   db.insert(gameSessions).values({
     id,
     campaignId,
@@ -54,10 +64,11 @@ export default defineEventHandler(async (event) => {
     summary: body.summary || null,
     arcId: body.arcId || null,
     chapterId: body.chapterId || null,
+    groupId,
     logFilePath: logPath,
     createdAt: now,
     updatedAt: now,
   }).run()
 
-  return { id, slug, title, sessionNumber, status: body.status || 'planned' }
+  return { id, slug, title, sessionNumber, status: body.status || 'planned', groupId }
 })

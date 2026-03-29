@@ -18,6 +18,13 @@
           <option value="cancelled">{{ $t('sessions.statusCancelled') }}</option>
         </select>
       </div>
+      <div v-if="groups.length" class="col-span-2">
+        <label class="text-sm font-medium">{{ $t('sessions.group') }}</label>
+        <select v-model="form.groupSlug" class="w-full mt-1 px-3 py-2 rounded border border-input bg-background">
+          <option value="">{{ $t('sessions.noGroup') }}</option>
+          <option v-for="g in groups" :key="g.id" :value="g.slug">{{ g.name }}</option>
+        </select>
+      </div>
     </div>
     <div>
       <label class="text-sm font-medium">{{ $t('sessions.notes') }}</label>
@@ -32,7 +39,7 @@
 
 <script setup lang="ts">
 const props = defineProps<{
-  modelValue: { title: string; scheduledDate: string; status: string; content: string }
+  modelValue: { title: string; scheduledDate: string; status: string; content: string; groupSlug?: string }
   campaignId?: string
   sessionSlug?: string
   submitLabel?: string
@@ -49,6 +56,16 @@ const form = computed({
 const draftKey = computed(() =>
   props.campaignId ? `aleph:draft:${props.campaignId}:session:${props.sessionSlug ?? 'new'}` : null,
 )
+
+const groups = ref<any[]>([])
+
+onMounted(async () => {
+  if (props.campaignId) {
+    try {
+      groups.value = await $fetch<any[]>(`/api/campaigns/${props.campaignId}/session-groups`)
+    } catch { /* no groups */ }
+  }
+})
 
 function clearDraft() {
   if (!draftKey.value) return

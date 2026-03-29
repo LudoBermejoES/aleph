@@ -231,7 +231,33 @@
     "scheduledDate": "Fecha programada",
     "notes": "Notas de sesión",
     "notesPlaceholder": "Escribe las notas de la sesión... (escribe {'@'} para enlazar entidades)",
-    "failedSave": "Error al guardar la sesión"
+    "failedSave": "Error al guardar la sesión",
+    "groups": "Grupos",
+    "allGroups": "Todos los grupos",
+    "noGroup": "Sin grupo",
+    "group": "Grupo",
+    "content": {
+      "manualNotes": "Notas manuales",
+      "aiNotes": "Notas de IA",
+      "summary": "Resumen",
+      "empty": "Sin contenido aún. Empieza a escribir..."
+    }
+  },
+  "sessionGroups": {
+    "title": "Grupos de sesión",
+    "new": "Nuevo grupo",
+    "edit": "Editar grupo",
+    "delete": "Eliminar grupo",
+    "uploadImage": "Subir imagen",
+    "name": "Nombre del grupo",
+    "namePlaceholder": "ej. La Familia",
+    "description": "Descripción",
+    "descriptionPlaceholder": "Describe este grupo...",
+    "empty": "Aún no hay grupos de sesión",
+    "emptyDescription": "Crea grupos para organizar tus sesiones.",
+    "confirmDelete": "¿Eliminar este grupo? Las sesiones de este grupo quedarán sin asignar.",
+    "failedSave": "Error al guardar el grupo",
+    "failedDelete": "Error al eliminar el grupo"
   },
   "quests": {
     "title": "Misiones",
