@@ -87,6 +87,7 @@ aleph character connections <slug> --campaign <id> [--json]
 aleph session list --campaign <id> [--group <slug>] [--json]
 aleph session create --campaign <id> --title <title> [--date <YYYY-MM-DD>] [--group <slug>] [--json]
 aleph session show --campaign <id> <slug> [--json]   # includes groupName, hasManualNotes/hasAiNotes/hasSummary
+aleph session delete <slug> --campaign <id> [--yes]  # --yes skips confirmation prompt
 ```
 
 ### Session Groups

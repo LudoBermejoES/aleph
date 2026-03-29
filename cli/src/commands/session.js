@@ -1,6 +1,7 @@
 import { Command } from 'commander'
-import { get, post } from '../lib/client.js'
+import { get, post, del } from '../lib/client.js'
 import { print, success } from '../lib/output.js'
+import { confirm } from '@inquirer/prompts'
 
 export function makeSessionCommand() {
   const cmd = new Command('session').description('Manage game sessions')
@@ -65,6 +66,20 @@ export function makeSessionCommand() {
           summary: (data.summary || '').slice(0, 200),
         })
       }
+    })
+
+  cmd
+    .command('delete <slug>')
+    .description('Delete a session (requires confirmation)')
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .option('--yes', 'Skip confirmation prompt')
+    .action(async (slug, opts) => {
+      if (!opts.yes) {
+        const ok = await confirm({ message: `Delete session "${slug}" in campaign ${opts.campaign}? This cannot be undone.`, default: false })
+        if (!ok) { process.stdout.write('Cancelled.\n'); return }
+      }
+      await del(`/api/campaigns/${opts.campaign}/sessions/${slug}`)
+      success(`Session ${slug} deleted.`)
     })
 
   return cmd

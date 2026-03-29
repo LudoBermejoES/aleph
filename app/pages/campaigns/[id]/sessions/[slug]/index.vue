@@ -29,6 +29,7 @@
             <option value="completed">{{ $t('sessions.statusCompleted') }}</option>
             <option value="cancelled">{{ $t('sessions.statusCancelled') }}</option>
           </select>
+          <Button v-if="canDelete" variant="destructive" size="sm" @click="deleteSession">{{ $t('common.delete') }}</Button>
         </div>
       </div>
 
@@ -124,6 +125,7 @@ const session = ref<GameSession | null>(null)
 const decisions = ref<SessionDecision[]>([])
 const editing = ref(false)
 const logContent = ref('')
+const canDelete = ref(false)
 const api = useCampaignApi(campaignId)
 
 // Content tabs
@@ -138,10 +140,23 @@ const contentLoading = ref(false)
 const contentDraft = ref<Record<string, string>>({ manual_notes: '', ai_notes: '', summary: '' })
 
 async function load() {
-  session.value = await api.getSession(slug).catch(() => null)
+  const [sessionData, campaignData] = await Promise.all([
+    api.getSession(slug).catch(() => null),
+    api.getCampaign().catch(() => null),
+  ])
+  session.value = sessionData
   logContent.value = session.value?.logContent || ''
+  canDelete.value = ['dm', 'co_dm'].includes((campaignData as any)?.role ?? '')
   decisions.value = await api.getSessionDecisions(slug).catch(() => [])
   await loadContent()
+}
+
+async function deleteSession() {
+  if (!confirm(t('sessions.confirmDelete'))) return
+  try {
+    await api.deleteSession(slug)
+    navigateTo(`/campaigns/${campaignId}/sessions`)
+  } catch (e: any) { alert(e.data?.message || t('errors.failedSave')) }
 }
 
 async function loadContent() {

@@ -241,7 +241,8 @@
       "aiNotes": "Notas de IA",
       "summary": "Resumen",
       "empty": "Sin contenido aún. Empieza a escribir..."
-    }
+    },
+    "confirmDelete": "¿Eliminar esta sesión? Esta acción no se puede deshacer."
   },
   "sessionGroups": {
     "title": "Grupos de sesión",

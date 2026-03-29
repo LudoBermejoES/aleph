@@ -241,7 +241,8 @@
       "aiNotes": "AI Notes",
       "summary": "Summary",
       "empty": "No content yet. Start writing..."
-    }
+    },
+    "confirmDelete": "Delete this session? This action cannot be undone."
   },
   "sessionGroups": {
     "title": "Session Groups",
