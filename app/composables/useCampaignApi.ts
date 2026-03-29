@@ -184,6 +184,30 @@ export function useCampaignApi(campaignId: string) {
     return $fetch<SessionDecision[]>(`${base}/sessions/${slug}/decisions`)
   }
 
+  function createDecision(slug: string, body: { title: string; type?: string; description?: string }) {
+    return $fetch(`${base}/sessions/${slug}/decisions`, { method: 'POST', body })
+  }
+
+  function createConsequence(slug: string, decisionId: string, body: { description: string; revealed?: boolean }) {
+    return $fetch(`${base}/sessions/${slug}/decisions/${decisionId}/consequences`, { method: 'POST', body })
+  }
+
+  function revealConsequence(slug: string, decisionId: string, consequenceId: string, revealed: boolean) {
+    return $fetch(`${base}/sessions/${slug}/decisions/${decisionId}/consequences`, { method: 'PATCH', body: { consequenceId, revealed } })
+  }
+
+  function patchAttendance(slug: string, body: { rsvpStatus?: string; attended?: boolean; userId?: string }) {
+    return $fetch(`${base}/sessions/${slug}/attendance`, { method: 'PATCH', body })
+  }
+
+  function getSessionRolls(slug: string) {
+    return $fetch<any[]>(`${base}/sessions/${slug}/rolls`)
+  }
+
+  function getCampaignArcs() {
+    return $fetch<any[]>(`${base}/arcs`)
+  }
+
   // ─── Quests ─────────────────────────────────────────────────────────────────
 
   function getQuests(params?: Record<string, string>) {
@@ -531,7 +555,8 @@ export function useCampaignApi(campaignId: string) {
     getSessions, getSession, createSession, updateSession, deleteSession,
     getSessionContent, updateSessionContent,
     getSessionGroups, createSessionGroup, updateSessionGroup, deleteSessionGroup,
-    getSessionDecisions,
+    getSessionDecisions, createDecision, createConsequence, revealConsequence,
+    patchAttendance, getSessionRolls, getCampaignArcs,
     // Quests
     getQuests, getQuest, createQuest, updateQuest, deleteQuest,
     // Maps

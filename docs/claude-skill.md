@@ -86,14 +86,23 @@ aleph character connections <slug> --campaign <id> [--json]
 ```bash
 aleph session list --campaign <id> [--group <slug>] [--json]
 aleph session create --campaign <id> --title <title> [--date <YYYY-MM-DD>] [--group <slug>] [--json]
-aleph session show --campaign <id> <slug> [--json]   # includes groupName, hasManualNotes/hasAiNotes/hasSummary
+aleph session show <slug> --campaign <id> [--json]   # includes groupName, hasManualNotes/hasAiNotes/hasSummary
+aleph session update <slug> --campaign <id> [--title <title>] [--date <YYYY-MM-DD>] [--status planned|active|completed|cancelled] [--group <slug>]
 aleph session delete <slug> --campaign <id> [--yes]  # --yes skips confirmation prompt
+
+# Session content (notes)
+aleph session content get <slug> --campaign <id> [--type manual_notes|ai_notes|summary]  # omit --type to show all
+aleph session content set <slug> --campaign <id> --type manual_notes|ai_notes|summary [--file <path>]  # reads from file or stdin
+
+# Attendance / RSVP
+aleph session attendance set <slug> --campaign <id> --status pending|accepted|declined|tentative
 ```
 
 ### Session Groups
 ```bash
 aleph session-group list --campaign <id> [--json]
 aleph session-group create --campaign <id> --name <name> [--description <desc>] [--json]
+aleph session-group update <slug> --campaign <id> [--name <name>] [--description <desc>]
 aleph session-group delete <slug> --campaign <id>    # sessions in group become unassigned
 ```
 

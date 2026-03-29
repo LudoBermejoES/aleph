@@ -4,7 +4,7 @@ description: Use the aleph CLI to manage campaigns, entities, characters, locati
 license: MIT
 metadata:
   author: aleph
-  version: "2.1"
+  version: "2.2"
 ---
 
 You have access to the `aleph` CLI tool at `node /Users/ludo/code/aleph/cli/bin/aleph.js` (or `npm run aleph -- <args>` from the project root). Use it to interact with the running Aleph server.
@@ -82,14 +82,23 @@ node /Users/ludo/code/aleph/cli/bin/aleph.js character connections <slug> --camp
 ```bash
 node /Users/ludo/code/aleph/cli/bin/aleph.js session list --campaign <id> [--group <slug>] [--json]
 node /Users/ludo/code/aleph/cli/bin/aleph.js session create --campaign <id> --title <title> [--date <YYYY-MM-DD>] [--group <slug>] [--json]
-node /Users/ludo/code/aleph/cli/bin/aleph.js session show --campaign <id> <slug> [--json]   # includes groupName, hasManualNotes/hasAiNotes/hasSummary
+node /Users/ludo/code/aleph/cli/bin/aleph.js session show <slug> --campaign <id> [--json]   # includes groupName, hasManualNotes/hasAiNotes/hasSummary
+node /Users/ludo/code/aleph/cli/bin/aleph.js session update <slug> --campaign <id> [--title <title>] [--date <YYYY-MM-DD>] [--status planned|active|completed|cancelled] [--group <slug>]
 node /Users/ludo/code/aleph/cli/bin/aleph.js session delete <slug> --campaign <id> [--yes]  # --yes skips confirmation prompt
+
+# Session content (notes)
+node /Users/ludo/code/aleph/cli/bin/aleph.js session content get <slug> --campaign <id> [--type manual_notes|ai_notes|summary]  # omit --type to show all
+node /Users/ludo/code/aleph/cli/bin/aleph.js session content set <slug> --campaign <id> --type manual_notes|ai_notes|summary [--file <path>]  # reads from file or stdin
+
+# Attendance / RSVP
+node /Users/ludo/code/aleph/cli/bin/aleph.js session attendance set <slug> --campaign <id> --status pending|accepted|declined|tentative
 ```
 
 ### Session Groups
 ```bash
 node /Users/ludo/code/aleph/cli/bin/aleph.js session-group list --campaign <id> [--json]
 node /Users/ludo/code/aleph/cli/bin/aleph.js session-group create --campaign <id> --name <name> [--description <desc>] [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js session-group update <slug> --campaign <id> [--name <name>] [--description <desc>]
 node /Users/ludo/code/aleph/cli/bin/aleph.js session-group delete <slug> --campaign <id>    # sessions in group become unassigned
 ```
 

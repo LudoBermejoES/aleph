@@ -58,6 +58,10 @@ import {
   CircleMinus,
   EyeOff,
   CircleX,
+  ChevronUp,
+  ChevronDown,
+  Image,
+  Upload,
 } from 'lucide-vue-next'
 
 export const ICONS = {
@@ -131,6 +135,12 @@ export const ICONS = {
   orgInactive: CircleMinus,
   orgSecret: EyeOff,
   orgDissolved: CircleX,
+
+  // ─── UI controls ──────────────────────────────────────────────────────────
+  chevronUp: ChevronUp,
+  chevronDown: ChevronDown,
+  image: Image,
+  upload: Upload,
 } as const
 
 export type IconKey = keyof typeof ICONS

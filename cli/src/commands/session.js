@@ -1,7 +1,8 @@
 import { Command } from 'commander'
-import { get, post, del } from '../lib/client.js'
+import { get, post, put, patch, del } from '../lib/client.js'
 import { print, success } from '../lib/output.js'
 import { confirm } from '@inquirer/prompts'
+import fs from 'fs'
 
 export function makeSessionCommand() {
   const cmd = new Command('session').description('Manage game sessions')
@@ -69,6 +70,33 @@ export function makeSessionCommand() {
     })
 
   cmd
+    .command('update <slug>')
+    .description('Update session metadata')
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .option('--title <title>', 'New title')
+    .option('--date <date>', 'Scheduled date (YYYY-MM-DD)')
+    .option('--status <status>', 'Status: planned|active|completed|cancelled')
+    .option('--group <slug>', 'Session group slug (empty string to unset)')
+    .option('--json', 'Output as JSON')
+    .action(async (slug, opts) => {
+      const body = {}
+      if (opts.title !== undefined) body.title = opts.title
+      if (opts.date !== undefined) body.scheduledDate = opts.date
+      if (opts.status !== undefined) body.status = opts.status
+      if (opts.group !== undefined) body.groupSlug = opts.group
+      if (Object.keys(body).length === 0) {
+        process.stderr.write('Error: Provide at least one field to update (--title, --date, --status, --group)\n')
+        process.exit(1)
+      }
+      await put(`/api/campaigns/${opts.campaign}/sessions/${slug}`, body)
+      if (opts.json) {
+        print({ success: true }, { json: true })
+      } else {
+        success('Session updated.')
+      }
+    })
+
+  cmd
     .command('delete <slug>')
     .description('Delete a session (requires confirmation)')
     .requiredOption('--campaign <id>', 'Campaign ID')
@@ -82,5 +110,80 @@ export function makeSessionCommand() {
       success(`Session ${slug} deleted.`)
     })
 
+  // ─── Content subcommand ───────────────────────────────────────────────────
+
+  const content = new Command('content').description('Manage session content (notes, AI notes, summary)')
+
+  content
+    .command('get <slug>')
+    .description('Get session content')
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .option('--type <type>', 'Content type: manual_notes|ai_notes|summary (omit to show all)')
+    .action(async (slug, opts) => {
+      const data = await get(`/api/campaigns/${opts.campaign}/sessions/${slug}/content`)
+      if (opts.type) {
+        // raw output suitable for piping
+        process.stdout.write((data[opts.type] || '') + '\n')
+      } else {
+        for (const type of ['manual_notes', 'ai_notes', 'summary']) {
+          process.stdout.write(`\n=== ${type} ===\n${data[type] || '(empty)'}\n`)
+        }
+      }
+    })
+
+  content
+    .command('set <slug>')
+    .description('Set session content from file or stdin')
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .requiredOption('--type <type>', 'Content type: manual_notes|ai_notes|summary')
+    .option('--file <path>', 'Read content from file (default: stdin)')
+    .action(async (slug, opts) => {
+      const validTypes = ['manual_notes', 'ai_notes', 'summary']
+      if (!validTypes.includes(opts.type)) {
+        process.stderr.write(`Error: --type must be one of: ${validTypes.join(', ')}\n`)
+        process.exit(1)
+      }
+      let contentText
+      if (opts.file) {
+        contentText = fs.readFileSync(opts.file, 'utf8')
+      } else {
+        contentText = await readStdin()
+      }
+      await put(`/api/campaigns/${opts.campaign}/sessions/${slug}/content`, { type: opts.type, content: contentText })
+      success('Content updated.')
+    })
+
+  cmd.addCommand(content)
+
+  // ─── Attendance subcommand ─────────────────────────────────────────────────
+
+  const attendance = new Command('attendance').description('Manage session attendance')
+
+  attendance
+    .command('set <slug>')
+    .description('Set your RSVP status for a session')
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .requiredOption('--status <status>', 'RSVP status: pending|accepted|declined|tentative')
+    .action(async (slug, opts) => {
+      const validStatuses = ['pending', 'accepted', 'declined', 'tentative']
+      if (!validStatuses.includes(opts.status)) {
+        process.stderr.write(`Error: --status must be one of: ${validStatuses.join(', ')}\n`)
+        process.exit(1)
+      }
+      await patch(`/api/campaigns/${opts.campaign}/sessions/${slug}/attendance`, { rsvpStatus: opts.status })
+      success('Attendance updated.')
+    })
+
+  cmd.addCommand(attendance)
+
   return cmd
+}
+
+function readStdin() {
+  return new Promise((resolve) => {
+    let data = ''
+    process.stdin.setEncoding('utf8')
+    process.stdin.on('data', chunk => { data += chunk })
+    process.stdin.on('end', () => resolve(data))
+  })
 }

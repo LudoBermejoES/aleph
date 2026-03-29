@@ -1,5 +1,5 @@
 import { Command } from 'commander'
-import { get, post, del } from '../lib/client.js'
+import { get, post, put, del } from '../lib/client.js'
 import { print, success } from '../lib/output.js'
 
 export function makeSessionGroupCommand() {
@@ -35,6 +35,29 @@ export function makeSessionGroupCommand() {
         print(data, { json: true })
       } else {
         success(`Session group created: ${data.name} (${data.slug})`)
+      }
+    })
+
+  cmd
+    .command('update <slug>')
+    .description('Update a session group')
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .option('--name <name>', 'New group name')
+    .option('--description <desc>', 'New group description')
+    .option('--json', 'Output as JSON')
+    .action(async (slug, opts) => {
+      const body = {}
+      if (opts.name !== undefined) body.name = opts.name
+      if (opts.description !== undefined) body.description = opts.description
+      if (Object.keys(body).length === 0) {
+        process.stderr.write('Error: Provide at least one field to update (--name, --description)\n')
+        process.exit(1)
+      }
+      await put(`/api/campaigns/${opts.campaign}/session-groups/${slug}`, body)
+      if (opts.json) {
+        print({ success: true }, { json: true })
+      } else {
+        success('Session group updated.')
       }
     })
 

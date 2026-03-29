@@ -25,6 +25,20 @@
           <option v-for="g in groups" :key="g.id" :value="g.slug">{{ g.name }}</option>
         </select>
       </div>
+      <div v-if="arcs.length" class="col-span-2">
+        <label class="text-sm font-medium">{{ $t('sessions.arc') }}</label>
+        <select v-model="form.arcId" @change="onArcChange" class="w-full mt-1 px-3 py-2 rounded border border-input bg-background">
+          <option value="">{{ $t('sessions.noArc') }}</option>
+          <option v-for="a in arcs" :key="a.id" :value="a.id">{{ a.name }}</option>
+        </select>
+      </div>
+      <div v-if="form.arcId && currentArcChapters.length" class="col-span-2">
+        <label class="text-sm font-medium">{{ $t('sessions.chapter') }}</label>
+        <select v-model="form.chapterId" class="w-full mt-1 px-3 py-2 rounded border border-input bg-background">
+          <option value="">{{ $t('sessions.noChapter') }}</option>
+          <option v-for="c in currentArcChapters" :key="c.id" :value="c.id">{{ c.name }}</option>
+        </select>
+      </div>
     </div>
     <div>
       <label class="text-sm font-medium">{{ $t('sessions.notes') }}</label>
@@ -39,7 +53,7 @@
 
 <script setup lang="ts">
 const props = defineProps<{
-  modelValue: { title: string; scheduledDate: string; status: string; content: string; groupSlug?: string }
+  modelValue: { title: string; scheduledDate: string; status: string; content: string; groupSlug?: string; arcId?: string; chapterId?: string }
   campaignId?: string
   sessionSlug?: string
   submitLabel?: string
@@ -58,12 +72,25 @@ const draftKey = computed(() =>
 )
 
 const groups = ref<any[]>([])
+const arcs = ref<any[]>([])
+
+const currentArcChapters = computed(() => {
+  if (!form.value.arcId) return []
+  return arcs.value.find(a => a.id === form.value.arcId)?.chapters ?? []
+})
+
+function onArcChange() {
+  form.value.chapterId = ''
+}
 
 onMounted(async () => {
   if (props.campaignId) {
-    try {
-      groups.value = await $fetch<any[]>(`/api/campaigns/${props.campaignId}/session-groups`)
-    } catch { /* no groups */ }
+    const [groupsData, arcsData] = await Promise.all([
+      $fetch<any[]>(`/api/campaigns/${props.campaignId}/session-groups`).catch(() => []),
+      $fetch<any[]>(`/api/campaigns/${props.campaignId}/arcs`).catch(() => []),
+    ])
+    groups.value = groupsData
+    arcs.value = arcsData
   }
 })
 
