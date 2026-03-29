@@ -29,9 +29,15 @@
             <Button @click="generateInvite" :disabled="inviting">
               {{ inviting ? $t('members.generating') : $t('members.generateLink') }}
             </Button>
-            <div v-if="inviteToken" class="p-3 bg-muted rounded text-sm break-all">
-              <p class="text-xs text-muted-foreground mb-1">{{ $t('members.shareToken') }}</p>
-              <code>{{ inviteToken }}</code>
+            <div v-if="inviteUrl" class="p-3 bg-muted rounded text-sm">
+              <p class="text-xs text-muted-foreground mb-2">{{ $t('members.shareLink') }}</p>
+              <div class="flex items-center gap-2">
+                <code class="flex-1 break-all text-xs">{{ inviteUrl }}</code>
+                <button @click="copyInviteUrl"
+                  class="flex-shrink-0 text-xs px-2 py-1 rounded border border-border hover:border-primary/50 transition-colors">
+                  {{ copyFeedback ? $t('members.copied') : $t('members.copy') }}
+                </button>
+              </div>
             </div>
           </div>
         </DialogContent>
@@ -86,6 +92,8 @@ const showInviteDialog = ref(false)
 const inviteRole = ref('player')
 const inviting = ref(false)
 const inviteToken = ref('')
+const inviteUrl = ref('')
+const copyFeedback = ref(false)
 
 async function loadMembers() {
   try {
@@ -101,11 +109,20 @@ async function generateInvite() {
   try {
     const result = await api.createInvite({ role: inviteRole.value })
     inviteToken.value = result.token
+    inviteUrl.value = `${window.location.origin}/join?token=${result.token}&campaign=${campaignId}`
   } catch (e: any) {
     alert(e.data?.message || t('members.failedInvite'))
   } finally {
     inviting.value = false
   }
+}
+
+async function copyInviteUrl() {
+  try {
+    await navigator.clipboard.writeText(inviteUrl.value)
+    copyFeedback.value = true
+    setTimeout(() => { copyFeedback.value = false }, 2000)
+  } catch { /* ignore */ }
 }
 
 async function changeRole(userId: string, newRole: string) {

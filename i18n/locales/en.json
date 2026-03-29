@@ -95,6 +95,9 @@
     "generating": "Generating...",
     "generateLink": "Generate Link",
     "shareToken": "Share this token with the player:",
+    "shareLink": "Share this link with the player:",
+    "copy": "Copy",
+    "copied": "Copied!",
     "dm": "DM",
     "coDm": "Co-DM",
     "editor": "Editor",
@@ -103,6 +106,18 @@
     "remove": "Remove",
     "removeConfirm": "Remove this member?",
     "failedInvite": "Failed to generate invite"
+  },
+  "join": {
+    "title": "Join Campaign",
+    "subtitle": "You've been invited to join a campaign.",
+    "loginTab": "Log In",
+    "registerTab": "Register",
+    "joining": "Joining...",
+    "success": "You've successfully joined the campaign!",
+    "errorInvalid": "Invalid or unrecognized invite link.",
+    "errorExpired": "This invite link has expired.",
+    "errorAlreadyMember": "You're already a member of this campaign.",
+    "missingParams": "Invalid invite link — missing token or campaign."
   },
   "character": {
     "uploadPortrait": "Upload portrait",

@@ -109,7 +109,9 @@ aleph session-group delete <slug> --campaign <id>    # sessions in group become 
 ### Members
 ```bash
 aleph member list --campaign <id> [--json]
-aleph member invite --campaign <id> --role <role> [--json]
+aleph member invite --campaign <id> --role <role> [--expires <days>] [--json]
+# Prints: "Join URL: <server>/join?token=<token>&campaign=<id>"
+# Share this URL with the invitee — they can register or log in and join in one step
 ```
 
 Roles: `player`, `editor`, `co_dm`

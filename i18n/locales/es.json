@@ -95,6 +95,9 @@
     "generating": "Generando...",
     "generateLink": "Generar enlace",
     "shareToken": "Comparte este token con el jugador:",
+    "shareLink": "Comparte este enlace con el jugador:",
+    "copy": "Copiar",
+    "copied": "¡Copiado!",
     "dm": "DM",
     "coDm": "Co-DM",
     "editor": "Editor",
@@ -103,6 +106,18 @@
     "remove": "Eliminar",
     "removeConfirm": "¿Eliminar a este miembro?",
     "failedInvite": "Error al generar la invitación"
+  },
+  "join": {
+    "title": "Unirse a la campaña",
+    "subtitle": "Has sido invitado a unirte a una campaña.",
+    "loginTab": "Iniciar sesión",
+    "registerTab": "Registrarse",
+    "joining": "Uniéndose...",
+    "success": "¡Te has unido a la campaña con éxito!",
+    "errorInvalid": "Enlace de invitación inválido o no reconocido.",
+    "errorExpired": "Este enlace de invitación ha caducado.",
+    "errorAlreadyMember": "Ya eres miembro de esta campaña.",
+    "missingParams": "Enlace de invitación inválido — falta el token o la campaña."
   },
   "character": {
     "uploadPortrait": "Subir retrato",

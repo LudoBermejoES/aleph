@@ -4,7 +4,7 @@ description: Use the aleph CLI to manage campaigns, entities, characters, locati
 license: MIT
 metadata:
   author: aleph
-  version: "2.2"
+  version: "2.3"
 ---
 
 You have access to the `aleph` CLI tool at `node /Users/ludo/code/aleph/cli/bin/aleph.js` (or `npm run aleph -- <args>` from the project root). Use it to interact with the running Aleph server.
@@ -106,6 +106,8 @@ node /Users/ludo/code/aleph/cli/bin/aleph.js session-group delete <slug> --campa
 ```bash
 aleph member list --campaign <id> [--json]
 aleph member invite --campaign <id> --role <role> [--expires <days>] [--json]
+# Prints: "Join URL: <server>/join?token=<token>&campaign=<id>"
+# Share this URL with the invitee — they can register or log in and join in one step
 ```
 
 Roles: `player`, `editor`, `co_dm`

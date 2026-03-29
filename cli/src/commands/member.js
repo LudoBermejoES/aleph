@@ -1,6 +1,7 @@
 import { Command } from 'commander'
 import { get, post } from '../lib/client.js'
 import { print, success } from '../lib/output.js'
+import { requireConfig } from '../lib/config.js'
 
 export function makeMemberCommand() {
   const cmd = new Command('member').description('Manage campaign members')
@@ -34,7 +35,9 @@ export function makeMemberCommand() {
       if (opts.json) {
         print(data, { json: true })
       } else {
-        success('Invite URL: ' + data.url)
+        const config = requireConfig()
+        const joinUrl = `${config.url.replace(/\/$/, '')}/join?token=${data.token}&campaign=${opts.campaign}`
+        success(`Join URL: ${joinUrl}`)
       }
     })
 

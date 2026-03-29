@@ -1,5 +1,5 @@
 export default defineNuxtRouteMiddleware(async (to) => {
-  const publicRoutes = ['/login', '/register']
+  const publicRoutes = ['/login', '/register', '/join']
   if (publicRoutes.includes(to.path)) return
 
   if (import.meta.client) {
