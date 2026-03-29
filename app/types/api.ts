@@ -99,9 +99,19 @@ export interface Character {
   ownerUserId: string | null
   isCompanionOf: string | null
   folderId: string | null
+  portraitUrl: string | null
+  locationEntityId: string | null
+  locationName: string | null
+  primaryOrg: { name: string; role: string | null } | null
   updatedAt: Date
   // Detail view only
   content?: string
+}
+
+export interface CharacterMeta {
+  races: string[]
+  classes: string[]
+  alignments: string[]
 }
 
 export interface CharacterFolder {
