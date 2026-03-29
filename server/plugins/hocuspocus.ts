@@ -1,7 +1,7 @@
 import { Server } from '@hocuspocus/server'
 import { useSqlite, useDb } from '../utils/db'
 import { markdownToTiptap, tiptapToMarkdown, mergeFrontmatter } from '../services/collaboration'
-import { readEntityFile, writeEntityFile, contentHash } from '../services/content'
+import { readEntityFile, writeEntityFile } from '../services/content'
 import { indexEntity } from '../services/search'
 import { auth } from '../utils/auth'
 import { logger } from '../utils/logger'
@@ -39,7 +39,7 @@ export default defineNitroPlugin(async () => {
         if (parts.length !== 4 || parts[0] !== 'campaign' || parts[2] !== 'entity') {
           throw new Error('Invalid document name format')
         }
-        const campaignId = parts[1]
+        const campaignId = parts[1]!
 
         // Check campaign membership
         const membership = useDb().select()
@@ -58,11 +58,11 @@ export default defineNitroPlugin(async () => {
         return { user: { id: userId }, campaignId, role: membership.role }
       },
 
-      async onLoadDocument({ document, documentName, context }) {
+      async onLoadDocument({ document, documentName, _context }) {
         // Parse document name
         const parts = documentName.split(':')
-        const campaignId = parts[1]
-        const slug = parts[3]
+        const campaignId = parts[1]!
+        const slug = parts[3]!
 
         const db = useDb()
         const entity = db.select().from(entities)
@@ -80,10 +80,12 @@ export default defineNitroPlugin(async () => {
 
           // Hydrate Y.js document with Tiptap content
           const { prosemirrorJSONToYDoc } = await import('y-prosemirror')
-          const yDoc = prosemirrorJSONToYDoc(document.getSchema(), tiptapJson)
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Hocuspocus types don't expose getSchema()
+          const yDoc = prosemirrorJSONToYDoc((document as any).getSchema(), tiptapJson)
 
           // Merge into the Hocuspocus document
-          const update = yDoc.encodeStateAsUpdateV2 ? undefined : undefined
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Yjs types don't expose encodeStateAsUpdateV2
+          const _update = (yDoc as any).encodeStateAsUpdateV2 ? undefined : undefined
           // The document is auto-populated by Hocuspocus from the Y.js doc
           logger.debug('Hocuspocus: document loaded', { documentName, slug })
         } catch (err) {
@@ -91,10 +93,10 @@ export default defineNitroPlugin(async () => {
         }
       },
 
-      async onStoreDocument({ document, documentName, context }) {
+      async onStoreDocument({ document, documentName, _context }) {
         const parts = documentName.split(':')
-        const campaignId = parts[1]
-        const slug = parts[3]
+        const campaignId = parts[1]!
+        const slug = parts[3]!
 
         const db = useDb()
         const sqlite = useSqlite()
@@ -108,7 +110,8 @@ export default defineNitroPlugin(async () => {
         for (let attempt = 1; attempt <= maxRetries; attempt++) {
           try {
             // Convert Y.js document back to Tiptap JSON, then to markdown
-            const json = document.getJSON()
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Hocuspocus types don't expose getJSON()
+            const json = (document as any).getJSON()
             const markdown = tiptapToMarkdown(json || { type: 'doc', content: [] })
 
             // Read existing frontmatter
@@ -116,7 +119,7 @@ export default defineNitroPlugin(async () => {
             const mergedFm = mergeFrontmatter(existing.frontmatter as Record<string, unknown>, {})
 
             // Write updated .md file
-            const hash = await writeEntityFile(entity.filePath, mergedFm as any, markdown)
+            const hash = await writeEntityFile(entity.filePath, mergedFm as Record<string, unknown>, markdown)
 
             // Update content hash in DB
             db.update(entities)
@@ -154,17 +157,19 @@ export default defineNitroPlugin(async () => {
         }
       },
 
-      onDisconnect({ context }) {
-        logger.debug('Hocuspocus: user disconnected', { user: context?.user?.name })
+      async onDisconnect({ _context }) {
+        logger.debug('Hocuspocus: user disconnected')
       },
     })
 
     server.listen()
     logger.info('Hocuspocus collaboration server started on port 3334')
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err)
+    const stack = err instanceof Error ? err.stack : undefined
     logger.warn('Hocuspocus: failed to start (collaboration disabled)', {
-      error: err?.message || String(err),
-      stack: err?.stack,
+      error: message,
+      stack,
     })
   }
 })
