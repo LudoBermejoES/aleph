@@ -10,13 +10,34 @@ export function makeCharacterCommand() {
     .command('list')
     .description('List characters in a campaign')
     .requiredOption('--campaign <id>', 'Campaign ID')
+    .option('--status <status>', 'Filter by status (alive, dead, missing, unknown)')
+    .option('--race <race>', 'Filter by race')
+    .option('--class <class>', 'Filter by class')
+    .option('--alignment <alignment>', 'Filter by alignment')
+    .option('--sort <field>', 'Sort field (name, updatedAt, status, race, class)')
+    .option('--sort-dir <dir>', 'Sort direction (asc, desc)')
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
-      const data = await get(`/api/campaigns/${opts.campaign}/characters`)
+      const params = new URLSearchParams()
+      if (opts.status) params.set('status', opts.status)
+      if (opts.race) params.set('race', opts.race)
+      if (opts.class) params.set('class', opts.class)
+      if (opts.alignment) params.set('alignment', opts.alignment)
+      if (opts.sort) params.set('sort', opts.sort)
+      if (opts.sortDir) params.set('sortDir', opts.sortDir)
+      const qs = params.toString()
+      const data = await get(`/api/campaigns/${opts.campaign}/characters${qs ? `?${qs}` : ''}`)
       if (opts.json) {
         print(data, { json: true })
       } else {
-        print(data.map(c => ({ name: c.name, slug: c.slug, type: c.type || '', class: c.class || '' })))
+        print(data.map(c => ({
+          name: c.name,
+          slug: c.slug,
+          type: c.characterType || '',
+          status: c.status || '',
+          race: c.race || '',
+          class: c.class || '',
+        })))
       }
     })
 
