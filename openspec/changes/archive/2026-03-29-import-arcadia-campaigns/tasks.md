@@ -44,7 +44,7 @@
 
 ## 7. Verification
 
-- [ ] 7.1 Run the script against the local Aleph server (`node cli/bin/import-arcadia.js`) and confirm all campaigns are created
-- [ ] 7.2 Verify session counts: La Familia ~45, La Fuerza Oculta ~53, Génesis 6, Hospital 2, Reformatorio 9, Crematorio 1
-- [ ] 7.3 Verify session content is visible in the Aleph UI (check one session per campaign)
-- [ ] 7.4 Run script a second time and confirm it is fully idempotent (no duplicates, no errors)
+- [x] 7.1 Run the script against the local Aleph server (`node cli/bin/import-arcadia.js`) and confirm all campaigns are created
+- [x] 7.2 Verify session counts: La Familia ~45, La Fuerza Oculta ~53, Génesis 6, Hospital 2, Reformatorio 9, Crematorio 1
+- [x] 7.3 Verify session content is visible in the Aleph UI (check one session per campaign)
+- [x] 7.4 Run script a second time and confirm it is fully idempotent (no duplicates, no errors)
