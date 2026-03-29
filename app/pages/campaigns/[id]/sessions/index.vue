@@ -47,7 +47,7 @@
           class="block p-4 rounded-lg border border-border hover:border-primary/50 transition-colors">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
-              <span class="font-medium">#{{ s.sessionNumber }} {{ s.title }}</span>
+              <span class="font-medium">{{ s.title }}</span>
               <span v-if="s.groupName" class="text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground">{{ s.groupName }}</span>
             </div>
             <span class="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
@@ -66,7 +66,7 @@
           class="block p-4 rounded-lg border border-border hover:border-primary/50 transition-colors">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
-              <span class="font-medium">#{{ s.sessionNumber }} {{ s.title }}</span>
+              <span class="font-medium">{{ s.title }}</span>
               <span v-if="s.groupName" class="text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground">{{ s.groupName }}</span>
             </div>
             <span class="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">

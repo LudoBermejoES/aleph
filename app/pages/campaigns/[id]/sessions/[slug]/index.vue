@@ -6,12 +6,12 @@
         <span>/</span>
         <NuxtLink :to="`/campaigns/${campaignId}/sessions`" class="hover:text-primary">{{ $t('sessions.title') }}</NuxtLink>
         <span>/</span>
-        <span class="text-foreground">#{{ session.sessionNumber }}</span>
+        <span class="text-foreground">{{ session.title }}</span>
       </div>
 
       <div class="flex items-start justify-between mb-6">
         <div>
-          <h1 class="text-3xl font-bold">#{{ session.sessionNumber }} {{ session.title }}</h1>
+          <h1 class="text-3xl font-bold">{{ session.title }}</h1>
           <div class="flex items-center gap-2 mt-2">
             <span :class="['text-xs px-2 py-1 rounded', session.status === 'completed' ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' : 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300']">{{ session.status }}</span>
             <span v-if="session.groupName" class="text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground">{{ session.groupName }}</span>
