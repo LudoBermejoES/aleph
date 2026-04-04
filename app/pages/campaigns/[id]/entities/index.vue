@@ -3,7 +3,7 @@
     <div class="flex items-center justify-between mb-6">
       <div>
         <div class="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-          <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">Campaign</NuxtLink>
+          <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary"> {{ $t('common.campaign') }}</NuxtLink>
           <span>/</span>
           <span>{{ $t('entities.title') }}</span>
         </div>

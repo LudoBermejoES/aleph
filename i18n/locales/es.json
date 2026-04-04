@@ -27,7 +27,8 @@
     "date": "Fecha",
     "amount": "Cantidad",
     "item": "Objeto",
-    "quantity": "Cantidad"
+    "quantity": "Cantidad",
+    "campaign": "Campaña"
   },
   "auth": {
     "signIn": "Iniciar sesión",
@@ -45,7 +46,8 @@
     "haveAccount": "¿Ya tienes cuenta?",
     "invalidCredentials": "Credenciales incorrectas",
     "registrationFailed": "Error al registrarse",
-    "appTitle": "Gestor de Campañas TTRPG"
+    "appTitle": "Gestor de Campañas TTRPG",
+    "tagline": "Gestor de Campañas TTRPG"
   },
   "campaigns": {
     "title": "Campañas",
@@ -587,11 +589,38 @@
     "selectTarget": "Seleccionar destino…",
     "transferring": "Transfiriendo…"
   },
+  "editor": {
+    "draftBanner": "Tienes cambios sin guardar de una sesión anterior.",
+    "restoreDraft": "Restaurar borrador",
+    "discardDraft": "Descartar",
+    "toolbar": {
+      "undo": "Deshacer (Ctrl+Z)",
+      "redo": "Rehacer (Ctrl+Shift+Z)",
+      "bold": "Negrita (Ctrl+B)",
+      "italic": "Cursiva (Ctrl+I)",
+      "strikethrough": "Tachado",
+      "inlineCode": "Código en línea",
+      "heading1": "Encabezado 1",
+      "heading2": "Encabezado 2",
+      "heading3": "Encabezado 3",
+      "bulletList": "Lista con viñetas",
+      "orderedList": "Lista numerada",
+      "taskList": "Lista de tareas",
+      "blockquote": "Cita",
+      "codeBlock": "Bloque de código",
+      "horizontalRule": "Línea horizontal",
+      "insertLink": "Insertar enlace",
+      "insertTable": "Insertar tabla",
+      "insertImage": "Insertar imagen"
+    }
+  },
   "errors": {
     "generic": "Algo salió mal",
     "notFound": "No encontrado",
     "notFoundTitle": "Página no encontrada",
     "notFoundBack": "Volver a Campañas",
+    "pageNotFound": "Página no encontrada",
+    "backToCampaigns": "Volver a Campañas",
     "forbidden": "No tienes permiso para hacer eso",
     "failedLoad": "Error al cargar",
     "failedSave": "Error al guardar"

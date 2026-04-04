@@ -2,54 +2,54 @@
   <div class="border border-border rounded-lg overflow-hidden">
     <!-- Draft restore banner -->
     <div v-if="hasDraft" class="flex items-center justify-between gap-2 px-3 py-2 bg-yellow-50 dark:bg-yellow-900/20 border-b border-yellow-200 dark:border-yellow-700 text-sm">
-      <span class="text-yellow-800 dark:text-yellow-200">You have unsaved changes from a previous session.</span>
+      <span class="text-yellow-800 dark:text-yellow-200">{{ $t('editor.draftBanner') }}</span>
       <div class="flex gap-2 shrink-0">
-        <button type="button" class="px-2 py-0.5 rounded bg-yellow-200 dark:bg-yellow-700 hover:bg-yellow-300 dark:hover:bg-yellow-600 text-yellow-900 dark:text-yellow-100 text-xs font-medium" @click="onRestoreDraft">Restore draft</button>
-        <button type="button" class="px-2 py-0.5 rounded hover:bg-yellow-100 dark:hover:bg-yellow-800 text-yellow-700 dark:text-yellow-300 text-xs" @click="onDiscardDraft">Discard</button>
+        <button type="button" class="px-2 py-0.5 rounded bg-yellow-200 dark:bg-yellow-700 hover:bg-yellow-300 dark:hover:bg-yellow-600 text-yellow-900 dark:text-yellow-100 text-xs font-medium" @click="onRestoreDraft">{{ $t('editor.restoreDraft') }}</button>
+        <button type="button" class="px-2 py-0.5 rounded hover:bg-yellow-100 dark:hover:bg-yellow-800 text-yellow-700 dark:text-yellow-300 text-xs" @click="onDiscardDraft">{{ $t('editor.discardDraft') }}</button>
       </div>
     </div>
     <!-- Toolbar -->
     <div class="flex flex-wrap items-center gap-0.5 p-2 border-b border-border bg-muted/30">
       <!-- Undo/Redo -->
-      <button type="button" @mousedown.prevent="undo" class="p-1.5 rounded text-xs hover:bg-accent" title="Undo (Ctrl+Z)">↩</button>
-      <button type="button" @mousedown.prevent="redo" class="p-1.5 rounded text-xs hover:bg-accent" title="Redo (Ctrl+Shift+Z)">↪</button>
+      <button type="button" @mousedown.prevent="undo" class="p-1.5 rounded text-xs hover:bg-accent" :title="$t('editor.toolbar.undo')">↩</button>
+      <button type="button" @mousedown.prevent="redo" class="p-1.5 rounded text-xs hover:bg-accent" :title="$t('editor.toolbar.redo')">↪</button>
       <div class="w-px h-4 bg-border mx-1" />
 
       <!-- Text formatting -->
-      <button type="button" @mousedown.prevent="toggleBold" :class="['p-1.5 rounded text-xs font-bold', editorState?.isBold ? 'bg-accent' : 'hover:bg-accent']" title="Bold (Ctrl+B)">B</button>
-      <button type="button" @mousedown.prevent="toggleItalic" :class="['p-1.5 rounded text-xs italic', editorState?.isItalic ? 'bg-accent' : 'hover:bg-accent']" title="Italic (Ctrl+I)">I</button>
-      <button type="button" @mousedown.prevent="toggleStrike" :class="['p-1.5 rounded text-xs line-through', editorState?.isStrike ? 'bg-accent' : 'hover:bg-accent']" title="Strikethrough">S</button>
-      <button type="button" @mousedown.prevent="toggleCode" :class="['p-1.5 rounded text-xs font-mono', editorState?.isCode ? 'bg-accent' : 'hover:bg-accent']" title="Inline Code">&lt;/&gt;</button>
+      <button type="button" @mousedown.prevent="toggleBold" :class="['p-1.5 rounded text-xs font-bold', editorState?.isBold ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.bold')">B</button>
+      <button type="button" @mousedown.prevent="toggleItalic" :class="['p-1.5 rounded text-xs italic', editorState?.isItalic ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.italic')">I</button>
+      <button type="button" @mousedown.prevent="toggleStrike" :class="['p-1.5 rounded text-xs line-through', editorState?.isStrike ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.strikethrough')">S</button>
+      <button type="button" @mousedown.prevent="toggleCode" :class="['p-1.5 rounded text-xs font-mono', editorState?.isCode ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.inlineCode')">&lt;/&gt;</button>
       <div class="w-px h-4 bg-border mx-1" />
 
       <!-- Headings -->
-      <button type="button" @mousedown.prevent="setHeading(1)" :class="['p-1.5 rounded text-xs', editorState?.isH1 ? 'bg-accent' : 'hover:bg-accent']" title="Heading 1">H1</button>
-      <button type="button" @mousedown.prevent="setHeading(2)" :class="['p-1.5 rounded text-xs', editorState?.isH2 ? 'bg-accent' : 'hover:bg-accent']" title="Heading 2">H2</button>
-      <button type="button" @mousedown.prevent="setHeading(3)" :class="['p-1.5 rounded text-xs', editorState?.isH3 ? 'bg-accent' : 'hover:bg-accent']" title="Heading 3">H3</button>
+      <button type="button" @mousedown.prevent="setHeading(1)" :class="['p-1.5 rounded text-xs', editorState?.isH1 ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.heading1')">H1</button>
+      <button type="button" @mousedown.prevent="setHeading(2)" :class="['p-1.5 rounded text-xs', editorState?.isH2 ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.heading2')">H2</button>
+      <button type="button" @mousedown.prevent="setHeading(3)" :class="['p-1.5 rounded text-xs', editorState?.isH3 ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.heading3')">H3</button>
       <div class="w-px h-4 bg-border mx-1" />
 
       <!-- Lists -->
-      <button type="button" @mousedown.prevent="toggleBulletList" :class="['p-1.5 rounded text-xs', editorState?.isBulletList ? 'bg-accent' : 'hover:bg-accent']" title="Bullet List">• List</button>
-      <button type="button" @mousedown.prevent="toggleOrderedList" :class="['p-1.5 rounded text-xs', editorState?.isOrderedList ? 'bg-accent' : 'hover:bg-accent']" title="Ordered List">1. List</button>
-      <button type="button" @mousedown.prevent="toggleTaskList" :class="['p-1.5 rounded text-xs', editorState?.isTaskList ? 'bg-accent' : 'hover:bg-accent']" title="Task List">☑ Tasks</button>
+      <button type="button" @mousedown.prevent="toggleBulletList" :class="['p-1.5 rounded text-xs', editorState?.isBulletList ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.bulletList')">• List</button>
+      <button type="button" @mousedown.prevent="toggleOrderedList" :class="['p-1.5 rounded text-xs', editorState?.isOrderedList ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.orderedList')">1. List</button>
+      <button type="button" @mousedown.prevent="toggleTaskList" :class="['p-1.5 rounded text-xs', editorState?.isTaskList ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.taskList')">☑ Tasks</button>
       <div class="w-px h-4 bg-border mx-1" />
 
       <!-- Blocks -->
-      <button type="button" @mousedown.prevent="toggleBlockquote" :class="['p-1.5 rounded text-xs', editorState?.isBlockquote ? 'bg-accent' : 'hover:bg-accent']" title="Blockquote">❝ Quote</button>
-      <button type="button" @mousedown.prevent="toggleCodeBlock" :class="['p-1.5 rounded text-xs font-mono', editorState?.isCodeBlock ? 'bg-accent' : 'hover:bg-accent']" title="Code Block">{} Block</button>
-      <button type="button" @mousedown.prevent="insertHorizontalRule" class="p-1.5 rounded text-xs hover:bg-accent" title="Horizontal Rule">— HR</button>
+      <button type="button" @mousedown.prevent="toggleBlockquote" :class="['p-1.5 rounded text-xs', editorState?.isBlockquote ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.blockquote')">❝ Quote</button>
+      <button type="button" @mousedown.prevent="toggleCodeBlock" :class="['p-1.5 rounded text-xs font-mono', editorState?.isCodeBlock ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.codeBlock')">{} Block</button>
+      <button type="button" @mousedown.prevent="insertHorizontalRule" class="p-1.5 rounded text-xs hover:bg-accent" :title="$t('editor.toolbar.horizontalRule')">— HR</button>
       <div class="w-px h-4 bg-border mx-1" />
 
       <!-- Link -->
-      <button type="button" @mousedown.prevent="insertLink" :class="['p-1.5 rounded text-xs', editorState?.isLink ? 'bg-accent' : 'hover:bg-accent']" title="Insert Link">🔗 Link</button>
+      <button type="button" @mousedown.prevent="insertLink" :class="['p-1.5 rounded text-xs', editorState?.isLink ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.insertLink')">🔗 Link</button>
 
       <!-- Table -->
-      <button type="button" @mousedown.prevent="insertTable" class="p-1.5 rounded text-xs hover:bg-accent" title="Insert Table">⊞ Table</button>
+      <button type="button" @mousedown.prevent="insertTable" class="p-1.5 rounded text-xs hover:bg-accent" :title="$t('editor.toolbar.insertTable')">⊞ Table</button>
 
       <!-- Image (only shown when campaignId provided) -->
       <template v-if="campaignId">
         <div class="w-px h-4 bg-border mx-1" />
-        <button type="button" @mousedown.prevent="triggerImagePicker" class="p-1.5 rounded text-xs hover:bg-accent" title="Insert Image">🖼 Image</button>
+        <button type="button" @mousedown.prevent="triggerImagePicker" class="p-1.5 rounded text-xs hover:bg-accent" :title="$t('editor.toolbar.insertImage')">🖼 Image</button>
         <input ref="imageInputEl" type="file" accept="image/png,image/jpeg,image/webp,image/gif" class="hidden" @change="onImageFilePicked" />
       </template>
     </div>

@@ -27,7 +27,8 @@
     "date": "Date",
     "amount": "Amount",
     "item": "Item",
-    "quantity": "Quantity"
+    "quantity": "Quantity",
+    "campaign": "Campaign"
   },
   "auth": {
     "signIn": "Sign In",
@@ -45,7 +46,8 @@
     "haveAccount": "Already have an account?",
     "invalidCredentials": "Invalid credentials",
     "registrationFailed": "Registration failed",
-    "appTitle": "TTRPG Campaign Manager"
+    "appTitle": "TTRPG Campaign Manager",
+    "tagline": "TTRPG Campaign Manager"
   },
   "campaigns": {
     "title": "Campaigns",
@@ -587,11 +589,38 @@
     "selectTarget": "Select target…",
     "transferring": "Transferring…"
   },
+  "editor": {
+    "draftBanner": "You have unsaved changes from a previous session.",
+    "restoreDraft": "Restore draft",
+    "discardDraft": "Discard",
+    "toolbar": {
+      "undo": "Undo (Ctrl+Z)",
+      "redo": "Redo (Ctrl+Shift+Z)",
+      "bold": "Bold (Ctrl+B)",
+      "italic": "Italic (Ctrl+I)",
+      "strikethrough": "Strikethrough",
+      "inlineCode": "Inline Code",
+      "heading1": "Heading 1",
+      "heading2": "Heading 2",
+      "heading3": "Heading 3",
+      "bulletList": "Bullet List",
+      "orderedList": "Ordered List",
+      "taskList": "Task List",
+      "blockquote": "Blockquote",
+      "codeBlock": "Code Block",
+      "horizontalRule": "Horizontal Rule",
+      "insertLink": "Insert Link",
+      "insertTable": "Insert Table",
+      "insertImage": "Insert Image"
+    }
+  },
   "errors": {
     "generic": "Something went wrong",
     "notFound": "Not found",
     "notFoundTitle": "Page not found",
     "notFoundBack": "Back to Campaigns",
+    "pageNotFound": "Page not found",
+    "backToCampaigns": "Back to Campaigns",
     "forbidden": "You don't have permission to do that",
     "failedLoad": "Failed to load",
     "failedSave": "Failed to save"

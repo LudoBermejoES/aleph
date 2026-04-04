@@ -4,7 +4,7 @@
     <template v-else-if="location">
       <!-- Breadcrumb -->
       <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4 flex-wrap">
-        <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">Campaign</NuxtLink>
+        <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary"> {{ $t('common.campaign') }}</NuxtLink>
         <span>/</span>
         <NuxtLink :to="`/campaigns/${campaignId}/locations`" class="hover:text-primary">{{ $t('locations.title') }}</NuxtLink>
         <template v-for="ancestor in location.ancestors" :key="ancestor.slug">

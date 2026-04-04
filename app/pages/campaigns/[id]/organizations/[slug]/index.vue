@@ -1,7 +1,7 @@
 <template>
   <div class="p-8 max-w-4xl">
     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">Campaign</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary"> {{ $t('common.campaign') }}</NuxtLink>
       <span>/</span>
       <NuxtLink :to="`/campaigns/${campaignId}/organizations`" class="hover:text-primary">{{ $t('organizations.title') }}</NuxtLink>
       <span>/</span>

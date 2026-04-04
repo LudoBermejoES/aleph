@@ -1,10 +1,10 @@
 ## 1. Add Missing i18n Keys to en.json
 
-- [ ] 1.1 Add `common.campaign` key: `"Campaign"` (for breadcrumb label)
-- [ ] 1.2 Add `errors.pageNotFound` key: `"Page not found"` and `errors.backToCampaigns` key: `"Back to Campaigns"` (for 404 page)
-- [ ] 1.3 Add `auth.tagline` key: `"TTRPG Campaign Manager"` (for auth layout)
-- [ ] 1.4 Add `editor.draftBanner` key: `"You have unsaved changes from a previous session."`, `editor.restoreDraft`: `"Restore draft"`, `editor.discardDraft`: `"Discard"` (for MarkdownEditor draft banner)
-- [ ] 1.5 Add `editor.toolbar.*` keys for all toolbar button labels and tooltips:
+- [x] 1.1 Add `common.campaign` key: `"Campaign"` (for breadcrumb label)
+- [x] 1.2 Add `errors.pageNotFound` key: `"Page not found"` and `errors.backToCampaigns` key: `"Back to Campaigns"` (for 404 page)
+- [x] 1.3 Add `auth.tagline` key: `"TTRPG Campaign Manager"` (for auth layout)
+- [x] 1.4 Add `editor.draftBanner` key: `"You have unsaved changes from a previous session."`, `editor.restoreDraft`: `"Restore draft"`, `editor.discardDraft`: `"Discard"` (for MarkdownEditor draft banner)
+- [x] 1.5 Add `editor.toolbar.*` keys for all toolbar button labels and tooltips:
   - `editor.toolbar.undo`: `"Undo (Ctrl+Z)"`
   - `editor.toolbar.redo`: `"Redo (Ctrl+Shift+Z)"`
   - `editor.toolbar.bold`: `"Bold (Ctrl+B)"`
@@ -26,11 +26,11 @@
 
 ## 2. Add Matching Keys to es.json
 
-- [ ] 2.1 Add `common.campaign`: `"Campaña"`
-- [ ] 2.2 Add `errors.pageNotFound`: `"Página no encontrada"`, `errors.backToCampaigns`: `"Volver a Campañas"`
-- [ ] 2.3 Add `auth.tagline`: `"Gestor de Campañas TTRPG"`
-- [ ] 2.4 Add `editor.draftBanner`: `"Tienes cambios sin guardar de una sesión anterior."`, `editor.restoreDraft`: `"Restaurar borrador"`, `editor.discardDraft`: `"Descartar"`
-- [ ] 2.5 Add `editor.toolbar.*` keys with Spanish translations:
+- [x] 2.1 Add `common.campaign`: `"Campaña"`
+- [x] 2.2 Add `errors.pageNotFound`: `"Página no encontrada"`, `errors.backToCampaigns`: `"Volver a Campañas"`
+- [x] 2.3 Add `auth.tagline`: `"Gestor de Campañas TTRPG"`
+- [x] 2.4 Add `editor.draftBanner`: `"Tienes cambios sin guardar de una sesión anterior."`, `editor.restoreDraft`: `"Restaurar borrador"`, `editor.discardDraft`: `"Descartar"`
+- [x] 2.5 Add `editor.toolbar.*` keys with Spanish translations:
   - `undo`: `"Deshacer (Ctrl+Z)"`, `redo`: `"Rehacer (Ctrl+Shift+Z)"`
   - `bold`: `"Negrita (Ctrl+B)"`, `italic`: `"Cursiva (Ctrl+I)"`, `strikethrough`: `"Tachado"`, `inlineCode`: `"Código en línea"`
   - `heading1`: `"Encabezado 1"`, `heading2`: `"Encabezado 2"`, `heading3`: `"Encabezado 3"`
@@ -40,15 +40,15 @@
 
 ## 3. Update 404 Page
 
-- [ ] 3.1 Update `app/pages/[...slug].vue` — replace "Page not found" with `{{ $t('errors.pageNotFound') }}` and "Back to Campaigns" with `{{ $t('errors.backToCampaigns') }}`
+- [x] 3.1 Update `app/pages/[...slug].vue` — replace "Page not found" with `{{ $t('errors.pageNotFound') }}` and "Back to Campaigns" with `{{ $t('errors.backToCampaigns') }}`
 
 ## 4. Update Auth Layout
 
-- [ ] 4.1 Update `app/layouts/auth.vue` — replace "TTRPG Campaign Manager" with `{{ $t('auth.tagline') }}`
+- [x] 4.1 Update `app/layouts/auth.vue` — replace "TTRPG Campaign Manager" with `{{ $t('auth.tagline') }}`
 
 ## 5. Update Breadcrumbs Across All Campaign Sub-Pages
 
-- [ ] 5.1 Replace `>Campaign</NuxtLink>` with `>{{ $t('common.campaign') }}</NuxtLink>` in all 49 pages under `app/pages/campaigns/[id]/`. Full list:
+- [x] 5.1 Replace `>Campaign</NuxtLink>` with `>{{ $t('common.campaign') }}</NuxtLink>` in all 49 pages under `app/pages/campaigns/[id]/`. Full list:
   - `characters/index.vue`, `characters/new.vue`, `characters/[slug]/index.vue`, `characters/[slug]/edit.vue`
   - `entities/index.vue`, `entities/new.vue`, `entities/[slug]/index.vue`, `entities/[slug]/edit.vue`
   - `sessions/index.vue`, `sessions/new.vue`, `sessions/[slug]/index.vue`, `sessions/[slug]/edit.vue`
@@ -68,16 +68,16 @@
 
 ## 6. Update MarkdownEditor Component
 
-- [ ] 6.1 Update `app/components/MarkdownEditor.client.vue` — replace draft banner hardcoded strings:
+- [x] 6.1 Update `app/components/MarkdownEditor.client.vue` — replace draft banner hardcoded strings:
   - `"You have unsaved changes from a previous session."` -> `{{ $t('editor.draftBanner') }}`
   - `"Restore draft"` button -> `{{ $t('editor.restoreDraft') }}`
   - `"Discard"` button -> `{{ $t('editor.discardDraft') }}`
-- [ ] 6.2 Update toolbar button labels and `title` attributes to use `$t('editor.toolbar.*')` keys (undo, redo, bold, italic, strikethrough, inline code, headings, lists, blockquote, code block, HR, link, table, image)
+- [x] 6.2 Update toolbar button labels and `title` attributes to use `$t('editor.toolbar.*')` keys (undo, redo, bold, italic, strikethrough, inline code, headings, lists, blockquote, code block, HR, link, table, image)
 
 ## 7. Testing and Verification
 
-- [ ] 7.1 **Unit test** (`tests/unit/`): Write a Vitest test that loads both `en.json` and `es.json`, asserts all new keys exist in both files, and asserts no value is empty
-- [ ] 7.2 **Grep verification**: Run `grep -r '>Campaign</NuxtLink>' app/pages/` and confirm zero results
-- [ ] 7.3 **Grep verification**: Run searches for "Page not found", "Back to Campaigns", "TTRPG Campaign Manager", "unsaved changes from a previous" across `app/` templates and confirm zero results
-- [ ] 7.4 **Build check**: Run `npm run build` and confirm no TypeScript or compilation errors
-- [ ] 7.5 **E2E test** (`tests/e2e/`): Add a Playwright test that sets locale to Spanish and visits the 404 page, verifying Spanish text appears instead of English
+- [x] 7.1 **Unit test** (`tests/unit/`): Write a Vitest test that loads both `en.json` and `es.json`, asserts all new keys exist in both files, and asserts no value is empty
+- [x] 7.2 **Grep verification**: Run `grep -r '>Campaign</NuxtLink>' app/pages/` and confirm zero results
+- [x] 7.3 **Grep verification**: Run searches for "Page not found", "Back to Campaigns", "TTRPG Campaign Manager", "unsaved changes from a previous" across `app/` templates and confirm zero results
+- [x] 7.4 **Build check**: Run `npm run build` and confirm no TypeScript or compilation errors
+- [x] 7.5 **E2E test** (`tests/e2e/`): Add a Playwright test that sets locale to Spanish and visits the 404 page, verifying Spanish text appears instead of English

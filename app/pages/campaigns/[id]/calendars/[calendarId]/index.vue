@@ -2,7 +2,7 @@
   <div class="p-8">
     <div v-if="calendar">
       <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-        <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">Campaign</NuxtLink>
+        <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary"> {{ $t('common.campaign') }}</NuxtLink>
         <span>/</span>
         <NuxtLink :to="`/campaigns/${campaignId}/calendars`" class="hover:text-primary">{{ $t('calendars.title') }}</NuxtLink>
         <span>/</span>
