@@ -7,13 +7,20 @@
     "aleph": "./bin/aleph.js"
   },
   "scripts": {
-    "start": "node bin/aleph.js"
+    "start": "node bin/aleph.js",
+    "build": "tsc",
+    "dev": "tsx src/index.ts"
   },
   "dependencies": {
     "@inquirer/prompts": "^7.4.0",
     "chalk": "^5.4.1",
     "commander": "^13.1.0",
     "conf": "^13.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "@types/node": "^20.0.0",
+    "tsx": "^4.7.0"
   },
   "engines": {
     "node": ">=18.0.0"

@@ -142,6 +142,8 @@ const campaignLinkGroups = computed(() => {
       links: [
         { to: `/campaigns/${id}/sessions`, label: t('layout.sessions'), icon: ICONS.sessions },
         { to: `/campaigns/${id}/quests`, label: t('layout.quests'), icon: ICONS.quests },
+        { to: `/campaigns/${id}/arcs`, label: t('layout.arcs'), icon: ICONS.arcs },
+        { to: `/campaigns/${id}/templates`, label: t('layout.templates'), icon: ICONS.templates },
         { to: `/campaigns/${id}/calendars`, label: t('layout.calendars'), icon: ICONS.calendars },
       ],
     },

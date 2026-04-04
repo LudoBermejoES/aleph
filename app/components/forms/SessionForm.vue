@@ -26,7 +26,12 @@
         </select>
       </div>
       <div v-if="arcs.length" class="col-span-2">
-        <label class="text-sm font-medium">{{ $t('sessions.arc') }}</label>
+        <div class="flex items-center justify-between">
+          <label class="text-sm font-medium">{{ $t('sessions.arc') }}</label>
+          <NuxtLink v-if="campaignId" :to="`/campaigns/${campaignId}/arcs`" class="text-xs text-primary hover:underline">
+            {{ $t('arcs.manageArcs') }}
+          </NuxtLink>
+        </div>
         <select v-model="form.arcId" @change="onArcChange" class="w-full mt-1 px-3 py-2 rounded border border-input bg-background">
           <option value="">{{ $t('sessions.noArc') }}</option>
           <option v-for="a in arcs" :key="a.id" :value="a.id">{{ a.name }}</option>

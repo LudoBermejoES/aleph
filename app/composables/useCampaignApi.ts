@@ -228,6 +228,26 @@ export function useCampaignApi(campaignId: string) {
     return $fetch<any[]>(`${base}/arcs`)
   }
 
+  function getArcs() {
+    return getCampaignArcs()
+  }
+
+  function getArc(slug: string) {
+    return $fetch<any>(`${base}/arcs/${slug}`)
+  }
+
+  function createArc(body: Record<string, unknown>) {
+    return $fetch<any>(`${base}/arcs`, { method: 'POST', body })
+  }
+
+  function getChapters(arcId: string) {
+    return $fetch<any[]>(`${base}/chapters`, { params: { arc_id: arcId } })
+  }
+
+  function createChapter(body: Record<string, unknown>) {
+    return $fetch<any>(`${base}/chapters`, { method: 'POST', body })
+  }
+
   function updateArc(slug: string, body: Record<string, unknown>) {
     return $fetch(`${base}/arcs/${slug}`, { method: 'PUT', body })
   }
@@ -510,6 +530,28 @@ export function useCampaignApi(campaignId: string) {
     return $fetch(`${base}/shops/${slug}`, { method: 'DELETE' })
   }
 
+  // ─── Templates ──────────────────────────────────────────────────────────────
+
+  function getTemplates() {
+    return $fetch<any[]>(`${base}/templates`)
+  }
+
+  function getTemplate(templateId: string) {
+    return $fetch<any>(`${base}/templates/${templateId}`)
+  }
+
+  function createTemplate(body: Record<string, unknown>) {
+    return $fetch<any>(`${base}/templates`, { method: 'POST', body })
+  }
+
+  function updateTemplate(templateId: string, body: Record<string, unknown>) {
+    return $fetch<any>(`${base}/templates/${templateId}`, { method: 'PUT', body })
+  }
+
+  function deleteTemplate(templateId: string) {
+    return $fetch(`${base}/templates/${templateId}`, { method: 'DELETE' })
+  }
+
   // ─── Graph ──────────────────────────────────────────────────────────────────
 
   // ─── Organizations ──────────────────────────────────────────────────────────
@@ -629,7 +671,9 @@ export function useCampaignApi(campaignId: string) {
     getSessionContent, updateSessionContent, deleteSessionContent,
     getSessionGroups, createSessionGroup, updateSessionGroup, deleteSessionGroup,
     getSessionDecisions, createDecision, createConsequence, revealConsequence,
-    patchAttendance, getSessionRolls, getCampaignArcs, updateArc, deleteArc, updateChapter, deleteChapter,
+    patchAttendance, getSessionRolls,
+    getCampaignArcs, getArcs, getArc, createArc, updateArc, deleteArc,
+    getChapters, createChapter, updateChapter, deleteChapter,
     // Quests
     getQuests, getQuest, createQuest, updateQuest, deleteQuest,
     // Maps
@@ -654,6 +698,8 @@ export function useCampaignApi(campaignId: string) {
     getTransactions, getWealth,
     // Shops
     getShops, getShop, createShop, updateShop, deleteShop,
+    // Templates
+    getTemplates, getTemplate, createTemplate, updateTemplate, deleteTemplate,
     // Graph
     getGraph,
     // Search & dice

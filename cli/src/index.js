@@ -17,6 +17,20 @@ import { makeRollCommand } from './commands/roll.js'
 import { makeOrganizationCommand } from './commands/organization.js'
 import { makeLocationCommand } from './commands/location.js'
 import { makeRelationCommand } from './commands/relation.js'
+import { makeMapCommand } from './commands/map.js'
+import { makeQuestCommand } from './commands/quest.js'
+import { makeCalendarCommand } from './commands/calendar.js'
+import { makeTimelineCommand } from './commands/timeline.js'
+import { makeItemCommand } from './commands/item.js'
+import { makeShopCommand } from './commands/shop.js'
+import { makeCurrencyCommand } from './commands/currency.js'
+import { makeTransactionCommand } from './commands/transaction.js'
+import { makeInventoryCommand } from './commands/inventory.js'
+import { makeTemplateCommand } from './commands/template.js'
+import { makeTagCommand } from './commands/tag.js'
+import { makeArcCommand } from './commands/arc.js'
+import { makeChapterCommand } from './commands/chapter.js'
+import { makeHealthCommand } from './commands/health.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const pkg = JSON.parse(readFileSync(join(__dirname, '../package.json'), 'utf8'))
@@ -44,5 +58,19 @@ program.addCommand(makeRollCommand())
 program.addCommand(makeOrganizationCommand())
 program.addCommand(makeLocationCommand())
 program.addCommand(makeRelationCommand())
+program.addCommand(makeMapCommand())
+program.addCommand(makeQuestCommand())
+program.addCommand(makeCalendarCommand())
+program.addCommand(makeTimelineCommand())
+program.addCommand(makeItemCommand())
+program.addCommand(makeShopCommand())
+program.addCommand(makeCurrencyCommand())
+program.addCommand(makeTransactionCommand())
+program.addCommand(makeInventoryCommand())
+program.addCommand(makeTemplateCommand())
+program.addCommand(makeTagCommand())
+program.addCommand(makeArcCommand())
+program.addCommand(makeChapterCommand())
+program.addCommand(makeHealthCommand())
 
 program.parse(process.argv)

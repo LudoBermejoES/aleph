@@ -125,5 +125,31 @@ export function makeEntityCommand() {
       }
     })
 
+  cmd
+    .command('type-update <typeId>')
+    .description('Update an entity type')
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .option('--name <name>', 'New type name')
+    .action(async (typeId, opts) => {
+      const body = {}
+      if (opts.name !== undefined) body.name = opts.name
+      await put(`/api/campaigns/${opts.campaign}/entity-types/${typeId}`, body)
+      success('Entity type updated.')
+    })
+
+  cmd
+    .command('type-delete <typeId>')
+    .description('Delete an entity type')
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .option('--yes', 'Skip confirmation')
+    .action(async (typeId, opts) => {
+      if (!opts.yes) {
+        const ok = await confirm({ message: `Delete entity type ${typeId}? This cannot be undone.`, default: false })
+        if (!ok) { process.stdout.write('Cancelled.\n'); return }
+      }
+      await del(`/api/campaigns/${opts.campaign}/entity-types/${typeId}`)
+      success(`Entity type ${typeId} deleted.`)
+    })
+
   return cmd
 }

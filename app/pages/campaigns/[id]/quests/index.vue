@@ -24,7 +24,7 @@
       <div v-for="q in rootQuests" :key="q.id" class="space-y-1">
         <div class="p-3 rounded-lg border border-border">
           <div class="flex items-center justify-between">
-            <span class="font-medium">{{ q.name }}</span>
+            <NuxtLink :to="`/campaigns/${campaignId}/quests/${q.slug}`" class="font-medium hover:text-primary">{{ q.name }}</NuxtLink>
             <span :class="['inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded', q.status === 'active' ? 'bg-blue-100 text-blue-700' : q.status === 'completed' ? 'bg-green-100 text-green-700' : q.status === 'failed' ? 'bg-red-100 text-red-700' : 'bg-secondary text-secondary-foreground']">
               <component :is="q.status === 'active' ? ICONS.questActive : q.status === 'completed' ? ICONS.questCompleted : q.status === 'failed' ? ICONS.questFailed : ICONS.questAbandoned" class="w-3 h-3" />
               {{ q.status }}
@@ -34,7 +34,7 @@
         </div>
         <!-- Sub-quests -->
         <div v-for="sub in childQuests(q.id)" :key="sub.id" class="ml-6 p-2 rounded border border-border/50 text-sm">
-          <span>{{ sub.name }}</span>
+          <NuxtLink :to="`/campaigns/${campaignId}/quests/${sub.slug}`" class="hover:text-primary">{{ sub.name }}</NuxtLink>
           <span :class="['inline-flex items-center gap-1 text-xs ml-2 px-1.5 py-0.5 rounded', sub.status === 'active' ? 'bg-blue-50 text-blue-600' : 'bg-secondary text-secondary-foreground']">
             <component :is="sub.status === 'active' ? ICONS.questActive : sub.status === 'completed' ? ICONS.questCompleted : sub.status === 'failed' ? ICONS.questFailed : ICONS.questAbandoned" class="w-3 h-3" />{{ sub.status }}</span>
         </div>

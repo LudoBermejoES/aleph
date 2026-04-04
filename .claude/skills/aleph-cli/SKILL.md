@@ -1,10 +1,10 @@
 ---
 name: aleph-cli
-description: Use the aleph CLI to manage campaigns, entities, characters, locations, organizations, sessions, members, search, and dice rolls. Use when the user asks to list/create/edit/delete anything in Aleph, or when you need to query campaign data to answer questions.
+description: Use the aleph CLI to manage campaigns, entities, characters, locations, organizations, sessions, members, maps, quests, calendars, timelines, items, shops, currencies, transactions, inventories, templates, tags, arcs, chapters, and dice rolls. Use when the user asks to list/create/edit/delete anything in Aleph, or when you need to query campaign data to answer questions.
 license: MIT
 metadata:
   author: aleph
-  version: "2.5"
+  version: "2.6"
 ---
 
 You have access to the `aleph` CLI tool at `node /Users/ludo/code/aleph/cli/bin/aleph.js` (or `npm run aleph -- <args>` from the project root). Use it to interact with the running Aleph server.
@@ -59,6 +59,8 @@ aleph entity show --campaign <id> <slug> [--json]
 aleph entity edit --campaign <id> <slug> [--name <name>] [--content <markdown>] [--stdin] [--json]
 aleph entity delete --campaign <id> <slug> [--yes]
 aleph entity upload-image --campaign <id> --slug <slug> --file <path> [--json]
+aleph entity type-update <typeId> --campaign <id> [--name <name>]
+aleph entity type-delete <typeId> --campaign <id> [--yes]
 ```
 
 Entity types: `location`, `faction`, `npc`, `creature`, `item`, `lore`, `event`, or any custom string.
@@ -74,6 +76,10 @@ node /Users/ludo/code/aleph/cli/bin/aleph.js character update --campaign <id> <s
 node /Users/ludo/code/aleph/cli/bin/aleph.js character upload-portrait --campaign <id> --slug <slug> --file <path>
 node /Users/ludo/code/aleph/cli/bin/aleph.js character connect <slug> --campaign <id> --target <entity-slug> [--label <text>] [--description <text>] [--json]
 node /Users/ludo/code/aleph/cli/bin/aleph.js character connections <slug> --campaign <id> [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js character connection-delete <slug> <connectionId> --campaign <id> [--yes]
+node /Users/ludo/code/aleph/cli/bin/aleph.js character ability-delete <slug> <abilityId> --campaign <id> [--yes]
+node /Users/ludo/code/aleph/cli/bin/aleph.js character folder-update <folderId> --campaign <id> [--name <name>]
+node /Users/ludo/code/aleph/cli/bin/aleph.js character folder-delete <folderId> --campaign <id> [--yes]
 ```
 
 `upload-portrait` accepts PNG, JPEG, or WebP files up to 10 MB.
@@ -155,7 +161,163 @@ node /Users/ludo/code/aleph/cli/bin/aleph.js relation delete <relationId> --camp
 
 Relations are bidirectional links between any two entities with forward/reverse labels and an optional attitude score (-100 = hostile, 0 = neutral, 100 = allied).
 
+### Maps
+
+```bash
+node /Users/ludo/code/aleph/cli/bin/aleph.js map list --campaign <id> [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js map get --campaign <id> --slug <slug> [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js map create --campaign <id> --name <name> [--description <desc>] [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js map update --campaign <id> --slug <slug> [--name <name>] [--description <desc>]
+node /Users/ludo/code/aleph/cli/bin/aleph.js map delete --campaign <id> --slug <slug> [--yes]
+node /Users/ludo/code/aleph/cli/bin/aleph.js map upload --campaign <id> --slug <slug> --file <path>
+node /Users/ludo/code/aleph/cli/bin/aleph.js map pins --campaign <id> --slug <slug> [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js map pin-add --campaign <id> --slug <slug> --label <label> --x <x> --y <y> [--entity <slug>]
+node /Users/ludo/code/aleph/cli/bin/aleph.js map pin-delete --campaign <id> --slug <slug> --pin <pinId>
+node /Users/ludo/code/aleph/cli/bin/aleph.js map layer-update --campaign <id> --slug <slug> --layer <layerId> [--name <name>] [--opacity <n>]
+node /Users/ludo/code/aleph/cli/bin/aleph.js map layer-delete --campaign <id> --slug <slug> --layer <layerId> [--yes]
+node /Users/ludo/code/aleph/cli/bin/aleph.js map region-update --campaign <id> --slug <slug> --region <regionId> [--name <name>]
+node /Users/ludo/code/aleph/cli/bin/aleph.js map region-delete --campaign <id> --slug <slug> --region <regionId> [--yes]
+```
+
+### Quests
+
+```bash
+node /Users/ludo/code/aleph/cli/bin/aleph.js quest list --campaign <id> [--status <status>] [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js quest create --campaign <id> --name <name> [--status <status>] [--description <desc>] [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js quest update --campaign <id> --slug <slug> [--name <name>] [--status <status>] [--description <desc>]
+node /Users/ludo/code/aleph/cli/bin/aleph.js quest delete --campaign <id> --slug <slug> [--yes]
+```
+
+Quest statuses: `active`, `completed`, `failed`, `inactive`
+
+### Calendars
+
+```bash
+node /Users/ludo/code/aleph/cli/bin/aleph.js calendar list --campaign <id> [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js calendar get --campaign <id> --calendar <calendarId> [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js calendar create --campaign <id> --name <name> [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js calendar update --campaign <id> --calendar <calendarId> [--name <name>]
+node /Users/ludo/code/aleph/cli/bin/aleph.js calendar delete --campaign <id> --calendar <calendarId> [--yes]
+node /Users/ludo/code/aleph/cli/bin/aleph.js calendar advance --campaign <id> --calendar <calendarId> --days <n>
+node /Users/ludo/code/aleph/cli/bin/aleph.js calendar events --campaign <id> --calendar <calendarId> [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js calendar event-add --campaign <id> --calendar <calendarId> --name <name> --day <day> [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js calendar event-delete --campaign <id> --calendar <calendarId> --event <eventId> [--yes]
+```
+
+### Timelines
+
+```bash
+node /Users/ludo/code/aleph/cli/bin/aleph.js timeline list --campaign <id> [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js timeline get --campaign <id> --slug <slug> [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js timeline create --campaign <id> --name <name> [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js timeline update --campaign <id> --slug <slug> [--name <name>] [--description <desc>]
+node /Users/ludo/code/aleph/cli/bin/aleph.js timeline delete --campaign <id> --slug <slug> [--yes]
+node /Users/ludo/code/aleph/cli/bin/aleph.js timeline event-add --campaign <id> --slug <slug> --name <name> [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js timeline event-delete --campaign <id> --slug <slug> --event <eventId> [--yes]
+```
+
+### Items
+
+```bash
+node /Users/ludo/code/aleph/cli/bin/aleph.js item list --campaign <id> [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js item create --campaign <id> --name <name> [--price <json>] [--rarity <rarity>] [--description <desc>] [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js item update --campaign <id> --id <itemId> [--name <name>] [--rarity <rarity>] [--description <desc>]
+node /Users/ludo/code/aleph/cli/bin/aleph.js item delete --campaign <id> --id <itemId> [--yes]
+```
+
+### Shops
+
+```bash
+node /Users/ludo/code/aleph/cli/bin/aleph.js shop list --campaign <id> [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js shop get --campaign <id> --slug <slug> [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js shop create --campaign <id> --name <name> [--description <desc>] [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js shop update --campaign <id> --slug <slug> [--name <name>] [--description <desc>]
+node /Users/ludo/code/aleph/cli/bin/aleph.js shop delete --campaign <id> --slug <slug> [--yes]
+node /Users/ludo/code/aleph/cli/bin/aleph.js shop stock --campaign <id> --slug <slug> --item <itemId> --quantity <n>
+node /Users/ludo/code/aleph/cli/bin/aleph.js shop buy --campaign <id> --slug <slug> --item <itemId> --quantity <n> --buyer <inventoryId>
+node /Users/ludo/code/aleph/cli/bin/aleph.js shop sell --campaign <id> --slug <slug> --item <itemId> --quantity <n> --seller <inventoryId>
+node /Users/ludo/code/aleph/cli/bin/aleph.js shop till --campaign <id> --slug <slug> [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js shop withdraw --campaign <id> --slug <slug> --amounts '{"gp":10}'
+```
+
+### Currencies
+
+```bash
+node /Users/ludo/code/aleph/cli/bin/aleph.js currency list --campaign <id> [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js currency create --campaign <id> --name <name> --symbol <symbol> --value <n>
+node /Users/ludo/code/aleph/cli/bin/aleph.js currency update --campaign <id> --id <currencyId> [--name <name>] [--symbol <symbol>] [--value <n>]
+node /Users/ludo/code/aleph/cli/bin/aleph.js currency delete --campaign <id> --id <currencyId> [--yes]
+node /Users/ludo/code/aleph/cli/bin/aleph.js currency convert --campaign <id> --amount <n> --from <symbol> --to <symbol>
+```
+
+### Transactions
+
+```bash
+node /Users/ludo/code/aleph/cli/bin/aleph.js transaction list --campaign <id> [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js transaction create --campaign <id> --type <type> --amounts '{"gp":10}' [--from <entityId>] [--to <entityId>] [--notes <text>] [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js transaction update --campaign <id> --id <txId> [--notes <text>] [--amounts <json>]
+node /Users/ludo/code/aleph/cli/bin/aleph.js transaction delete --campaign <id> --id <txId> [--yes]
+```
+
+Transaction types: `purchase`, `sale`, `transfer`, `trade`, `deposit`, `withdrawal`, `grant`
+
+### Inventories
+
+```bash
+node /Users/ludo/code/aleph/cli/bin/aleph.js inventory list --campaign <id> [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js inventory create --campaign <id> --owner-type <type> --owner-id <id> [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js inventory delete --campaign <id> --id <inventoryId> [--yes]
+node /Users/ludo/code/aleph/cli/bin/aleph.js inventory add-item --campaign <id> --inventory <inventoryId> --item <itemId> --quantity <n>
+node /Users/ludo/code/aleph/cli/bin/aleph.js inventory item-delete --campaign <id> --inventory <inventoryId> --item <itemId> [--yes]
+node /Users/ludo/code/aleph/cli/bin/aleph.js inventory transfer --campaign <id> --from <inventoryId> --to <inventoryId> --item <itemId> --quantity <n>
+```
+
+Owner types: `character`, `party`, `shop`, `faction`
+
+### Templates
+
+```bash
+node /Users/ludo/code/aleph/cli/bin/aleph.js template list --campaign <id> [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js template get --campaign <id> --id <templateId> [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js template create --campaign <id> --name <name> --entity-type <type> [--content <json>] [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js template update --campaign <id> --id <templateId> [--name <name>] [--content <json>]
+node /Users/ludo/code/aleph/cli/bin/aleph.js template delete --campaign <id> --id <templateId> [--yes]
+```
+
+### Tags
+
+```bash
+node /Users/ludo/code/aleph/cli/bin/aleph.js tag list --campaign <id> [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js tag create --campaign <id> --name <name> [--color <hex>] [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js tag delete --campaign <id> --id <tagId> [--yes]
+```
+
+### Arcs
+
+```bash
+node /Users/ludo/code/aleph/cli/bin/aleph.js arc list --campaign <id> [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js arc create --campaign <id> --name <name> [--status <status>] [--description <desc>] [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js arc update --campaign <id> --slug <slug> [--name <name>] [--status <status>] [--description <desc>]
+node /Users/ludo/code/aleph/cli/bin/aleph.js arc delete --campaign <id> --slug <slug> [--yes]
+```
+
+### Chapters
+
+```bash
+node /Users/ludo/code/aleph/cli/bin/aleph.js chapter list --campaign <id> [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js chapter create --campaign <id> --name <name> [--arc <arcId>] [--description <desc>] [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js chapter update --campaign <id> --slug <slug> [--name <name>] [--description <desc>]
+node /Users/ludo/code/aleph/cli/bin/aleph.js chapter delete --campaign <id> --slug <slug> [--yes]
+```
+
+### Health
+
+```bash
+node /Users/ludo/code/aleph/cli/bin/aleph.js health [--json]    # check server connectivity and status
+```
+
 ### Search
+
 ```bash
 aleph search --campaign <id> <query> [--json]
 ```

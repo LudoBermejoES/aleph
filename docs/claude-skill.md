@@ -1,10 +1,10 @@
 ---
 name: aleph-cli
-description: Use the aleph CLI to manage campaigns, entities, characters, locations, organizations, sessions, members, search, and dice rolls. Use when the user asks to list/create/edit/delete anything in Aleph, or when you need to query campaign data to answer questions.
+description: Use the aleph CLI to manage campaigns, entities, characters, locations, organizations, sessions, members, maps, quests, calendars, timelines, items, shops, currencies, transactions, inventories, templates, tags, arcs, chapters, and dice rolls. Use when the user asks to list/create/edit/delete anything in Aleph, or when you need to query campaign data to answer questions.
 license: MIT
 metadata:
   author: aleph
-  version: "1.6"
+  version: "1.7"
 ---
 
 You have access to the `aleph` CLI. Run it as `aleph` if installed globally (`npm i -g aleph-cli`), or `npx aleph-cli` otherwise.
@@ -63,6 +63,8 @@ aleph entity show --campaign <id> <slug> [--json]
 aleph entity edit --campaign <id> <slug> [--name <name>] [--content <markdown>] [--stdin] [--json]
 aleph entity delete --campaign <id> <slug> [--yes]
 aleph entity upload-image --campaign <id> --slug <slug> --file <path> [--json]
+aleph entity type-update <typeId> --campaign <id> [--name <name>]
+aleph entity type-delete <typeId> --campaign <id> [--yes]
 ```
 
 Entity types: `location`, `faction`, `npc`, `creature`, `item`, `lore`, `event`, or any custom string.
@@ -78,6 +80,10 @@ aleph character update --campaign <id> <slug> [--name <n>] [--race <r>] [--class
 aleph character upload-portrait --campaign <id> --slug <slug> --file <path>
 aleph character connect <slug> --campaign <id> --target <entity-slug> [--label <text>] [--description <text>] [--json]
 aleph character connections <slug> --campaign <id> [--json]
+aleph character connection-delete <slug> <connectionId> --campaign <id> [--yes]
+aleph character ability-delete <slug> <abilityId> --campaign <id> [--yes]
+aleph character folder-update <folderId> --campaign <id> [--name <name>]
+aleph character folder-delete <folderId> --campaign <id> [--yes]
 ```
 
 `upload-portrait` accepts PNG, JPEG, or WebP files up to 10 MB. The portrait is shown on the character detail page in the web UI.
@@ -163,6 +169,161 @@ aleph relation delete <relationId> --campaign <id> [--yes]
 ```
 
 Relations are bidirectional links between any two entities with forward/reverse labels and an optional attitude score (-100 = hostile, 0 = neutral, 100 = allied).
+
+### Maps
+
+```bash
+aleph map list --campaign <id> [--json]
+aleph map get --campaign <id> --slug <slug> [--json]
+aleph map create --campaign <id> --name <name> [--description <desc>] [--json]
+aleph map update --campaign <id> --slug <slug> [--name <name>] [--description <desc>]
+aleph map delete --campaign <id> --slug <slug> [--yes]
+aleph map upload --campaign <id> --slug <slug> --file <path>
+aleph map pins --campaign <id> --slug <slug> [--json]
+aleph map pin-add --campaign <id> --slug <slug> --label <label> --x <x> --y <y> [--entity <slug>]
+aleph map pin-delete --campaign <id> --slug <slug> --pin <pinId>
+aleph map layer-update --campaign <id> --slug <slug> --layer <layerId> [--name <name>] [--opacity <n>]
+aleph map layer-delete --campaign <id> --slug <slug> --layer <layerId> [--yes]
+aleph map region-update --campaign <id> --slug <slug> --region <regionId> [--name <name>]
+aleph map region-delete --campaign <id> --slug <slug> --region <regionId> [--yes]
+```
+
+### Quests
+
+```bash
+aleph quest list --campaign <id> [--status <status>] [--json]
+aleph quest create --campaign <id> --name <name> [--status <status>] [--description <desc>] [--json]
+aleph quest update --campaign <id> --slug <slug> [--name <name>] [--status <status>] [--description <desc>]
+aleph quest delete --campaign <id> --slug <slug> [--yes]
+```
+
+Quest statuses: `active`, `completed`, `failed`, `inactive`
+
+### Calendars
+
+```bash
+aleph calendar list --campaign <id> [--json]
+aleph calendar get --campaign <id> --calendar <calendarId> [--json]
+aleph calendar create --campaign <id> --name <name> [--json]
+aleph calendar update --campaign <id> --calendar <calendarId> [--name <name>]
+aleph calendar delete --campaign <id> --calendar <calendarId> [--yes]
+aleph calendar advance --campaign <id> --calendar <calendarId> --days <n>
+aleph calendar events --campaign <id> --calendar <calendarId> [--json]
+aleph calendar event-add --campaign <id> --calendar <calendarId> --name <name> --day <day> [--json]
+aleph calendar event-delete --campaign <id> --calendar <calendarId> --event <eventId> [--yes]
+```
+
+### Timelines
+
+```bash
+aleph timeline list --campaign <id> [--json]
+aleph timeline get --campaign <id> --slug <slug> [--json]
+aleph timeline create --campaign <id> --name <name> [--json]
+aleph timeline update --campaign <id> --slug <slug> [--name <name>] [--description <desc>]
+aleph timeline delete --campaign <id> --slug <slug> [--yes]
+aleph timeline event-add --campaign <id> --slug <slug> --name <name> [--json]
+aleph timeline event-delete --campaign <id> --slug <slug> --event <eventId> [--yes]
+```
+
+### Items
+
+```bash
+aleph item list --campaign <id> [--json]
+aleph item create --campaign <id> --name <name> [--price <json>] [--rarity <rarity>] [--description <desc>] [--json]
+aleph item update --campaign <id> --id <itemId> [--name <name>] [--rarity <rarity>] [--description <desc>]
+aleph item delete --campaign <id> --id <itemId> [--yes]
+```
+
+### Shops
+
+```bash
+aleph shop list --campaign <id> [--json]
+aleph shop get --campaign <id> --slug <slug> [--json]
+aleph shop create --campaign <id> --name <name> [--description <desc>] [--json]
+aleph shop update --campaign <id> --slug <slug> [--name <name>] [--description <desc>]
+aleph shop delete --campaign <id> --slug <slug> [--yes]
+aleph shop stock --campaign <id> --slug <slug> --item <itemId> --quantity <n>
+aleph shop buy --campaign <id> --slug <slug> --item <itemId> --quantity <n> --buyer <inventoryId>
+aleph shop sell --campaign <id> --slug <slug> --item <itemId> --quantity <n> --seller <inventoryId>
+aleph shop till --campaign <id> --slug <slug> [--json]
+aleph shop withdraw --campaign <id> --slug <slug> --amounts '{"gp":10}'
+```
+
+### Currencies
+
+```bash
+aleph currency list --campaign <id> [--json]
+aleph currency create --campaign <id> --name <name> --symbol <symbol> --value <n>
+aleph currency update --campaign <id> --id <currencyId> [--name <name>] [--symbol <symbol>] [--value <n>]
+aleph currency delete --campaign <id> --id <currencyId> [--yes]
+aleph currency convert --campaign <id> --amount <n> --from <symbol> --to <symbol>
+```
+
+### Transactions
+
+```bash
+aleph transaction list --campaign <id> [--json]
+aleph transaction create --campaign <id> --type <type> --amounts '{"gp":10}' [--from <entityId>] [--to <entityId>] [--notes <text>] [--json]
+aleph transaction update --campaign <id> --id <txId> [--notes <text>] [--amounts <json>]
+aleph transaction delete --campaign <id> --id <txId> [--yes]
+```
+
+Transaction types: `purchase`, `sale`, `transfer`, `trade`, `deposit`, `withdrawal`, `grant`
+
+### Inventories
+
+```bash
+aleph inventory list --campaign <id> [--json]
+aleph inventory create --campaign <id> --owner-type <type> --owner-id <id> [--json]
+aleph inventory delete --campaign <id> --id <inventoryId> [--yes]
+aleph inventory add-item --campaign <id> --inventory <inventoryId> --item <itemId> --quantity <n>
+aleph inventory item-delete --campaign <id> --inventory <inventoryId> --item <itemId> [--yes]
+aleph inventory transfer --campaign <id> --from <inventoryId> --to <inventoryId> --item <itemId> --quantity <n>
+```
+
+Owner types: `character`, `party`, `shop`, `faction`
+
+### Templates
+
+```bash
+aleph template list --campaign <id> [--json]
+aleph template get --campaign <id> --id <templateId> [--json]
+aleph template create --campaign <id> --name <name> --entity-type <type> [--content <json>] [--json]
+aleph template update --campaign <id> --id <templateId> [--name <name>] [--content <json>]
+aleph template delete --campaign <id> --id <templateId> [--yes]
+```
+
+### Tags
+
+```bash
+aleph tag list --campaign <id> [--json]
+aleph tag create --campaign <id> --name <name> [--color <hex>] [--json]
+aleph tag delete --campaign <id> --id <tagId> [--yes]
+```
+
+### Arcs
+
+```bash
+aleph arc list --campaign <id> [--json]
+aleph arc create --campaign <id> --name <name> [--status <status>] [--description <desc>] [--json]
+aleph arc update --campaign <id> --slug <slug> [--name <name>] [--status <status>] [--description <desc>]
+aleph arc delete --campaign <id> --slug <slug> [--yes]
+```
+
+### Chapters
+
+```bash
+aleph chapter list --campaign <id> [--json]
+aleph chapter create --campaign <id> --name <name> [--arc <arcId>] [--description <desc>] [--json]
+aleph chapter update --campaign <id> --slug <slug> [--name <name>] [--description <desc>]
+aleph chapter delete --campaign <id> --slug <slug> [--yes]
+```
+
+### Health
+
+```bash
+aleph health [--json]    # check server connectivity and status
+```
 
 ### Dice Rolls
 ```bash

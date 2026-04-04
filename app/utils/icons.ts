@@ -75,6 +75,8 @@ export const ICONS = {
   maps: Map,
   sessions: ScrollText,
   quests: Swords,
+  arcs: BookMarked,
+  templates: Archive,
   calendars: CalendarDays,
   items: Package,
   shops: Store,

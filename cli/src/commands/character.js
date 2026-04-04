@@ -202,5 +202,47 @@ export function makeCharacterCommand() {
       success(`Connection deleted: ${connectionId}`)
     })
 
+  cmd
+    .command('ability-delete <slug> <abilityId>')
+    .description('Delete an ability from a character')
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .option('--yes', 'Skip confirmation')
+    .action(async (slug, abilityId, opts) => {
+      if (!opts.yes) {
+        const { confirm } = await import('@inquirer/prompts')
+        const ok = await confirm({ message: `Delete ability ${abilityId} from ${slug}?`, default: false })
+        if (!ok) { process.stdout.write('Cancelled.\n'); return }
+      }
+      await del(`/api/campaigns/${opts.campaign}/characters/${slug}/abilities/${abilityId}`)
+      success(`Ability ${abilityId} deleted.`)
+    })
+
+  cmd
+    .command('folder-update <folderId>')
+    .description('Update a character folder')
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .option('--name <name>', 'New folder name')
+    .action(async (folderId, opts) => {
+      const body = {}
+      if (opts.name !== undefined) body.name = opts.name
+      await put(`/api/campaigns/${opts.campaign}/character-folders/${folderId}`, body)
+      success('Folder updated.')
+    })
+
+  cmd
+    .command('folder-delete <folderId>')
+    .description('Delete a character folder')
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .option('--yes', 'Skip confirmation')
+    .action(async (folderId, opts) => {
+      if (!opts.yes) {
+        const { confirm } = await import('@inquirer/prompts')
+        const ok = await confirm({ message: `Delete folder ${folderId}? This cannot be undone.`, default: false })
+        if (!ok) { process.stdout.write('Cancelled.\n'); return }
+      }
+      await del(`/api/campaigns/${opts.campaign}/character-folders/${folderId}`)
+      success(`Folder ${folderId} deleted.`)
+    })
+
   return cmd
 }
