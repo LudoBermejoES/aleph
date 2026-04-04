@@ -24,12 +24,12 @@ export default defineEventHandler(async (event) => {
   const updates: Record<string, unknown> = { updatedAt: new Date() }
   if (body.title !== undefined) updates.title = body.title
   if (body.status !== undefined) updates.status = body.status
-  if (body.scheduledDate !== undefined) updates.scheduledDate = body.scheduledDate
-  if (body.summary !== undefined) updates.summary = body.summary
-  if (body.arcId !== undefined) updates.arcId = body.arcId
-  if (body.chapterId !== undefined) updates.chapterId = body.chapterId
+  if (body.scheduledDate !== undefined) updates.scheduledDate = body.scheduledDate || null
+  if (body.summary !== undefined) updates.summary = body.summary || null
+  if (body.arcId !== undefined) updates.arcId = body.arcId || null
+  if (body.chapterId !== undefined) updates.chapterId = body.chapterId || null
   if (body.groupSlug !== undefined) {
-    if (body.groupSlug === null) {
+    if (body.groupSlug === null || body.groupSlug === '') {
       updates.groupId = null
     } else {
       const group = db.select({ id: sessionGroups.id }).from(sessionGroups)
@@ -45,7 +45,7 @@ export default defineEventHandler(async (event) => {
   // Update log file content if provided
   if (body.content !== undefined && session.logFilePath) {
     let existing
-    try { existing = await readEntityFile(session.logFilePath) } catch { existing = { frontmatter: { type: 'session', name: session.title }, content: '' } }
+    try { existing = await readEntityFile(session.logFilePath) } catch { existing = { frontmatter: { type: 'session', name: session.title, aliases: [], tags: [], visibility: 'members' as const, fields: {} }, content: '' } }
     await writeEntityFile(session.logFilePath, existing.frontmatter, body.content)
   }
 

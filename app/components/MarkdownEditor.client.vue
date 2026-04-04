@@ -418,7 +418,7 @@ async function onImageFilePicked(event: Event) {
   if (!file || !props.campaignId) return
   try {
     const url = await uploadImage(props.campaignId, file)
-    editor?.chain().focus().setImage({ src: url }).run()
+    editor?.chain().setImage({ src: url }).run()
   } catch {
     // silently skip
   } finally {

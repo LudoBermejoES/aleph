@@ -1,0 +1,189 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - complementary [ref=e4]:
+      - link "Aleph Aleph Gestor de campañas" [ref=e5] [cursor=pointer]:
+        - /url: /
+        - img "Aleph" [ref=e6]
+        - generic [ref=e7]:
+          - heading "Aleph" [level=1] [ref=e8]
+          - paragraph [ref=e9]: Gestor de campañas
+      - navigation [ref=e10]:
+        - generic [ref=e11]:
+          - paragraph [ref=e12]: MCP Debug Camp
+          - generic "lAKcl7lSKGmVhs4OdeYxr9rEW3Q1Ad9A (dm)" [ref=e14]: L
+        - link "Panel principal" [ref=e15] [cursor=pointer]:
+          - /url: /campaigns/296bd7af-d40c-47b7-af7c-46ac74ed7080
+          - img [ref=e16]
+          - text: Panel principal
+        - generic [ref=e21]:
+          - button "Mundo ▾" [ref=e22] [cursor=pointer]:
+            - generic [ref=e23]:
+              - img [ref=e24]
+              - text: Mundo
+            - generic [ref=e27]: ▾
+          - link "Wiki" [ref=e28] [cursor=pointer]:
+            - /url: /campaigns/296bd7af-d40c-47b7-af7c-46ac74ed7080/entities
+            - img [ref=e29]
+            - text: Wiki
+          - link "Personajes" [ref=e31] [cursor=pointer]:
+            - /url: /campaigns/296bd7af-d40c-47b7-af7c-46ac74ed7080/characters
+            - img [ref=e32]
+            - text: Personajes
+          - link "Organizaciones" [ref=e37] [cursor=pointer]:
+            - /url: /campaigns/296bd7af-d40c-47b7-af7c-46ac74ed7080/organizations
+            - img [ref=e38]
+            - text: Organizaciones
+          - link "Lugares" [ref=e42] [cursor=pointer]:
+            - /url: /campaigns/296bd7af-d40c-47b7-af7c-46ac74ed7080/locations
+            - img [ref=e43]
+            - text: Lugares
+          - link "Mapas" [ref=e46] [cursor=pointer]:
+            - /url: /campaigns/296bd7af-d40c-47b7-af7c-46ac74ed7080/maps
+            - img [ref=e47]
+            - text: Mapas
+        - generic [ref=e49]:
+          - button "Historia ▾" [ref=e50] [cursor=pointer]:
+            - generic [ref=e51]:
+              - img [ref=e52]
+              - text: Historia
+            - generic [ref=e55]: ▾
+          - link "Sesiones" [ref=e56] [cursor=pointer]:
+            - /url: /campaigns/296bd7af-d40c-47b7-af7c-46ac74ed7080/sessions
+            - img [ref=e57]
+            - text: Sesiones
+          - link "Misiones" [ref=e60] [cursor=pointer]:
+            - /url: /campaigns/296bd7af-d40c-47b7-af7c-46ac74ed7080/quests
+            - img [ref=e61]
+            - text: Misiones
+          - link "Calendarios" [ref=e70] [cursor=pointer]:
+            - /url: /campaigns/296bd7af-d40c-47b7-af7c-46ac74ed7080/calendars
+            - img [ref=e71]
+            - text: Calendarios
+        - generic [ref=e73]:
+          - button "Economía ▾" [ref=e74] [cursor=pointer]:
+            - generic [ref=e75]:
+              - img [ref=e76]
+              - text: Economía
+            - generic [ref=e78]: ▾
+          - link "Objetos" [ref=e79] [cursor=pointer]:
+            - /url: /campaigns/296bd7af-d40c-47b7-af7c-46ac74ed7080/items
+            - img [ref=e80]
+            - text: Objetos
+          - link "Tiendas" [ref=e84] [cursor=pointer]:
+            - /url: /campaigns/296bd7af-d40c-47b7-af7c-46ac74ed7080/shops
+            - img [ref=e85]
+            - text: Tiendas
+          - link "Inventarios" [ref=e89] [cursor=pointer]:
+            - /url: /campaigns/296bd7af-d40c-47b7-af7c-46ac74ed7080/inventories
+            - img [ref=e90]
+            - text: Inventarios
+          - link "Monedas" [ref=e93] [cursor=pointer]:
+            - /url: /campaigns/296bd7af-d40c-47b7-af7c-46ac74ed7080/currencies
+            - img [ref=e94]
+            - text: Monedas
+          - link "Transacciones" [ref=e99] [cursor=pointer]:
+            - /url: /campaigns/296bd7af-d40c-47b7-af7c-46ac74ed7080/transactions
+            - img [ref=e100]
+            - text: Transacciones
+        - generic [ref=e103]:
+          - button "Campaña ▾" [ref=e104] [cursor=pointer]:
+            - generic [ref=e105]:
+              - img [ref=e106]
+              - text: Campaña
+            - generic [ref=e108]: ▾
+          - link "Grafo" [ref=e109] [cursor=pointer]:
+            - /url: /campaigns/296bd7af-d40c-47b7-af7c-46ac74ed7080/graph
+            - img [ref=e110]
+            - text: Grafo
+          - link "Miembros" [ref=e115] [cursor=pointer]:
+            - /url: /campaigns/296bd7af-d40c-47b7-af7c-46ac74ed7080/members
+            - img [ref=e116]
+            - text: Miembros
+        - link "Todas las campañas" [ref=e129] [cursor=pointer]:
+          - /url: /
+          - img [ref=e130]
+          - text: Todas las campañas
+      - generic [ref=e136]:
+        - generic [ref=e137]:
+          - button "Cerrar sesión" [ref=e138] [cursor=pointer]:
+            - img [ref=e139]
+            - text: Cerrar sesión
+          - link "Configuración" [ref=e142] [cursor=pointer]:
+            - /url: /settings
+            - img [ref=e143]
+            - text: Configuración
+        - combobox [ref=e146] [cursor=pointer]:
+          - option "English"
+          - option "Español" [selected]
+    - main [ref=e147]:
+      - generic [ref=e217]:
+        - generic [ref=e218]:
+          - link "Campaña" [ref=e219] [cursor=pointer]:
+            - /url: /campaigns/296bd7af-d40c-47b7-af7c-46ac74ed7080
+          - generic [ref=e220]: /
+          - link "Sesiones" [ref=e221] [cursor=pointer]:
+            - /url: /campaigns/296bd7af-d40c-47b7-af7c-46ac74ed7080/sessions
+          - generic [ref=e222]: /
+          - link "Session With Log" [ref=e223] [cursor=pointer]:
+            - /url: /campaigns/296bd7af-d40c-47b7-af7c-46ac74ed7080/sessions/session-with-log
+          - generic [ref=e224]: /
+          - generic [ref=e225]: Editar
+        - heading "Editar sesión" [level=1] [ref=e226]
+        - generic [ref=e227]:
+          - generic [ref=e228]:
+            - generic [ref=e229]:
+              - text: Título
+              - textbox "Dejar vacío para título automático" [ref=e230]: Session With Log
+            - generic [ref=e231]:
+              - text: Fecha programada
+              - textbox [ref=e232]
+            - generic [ref=e233]:
+              - text: Estado
+              - combobox [ref=e234]:
+                - option "Planificada" [selected]
+                - option "En progreso"
+                - option "Completada"
+                - option "Cancelada"
+          - generic [ref=e235]:
+            - text: Notas de sesión
+            - generic [ref=e236]:
+              - generic [ref=e237]:
+                - button "↩" [ref=e238] [cursor=pointer]
+                - button "↪" [ref=e239] [cursor=pointer]
+                - button "B" [ref=e241] [cursor=pointer]
+                - button "I" [ref=e242] [cursor=pointer]
+                - button "S" [ref=e243] [cursor=pointer]
+                - button "</>" [ref=e244] [cursor=pointer]
+                - button "H1" [ref=e246] [cursor=pointer]
+                - button "H2" [ref=e247] [cursor=pointer]
+                - button "H3" [ref=e248] [cursor=pointer]
+                - button "• List" [ref=e250] [cursor=pointer]
+                - button "1. List" [ref=e251] [cursor=pointer]
+                - button "☑ Tasks" [ref=e252] [cursor=pointer]
+                - button "❝ Quote" [ref=e254] [cursor=pointer]
+                - 'button "{} Block" [ref=e255] [cursor=pointer]'
+                - button "— HR" [ref=e256] [cursor=pointer]
+                - button "🔗 Link" [ref=e258] [cursor=pointer]
+                - button "⊞ Table" [ref=e259] [cursor=pointer]
+                - button "🖼 Image" [ref=e261] [cursor=pointer]
+              - textbox [ref=e263]:
+                - heading "Session With Log" [level=1] [ref=e264]
+                - paragraph [ref=e265]: Session notes...
+          - generic [ref=e266]:
+            - link "Cancelar" [ref=e267] [cursor=pointer]:
+              - /url: /campaigns/296bd7af-d40c-47b7-af7c-46ac74ed7080/sessions/session-with-log
+              - button "Cancelar" [ref=e268]
+            - button "Guardar" [ref=e269] [cursor=pointer]
+    - button "Buscar... Ctrl+K" [ref=e200] [cursor=pointer]:
+      - generic [ref=e201]: Buscar...
+      - generic [ref=e202]: Ctrl+K
+  - generic:
+    - img
+  - generic [ref=e203]:
+    - button "Toggle Nuxt DevTools" [ref=e204] [cursor=pointer]:
+      - img [ref=e205]
+    - generic "Page load time" [ref=e208]:
+      - generic [ref=e209]: "619"
+      - generic [ref=e210]: ms
+    - button "Toggle Component Inspector" [ref=e212] [cursor=pointer]:
+      - img [ref=e213]

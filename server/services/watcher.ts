@@ -1,4 +1,4 @@
-import chokidar from 'chokidar'
+import chokidar, { type FSWatcher } from 'chokidar'
 import { readEntityFile, contentHash as computeHash } from './content'
 import { indexEntity, removeEntityFromIndex } from './search'
 import { logger } from '../utils/logger'
@@ -19,7 +19,7 @@ const DEBOUNCE_MS = 1000
  * Start watching a content directory for .md file changes.
  * Syncs entity metadata and FTS5 index on file add/change/delete.
  */
-export function startWatcher(options: WatcherOptions): chokidar.FSWatcher {
+export function startWatcher(options: WatcherOptions): FSWatcher {
   const { contentDir, sqlite, onEntityChange } = options
 
   const watcher = chokidar.watch(`${contentDir}/**/*.md`, {
@@ -99,7 +99,7 @@ async function handleAddOrChange(
     // Extract campaignId from file path (content/campaigns/<slug>/...)
     const pathParts = filePath.replace(/\\/g, '/').split('/')
     const campaignsIdx = pathParts.indexOf('campaigns')
-    const campaignSlug = campaignsIdx >= 0 ? pathParts[campaignsIdx + 1] : 'unknown'
+    const campaignSlug = (campaignsIdx >= 0 ? pathParts[campaignsIdx + 1] : undefined) ?? 'unknown'
 
     indexEntity(
       sqlite,

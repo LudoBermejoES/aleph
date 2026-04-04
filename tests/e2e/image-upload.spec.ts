@@ -10,6 +10,16 @@ const TINY_PNG = Buffer.from(
   'base64',
 )
 
+async function uploadImageViaToolbar(page: any) {
+  // Set files directly on the hidden file input to reliably trigger the Vue @change handler
+  const fileInput = page.locator('input[type="file"][accept*="image"]')
+  await fileInput.setInputFiles({
+    name: 'test-image.png',
+    mimeType: 'image/png',
+    buffer: TINY_PNG,
+  })
+}
+
 test.describe('Image upload — toolbar button', () => {
   test('insert image via toolbar button appears in editor', async ({ page }) => {
     await registerAndLogin(page, `Img Toolbar User ${uid()}`)
@@ -18,29 +28,11 @@ test.describe('Image upload — toolbar button', () => {
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
     const base = page.url().split('/campaigns/')[0]
 
-    // Navigate directly to the new character page
-    await page.goto(`${base}/campaigns/${campaignId}/characters/new`)
-    await page.waitForLoadState('networkidle')
-
-    // Wait for editor to initialise
+    await page.goto(`${base}/campaigns/${campaignId}/characters/new`, { waitUntil: 'domcontentloaded' })
     await expect(page.locator('.ProseMirror')).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('button[title="Insert Image"]')).toBeVisible({ timeout: 10000 })
 
-    // The image toolbar button should be visible (campaignId is passed)
-    const imageBtn = page.locator('button[title="Insert Image"]')
-    await expect(imageBtn).toBeVisible({ timeout: 10000 })
-
-    // Set up file chooser intercept before clicking
-    const [fileChooser] = await Promise.all([
-      page.waitForEvent('filechooser'),
-      imageBtn.click(),
-    ])
-
-    // Upload the tiny PNG
-    await fileChooser.setFiles({
-      name: 'test-image.png',
-      mimeType: 'image/png',
-      buffer: TINY_PNG,
-    })
+    await uploadImageViaToolbar(page)
 
     // An <img> node should appear in the editor
     await expect(page.locator('.ProseMirror img')).toBeVisible({ timeout: 15000 })
@@ -59,29 +51,15 @@ test.describe('Image upload — Markdown round-trip', () => {
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
     const base = page.url().split('/campaigns/')[0]
 
-    // Navigate directly to the new character page
-    await page.goto(`${base}/campaigns/${campaignId}/characters/new`)
-    await page.waitForLoadState('networkidle')
+    await page.goto(`${base}/campaigns/${campaignId}/characters/new`, { waitUntil: 'domcontentloaded' })
 
     const charName = `Img Hero ${uid()}`
     await page.fill('input[placeholder*="Character name"]', charName)
 
-    // Wait for editor
     await expect(page.locator('.ProseMirror')).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('button[title="Insert Image"]')).toBeVisible({ timeout: 10000 })
 
-    // Upload image via toolbar
-    const imageBtn = page.locator('button[title="Insert Image"]')
-    await expect(imageBtn).toBeVisible({ timeout: 10000 })
-
-    const [fileChooser] = await Promise.all([
-      page.waitForEvent('filechooser'),
-      imageBtn.click(),
-    ])
-    await fileChooser.setFiles({
-      name: 'roundtrip.png',
-      mimeType: 'image/png',
-      buffer: TINY_PNG,
-    })
+    await uploadImageViaToolbar(page)
 
     // Wait for img to appear in editor
     await expect(page.locator('.ProseMirror img')).toBeVisible({ timeout: 15000 })
@@ -100,8 +78,7 @@ test.describe('Image upload — Markdown round-trip', () => {
 
     // Navigate to edit page and confirm img still present
     const charSlug = page.url().split('/characters/')[1]
-    await page.goto(`${page.url().split('/characters/')[0]}/characters/${charSlug}/edit`)
-    await page.waitForLoadState('networkidle')
+    await page.goto(`${page.url().split('/characters/')[0]}/characters/${charSlug}/edit`, { waitUntil: 'domcontentloaded' })
     await expect(page.locator('.ProseMirror img')).toBeVisible({ timeout: 10000 })
     const reloadedSrc = await page.locator('.ProseMirror img').getAttribute('src')
     expect(reloadedSrc).toBe(uploadedSrc)

@@ -46,7 +46,7 @@ export function parseDiceFormula(formula: string): DiceExpression {
   if (tokens.length === 0) throw new Error('Invalid dice formula: no valid tokens')
 
   const { expr, pos } = parseExpression(tokens, 0)
-  if (pos < tokens.length) throw new Error(`Unexpected token at position ${pos}: "${tokens[pos].value}"`)
+  if (pos < tokens.length) throw new Error(`Unexpected token at position ${pos}: "${tokens[pos]!.value}"`)
   return expr
 }
 
@@ -95,9 +95,9 @@ function tokenize(input: string): Token[] {
       continue
     }
 
-    if (/[0-9]/.test(input[i])) {
+    if (/[0-9]/.test(input[i]!)) {
       let num = ''
-      while (i < input.length && /[0-9]/.test(input[i])) {
+      while (i < input.length && /[0-9]/.test(input[i]!)) {
         num += input[i]
         i++
       }
@@ -114,8 +114,8 @@ function tokenize(input: string): Token[] {
 function parseExpression(tokens: Token[], pos: number): { expr: DiceExpression; pos: number } {
   let { expr: left, pos: p } = parsePrimary(tokens, pos)
 
-  while (p < tokens.length && (tokens[p].type === 'plus' || tokens[p].type === 'minus')) {
-    const op = tokens[p].type === 'plus' ? 'add' : 'subtract'
+  while (p < tokens.length && (tokens[p]!.type === 'plus' || tokens[p]!.type === 'minus')) {
+    const op = tokens[p]!.type === 'plus' ? 'add' : 'subtract'
     p++
     const { expr: right, pos: np } = parsePrimary(tokens, p)
     left = { type: op as 'add' | 'subtract', left, right }
@@ -129,33 +129,33 @@ function parsePrimary(tokens: Token[], pos: number): { expr: DiceExpression; pos
   if (pos >= tokens.length) throw new Error('Unexpected end of dice formula')
 
   // Case: "d..." (implicit 1)
-  if (tokens[pos].type === 'dice') {
+  if (tokens[pos]!.type === 'dice') {
     return parseDiceRoll(1, tokens, pos + 1)
   }
 
   // Case: number
-  if (tokens[pos].type === 'number') {
-    const num = tokens[pos].num!
+  if (tokens[pos]!.type === 'number') {
+    const num = tokens[pos]!.num!
     // Check if followed by 'd'
-    if (pos + 1 < tokens.length && tokens[pos + 1].type === 'dice') {
+    if (pos + 1 < tokens.length && tokens[pos + 1]!.type === 'dice') {
       return parseDiceRoll(num, tokens, pos + 2)
     }
     // Plain constant
     return { expr: { type: 'constant', value: num }, pos: pos + 1 }
   }
 
-  throw new Error(`Unexpected token: "${tokens[pos].value}"`)
+  throw new Error(`Unexpected token: "${tokens[pos]!.value}"`)
 }
 
 function parseDiceRoll(count: number, tokens: Token[], pos: number): { expr: DiceExpression; pos: number } {
   let sides: number
 
   // d% = d100
-  if (pos < tokens.length && tokens[pos].type === 'percent') {
+  if (pos < tokens.length && tokens[pos]!.type === 'percent') {
     sides = 100
     pos++
-  } else if (pos < tokens.length && tokens[pos].type === 'number') {
-    sides = tokens[pos].num!
+  } else if (pos < tokens.length && tokens[pos]!.type === 'number') {
+    sides = tokens[pos]!.num!
     pos++
   } else {
     throw new Error('Expected number or % after "d"')
@@ -165,23 +165,23 @@ function parseDiceRoll(count: number, tokens: Token[], pos: number): { expr: Dic
 
   // Check for modifiers: kh, kl, !
   while (pos < tokens.length) {
-    if (tokens[pos].type === 'kh') {
+    if (tokens[pos]!.type === 'kh') {
       pos++
-      if (pos < tokens.length && tokens[pos].type === 'number') {
-        expr.keepHighest = tokens[pos].num!
+      if (pos < tokens.length && tokens[pos]!.type === 'number') {
+        expr.keepHighest = tokens[pos]!.num!
         pos++
       } else {
         throw new Error('Expected number after "kh"')
       }
-    } else if (tokens[pos].type === 'kl') {
+    } else if (tokens[pos]!.type === 'kl') {
       pos++
-      if (pos < tokens.length && tokens[pos].type === 'number') {
-        expr.keepLowest = tokens[pos].num!
+      if (pos < tokens.length && tokens[pos]!.type === 'number') {
+        expr.keepLowest = tokens[pos]!.num!
         pos++
       } else {
         throw new Error('Expected number after "kl"')
       }
-    } else if (tokens[pos].type === 'explode') {
+    } else if (tokens[pos]!.type === 'explode') {
       expr.exploding = true
       pos++
     } else {

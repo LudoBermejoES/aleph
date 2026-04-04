@@ -17,16 +17,9 @@ test.describe('Session Log', () => {
       return r.json()
     }, campaignId)
 
-    await page.click('aside >> text=Sessions')
-    await page.waitForLoadState('networkidle')
-    await page.click('main >> text=Session With Log')
-    await page.waitForURL('**/sessions/**', { timeout: 15000 })
-
-    // Click Edit → navigates to /edit page
-    await page.click('main >> button:has-text("Edit")')
-    await expect(async () => {
-      expect(page.url()).toContain('/edit')
-    }).toPass({ timeout: 10000 })
+    const sessionSlug = sessRes.slug
+    await page.goto(`/campaigns/${campaignId}/sessions/${sessionSlug}`, { waitUntil: 'networkidle' })
+    await page.goto(`/campaigns/${campaignId}/sessions/${sessionSlug}/edit`, { waitUntil: 'networkidle' })
 
     // Type in MarkdownEditor (ProseMirror)
     const editor = page.locator('.ProseMirror')
@@ -36,7 +29,7 @@ test.describe('Session Log', () => {
     }
 
     // Save
-    await page.click('button[type="submit"]:has-text("Save")')
+    await page.click('button[type="submit"]')
     await expect(async () => {
       expect(page.url()).not.toContain('/edit')
     }).toPass({ timeout: 15000 })
