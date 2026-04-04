@@ -1,79 +1,51 @@
 <template>
   <div class="flex h-screen bg-background text-foreground" :data-theme="campaignTheme || undefined">
-    <!-- Sidebar -->
-    <aside class="w-64 border-r border-border bg-sidebar-background flex flex-col shrink-0">
-      <NuxtLink to="/" class="flex items-center gap-3 p-4 border-b border-sidebar-border hover:bg-sidebar-accent transition-colors">
-        <img src="~/assets/logo/aleph.png" alt="Aleph" class="w-9 h-9 shrink-0" />
-        <div>
-          <h1 class="text-xl font-bold text-sidebar-primary leading-tight">{{ $t('layout.appName') }}</h1>
-          <p class="text-xs text-sidebar-foreground/60">{{ $t('layout.appSubtitle') }}</p>
-        </div>
+
+    <!-- Mobile top bar (visible below md) -->
+    <div class="md:hidden fixed top-0 left-0 right-0 z-40 h-14 flex items-center gap-3 px-4 border-b border-border bg-sidebar-background">
+      <Sheet v-model:open="sidebarOpen">
+        <SheetTrigger as-child>
+          <button :aria-label="$t('layout.openMenu')" class="p-1 rounded hover:bg-sidebar-accent transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-sidebar-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </SheetTrigger>
+        <SheetContent side="left" class="p-0 w-64 bg-sidebar-background border-sidebar-border">
+          <SidebarNav
+            :campaign-id="campaignId"
+            :campaign-name="campaignName"
+            :user-name="userName"
+            :presence-users="presenceUsers"
+            :campaign-link-groups="campaignLinkGroups"
+            :collapsed-groups="collapsedGroups"
+            @logout="handleLogout"
+            @toggle-group="toggleGroup"
+          />
+        </SheetContent>
+      </Sheet>
+      <NuxtLink to="/" class="flex items-center gap-2">
+        <img src="~/assets/logo/aleph.png" alt="Aleph" class="w-7 h-7 shrink-0" />
+        <span class="font-bold text-sidebar-primary">{{ $t('layout.appName') }}</span>
       </NuxtLink>
+    </div>
 
-      <nav class="flex-1 p-2 space-y-1 overflow-auto">
-        <!-- Campaign sidebar when inside a campaign -->
-        <template v-if="campaignId">
-          <div class="flex items-center justify-between px-3 py-1">
-            <p v-if="campaignName" class="text-xs font-semibold text-sidebar-foreground/70 uppercase tracking-wider">{{ campaignName }}</p>
-            <PresenceAvatars :users="presenceUsers" :max-visible="4" />
-          </div>
-          <NuxtLink :to="`/campaigns/${campaignId}`"
-            class="flex items-center gap-2 px-3 py-2 rounded text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent transition-colors">
-            <component :is="ICONS.dashboard" class="w-4 h-4 shrink-0" />
-            {{ $t('layout.dashboard') }}
-          </NuxtLink>
-          <template v-for="group in campaignLinkGroups" :key="group.id">
-            <div :data-testid="`nav-group-${group.id}`">
-              <button
-                @click="toggleGroup(group.id)"
-                class="w-full flex items-center justify-between px-3 py-1 text-xs font-semibold text-sidebar-foreground/60 uppercase tracking-wider hover:text-sidebar-foreground transition-colors"
-              >
-                <span class="flex items-center gap-1.5">
-                  <component :is="group.icon" class="w-3.5 h-3.5 shrink-0" />
-                  {{ group.label }}
-                </span>
-                <span class="text-sidebar-foreground/40">{{ isGroupOpen(group.id) ? '▾' : '▸' }}</span>
-              </button>
-              <template v-if="isGroupOpen(group.id)">
-                <NuxtLink v-for="link in group.links" :key="link.to" :to="link.to"
-                  :class="['flex items-center gap-2 px-3 py-2 rounded text-sm text-sidebar-foreground hover:bg-sidebar-accent transition-colors', isActive(link.to) ? 'bg-sidebar-accent font-medium' : '']">
-                  <component :is="link.icon" class="w-4 h-4 shrink-0" />
-                  {{ link.label }}
-                </NuxtLink>
-              </template>
-            </div>
-          </template>
-          <div class="border-t border-sidebar-border my-2" />
-        </template>
-
-        <NuxtLink to="/"
-          class="flex items-center gap-2 px-3 py-2 rounded text-sm text-sidebar-foreground hover:bg-sidebar-accent transition-colors">
-          <component :is="ICONS.allCampaigns" class="w-4 h-4 shrink-0" />
-          {{ $t('layout.allCampaigns') }}
-        </NuxtLink>
-      </nav>
-
-      <!-- User info + sign out -->
-      <div class="p-3 border-t border-sidebar-border">
-        <p v-if="userName" class="text-xs text-muted-foreground mb-1">{{ userName }}</p>
-        <div class="flex items-center justify-between mt-1">
-          <div class="flex items-center gap-3">
-            <button @click="handleLogout" class="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
-              <component :is="ICONS.signOut" class="w-3.5 h-3.5" />
-              {{ $t('auth.signOut') }}
-            </button>
-            <NuxtLink to="/settings" class="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
-              <component :is="ICONS.settings" class="w-3.5 h-3.5" />
-              {{ $t('settings.title') }}
-            </NuxtLink>
-          </div>
-          <LanguageSwitcher />
-        </div>
-      </div>
+    <!-- Desktop sidebar (hidden below md) -->
+    <aside class="hidden md:flex w-64 border-r border-border bg-sidebar-background flex-col shrink-0">
+      <SidebarNav
+        :campaign-id="campaignId"
+        :campaign-name="campaignName"
+        :user-name="userName"
+        :presence-users="presenceUsers"
+        :campaign-link-groups="campaignLinkGroups"
+        :collapsed-groups="collapsedGroups"
+        @logout="handleLogout"
+        @toggle-group="toggleGroup"
+      />
     </aside>
 
     <!-- Main content -->
-    <main class="flex-1 overflow-auto">
+    <main class="flex-1 overflow-auto pt-14 md:pt-0">
       <slot />
     </main>
 
@@ -85,18 +57,25 @@
 <script setup lang="ts">
 import { authSignOut } from '~/composables/useAuth'
 import { ICONS } from '~/utils/icons'
+import { Sheet, SheetContent, SheetTrigger } from '~/components/ui/sheet'
 
 const { t } = useI18n()
 const route = useRoute()
 
 const userName = ref('')
 const campaignName = ref('')
+const sidebarOpen = ref(false)
 // Shared state so campaign pages can update theme without full reload
 const campaignTheme = useState<string | null>('campaignTheme', () => null)
 
 const campaignId = computed(() => {
   const match = route.path.match(/^\/campaigns\/([^/]+)/)
   return match ? match[1] : undefined
+})
+
+// Close sidebar on route change
+watch(() => route.path, () => {
+  sidebarOpen.value = false
 })
 
 // Presence system
@@ -193,17 +172,6 @@ function toggleGroup(id: string) {
   } catch {
     // ignore
   }
-}
-
-function isGroupOpen(groupId: string): boolean {
-  // Force open if the current route is inside this group
-  const group = campaignLinkGroups.value.find(g => g.id === groupId)
-  if (group?.links.some(l => route.path.startsWith(l.to))) return true
-  return !collapsedGroups.value.has(groupId)
-}
-
-function isActive(path: string) {
-  return route.path.startsWith(path)
 }
 
 async function handleLogout() {

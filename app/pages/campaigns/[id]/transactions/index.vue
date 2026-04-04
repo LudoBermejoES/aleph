@@ -25,7 +25,7 @@
     </div>
 
     <LoadingSkeleton v-if="loading" :rows="5" />
-    <div v-else-if="txList.length" class="rounded-lg border border-border overflow-hidden" data-testid="transaction-table">
+    <ScrollableTable v-else-if="txList.length" class="rounded-lg border border-border" data-testid="transaction-table">
       <table class="w-full text-sm">
         <thead>
           <tr class="border-b border-border bg-muted/50">
@@ -57,7 +57,7 @@
           </tr>
         </tbody>
       </table>
-    </div>
+    </ScrollableTable>
     <EmptyState v-else icon="📜" :title="$t('transactions.noTransactions')" :description="$t('transactions.noTransactionsDescription')" />
 
     <ErrorToast v-if="error" :message="error" @dismiss="error = ''" />

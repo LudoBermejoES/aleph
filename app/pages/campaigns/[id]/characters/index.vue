@@ -1,5 +1,5 @@
 <template>
-  <div class="p-8">
+  <div class="p-4 md:p-8">
     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-1">
       <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary"> {{ $t('common.campaign') }}</NuxtLink>
       <span>/</span>
@@ -48,13 +48,36 @@
       @filter-change="onFilterChange(load)"
     />
 
+    <!-- Mobile: Folders button + Sheet (only shown when NPC view is active) -->
+    <div v-if="typeFilter === 'npc' && folders.length" class="md:hidden mb-4">
+      <Sheet v-model:open="folderSheetOpen">
+        <SheetTrigger as-child>
+          <Button variant="outline" size="sm" data-testid="folders-btn">{{ $t('characters.folders') }}</Button>
+        </SheetTrigger>
+        <SheetContent side="right" class="w-56">
+          <div class="pt-4">
+            <h3 class="text-sm font-semibold mb-3">{{ $t('characters.folders') }}</h3>
+            <CharacterFolderSidebar
+              :folders="folders"
+              :selected-folder="selectedFolder"
+              :visible="true"
+              @select-folder="(id) => { filters.selectedFolder.value = id; onFilterChange(load); folderSheetOpen = false }"
+            />
+          </div>
+        </SheetContent>
+      </Sheet>
+    </div>
+
     <div class="flex gap-6">
-      <CharacterFolderSidebar
-        :folders="folders"
-        :selected-folder="selectedFolder"
-        :visible="typeFilter === 'npc'"
-        @select-folder="(id) => { filters.selectedFolder.value = id; onFilterChange(load) }"
-      />
+      <!-- Desktop folder sidebar (hidden below md) -->
+      <div class="hidden md:block">
+        <CharacterFolderSidebar
+          :folders="folders"
+          :selected-folder="selectedFolder"
+          :visible="typeFilter === 'npc'"
+          @select-folder="(id) => { filters.selectedFolder.value = id; onFilterChange(load) }"
+        />
+      </div>
 
       <div class="flex-1">
         <LoadingSkeleton v-if="loading" :rows="4" />
@@ -77,9 +100,11 @@
 
 <script setup lang="ts">
 import type { Character, CharacterFolder, CharacterMeta } from '~/types/api'
+import { Sheet, SheetContent, SheetTrigger } from '~/components/ui/sheet'
 
 const route = useRoute()
 const campaignId = route.params.id as string
+const folderSheetOpen = ref(false)
 
 const chars = ref<Character[]>([])
 const folders = ref<CharacterFolder[]>([])

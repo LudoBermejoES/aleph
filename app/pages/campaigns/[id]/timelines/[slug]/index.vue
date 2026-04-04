@@ -101,10 +101,10 @@
           </div>
           <!-- Grid -->
           <div class="border border-border rounded-lg overflow-hidden">
-            <div class="grid grid-cols-7 bg-muted">
+            <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 bg-muted">
               <div v-for="wd in calWeekdays" :key="wd" class="text-center text-xs font-medium py-2 border-r border-border last:border-r-0">{{ wd }}</div>
             </div>
-            <div class="grid grid-cols-7">
+            <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7">
               <div v-for="_ in calStartOffset" :key="'o'+_" class="min-h-[70px] border-r border-b border-border bg-muted/20" />
               <div
                 v-for="day in calDaysInMonth"

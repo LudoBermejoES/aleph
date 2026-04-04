@@ -3,7 +3,8 @@
     <div v-if="keys.length === 0" class="text-muted-foreground text-sm py-4">
       {{ $t('apiKeys.empty') }}
     </div>
-    <table v-else class="w-full text-sm">
+    <ScrollableTable v-else>
+    <table class="w-full text-sm">
       <thead>
         <tr class="border-b text-left text-muted-foreground">
           <th class="pb-2 pr-4 font-medium">{{ $t('apiKeys.name') }}</th>
@@ -30,6 +31,7 @@
         </tr>
       </tbody>
     </table>
+    </ScrollableTable>
   </div>
 </template>
 

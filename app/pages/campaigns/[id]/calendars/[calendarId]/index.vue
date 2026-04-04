@@ -41,14 +41,14 @@
       <!-- Calendar Grid -->
       <div class="border border-border rounded-lg overflow-hidden" data-testid="calendar-grid">
         <!-- Weekday Headers -->
-        <div class="grid grid-cols-7 bg-muted">
+        <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 bg-muted">
           <div v-for="wd in weekdays" :key="wd" class="text-center text-xs font-medium py-2 border-r border-border last:border-r-0">
             {{ wd }}
           </div>
         </div>
 
         <!-- Day Cells -->
-        <div class="grid grid-cols-7">
+        <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7">
           <!-- Empty cells for offset -->
           <div v-for="_ in startOffset" :key="'off'+_" class="min-h-[80px] border-r border-b border-border bg-muted/30" />
           <div

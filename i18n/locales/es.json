@@ -573,6 +573,7 @@
   "layout": {
     "appName": "Aleph",
     "appSubtitle": "Gestor de campañas",
+    "openMenu": "Abrir menú de navegación",
     "dashboard": "Panel principal",
     "allCampaigns": "Todas las campañas",
     "wiki": "Wiki",

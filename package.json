@@ -67,7 +67,7 @@
     "lucide-vue-next": "^1.0.0",
     "nuxt": "^4.4.2",
     "pm2": "^6.0.14",
-    "reka-ui": "^2.9.2",
+    "reka-ui": "^2.9.3",
     "remark": "^15.0.1",
     "remark-directive": "^4.0.0",
     "remark-stringify": "^11.0.0",

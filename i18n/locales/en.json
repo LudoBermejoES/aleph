@@ -573,6 +573,7 @@
   "layout": {
     "appName": "Aleph",
     "appSubtitle": "Campaign Manager",
+    "openMenu": "Open navigation menu",
     "dashboard": "Dashboard",
     "allCampaigns": "All Campaigns",
     "wiki": "Wiki",
