@@ -4,7 +4,7 @@ description: Use the aleph CLI to manage campaigns, entities, characters, locati
 license: MIT
 metadata:
   author: aleph
-  version: "2.4"
+  version: "2.5"
 ---
 
 You have access to the `aleph` CLI tool at `node /Users/ludo/code/aleph/cli/bin/aleph.js` (or `npm run aleph -- <args>` from the project root). Use it to interact with the running Aleph server.
@@ -89,6 +89,7 @@ node /Users/ludo/code/aleph/cli/bin/aleph.js session delete <slug> --campaign <i
 # Session content (notes)
 node /Users/ludo/code/aleph/cli/bin/aleph.js session content get <slug> --campaign <id> [--type manual_notes|ai_notes|summary]  # omit --type to show all
 node /Users/ludo/code/aleph/cli/bin/aleph.js session content set <slug> --campaign <id> --type manual_notes|ai_notes|summary [--file <path>]  # reads from file or stdin
+node /Users/ludo/code/aleph/cli/bin/aleph.js session content delete <slug> <contentId> --campaign <id> [--yes]  # delete a content entry by ID
 
 # Attendance / RSVP
 node /Users/ludo/code/aleph/cli/bin/aleph.js session attendance set <slug> --campaign <id> --status pending|accepted|declined|tentative

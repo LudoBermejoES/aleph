@@ -153,6 +153,20 @@ export function makeSessionCommand() {
       success('Content updated.')
     })
 
+  content
+    .command('delete <slug> <contentId>')
+    .description('Delete a session content entry by ID')
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .option('--yes', 'Skip confirmation prompt')
+    .action(async (slug, contentId, opts) => {
+      if (!opts.yes) {
+        const confirmed = await confirm({ message: `Delete content ${contentId} from session "${slug}"?` })
+        if (!confirmed) { process.exit(0) }
+      }
+      await del(`/api/campaigns/${opts.campaign}/sessions/${slug}/content/${contentId}`)
+      success(`Content ${contentId} deleted.`)
+    })
+
   cmd.addCommand(content)
 
   // ─── Attendance subcommand ─────────────────────────────────────────────────

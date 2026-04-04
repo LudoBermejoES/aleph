@@ -36,6 +36,10 @@
 - [ ] 3.8 Implement `map pins --campaign <id> --slug <slug> [--json]` -- GET `/api/campaigns/:id/maps/:slug/pins`
 - [ ] 3.9 Implement `map pin-add --campaign <id> --slug <slug> --label <label> --x <x> --y <y> [--entity <slug>]` -- POST `/api/campaigns/:id/maps/:slug/pins`
 - [ ] 3.10 Implement `map pin-delete --campaign <id> --slug <slug> --pin <pinId>` -- DELETE `/api/campaigns/:id/maps/:slug/pins/:pinId`
+- [ ] 3.10a Implement `map layer-update --campaign <id> --slug <slug> --layer <layerId> [--name <name>] [--opacity <n>]` -- PUT `/api/campaigns/:id/maps/:slug/layers/:layerId`
+- [ ] 3.10b Implement `map layer-delete --campaign <id> --slug <slug> --layer <layerId> [--yes]` -- DELETE `/api/campaigns/:id/maps/:slug/layers/:layerId`
+- [ ] 3.10c Implement `map region-update --campaign <id> --slug <slug> --region <regionId> [--name <name>]` -- PUT `/api/campaigns/:id/maps/:slug/regions/:regionId`
+- [ ] 3.10d Implement `map region-delete --campaign <id> --slug <slug> --region <regionId> [--yes]` -- DELETE `/api/campaigns/:id/maps/:slug/regions/:regionId`
 - [ ] 3.11 Register `makeMapCommand()` in CLI entry point
 
 ## 4. Quests Commands
@@ -44,7 +48,8 @@
 - [ ] 4.2 Implement `quest list --campaign <id> [--status <status>] [--json]` -- GET `/api/campaigns/:id/quests`
 - [ ] 4.3 Implement `quest create --campaign <id> --name <name> [--status <status>] [--description <desc>]` -- POST `/api/campaigns/:id/quests`
 - [ ] 4.4 Implement `quest update --campaign <id> --slug <slug> [--name <name>] [--status <status>] [--description <desc>]` -- PUT `/api/campaigns/:id/quests/:slug`
-- [ ] 4.5 Register `makeQuestCommand()` in CLI entry point
+- [ ] 4.5 Implement `quest delete --campaign <id> --slug <slug> [--yes]` with confirmation -- DELETE `/api/campaigns/:id/quests/:slug`
+- [ ] 4.6 Register `makeQuestCommand()` in CLI entry point
 
 ## 5. Calendar & Timeline Commands
 
@@ -56,11 +61,16 @@
 - [ ] 5.6 Implement `calendar advance --campaign <id> --calendar <calendarId> --days <n>` -- PATCH `/api/campaigns/:id/calendars/:calendarId/advance`
 - [ ] 5.7 Implement `calendar events --campaign <id> --calendar <calendarId> [--json]` -- GET `/api/campaigns/:id/calendars/:calendarId/events`
 - [ ] 5.8 Implement `calendar event-add --campaign <id> --calendar <calendarId> --name <name> --day <day>` -- POST `/api/campaigns/:id/calendars/:calendarId/events`
+- [ ] 5.8a Implement `calendar delete --campaign <id> --calendar <calendarId> [--yes]` with confirmation -- DELETE `/api/campaigns/:id/calendars/:calendarId`
+- [ ] 5.8b Implement `calendar event-delete --campaign <id> --calendar <calendarId> --event <eventId> [--yes]` -- DELETE `/api/campaigns/:id/calendars/:calendarId/events/:eventId`
 - [ ] 5.9 Create `cli/src/commands/timeline.ts` with `makeTimelineCommand()`
 - [ ] 5.10 Implement `timeline list --campaign <id> [--json]` -- GET `/api/campaigns/:id/timelines`
 - [ ] 5.11 Implement `timeline get --campaign <id> --slug <slug> [--json]` -- GET `/api/campaigns/:id/timelines/:slug`
 - [ ] 5.12 Implement `timeline create --campaign <id> --name <name>` -- POST `/api/campaigns/:id/timelines`
 - [ ] 5.13 Implement `timeline event-add --campaign <id> --slug <slug> --name <name>` -- POST `/api/campaigns/:id/timelines/:slug/events`
+- [ ] 5.13a Implement `timeline update --campaign <id> --slug <slug> [--name <name>] [--description <desc>]` -- PUT `/api/campaigns/:id/timelines/:slug`
+- [ ] 5.13b Implement `timeline delete --campaign <id> --slug <slug> [--yes]` with confirmation -- DELETE `/api/campaigns/:id/timelines/:slug`
+- [ ] 5.13c Implement `timeline event-delete --campaign <id> --slug <slug> --event <eventId> [--yes]` -- DELETE `/api/campaigns/:id/timelines/:slug/events/:eventId`
 - [ ] 5.14 Register both commands in CLI entry point
 
 ## 6. Economy Commands (Items, Shops, Currencies, Transactions, Inventories)
@@ -68,6 +78,8 @@
 - [ ] 6.1 Create `cli/src/commands/item.ts` with `makeItemCommand()`
 - [ ] 6.2 Implement `item list --campaign <id> [--json]` -- GET `/api/campaigns/:id/items`
 - [ ] 6.3 Implement `item create --campaign <id> --name <name> [--price <json>] [--description <desc>]` -- POST `/api/campaigns/:id/items`
+- [ ] 6.3a Implement `item update --campaign <id> --id <itemId> [--name <name>] [--rarity <rarity>] [--description <desc>]` -- PUT `/api/campaigns/:id/items/:itemId`
+- [ ] 6.3b Implement `item delete --campaign <id> --id <itemId> [--yes]` with confirmation -- DELETE `/api/campaigns/:id/items/:itemId`
 - [ ] 6.4 Create `cli/src/commands/shop.ts` with `makeShopCommand()`
 - [ ] 6.5 Implement `shop list --campaign <id> [--json]` -- GET `/api/campaigns/:id/shops`
 - [ ] 6.6 Implement `shop get --campaign <id> --slug <slug> [--json]` -- GET `/api/campaigns/:id/shops/:slug`
@@ -77,10 +89,14 @@
 - [ ] 6.10 Implement `shop sell --campaign <id> --slug <slug> --item <itemId> --quantity <n> --seller <inventoryId>` -- POST `/api/campaigns/:id/shops/:slug/sell`
 - [ ] 6.11 Implement `shop till --campaign <id> --slug <slug> [--json]` -- GET `/api/campaigns/:id/shops/:slug/till`
 - [ ] 6.12 Implement `shop withdraw --campaign <id> --slug <slug> --amounts <json>` -- POST `/api/campaigns/:id/shops/:slug/withdraw`
+- [ ] 6.12a Implement `shop update --campaign <id> --slug <slug> [--name <name>] [--description <desc>]` -- PUT `/api/campaigns/:id/shops/:slug`
+- [ ] 6.12b Implement `shop delete --campaign <id> --slug <slug> [--yes]` with confirmation -- DELETE `/api/campaigns/:id/shops/:slug`
 - [ ] 6.13 Create `cli/src/commands/currency.ts` with `makeCurrencyCommand()`
 - [ ] 6.14 Implement `currency list --campaign <id> [--json]` -- GET `/api/campaigns/:id/currencies`
 - [ ] 6.15 Implement `currency create --campaign <id> --name <name> --symbol <symbol> --value <n>` -- POST `/api/campaigns/:id/currencies`
 - [ ] 6.16 Implement `currency convert --campaign <id> --amount <n> --from <symbol> --to <symbol>` -- GET `/api/campaigns/:id/currencies/convert`
+- [ ] 6.16a Implement `currency update --campaign <id> --id <currencyId> [--name <name>] [--symbol <symbol>] [--value <n>]` -- PUT `/api/campaigns/:id/currencies/:currencyId`
+- [ ] 6.16b Implement `currency delete --campaign <id> --id <currencyId> [--yes]` with confirmation -- DELETE `/api/campaigns/:id/currencies/:currencyId`
 - [ ] 6.17 Create `cli/src/commands/transaction.ts` with `makeTransactionCommand()`
 - [ ] 6.18 Implement `transaction list --campaign <id> [--json]` -- GET `/api/campaigns/:id/transactions`
 - [ ] 6.19 Implement `transaction create --campaign <id> --type <type> [--from <entityId>] [--to <entityId>] --amounts <json> [--notes <text>]` -- POST `/api/campaigns/:id/transactions`
@@ -91,6 +107,8 @@
 - [ ] 6.24 Implement `inventory create --campaign <id> --owner-type <type> --owner-id <id>` -- POST `/api/campaigns/:id/inventories`
 - [ ] 6.25 Implement `inventory add-item --campaign <id> --inventory <id> --item <itemId> --quantity <n>` -- POST `/api/campaigns/:id/inventories/:inventoryId/items`
 - [ ] 6.26 Implement `inventory transfer --campaign <id> --from <inventoryId> --to <inventoryId> --item <itemId> --quantity <n>` -- POST `/api/campaigns/:id/inventories/:inventoryId/transfer`
+- [ ] 6.26a Implement `inventory delete --campaign <id> --id <inventoryId> [--yes]` with confirmation -- DELETE `/api/campaigns/:id/inventories/:inventoryId`
+- [ ] 6.26b Implement `inventory item-delete --campaign <id> --inventory <inventoryId> --item <itemId> [--yes]` -- DELETE `/api/campaigns/:id/inventories/:inventoryId/items/:itemId`
 - [ ] 6.27 Register all economy commands in CLI entry point
 
 ## 7. Template & Tag Commands
@@ -111,12 +129,24 @@
 - [ ] 8.1 Create `cli/src/commands/arc.ts` with `makeArcCommand()`
 - [ ] 8.2 Implement `arc list --campaign <id> [--json]` -- GET `/api/campaigns/:id/arcs`
 - [ ] 8.3 Implement `arc create --campaign <id> --name <name>` -- POST `/api/campaigns/:id/arcs`
+- [ ] 8.3a Implement `arc update --campaign <id> --slug <slug> [--name <name>] [--status <status>] [--description <desc>]` -- PUT `/api/campaigns/:id/arcs/:slug`
+- [ ] 8.3b Implement `arc delete --campaign <id> --slug <slug> [--yes]` with confirmation -- DELETE `/api/campaigns/:id/arcs/:slug`
 - [ ] 8.4 Create `cli/src/commands/chapter.ts` with `makeChapterCommand()`
 - [ ] 8.5 Implement `chapter list --campaign <id> [--json]` -- GET `/api/campaigns/:id/chapters`
 - [ ] 8.6 Implement `chapter create --campaign <id> --name <name> [--arc <arcId>]` -- POST `/api/campaigns/:id/chapters`
+- [ ] 8.6a Implement `chapter update --campaign <id> --slug <slug> [--name <name>] [--description <desc>]` -- PUT `/api/campaigns/:id/chapters/:slug`
+- [ ] 8.6b Implement `chapter delete --campaign <id> --slug <slug> [--yes]` with confirmation -- DELETE `/api/campaigns/:id/chapters/:slug`
 - [ ] 8.7 Register both commands in CLI entry point
 
-## 9. Health Check Command
+## 9. Character Abilities, Folders & Entity Types
+
+- [ ] 9.0a Add `character ability-delete <slug> <abilityId> --campaign <id> [--yes]` to `character.js/ts` -- DELETE `/api/campaigns/:id/characters/:slug/abilities/:abilityId`
+- [ ] 9.0b Add `character folder-update <folderId> --campaign <id> [--name <name>]` to `character.js/ts` -- PUT `/api/campaigns/:id/character-folders/:folderId`
+- [ ] 9.0c Add `character folder-delete <folderId> --campaign <id> [--yes]` to `character.js/ts` -- DELETE `/api/campaigns/:id/character-folders/:folderId`
+- [ ] 9.0d Add `entity type-update <typeId> --campaign <id> [--name <name>]` to `entity.js/ts` -- PUT `/api/campaigns/:id/entity-types/:typeId`
+- [ ] 9.0e Add `entity type-delete <typeId> --campaign <id> [--yes]` to `entity.js/ts` -- DELETE `/api/campaigns/:id/entity-types/:typeId`
+
+## 10a. Health Check Command
 
 - [ ] 9.1 Create `cli/src/commands/health.ts` with `makeHealthCommand()`
 - [ ] 9.2 Implement `health` (no subcommands) -- GET `/api/health`, display server status; handle connection errors gracefully

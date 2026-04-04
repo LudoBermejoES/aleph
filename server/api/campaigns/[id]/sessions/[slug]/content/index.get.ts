@@ -18,10 +18,10 @@ export default defineEventHandler(async (event) => {
     .where(eq(sessionContents.sessionId, session.id))
     .all()
 
-  const result: Record<string, string | null> = { manual_notes: null, ai_notes: null, summary: null }
+  const result: Record<string, { id: string; content: string | null } | null> = { manual_notes: null, ai_notes: null, summary: null }
   for (const row of rows) {
     if (CONTENT_TYPES.includes(row.type as any)) {
-      result[row.type] = row.content ?? null
+      result[row.type] = { id: row.id, content: row.content ?? null }
     }
   }
 

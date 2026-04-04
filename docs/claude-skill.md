@@ -93,6 +93,7 @@ aleph session delete <slug> --campaign <id> [--yes]  # --yes skips confirmation 
 # Session content (notes)
 aleph session content get <slug> --campaign <id> [--type manual_notes|ai_notes|summary]  # omit --type to show all
 aleph session content set <slug> --campaign <id> --type manual_notes|ai_notes|summary [--file <path>]  # reads from file or stdin
+aleph session content delete <slug> <contentId> --campaign <id> [--yes]  # delete a content entry by ID
 
 # Attendance / RSVP
 aleph session attendance set <slug> --campaign <id> --status pending|accepted|declined|tentative

@@ -86,6 +86,14 @@ export function useCampaignApi(campaignId: string) {
     return $fetch<EntityType[]>(`${base}/entity-types`)
   }
 
+  function updateEntityType(typeId: string, body: Record<string, unknown>) {
+    return $fetch(`${base}/entity-types/${typeId}`, { method: 'PUT', body })
+  }
+
+  function deleteEntityType(typeId: string) {
+    return $fetch(`${base}/entity-types/${typeId}`, { method: 'DELETE' })
+  }
+
   function getTags() {
     return $fetch<Tag[]>(`${base}/tags`)
   }
@@ -120,6 +128,10 @@ export function useCampaignApi(campaignId: string) {
     return $fetch(`${base}/characters/${slug}`, { method: 'DELETE' })
   }
 
+  function deleteAbility(characterSlug: string, abilityId: string) {
+    return $fetch(`${base}/characters/${characterSlug}/abilities/${abilityId}`, { method: 'DELETE' })
+  }
+
   function getCharacterOrganizations(slug: string) {
     return $fetch<any[]>(`${base}/characters/${slug}/organizations`)
   }
@@ -130,6 +142,14 @@ export function useCampaignApi(campaignId: string) {
 
   function getCharacterFolders() {
     return $fetch<CharacterFolder[]>(`${base}/character-folders`)
+  }
+
+  function updateCharacterFolder(folderId: string, body: Record<string, unknown>) {
+    return $fetch(`${base}/character-folders/${folderId}`, { method: 'PUT', body })
+  }
+
+  function deleteCharacterFolder(folderId: string) {
+    return $fetch(`${base}/character-folders/${folderId}`, { method: 'DELETE' })
   }
 
   // ─── Sessions ───────────────────────────────────────────────────────────────
@@ -208,6 +228,26 @@ export function useCampaignApi(campaignId: string) {
     return $fetch<any[]>(`${base}/arcs`)
   }
 
+  function updateArc(slug: string, body: Record<string, unknown>) {
+    return $fetch(`${base}/arcs/${slug}`, { method: 'PUT', body })
+  }
+
+  function deleteArc(slug: string) {
+    return $fetch(`${base}/arcs/${slug}`, { method: 'DELETE' })
+  }
+
+  function updateChapter(slug: string, body: Record<string, unknown>) {
+    return $fetch(`${base}/chapters/${slug}`, { method: 'PUT', body })
+  }
+
+  function deleteChapter(slug: string) {
+    return $fetch(`${base}/chapters/${slug}`, { method: 'DELETE' })
+  }
+
+  function deleteSessionContent(sessionSlug: string, contentId: string) {
+    return $fetch(`${base}/sessions/${sessionSlug}/content/${contentId}`, { method: 'DELETE' })
+  }
+
   // ─── Quests ─────────────────────────────────────────────────────────────────
 
   function getQuests(params?: Record<string, string>) {
@@ -272,6 +312,22 @@ export function useCampaignApi(campaignId: string) {
     return $fetch(`${base}/maps/${slug}/regions`, { method: 'PUT', body })
   }
 
+  function updateMapLayer(mapSlug: string, layerId: string, body: Record<string, unknown>) {
+    return $fetch(`${base}/maps/${mapSlug}/layers/${layerId}`, { method: 'PUT', body })
+  }
+
+  function deleteMapLayer(mapSlug: string, layerId: string) {
+    return $fetch(`${base}/maps/${mapSlug}/layers/${layerId}`, { method: 'DELETE' })
+  }
+
+  function updateMapRegion(mapSlug: string, regionId: string, body: Record<string, unknown>) {
+    return $fetch(`${base}/maps/${mapSlug}/regions/${regionId}`, { method: 'PUT', body })
+  }
+
+  function deleteMapRegion(mapSlug: string, regionId: string) {
+    return $fetch(`${base}/maps/${mapSlug}/regions/${regionId}`, { method: 'DELETE' })
+  }
+
   // ─── Calendars ──────────────────────────────────────────────────────────────
 
   function getCalendars() {
@@ -302,6 +358,10 @@ export function useCampaignApi(campaignId: string) {
     return $fetch<{ currentDate: CalendarDate }>(`${base}/calendars/${calendarId}/advance`, { method: 'POST', body })
   }
 
+  function deleteCalendarEvent(calendarId: string, eventId: string) {
+    return $fetch(`${base}/calendars/${calendarId}/events/${eventId}`, { method: 'DELETE' })
+  }
+
   // ─── Timelines ──────────────────────────────────────────────────────────────
 
   function getTimelines() {
@@ -326,6 +386,10 @@ export function useCampaignApi(campaignId: string) {
 
   function createTimelineEvent(slug: string, body: Record<string, unknown>) {
     return $fetch(`${base}/timelines/${slug}/events`, { method: 'POST', body })
+  }
+
+  function deleteTimelineEvent(timelineSlug: string, eventId: string) {
+    return $fetch(`${base}/timelines/${timelineSlug}/events/${eventId}`, { method: 'DELETE' })
   }
 
   // ─── Relations ──────────────────────────────────────────────────────────────
@@ -366,6 +430,14 @@ export function useCampaignApi(campaignId: string) {
 
   function transferInventoryItems(fromInventoryId: string, body: Record<string, unknown>) {
     return $fetch(`${base}/inventories/${fromInventoryId}/transfer`, { method: 'POST', body })
+  }
+
+  function deleteInventory(inventoryId: string) {
+    return $fetch(`${base}/inventories/${inventoryId}`, { method: 'DELETE' })
+  }
+
+  function deleteInventoryItem(inventoryId: string, itemId: string) {
+    return $fetch(`${base}/inventories/${inventoryId}/items/${itemId}`, { method: 'DELETE' })
   }
 
   // ─── Items ──────────────────────────────────────────────────────────────────
@@ -547,32 +619,34 @@ export function useCampaignApi(campaignId: string) {
     getMembers, updateMember, removeMember, createInvite,
     // Entities
     getEntities, getEntity, createEntity, updateEntity, deleteEntity,
-    getEntityTypes, getTags, getMentions,
+    getEntityTypes, updateEntityType, deleteEntityType, getTags, getMentions,
     // Characters
     getCharacters, getCharacter, getCharactersMeta, createCharacter, updateCharacter, deleteCharacter,
-    getCharacterConnections, getCharacterFolders, getCharacterOrganizations,
+    deleteAbility,
+    getCharacterConnections, getCharacterFolders, updateCharacterFolder, deleteCharacterFolder, getCharacterOrganizations,
     // Sessions
     getSessions, getSession, createSession, updateSession, deleteSession,
-    getSessionContent, updateSessionContent,
+    getSessionContent, updateSessionContent, deleteSessionContent,
     getSessionGroups, createSessionGroup, updateSessionGroup, deleteSessionGroup,
     getSessionDecisions, createDecision, createConsequence, revealConsequence,
-    patchAttendance, getSessionRolls, getCampaignArcs,
+    patchAttendance, getSessionRolls, getCampaignArcs, updateArc, deleteArc, updateChapter, deleteChapter,
     // Quests
     getQuests, getQuest, createQuest, updateQuest, deleteQuest,
     // Maps
     getMaps, getMap, createMap, updateMap, deleteMap, uploadMapImage,
-    getMapLayers, getMapPins, getMapRegions, updateMapRegions,
+    getMapLayers, updateMapLayer, deleteMapLayer,
+    getMapPins, getMapRegions, updateMapRegions, updateMapRegion, deleteMapRegion,
     // Calendars
     getCalendars, getCalendar, createCalendar, updateCalendar, deleteCalendar,
-    getCalendarEvents, advanceCalendarDate,
+    getCalendarEvents, advanceCalendarDate, deleteCalendarEvent,
     // Timelines
     getTimelines, getTimeline, createTimeline, updateTimeline, deleteTimeline,
-    createTimelineEvent,
+    createTimelineEvent, deleteTimelineEvent,
     // Relations
     getRelations, getRelation, createRelation, updateRelation, deleteRelation,
     getRelationTypes,
     // Inventories
-    getInventories, createInventory, transferInventoryItems,
+    getInventories, createInventory, transferInventoryItems, deleteInventory, deleteInventoryItem,
     // Items
     getItems, getItem, createItem, updateItem, deleteItem,
     // Currencies & transactions
