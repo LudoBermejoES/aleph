@@ -39,7 +39,7 @@ export function makeRollCommand() {
     .action(async (formula, opts) => {
       let result
       const config = getConfig()
-      if (opts.campaign && config.token && config.url) {
+      if (opts.campaign && config.apiKey && config.url) {
         result = await post(`/api/campaigns/${opts.campaign}/roll`, { formula })
       } else {
         result = rollLocal(formula)

@@ -103,7 +103,7 @@ aleph session attendance set <slug> --campaign <id> --status pending|accepted|de
 aleph session-group list --campaign <id> [--json]
 aleph session-group create --campaign <id> --name <name> [--description <desc>] [--json]
 aleph session-group update <slug> --campaign <id> [--name <name>] [--description <desc>]
-aleph session-group delete <slug> --campaign <id>    # sessions in group become unassigned
+aleph session-group delete <slug> --campaign <id> [--yes]  # --yes skips confirmation; sessions become unassigned
 ```
 
 ### Members

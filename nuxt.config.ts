@@ -2,6 +2,12 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
 
+  runtimeConfig: {
+    public: {
+      hocuspocusUrl: 'ws://localhost:3334',
+    },
+  },
+
   devtools: { enabled: true },
 
   app: {

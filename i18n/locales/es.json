@@ -44,7 +44,8 @@
     "noAccount": "¿No tienes cuenta?",
     "haveAccount": "¿Ya tienes cuenta?",
     "invalidCredentials": "Credenciales incorrectas",
-    "registrationFailed": "Error al registrarse"
+    "registrationFailed": "Error al registrarse",
+    "appTitle": "Gestor de Campañas TTRPG"
   },
   "campaigns": {
     "title": "Campañas",
@@ -589,6 +590,8 @@
   "errors": {
     "generic": "Algo salió mal",
     "notFound": "No encontrado",
+    "notFoundTitle": "Página no encontrada",
+    "notFoundBack": "Volver a Campañas",
     "forbidden": "No tienes permiso para hacer eso",
     "failedLoad": "Error al cargar",
     "failedSave": "Error al guardar"

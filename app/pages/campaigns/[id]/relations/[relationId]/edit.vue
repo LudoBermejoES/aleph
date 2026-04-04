@@ -12,6 +12,7 @@
         <NuxtLink :to="`/campaigns/${campaignId}/graph`"><Button variant="outline">{{ $t('common.cancel') }}</Button></NuxtLink>
       </template>
     </RelationForm>
+    <ErrorToast v-if="error" :message="error" @dismiss="error = ''" />
   </div>
 </template>
 
@@ -22,6 +23,7 @@ const campaignId = route.params.id as string
 const relationId = route.params.relationId as string
 const submitting = ref(false)
 const loaded = ref(false)
+const error = ref('')
 const { t } = useI18n()
 const form = ref({
   sourceEntityId: '', sourceEntityName: '',
@@ -48,7 +50,7 @@ onMounted(async () => {
     }
     loaded.value = true
   } catch {
-    alert(t('errors.failedLoad'))
+    error.value = t('errors.failedLoad')
     await router.push(`/campaigns/${campaignId}/graph`)
   }
 })
@@ -65,7 +67,7 @@ async function save() {
     })
     await router.push(`/campaigns/${campaignId}/graph`)
   } catch (e: any) {
-    alert(e.data?.message || t('relations.failedSave'))
+    error.value = e.data?.message || t('relations.failedSave')
   } finally {
     submitting.value = false
   }

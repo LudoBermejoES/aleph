@@ -97,6 +97,7 @@
     <div v-else class="text-center py-16">
       <p class="text-muted-foreground">{{ $t('common.loading') }}</p>
     </div>
+    <ErrorToast v-if="error" :message="error" @dismiss="error = ''" />
   </div>
 </template>
 
@@ -120,6 +121,7 @@ const canEdit = ref(false)
 const api = useCampaignApi(campaignId)
 const editing = ref(false)
 const saving = ref(false)
+const error = ref('')
 const editForm = reactive({ name: '', content: '' })
 const userName = ref('Anonymous')
 
@@ -172,7 +174,7 @@ async function saveEntity() {
     await loadEntity()
     editing.value = false
   } catch (e: any) {
-    alert(e.data?.message || t('entities.failedSave'))
+    error.value = e.data?.message || t('entities.failedSave')
   } finally {
     saving.value = false
   }

@@ -317,7 +317,7 @@ async function initEditor() {
     } catch { /* fallback to empty token */ }
 
     provider = new HocuspocusProvider({
-      url: `ws://${window.location.hostname}:3334`,
+      url: useRuntimeConfig().public.hocuspocusUrl as string,
       name: props.documentName,
       document: ydoc,
       token: wsToken,

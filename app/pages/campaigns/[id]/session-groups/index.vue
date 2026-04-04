@@ -125,7 +125,7 @@ async function saveGroup() {
     showForm.value = false
     await load()
   } catch (e: any) {
-    alert(e.data?.message || t('sessionGroups.failedSave'))
+    error.value = e.data?.message || t('sessionGroups.failedSave')
   } finally {
     saving.value = false
   }
@@ -137,7 +137,7 @@ async function confirmDelete(group: any) {
     await api.deleteSessionGroup(group.slug)
     await load()
   } catch (e: any) {
-    alert(e.data?.message || t('sessionGroups.failedDelete'))
+    error.value = e.data?.message || t('sessionGroups.failedDelete')
   }
 }
 
@@ -160,7 +160,7 @@ async function handleImageUpload(event: Event, group: any) {
     })
     await load()
   } catch (e: any) {
-    alert(e.data?.message || t('sessionGroups.failedSave'))
+    error.value = e.data?.message || t('sessionGroups.failedSave')
   }
   // reset input
   const idx = groups.value.findIndex(g => g.id === group.id)

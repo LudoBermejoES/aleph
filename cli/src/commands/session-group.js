@@ -1,4 +1,5 @@
 import { Command } from 'commander'
+import { confirm } from '@inquirer/prompts'
 import { get, post, put, del } from '../lib/client.js'
 import { print, success } from '../lib/output.js'
 
@@ -63,10 +64,15 @@ export function makeSessionGroupCommand() {
 
   cmd
     .command('delete <slug>')
-    .description('Delete a session group (sessions will be unassigned)')
+    .description('Delete a session group (sessions will be unassigned). Use --yes to skip confirmation.')
     .requiredOption('--campaign <id>', 'Campaign ID')
+    .option('--yes', 'Skip confirmation prompt')
     .option('--json', 'Output as JSON')
     .action(async (slug, opts) => {
+      if (!opts.yes) {
+        const ok = await confirm({ message: `Delete session group "${slug}"? Sessions will be unassigned.`, default: false })
+        if (!ok) return
+      }
       await del(`/api/campaigns/${opts.campaign}/session-groups/${slug}`)
       if (opts.json) {
         print({ success: true }, { json: true })

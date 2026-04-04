@@ -14,6 +14,7 @@
         <NuxtLink :to="`/campaigns/${campaignId}/quests`"><Button variant="outline">{{ $t('common.cancel') }}</Button></NuxtLink>
       </template>
     </QuestForm>
+    <ErrorToast v-if="error" :message="error" @dismiss="error = ''" />
   </div>
 </template>
 
@@ -24,6 +25,7 @@ const campaignId = route.params.id as string
 const slug = route.params.slug as string
 const submitting = ref(false)
 const loaded = ref(false)
+const error = ref('')
 const { t } = useI18n()
 const form = ref({ name: '', status: 'active', parentQuestId: '', isSecret: false, content: '' })
 
@@ -42,7 +44,7 @@ onMounted(async () => {
     }
     loaded.value = true
   } catch {
-    alert(t('errors.failedLoad'))
+    error.value = t('errors.failedLoad')
     await router.push(`/campaigns/${campaignId}/quests`)
   }
 })
@@ -54,7 +56,7 @@ async function save() {
     questForm.value?.clearDraft()
     await router.push(`/campaigns/${campaignId}/quests`)
   } catch (e: any) {
-    alert(e.data?.message || t('quests.failedSave'))
+    error.value = e.data?.message || t('quests.failedSave')
   } finally {
     submitting.value = false
   }

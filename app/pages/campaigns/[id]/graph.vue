@@ -110,7 +110,10 @@ function toggleType(type: string) {
 }
 
 function onNodeClick(nodeId: string) {
-  // TODO: navigate to entity by ID
+  const node = graphData.value?.nodes[nodeId]
+  if (node?.slug) {
+    navigateTo(`/campaigns/${campaignId}/entities/${node.slug}`)
+  }
 }
 
 async function load() {

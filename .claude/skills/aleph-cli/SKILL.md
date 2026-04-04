@@ -4,7 +4,7 @@ description: Use the aleph CLI to manage campaigns, entities, characters, locati
 license: MIT
 metadata:
   author: aleph
-  version: "2.3"
+  version: "2.4"
 ---
 
 You have access to the `aleph` CLI tool at `node /Users/ludo/code/aleph/cli/bin/aleph.js` (or `npm run aleph -- <args>` from the project root). Use it to interact with the running Aleph server.
@@ -99,7 +99,7 @@ node /Users/ludo/code/aleph/cli/bin/aleph.js session attendance set <slug> --cam
 node /Users/ludo/code/aleph/cli/bin/aleph.js session-group list --campaign <id> [--json]
 node /Users/ludo/code/aleph/cli/bin/aleph.js session-group create --campaign <id> --name <name> [--description <desc>] [--json]
 node /Users/ludo/code/aleph/cli/bin/aleph.js session-group update <slug> --campaign <id> [--name <name>] [--description <desc>]
-node /Users/ludo/code/aleph/cli/bin/aleph.js session-group delete <slug> --campaign <id>    # sessions in group become unassigned
+node /Users/ludo/code/aleph/cli/bin/aleph.js session-group delete <slug> --campaign <id> [--yes]  # --yes skips confirmation; sessions become unassigned
 ```
 
 ### Members

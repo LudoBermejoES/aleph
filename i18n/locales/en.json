@@ -44,7 +44,8 @@
     "noAccount": "Don't have an account?",
     "haveAccount": "Already have an account?",
     "invalidCredentials": "Invalid credentials",
-    "registrationFailed": "Registration failed"
+    "registrationFailed": "Registration failed",
+    "appTitle": "TTRPG Campaign Manager"
   },
   "campaigns": {
     "title": "Campaigns",
@@ -589,6 +590,8 @@
   "errors": {
     "generic": "Something went wrong",
     "notFound": "Not found",
+    "notFoundTitle": "Page not found",
+    "notFoundBack": "Back to Campaigns",
     "forbidden": "You don't have permission to do that",
     "failedLoad": "Failed to load",
     "failedSave": "Failed to save"
