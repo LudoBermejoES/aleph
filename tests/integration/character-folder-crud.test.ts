@@ -3,9 +3,9 @@ import { describe, it, expect, beforeAll } from 'vitest'
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 
-async function api(path: string, opts?: RequestInit & { body?: unknown }) {
+async function api(path: string, opts?: { method?: string; headers?: Record<string, string>; body?: unknown }) {
   return fetch(`${BASE_URL}${path}`, {
-    ...opts,
+    method: opts?.method,
     headers: { 'Content-Type': 'application/json', 'Origin': BASE_URL, ...opts?.headers },
     body: opts?.body !== undefined ? JSON.stringify(opts.body) : undefined,
   })
@@ -24,7 +24,7 @@ async function createApiKey(cookie: string, name = 'test-key') {
   return res.json()
 }
 
-async function apiOk(path: string, opts?: RequestInit & { body?: unknown }) {
+async function apiOk(path: string, opts?: { method?: string; headers?: Record<string, string>; body?: unknown }) {
   const res = await api(path, opts)
   if (!res.ok) {
     const text = await res.text()
@@ -96,14 +96,21 @@ describe('Character Folder CRUD (integration)', () => {
     expect(found?.name).toBe('Villains Updated')
   })
 
-  it('POST character with folderId links the character to the folder', async () => {
+  it('PUT character with folderId links the character to the folder', async () => {
     const character = await apiOk(`/api/campaigns/${campaignId}/characters`, {
       method: 'POST',
       headers: { 'X-API-Key': apiKey },
-      body: { name: 'Villain1', characterType: 'npc', folderId },
+      body: { name: 'Villain1', characterType: 'npc' },
     })
     characterSlug = character.slug
     expect(character).toHaveProperty('slug')
+
+    // Assign to folder via PUT
+    await api(`/api/campaigns/${campaignId}/characters/${characterSlug}`, {
+      method: 'PUT',
+      headers: { 'X-API-Key': apiKey },
+      body: { folderId },
+    })
 
     // Verify folderId on the character list
     const characters = await apiOk(`/api/campaigns/${campaignId}/characters`, {

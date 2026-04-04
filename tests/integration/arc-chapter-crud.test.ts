@@ -127,7 +127,7 @@ describe('Arc and Chapter CRUD (integration)', () => {
     const chapterRes = await api(`/api/campaigns/${campaignId}/chapters`, {
       method: 'POST',
       headers: { 'X-API-Key': apiKey },
-      body: { name: 'Original Chapter', arcId: arc.id },
+      body: { name: `Original Chapter ${ts}`, arcId: arc.id },
     })
     const chapter = await chapterRes.json()
     const chapterId = chapter.id
