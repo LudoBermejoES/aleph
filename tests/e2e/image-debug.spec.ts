@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { registerAndLogin, createCampaign } from '/Users/ludo/code/aleph/tests/e2e/helpers'
+import { registerAndLogin, createCampaign } from './helpers'
 
 const uid = () => Date.now().toString(36).slice(-4)
 const TINY_PNG = Buffer.from(
