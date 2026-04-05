@@ -145,6 +145,23 @@
       </div>
     </div>
 
+    <!-- Export Campaign (DM/Co-DM only) -->
+    <div v-if="campaign && isDm" class="mt-8 border-t border-border pt-8">
+      <h2 class="text-lg font-semibold mb-4">{{ $t('campaign.export') }}</h2>
+      <div class="flex items-center gap-3">
+        <Button
+          variant="outline"
+          size="sm"
+          :disabled="exporting"
+          data-testid="export-campaign-btn"
+          @click="exportCampaign"
+        >
+          {{ exporting ? $t('common.loading') : $t('campaign.exportButton') }}
+        </Button>
+        <span v-if="exportError" class="text-sm text-destructive">{{ exportError }}</span>
+      </div>
+    </div>
+
     <!-- Campaign Settings (DM/Co-DM only) -->
     <div v-if="campaign" class="mt-8 border-t border-border pt-8">
       <h2 class="text-lg font-semibold mb-4">{{ $t('campaigns.settings') }}</h2>
@@ -170,13 +187,42 @@ const route = useRoute()
 const campaignId = route.params.id as string
 const { t } = useI18n()
 
-const { data: campaign } = await useFetch<{ id: string; name: string; description: string | null; theme: string | null }>(`/api/campaigns/${campaignId}`)
+const { data: campaign } = await useFetch<{ id: string; name: string; description: string | null; theme: string | null; role: string | null }>(`/api/campaigns/${campaignId}`)
 
+const isDm = computed(() => ['dm', 'co_dm'].includes(campaign.value?.role ?? ''))
 const selectedTheme = ref(campaign.value?.theme || 'default')
 const savingTheme = ref(false)
 const themeSaved = ref(false)
+const exporting = ref(false)
+const exportError = ref<string | null>(null)
 // Shared state with layout so the theme applies without a page reload
 const campaignTheme = useState<string | null>('campaignTheme')
+
+async function exportCampaign() {
+  exporting.value = true
+  exportError.value = null
+  try {
+    const res = await fetch(`/api/campaigns/${campaignId}/export`, { credentials: 'include' })
+    if (!res.ok) {
+      exportError.value = t('campaign.exportError')
+      return
+    }
+    const blob = await res.blob()
+    const disposition = res.headers.get('content-disposition') || ''
+    const filenameMatch = disposition.match(/filename="([^"]+)"/)
+    const filename = filenameMatch?.[1] || `campaign-export.json`
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    a.click()
+    URL.revokeObjectURL(url)
+  } catch {
+    exportError.value = t('campaign.exportError')
+  } finally {
+    exporting.value = false
+  }
+}
 
 async function saveTheme() {
   savingTheme.value = true

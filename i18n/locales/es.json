@@ -872,5 +872,11 @@
     "noSecretNotes": "Sin notas secretas aún.",
     "saveNotes": "Guardar notas",
     "notesSaved": "¡Guardado!"
+  },
+  "campaign": {
+    "export": "Exportar Campaña",
+    "exportButton": "Exportar Datos de la Campaña",
+    "exportSuccess": "Campaña exportada correctamente",
+    "exportError": "Error al exportar. Por favor, inténtalo de nuevo."
   }
 }

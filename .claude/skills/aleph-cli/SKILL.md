@@ -4,7 +4,7 @@ description: Use the aleph CLI to manage campaigns, entities, characters, locati
 license: MIT
 metadata:
   author: aleph
-  version: "2.8"
+  version: "2.9"
 ---
 
 You have access to the `aleph` CLI tool at `node /Users/ludo/code/aleph/cli/bin/aleph.js` (or `npm run aleph -- <args>` from the project root). Use it to interact with the running Aleph server.
@@ -47,6 +47,7 @@ aleph campaign list [--json]
 aleph campaign create --name <name> [--description <desc>] [--theme <theme>] [--json]
 aleph campaign show <id> [--json]
 aleph campaign delete <id> [--yes]   # --yes skips confirmation
+aleph campaign export <id> [--format json] [--include <types>] [--output <file>]  # export to file or stdout
 ```
 
 Themes: `default`, `dark-fantasy`, `cyberpunk`, `cosmic-horror`, `high-fantasy`, `western`, `steampunk`, `eldritch`, `fey-wilds`, `undead`, `superhero`
