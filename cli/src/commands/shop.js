@@ -75,11 +75,48 @@ export function makeShopCommand() {
     .requiredOption('--campaign <id>', 'Campaign ID')
     .requiredOption('--slug <slug>', 'Shop slug')
     .requiredOption('--item <itemId>', 'Item ID')
-    .requiredOption('--quantity <n>', 'Quantity', parseInt)
+    .requiredOption('--quantity <n>', 'Quantity (-1 for unlimited)', parseInt)
+    .option('--unavailable', 'Mark as unavailable')
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
-      const data = await post(`/api/campaigns/${opts.campaign}/shops/${opts.slug}/stock`, { itemId: opts.item, quantity: opts.quantity })
-      if (opts.json) { print(data, { json: true }) } else { success('Stock updated.') }
+      const data = await post(`/api/campaigns/${opts.campaign}/shops/${opts.slug}/stock`, {
+        itemId: opts.item, quantity: opts.quantity, isAvailable: !opts.unavailable,
+      })
+      if (opts.json) { print(data, { json: true }) } else { success('Stock added.') }
+    })
+
+  cmd
+    .command('stock-update')
+    .description('Update a shop stock entry')
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .requiredOption('--slug <slug>', 'Shop slug')
+    .requiredOption('--stock-id <stockId>', 'Stock entry ID')
+    .option('--quantity <n>', 'New quantity (-1 for unlimited)', parseInt)
+    .option('--available', 'Mark as available')
+    .option('--unavailable', 'Mark as unavailable')
+    .action(async (opts) => {
+      const body = {}
+      if (opts.quantity !== undefined) body.quantity = opts.quantity
+      if (opts.available) body.isAvailable = true
+      if (opts.unavailable) body.isAvailable = false
+      await put(`/api/campaigns/${opts.campaign}/shops/${opts.slug}/stock/${opts.stockId}`, body)
+      success('Stock updated.')
+    })
+
+  cmd
+    .command('stock-delete')
+    .description('Remove a stock entry from a shop')
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .requiredOption('--slug <slug>', 'Shop slug')
+    .requiredOption('--stock-id <stockId>', 'Stock entry ID')
+    .option('--yes', 'Skip confirmation')
+    .action(async (opts) => {
+      if (!opts.yes) {
+        const ok = await confirm({ message: `Remove stock entry ${opts.stockId}? This cannot be undone.`, default: false })
+        if (!ok) { process.stdout.write('Cancelled.\n'); return }
+      }
+      await del(`/api/campaigns/${opts.campaign}/shops/${opts.slug}/stock/${opts.stockId}`)
+      success(`Stock entry ${opts.stockId} removed.`)
     })
 
   cmd

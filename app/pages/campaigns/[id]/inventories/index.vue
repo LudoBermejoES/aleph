@@ -31,7 +31,7 @@
         </div>
         <div class="col-span-2">
           <label class="text-sm font-medium block mb-1">{{ $t('inventories.ownerId') }}</label>
-          <input v-model="form.ownerId" :placeholder="$t('inventories.ownerIdPlaceholder')" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" data-testid="inv-owner-id" />
+          <OwnerPicker :campaign-id="campaignId" :owner-type="form.ownerType" v-model="form.ownerId" data-testid="inv-owner-id" />
         </div>
       </div>
       <p v-if="formError" class="text-sm text-destructive">{{ formError }}</p>

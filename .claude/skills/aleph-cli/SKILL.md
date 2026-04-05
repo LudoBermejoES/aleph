@@ -4,7 +4,7 @@ description: Use the aleph CLI to manage campaigns, entities, characters, locati
 license: MIT
 metadata:
   author: aleph
-  version: "2.6"
+  version: "2.7"
 ---
 
 You have access to the `aleph` CLI tool at `node /Users/ludo/code/aleph/cli/bin/aleph.js` (or `npm run aleph -- <args>` from the project root). Use it to interact with the running Aleph server.
@@ -233,7 +233,9 @@ node /Users/ludo/code/aleph/cli/bin/aleph.js shop get --campaign <id> --slug <sl
 node /Users/ludo/code/aleph/cli/bin/aleph.js shop create --campaign <id> --name <name> [--description <desc>] [--json]
 node /Users/ludo/code/aleph/cli/bin/aleph.js shop update --campaign <id> --slug <slug> [--name <name>] [--description <desc>]
 node /Users/ludo/code/aleph/cli/bin/aleph.js shop delete --campaign <id> --slug <slug> [--yes]
-node /Users/ludo/code/aleph/cli/bin/aleph.js shop stock --campaign <id> --slug <slug> --item <itemId> --quantity <n>
+node /Users/ludo/code/aleph/cli/bin/aleph.js shop stock --campaign <id> --slug <slug> --item <itemId> --quantity <n> [--unavailable]
+node /Users/ludo/code/aleph/cli/bin/aleph.js shop stock-update --campaign <id> --slug <slug> --stock-id <stockId> [--quantity <n>] [--available|--unavailable]
+node /Users/ludo/code/aleph/cli/bin/aleph.js shop stock-delete --campaign <id> --slug <slug> --stock-id <stockId> [--yes]
 node /Users/ludo/code/aleph/cli/bin/aleph.js shop buy --campaign <id> --slug <slug> --item <itemId> --quantity <n> --buyer <inventoryId>
 node /Users/ludo/code/aleph/cli/bin/aleph.js shop sell --campaign <id> --slug <slug> --item <itemId> --quantity <n> --seller <inventoryId>
 node /Users/ludo/code/aleph/cli/bin/aleph.js shop till --campaign <id> --slug <slug> [--json]

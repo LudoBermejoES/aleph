@@ -530,6 +530,22 @@ export function useCampaignApi(campaignId: string) {
     return $fetch(`${base}/shops/${slug}`, { method: 'DELETE' })
   }
 
+  function addShopStock(slug: string, body: Record<string, unknown>) {
+    return $fetch(`${base}/shops/${slug}/stock`, { method: 'POST', body })
+  }
+
+  function updateShopStock(slug: string, stockId: string, body: Record<string, unknown>) {
+    return $fetch(`${base}/shops/${slug}/stock/${stockId}`, { method: 'PUT', body })
+  }
+
+  function deleteShopStock(slug: string, stockId: string) {
+    return $fetch(`${base}/shops/${slug}/stock/${stockId}`, { method: 'DELETE' })
+  }
+
+  function createTransaction(body: Record<string, unknown>) {
+    return $fetch(`${base}/transactions`, { method: 'POST', body })
+  }
+
   // ─── Templates ──────────────────────────────────────────────────────────────
 
   function getTemplates() {
@@ -695,9 +711,10 @@ export function useCampaignApi(campaignId: string) {
     getItems, getItem, createItem, updateItem, deleteItem,
     // Currencies & transactions
     getCurrencies, createCurrency, updateCurrency, deleteCurrency,
-    getTransactions, getWealth,
+    getTransactions, getWealth, createTransaction,
     // Shops
     getShops, getShop, createShop, updateShop, deleteShop,
+    addShopStock, updateShopStock, deleteShopStock,
     // Templates
     getTemplates, getTemplate, createTemplate, updateTemplate, deleteTemplate,
     // Graph

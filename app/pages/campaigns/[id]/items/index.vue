@@ -27,7 +27,7 @@
           <span class="font-medium">{{ item.name }}</span>
           <span :class="['text-xs ml-2 px-2 py-0.5 rounded', rarityColor(item.rarity)]">{{ item.rarity }}</span>
         </div>
-        <span v-if="item.priceJson" class="text-xs text-muted-foreground">{{ item.priceJson }}</span>
+        <span class="text-xs text-muted-foreground">{{ formatPrice(item.priceJson, currencyList) || $t('items.noPrice') }}</span>
       </div>
     </div>
     <EmptyState v-else icon="🎒" :title="$t('items.empty')" :description="$t('items.emptyDescription')" />
@@ -37,10 +37,13 @@
 
 <script setup lang="ts">
 
+import { formatPrice } from '~/composables/useFormatPrice'
+
 const route = useRoute()
 const campaignId = route.params.id as string
 const api = useCampaignApi(campaignId)
 const itemList = ref<any[]>([])
+const currencyList = ref<any[]>([])
 const filter = ref('')
 const { loading, error, withLoading, dismissError } = useLoadingState()
 
@@ -61,5 +64,8 @@ async function load() {
   })
 }
 
-onMounted(load)
+onMounted(async () => {
+  await load()
+  currencyList.value = await api.getCurrencies().catch(() => [])
+})
 </script>

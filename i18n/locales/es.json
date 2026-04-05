@@ -28,7 +28,8 @@
     "amount": "Cantidad",
     "item": "Objeto",
     "quantity": "Cantidad",
-    "campaign": "Campaña"
+    "campaign": "Campaña",
+    "deleting": "Eliminando..."
   },
   "auth": {
     "signIn": "Iniciar sesión",
@@ -498,7 +499,9 @@
     "positionStorage": "Almacenamiento",
     "positionTrade": "Comercio",
     "positionOther": "Otro",
-    "failedSave": "Error al guardar el inventario"
+    "failedSave": "Error al guardar el inventario",
+    "selectOwner": "Seleccionar propietario...",
+    "searchOwner": "Buscar..."
   },
   "items": {
     "title": "Biblioteca de objetos",
@@ -522,7 +525,9 @@
     "sizePlaceholder": "mediano, pequeño...",
     "description": "Descripción",
     "descriptionPlaceholder": "Descripción del objeto...",
-    "failedSave": "Error al guardar el objeto"
+    "failedSave": "Error al guardar el objeto",
+    "price": "Precio",
+    "noPrice": "—"
   },
   "shops": {
     "title": "Tiendas",
@@ -535,7 +540,18 @@
     "unlimited": "∞",
     "name": "Nombre de la tienda *",
     "namePlaceholder": "La Vieja Tienda de Pociones",
-    "failedSave": "Error al guardar la tienda"
+    "failedSave": "Error al guardar la tienda",
+    "addStock": "Añadir Stock",
+    "editStock": "Editar Stock",
+    "removeStock": "Eliminar",
+    "confirmRemoveStock": "¿Eliminar esta entrada de stock?",
+    "quantity": "Cantidad",
+    "priceOverride": "Precio Personalizado",
+    "availability": "Disponibilidad",
+    "available": "Disponible",
+    "unavailable": "No disponible",
+    "unlimitedLabel": "Ilimitado (-1)",
+    "failedStock": "Error al actualizar el stock"
   },
   "currencies": {
     "title": "Monedas",
@@ -549,7 +565,14 @@
     "baseConversion": "1 base = {value} unidades",
     "empty": "Aún no hay monedas",
     "emptyDescription": "Crea monedas para registrar la riqueza de los personajes.",
-    "failedSave": "Error al guardar la moneda"
+    "failedSave": "Error al guardar la moneda",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "deleteTitle": "Eliminar Moneda",
+    "deleteConfirm": "¿Estás seguro de que quieres eliminar \"{name}\"? Esto no se puede deshacer.",
+    "deleted": "Moneda eliminada",
+    "updated": "Moneda actualizada",
+    "failedDelete": "Error al eliminar la moneda"
   },
   "transactions": {
     "title": "Historial de transacciones",
@@ -568,7 +591,15 @@
     "date": "Fecha",
     "empty": "—",
     "noTransactions": "Aún no hay transacciones",
-    "noTransactionsDescription": "Las transacciones aparecen aquí tras compras, transferencias y concesiones."
+    "noTransactionsDescription": "Las transacciones aparecen aquí tras compras, transferencias y concesiones.",
+    "new": "Nueva Transacción",
+    "create": "Crear Transacción",
+    "fromEntity": "De",
+    "toEntity": "Para",
+    "notes": "Notas",
+    "amounts": "Cantidades",
+    "quantity": "Cantidad",
+    "loot": "Botín"
   },
   "layout": {
     "appName": "Aleph",

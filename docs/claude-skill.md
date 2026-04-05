@@ -4,7 +4,7 @@ description: Use the aleph CLI to manage campaigns, entities, characters, locati
 license: MIT
 metadata:
   author: aleph
-  version: "1.7"
+  version: "1.8"
 ---
 
 You have access to the `aleph` CLI. Run it as `aleph` if installed globally (`npm i -g aleph-cli`), or `npx aleph-cli` otherwise.
@@ -242,7 +242,9 @@ aleph shop get --campaign <id> --slug <slug> [--json]
 aleph shop create --campaign <id> --name <name> [--description <desc>] [--json]
 aleph shop update --campaign <id> --slug <slug> [--name <name>] [--description <desc>]
 aleph shop delete --campaign <id> --slug <slug> [--yes]
-aleph shop stock --campaign <id> --slug <slug> --item <itemId> --quantity <n>
+aleph shop stock --campaign <id> --slug <slug> --item <itemId> --quantity <n> [--unavailable]
+aleph shop stock-update --campaign <id> --slug <slug> --stock-id <stockId> [--quantity <n>] [--available|--unavailable]
+aleph shop stock-delete --campaign <id> --slug <slug> --stock-id <stockId> [--yes]
 aleph shop buy --campaign <id> --slug <slug> --item <itemId> --quantity <n> --buyer <inventoryId>
 aleph shop sell --campaign <id> --slug <slug> --item <itemId> --quantity <n> --seller <inventoryId>
 aleph shop till --campaign <id> --slug <slug> [--json]
