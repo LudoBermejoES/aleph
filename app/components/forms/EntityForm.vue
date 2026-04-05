@@ -53,7 +53,7 @@
 
     <div>
       <label class="text-sm font-medium">{{ $t('entities.content') }}</label>
-      <MarkdownEditor v-model="form.content" :placeholder="$t('entities.contentPlaceholder')" :campaign-id="campaignId" :draft-key="draftKey" class="mt-1" />
+      <MarkdownEditor v-model="form.content" :placeholder="$t('entities.contentPlaceholder')" :campaign-id="campaignId" :draft-key="draftKey" :collaborative="collaborative" :document-name="documentName" :user-name="userName" :user-color="userColor" class="mt-1" />
     </div>
 
     <div class="flex justify-end gap-2">
@@ -70,6 +70,10 @@ const props = defineProps<{
   entitySlug?: string
   submitLabel?: string
   submitting?: boolean
+  collaborative?: boolean
+  documentName?: string
+  userName?: string
+  userColor?: string
 }>()
 
 const emit = defineEmits<{

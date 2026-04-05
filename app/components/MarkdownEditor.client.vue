@@ -54,6 +54,9 @@
       </template>
     </div>
 
+    <!-- Collaboration indicator (shown when in collaborative mode) -->
+    <CollaborationIndicator v-if="props.collaborative && providerRef" :provider="providerRef" />
+
     <!-- Editor -->
     <div ref="editorEl" class="prose dark:prose-invert max-w-none p-4 min-h-[200px] focus:outline-none" />
   </div>
@@ -137,6 +140,7 @@ let editor: Editor | null = null
 let _linkButtonEl: HTMLElement | null = null
 let provider: HocuspocusProvider | null = null
 let ydoc: Y.Doc | null = null
+const providerRef = ref<HocuspocusProvider | null>(null)
 
 const draftKeyRef = computed(() => props.draftKey ?? null)
 const serverContentRef = computed(() => props.modelValue)
@@ -354,6 +358,7 @@ async function initEditor() {
       document: ydoc,
       token: wsToken,
     })
+    providerRef.value = provider
 
     extensions.push(
       StarterKit.configure({ history: false, link: { openOnClick: false, HTMLAttributes: { class: 'text-primary underline' } } }),
@@ -474,6 +479,7 @@ async function onImageFilePicked(event: Event) {
 onUnmounted(() => {
   provider?.destroy()
   provider = null
+  providerRef.value = null
   ydoc?.destroy()
   ydoc = null
   editor?.destroy()

@@ -8,6 +8,7 @@ import { logger } from '../utils/logger'
 import { validateWsToken } from '../services/ws-token'
 import { eq, and } from 'drizzle-orm'
 import { entities } from '../db/schema/entities'
+import { gameSessions, quests } from '../db/schema/sessions'
 import { campaignMembers } from '../db/schema/campaign-members'
 
 let server: Server | null = null
@@ -34,9 +35,11 @@ export default defineNitroPlugin(async () => {
           userId = session.user.id
         }
 
-        // Parse document name: campaign:{id}:entity:{slug}
+        // Parse document name: campaign:{id}:{type}:{slug}
+        // Supported types: entity, session, quest
         const parts = documentName.split(':')
-        if (parts.length !== 4 || parts[0] !== 'campaign' || parts[2] !== 'entity') {
+        const VALID_DOC_TYPES = ['entity', 'session', 'quest']
+        if (parts.length !== 4 || parts[0] !== 'campaign' || !VALID_DOC_TYPES.includes(parts[2]!)) {
           throw new Error('Invalid document name format')
         }
         const campaignId = parts[1]!
@@ -62,20 +65,39 @@ export default defineNitroPlugin(async () => {
         // Parse document name
         const parts = documentName.split(':')
         const campaignId = parts[1]!
+        const docType = parts[2]!
         const slug = parts[3]!
 
         const db = useDb()
-        const entity = db.select().from(entities)
-          .where(and(eq(entities.campaignId, campaignId), eq(entities.slug, slug)))
-          .get()
+        let filePath: string | null = null
 
-        if (!entity) {
-          logger.warn('Hocuspocus: entity not found', { documentName })
+        if (docType === 'entity') {
+          const entity = db.select().from(entities)
+            .where(and(eq(entities.campaignId, campaignId), eq(entities.slug, slug)))
+            .get()
+          if (!entity) { logger.warn('Hocuspocus: entity not found', { documentName }); return }
+          filePath = entity.filePath
+        } else if (docType === 'session') {
+          const session = db.select().from(gameSessions)
+            .where(and(eq(gameSessions.campaignId, campaignId), eq(gameSessions.slug, slug)))
+            .get()
+          if (!session) { logger.warn('Hocuspocus: session not found', { documentName }); return }
+          filePath = session.logFilePath ?? null
+        } else if (docType === 'quest') {
+          const quest = db.select().from(quests)
+            .where(and(eq(quests.campaignId, campaignId), eq(quests.slug, slug)))
+            .get()
+          if (!quest) { logger.warn('Hocuspocus: quest not found', { documentName }); return }
+          filePath = quest.logFilePath ?? null
+        }
+
+        if (!filePath) {
+          logger.debug('Hocuspocus: no file path for document, starting empty', { documentName })
           return
         }
 
         try {
-          const file = await readEntityFile(entity.filePath)
+          const file = await readEntityFile(filePath)
           const tiptapJson = markdownToTiptap(file.content)
 
           // Hydrate Y.js document with Tiptap content
@@ -83,10 +105,8 @@ export default defineNitroPlugin(async () => {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Hocuspocus types don't expose getSchema()
           const yDoc = prosemirrorJSONToYDoc((document as any).getSchema(), tiptapJson)
 
-          // Merge into the Hocuspocus document
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Yjs types don't expose encodeStateAsUpdateV2
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Yjs types
           const _update = (yDoc as any).encodeStateAsUpdateV2 ? undefined : undefined
-          // The document is auto-populated by Hocuspocus from the Y.js doc
           logger.debug('Hocuspocus: document loaded', { documentName, slug })
         } catch (err) {
           logger.error('Hocuspocus: failed to load document', { documentName, error: err })
@@ -96,15 +116,40 @@ export default defineNitroPlugin(async () => {
       async onStoreDocument({ document, documentName, _context }) {
         const parts = documentName.split(':')
         const campaignId = parts[1]!
+        const docType = parts[2]!
         const slug = parts[3]!
 
         const db = useDb()
         const sqlite = useSqlite()
-        const entity = db.select().from(entities)
-          .where(and(eq(entities.campaignId, campaignId), eq(entities.slug, slug)))
-          .get()
 
-        if (!entity) return
+        // Resolve record and file path based on document type
+        let filePath: string | null = null
+        let entityId: string | null = null
+        let entityName: string | null = null
+
+        if (docType === 'entity') {
+          const entity = db.select().from(entities)
+            .where(and(eq(entities.campaignId, campaignId), eq(entities.slug, slug)))
+            .get()
+          if (!entity) return
+          filePath = entity.filePath
+          entityId = entity.id
+          entityName = entity.name
+        } else if (docType === 'session') {
+          const session = db.select().from(gameSessions)
+            .where(and(eq(gameSessions.campaignId, campaignId), eq(gameSessions.slug, slug)))
+            .get()
+          if (!session || !session.logFilePath) return
+          filePath = session.logFilePath
+        } else if (docType === 'quest') {
+          const quest = db.select().from(quests)
+            .where(and(eq(quests.campaignId, campaignId), eq(quests.slug, slug)))
+            .get()
+          if (!quest || !quest.logFilePath) return
+          filePath = quest.logFilePath
+        }
+
+        if (!filePath) return
 
         const maxRetries = 3
         for (let attempt = 1; attempt <= maxRetries; attempt++) {
@@ -114,21 +159,19 @@ export default defineNitroPlugin(async () => {
             const json = (document as any).getJSON()
             const markdown = tiptapToMarkdown(json || { type: 'doc', content: [] })
 
-            // Read existing frontmatter
-            const existing = await readEntityFile(entity.filePath)
+            // Read existing frontmatter and write updated file
+            const existing = await readEntityFile(filePath)
             const mergedFm = mergeFrontmatter(existing.frontmatter as Record<string, unknown>, {})
+            const hash = await writeEntityFile(filePath, mergedFm as Record<string, unknown>, markdown)
 
-            // Write updated .md file
-            const hash = await writeEntityFile(entity.filePath, mergedFm as Record<string, unknown>, markdown)
-
-            // Update content hash in DB
-            db.update(entities)
-              .set({ contentHash: hash, updatedAt: new Date() })
-              .where(eq(entities.id, entity.id))
-              .run()
-
-            // Re-index in FTS5
-            indexEntity(sqlite, entity.id, campaignId, entity.name, [], [], markdown)
+            if (docType === 'entity' && entityId && entityName) {
+              // Update content hash in DB and re-index in FTS5
+              db.update(entities)
+                .set({ contentHash: hash, updatedAt: new Date() })
+                .where(eq(entities.id, entityId))
+                .run()
+              indexEntity(sqlite, entityId, campaignId, entityName, [], [], markdown)
+            }
 
             logger.debug('Hocuspocus: document saved', { documentName, slug })
             return // Success — exit retry loop
@@ -138,7 +181,6 @@ export default defineNitroPlugin(async () => {
               logger.error('Hocuspocus: failed to save document after retries', {
                 documentName, attempts: maxRetries, error: err,
               })
-              // Notify connected clients via Hocuspocus awareness
               try {
                 document.broadcastStateless(JSON.stringify({
                   type: 'save-error',
@@ -146,7 +188,6 @@ export default defineNitroPlugin(async () => {
                 }))
               } catch { /* best-effort notification */ }
             } else {
-              // Exponential backoff: 500ms, 1000ms
               const delay = 500 * Math.pow(2, attempt - 1)
               logger.warn('Hocuspocus: save failed, retrying', {
                 documentName, attempt, delay, error: err,

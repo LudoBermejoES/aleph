@@ -38,9 +38,14 @@
             <span v-for="tag in (entity.frontmatter?.tags || [])" :key="tag" class="text-xs px-2 py-1 rounded bg-primary/10 text-primary">{{ tag }}</span>
           </div>
         </div>
-        <NuxtLink :to="`/campaigns/${campaignId}/entities/${slug}/edit`">
-          <Button variant="outline" size="sm">{{ $t('common.edit') }}</Button>
-        </NuxtLink>
+        <div class="flex gap-2">
+          <NuxtLink :to="`/campaigns/${campaignId}/entities/${slug}/edit`">
+            <Button variant="outline" size="sm">{{ $t('common.edit') }}</Button>
+          </NuxtLink>
+          <NuxtLink v-if="canEdit" :to="`/campaigns/${campaignId}/entities/${slug}/edit?collab=true`">
+            <Button variant="outline" size="sm">{{ $t('collaboration.collaborate') }}</Button>
+          </NuxtLink>
+        </div>
       </div>
       </div>
 
@@ -129,9 +134,6 @@ const previewContent = ref<string | null>(null)
 const contentRef = ref<HTMLElement>()
 const revealedBlocks = ref<Set<string>>(new Set())
 
-// Enable collaborative mode via ?collab=true query param
-const isCollaborative = computed(() => route.query.collab === 'true')
-
 import type { Entity, Mention } from '~/types/api'
 
 const entity = ref<Entity | null>(null)
@@ -140,17 +142,7 @@ const graphData = ref<any>(null)
 const mentions = ref<Mention[]>([])
 const canEdit = ref(false)
 const api = useCampaignApi(campaignId)
-const editing = ref(false)
-const saving = ref(false)
-const editForm = reactive({ name: '', content: '' })
-const userName = ref('Anonymous')
 const { loading, error, withLoading } = useLoadingState()
-
-// Fetch current user name for collaborative cursor
-fetch('/api/auth/get-session', { credentials: 'include' })
-  .then(r => r.json())
-  .then(data => { if (data?.user?.name) userName.value = data.user.name })
-  .catch(() => {})
 
 async function loadEntity() {
   await withLoading(async () => {
@@ -161,8 +153,6 @@ async function loadEntity() {
     entity.value = entityData
     canEdit.value = ['dm', 'co_dm', 'editor'].includes(campaign?.role ?? '')
     campaignRole.value = campaign?.role ?? ''
-    editForm.name = entity.value.name
-    editForm.content = entity.value.content || ''
     // Load child entities
     if (entity.value?.id) {
       const result = await api.getEntities({ parent_id: entity.value.id })
@@ -185,19 +175,6 @@ async function loadEntity() {
       mentions.value = await api.getMentions({ entity_id: entity.value.id }).catch(() => [])
     }
   })
-}
-
-async function saveEntity() {
-  saving.value = true
-  try {
-    await api.updateEntity(slug, { name: editForm.name, content: editForm.content })
-    await loadEntity()
-    editing.value = false
-  } catch (e: any) {
-    error.value = e.data?.message || t('entities.failedSave')
-  } finally {
-    saving.value = false
-  }
 }
 
 async function onPreviewRoleChange(role: string | null) {

@@ -24,6 +24,9 @@
           <NuxtLink :to="`/campaigns/${campaignId}/sessions/${slug}/edit`">
             <Button variant="outline" size="sm">{{ $t('common.edit') }}</Button>
           </NuxtLink>
+          <NuxtLink v-if="canDelete" :to="`/campaigns/${campaignId}/sessions/${slug}/edit?collab=true`">
+            <Button variant="outline" size="sm">{{ $t('collaboration.collaborate') }}</Button>
+          </NuxtLink>
           <select :value="session.status" class="rounded-md border border-input bg-background px-2 py-1 text-sm" :aria-label="$t('aria.filters.sessionStatus')" @change="updateStatus(($event.target as HTMLSelectElement).value)">
             <option value="planned">{{ $t('sessions.statusPlanned') }}</option>
             <option value="active">{{ $t('sessions.statusActive') }}</option>

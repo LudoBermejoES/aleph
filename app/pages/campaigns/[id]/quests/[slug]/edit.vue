@@ -9,7 +9,7 @@
       <span>/</span><span>{{ $t('common.edit') }}</span>
     </div>
     <h1 class="text-2xl font-bold mb-6">{{ $t('quests.edit') }}</h1>
-    <QuestForm ref="questForm" v-if="loaded" v-model="form" :campaign-id="campaignId" :quest-slug="slug" :submit-label="$t('common.save')" :submitting="submitting" @submit="save">
+    <QuestForm ref="questForm" v-if="loaded" v-model="form" :campaign-id="campaignId" :quest-slug="slug" :submit-label="$t('common.save')" :submitting="submitting" :collaborative="isCollaborative" :document-name="documentName" :user-name="userName" :user-color="userColor" @submit="save">
       <template #cancel>
         <NuxtLink :to="`/campaigns/${campaignId}/quests`"><Button variant="outline">{{ $t('common.cancel') }}</Button></NuxtLink>
       </template>
@@ -28,6 +28,10 @@ const loaded = ref(false)
 const error = ref('')
 const { t } = useI18n()
 const form = ref({ name: '', status: 'active', parentQuestId: '', isSecret: false, content: '' })
+
+const isCollaborative = computed(() => route.query.collab === 'true')
+const documentName = computed(() => isCollaborative.value ? `campaign:${campaignId}:quest:${slug}` : undefined)
+const { userName, userColor } = useCollaborationUser()
 
 const api = useCampaignApi(campaignId)
 const questForm = ref<any>(null)

@@ -467,3 +467,67 @@ describe('CrossWS Presence (integration)', () => {
     conn2.ws.close()
   })
 })
+
+describe('Hocuspocus Session/Quest Document Auth (integration)', () => {
+  const dmEmail = `collab-sq-${Date.now()}@example.com`
+  let dmCookie = ''
+  let campaignId = ''
+  let sessionSlug = ''
+  let questSlug = ''
+
+  beforeAll(async () => {
+    await api('/api/auth/sign-up/email', {
+      method: 'POST',
+      body: { name: 'SQ DM', email: dmEmail, password: 'password123' },
+    })
+    const login = await api('/api/auth/sign-in/email', {
+      method: 'POST',
+      body: { email: dmEmail, password: 'password123' },
+    })
+    dmCookie = (login.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1] || ''
+
+    const camp = await api('/api/campaigns', {
+      method: 'POST',
+      headers: { Cookie: `better-auth.session_token=${dmCookie}` },
+      body: { name: `SQ Collab ${Date.now()}` },
+    })
+    campaignId = (await camp.json()).id
+
+    // Create a session
+    const sess = await api(`/api/campaigns/${campaignId}/sessions`, {
+      method: 'POST',
+      headers: { Cookie: `better-auth.session_token=${dmCookie}` },
+      body: { title: 'Collab Session', scheduledDate: new Date().toISOString(), status: 'planned' },
+    })
+    sessionSlug = (await sess.json()).slug
+
+    // Create a quest
+    const quest = await api(`/api/campaigns/${campaignId}/quests`, {
+      method: 'POST',
+      headers: { Cookie: `better-auth.session_token=${dmCookie}` },
+      body: { name: 'Collab Quest', status: 'active' },
+    })
+    questSlug = (await quest.json()).slug
+  })
+
+  it('DM can connect to a session document', async () => {
+    const docName = `campaign:${campaignId}:session:${sessionSlug}`
+    const { provider, connected } = await connectHocuspocus(docName, dmCookie)
+    expect(connected).toBe(true)
+    provider.destroy()
+  })
+
+  it('DM can connect to a quest document', async () => {
+    const docName = `campaign:${campaignId}:quest:${questSlug}`
+    const { provider, connected } = await connectHocuspocus(docName, dmCookie)
+    expect(connected).toBe(true)
+    provider.destroy()
+  })
+
+  it('unknown document type is rejected', async () => {
+    const docName = `campaign:${campaignId}:location:some-slug`
+    const { provider, connected } = await connectHocuspocus(docName, dmCookie)
+    expect(connected).toBe(false)
+    provider.destroy()
+  })
+})

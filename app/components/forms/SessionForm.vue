@@ -47,7 +47,7 @@
     </div>
     <div>
       <label class="text-sm font-medium">{{ $t('sessions.notes') }}</label>
-      <MarkdownEditor v-model="form.content" :placeholder="$t('sessions.notesPlaceholder')" :campaign-id="campaignId" :draft-key="draftKey" class="mt-1" />
+      <MarkdownEditor v-model="form.content" :placeholder="$t('sessions.notesPlaceholder')" :campaign-id="campaignId" :draft-key="draftKey" :collaborative="collaborative" :document-name="documentName" :user-name="userName" :user-color="userColor" class="mt-1" />
     </div>
     <div class="flex justify-end gap-2">
       <slot name="cancel" />
@@ -64,6 +64,10 @@ const props = defineProps<{
   sessionSlug?: string
   submitLabel?: string
   submitting?: boolean
+  collaborative?: boolean
+  documentName?: string
+  userName?: string
+  userColor?: string
 }>()
 
 defineEmits<{ 'update:modelValue': [value: typeof props.modelValue]; submit: [] }>()

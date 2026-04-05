@@ -878,5 +878,13 @@
     "exportButton": "Exportar Datos de la Campaña",
     "exportSuccess": "Campaña exportada correctamente",
     "exportError": "Error al exportar. Por favor, inténtalo de nuevo."
+  },
+  "collaboration": {
+    "editingAlone": "Editando solo",
+    "editingWith": "Editando con",
+    "connected": "Conectado",
+    "reconnecting": "Reconectando...",
+    "disconnected": "Desconectado",
+    "collaborate": "Colaborar"
   }
 }

@@ -20,7 +20,7 @@
         @uploaded="url => entityImageUrl = url"
       />
     </div>
-    <EntityForm ref="entityForm" v-if="loaded" v-model="form" :campaign-id="campaignId" :entity-slug="slug" :submit-label="$t('common.save')" :submitting="submitting" @submit="save">
+    <EntityForm ref="entityForm" v-if="loaded" v-model="form" :campaign-id="campaignId" :entity-slug="slug" :submit-label="$t('common.save')" :submitting="submitting" :collaborative="isCollaborative" :document-name="documentName" :user-name="userName" :user-color="userColor" @submit="save">
       <template #cancel>
         <NuxtLink :to="`/campaigns/${campaignId}/entities/${slug}`"><Button variant="outline">{{ $t('common.cancel') }}</Button></NuxtLink>
       </template>
@@ -38,6 +38,10 @@ const loaded = ref(false)
 const { t } = useI18n()
 const form = ref({ name: '', type: 'note', visibility: 'members', tagsRaw: '', content: '' })
 const entityImageUrl = ref<string | null>(null)
+
+const isCollaborative = computed(() => route.query.collab === 'true')
+const documentName = computed(() => isCollaborative.value ? `campaign:${campaignId}:entity:${slug}` : undefined)
+const { userName, userColor } = useCollaborationUser()
 
 const api = useCampaignApi(campaignId)
 const entityForm = ref<any>(null)

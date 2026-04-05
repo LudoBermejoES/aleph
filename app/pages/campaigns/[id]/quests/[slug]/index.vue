@@ -26,6 +26,9 @@
           <NuxtLink :to="`/campaigns/${campaignId}/quests/${slug}/edit`">
             <Button variant="outline" size="sm">{{ $t('common.edit') }}</Button>
           </NuxtLink>
+          <NuxtLink :to="`/campaigns/${campaignId}/quests/${slug}/edit?collab=true`">
+            <Button variant="outline" size="sm">{{ $t('collaboration.collaborate') }}</Button>
+          </NuxtLink>
         </div>
       </div>
 

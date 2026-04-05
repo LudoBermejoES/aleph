@@ -9,7 +9,7 @@
       <span>/</span><span>{{ $t('common.edit') }}</span>
     </div>
     <h1 class="text-2xl font-bold mb-6">{{ $t('sessions.edit') }}</h1>
-    <SessionForm ref="sessionForm" v-if="loaded" v-model="form" :campaign-id="campaignId" :session-slug="slug" :submit-label="$t('common.save')" :submitting="submitting" @submit="save">
+    <SessionForm ref="sessionForm" v-if="loaded" v-model="form" :campaign-id="campaignId" :session-slug="slug" :submit-label="$t('common.save')" :submitting="submitting" :collaborative="isCollaborative" :document-name="documentName" :user-name="userName" :user-color="userColor" @submit="save">
       <template #cancel>
         <NuxtLink :to="`/campaigns/${campaignId}/sessions/${slug}`"><Button variant="outline">{{ $t('common.cancel') }}</Button></NuxtLink>
       </template>
@@ -26,6 +26,10 @@ const submitting = ref(false)
 const loaded = ref(false)
 const { t } = useI18n()
 const form = ref({ title: '', scheduledDate: '', status: 'planned', content: '', groupSlug: '', arcId: '', chapterId: '' })
+
+const isCollaborative = computed(() => route.query.collab === 'true')
+const documentName = computed(() => isCollaborative.value ? `campaign:${campaignId}:session:${slug}` : undefined)
+const { userName, userColor } = useCollaborationUser()
 
 const api = useCampaignApi(campaignId)
 const sessionForm = ref<any>(null)
