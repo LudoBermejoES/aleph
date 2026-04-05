@@ -6,7 +6,7 @@ import * as path from 'path'
 import * as fs from 'fs'
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
-const CLI = 'node /Users/ludo/code/aleph/cli/bin/aleph.js'
+const CLI = `node ${path.resolve(__dirname, '../../cli/bin/aleph.js')}`
 
 async function apiRaw(url: string, opts?: any) {
   return fetch(`${BASE_URL}${url}`, {
