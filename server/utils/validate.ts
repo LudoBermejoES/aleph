@@ -1,4 +1,4 @@
-import { ZodSchema, ZodError, type ZodIssue } from 'zod'
+import { type ZodSchema, ZodError, type ZodIssue } from 'zod'
 import { readBody, createError } from 'h3'
 import type { H3Event } from 'h3'
 
