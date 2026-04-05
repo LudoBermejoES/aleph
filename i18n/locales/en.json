@@ -29,7 +29,8 @@
     "item": "Item",
     "quantity": "Quantity",
     "campaign": "Campaign",
-    "deleting": "Deleting..."
+    "deleting": "Deleting...",
+    "you": "you"
   },
   "auth": {
     "signIn": "Sign In",
@@ -858,5 +859,18 @@
     "forms": {
       "characterFilterToolbar": "Character filters"
     }
+  },
+  "secrets": {
+    "reveal": "Reveal",
+    "unreveal": "Unreveal",
+    "revealed": "Revealed",
+    "revealedBy": "Revealed by",
+    "previewAs": "Preview as",
+    "previewBanner": "Previewing as: {role}",
+    "secretNotes": "DM Secret Notes",
+    "secretNotesPlaceholder": "Private notes only visible to the DM...",
+    "noSecretNotes": "No secret notes yet.",
+    "saveNotes": "Save notes",
+    "notesSaved": "Saved!"
   }
 }

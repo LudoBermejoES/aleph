@@ -8,11 +8,16 @@ import { Node } from '@tiptap/core'
  *   Secret content here.
  *   :::
  *
+ *   :::secret{.dm #my-secret-id}
+ *   Secret with reveal ID.
+ *   :::
+ *
  *   :::secret{.player:alice}
  *   Only Alice sees this.
  *   :::
  *
  * HTML rendering: <div data-secret data-role="dm">content</div>
+ *                 <div data-secret data-role="dm" data-secret-id="my-secret-id">content</div>
  */
 export const SecretBlock = Node.create({
   name: 'secret-block',
@@ -27,6 +32,12 @@ export const SecretBlock = Node.create({
         renderHTML: (attributes: Record<string, unknown>) => ({
           'data-role': attributes.role,
         }),
+      },
+      id: {
+        default: null,
+        parseHTML: (element: HTMLElement) => element.getAttribute('data-secret-id') || null,
+        renderHTML: (attributes: Record<string, unknown>) =>
+          attributes.id ? { 'data-secret-id': attributes.id } : {},
       },
     }
   },
@@ -54,12 +65,12 @@ export const SecretBlock = Node.create({
     },
 
     tokenize(src: string, _tokens: any, lexer: any) {
-      // Match :::secret{.role}\ncontent\n:::
-      const match = /^:::secret\{\.([^}]+)\}\n([\s\S]*?)\n:::\n?/.exec(src)
+      // Match :::secret{.role} or :::secret{.role #id}\ncontent\n:::
+      const match = /^:::secret\{\.([^}#\s]+)(?:\s+#([^}]+))?\}\n([\s\S]*?)\n:::\n?/.exec(src)
       if (!match) return undefined
 
       // Add trailing newline so MarkedJS recognizes the paragraph properly
-      const innerText = match[2].endsWith('\n') ? match[2] : match[2] + '\n'
+      const innerText = match[3].endsWith('\n') ? match[3] : match[3] + '\n'
       const innerTokens = lexer.blockTokens(innerText)
       // Populate inline tokens within each block token
       for (const tok of innerTokens) {
@@ -72,7 +83,8 @@ export const SecretBlock = Node.create({
         type: 'secret-block',
         raw: match[0],
         role: match[1],
-        text: match[2],
+        secretId: match[2] || null,
+        text: match[3],
         tokens: innerTokens,
       }
     },
@@ -81,14 +93,16 @@ export const SecretBlock = Node.create({
   parseMarkdown(token: any, helpers: any) {
     return {
       type: 'secret-block',
-      attrs: { role: token.role || 'dm' },
+      attrs: { role: token.role || 'dm', id: token.secretId || null },
       content: helpers.parseChildren(token.tokens || []),
     }
   },
 
   renderMarkdown(node: any, helpers: any) {
     const role = node.attrs?.role || 'dm'
+    const id = node.attrs?.id
     const content = helpers.renderChildren(node.content || [])
-    return `:::secret{.${role}}\n${content}:::\n\n`
+    const attrs = id ? `.${role} #${id}` : `.${role}`
+    return `:::secret{${attrs}}\n${content}:::\n\n`
   },
 })

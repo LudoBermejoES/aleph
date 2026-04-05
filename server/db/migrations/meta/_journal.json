@@ -127,6 +127,13 @@
       "when": 1775372313670,
       "tag": "0017_superb_iron_monger",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "6",
+      "when": 1775385079080,
+      "tag": "0018_sturdy_synch",
+      "breakpoints": true
     }
   ]
 }

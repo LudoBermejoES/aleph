@@ -17,10 +17,13 @@ interface CampaignNotification {
   timestamp: number
 }
 
+type SecretEventHandler = (data: { entityId: string; entitySlug: string; blockId: string }) => void
+
 export function useCampaignSocket(campaignId: Ref<string | undefined>) {
   const presenceUsers = ref<PresenceUser[]>([])
   const notifications = ref<CampaignNotification[]>([])
   const connected = ref(false)
+  const secretEventHandlers = new Set<{ event: string; handler: SecretEventHandler }>()
 
   let ws: WebSocket | null = null
 
@@ -88,6 +91,16 @@ export function useCampaignSocket(campaignId: Ref<string | undefined>) {
           break
         }
 
+        case 'secret:reveal':
+        case 'secret:unreveal': {
+          for (const entry of secretEventHandlers) {
+            if (entry.event === data.type) {
+              entry.handler({ entityId: data.entityId, entitySlug: data.entitySlug, blockId: data.blockId })
+            }
+          }
+          break
+        }
+
         case 'error':
           console.error('[Aleph:WS] Server error:', data.message)
           break
@@ -130,6 +143,12 @@ export function useCampaignSocket(campaignId: Ref<string | undefined>) {
     notifications.value = notifications.value.filter(n => n.id !== id)
   }
 
+  function onSecretEvent(event: 'secret:reveal' | 'secret:unreveal', handler: SecretEventHandler) {
+    const entry = { event, handler }
+    secretEventHandlers.add(entry)
+    return () => secretEventHandlers.delete(entry)
+  }
+
   // Auto-connect/disconnect when campaignId changes
   watch(campaignId, (newId, oldId) => {
     if (oldId) disconnect()
@@ -147,5 +166,6 @@ export function useCampaignSocket(campaignId: Ref<string | undefined>) {
     connected: readonly(connected),
     sendNotification,
     dismissNotification,
+    onSecretEvent,
   }
 }

@@ -29,7 +29,8 @@
     "item": "Objeto",
     "quantity": "Cantidad",
     "campaign": "Campaña",
-    "deleting": "Eliminando..."
+    "deleting": "Eliminando...",
+    "you": "tú"
   },
   "auth": {
     "signIn": "Iniciar sesión",
@@ -858,5 +859,18 @@
     "forms": {
       "characterFilterToolbar": "Filtros de personajes"
     }
+  },
+  "secrets": {
+    "reveal": "Revelar",
+    "unreveal": "Ocultar",
+    "revealed": "Revelado",
+    "revealedBy": "Revelado por",
+    "previewAs": "Previsualizar como",
+    "previewBanner": "Previsualizando como: {role}",
+    "secretNotes": "Notas secretas del DJ",
+    "secretNotesPlaceholder": "Notas privadas solo visibles para el DJ...",
+    "noSecretNotes": "Sin notas secretas aún.",
+    "saveNotes": "Guardar notas",
+    "notesSaved": "¡Guardado!"
   }
 }

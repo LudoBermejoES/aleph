@@ -56,21 +56,30 @@ const ROLE_LEVEL: Record<string, number> = {
 /**
  * Strip :::secret{.role} blocks from markdown content based on the user's campaign role.
  * DM and Co-DM always see everything.
+ *
+ * @param revealedBlockIds - Optional set of block IDs that have been explicitly revealed.
+ *   If a block has an ID in this set, its content is shown without the secret wrapper
+ *   (regardless of the user's role).
  */
-export function stripSecretBlocks(content: string, userRole: string): string {
+export function stripSecretBlocks(content: string, userRole: string, revealedBlockIds?: Set<string>): string {
   if ((ROLE_LEVEL[userRole] ?? 0) >= (ROLE_LEVEL['co_dm'] ?? 4)) return content
 
-  // Match :::secret{.SPEC}\n...\n:::\n patterns
+  // Match :::secret{.SPEC} or :::secret{.SPEC #id}\n...\n:::\n patterns
   return content.replace(
-    /:::secret\{\.([^}]*)\}\s*\n([\s\S]*?):::\s*\n?/g,
-    (_match, spec: string, _body: string) => {
+    /:::secret\{\.([^}#\s]+)(?:\s+#([^}]+))?\}\s*\n([\s\S]*?):::\s*\n?/g,
+    (_match, spec: string, blockId: string | undefined, body: string) => {
       const colonIndex = spec.indexOf(':')
       const requiredRole = colonIndex !== -1 ? spec.substring(0, colonIndex) : (spec || 'dm')
       const requiredLevel = ROLE_LEVEL[requiredRole] ?? 5
       const userLevel = ROLE_LEVEL[userRole] ?? 0
 
-      if (userLevel >= requiredLevel) return _match // keep the block
-      return '' // strip the block
+      // If explicitly revealed, show content without the wrapper
+      if (blockId && revealedBlockIds?.has(blockId)) {
+        return body + '\n'
+      }
+
+      if (userLevel >= requiredLevel) return _match // keep the block with wrapper
+      return '' // strip the block entirely
     },
   )
 }

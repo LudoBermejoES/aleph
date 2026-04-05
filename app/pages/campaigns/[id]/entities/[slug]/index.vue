@@ -11,6 +11,13 @@
         <span class="text-foreground">{{ entity.name }}</span>
       </div>
 
+      <!-- Preview role switcher (DM only) -->
+      <EntityPreviewRoleSwitcher
+        v-if="campaignRole"
+        :campaign-role="campaignRole"
+        @change="onPreviewRoleChange"
+      />
+
       <!-- Header with image -->
       <div class="flex items-start gap-6 mb-6">
         <EntityImage
@@ -46,8 +53,9 @@
       </div>
 
       <!-- Markdown Content -->
-      <div class="prose dark:prose-invert max-w-none text-foreground">
-        <MDC v-if="entity.content" :value="entity.content" />
+      <div ref="contentRef" class="prose dark:prose-invert max-w-none text-foreground">
+        <MDC v-if="previewContent !== null" :value="previewContent" />
+        <MDC v-else-if="entity.content" :value="entity.content" />
         <p v-else class="text-muted-foreground italic">{{ $t('entities.noContent') }}</p>
       </div>
 
@@ -94,6 +102,14 @@
           </NuxtLink>
         </div>
       </div>
+
+      <!-- Secret Notes (DM only) -->
+      <EntitySecretNotes
+        v-if="campaignRole"
+        :campaign-id="campaignId"
+        :entity-slug="slug"
+        :campaign-role="campaignRole"
+      />
     </div>
     <div v-else class="text-center py-16">
       <p class="text-muted-foreground">{{ $t('entities.notFound') }}</p>
@@ -108,6 +124,10 @@ const route = useRoute()
 const campaignId = route.params.id as string
 const slug = route.params.slug as string
 const { t } = useI18n()
+const campaignRole = ref<string>('')
+const previewContent = ref<string | null>(null)
+const contentRef = ref<HTMLElement>()
+const revealedBlocks = ref<Set<string>>(new Set())
 
 // Enable collaborative mode via ?collab=true query param
 const isCollaborative = computed(() => route.query.collab === 'true')
@@ -140,6 +160,7 @@ async function loadEntity() {
     ])
     entity.value = entityData
     canEdit.value = ['dm', 'co_dm', 'editor'].includes(campaign?.role ?? '')
+    campaignRole.value = campaign?.role ?? ''
     editForm.name = entity.value.name
     editForm.content = entity.value.content || ''
     // Load child entities
@@ -179,11 +200,84 @@ async function saveEntity() {
   }
 }
 
+async function onPreviewRoleChange(role: string | null) {
+  if (!role) {
+    previewContent.value = null
+    return
+  }
+  try {
+    const res = await fetch(`/api/campaigns/${campaignId}/entities/${slug}/render?preview_as=${role}`, {
+      credentials: 'include',
+    })
+    if (res.ok) {
+      const data = await res.json()
+      previewContent.value = data.content
+    }
+  } catch { /* silently ignore */ }
+}
+
 function onGraphNodeClick(nodeId: string) {
   // Navigate to the related entity -- nodeId is the entity ID
   // For now, we don't have slug lookup, so navigate to graph page
   navigateTo(`/campaigns/${campaignId}/graph`)
 }
 
-onMounted(loadEntity)
+// Load revealed secret block IDs for DM view
+async function loadRevealedBlocks() {
+  if (!['dm', 'co_dm'].includes(campaignRole.value)) return
+  try {
+    const res = await fetch(`/api/campaigns/${campaignId}/entities/${slug}/secrets`, { credentials: 'include' })
+    if (res.ok) {
+      const data = await res.json()
+      revealedBlocks.value = new Set(data.map((r: any) => r.blockId))
+    }
+  } catch { /* silently ignore */ }
+}
+
+// Inject reveal buttons into secret blocks after render
+function injectRevealButtons() {
+  if (!contentRef.value || !['dm', 'co_dm'].includes(campaignRole.value)) return
+  const blocks = contentRef.value.querySelectorAll('[data-secret][data-secret-id]')
+  for (const block of blocks) {
+    const blockId = block.getAttribute('data-secret-id')!
+    if (block.querySelector('[data-reveal-btn]')) continue // already injected
+    const btn = document.createElement('button')
+    btn.setAttribute('data-reveal-btn', blockId)
+    const isRevealed = revealedBlocks.value.has(blockId)
+    btn.className = `text-xs px-2 py-0.5 rounded font-medium transition-colors ml-2 ${isRevealed ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-amber-100 text-amber-700 hover:bg-amber-200'}`
+    btn.textContent = isRevealed ? t('secrets.unreveal') : t('secrets.reveal')
+    btn.addEventListener('click', async () => {
+      const revealed = revealedBlocks.value.has(blockId)
+      if (revealed) {
+        await fetch(`/api/campaigns/${campaignId}/entities/${slug}/secrets/${blockId}`, { method: 'DELETE', credentials: 'include' })
+        revealedBlocks.value = new Set([...revealedBlocks.value].filter(id => id !== blockId))
+      } else {
+        await fetch(`/api/campaigns/${campaignId}/entities/${slug}/secrets`, {
+          method: 'POST', credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ blockId }),
+        })
+        revealedBlocks.value = new Set([...revealedBlocks.value, blockId])
+      }
+      // Re-inject after state change
+      block.querySelector('[data-reveal-btn]')?.remove()
+      injectRevealButtons()
+    })
+    block.prepend(btn)
+  }
+}
+
+onMounted(async () => {
+  await loadEntity()
+  await loadRevealedBlocks()
+  await nextTick()
+  injectRevealButtons()
+})
+
+watch(revealedBlocks, async () => {
+  await nextTick()
+  // Remove all existing buttons and re-inject with updated state
+  contentRef.value?.querySelectorAll('[data-reveal-btn]').forEach(b => b.remove())
+  injectRevealButtons()
+})
 </script>

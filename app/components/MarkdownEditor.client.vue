@@ -533,6 +533,28 @@ onUnmounted(() => {
   font-weight: 500;
   cursor: pointer;
 }
+/* Secret block styles in editor */
+.ProseMirror div[data-secret] {
+  border-left: 3px solid hsl(var(--destructive) / 0.6);
+  background: hsl(var(--destructive) / 0.05);
+  padding: 0.5rem 0.75rem;
+  margin: 0.5rem 0;
+  border-radius: 0 0.25rem 0.25rem 0;
+  position: relative;
+}
+.ProseMirror div[data-secret]::before {
+  content: attr(data-role) " secret";
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: hsl(var(--destructive));
+  letter-spacing: 0.05em;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+.ProseMirror div[data-secret][data-secret-id]::before {
+  content: attr(data-role) " secret  #" attr(data-secret-id);
+}
 /* Image styles */
 .ProseMirror img {
   max-width: 100%;
