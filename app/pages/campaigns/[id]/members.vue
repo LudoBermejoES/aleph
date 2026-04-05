@@ -60,6 +60,7 @@
             @change="changeRole(member.userId, ($event.target as HTMLSelectElement).value)"
             class="rounded-md border border-input bg-background px-2 py-1 text-sm"
             :disabled="member.role === 'dm'"
+            :aria-label="$t('aria.filters.memberRole')"
           >
             <option value="dm" disabled>{{ $t('members.dm') }}</option>
             <option value="co_dm">{{ $t('members.coDm') }}</option>

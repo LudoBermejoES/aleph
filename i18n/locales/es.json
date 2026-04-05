@@ -659,7 +659,11 @@
       "insertLink": "Insertar enlace",
       "insertTable": "Insertar tabla",
       "insertImage": "Insertar imagen"
-    }
+    },
+    "insertLink": "Insertar enlace",
+    "linkUrl": "URL",
+    "linkUrlPlaceholder": "https://ejemplo.com",
+    "insertLinkButton": "Insertar"
   },
   "errors": {
     "generic": "Algo salió mal",
@@ -776,5 +780,49 @@
     "failedSave": "Error al guardar el lugar",
     "failedLoad": "Error al cargar el lugar",
     "inhabitantCount": "{count} habitante | {count} habitantes"
+  },
+  "aria": {
+    "markdownEditor": {
+      "undo": "Deshacer",
+      "redo": "Rehacer",
+      "bold": "Negrita",
+      "italic": "Cursiva",
+      "strikethrough": "Tachado",
+      "inlineCode": "Código en línea",
+      "heading1": "Encabezado 1",
+      "heading2": "Encabezado 2",
+      "heading3": "Encabezado 3",
+      "bulletList": "Lista con viñetas",
+      "orderedList": "Lista numerada",
+      "taskList": "Lista de tareas",
+      "blockquote": "Cita",
+      "codeBlock": "Bloque de código",
+      "horizontalRule": "Línea horizontal",
+      "insertLink": "Insertar enlace",
+      "insertTable": "Insertar tabla",
+      "insertImage": "Insertar imagen"
+    },
+    "diceRoller": {
+      "rollD4": "Lanzar d4",
+      "rollD6": "Lanzar d6",
+      "rollD8": "Lanzar d8",
+      "rollD10": "Lanzar d10",
+      "rollD12": "Lanzar d12",
+      "rollD20": "Lanzar d20"
+    },
+    "filters": {
+      "entityType": "Filtrar por tipo de entidad",
+      "characterStatus": "Filtrar por estado del personaje",
+      "inventoryOwnerType": "Filtrar por tipo de propietario",
+      "inventoryCreateOwnerType": "Seleccionar tipo de propietario",
+      "sessionStatus": "Estado de la sesión",
+      "sessionDecisionType": "Tipo de decisión",
+      "memberRole": "Cambiar rol del miembro",
+      "locationCharacter": "Seleccionar personaje",
+      "locationOrganization": "Seleccionar organización"
+    },
+    "forms": {
+      "characterFilterToolbar": "Filtros de personajes"
+    }
   }
 }

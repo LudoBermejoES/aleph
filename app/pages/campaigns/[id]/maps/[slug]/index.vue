@@ -1,6 +1,8 @@
 <template>
   <div class="p-8">
-    <div v-if="mapData">
+    <LoadingSkeleton v-if="loading" :rows="3" />
+    <ErrorToast v-if="error" :message="error" @dismiss="error = null" />
+    <div v-else-if="mapData">
       <!-- Breadcrumb -->
       <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
         <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary"> {{ $t('common.campaign') }}</NuxtLink>
@@ -77,9 +79,12 @@ import type { CampaignMap } from '~/types/api'
 
 const mapData = ref<CampaignMap | null>(null)
 const api = useCampaignApi(campaignId)
+const { loading, error, withLoading } = useLoadingState()
 
 async function load() {
-  mapData.value = await api.getMap(slug).catch(() => null)
+  await withLoading(async () => {
+    mapData.value = await api.getMap(slug)
+  })
 }
 
 function onPinClick(pin: any) {

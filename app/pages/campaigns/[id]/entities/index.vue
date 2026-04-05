@@ -14,9 +14,12 @@
       </NuxtLink>
     </div>
 
+    <LoadingSkeleton v-if="loading" :rows="4" />
+    <ErrorToast v-if="error" :message="error" @dismiss="error = null" />
+
     <!-- Filters -->
     <div class="flex gap-3 mb-6">
-      <select v-model="filters.type" @change="loadEntities" class="rounded-md border border-input bg-background px-3 py-2 text-sm">
+      <select v-model="filters.type" @change="loadEntities" class="rounded-md border border-input bg-background px-3 py-2 text-sm" :aria-label="$t('aria.filters.entityType')">
         <option value="">{{ $t('entities.allTypes') }}</option>
         <option v-for="t in entityTypes" :key="t.slug" :value="t.slug">{{ t.name }}</option>
       </select>
@@ -68,10 +71,10 @@ import type { Entity, EntityType } from '~/types/api'
 
 const entities = ref<Entity[]>([])
 const entityTypes = ref<EntityType[]>([])
-const loading = ref(true)
 const filters = reactive({ type: '', search: '' })
 const pagination = reactive({ page: 1, limit: 50, total: 0, totalPages: 0 })
 const api = useCampaignApi(campaignId)
+const { loading, error, withLoading } = useLoadingState()
 
 let searchTimeout: ReturnType<typeof setTimeout>
 function debouncedSearch() {
@@ -80,8 +83,7 @@ function debouncedSearch() {
 }
 
 async function loadEntities() {
-  loading.value = true
-  try {
+  await withLoading(async () => {
     const params: Record<string, string> = {
       page: String(pagination.page),
       limit: String(pagination.limit),
@@ -92,11 +94,7 @@ async function loadEntities() {
     const result = await api.getEntities(params)
     entities.value = result.entities
     Object.assign(pagination, result.pagination)
-  } catch {
-    entities.value = []
-  } finally {
-    loading.value = false
-  }
+  })
 }
 
 async function loadEntityTypes() {

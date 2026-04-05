@@ -51,10 +51,12 @@
       :title="$t('sessionGroups.empty')" :description="$t('sessionGroups.emptyDescription')" />
 
     <!-- Create/Edit dialog -->
-    <div v-if="showForm" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" @click.self="showForm = false">
-      <div class="bg-background rounded-lg p-6 w-full max-w-md shadow-xl">
-        <h2 class="text-lg font-semibold mb-4">{{ editingGroup ? $t('sessionGroups.edit') : $t('sessionGroups.new') }}</h2>
-        <div class="space-y-4">
+    <Dialog v-model:open="showForm">
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{{ editingGroup ? $t('sessionGroups.edit') : $t('sessionGroups.new') }}</DialogTitle>
+        </DialogHeader>
+        <div class="space-y-4 py-2">
           <div>
             <label class="text-sm font-medium">{{ $t('sessionGroups.name') }}</label>
             <input v-model="formData.name" type="text" :placeholder="$t('sessionGroups.namePlaceholder')"
@@ -66,14 +68,14 @@
               class="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
           </div>
         </div>
-        <div class="flex justify-end gap-2 mt-6">
+        <DialogFooter>
           <Button variant="outline" @click="showForm = false">{{ $t('common.cancel') }}</Button>
           <Button @click="saveGroup" :disabled="!formData.name.trim() || saving">
             {{ saving ? $t('common.saving') : $t('common.save') }}
           </Button>
-        </div>
-      </div>
-    </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
 
     <ErrorToast v-if="error" :message="error" @dismiss="dismissError" />
   </div>
@@ -81,6 +83,7 @@
 
 <script setup lang="ts">
 import { ICONS } from '~/utils/icons'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '~/components/ui/dialog'
 
 const route = useRoute()
 const campaignId = route.params.id as string

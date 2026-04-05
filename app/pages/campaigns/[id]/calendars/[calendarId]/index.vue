@@ -1,6 +1,8 @@
 <template>
   <div class="p-8">
-    <div v-if="calendar">
+    <LoadingSkeleton v-if="loading" :rows="4" />
+    <ErrorToast v-if="error" :message="error" @dismiss="error = null" />
+    <div v-else-if="calendar">
       <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
         <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary"> {{ $t('common.campaign') }}</NuxtLink>
         <span>/</span>
@@ -89,6 +91,7 @@ import type { Calendar, CalendarEvent } from '~/types/api'
 const calendar = ref<Calendar | null>(null)
 const events = ref<CalendarEvent[]>([])
 const api = useCampaignApi(campaignId)
+const { loading, error, withLoading } = useLoadingState()
 const viewMonth = ref(1)
 const viewYear = ref(1)
 const showAdvance = ref(false)
@@ -198,10 +201,12 @@ async function advanceDate() {
 }
 
 async function load() {
-  calendar.value = await api.getCalendar(calendarId).catch(() => null)
-  viewMonth.value = currentDate.value.month || 1
-  viewYear.value = currentDate.value.year || 1
-  events.value = await api.getCalendarEvents(calendarId, { from_year: viewYear.value, to_year: viewYear.value }).catch(() => [])
+  await withLoading(async () => {
+    calendar.value = await api.getCalendar(calendarId)
+    viewMonth.value = currentDate.value.month || 1
+    viewYear.value = currentDate.value.year || 1
+    events.value = await api.getCalendarEvents(calendarId, { from_year: viewYear.value, to_year: viewYear.value }).catch(() => [])
+  })
 }
 
 onMounted(load)

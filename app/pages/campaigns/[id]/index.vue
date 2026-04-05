@@ -1,6 +1,7 @@
 <template>
   <div class="p-8">
-    <div v-if="campaign" class="space-y-8">
+    <LoadingSkeleton v-if="!campaign" :rows="4" />
+    <div v-else class="space-y-8">
       <div class="flex items-center justify-between">
         <div>
           <h1 class="text-3xl font-bold">{{ campaign.name }}</h1>

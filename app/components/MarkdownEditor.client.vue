@@ -11,45 +11,45 @@
     <!-- Toolbar -->
     <div class="flex flex-wrap items-center gap-0.5 p-2 border-b border-border bg-muted/30">
       <!-- Undo/Redo -->
-      <button type="button" @mousedown.prevent="undo" class="p-1.5 rounded text-xs hover:bg-accent" :title="$t('editor.toolbar.undo')">↩</button>
-      <button type="button" @mousedown.prevent="redo" class="p-1.5 rounded text-xs hover:bg-accent" :title="$t('editor.toolbar.redo')">↪</button>
+      <button type="button" @mousedown.prevent="undo" class="p-1.5 rounded text-xs hover:bg-accent" :title="$t('editor.toolbar.undo')" :aria-label="$t('aria.markdownEditor.undo')">↩</button>
+      <button type="button" @mousedown.prevent="redo" class="p-1.5 rounded text-xs hover:bg-accent" :title="$t('editor.toolbar.redo')" :aria-label="$t('aria.markdownEditor.redo')">↪</button>
       <div class="w-px h-4 bg-border mx-1" />
 
       <!-- Text formatting -->
-      <button type="button" @mousedown.prevent="toggleBold" :class="['p-1.5 rounded text-xs font-bold', editorState?.isBold ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.bold')">B</button>
-      <button type="button" @mousedown.prevent="toggleItalic" :class="['p-1.5 rounded text-xs italic', editorState?.isItalic ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.italic')">I</button>
-      <button type="button" @mousedown.prevent="toggleStrike" :class="['p-1.5 rounded text-xs line-through', editorState?.isStrike ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.strikethrough')">S</button>
-      <button type="button" @mousedown.prevent="toggleCode" :class="['p-1.5 rounded text-xs font-mono', editorState?.isCode ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.inlineCode')">&lt;/&gt;</button>
+      <button type="button" @mousedown.prevent="toggleBold" :class="['p-1.5 rounded text-xs font-bold', editorState?.isBold ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.bold')" :aria-label="$t('aria.markdownEditor.bold')" :aria-pressed="editorState?.isBold">B</button>
+      <button type="button" @mousedown.prevent="toggleItalic" :class="['p-1.5 rounded text-xs italic', editorState?.isItalic ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.italic')" :aria-label="$t('aria.markdownEditor.italic')" :aria-pressed="editorState?.isItalic">I</button>
+      <button type="button" @mousedown.prevent="toggleStrike" :class="['p-1.5 rounded text-xs line-through', editorState?.isStrike ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.strikethrough')" :aria-label="$t('aria.markdownEditor.strikethrough')" :aria-pressed="editorState?.isStrike">S</button>
+      <button type="button" @mousedown.prevent="toggleCode" :class="['p-1.5 rounded text-xs font-mono', editorState?.isCode ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.inlineCode')" :aria-label="$t('aria.markdownEditor.inlineCode')" :aria-pressed="editorState?.isCode">&lt;/&gt;</button>
       <div class="w-px h-4 bg-border mx-1" />
 
       <!-- Headings -->
-      <button type="button" @mousedown.prevent="setHeading(1)" :class="['p-1.5 rounded text-xs', editorState?.isH1 ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.heading1')">H1</button>
-      <button type="button" @mousedown.prevent="setHeading(2)" :class="['p-1.5 rounded text-xs', editorState?.isH2 ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.heading2')">H2</button>
-      <button type="button" @mousedown.prevent="setHeading(3)" :class="['p-1.5 rounded text-xs', editorState?.isH3 ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.heading3')">H3</button>
+      <button type="button" @mousedown.prevent="setHeading(1)" :class="['p-1.5 rounded text-xs', editorState?.isH1 ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.heading1')" :aria-label="$t('aria.markdownEditor.heading1')" :aria-pressed="editorState?.isH1">H1</button>
+      <button type="button" @mousedown.prevent="setHeading(2)" :class="['p-1.5 rounded text-xs', editorState?.isH2 ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.heading2')" :aria-label="$t('aria.markdownEditor.heading2')" :aria-pressed="editorState?.isH2">H2</button>
+      <button type="button" @mousedown.prevent="setHeading(3)" :class="['p-1.5 rounded text-xs', editorState?.isH3 ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.heading3')" :aria-label="$t('aria.markdownEditor.heading3')" :aria-pressed="editorState?.isH3">H3</button>
       <div class="w-px h-4 bg-border mx-1" />
 
       <!-- Lists -->
-      <button type="button" @mousedown.prevent="toggleBulletList" :class="['p-1.5 rounded text-xs', editorState?.isBulletList ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.bulletList')">• List</button>
-      <button type="button" @mousedown.prevent="toggleOrderedList" :class="['p-1.5 rounded text-xs', editorState?.isOrderedList ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.orderedList')">1. List</button>
-      <button type="button" @mousedown.prevent="toggleTaskList" :class="['p-1.5 rounded text-xs', editorState?.isTaskList ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.taskList')">☑ Tasks</button>
+      <button type="button" @mousedown.prevent="toggleBulletList" :class="['p-1.5 rounded text-xs', editorState?.isBulletList ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.bulletList')" :aria-label="$t('aria.markdownEditor.bulletList')" :aria-pressed="editorState?.isBulletList">• List</button>
+      <button type="button" @mousedown.prevent="toggleOrderedList" :class="['p-1.5 rounded text-xs', editorState?.isOrderedList ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.orderedList')" :aria-label="$t('aria.markdownEditor.orderedList')" :aria-pressed="editorState?.isOrderedList">1. List</button>
+      <button type="button" @mousedown.prevent="toggleTaskList" :class="['p-1.5 rounded text-xs', editorState?.isTaskList ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.taskList')" :aria-label="$t('aria.markdownEditor.taskList')" :aria-pressed="editorState?.isTaskList">☑ Tasks</button>
       <div class="w-px h-4 bg-border mx-1" />
 
       <!-- Blocks -->
-      <button type="button" @mousedown.prevent="toggleBlockquote" :class="['p-1.5 rounded text-xs', editorState?.isBlockquote ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.blockquote')">❝ Quote</button>
-      <button type="button" @mousedown.prevent="toggleCodeBlock" :class="['p-1.5 rounded text-xs font-mono', editorState?.isCodeBlock ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.codeBlock')">{} Block</button>
-      <button type="button" @mousedown.prevent="insertHorizontalRule" class="p-1.5 rounded text-xs hover:bg-accent" :title="$t('editor.toolbar.horizontalRule')">— HR</button>
+      <button type="button" @mousedown.prevent="toggleBlockquote" :class="['p-1.5 rounded text-xs', editorState?.isBlockquote ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.blockquote')" :aria-label="$t('aria.markdownEditor.blockquote')" :aria-pressed="editorState?.isBlockquote">❝ Quote</button>
+      <button type="button" @mousedown.prevent="toggleCodeBlock" :class="['p-1.5 rounded text-xs font-mono', editorState?.isCodeBlock ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.codeBlock')" :aria-label="$t('aria.markdownEditor.codeBlock')" :aria-pressed="editorState?.isCodeBlock">{} Block</button>
+      <button type="button" @mousedown.prevent="insertHorizontalRule" class="p-1.5 rounded text-xs hover:bg-accent" :title="$t('editor.toolbar.horizontalRule')" :aria-label="$t('aria.markdownEditor.horizontalRule')">— HR</button>
       <div class="w-px h-4 bg-border mx-1" />
 
       <!-- Link -->
-      <button type="button" @mousedown.prevent="insertLink" :class="['p-1.5 rounded text-xs', editorState?.isLink ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.insertLink')">🔗 Link</button>
+      <button type="button" @mousedown.prevent="insertLink($event)" :class="['p-1.5 rounded text-xs', editorState?.isLink ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.insertLink')" :aria-label="$t('aria.markdownEditor.insertLink')">🔗 Link</button>
 
       <!-- Table -->
-      <button type="button" @mousedown.prevent="insertTable" class="p-1.5 rounded text-xs hover:bg-accent" :title="$t('editor.toolbar.insertTable')">⊞ Table</button>
+      <button type="button" @mousedown.prevent="insertTable" class="p-1.5 rounded text-xs hover:bg-accent" :title="$t('editor.toolbar.insertTable')" :aria-label="$t('aria.markdownEditor.insertTable')">⊞ Table</button>
 
       <!-- Image (only shown when campaignId provided) -->
       <template v-if="campaignId">
         <div class="w-px h-4 bg-border mx-1" />
-        <button type="button" @mousedown.prevent="triggerImagePicker" class="p-1.5 rounded text-xs hover:bg-accent" :title="$t('editor.toolbar.insertImage')">🖼 Image</button>
+        <button type="button" @mousedown.prevent="triggerImagePicker" class="p-1.5 rounded text-xs hover:bg-accent" :title="$t('editor.toolbar.insertImage')" :aria-label="$t('aria.markdownEditor.insertImage')">🖼 Image</button>
         <input ref="imageInputEl" type="file" accept="image/png,image/jpeg,image/webp,image/gif" class="hidden" @change="onImageFilePicked" />
       </template>
     </div>
@@ -57,9 +57,36 @@
     <!-- Editor -->
     <div ref="editorEl" class="prose dark:prose-invert max-w-none p-4 min-h-[200px] focus:outline-none" />
   </div>
+
+  <!-- Link insert dialog -->
+  <Dialog v-model:open="linkDialogOpen">
+    <DialogContent class="max-w-sm">
+      <DialogHeader>
+        <DialogTitle>{{ $t('editor.insertLink') }}</DialogTitle>
+      </DialogHeader>
+      <div class="py-2">
+        <label class="text-sm font-medium" :for="linkInputId">{{ $t('editor.linkUrl') }}</label>
+        <input
+          :id="linkInputId"
+          ref="linkInputEl"
+          v-model="linkUrl"
+          type="url"
+          :placeholder="$t('editor.linkUrlPlaceholder')"
+          class="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+          @keydown.enter.prevent="confirmLink"
+          @keydown.esc.prevent="cancelLink"
+        />
+      </div>
+      <DialogFooter>
+        <Button variant="outline" @click="cancelLink">{{ $t('common.cancel') }}</Button>
+        <Button :disabled="!linkUrl.trim()" @click="confirmLink">{{ $t('editor.insertLinkButton') }}</Button>
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>
 </template>
 
 <script setup lang="ts">
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '~/components/ui/dialog'
 import { Editor } from '@tiptap/core'
 import StarterKit from '@tiptap/starter-kit'
 import { Markdown } from '@tiptap/markdown'
@@ -102,7 +129,12 @@ const emit = defineEmits<{
 
 const editorEl = ref<HTMLElement>()
 const imageInputEl = ref<HTMLInputElement>()
+const linkInputEl = ref<HTMLInputElement>()
+const linkDialogOpen = ref(false)
+const linkUrl = ref('')
+const linkInputId = 'md-link-url'
 let editor: Editor | null = null
+let _linkButtonEl: HTMLElement | null = null
 let provider: HocuspocusProvider | null = null
 let ydoc: Y.Doc | null = null
 
@@ -397,11 +429,24 @@ function insertHorizontalRule() { editor?.chain().focus().setHorizontalRule().ru
 function undo() { editor?.chain().focus().undo().run() }
 function redo() { editor?.chain().focus().redo().run() }
 
-function insertLink() {
-  const url = prompt('Enter URL:')
-  if (url) {
-    editor?.chain().focus().setLink({ href: url }).run()
+function insertLink(event: MouseEvent) {
+  _linkButtonEl = event.currentTarget as HTMLElement
+  linkUrl.value = editor?.isActive('link') ? (editor.getAttributes('link').href ?? '') : ''
+  linkDialogOpen.value = true
+  nextTick(() => linkInputEl.value?.focus())
+}
+
+function confirmLink() {
+  if (linkUrl.value.trim()) {
+    editor?.chain().focus().setLink({ href: linkUrl.value.trim() }).run()
   }
+  cancelLink()
+}
+
+function cancelLink() {
+  linkDialogOpen.value = false
+  linkUrl.value = ''
+  nextTick(() => _linkButtonEl?.focus())
 }
 
 function insertTable() {

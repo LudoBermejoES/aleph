@@ -9,6 +9,7 @@
     </div>
 
     <LoadingSkeleton v-if="loading" :rows="4" />
+    <ErrorToast v-if="error" :message="error" @dismiss="error = null" />
     <div v-else-if="org">
       <div class="flex items-start justify-between mb-6">
         <div>
@@ -102,7 +103,7 @@ const slug = route.params.slug as string
 const api = useCampaignApi(campaignId)
 
 const org = ref<any>(null)
-const loading = ref(true)
+const { loading, error, withLoading } = useLoadingState()
 const allCharacters = ref<any[]>([])
 const orgLocations = ref<any[]>([])
 const newMemberId = ref('')
@@ -115,16 +116,16 @@ const availableCharacters = computed(() => {
 })
 
 async function load() {
-  loading.value = true
+  await withLoading(async () => {
   const [orgData, chars, locs] = await Promise.all([
-    api.getOrganization(slug).catch(() => null),
+    api.getOrganization(slug),
     api.getCharacters({}).catch(() => []),
     api.getOrganizationLocations(slug).catch(() => []),
   ])
   org.value = orgData
   allCharacters.value = chars
   orgLocations.value = locs
-  loading.value = false
+  })
 }
 
 async function addMember() {

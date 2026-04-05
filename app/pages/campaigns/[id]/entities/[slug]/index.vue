@@ -1,6 +1,7 @@
 <template>
   <div class="p-8">
-    <div v-if="entity">
+    <LoadingSkeleton v-if="loading" :rows="4" />
+    <div v-else-if="entity">
       <!-- Breadcrumb -->
       <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
         <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary"> {{ $t('common.campaign') }}</NuxtLink>
@@ -95,9 +96,9 @@
       </div>
     </div>
     <div v-else class="text-center py-16">
-      <p class="text-muted-foreground">{{ $t('common.loading') }}</p>
+      <p class="text-muted-foreground">{{ $t('entities.notFound') }}</p>
     </div>
-    <ErrorToast v-if="error" :message="error" @dismiss="error = ''" />
+    <ErrorToast v-if="error" :message="error" @dismiss="error = null" />
   </div>
 </template>
 
@@ -121,9 +122,9 @@ const canEdit = ref(false)
 const api = useCampaignApi(campaignId)
 const editing = ref(false)
 const saving = ref(false)
-const error = ref('')
 const editForm = reactive({ name: '', content: '' })
 const userName = ref('Anonymous')
+const { loading, error, withLoading } = useLoadingState()
 
 // Fetch current user name for collaborative cursor
 fetch('/api/auth/get-session', { credentials: 'include' })
@@ -132,7 +133,7 @@ fetch('/api/auth/get-session', { credentials: 'include' })
   .catch(() => {})
 
 async function loadEntity() {
-  try {
+  await withLoading(async () => {
     const [entityData, campaign] = await Promise.all([
       api.getEntity(slug),
       api.getCampaign().catch(() => null),
@@ -162,9 +163,7 @@ async function loadEntity() {
     if (entity.value?.id) {
       mentions.value = await api.getMentions({ entity_id: entity.value.id }).catch(() => [])
     }
-  } catch {
-    entity.value = null
-  }
+  })
 }
 
 async function saveEntity() {

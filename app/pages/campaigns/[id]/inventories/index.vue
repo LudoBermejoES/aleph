@@ -22,7 +22,7 @@
         </div>
         <div>
           <label class="text-sm font-medium block mb-1">{{ $t('inventories.type') }}</label>
-          <select v-model="form.ownerType" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" data-testid="inv-owner-type">
+          <select v-model="form.ownerType" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" data-testid="inv-owner-type" :aria-label="$t('aria.filters.inventoryCreateOwnerType')">
             <option value="party">{{ $t('inventories.typeParty') }}</option>
             <option value="faction">{{ $t('inventories.typeFaction') }}</option>
             <option value="character">{{ $t('inventories.typeCharacter') }}</option>
@@ -42,7 +42,7 @@
 
     <!-- Filter by owner type -->
     <div class="flex gap-3 mb-4">
-      <select v-model="ownerTypeFilter" @change="load" class="rounded-md border border-input bg-background px-3 py-2 text-sm" data-testid="inv-type-filter">
+      <select v-model="ownerTypeFilter" @change="load" class="rounded-md border border-input bg-background px-3 py-2 text-sm" data-testid="inv-type-filter" :aria-label="$t('aria.filters.inventoryOwnerType')">
         <option value="">{{ $t('inventories.allTypes') }}</option>
         <option value="character">{{ $t('inventories.typeCharacter') }}</option>
         <option value="party">{{ $t('inventories.typeParty') }}</option>

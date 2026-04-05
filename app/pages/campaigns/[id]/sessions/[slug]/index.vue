@@ -1,6 +1,8 @@
 <template>
   <div class="p-8">
-    <div v-if="session">
+    <LoadingSkeleton v-if="loading" :rows="4" />
+    <ErrorToast v-if="error" :message="error" @dismiss="error = null" />
+    <div v-else-if="session">
       <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
         <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary"> {{ $t('common.campaign') }}</NuxtLink>
         <span>/</span>
@@ -22,7 +24,7 @@
           <NuxtLink :to="`/campaigns/${campaignId}/sessions/${slug}/edit`">
             <Button variant="outline" size="sm">{{ $t('common.edit') }}</Button>
           </NuxtLink>
-          <select :value="session.status" class="rounded-md border border-input bg-background px-2 py-1 text-sm" @change="updateStatus(($event.target as HTMLSelectElement).value)">
+          <select :value="session.status" class="rounded-md border border-input bg-background px-2 py-1 text-sm" :aria-label="$t('aria.filters.sessionStatus')" @change="updateStatus(($event.target as HTMLSelectElement).value)">
             <option value="planned">{{ $t('sessions.statusPlanned') }}</option>
             <option value="active">{{ $t('sessions.statusActive') }}</option>
             <option value="completed">{{ $t('sessions.statusCompleted') }}</option>
@@ -95,6 +97,7 @@ const logContent = ref('')
 const canDelete = ref(false)
 const myRsvp = ref('pending')
 const api = useCampaignApi(campaignId)
+const { loading, error, withLoading } = useLoadingState()
 
 const contentTabs = [
   { key: 'manual_notes', label: t('sessions.content.manualNotes') },
@@ -116,15 +119,17 @@ const rsvpStatuses = [
 ]
 
 async function load() {
-  const [sessionData, campaignData] = await Promise.all([
-    api.getSession(slug).catch(() => null),
-    api.getCampaign().catch(() => null),
-  ])
-  session.value = sessionData
-  logContent.value = session.value?.logContent || ''
-  canDelete.value = ['dm', 'co_dm'].includes((campaignData as any)?.role ?? '')
-  decisions.value = await api.getSessionDecisions(slug).catch(() => [])
-  await loadContent()
+  await withLoading(async () => {
+    const [sessionData, campaignData] = await Promise.all([
+      api.getSession(slug).catch(() => null),
+      api.getCampaign().catch(() => null),
+    ])
+    session.value = sessionData
+    logContent.value = session.value?.logContent || ''
+    canDelete.value = ['dm', 'co_dm'].includes((campaignData as any)?.role ?? '')
+    decisions.value = await api.getSessionDecisions(slug).catch(() => [])
+    await loadContent()
+  })
 }
 
 async function loadContent() {

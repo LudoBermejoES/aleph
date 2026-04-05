@@ -1,6 +1,8 @@
 <template>
   <div class="p-8">
-    <div v-if="character">
+    <LoadingSkeleton v-if="loading" :rows="5" />
+    <ErrorToast v-if="error" :message="error" @dismiss="error = null" />
+    <div v-else-if="character">
       <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
         <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary"> {{ $t('common.campaign') }}</NuxtLink>
         <span>/</span>
@@ -305,8 +307,10 @@ function onGraphNodeClick(nodeId: string) {
 
 const api = useCampaignApi(campaignId)
 const canEdit = ref(false)
+const { loading, error, withLoading } = useLoadingState()
 
 async function load() {
+  await withLoading(async () => {
   const [char, campaign] = await Promise.all([
     api.getCharacter(slug).catch(() => null),
     api.getCampaign().catch(() => null),
@@ -336,6 +340,7 @@ async function load() {
 
   // Load organization memberships
   characterOrgs.value = await api.getCharacterOrganizations(slug).catch(() => [])
+  })
 }
 
 onMounted(load)

@@ -659,7 +659,11 @@
       "insertLink": "Insert Link",
       "insertTable": "Insert Table",
       "insertImage": "Insert Image"
-    }
+    },
+    "insertLink": "Insert Link",
+    "linkUrl": "URL",
+    "linkUrlPlaceholder": "https://example.com",
+    "insertLinkButton": "Insert"
   },
   "errors": {
     "generic": "Something went wrong",
@@ -776,5 +780,49 @@
     "failedSave": "Failed to save location",
     "failedLoad": "Failed to load location",
     "inhabitantCount": "{count} inhabitant | {count} inhabitants"
+  },
+  "aria": {
+    "markdownEditor": {
+      "undo": "Undo",
+      "redo": "Redo",
+      "bold": "Bold",
+      "italic": "Italic",
+      "strikethrough": "Strikethrough",
+      "inlineCode": "Inline code",
+      "heading1": "Heading 1",
+      "heading2": "Heading 2",
+      "heading3": "Heading 3",
+      "bulletList": "Bullet list",
+      "orderedList": "Ordered list",
+      "taskList": "Task list",
+      "blockquote": "Blockquote",
+      "codeBlock": "Code block",
+      "horizontalRule": "Horizontal rule",
+      "insertLink": "Insert link",
+      "insertTable": "Insert table",
+      "insertImage": "Insert image"
+    },
+    "diceRoller": {
+      "rollD4": "Roll d4",
+      "rollD6": "Roll d6",
+      "rollD8": "Roll d8",
+      "rollD10": "Roll d10",
+      "rollD12": "Roll d12",
+      "rollD20": "Roll d20"
+    },
+    "filters": {
+      "entityType": "Filter by entity type",
+      "characterStatus": "Filter by character status",
+      "inventoryOwnerType": "Filter by owner type",
+      "inventoryCreateOwnerType": "Select owner type",
+      "sessionStatus": "Session status",
+      "sessionDecisionType": "Decision type",
+      "memberRole": "Change member role",
+      "locationCharacter": "Select character",
+      "locationOrganization": "Select organization"
+    },
+    "forms": {
+      "characterFilterToolbar": "Character filters"
+    }
   }
 }

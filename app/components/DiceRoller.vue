@@ -9,7 +9,8 @@
     <!-- Quick Roll Buttons -->
     <div class="p-3 grid grid-cols-7 gap-1">
       <button v-for="d in quickDice" :key="d" @click="quickRoll(d)"
-        class="px-1 py-2 text-xs rounded border border-border hover:bg-accent transition-colors text-center">
+        class="px-1 py-2 text-xs rounded border border-border hover:bg-accent transition-colors text-center"
+        :aria-label="$t(`aria.diceRoller.rollD${d}`, `Roll d${d}`)">
         d{{ d }}
       </button>
     </div>

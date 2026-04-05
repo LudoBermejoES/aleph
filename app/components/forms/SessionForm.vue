@@ -53,6 +53,7 @@
       <slot name="cancel" />
       <Button type="submit" :disabled="submitting">{{ submitting ? $t('common.saving') : submitLabel }}</Button>
     </div>
+    <ErrorToast v-if="loadError" :message="loadError" @dismiss="loadError = null" />
   </form>
 </template>
 
@@ -78,6 +79,7 @@ const draftKey = computed(() =>
 
 const groups = ref<any[]>([])
 const arcs = ref<any[]>([])
+const loadError = ref<string | null>(null)
 
 const currentArcChapters = computed(() => {
   if (!form.value.arcId) return []
@@ -90,12 +92,16 @@ function onArcChange() {
 
 onMounted(async () => {
   if (props.campaignId) {
-    const [groupsData, arcsData] = await Promise.all([
-      $fetch<any[]>(`/api/campaigns/${props.campaignId}/session-groups`).catch(() => []),
-      $fetch<any[]>(`/api/campaigns/${props.campaignId}/arcs`).catch(() => []),
-    ])
-    groups.value = groupsData
-    arcs.value = arcsData
+    try {
+      const [groupsData, arcsData] = await Promise.all([
+        $fetch<any[]>(`/api/campaigns/${props.campaignId}/session-groups`),
+        $fetch<any[]>(`/api/campaigns/${props.campaignId}/arcs`),
+      ])
+      groups.value = groupsData
+      arcs.value = arcsData
+    } catch (e: any) {
+      loadError.value = e.data?.message || e.message || 'Failed to load form data'
+    }
   }
 })
 

@@ -13,8 +13,11 @@
       </NuxtLink>
     </div>
 
+    <LoadingSkeleton v-if="loading" :rows="3" />
+    <ErrorToast v-if="error" :message="error" @dismiss="error = null" />
+
     <!-- Filter Panel -->
-    <div v-if="graphData && Object.keys(graphData.nodes).length" class="flex gap-4 mb-4 flex-wrap">
+    <div v-if="!loading && graphData && Object.keys(graphData.nodes).length" class="flex gap-4 mb-4 flex-wrap">
       <div class="space-y-1">
         <label class="text-xs font-medium text-muted-foreground">{{ $t('graph.entityTypes') }}</label>
         <div class="flex gap-2">
@@ -61,6 +64,7 @@ const route = useRoute()
 const campaignId = route.params.id as string
 const api = useCampaignApi(campaignId)
 const graphData = ref<GraphData | null>(null)
+const { loading, error, withLoading } = useLoadingState()
 const selectedTypes = ref(new Set<string>())
 
 // Graph
@@ -117,10 +121,12 @@ function onNodeClick(nodeId: string) {
 }
 
 async function load() {
-  try { graphData.value = await api.getGraph() } catch { graphData.value = null }
-  if (graphData.value) {
-    selectedTypes.value = new Set(entityTypes.value)
-  }
+  await withLoading(async () => {
+    graphData.value = await api.getGraph()
+    if (graphData.value) {
+      selectedTypes.value = new Set(entityTypes.value)
+    }
+  })
 }
 
 onMounted(load)

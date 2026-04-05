@@ -1,6 +1,8 @@
 <template>
   <div class="p-8">
-    <div v-if="shop">
+    <LoadingSkeleton v-if="loading" :rows="3" />
+    <ErrorToast v-if="error" :message="error" @dismiss="error = null" />
+    <div v-else-if="shop">
       <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
         <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary"> {{ $t('common.campaign') }}</NuxtLink>
         <span>/</span>
@@ -36,9 +38,12 @@ const campaignId = route.params.id as string
 const slug = route.params.slug as string
 const api = useCampaignApi(campaignId)
 const shop = ref<any>(null)
+const { loading, error, withLoading } = useLoadingState()
 
 async function load() {
-  try { shop.value = await api.getShop(slug) } catch { shop.value = null }
+  await withLoading(async () => {
+    shop.value = await api.getShop(slug)
+  })
 }
 
 onMounted(load)

@@ -1,6 +1,8 @@
 <template>
   <div class="p-8">
-    <div v-if="timeline">
+    <LoadingSkeleton v-if="loading" :rows="3" />
+    <ErrorToast v-if="error" :message="error" @dismiss="error = null" />
+    <div v-else-if="timeline">
       <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
         <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary"> {{ $t('common.campaign') }}</NuxtLink>
         <span>/</span>
@@ -133,6 +135,7 @@ import type { Timeline } from '~/types/api'
 
 const timeline = ref<Timeline | null>(null)
 const api = useCampaignApi(campaignId)
+const { loading, error, withLoading } = useLoadingState()
 const view = ref<'chronicle' | 'gantt' | 'calendar'>('chronicle')
 
 // Add event form
@@ -206,17 +209,19 @@ function calNextMonth() {
 }
 
 async function load() {
-  timeline.value = await api.getTimeline(slug).catch(() => null)
-  // Load first campaign calendar for the overlay view
-  const cals = await api.getCalendars().catch(() => [])
-  if (cals?.length) {
-    calendar.value = cals[0]
-    const cd = cals[0].currentDate || {}
-    calViewMonth.value = cd.month || 1
-    calViewYear.value = cd.year || 1
-  } else {
-    calendar.value = null
-  }
+  await withLoading(async () => {
+    timeline.value = await api.getTimeline(slug)
+    // Load first campaign calendar for the overlay view
+    const cals = await api.getCalendars().catch(() => [])
+    if (cals?.length) {
+      calendar.value = cals[0]
+      const cd = cals[0].currentDate || {}
+      calViewMonth.value = cd.month || 1
+      calViewYear.value = cd.year || 1
+    } else {
+      calendar.value = null
+    }
+  })
 }
 
 onMounted(load)

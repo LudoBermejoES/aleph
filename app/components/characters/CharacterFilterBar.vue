@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div role="toolbar" :aria-label="$t('aria.forms.characterFilterToolbar')">
     <!-- PC/NPC Toggle + Search -->
     <div class="flex flex-wrap items-center gap-2 mb-4">
       <Button :variant="typeFilter === 'all' ? 'default' : 'outline'" size="sm" @click="$emit('set-type', 'all')">{{ $t('characters.all') }}</Button>
@@ -21,7 +21,7 @@
 
     <!-- Filter Bar -->
     <div class="flex flex-wrap items-center gap-2 mb-4" data-testid="filter-bar">
-      <select :value="statusFilter" class="text-sm border border-border rounded-md px-2 py-1.5 bg-background" data-testid="status-filter" @change="$emit('update:statusFilter', ($event.target as HTMLSelectElement).value); $emit('filter-change')">
+      <select :value="statusFilter" class="text-sm border border-border rounded-md px-2 py-1.5 bg-background" data-testid="status-filter" :aria-label="$t('aria.filters.characterStatus')" @change="$emit('update:statusFilter', ($event.target as HTMLSelectElement).value); $emit('filter-change')">
         <option value="">{{ $t('characters.statusAll') }}</option>
         <option value="alive">{{ $t('characters.alive') }}</option>
         <option value="dead">{{ $t('characters.dead') }}</option>

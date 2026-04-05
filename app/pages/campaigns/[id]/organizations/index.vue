@@ -14,6 +14,7 @@
     </div>
 
     <LoadingSkeleton v-if="loading" :rows="4" />
+    <ErrorToast v-if="error" :message="error" @dismiss="error = null" />
     <div v-else-if="orgs.length" class="space-y-2">
       <NuxtLink
         v-for="org in orgs"
@@ -49,12 +50,12 @@ const campaignId = route.params.id as string
 const api = useCampaignApi(campaignId)
 
 const orgs = ref<any[]>([])
-const loading = ref(true)
+const { loading, error, withLoading } = useLoadingState()
 
 async function load() {
-  loading.value = true
-  orgs.value = await api.getOrganizations().catch(() => [])
-  loading.value = false
+  await withLoading(async () => {
+    orgs.value = await api.getOrganizations()
+  })
 }
 
 onMounted(load)

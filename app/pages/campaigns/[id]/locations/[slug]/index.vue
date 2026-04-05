@@ -1,6 +1,7 @@
 <template>
   <div class="p-8 max-w-4xl">
-    <div v-if="loading" class="text-muted-foreground">{{ $t('common.loading') }}</div>
+    <LoadingSkeleton v-if="loading" :rows="4" />
+    <ErrorToast v-if="error" :message="error" @dismiss="error = null" />
     <template v-else-if="location">
       <!-- Breadcrumb -->
       <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4 flex-wrap">
@@ -59,7 +60,7 @@
           </div>
         </div>
         <div class="flex gap-2 items-center">
-          <select v-model="selectedCharacter" class="flex-1 px-3 py-1.5 rounded border border-input bg-background text-sm">
+          <select v-model="selectedCharacter" class="flex-1 px-3 py-1.5 rounded border border-input bg-background text-sm" :aria-label="$t('aria.filters.locationCharacter')">
             <option value="">{{ $t('locations.selectCharacter') }}</option>
             <option v-for="c in availableCharacters" :key="c.id" :value="c.id">{{ c.name }}</option>
           </select>
@@ -79,7 +80,7 @@
           </div>
         </div>
         <div class="flex gap-2 items-center">
-          <select v-model="selectedOrg" class="flex-1 px-3 py-1.5 rounded border border-input bg-background text-sm">
+          <select v-model="selectedOrg" class="flex-1 px-3 py-1.5 rounded border border-input bg-background text-sm" :aria-label="$t('aria.filters.locationOrganization')">
             <option value="">{{ $t('locations.selectOrganization') }}</option>
             <option v-for="org in availableOrgs" :key="org.id" :value="org.id">{{ org.name }}</option>
           </select>
@@ -98,7 +99,7 @@ const campaignId = route.params.id as string
 const slug = route.params.slug as string
 const api = useCampaignApi(campaignId)
 
-const loading = ref(true)
+const { loading, error, withLoading } = useLoadingState()
 const location = ref<any>(null)
 const subLocations = ref<any[]>([])
 const inhabitants = ref<any[]>([])
@@ -122,8 +123,7 @@ const availableOrgs = computed(() =>
 )
 
 async function load() {
-  loading.value = true
-  try {
+  await withLoading(async () => {
     const [loc, subs, inh, linkedOrgs, chars, allOrgsList] = await Promise.all([
       api.getLocation(slug),
       api.getSubLocations(slug),
@@ -138,11 +138,7 @@ async function load() {
     orgs.value = linkedOrgs
     allCharacters.value = chars
     allOrgs.value = allOrgsList
-  } catch {
-    await router.push(`/campaigns/${campaignId}/locations`)
-  } finally {
-    loading.value = false
-  }
+  })
 }
 
 onMounted(load)

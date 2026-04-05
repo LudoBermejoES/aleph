@@ -27,7 +27,11 @@
               @keydown.arrow-up.prevent="moveSelection(-1)"
               @keydown.enter.prevent="selectCurrent"
               :placeholder="$t('search.placeholder')"
+              :aria-label="$t('search.placeholder')"
               class="flex-1 px-3 py-3 bg-transparent text-sm outline-none"
+              role="combobox"
+              aria-autocomplete="list"
+              :aria-expanded="displayResults.length > 0"
             />
           </div>
           <div class="max-h-64 overflow-auto p-2">
@@ -42,7 +46,7 @@
               >{{ recent }}</button>
             </div>
 
-            <div v-if="displayResults.length" class="space-y-1">
+            <div v-if="displayResults.length" class="space-y-1" role="listbox">
               <NuxtLink
                 v-for="(result, i) in displayResults"
                 :key="result.entityId"
@@ -50,6 +54,8 @@
                 :to="`/campaigns/${campaignId}/entities/${result.slug || result.entityId}`"
                 @click="selectResult(result)"
                 :class="['block px-3 py-2 rounded text-sm transition-colors', i === selectedIndex ? 'bg-accent' : 'hover:bg-accent/50']"
+                role="option"
+                :aria-selected="i === selectedIndex"
               >
                 <span class="font-medium">{{ result.name }}</span>
                 <span v-if="result.type" class="text-xs text-muted-foreground ml-2">{{ result.type }}</span>

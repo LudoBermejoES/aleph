@@ -86,6 +86,7 @@
       <slot name="cancel" />
       <Button type="submit" :disabled="submitting">{{ submitting ? $t('common.saving') : submitLabel }}</Button>
     </div>
+    <ErrorToast v-if="loadError" :message="loadError" @dismiss="loadError = null" />
   </form>
 </template>
 
@@ -110,6 +111,7 @@ const members = ref<any[]>([])
 const organizations = ref<any[]>([])
 const locations = ref<any[]>([])
 const pendingMemberships = ref<{ organizationId: string; role: string }[]>([])
+const loadError = ref<string | null>(null)
 
 const form = computed({
   get: () => props.modelValue,
@@ -117,22 +119,26 @@ const form = computed({
 })
 
 onMounted(async () => {
-  const [ms, orgs, locs] = await Promise.all([
-    api.getMembers().catch(() => []),
-    api.getOrganizations().catch(() => []),
-    api.getLocations().catch(() => []),
-  ])
-  members.value = ms
-  organizations.value = orgs
-  locations.value = locs
+  try {
+    const [ms, orgs, locs] = await Promise.all([
+      api.getMembers(),
+      api.getOrganizations(),
+      api.getLocations(),
+    ])
+    members.value = ms
+    organizations.value = orgs
+    locations.value = locs
 
-  // Load existing memberships when editing
-  if (props.characterSlug) {
-    const existing = await api.getCharacterOrganizations(props.characterSlug).catch(() => [])
-    pendingMemberships.value = existing.map((m: any) => ({
-      organizationId: m.organizationId,
-      role: m.role || '',
-    }))
+    // Load existing memberships when editing
+    if (props.characterSlug) {
+      const existing = await api.getCharacterOrganizations(props.characterSlug).catch(() => [])
+      pendingMemberships.value = existing.map((m: any) => ({
+        organizationId: m.organizationId,
+        role: m.role || '',
+      }))
+    }
+  } catch (e: any) {
+    loadError.value = e.data?.message || e.message || 'Failed to load form data'
   }
 })
 
