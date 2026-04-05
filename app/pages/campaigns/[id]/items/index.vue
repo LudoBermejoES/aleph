@@ -60,12 +60,14 @@ async function load() {
   await withLoading(async () => {
     const params: Record<string, string> = {}
     if (filter.value) params.rarity = filter.value
-    itemList.value = await api.getItems(params)
+    const [items, currencies] = await Promise.all([
+      api.getItems(params),
+      api.getCurrencies().catch(() => []),
+    ])
+    itemList.value = items
+    currencyList.value = currencies
   })
 }
 
-onMounted(async () => {
-  await load()
-  currencyList.value = await api.getCurrencies().catch(() => [])
-})
+onMounted(load)
 </script>

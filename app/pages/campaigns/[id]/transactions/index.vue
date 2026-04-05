@@ -31,7 +31,7 @@
         </div>
         <div>
           <label class="text-sm font-medium block mb-1">{{ $t('transactions.notes') }}</label>
-          <input v-model="txForm.description" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" data-testid="tx-notes" />
+          <input v-model="txForm.notes" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" data-testid="tx-notes" />
         </div>
         <div>
           <label class="text-sm font-medium block mb-1">{{ $t('transactions.fromEntity') }}</label>
@@ -122,7 +122,7 @@
             <td class="px-4 py-2">
               <span :class="['px-2 py-0.5 rounded text-xs', typeColor(tx.type)]">{{ tx.type }}</span>
             </td>
-            <td class="px-4 py-2 text-muted-foreground">{{ tx.description || $t('transactions.empty') }}</td>
+            <td class="px-4 py-2 text-muted-foreground">{{ tx.notes || $t('transactions.empty') }}</td>
             <td class="px-4 py-2">{{ tx.itemId ? (itemMap[tx.itemId] || tx.itemId) : $t('transactions.empty') }}</td>
             <td class="px-4 py-2 text-right">
               <span v-if="tx.amount">{{ tx.amount }}</span>
@@ -173,7 +173,7 @@ const wealthModifying = computed(() =>
 
 const txForm = ref({
   type: 'purchase',
-  description: '',
+  notes: '',
   fromType: 'party',
   fromId: '',
   toType: 'character',
@@ -220,7 +220,7 @@ async function createTx() {
   try {
     const body: Record<string, unknown> = {
       type: txForm.value.type,
-      description: txForm.value.description || undefined,
+      notes: txForm.value.notes || undefined,
       fromId: txForm.value.fromId || undefined,
       toId: txForm.value.toId || undefined,
       itemId: txForm.value.itemId || undefined,
@@ -234,7 +234,7 @@ async function createTx() {
       if (Object.keys(nonZero).length) body.amount = JSON.stringify(nonZero)
     }
     await api.createTransaction(body)
-    txForm.value = { type: 'purchase', description: '', fromType: 'party', fromId: '', toType: 'character', toId: '', itemId: '', quantity: 1, amounts: {} }
+    txForm.value = { type: 'purchase', notes: '', fromType: 'party', fromId: '', toType: 'character', toId: '', itemId: '', quantity: 1, amounts: {} }
     showForm.value = false
     await load()
   } catch (e: any) {
