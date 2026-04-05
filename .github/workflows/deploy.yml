@@ -43,6 +43,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install CLI dependencies
+        run: npm ci --prefix cli
+
       - name: Run integration tests
         run: npm run test:integration
 
