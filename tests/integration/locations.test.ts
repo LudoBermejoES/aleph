@@ -8,7 +8,7 @@ async function apiRaw(path: string, opts?: any) {
     ...opts,
     headers: {
       'Content-Type': 'application/json',
-      'Origin': BASE_URL,
+      Origin: BASE_URL,
       ...opts?.headers,
     },
     body: opts?.body ? JSON.stringify(opts.body) : undefined,
@@ -126,7 +126,12 @@ describe('Location CRUD (integration)', () => {
     const data = await api(`/api/campaigns/${campaignId}/locations`, {
       method: 'POST',
       headers: { 'X-API-Key': apiKey },
-      body: { name: 'Castle Ravenloft', subtype: 'dungeon', parentId: parent.id, visibility: 'members' },
+      body: {
+        name: 'Castle Ravenloft',
+        subtype: 'dungeon',
+        parentId: parent.id,
+        visibility: 'members',
+      },
     })
     expect(data.name).toBe('Castle Ravenloft')
     childSlug = data.slug
@@ -153,7 +158,12 @@ describe('Location CRUD (integration)', () => {
     const data = await api(`/api/campaigns/${campaignId}/locations/${locationSlug}`, {
       method: 'PUT',
       headers: { 'X-API-Key': apiKey },
-      body: { name: 'Barovia Region', subtype: 'region', visibility: 'members', content: 'Updated.' },
+      body: {
+        name: 'Barovia Region',
+        subtype: 'region',
+        visibility: 'members',
+        content: 'Updated.',
+      },
     })
     expect(data.name).toBe('Barovia Region')
     locationSlug = data.slug
@@ -231,10 +241,13 @@ describe('Location inhabitants (integration)', () => {
   })
 
   it('DELETE /inhabitants/:characterId removes the character', async () => {
-    const delRes = await apiRaw(`/api/campaigns/${campaignId}/locations/${locationSlug}/inhabitants/${characterId}`, {
-      method: 'DELETE',
-      headers: { 'X-API-Key': apiKey },
-    })
+    const delRes = await apiRaw(
+      `/api/campaigns/${campaignId}/locations/${locationSlug}/inhabitants/${characterId}`,
+      {
+        method: 'DELETE',
+        headers: { 'X-API-Key': apiKey },
+      },
+    )
     expect(delRes.ok).toBe(true)
     const body = await api(`/api/campaigns/${campaignId}/locations/${locationSlug}/inhabitants`, {
       headers: { 'X-API-Key': apiKey },
@@ -297,10 +310,13 @@ describe('Location organizations (integration)', () => {
   })
 
   it('DELETE /organizations/:orgId unlinks the organization', async () => {
-    const delRes = await apiRaw(`/api/campaigns/${campaignId}/locations/${locationSlug}/organizations/${orgId}`, {
-      method: 'DELETE',
-      headers: { 'X-API-Key': apiKey },
-    })
+    const delRes = await apiRaw(
+      `/api/campaigns/${campaignId}/locations/${locationSlug}/organizations/${orgId}`,
+      {
+        method: 'DELETE',
+        headers: { 'X-API-Key': apiKey },
+      },
+    )
     expect(delRes.ok).toBe(true)
     const body = await api(`/api/campaigns/${campaignId}/locations/${locationSlug}/organizations`, {
       headers: { 'X-API-Key': apiKey },

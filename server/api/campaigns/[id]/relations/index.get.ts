@@ -16,22 +16,28 @@ export default defineEventHandler(async (event) => {
 
   if (entityId) {
     // Entity-centered query
-    results = db.select().from(entityRelations)
-      .where(or(
-        eq(entityRelations.sourceEntityId, entityId),
-        eq(entityRelations.targetEntityId, entityId),
-      ))
+    results = db
+      .select()
+      .from(entityRelations)
+      .where(
+        or(
+          eq(entityRelations.sourceEntityId, entityId),
+          eq(entityRelations.targetEntityId, entityId),
+        ),
+      )
       .all()
 
     // Add resolved labels
-    results = results.map(r => ({
+    results = results.map((r) => ({
       ...r,
       label: getRelationLabel(r, entityId),
       relatedEntityId: r.sourceEntityId === entityId ? r.targetEntityId : r.sourceEntityId,
     }))
   } else {
     // Campaign-wide
-    results = db.select().from(entityRelations)
+    results = db
+      .select()
+      .from(entityRelations)
       .where(eq(entityRelations.campaignId, campaignId))
       .all()
   }
@@ -41,7 +47,7 @@ export default defineEventHandler(async (event) => {
 
   // Filter by relation type
   if (query.relation_type) {
-    results = results.filter(r => r.relationTypeId === query.relation_type)
+    results = results.filter((r) => r.relationTypeId === query.relation_type)
   }
 
   return results

@@ -23,14 +23,16 @@ export default defineEventHandler(async (event) => {
   const inviteRole = body.role || 'player'
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
 
-  db.insert(campaignInvitations).values({
-    id: randomUUID(),
-    campaignId,
-    token,
-    role: inviteRole,
-    createdBy: event.context.user.id,
-    expiresAt,
-  }).run()
+  db.insert(campaignInvitations)
+    .values({
+      id: randomUUID(),
+      campaignId,
+      token,
+      role: inviteRole,
+      createdBy: event.context.user.id,
+      expiresAt,
+    })
+    .run()
 
   return { token, role: inviteRole, expiresAt }
 })

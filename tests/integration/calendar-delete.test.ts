@@ -6,7 +6,7 @@ const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 async function apiRaw(path: string, opts?: any) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
-    headers: { 'Content-Type': 'application/json', 'Origin': BASE_URL, ...opts?.headers },
+    headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...opts?.headers },
     body: opts?.body ? JSON.stringify(opts.body) : undefined,
   })
 }
@@ -38,7 +38,11 @@ async function signUpAndGetCookie(email: string, password = 'password123', name 
 async function createApiKey(cookie: string, name = 'test-key') {
   const csrfMatch = cookie.match(/csrf_token=([^;]+)/)
   const csrfToken = csrfMatch?.[1] || ''
-  const res = await apiRaw('/api/apikeys', { method: 'POST', headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken }, body: { name } })
+  const res = await apiRaw('/api/apikeys', {
+    method: 'POST',
+    headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
+    body: { name },
+  })
   return res.json()
 }
 
@@ -100,10 +104,13 @@ describe('Calendar Delete (integration)', () => {
     })
     const eventId = created.id
 
-    const delRes = await apiRaw(`/api/campaigns/${campaignId}/calendars/${calendarId}/events/${eventId}`, {
-      method: 'DELETE',
-      headers: { 'X-API-Key': apiKey },
-    })
+    const delRes = await apiRaw(
+      `/api/campaigns/${campaignId}/calendars/${calendarId}/events/${eventId}`,
+      {
+        method: 'DELETE',
+        headers: { 'X-API-Key': apiKey },
+      },
+    )
     expect(delRes.status).toBe(200)
     const delData = await delRes.json()
     expect(delData.success).toBe(true)
@@ -190,10 +197,13 @@ describe('Calendar Delete (integration)', () => {
       body: { name: 'Protected Event', date: { year: 1, month: 1, day: 1 } },
     })
 
-    const res = await apiRaw(`/api/campaigns/${campaignId}/calendars/${calendarId}/events/${event.id}`, {
-      method: 'DELETE',
-      headers: { 'X-API-Key': playerApiKey },
-    })
+    const res = await apiRaw(
+      `/api/campaigns/${campaignId}/calendars/${calendarId}/events/${event.id}`,
+      {
+        method: 'DELETE',
+        headers: { 'X-API-Key': playerApiKey },
+      },
+    )
     expect(res.status).toBe(403)
   })
 

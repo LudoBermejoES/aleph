@@ -40,6 +40,7 @@ For development, `tsx` can run `src/index.ts` directly without a compile step.
 ## Typed Lib Layer
 
 ### `config.ts`
+
 ```ts
 export interface AlephConfig {
   url: string
@@ -52,16 +53,22 @@ export function saveConfig(cfg: AlephConfig): void
 ```
 
 ### `client.ts`
+
 ```ts
 export async function get<T = unknown>(path: string): Promise<T>
 export async function post<T = unknown>(path: string, body: unknown): Promise<T>
 export async function put<T = unknown>(path: string, body: unknown): Promise<T>
 export async function patch<T = unknown>(path: string, body: unknown): Promise<T>
 export async function del<T = unknown>(path: string): Promise<T>
-export async function postMultipart<T = unknown>(path: string, filePath: string, fieldName: string): Promise<T>
+export async function postMultipart<T = unknown>(
+  path: string,
+  filePath: string,
+  fieldName: string,
+): Promise<T>
 ```
 
 ### `output.ts`
+
 ```ts
 export function print(data: unknown, opts?: { json?: boolean }): void
 export function success(msg: string): void
@@ -74,20 +81,22 @@ Each command file exports a `make*Command()` function returning `Command`. Type 
 ## `.js` Imports in TypeScript
 
 Since `"module": "NodeNext"`, imports still use `.js` extension in source:
+
 ```ts
-import { get, post } from '../lib/client.js'  // correct for NodeNext
+import { get, post } from '../lib/client.js' // correct for NodeNext
 ```
 
 ## `cli/bin/aleph.js` Update
 
 ```js
-import('../dist/index.js').catch(err => {
+import('../dist/index.js').catch((err) => {
   process.stderr.write(`Error: ${err.message}\n`)
   process.exit(1)
 })
 ```
 
 Or simply:
+
 ```js
 import { createRequire } from 'module'
 // keep as: import the compiled dist

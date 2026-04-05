@@ -2,9 +2,13 @@
   <div class="p-8">
     <div v-if="inventory">
       <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-        <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary"> {{ $t('common.campaign') }}</NuxtLink>
+        <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">
+          {{ $t('common.campaign') }}</NuxtLink
+        >
         <span>/</span>
-        <NuxtLink :to="`/campaigns/${campaignId}/inventories`" class="hover:text-primary">{{ $t('inventories.title') }}</NuxtLink>
+        <NuxtLink :to="`/campaigns/${campaignId}/inventories`" class="hover:text-primary">{{
+          $t('inventories.title')
+        }}</NuxtLink>
         <span>/</span>
         <span class="text-foreground">{{ inventory.name }}</span>
       </div>
@@ -12,7 +16,9 @@
       <div class="flex items-start justify-between mb-6">
         <div>
           <h1 class="text-2xl font-bold">{{ inventory.name }}</h1>
-          <span class="text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground">{{ inventory.ownerType }}</span>
+          <span class="text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground">{{
+            inventory.ownerType
+          }}</span>
         </div>
         <button
           v-if="inventory.items?.length"
@@ -27,7 +33,9 @@
       <!-- Items grouped by position -->
       <div v-for="pos in positions" :key="pos.key" class="mb-6">
         <div v-if="itemsByPosition[pos.key]?.length">
-          <h2 class="text-sm font-semibold uppercase tracking-wide text-muted-foreground mb-2">{{ pos.label }}</h2>
+          <h2 class="text-sm font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+            {{ pos.label }}
+          </h2>
           <div class="space-y-2">
             <div
               v-for="it in itemsByPosition[pos.key]"
@@ -37,7 +45,9 @@
             >
               <div class="flex items-center gap-2">
                 <span class="font-medium">{{ it.itemName }}</span>
-                <span :class="['text-xs px-1.5 py-0.5 rounded', rarityColor(it.itemRarity)]">{{ it.itemRarity }}</span>
+                <span :class="['text-xs px-1.5 py-0.5 rounded', rarityColor(it.itemRarity)]">{{
+                  it.itemRarity
+                }}</span>
               </div>
               <div class="flex items-center gap-3">
                 <span v-if="it.notes" class="text-xs text-muted-foreground">{{ it.notes }}</span>
@@ -48,7 +58,12 @@
         </div>
       </div>
 
-      <EmptyState v-if="!inventory.items?.length" icon="🎒" :title="$t('inventories.emptyInventory')" :description="$t('inventories.noItems')" />
+      <EmptyState
+        v-if="!inventory.items?.length"
+        icon="🎒"
+        :title="$t('inventories.emptyInventory')"
+        :description="$t('inventories.noItems')"
+      />
     </div>
 
     <LoadingSkeleton v-if="loading" :rows="4" />

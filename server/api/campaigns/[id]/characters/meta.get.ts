@@ -12,27 +12,30 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 403, message: 'Forbidden' })
   }
 
-  const raceRows = db.select({ value: characters.race })
+  const raceRows = db
+    .select({ value: characters.race })
     .from(characters)
     .innerJoin(entities, eq(characters.entityId, entities.id))
     .where(and(eq(entities.campaignId, campaignId), isNotNull(characters.race)))
     .all()
 
-  const classRows = db.select({ value: characters.class })
+  const classRows = db
+    .select({ value: characters.class })
     .from(characters)
     .innerJoin(entities, eq(characters.entityId, entities.id))
     .where(and(eq(entities.campaignId, campaignId), isNotNull(characters.class)))
     .all()
 
-  const alignmentRows = db.select({ value: characters.alignment })
+  const alignmentRows = db
+    .select({ value: characters.alignment })
     .from(characters)
     .innerJoin(entities, eq(characters.entityId, entities.id))
     .where(and(eq(entities.campaignId, campaignId), isNotNull(characters.alignment)))
     .all()
 
   return {
-    races: [...new Set(raceRows.map(r => r.value as string))].sort(),
-    classes: [...new Set(classRows.map(r => r.value as string))].sort(),
-    alignments: [...new Set(alignmentRows.map(r => r.value as string))].sort(),
+    races: [...new Set(raceRows.map((r) => r.value as string))].sort(),
+    classes: [...new Set(classRows.map((r) => r.value as string))].sort(),
+    alignments: [...new Set(alignmentRows.map((r) => r.value as string))].sort(),
   }
 })

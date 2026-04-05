@@ -3,6 +3,7 @@
 The Arcadia TTRPG universe has 15 years of history documented as Jekyll markdown files in `/Users/ludo/code/arcadia/docs/campaigns/`. The Aleph server already has all the required API endpoints (campaigns, session-groups, sessions, session content) from previous development. This is a one-time data migration wrapped in a reusable idempotent script.
 
 **Source data structure:**
+
 - `la-familia/` — 45 session files (`session-01.md` → `session-44-2026-03-01.md`), no subfolders for notes
 - `la-fuerza-oculta/` — `manual-notes/` (53 files), `ai-notes/` (37 files), `ai-notes-summary/` (35 files); sessions cross-referenced by date in filenames
 - `aun-sin-nombre/` — `ai-notes/` (9 files), `ai-notes-summary/` (9 files); no manual notes
@@ -13,6 +14,7 @@ The Arcadia TTRPG universe has 15 years of history documented as Jekyll markdown
 **Session file format:** Jekyll front-matter YAML (`layout`, `title`, `permalink`) + markdown content body. Title pattern: `"Campaign - Sesión NN"`. Date sometimes embedded in filename: `session-20-2025-06-15.md`.
 
 **Aleph API endpoints used:**
+
 - `POST /api/campaigns` — create campaign
 - `POST /api/campaigns/:id/session-groups` — create group
 - `POST /api/campaigns/:id/sessions` — create session (accepts `title`, `scheduledDate`, `groupSlug`, `status`)
@@ -22,6 +24,7 @@ The Arcadia TTRPG universe has 15 years of history documented as Jekyll markdown
 ## Goals / Non-Goals
 
 **Goals:**
+
 - Import all 6 campaigns into Aleph with correct names, descriptions, and slugs
 - Import all sessions with title, number, date (where available), and status (`completed` for past sessions)
 - Import session content: `manual_notes` from session body text, `ai_notes` from `ai-notes/` files, `summary` from `ai-notes-summary/` files
@@ -29,6 +32,7 @@ The Arcadia TTRPG universe has 15 years of history documented as Jekyll markdown
 - Standalone script (`cli/bin/import-arcadia.js`) — not wired into the main aleph CLI
 
 **Non-Goals:**
+
 - Importing characters, entities, quests, maps, or relations (separate future concern)
 - Creating session groups beyond the top-level campaign grouping (La Fuerza Oculta's narrative arcs could be groups, but this is deferred)
 - Real-time progress UI — simple console output is sufficient
@@ -48,6 +52,7 @@ Files like `session-20-2025-06-15.md` encode the date in the filename. Files lik
 All sessions with a parseable date in the past → `completed`. Sessions without dates → `completed` (all are historical). Crematorio session → `completed`. This is safe since all campaigns are past or ongoing.
 
 **Decision 5: Content mapping**
+
 - `manual_notes`: body of the session file itself (stripped of Jekyll front-matter)
 - `ai_notes`: content of corresponding `ai-notes/<date>-gemini-notes.md` matched by date
 - `summary`: content of corresponding `ai-notes-summary/<date>-gemini-notes.md` matched by date

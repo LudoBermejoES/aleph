@@ -16,7 +16,9 @@ test.describe('Character create — organization picker', () => {
     await page.waitForURL('**/characters/new', { timeout: 10000 })
 
     // No organizations in campaign — section should not appear
-    await expect(page.locator('text=Organizations')).not.toBeVisible({ timeout: 3000 }).catch(() => {})
+    await expect(page.locator('text=Organizations'))
+      .not.toBeVisible({ timeout: 3000 })
+      .catch(() => {})
   })
 
   test('org picker appears when organizations exist', async ({ page }) => {
@@ -35,7 +37,9 @@ test.describe('Character create — organization picker', () => {
     await page.waitForURL('**/characters/new', { timeout: 10000 })
 
     // Wait for form to load orgs
-    await expect(page.locator('main label:has-text("Organizations")')).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('main label:has-text("Organizations")')).toBeVisible({
+      timeout: 10000,
+    })
   })
 
   test('create character with organization membership', async ({ page }) => {
@@ -58,7 +62,9 @@ test.describe('Character create — organization picker', () => {
     await page.fill('input[placeholder*="Character name"]', charName)
 
     // Wait for org section to load then click + Add Organization
-    await expect(page.locator('main label:has-text("Organizations")')).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('main label:has-text("Organizations")')).toBeVisible({
+      timeout: 10000,
+    })
     await page.click('button:has-text("+ Add Organization"), button:has-text("Add Organization")')
 
     // Select the org in the newly added membership row
@@ -76,8 +82,14 @@ test.describe('Character create — organization picker', () => {
     }).toPass({ timeout: 15000 })
 
     // Detail page should show the org membership
-    await expect(page.locator('[data-testid="character-organizations"]')).toContainText('The Fellowship', { timeout: 10000 })
-    await expect(page.locator('[data-testid="character-organizations"]')).toContainText('Ring-bearer', { timeout: 5000 })
+    await expect(page.locator('[data-testid="character-organizations"]')).toContainText(
+      'The Fellowship',
+      { timeout: 10000 },
+    )
+    await expect(page.locator('[data-testid="character-organizations"]')).toContainText(
+      'Ring-bearer',
+      { timeout: 5000 },
+    )
   })
 })
 
@@ -98,10 +110,14 @@ test.describe('Character edit — organization picker', () => {
       method: 'POST',
       body: { name: 'Elrond', characterType: 'npc' },
     })
-    await apiFetch(page, `/api/campaigns/${campaignId}/organizations/${(org as any).slug}/members`, {
-      method: 'POST',
-      body: { characterId: (char as any).id, role: 'Lord' },
-    })
+    await apiFetch(
+      page,
+      `/api/campaigns/${campaignId}/organizations/${(org as any).slug}/members`,
+      {
+        method: 'POST',
+        body: { characterId: (char as any).id, role: 'Lord' },
+      },
+    )
     const charSlug = (char as any).slug
 
     const base = page.url().split('/campaigns/')[0]
@@ -110,12 +126,15 @@ test.describe('Character edit — organization picker', () => {
 
     // Org section should show the existing membership pre-filled — select has the org selected
     await expect(async () => {
-      const selectedText = await page.locator('main .space-y-2 select').first().evaluate(
-        (el: HTMLSelectElement) => el.options[el.selectedIndex]?.text ?? ''
-      )
+      const selectedText = await page
+        .locator('main .space-y-2 select')
+        .first()
+        .evaluate((el: HTMLSelectElement) => el.options[el.selectedIndex]?.text ?? '')
       expect(selectedText).toBe('Rivendell Council')
     }).toPass({ timeout: 10000 })
-    await expect(page.locator('input[placeholder*="Ring-bearer"]').first()).toHaveValue('Lord', { timeout: 5000 })
+    await expect(page.locator('input[placeholder*="Ring-bearer"]').first()).toHaveValue('Lord', {
+      timeout: 5000,
+    })
   })
 
   test('edit page — add new org membership and save', async ({ page }) => {
@@ -138,7 +157,9 @@ test.describe('Character edit — organization picker', () => {
     await page.goto(`${base}/campaigns/${campaignId}/characters/${charSlug}/edit`)
     await page.waitForLoadState('networkidle')
 
-    await expect(page.locator('main label:has-text("Organizations")')).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('main label:has-text("Organizations")')).toBeVisible({
+      timeout: 10000,
+    })
 
     // Add membership
     await page.click('button:has-text("+ Add Organization"), button:has-text("Add Organization")')
@@ -153,8 +174,14 @@ test.describe('Character edit — organization picker', () => {
     }).toPass({ timeout: 15000 })
 
     // Detail page shows the new membership
-    await expect(page.locator('[data-testid="character-organizations"]')).toContainText('Grey Havens', { timeout: 10000 })
-    await expect(page.locator('[data-testid="character-organizations"]')).toContainText('Shipwright', { timeout: 5000 })
+    await expect(page.locator('[data-testid="character-organizations"]')).toContainText(
+      'Grey Havens',
+      { timeout: 10000 },
+    )
+    await expect(page.locator('[data-testid="character-organizations"]')).toContainText(
+      'Shipwright',
+      { timeout: 5000 },
+    )
   })
 
   test('edit page — remove org membership and save', async ({ page }) => {
@@ -171,10 +198,14 @@ test.describe('Character edit — organization picker', () => {
       method: 'POST',
       body: { name: 'Bilbo', characterType: 'pc' },
     })
-    await apiFetch(page, `/api/campaigns/${campaignId}/organizations/${(shireWatch as any).slug}/members`, {
-      method: 'POST',
-      body: { characterId: (bilbo as any).id, role: 'Burglar' },
-    })
+    await apiFetch(
+      page,
+      `/api/campaigns/${campaignId}/organizations/${(shireWatch as any).slug}/members`,
+      {
+        method: 'POST',
+        body: { characterId: (bilbo as any).id, role: 'Burglar' },
+      },
+    )
     const charSlug = (bilbo as any).slug
 
     const base = page.url().split('/campaigns/')[0]
@@ -183,9 +214,10 @@ test.describe('Character edit — organization picker', () => {
 
     // Existing membership row should be visible — select has org pre-selected
     await expect(async () => {
-      const selectedText = await page.locator('main .space-y-2 select').first().evaluate(
-        (el: HTMLSelectElement) => el.options[el.selectedIndex]?.text ?? ''
-      )
+      const selectedText = await page
+        .locator('main .space-y-2 select')
+        .first()
+        .evaluate((el: HTMLSelectElement) => el.options[el.selectedIndex]?.text ?? '')
       expect(selectedText).toBe('Shire Watch')
     }).toPass({ timeout: 10000 })
     await page.click('button:has-text("Remove")')
@@ -198,6 +230,9 @@ test.describe('Character edit — organization picker', () => {
     }).toPass({ timeout: 15000 })
 
     // Detail page should no longer show the org
-    await expect(page.locator('[data-testid="character-organizations"]')).not.toContainText('Shire Watch', { timeout: 10000 })
+    await expect(page.locator('[data-testid="character-organizations"]')).not.toContainText(
+      'Shire Watch',
+      { timeout: 10000 },
+    )
   })
 })

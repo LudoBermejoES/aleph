@@ -32,7 +32,7 @@ function withCsrf(cookie: string, csrfToken: string) {
 // Minimal valid 1×1 PNG decoded without Buffer/Node APIs
 function base64ToUint8Array(b64: string): Uint8Array {
   const binary = atob(b64)
-  return new Uint8Array([...binary].map(c => c.charCodeAt(0)))
+  return new Uint8Array([...binary].map((c) => c.charCodeAt(0)))
 }
 
 const TINY_PNG = base64ToUint8Array(
@@ -87,7 +87,11 @@ describe('Map Tiling Background Task (5.2)', () => {
 
   it('upload accepts a valid PNG and returns image dimensions', async () => {
     const form = new FormData()
-    form.append('image', new Blob([TINY_PNG.buffer as ArrayBuffer], { type: 'image/png' }), 'test.png')
+    form.append(
+      'image',
+      new Blob([TINY_PNG.buffer as ArrayBuffer], { type: 'image/png' }),
+      'test.png',
+    )
 
     const res = await apiRaw(`/api/campaigns/${campaignId}/maps/${mapSlug}/upload`, {
       method: 'POST',
@@ -113,8 +117,11 @@ describe('Map Tiling Background Task (5.2)', () => {
       })
       expect(res.status).toBe(200)
       const data = await res.json()
-      if (data.isTiled) { isTiled = true; break }
-      await new Promise(r => setTimeout(r, 500))
+      if (data.isTiled) {
+        isTiled = true
+        break
+      }
+      await new Promise((r) => setTimeout(r, 500))
     }
     expect(isTiled).toBe(true)
   })

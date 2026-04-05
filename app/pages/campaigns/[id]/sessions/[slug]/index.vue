@@ -4,9 +4,13 @@
     <ErrorToast v-if="error" :message="error" @dismiss="error = null" />
     <div v-else-if="session">
       <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-        <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary"> {{ $t('common.campaign') }}</NuxtLink>
+        <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">
+          {{ $t('common.campaign') }}</NuxtLink
+        >
         <span>/</span>
-        <NuxtLink :to="`/campaigns/${campaignId}/sessions`" class="hover:text-primary">{{ $t('sessions.title') }}</NuxtLink>
+        <NuxtLink :to="`/campaigns/${campaignId}/sessions`" class="hover:text-primary">{{
+          $t('sessions.title')
+        }}</NuxtLink>
         <span>/</span>
         <span class="text-foreground">{{ session.title }}</span>
       </div>
@@ -15,25 +19,49 @@
         <div>
           <h1 class="text-3xl font-bold">{{ session.title }}</h1>
           <div class="flex items-center gap-2 mt-2">
-            <span :class="['text-xs px-2 py-1 rounded', session.status === 'completed' ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' : 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300']">{{ session.status }}</span>
-            <span v-if="session.groupName" class="text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground">{{ session.groupName }}</span>
-            <span v-if="session.scheduledDate" class="text-xs text-muted-foreground">{{ new Date(session.scheduledDate).toLocaleString() }}</span>
+            <span
+              :class="[
+                'text-xs px-2 py-1 rounded',
+                session.status === 'completed'
+                  ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
+                  : 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
+              ]"
+              >{{ session.status }}</span
+            >
+            <span
+              v-if="session.groupName"
+              class="text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground"
+              >{{ session.groupName }}</span
+            >
+            <span v-if="session.scheduledDate" class="text-xs text-muted-foreground">{{
+              new Date(session.scheduledDate).toLocaleString()
+            }}</span>
           </div>
         </div>
         <div class="flex gap-2">
           <NuxtLink :to="`/campaigns/${campaignId}/sessions/${slug}/edit`">
             <Button variant="outline" size="sm">{{ $t('common.edit') }}</Button>
           </NuxtLink>
-          <NuxtLink v-if="canDelete" :to="`/campaigns/${campaignId}/sessions/${slug}/edit?collab=true`">
+          <NuxtLink
+            v-if="canDelete"
+            :to="`/campaigns/${campaignId}/sessions/${slug}/edit?collab=true`"
+          >
             <Button variant="outline" size="sm">{{ $t('collaboration.collaborate') }}</Button>
           </NuxtLink>
-          <select :value="session.status" class="rounded-md border border-input bg-background px-2 py-1 text-sm" :aria-label="$t('aria.filters.sessionStatus')" @change="updateStatus(($event.target as HTMLSelectElement).value)">
+          <select
+            :value="session.status"
+            class="rounded-md border border-input bg-background px-2 py-1 text-sm"
+            :aria-label="$t('aria.filters.sessionStatus')"
+            @change="updateStatus(($event.target as HTMLSelectElement).value)"
+          >
             <option value="planned">{{ $t('sessions.statusPlanned') }}</option>
             <option value="active">{{ $t('sessions.statusActive') }}</option>
             <option value="completed">{{ $t('sessions.statusCompleted') }}</option>
             <option value="cancelled">{{ $t('sessions.statusCancelled') }}</option>
           </select>
-          <Button v-if="canDelete" variant="destructive" size="sm" @click="deleteSession">{{ $t('common.delete') }}</Button>
+          <Button v-if="canDelete" variant="destructive" size="sm" @click="deleteSession">{{
+            $t('common.delete')
+          }}</Button>
         </div>
       </div>
 
@@ -50,9 +78,16 @@
       <div class="mb-6">
         <div class="flex items-center justify-between mb-3">
           <h2 class="text-lg font-semibold">{{ $t('sessions.log') }}</h2>
-          <Button variant="outline" size="sm" @click="editing = !editing">{{ editing ? $t('sessions.previewTab') : $t('sessions.editTab') }}</Button>
+          <Button variant="outline" size="sm" @click="editing = !editing">{{
+            editing ? $t('sessions.previewTab') : $t('sessions.editTab')
+          }}</Button>
         </div>
-        <textarea v-if="editing" v-model="logContent" rows="15" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono" />
+        <textarea
+          v-if="editing"
+          v-model="logContent"
+          rows="15"
+          class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono"
+        />
         <div v-else class="prose dark:prose-invert max-w-none text-foreground">
           <MDC v-if="session.logContent" :value="session.logContent" />
           <p v-else class="text-muted-foreground italic">{{ $t('sessions.noLog') }}</p>
@@ -144,7 +179,9 @@ async function loadContent() {
       ai_notes: (data.ai_notes as string) || '',
       summary: (data.summary as string) || '',
     }
-  } catch { /* no content yet */ } finally {
+  } catch {
+    /* no content yet */
+  } finally {
     contentLoading.value = false
   }
 }
@@ -154,62 +191,98 @@ async function deleteSession() {
   try {
     await api.deleteSession(slug)
     navigateTo(`/campaigns/${campaignId}/sessions`)
-  } catch (e: any) { alert(e.data?.message || t('errors.failedSave')) }
+  } catch (e: any) {
+    alert(e.data?.message || t('errors.failedSave'))
+  }
 }
 
 async function updateStatus(status: string) {
-  try { await api.updateSession(slug, { status }); await load() }
-  catch (e: any) { alert(e.data?.message || t('errors.failedSave')) }
+  try {
+    await api.updateSession(slug, { status })
+    await load()
+  } catch (e: any) {
+    alert(e.data?.message || t('errors.failedSave'))
+  }
 }
 
 async function saveLog() {
-  try { await api.updateSession(slug, { content: logContent.value }); await load(); editing.value = false }
-  catch (e: any) { alert(e.data?.message || t('errors.failedSave')) }
+  try {
+    await api.updateSession(slug, { content: logContent.value })
+    await load()
+    editing.value = false
+  } catch (e: any) {
+    alert(e.data?.message || t('errors.failedSave'))
+  }
 }
 
 async function saveContent(tabKey: string, content: string) {
-  try { await api.updateSessionContent(slug, tabKey, content) }
-  catch (e: any) { alert(e.data?.message || t('errors.failedSave')) }
+  try {
+    await api.updateSessionContent(slug, tabKey, content)
+  } catch (e: any) {
+    alert(e.data?.message || t('errors.failedSave'))
+  }
 }
 
 async function setRsvp(status: string) {
-  try { await api.patchAttendance(slug, { rsvpStatus: status }); myRsvp.value = status; await load() }
-  catch (e: any) { alert(e.data?.message || t('errors.failedSave')) }
+  try {
+    await api.patchAttendance(slug, { rsvpStatus: status })
+    myRsvp.value = status
+    await load()
+  } catch (e: any) {
+    alert(e.data?.message || t('errors.failedSave'))
+  }
 }
 
 async function setAttended(userId: string, attended: boolean) {
-  try { await api.patchAttendance(slug, { userId, attended }); await load() }
-  catch (e: any) { alert(e.data?.message || t('errors.failedSave')) }
+  try {
+    await api.patchAttendance(slug, { userId, attended })
+    await load()
+  } catch (e: any) {
+    alert(e.data?.message || t('errors.failedSave'))
+  }
 }
 
 async function submitDecision(data: { title: string; type: string; description?: string }) {
   try {
     await api.createDecision(slug, data)
     decisions.value = await api.getSessionDecisions(slug)
-  } catch (e: any) { alert(e.data?.message || t('errors.failedSave')) }
+  } catch (e: any) {
+    alert(e.data?.message || t('errors.failedSave'))
+  }
 }
 
-async function submitConsequence(decisionId: string, data: { description: string; revealed: boolean }) {
+async function submitConsequence(
+  decisionId: string,
+  data: { description: string; revealed: boolean },
+) {
   try {
     await api.createConsequence(slug, decisionId, data)
     decisions.value = await api.getSessionDecisions(slug)
-  } catch (e: any) { alert(e.data?.message || t('errors.failedSave')) }
+  } catch (e: any) {
+    alert(e.data?.message || t('errors.failedSave'))
+  }
 }
 
 async function toggleConsequence(decisionId: string, consequenceId: string, revealed: boolean) {
   try {
     await api.revealConsequence(slug, decisionId, consequenceId, revealed)
     decisions.value = await api.getSessionDecisions(slug)
-  } catch (e: any) { alert(e.data?.message || t('errors.failedSave')) }
+  } catch (e: any) {
+    alert(e.data?.message || t('errors.failedSave'))
+  }
 }
 
 async function toggleRolls() {
   rollsOpen.value = !rollsOpen.value
   if (rollsOpen.value && !rolls.value.length) {
     rollsLoading.value = true
-    try { rolls.value = await api.getSessionRolls(slug) }
-    catch { rolls.value = [] }
-    finally { rollsLoading.value = false }
+    try {
+      rolls.value = await api.getSessionRolls(slug)
+    } catch {
+      rolls.value = []
+    } finally {
+      rollsLoading.value = false
+    }
   }
 }
 

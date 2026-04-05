@@ -39,32 +39,41 @@ export function indexEntity(
   const aliasStr = aliases.join(' ')
   const tagStr = tags.join(' ')
 
-  const existing = sqlite.prepare(
-    'SELECT rowid FROM entities_fts_map WHERE entity_id = ?'
-  ).get(entityId) as { rowid: number } | undefined
+  const existing = sqlite
+    .prepare('SELECT rowid FROM entities_fts_map WHERE entity_id = ?')
+    .get(entityId) as { rowid: number } | undefined
 
   if (existing) {
     // Delete old FTS entry and re-insert (FTS5 doesn't support UPDATE)
     sqlite.prepare('DELETE FROM entities_fts WHERE rowid = ?').run(existing.rowid)
-    sqlite.prepare(`
+    sqlite
+      .prepare(
+        `
       INSERT INTO entities_fts(rowid, name, aliases, tags, body)
       VALUES (?, ?, ?, ?, ?)
-    `).run(existing.rowid, name, aliasStr, tagStr, body)
+    `,
+      )
+      .run(existing.rowid, name, aliasStr, tagStr, body)
 
     // Update campaign mapping
-    sqlite.prepare('UPDATE entities_fts_map SET campaign_id = ? WHERE entity_id = ?')
+    sqlite
+      .prepare('UPDATE entities_fts_map SET campaign_id = ? WHERE entity_id = ?')
       .run(campaignId, entityId)
   } else {
     // Insert mapping first to get rowid
-    const result = sqlite.prepare(
-      'INSERT INTO entities_fts_map (entity_id, campaign_id) VALUES (?, ?)'
-    ).run(entityId, campaignId)
+    const result = sqlite
+      .prepare('INSERT INTO entities_fts_map (entity_id, campaign_id) VALUES (?, ?)')
+      .run(entityId, campaignId)
 
     // Insert into FTS with matching rowid
-    sqlite.prepare(`
+    sqlite
+      .prepare(
+        `
       INSERT INTO entities_fts(rowid, name, aliases, tags, body)
       VALUES (?, ?, ?, ?, ?)
-    `).run(result.lastInsertRowid, name, aliasStr, tagStr, body)
+    `,
+      )
+      .run(result.lastInsertRowid, name, aliasStr, tagStr, body)
   }
 }
 
@@ -72,9 +81,9 @@ export function indexEntity(
  * Remove an entity from the FTS5 index.
  */
 export function removeEntityFromIndex(sqlite: Database.Database, entityId: string): void {
-  const existing = sqlite.prepare(
-    'SELECT rowid FROM entities_fts_map WHERE entity_id = ?'
-  ).get(entityId) as { rowid: number } | undefined
+  const existing = sqlite
+    .prepare('SELECT rowid FROM entities_fts_map WHERE entity_id = ?')
+    .get(entityId) as { rowid: number } | undefined
 
   if (existing) {
     sqlite.prepare('DELETE FROM entities_fts WHERE rowid = ?').run(existing.rowid)
@@ -95,7 +104,9 @@ export function searchEntities(
 
   const ftsQuery = query.trim().replace(/"/g, '""') + '*'
 
-  const results = sqlite.prepare(`
+  const results = sqlite
+    .prepare(
+      `
     SELECT
       m.entity_id as entityId,
       entities_fts.name,
@@ -107,7 +118,9 @@ export function searchEntities(
       AND m.campaign_id = ?
     ORDER BY score
     LIMIT ?
-  `).all(ftsQuery, campaignId, limit)
+  `,
+    )
+    .all(ftsQuery, campaignId, limit)
 
   return results as Array<{ entityId: string; name: string; snippet: string; score: number }>
 }

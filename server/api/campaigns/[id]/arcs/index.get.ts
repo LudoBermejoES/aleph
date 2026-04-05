@@ -6,13 +6,17 @@ export default defineEventHandler(async (event) => {
   const campaignId = getRouterParam(event, 'id')!
   const db = useDb()
 
-  const arcList = db.select().from(arcs)
+  const arcList = db
+    .select()
+    .from(arcs)
     .where(eq(arcs.campaignId, campaignId))
     .orderBy(arcs.sortOrder)
     .all()
 
-  return arcList.map(arc => {
-    const chapterList = db.select().from(chapters)
+  return arcList.map((arc) => {
+    const chapterList = db
+      .select()
+      .from(chapters)
       .where(eq(chapters.arcId, arc.id))
       .orderBy(chapters.sortOrder)
       .all()

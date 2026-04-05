@@ -9,7 +9,8 @@ export default defineEventHandler(async (event) => {
   const slug = getRouterParam(event, 'slug')!
   const db = useDb()
 
-  const org = db.select()
+  const org = db
+    .select()
     .from(organizations)
     .where(and(eq(organizations.campaignId, campaignId), eq(organizations.slug, slug)))
     .get()
@@ -18,12 +19,13 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, message: 'Organization not found' })
   }
 
-  const members = db.select({
-    characterId: organizationMembers.characterId,
-    role: organizationMembers.role,
-    characterName: entities.name,
-    characterSlug: entities.slug,
-  })
+  const members = db
+    .select({
+      characterId: organizationMembers.characterId,
+      role: organizationMembers.role,
+      characterName: entities.name,
+      characterSlug: entities.slug,
+    })
     .from(organizationMembers)
     .innerJoin(characters, eq(organizationMembers.characterId, characters.id))
     .innerJoin(entities, eq(characters.entityId, entities.id))

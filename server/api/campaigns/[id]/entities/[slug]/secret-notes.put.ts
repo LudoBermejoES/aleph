@@ -22,13 +22,15 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'content (string) is required' })
   }
 
-  const entity = db.select({ id: entities.id })
+  const entity = db
+    .select({ id: entities.id })
     .from(entities)
     .where(and(eq(entities.campaignId, campaignId), eq(entities.slug, slug)))
     .get()
   if (!entity) throw createError({ statusCode: 404, message: 'Entity not found' })
 
-  const existing = db.select({ id: entitySecretNotes.id })
+  const existing = db
+    .select({ id: entitySecretNotes.id })
     .from(entitySecretNotes)
     .where(eq(entitySecretNotes.entityId, entity.id))
     .get()
@@ -41,13 +43,15 @@ export default defineEventHandler(async (event) => {
       .where(eq(entitySecretNotes.id, existing.id))
       .run()
   } else {
-    db.insert(entitySecretNotes).values({
-      id: randomUUID(),
-      entityId: entity.id,
-      content: body.content,
-      updatedBy: userId,
-      updatedAt: now,
-    }).run()
+    db.insert(entitySecretNotes)
+      .values({
+        id: randomUUID(),
+        entityId: entity.id,
+        content: body.content,
+        updatedBy: userId,
+        updatedAt: now,
+      })
+      .run()
   }
 
   return { content: body.content, updatedAt: now }

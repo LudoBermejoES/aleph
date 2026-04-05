@@ -14,7 +14,9 @@ export default defineEventHandler(async (event) => {
   const itemId = getRouterParam(event, 'itemId')!
   const db = useDb()
 
-  const item = db.select().from(items)
+  const item = db
+    .select()
+    .from(items)
     .where(and(eq(items.campaignId, campaignId), eq(items.id, itemId)))
     .get()
   if (!item) throw createError({ statusCode: 404, message: 'Item not found' })

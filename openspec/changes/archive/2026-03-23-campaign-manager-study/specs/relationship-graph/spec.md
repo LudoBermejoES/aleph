@@ -13,6 +13,7 @@ Inspired by: Kanka (connections with attitude scores, relation explorer, mirrore
 The system SHALL support creating typed, bidirectional connections between any two entities with asymmetric labels, attitude scores, and rich metadata.
 
 #### Scenario: Creating a connection
+
 - GIVEN a DM or Editor creating a relationship between two entities
 - WHEN they specify a relation type (e.g., "family:parent")
 - THEN a single connection record is created with forward and reverse labels (e.g., "parent of" / "child of")
@@ -20,6 +21,7 @@ The system SHALL support creating typed, bidirectional connections between any t
 - AND modifying or deleting the connection affects both sides simultaneously
 
 #### Scenario: Built-in relation types
+
 - GIVEN the system defines these relation types with default labels:
   | Type | Forward Label | Reverse Label |
   |------|--------------|---------------|
@@ -44,12 +46,14 @@ The system SHALL support creating typed, bidirectional connections between any t
 - THEN they can select a built-in type (which pre-fills labels) or choose "custom" and provide their own labels
 
 #### Scenario: Attitude scores
+
 - GIVEN a connection between two entities
 - WHEN the user sets an attitude score (-100 to +100)
 - THEN the graph view colors the edge accordingly (red for negative, green for positive, gray for neutral)
 - AND the score appears in the connection detail view
 
 #### Scenario: Connection metadata
+
 - GIVEN a connection between two entities
 - WHEN the user adds description text or metadata
 - THEN the connection stores: description text, JSON metadata (e.g., `{"since": "Year 1302", "secret": true}`)
@@ -57,6 +61,7 @@ The system SHALL support creating typed, bidirectional connections between any t
 - AND metadata can be queried via SQLite JSON functions
 
 #### Scenario: Connection visibility
+
 - GIVEN a connection with a visibility level
 - WHEN a user without sufficient permission views either entity
 - THEN the connection is completely hidden (not shown as redacted)
@@ -67,6 +72,7 @@ The system SHALL support creating typed, bidirectional connections between any t
 The system SHALL provide an interactive visual graph for exploring entity connections.
 
 #### Scenario: Entity-centered graph
+
 - GIVEN a user viewing an entity's detail page
 - WHEN they open the "Connections" or "Graph" tab
 - THEN an interactive force-directed graph renders with:
@@ -78,6 +84,7 @@ The system SHALL provide an interactive visual graph for exploring entity connec
 - AND clicking a node navigates to that entity
 
 #### Scenario: Campaign-wide connection web
+
 - GIVEN a campaign with many entity connections
 - WHEN a DM or Editor opens the campaign connection web view
 - THEN all entities with at least one connection are shown in a force-directed graph
@@ -86,6 +93,7 @@ The system SHALL provide an interactive visual graph for exploring entity connec
 - AND tooltips show connection details on hover
 
 #### Scenario: Graph interaction
+
 - GIVEN the graph view is displayed
 - WHEN a user interacts with it
 - THEN they can:
@@ -101,6 +109,7 @@ The system SHALL provide an interactive visual graph for exploring entity connec
 The system SHALL use v-network-graph (native Vue 3 SVG component) for rendering the relationship graph, with cytoscape.js as a fallback for campaigns exceeding 500 connected entities.
 
 #### Scenario: Performance boundaries
+
 - GIVEN a campaign with entity connections
 - WHEN the graph view is requested
 - THEN for campaigns with up to 500 connected nodes, v-network-graph renders with full interactivity

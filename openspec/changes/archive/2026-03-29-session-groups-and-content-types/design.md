@@ -5,6 +5,7 @@ Aleph sessions are stored in `gameSessions` with a single `logFilePath` field fo
 ## Goals / Non-Goals
 
 **Goals:**
+
 - Add `session_groups` as a first-class campaign entity (name, description, sort order)
 - Link sessions to groups optionally — sessions without a group are campaign-wide
 - Replace `logFilePath` with a `session_contents` table supporting three content types
@@ -13,6 +14,7 @@ Aleph sessions are stored in `gameSessions` with a single `logFilePath` field fo
 - Expose groups and content via API and CLI
 
 **Non-Goals:**
+
 - Access control per group (all campaign members see all groups)
 - Moving arcs/chapters into groups (they remain campaign-wide)
 - Real-time collaborative editing of session content (future)
@@ -64,25 +66,30 @@ Content stored as inline markdown (not file path). The old `logFilePath` column 
 ### 4. API routes
 
 **Session groups CRUD:**
+
 - `GET /api/campaigns/:id/session-groups` — list all groups
 - `POST /api/campaigns/:id/session-groups` — create group (editor+)
 - `PUT /api/campaigns/:id/session-groups/:slug` — update (editor+)
 - `DELETE /api/campaigns/:id/session-groups/:slug` — delete (dm/co_dm only)
 
 **Session content:**
+
 - `GET /api/campaigns/:id/sessions/:slug/content` — returns `{ manual_notes, ai_notes, summary }` object
 - `PUT /api/campaigns/:id/sessions/:slug/content` — body `{ type, content }` — upserts one content record (editor+)
 
 **Session list filter:**
+
 - `GET /api/campaigns/:id/sessions?groupId=<slug>` — filter by group slug
 
 **Session create/update:**
+
 - `POST /api/campaigns/:id/sessions` accepts optional `groupId` (slug resolved to id)
 - `PUT /api/campaigns/:id/sessions/:slug` accepts optional `groupId`
 
 ### 5. UI — Session list
 
 A group filter bar appears above the session list when groups exist:
+
 - "All" tab (default) — shows sessions from all groups
 - One tab per group — shows only sessions in that group
 - Sessions without a group always appear in "All"
@@ -98,6 +105,7 @@ A group selector dropdown is added to the session form. Defaults to none (no gro
 ### 8. Migration
 
 New migration file:
+
 1. Creates `session_groups` table
 2. Creates `session_contents` table
 3. `ALTER TABLE game_sessions ADD COLUMN group_id TEXT`
@@ -107,6 +115,7 @@ The old `logFilePath` data is left in place and not migrated (existing notes rem
 ### 9. CLI
 
 New `session-group` command:
+
 ```
 aleph session-group list --campaign <id>
 aleph session-group create --campaign <id> --name <name> [--description <desc>]

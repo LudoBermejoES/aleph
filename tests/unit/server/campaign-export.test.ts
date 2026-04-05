@@ -12,15 +12,30 @@ const userId = randomUUID()
 const campaignId = randomUUID()
 
 function setupBaseData() {
-  testDb.db.insert(user).values({
-    id: userId, name: 'Test DM', email: `dm-${Date.now()}@test.com`,
-    emailVerified: true, createdAt: new Date(), updatedAt: new Date(),
-  }).run()
-  testDb.db.insert(campaigns).values({
-    id: campaignId, name: 'Test Campaign', slug: 'test-campaign',
-    contentDir: '/tmp/test', createdBy: userId, isPublic: false,
-    createdAt: new Date(), updatedAt: new Date(),
-  }).run()
+  testDb.db
+    .insert(user)
+    .values({
+      id: userId,
+      name: 'Test DM',
+      email: `dm-${Date.now()}@test.com`,
+      emailVerified: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    })
+    .run()
+  testDb.db
+    .insert(campaigns)
+    .values({
+      id: campaignId,
+      name: 'Test Campaign',
+      slug: 'test-campaign',
+      contentDir: '/tmp/test',
+      createdBy: userId,
+      isPublic: false,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    })
+    .run()
 }
 
 beforeEach(() => {
@@ -111,12 +126,21 @@ describe('buildCampaignExport - empty campaign (task 7.5)', () => {
 describe('buildCampaignExport - data correctness', () => {
   it('exports entities belonging to this campaign', async () => {
     const entityId = randomUUID()
-    testDb.db.insert(entities).values({
-      id: entityId, campaignId, type: 'location', name: 'The Tavern',
-      slug: 'the-tavern', filePath: '/tmp/the-tavern.md',
-      visibility: 'members', createdBy: userId,
-      createdAt: new Date(), updatedAt: new Date(),
-    }).run()
+    testDb.db
+      .insert(entities)
+      .values({
+        id: entityId,
+        campaignId,
+        type: 'location',
+        name: 'The Tavern',
+        slug: 'the-tavern',
+        filePath: '/tmp/the-tavern.md',
+        visibility: 'members',
+        createdBy: userId,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .run()
 
     const result = await buildCampaignExport(testDb.db, { campaignId })
     expect(result.entities).toHaveLength(1)
@@ -125,17 +149,34 @@ describe('buildCampaignExport - data correctness', () => {
 
   it('does not export entities from another campaign', async () => {
     const otherCampaignId = randomUUID()
-    testDb.db.insert(campaigns).values({
-      id: otherCampaignId, name: 'Other Campaign', slug: 'other-campaign',
-      contentDir: '/tmp/other', createdBy: userId, isPublic: false,
-      createdAt: new Date(), updatedAt: new Date(),
-    }).run()
-    testDb.db.insert(entities).values({
-      id: randomUUID(), campaignId: otherCampaignId, type: 'location',
-      name: 'Other Entity', slug: 'other-entity', filePath: '/tmp/other-entity.md',
-      visibility: 'members', createdBy: userId,
-      createdAt: new Date(), updatedAt: new Date(),
-    }).run()
+    testDb.db
+      .insert(campaigns)
+      .values({
+        id: otherCampaignId,
+        name: 'Other Campaign',
+        slug: 'other-campaign',
+        contentDir: '/tmp/other',
+        createdBy: userId,
+        isPublic: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .run()
+    testDb.db
+      .insert(entities)
+      .values({
+        id: randomUUID(),
+        campaignId: otherCampaignId,
+        type: 'location',
+        name: 'Other Entity',
+        slug: 'other-entity',
+        filePath: '/tmp/other-entity.md',
+        visibility: 'members',
+        createdBy: userId,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .run()
 
     const result = await buildCampaignExport(testDb.db, { campaignId })
     expect(result.entities).toHaveLength(0)

@@ -4,7 +4,12 @@ import { randomUUID } from 'crypto'
 import { useDb } from '../../../../../../utils/db'
 import { validateBody } from '../../../../../../utils/validate'
 import { entities } from '../../../../../../db/schema/entities'
-import { characters, characterStats, statDefinitions, statGroups } from '../../../../../../db/schema/characters'
+import {
+  characters,
+  characterStats,
+  statDefinitions,
+  statGroups,
+} from '../../../../../../db/schema/characters'
 import { hasMinRole } from '../../../../../../utils/permissions'
 import type { CampaignRole } from '../../../../../../utils/permissions'
 
@@ -14,10 +19,12 @@ export default defineEventHandler(async (event) => {
   const campaignId = getRouterParam(event, 'id')!
   const slug = getRouterParam(event, 'slug')!
   const statsSchema = z.object({
-    stats: z.array(z.object({
-      statDefinitionId: z.string(),
-      value: z.union([z.string(), z.number()]),
-    })),
+    stats: z.array(
+      z.object({
+        statDefinitionId: z.string(),
+        value: z.union([z.string(), z.number()]),
+      }),
+    ),
   })
   const body = await validateBody(event, statsSchema)
   const { stats } = body // Array of { statDefinitionId, value }
@@ -27,7 +34,9 @@ export default defineEventHandler(async (event) => {
 
   const db = useDb()
 
-  const entity = db.select().from(entities)
+  const entity = db
+    .select()
+    .from(entities)
     .where(and(eq(entities.campaignId, campaignId), eq(entities.slug, slug)))
     .get()
   if (!entity) throw createError({ statusCode: 404, message: 'Character not found' })
@@ -42,7 +51,8 @@ export default defineEventHandler(async (event) => {
   for (const { statDefinitionId, value } of stats) {
     // Check player_editable permission
     if (!isDm) {
-      const def = db.select({ groupPlayerEditable: statGroups.playerEditable })
+      const def = db
+        .select({ groupPlayerEditable: statGroups.playerEditable })
         .from(statDefinitions)
         .innerJoin(statGroups, eq(statDefinitions.statGroupId, statGroups.id))
         .where(eq(statDefinitions.id, statDefinitionId))
@@ -54,19 +64,31 @@ export default defineEventHandler(async (event) => {
     }
 
     // Upsert stat value
-    const existing = db.select().from(characterStats)
-      .where(and(eq(characterStats.characterId, character.id), eq(characterStats.statDefinitionId, statDefinitionId)))
+    const existing = db
+      .select()
+      .from(characterStats)
+      .where(
+        and(
+          eq(characterStats.characterId, character.id),
+          eq(characterStats.statDefinitionId, statDefinitionId),
+        ),
+      )
       .get()
 
     if (existing) {
-      db.update(characterStats).set({ value: String(value) }).where(eq(characterStats.id, existing.id)).run()
+      db.update(characterStats)
+        .set({ value: String(value) })
+        .where(eq(characterStats.id, existing.id))
+        .run()
     } else {
-      db.insert(characterStats).values({
-        id: randomUUID(),
-        characterId: character.id,
-        statDefinitionId,
-        value: String(value),
-      }).run()
+      db.insert(characterStats)
+        .values({
+          id: randomUUID(),
+          characterId: character.id,
+          statDefinitionId,
+          value: String(value),
+        })
+        .run()
     }
   }
 

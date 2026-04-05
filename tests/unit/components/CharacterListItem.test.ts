@@ -2,7 +2,10 @@ import { describe, it, expect } from 'vitest'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
 
-const source = readFileSync(resolve(__dirname, '../../../app/components/characters/CharacterListItem.vue'), 'utf-8')
+const source = readFileSync(
+  resolve(__dirname, '../../../app/components/characters/CharacterListItem.vue'),
+  'utf-8',
+)
 
 describe('CharacterListItem', () => {
   it('renders status badge with alive class', () => {
@@ -37,7 +40,7 @@ describe('CharacterListItem', () => {
 
   it('renders companion indicator', () => {
     expect(source).toContain('character.isCompanionOf')
-    expect(source).toContain("characters.companion")
+    expect(source).toContain('characters.companion')
   })
 
   it('renders location indicator with testid', () => {

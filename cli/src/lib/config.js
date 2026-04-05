@@ -29,14 +29,12 @@ export function requireConfig() {
   // Detect legacy config with old token field
   if (!config.apiKey && store.get('token')) {
     process.stderr.write(
-      'Your stored credentials use the old token format. Please run `aleph login` to re-authenticate with an API key.\n'
+      'Your stored credentials use the old token format. Please run `aleph login` to re-authenticate with an API key.\n',
     )
     process.exit(1)
   }
   if (!config.url || !config.apiKey) {
-    process.stderr.write(
-      'Not configured. Run `aleph login` or `aleph config set --url <url>\n'
-    )
+    process.stderr.write('Not configured. Run `aleph login` or `aleph config set --url <url>\n')
     process.exit(1)
   }
   return config

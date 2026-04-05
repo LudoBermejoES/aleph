@@ -24,14 +24,16 @@ export default defineEventHandler(async (event) => {
   const db = useDb()
   const id = randomUUID()
 
-  db.insert(chapters).values({
-    id,
-    arcId: body.arcId,
-    name: body.name,
-    slug: slugify(body.name),
-    description: body.description || null,
-    sortOrder: body.sortOrder || 0,
-  }).run()
+  db.insert(chapters)
+    .values({
+      id,
+      arcId: body.arcId,
+      name: body.name,
+      slug: slugify(body.name),
+      description: body.description || null,
+      sortOrder: body.sortOrder || 0,
+    })
+    .run()
 
   return { id, name: body.name }
 })

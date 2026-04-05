@@ -5,7 +5,7 @@ const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 async function api(path: string, opts?: any) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
-    headers: { 'Content-Type': 'application/json', 'Origin': BASE_URL, ...opts?.headers },
+    headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...opts?.headers },
     body: opts?.body ? JSON.stringify(opts.body) : undefined,
   })
 }
@@ -28,17 +28,28 @@ describe('Character create with all fields (9.19)', () => {
   let campaignId = ''
 
   beforeAll(async () => {
-    await api('/api/auth/sign-up/email', { method: 'POST', body: { name: 'CreateChar', email, password: 'password123' } })
-    const login = await api('/api/auth/sign-in/email', { method: 'POST', body: { email, password: 'password123' } })
+    await api('/api/auth/sign-up/email', {
+      method: 'POST',
+      body: { name: 'CreateChar', email, password: 'password123' },
+    })
+    const login = await api('/api/auth/sign-in/email', {
+      method: 'POST',
+      body: { email, password: 'password123' },
+    })
     cookie = `better-auth.session_token=${(login.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1]}`
     csrfToken = await getCsrfToken(cookie)
-    const camp = await api('/api/campaigns', { method: 'POST', headers: withCsrf(cookie, csrfToken), body: { name: `CreateChar ${Date.now()}` } })
+    const camp = await api('/api/campaigns', {
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
+      body: { name: `CreateChar ${Date.now()}` },
+    })
     campaignId = (await camp.json()).id
   })
 
   it('returns all fields in response', async () => {
     const res = await api(`/api/campaigns/${campaignId}/characters`, {
-      method: 'POST', headers: withCsrf(cookie, csrfToken),
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
       body: {
         name: 'Full Character',
         characterType: 'npc',
@@ -57,7 +68,9 @@ describe('Character create with all fields (9.19)', () => {
     expect(data.characterType).toBe('npc')
 
     // Verify GET returns the data correctly
-    const get = await api(`/api/campaigns/${campaignId}/characters/${data.slug}`, { headers: { Cookie: cookie } })
+    const get = await api(`/api/campaigns/${campaignId}/characters/${data.slug}`, {
+      headers: { Cookie: cookie },
+    })
     const char = await get.json()
     expect(char.race).toBe('Vampire')
     expect(char.class).toBe('Necromancer')
@@ -74,25 +87,41 @@ describe('Calendar create with configJson (9.20)', () => {
   let campaignId = ''
 
   beforeAll(async () => {
-    await api('/api/auth/sign-up/email', { method: 'POST', body: { name: 'CreateCal', email, password: 'password123' } })
-    const login = await api('/api/auth/sign-in/email', { method: 'POST', body: { email, password: 'password123' } })
+    await api('/api/auth/sign-up/email', {
+      method: 'POST',
+      body: { name: 'CreateCal', email, password: 'password123' },
+    })
+    const login = await api('/api/auth/sign-in/email', {
+      method: 'POST',
+      body: { email, password: 'password123' },
+    })
     cookie = `better-auth.session_token=${(login.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1]}`
     csrfToken = await getCsrfToken(cookie)
-    const camp = await api('/api/campaigns', { method: 'POST', headers: withCsrf(cookie, csrfToken), body: { name: `CreateCal ${Date.now()}` } })
+    const camp = await api('/api/campaigns', {
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
+      body: { name: `CreateCal ${Date.now()}` },
+    })
     campaignId = (await camp.json()).id
   })
 
   it('returns correct nested structure', async () => {
     const res = await api(`/api/campaigns/${campaignId}/calendars`, {
-      method: 'POST', headers: withCsrf(cookie, csrfToken),
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
       body: {
         name: 'Harptos',
         configJson: JSON.stringify({
-          months: [{ name: 'Hammer', days: 30 }, { name: 'Alturiak', days: 30 }],
+          months: [
+            { name: 'Hammer', days: 30 },
+            { name: 'Alturiak', days: 30 },
+          ],
           yearLength: 60,
           weekdays: ['Sol', 'Lun', 'Mar', 'Mer', 'Yov', 'Fri', 'Sat'],
         }),
-        currentYear: 1492, currentMonth: 1, currentDay: 15,
+        currentYear: 1492,
+        currentMonth: 1,
+        currentDay: 15,
       },
     })
     expect(res.status).toBe(200)
@@ -100,7 +129,9 @@ describe('Calendar create with configJson (9.20)', () => {
     expect(data.id).toBeDefined()
 
     // Verify GET returns nested structure
-    const get = await api(`/api/campaigns/${campaignId}/calendars/${data.id}`, { headers: { Cookie: cookie } })
+    const get = await api(`/api/campaigns/${campaignId}/calendars/${data.id}`, {
+      headers: { Cookie: cookie },
+    })
     const cal = await get.json()
     expect(cal.name).toBe('Harptos')
     expect(cal.config.months).toHaveLength(2)
@@ -121,22 +152,41 @@ describe('Relation create validates entities (9.21)', () => {
   let entity2Id = ''
 
   beforeAll(async () => {
-    await api('/api/auth/sign-up/email', { method: 'POST', body: { name: 'CreateRel', email, password: 'password123' } })
-    const login = await api('/api/auth/sign-in/email', { method: 'POST', body: { email, password: 'password123' } })
+    await api('/api/auth/sign-up/email', {
+      method: 'POST',
+      body: { name: 'CreateRel', email, password: 'password123' },
+    })
+    const login = await api('/api/auth/sign-in/email', {
+      method: 'POST',
+      body: { email, password: 'password123' },
+    })
     cookie = `better-auth.session_token=${(login.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1]}`
     csrfToken = await getCsrfToken(cookie)
-    const camp = await api('/api/campaigns', { method: 'POST', headers: withCsrf(cookie, csrfToken), body: { name: `CreateRel ${Date.now()}` } })
+    const camp = await api('/api/campaigns', {
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
+      body: { name: `CreateRel ${Date.now()}` },
+    })
     campaignId = (await camp.json()).id
 
-    const e1 = await api(`/api/campaigns/${campaignId}/entities`, { method: 'POST', headers: withCsrf(cookie, csrfToken), body: { name: 'Source', type: 'character', content: '# S' } })
+    const e1 = await api(`/api/campaigns/${campaignId}/entities`, {
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
+      body: { name: 'Source', type: 'character', content: '# S' },
+    })
     entity1Id = (await e1.json()).id
-    const e2 = await api(`/api/campaigns/${campaignId}/entities`, { method: 'POST', headers: withCsrf(cookie, csrfToken), body: { name: 'Target', type: 'location', content: '# T' } })
+    const e2 = await api(`/api/campaigns/${campaignId}/entities`, {
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
+      body: { name: 'Target', type: 'location', content: '# T' },
+    })
     entity2Id = (await e2.json()).id
   })
 
   it('rejects non-existent source entity', async () => {
     const res = await api(`/api/campaigns/${campaignId}/relations`, {
-      method: 'POST', headers: withCsrf(cookie, csrfToken),
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
       body: { sourceEntityId: 'nonexistent-id', targetEntityId: entity2Id, forwardLabel: 'test' },
     })
     expect(res.status).toBe(404)
@@ -144,7 +194,8 @@ describe('Relation create validates entities (9.21)', () => {
 
   it('rejects non-existent target entity', async () => {
     const res = await api(`/api/campaigns/${campaignId}/relations`, {
-      method: 'POST', headers: withCsrf(cookie, csrfToken),
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
       body: { sourceEntityId: entity1Id, targetEntityId: 'nonexistent-id', forwardLabel: 'test' },
     })
     expect(res.status).toBe(404)
@@ -152,12 +203,15 @@ describe('Relation create validates entities (9.21)', () => {
 
   it('succeeds with valid entities', async () => {
     // Need a relation type (required NOT NULL)
-    const types = await api(`/api/campaigns/${campaignId}/relation-types`, { headers: { Cookie: cookie } })
+    const types = await api(`/api/campaigns/${campaignId}/relation-types`, {
+      headers: { Cookie: cookie },
+    })
     const typeList = await types.json()
     const typeId = typeList[0]?.id
 
     const res = await api(`/api/campaigns/${campaignId}/relations`, {
-      method: 'POST', headers: withCsrf(cookie, csrfToken),
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
       body: {
         sourceEntityId: entity1Id,
         targetEntityId: entity2Id,

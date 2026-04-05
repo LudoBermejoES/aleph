@@ -12,10 +12,14 @@ export default defineEventHandler(async (event) => {
   }
 
   const db = useDb()
-  const fromCurrency = db.select().from(currencies)
+  const fromCurrency = db
+    .select()
+    .from(currencies)
     .where(and(eq(currencies.id, from as string), eq(currencies.campaignId, campaignId)))
     .get()
-  const toCurrency = db.select().from(currencies)
+  const toCurrency = db
+    .select()
+    .from(currencies)
     .where(and(eq(currencies.id, to as string), eq(currencies.campaignId, campaignId)))
     .get()
 

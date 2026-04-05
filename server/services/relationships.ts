@@ -24,21 +24,23 @@ export const BUILTIN_RELATION_TYPES = [
   { slug: 'custom', forward: '(custom)', reverse: '(custom)' },
 ]
 
-const VALID_SLUGS = new Set(BUILTIN_RELATION_TYPES.map(t => t.slug))
+const VALID_SLUGS = new Set(BUILTIN_RELATION_TYPES.map((t) => t.slug))
 
 /**
  * Seed built-in relation types for a campaign.
  */
 export function seedRelationTypes(db: BetterSQLite3Database, campaignId: string): void {
   for (const type of BUILTIN_RELATION_TYPES) {
-    db.insert(relationTypes).values({
-      id: randomUUID(),
-      campaignId,
-      slug: type.slug,
-      forwardLabel: type.forward,
-      reverseLabel: type.reverse,
-      isBuiltin: true,
-    }).run()
+    db.insert(relationTypes)
+      .values({
+        id: randomUUID(),
+        campaignId,
+        slug: type.slug,
+        forwardLabel: type.forward,
+        reverseLabel: type.reverse,
+        isBuiltin: true,
+      })
+      .run()
   }
 }
 

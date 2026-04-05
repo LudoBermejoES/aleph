@@ -36,12 +36,15 @@ export function emitCampaignNotification(
 ) {
   if (!_broadcastFn) return
 
-  _broadcastFn(campaignId, JSON.stringify({
-    type: 'notification',
+  _broadcastFn(
     campaignId,
-    notificationType,
-    message,
-    actorUserId, // Client can filter: don't show notification to the actor
-    timestamp: Date.now(),
-  }))
+    JSON.stringify({
+      type: 'notification',
+      campaignId,
+      notificationType,
+      message,
+      actorUserId, // Client can filter: don't show notification to the actor
+      timestamp: Date.now(),
+    }),
+  )
 }

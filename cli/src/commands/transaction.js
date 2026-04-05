@@ -13,14 +13,26 @@ export function makeTransactionCommand() {
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
       const data = await get(`/api/campaigns/${opts.campaign}/transactions`)
-      print(opts.json ? data : data.map(t => ({ id: t.id, type: t.type, description: (t.description || '').slice(0, 40) })), { json: opts.json })
+      print(
+        opts.json
+          ? data
+          : data.map((t) => ({
+              id: t.id,
+              type: t.type,
+              description: (t.description || '').slice(0, 40),
+            })),
+        { json: opts.json },
+      )
     })
 
   cmd
     .command('create')
     .description('Create a transaction')
     .requiredOption('--campaign <id>', 'Campaign ID')
-    .requiredOption('--type <type>', 'Transaction type (purchase|sale|transfer|trade|deposit|withdrawal|grant)')
+    .requiredOption(
+      '--type <type>',
+      'Transaction type (purchase|sale|transfer|trade|deposit|withdrawal|grant)',
+    )
     .requiredOption('--amounts <json>', 'Amounts as JSON (e.g. \'{"gp":10}\')')
     .option('--from <entityId>', 'Source entity ID')
     .option('--to <entityId>', 'Destination entity ID')
@@ -34,7 +46,11 @@ export function makeTransactionCommand() {
         toEntityId: opts.to,
         description: opts.notes,
       })
-      if (opts.json) { print(data, { json: true }) } else { success(`Transaction created: ${data.id}`) }
+      if (opts.json) {
+        print(data, { json: true })
+      } else {
+        success(`Transaction created: ${data.id}`)
+      }
     })
 
   cmd
@@ -60,8 +76,14 @@ export function makeTransactionCommand() {
     .option('--yes', 'Skip confirmation')
     .action(async (opts) => {
       if (!opts.yes) {
-        const ok = await confirm({ message: `Delete transaction ${opts.id}? This cannot be undone.`, default: false })
-        if (!ok) { process.stdout.write('Cancelled.\n'); return }
+        const ok = await confirm({
+          message: `Delete transaction ${opts.id}? This cannot be undone.`,
+          default: false,
+        })
+        if (!ok) {
+          process.stdout.write('Cancelled.\n')
+          return
+        }
       }
       await del(`/api/campaigns/${opts.campaign}/transactions/${opts.id}`)
       success(`Transaction ${opts.id} deleted.`)

@@ -7,6 +7,7 @@ The project uses shadcn-vue, which provides accessible Dialog, Command, and Butt
 ## Goals / Non-Goals
 
 **Goals:**
+
 - Every page that loads data shows a loading skeleton during fetch
 - Every page that loads data shows a meaningful error state when the fetch fails
 - All interactive controls have accessible names (aria-label or associated label)
@@ -15,6 +16,7 @@ The project uses shadcn-vue, which provides accessible Dialog, Command, and Butt
 - Browser `prompt()` is eliminated in favor of accessible dialogs
 
 **Non-Goals:**
+
 - No WCAG AAA compliance audit (targeting AA-level for interactive controls only)
 - No color contrast or font-size audit (separate concern)
 - No screen reader end-to-end testing (manual QA recommended but not automated here)

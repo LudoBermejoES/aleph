@@ -16,6 +16,7 @@ Aleph's core architectural differentiator is markdown-first content storage. All
 ## Scope
 
 ### In scope
+
 - Markdown file CRUD (create, read, update, delete `.md` files)
 - YAML frontmatter schema with Zod validation
 - Campaign directory structure management
@@ -27,10 +28,12 @@ Aleph's core architectural differentiator is markdown-first content storage. All
 - Server-side AST stripping of `:::secret` blocks based on user role
 
 ### Out of scope
+
 - Tiptap editor integration (part of change 12-collaboration)
 - Auto-linking engine (change 11)
 - Git versioning (future enhancement)
 
 ## Dependencies
+
 - 01-project-setup
 - 02-auth-rbac (for permission-filtered rendering)

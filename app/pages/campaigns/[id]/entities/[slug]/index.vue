@@ -4,9 +4,13 @@
     <div v-else-if="entity">
       <!-- Breadcrumb -->
       <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-        <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary"> {{ $t('common.campaign') }}</NuxtLink>
+        <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">
+          {{ $t('common.campaign') }}</NuxtLink
+        >
         <span>/</span>
-        <NuxtLink :to="`/campaigns/${campaignId}/entities`" class="hover:text-primary">{{ $t('entities.title') }}</NuxtLink>
+        <NuxtLink :to="`/campaigns/${campaignId}/entities`" class="hover:text-primary">{{
+          $t('entities.title')
+        }}</NuxtLink>
         <span>/</span>
         <span class="text-foreground">{{ entity.name }}</span>
       </div>
@@ -27,31 +31,52 @@
           :campaign-id="campaignId"
           :entity-slug="slug"
           size="lg"
-          @uploaded="url => { if (entity) entity.imageUrl = url }"
+          @uploaded="
+            (url) => {
+              if (entity) entity.imageUrl = url
+            }
+          "
         />
         <div class="flex-1 flex items-start justify-between">
-        <div>
-          <h1 class="text-3xl font-bold">{{ entity.name }}</h1>
-          <div class="flex items-center gap-2 mt-2">
-            <span class="text-xs px-2 py-1 rounded bg-secondary text-secondary-foreground">{{ entity.type }}</span>
-            <span class="text-xs px-2 py-1 rounded bg-secondary text-secondary-foreground">{{ entity.visibility }}</span>
-            <span v-for="tag in (entity.frontmatter?.tags || [])" :key="tag" class="text-xs px-2 py-1 rounded bg-primary/10 text-primary">{{ tag }}</span>
+          <div>
+            <h1 class="text-3xl font-bold">{{ entity.name }}</h1>
+            <div class="flex items-center gap-2 mt-2">
+              <span class="text-xs px-2 py-1 rounded bg-secondary text-secondary-foreground">{{
+                entity.type
+              }}</span>
+              <span class="text-xs px-2 py-1 rounded bg-secondary text-secondary-foreground">{{
+                entity.visibility
+              }}</span>
+              <span
+                v-for="tag in entity.frontmatter?.tags || []"
+                :key="tag"
+                class="text-xs px-2 py-1 rounded bg-primary/10 text-primary"
+                >{{ tag }}</span
+              >
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <NuxtLink :to="`/campaigns/${campaignId}/entities/${slug}/edit`">
+              <Button variant="outline" size="sm">{{ $t('common.edit') }}</Button>
+            </NuxtLink>
+            <NuxtLink
+              v-if="canEdit"
+              :to="`/campaigns/${campaignId}/entities/${slug}/edit?collab=true`"
+            >
+              <Button variant="outline" size="sm">{{ $t('collaboration.collaborate') }}</Button>
+            </NuxtLink>
           </div>
         </div>
-        <div class="flex gap-2">
-          <NuxtLink :to="`/campaigns/${campaignId}/entities/${slug}/edit`">
-            <Button variant="outline" size="sm">{{ $t('common.edit') }}</Button>
-          </NuxtLink>
-          <NuxtLink v-if="canEdit" :to="`/campaigns/${campaignId}/entities/${slug}/edit?collab=true`">
-            <Button variant="outline" size="sm">{{ $t('collaboration.collaborate') }}</Button>
-          </NuxtLink>
-        </div>
-      </div>
       </div>
 
       <!-- Frontmatter Fields -->
-      <div v-if="entity.frontmatter?.aliases?.length" class="mb-4 p-3 rounded border border-border bg-muted/30">
-        <span class="text-xs font-medium text-muted-foreground">{{ $t('entities.alsoKnownAs') }}</span>
+      <div
+        v-if="entity.frontmatter?.aliases?.length"
+        class="mb-4 p-3 rounded border border-border bg-muted/30"
+      >
+        <span class="text-xs font-medium text-muted-foreground">{{
+          $t('entities.alsoKnownAs')
+        }}</span>
         <span v-for="(alias, i) in entity.frontmatter.aliases" :key="alias" class="text-sm">
           {{ alias }}<span v-if="i < entity.frontmatter.aliases.length - 1">, </span>
         </span>
@@ -80,7 +105,10 @@
         </div>
       </div>
       <!-- Relationship Graph -->
-      <div v-if="graphData && Object.keys(graphData.nodes).length" class="mt-8 border-t border-border pt-6">
+      <div
+        v-if="graphData && Object.keys(graphData.nodes).length"
+        class="mt-8 border-t border-border pt-6"
+      >
         <h2 class="text-lg font-semibold mb-3">{{ $t('entities.relationships') }}</h2>
         <EntityGraphView
           :nodes="graphData.nodes"
@@ -103,7 +131,9 @@
           >
             <span class="font-medium">{{ m.sourceName }}</span>
             <span class="text-xs ml-2 text-muted-foreground">{{ m.sourceType }}</span>
-            <span class="text-xs ml-2 text-muted-foreground">({{ m.count }} {{ $t('entities.mentions') }})</span>
+            <span class="text-xs ml-2 text-muted-foreground"
+              >({{ m.count }} {{ $t('entities.mentions') }})</span
+            >
           </NuxtLink>
         </div>
       </div>
@@ -124,7 +154,6 @@
 </template>
 
 <script setup lang="ts">
-
 const route = useRoute()
 const campaignId = route.params.id as string
 const slug = route.params.slug as string
@@ -162,11 +191,22 @@ async function loadEntity() {
     if (entity.value?.id) {
       const relations = await api.getRelations({ entity_id: entity.value.id }).catch(() => [])
       const nodes: Record<string, { name: string; type: string }> = {}
-      const edges: Record<string, { source: string; target: string; label: string; color: string }> = {}
+      const edges: Record<
+        string,
+        { source: string; target: string; label: string; color: string }
+      > = {}
       nodes[entity.value.id] = { name: entity.value.name, type: entity.value.type }
       for (const rel of relations) {
-        nodes[rel.relatedEntityId || rel.targetEntityId] = { name: rel.relatedEntityId || rel.targetEntityId, type: 'entity' }
-        edges[rel.id] = { source: rel.sourceEntityId, target: rel.targetEntityId, label: rel.label || rel.forwardLabel, color: '#9ca3af' }
+        nodes[rel.relatedEntityId || rel.targetEntityId] = {
+          name: rel.relatedEntityId || rel.targetEntityId,
+          type: 'entity',
+        }
+        edges[rel.id] = {
+          source: rel.sourceEntityId,
+          target: rel.targetEntityId,
+          label: rel.label || rel.forwardLabel,
+          color: '#9ca3af',
+        }
       }
       graphData.value = relations.length ? { nodes, edges } : null
     }
@@ -183,14 +223,19 @@ async function onPreviewRoleChange(role: string | null) {
     return
   }
   try {
-    const res = await fetch(`/api/campaigns/${campaignId}/entities/${slug}/render?preview_as=${role}`, {
-      credentials: 'include',
-    })
+    const res = await fetch(
+      `/api/campaigns/${campaignId}/entities/${slug}/render?preview_as=${role}`,
+      {
+        credentials: 'include',
+      },
+    )
     if (res.ok) {
       const data = await res.json()
       previewContent.value = data.content
     }
-  } catch { /* silently ignore */ }
+  } catch {
+    /* silently ignore */
+  }
 }
 
 function onGraphNodeClick(nodeId: string) {
@@ -203,12 +248,16 @@ function onGraphNodeClick(nodeId: string) {
 async function loadRevealedBlocks() {
   if (!['dm', 'co_dm'].includes(campaignRole.value)) return
   try {
-    const res = await fetch(`/api/campaigns/${campaignId}/entities/${slug}/secrets`, { credentials: 'include' })
+    const res = await fetch(`/api/campaigns/${campaignId}/entities/${slug}/secrets`, {
+      credentials: 'include',
+    })
     if (res.ok) {
       const data = await res.json()
       revealedBlocks.value = new Set(data.map((r: any) => r.blockId))
     }
-  } catch { /* silently ignore */ }
+  } catch {
+    /* silently ignore */
+  }
 }
 
 // Inject reveal buttons into secret blocks after render
@@ -226,11 +275,15 @@ function injectRevealButtons() {
     btn.addEventListener('click', async () => {
       const revealed = revealedBlocks.value.has(blockId)
       if (revealed) {
-        await fetch(`/api/campaigns/${campaignId}/entities/${slug}/secrets/${blockId}`, { method: 'DELETE', credentials: 'include' })
-        revealedBlocks.value = new Set([...revealedBlocks.value].filter(id => id !== blockId))
+        await fetch(`/api/campaigns/${campaignId}/entities/${slug}/secrets/${blockId}`, {
+          method: 'DELETE',
+          credentials: 'include',
+        })
+        revealedBlocks.value = new Set([...revealedBlocks.value].filter((id) => id !== blockId))
       } else {
         await fetch(`/api/campaigns/${campaignId}/entities/${slug}/secrets`, {
-          method: 'POST', credentials: 'include',
+          method: 'POST',
+          credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ blockId }),
         })
@@ -254,7 +307,7 @@ onMounted(async () => {
 watch(revealedBlocks, async () => {
   await nextTick()
   // Remove all existing buttons and re-inject with updated state
-  contentRef.value?.querySelectorAll('[data-reveal-btn]').forEach(b => b.remove())
+  contentRef.value?.querySelectorAll('[data-reveal-btn]').forEach((b) => b.remove())
   injectRevealButtons()
 })
 </script>

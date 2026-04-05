@@ -13,9 +13,11 @@ Aleph campaigns cover wildly different RPG settings — grimdark fantasy, cyberp
 ## Capabilities
 
 ### New Capabilities
+
 - `campaign-themes`: Per-campaign visual theme selection — 10 built-in themes, stored in DB, applied globally to all campaign pages, configurable on create and edit
 
 ### Modified Capabilities
+
 - `core`: The existing "visual themes per campaign" requirement transitions from planned to implemented
 
 ## Impact

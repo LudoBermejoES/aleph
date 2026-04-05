@@ -1,8 +1,5 @@
 <template>
-  <NuxtLink
-    :to="href"
-    class="text-primary underline decoration-dotted hover:decoration-solid"
-  >
+  <NuxtLink :to="href" class="text-primary underline decoration-dotted hover:decoration-solid">
     <slot>{{ name }}</slot>
   </NuxtLink>
 </template>

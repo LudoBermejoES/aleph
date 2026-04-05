@@ -5,7 +5,7 @@ const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 async function api(path: string, opts?: RequestInit & { body?: unknown }) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
-    headers: { 'Content-Type': 'application/json', 'Origin': BASE_URL, ...opts?.headers },
+    headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...opts?.headers },
     body: opts?.body !== undefined ? JSON.stringify(opts.body) : undefined,
   })
 }
@@ -27,7 +27,11 @@ async function signUpAndGetCookie(email: string, password = 'password123', name 
 async function createApiKey(cookie: string, keyName = 'test-key') {
   const csrfMatch = cookie.match(/csrf_token=([^;]+)/)
   const csrfToken = csrfMatch?.[1] || ''
-  const res = await api('/api/apikeys', { method: 'POST', headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken }, body: { name: keyName } })
+  const res = await api('/api/apikeys', {
+    method: 'POST',
+    headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
+    body: { name: keyName },
+  })
   return res.json()
 }
 
@@ -114,10 +118,13 @@ describe('Currency CRUD (integration)', () => {
   })
 
   it('DELETE non-existent currency returns 404', async () => {
-    const res = await api(`/api/campaigns/${campaignId}/currencies/00000000-0000-0000-0000-000000000000`, {
-      method: 'DELETE',
-      headers: { 'X-API-Key': apiKey },
-    })
+    const res = await api(
+      `/api/campaigns/${campaignId}/currencies/00000000-0000-0000-0000-000000000000`,
+      {
+        method: 'DELETE',
+        headers: { 'X-API-Key': apiKey },
+      },
+    )
     expect(res.status).toBe(404)
   })
 

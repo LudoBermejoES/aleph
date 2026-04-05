@@ -13,7 +13,17 @@ export function makeTemplateCommand() {
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
       const data = await get(`/api/campaigns/${opts.campaign}/templates`)
-      print(opts.json ? data : data.map(t => ({ id: t.id, name: t.name, entityType: t.entityTypeSlug, default: t.isDefault ? 'yes' : '' })), { json: opts.json })
+      print(
+        opts.json
+          ? data
+          : data.map((t) => ({
+              id: t.id,
+              name: t.name,
+              entityType: t.entityTypeSlug,
+              default: t.isDefault ? 'yes' : '',
+            })),
+        { json: opts.json },
+      )
     })
 
   cmd
@@ -39,7 +49,11 @@ export function makeTemplateCommand() {
       const body = { name: opts.name, entityTypeSlug: opts.entityType }
       if (opts.content) body.fields = JSON.parse(opts.content)
       const data = await post(`/api/campaigns/${opts.campaign}/templates`, body)
-      if (opts.json) { print(data, { json: true }) } else { success(`Template created: ${data.name} (${data.id})`) }
+      if (opts.json) {
+        print(data, { json: true })
+      } else {
+        success(`Template created: ${data.name} (${data.id})`)
+      }
     })
 
   cmd
@@ -65,8 +79,14 @@ export function makeTemplateCommand() {
     .option('--yes', 'Skip confirmation')
     .action(async (opts) => {
       if (!opts.yes) {
-        const ok = await confirm({ message: `Delete template ${opts.id}? This cannot be undone.`, default: false })
-        if (!ok) { process.stdout.write('Cancelled.\n'); return }
+        const ok = await confirm({
+          message: `Delete template ${opts.id}? This cannot be undone.`,
+          default: false,
+        })
+        if (!ok) {
+          process.stdout.write('Cancelled.\n')
+          return
+        }
       }
       await del(`/api/campaigns/${opts.campaign}/templates/${opts.id}`)
       success(`Template ${opts.id} deleted.`)

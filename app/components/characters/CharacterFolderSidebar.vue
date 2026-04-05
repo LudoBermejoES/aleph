@@ -5,14 +5,18 @@
       class="block w-full text-left text-sm px-2 py-1 rounded mb-1 hover:bg-secondary"
       :class="{ 'bg-secondary font-medium': !selectedFolder }"
       @click="$emit('select-folder', '')"
-    >{{ $t('characters.allNpcs') }}</button>
+    >
+      {{ $t('characters.allNpcs') }}
+    </button>
     <button
       v-for="f in folders"
       :key="f.id"
       class="block w-full text-left text-sm px-2 py-1 rounded mb-1 hover:bg-secondary"
       :class="{ 'bg-secondary font-medium': selectedFolder === f.id }"
       @click="$emit('select-folder', f.id)"
-    >{{ f.name }}</button>
+    >
+      {{ f.name }}
+    </button>
   </aside>
 </template>
 

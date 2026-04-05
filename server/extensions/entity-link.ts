@@ -38,13 +38,17 @@ export const EntityLink = Node.create({
 
   renderHTML({ node }) {
     const label = node.attrs.label || node.attrs.slug || 'unknown'
-    return ['a', {
-      'data-entity-link': '',
-      'data-slug': node.attrs.slug,
-      ...(node.attrs.label ? { 'data-label': node.attrs.label } : {}),
-      class: 'entity-link',
-      href: '#', // Placeholder; client-side routing handles navigation
-    }, label]
+    return [
+      'a',
+      {
+        'data-entity-link': '',
+        'data-slug': node.attrs.slug,
+        ...(node.attrs.label ? { 'data-label': node.attrs.label } : {}),
+        class: 'entity-link',
+        href: '#', // Placeholder; client-side routing handles navigation
+      },
+      label,
+    ]
   },
 
   // --- Markdown integration via @tiptap/markdown ---

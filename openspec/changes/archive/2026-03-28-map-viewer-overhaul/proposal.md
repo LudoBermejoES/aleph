@@ -21,9 +21,11 @@ The Arcadia project has a battle-tested map system using OpenLayers with custom 
 ## Capabilities
 
 ### New Capabilities
+
 - (none — this is an overhaul of existing capability)
 
 ### Modified Capabilities
+
 - `maps`: Tiling service rewrite (aspect-ratio-safe), always-tile strategy, MapViewer rewrite with resolution pyramid and proper tile grid configuration
 
 ## Impact

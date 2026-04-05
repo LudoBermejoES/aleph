@@ -3,7 +3,12 @@ import { randomUUID } from 'crypto'
 import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
 import { validateBody } from '../../../../../utils/validate'
-import { inventories, inventoryItems, items, transactions } from '../../../../../db/schema/inventory'
+import {
+  inventories,
+  inventoryItems,
+  items,
+  transactions,
+} from '../../../../../db/schema/inventory'
 import { characters } from '../../../../../db/schema/characters'
 import { canTransferItem } from '../../../../../services/inventory'
 import { hasMinRole } from '../../../../../utils/permissions'
@@ -11,7 +16,8 @@ import type { CampaignRole } from '../../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
   const role = event.context.campaignRole as CampaignRole
-  if (!hasMinRole(role, 'player')) throw createError({ statusCode: 403, message: 'Players or above can transfer items' })
+  if (!hasMinRole(role, 'player'))
+    throw createError({ statusCode: 403, message: 'Players or above can transfer items' })
 
   const campaignId = getRouterParam(event, 'id')!
   const fromInventoryId = getRouterParam(event, 'inventoryId')!
@@ -29,21 +35,33 @@ export default defineEventHandler(async (event) => {
   if (role === 'player' && userId) {
     const sourceInv = db.select().from(inventories).where(eq(inventories.id, fromInventoryId)).get()
     if (sourceInv?.ownerType === 'character') {
-      const ownerChar = db.select().from(characters)
+      const ownerChar = db
+        .select()
+        .from(characters)
         .where(and(eq(characters.id, sourceInv.ownerId), eq(characters.ownerUserId, userId)))
         .get()
-      if (!ownerChar) throw createError({ statusCode: 403, message: 'You can only manage your own character\'s inventory' })
+      if (!ownerChar)
+        throw createError({
+          statusCode: 403,
+          message: "You can only manage your own character's inventory",
+        })
     }
   }
 
   // Validate source
-  const sourceItem = db.select().from(inventoryItems)
+  const sourceItem = db
+    .select()
+    .from(inventoryItems)
     .where(and(eq(inventoryItems.inventoryId, fromInventoryId), eq(inventoryItems.itemId, itemId)))
     .get()
 
-  if (!sourceItem) throw createError({ statusCode: 404, message: 'Item not found in source inventory' })
+  if (!sourceItem)
+    throw createError({ statusCode: 404, message: 'Item not found in source inventory' })
 
-  const check = canTransferItem({ currentQuantity: sourceItem.quantity, transferQuantity: quantity })
+  const check = canTransferItem({
+    currentQuantity: sourceItem.quantity,
+    transferQuantity: quantity,
+  })
   if (!check.allowed) throw createError({ statusCode: 400, message: check.error })
 
   // Validate target
@@ -55,12 +73,17 @@ export default defineEventHandler(async (event) => {
   if (newSourceQty <= 0) {
     db.delete(inventoryItems).where(eq(inventoryItems.id, sourceItem.id)).run()
   } else {
-    db.update(inventoryItems).set({ quantity: newSourceQty }).where(eq(inventoryItems.id, sourceItem.id)).run()
+    db.update(inventoryItems)
+      .set({ quantity: newSourceQty })
+      .where(eq(inventoryItems.id, sourceItem.id))
+      .run()
   }
 
   // Add to target (stack if possible)
   const item = db.select().from(items).where(eq(items.id, itemId)).get()
-  const existingTarget = db.select().from(inventoryItems)
+  const existingTarget = db
+    .select()
+    .from(inventoryItems)
     .where(and(eq(inventoryItems.inventoryId, toInventoryId), eq(inventoryItems.itemId, itemId)))
     .get()
 
@@ -70,27 +93,31 @@ export default defineEventHandler(async (event) => {
       .where(eq(inventoryItems.id, existingTarget.id))
       .run()
   } else {
-    db.insert(inventoryItems).values({
-      id: randomUUID(),
-      inventoryId: toInventoryId,
-      itemId,
-      quantity,
-      position: 'backpack',
-      acquiredAt: new Date(),
-    }).run()
+    db.insert(inventoryItems)
+      .values({
+        id: randomUUID(),
+        inventoryId: toInventoryId,
+        itemId,
+        quantity,
+        position: 'backpack',
+        acquiredAt: new Date(),
+      })
+      .run()
   }
 
   // Log transaction
-  db.insert(transactions).values({
-    id: randomUUID(),
-    campaignId,
-    type: 'trade',
-    fromEntityId: fromInventoryId,
-    toEntityId: toInventoryId,
-    itemId,
-    quantity,
-    createdAt: new Date(),
-  }).run()
+  db.insert(transactions)
+    .values({
+      id: randomUUID(),
+      campaignId,
+      type: 'trade',
+      fromEntityId: fromInventoryId,
+      toEntityId: toInventoryId,
+      itemId,
+      quantity,
+      createdAt: new Date(),
+    })
+    .run()
 
   return { success: true }
 })

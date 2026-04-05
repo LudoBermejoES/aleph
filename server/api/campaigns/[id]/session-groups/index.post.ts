@@ -25,7 +25,9 @@ export default defineEventHandler(async (event) => {
   const db = useDb()
   const slug = slugify(body.name)
 
-  const existing = db.select({ id: sessionGroups.id }).from(sessionGroups)
+  const existing = db
+    .select({ id: sessionGroups.id })
+    .from(sessionGroups)
     .where(and(eq(sessionGroups.campaignId, campaignId), eq(sessionGroups.slug, slug)))
     .get()
   if (existing) {
@@ -35,16 +37,18 @@ export default defineEventHandler(async (event) => {
   const id = randomUUID()
   const now = new Date()
 
-  db.insert(sessionGroups).values({
-    id,
-    campaignId,
-    name: body.name.trim(),
-    slug,
-    description: body.description ?? null,
-    sortOrder: body.sortOrder ?? 0,
-    createdAt: now,
-    updatedAt: now,
-  }).run()
+  db.insert(sessionGroups)
+    .values({
+      id,
+      campaignId,
+      name: body.name.trim(),
+      slug,
+      description: body.description ?? null,
+      sortOrder: body.sortOrder ?? 0,
+      createdAt: now,
+      updatedAt: now,
+    })
+    .run()
 
   return db.select().from(sessionGroups).where(eq(sessionGroups.id, id)).get()
 })

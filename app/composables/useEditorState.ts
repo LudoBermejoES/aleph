@@ -18,10 +18,19 @@ export interface EditorState {
 
 export function useEditorState() {
   const editorState = reactive<EditorState>({
-    isBold: false, isItalic: false, isStrike: false, isCode: false,
-    isH1: false, isH2: false, isH3: false,
-    isBulletList: false, isOrderedList: false, isTaskList: false,
-    isBlockquote: false, isCodeBlock: false, isLink: false,
+    isBold: false,
+    isItalic: false,
+    isStrike: false,
+    isCode: false,
+    isH1: false,
+    isH2: false,
+    isH3: false,
+    isBulletList: false,
+    isOrderedList: false,
+    isTaskList: false,
+    isBlockquote: false,
+    isCodeBlock: false,
+    isLink: false,
   })
 
   function updateEditorState(editor: Editor) {

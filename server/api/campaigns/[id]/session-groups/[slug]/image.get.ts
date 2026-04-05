@@ -10,7 +10,9 @@ export default defineEventHandler(async (event) => {
   const db = useDb()
   const campaign = event.context.campaign
 
-  const group = db.select({ id: sessionGroups.id }).from(sessionGroups)
+  const group = db
+    .select({ id: sessionGroups.id })
+    .from(sessionGroups)
     .where(and(eq(sessionGroups.campaignId, campaignId), eq(sessionGroups.slug, slug)))
     .get()
   if (!group) throw createError({ statusCode: 404, message: 'Session group not found' })
@@ -26,7 +28,9 @@ export default defineEventHandler(async (event) => {
       setResponseHeader(event, 'Content-Type', mime)
       setResponseHeader(event, 'Cache-Control', 'public, max-age=3600')
       return data
-    } catch { /* try next */ }
+    } catch {
+      /* try next */
+    }
   }
 
   throw createError({ statusCode: 404, message: 'Image not found' })

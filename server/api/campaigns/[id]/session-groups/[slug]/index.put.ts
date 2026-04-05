@@ -22,7 +22,9 @@ export default defineEventHandler(async (event) => {
   const body = await validateBody(event, sessionGroupPutSchema)
   const db = useDb()
 
-  const group = db.select().from(sessionGroups)
+  const group = db
+    .select()
+    .from(sessionGroups)
     .where(and(eq(sessionGroups.campaignId, campaignId), eq(sessionGroups.slug, slug)))
     .get()
   if (!group) throw createError({ statusCode: 404, message: 'Session group not found' })

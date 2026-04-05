@@ -7,7 +7,10 @@ import type { CampaignRole } from '../../../../../../../utils/permissions'
 export default defineEventHandler(async (event) => {
   const role = event.context.campaignRole as CampaignRole
   if (!hasMinRole(role, 'editor')) {
-    throw createError({ statusCode: 403, message: 'Editors or above can manage organization members' })
+    throw createError({
+      statusCode: 403,
+      message: 'Editors or above can manage organization members',
+    })
   }
 
   const campaignId = getRouterParam(event, 'id')!
@@ -15,7 +18,8 @@ export default defineEventHandler(async (event) => {
   const characterId = getRouterParam(event, 'characterId')!
   const db = useDb()
 
-  const org = db.select({ id: organizations.id })
+  const org = db
+    .select({ id: organizations.id })
     .from(organizations)
     .where(and(eq(organizations.campaignId, campaignId), eq(organizations.slug, slug)))
     .get()
@@ -24,23 +28,31 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, message: 'Organization not found' })
   }
 
-  const membership = db.select()
+  const membership = db
+    .select()
     .from(organizationMembers)
-    .where(and(
-      eq(organizationMembers.organizationId, org.id),
-      eq(organizationMembers.characterId, characterId),
-    ))
+    .where(
+      and(
+        eq(organizationMembers.organizationId, org.id),
+        eq(organizationMembers.characterId, characterId),
+      ),
+    )
     .get()
 
   if (!membership) {
-    throw createError({ statusCode: 404, message: 'Character is not a member of this organization' })
+    throw createError({
+      statusCode: 404,
+      message: 'Character is not a member of this organization',
+    })
   }
 
   db.delete(organizationMembers)
-    .where(and(
-      eq(organizationMembers.organizationId, org.id),
-      eq(organizationMembers.characterId, characterId),
-    ))
+    .where(
+      and(
+        eq(organizationMembers.organizationId, org.id),
+        eq(organizationMembers.characterId, characterId),
+      ),
+    )
     .run()
 
   return { success: true }

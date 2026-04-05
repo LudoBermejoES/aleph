@@ -58,7 +58,7 @@ export async function postMultipart(path, filePath, fieldName = 'file') {
 
   // Use native FormData (Node 18+)
   const form = new FormData()
-  const fileBuffer = await import('fs/promises').then(fs => fs.readFile(filePath))
+  const fileBuffer = await import('fs/promises').then((fs) => fs.readFile(filePath))
   const ext = basename(filePath).split('.').pop()?.toLowerCase() ?? 'bin'
   const mimeMap = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', webp: 'image/webp' }
   const mime = mimeMap[ext] ?? 'application/octet-stream'

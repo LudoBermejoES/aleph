@@ -32,18 +32,28 @@ test.describe('Secrets System - Preview as Player (task 9.11)', () => {
     const entitySlug = (entityRes as any).slug
 
     // DM renders without preview — should see dm secret block
-    const dmRender = await dmPage.evaluate(async ([id, slug]) => {
-      const r = await fetch(`/api/campaigns/${id}/entities/${slug}/render`, { credentials: 'include' })
-      return r.json()
-    }, [campaignId, entitySlug])
+    const dmRender = await dmPage.evaluate(
+      async ([id, slug]) => {
+        const r = await fetch(`/api/campaigns/${id}/entities/${slug}/render`, {
+          credentials: 'include',
+        })
+        return r.json()
+      },
+      [campaignId, entitySlug],
+    )
     expect((dmRender as any).previewMode).toBe(false)
     expect((dmRender as any).content).toContain('DM only secret')
 
     // DM renders with preview_as=player — secret stripped
-    const previewRender = await dmPage.evaluate(async ([id, slug]) => {
-      const r = await fetch(`/api/campaigns/${id}/entities/${slug}/render?preview_as=player`, { credentials: 'include' })
-      return r.json()
-    }, [campaignId, entitySlug])
+    const previewRender = await dmPage.evaluate(
+      async ([id, slug]) => {
+        const r = await fetch(`/api/campaigns/${id}/entities/${slug}/render?preview_as=player`, {
+          credentials: 'include',
+        })
+        return r.json()
+      },
+      [campaignId, entitySlug],
+    )
     expect((previewRender as any).previewMode).toBe(true)
     expect((previewRender as any).effectiveRole).toBe('player')
     expect((previewRender as any).content).not.toContain('DM only secret')
@@ -54,7 +64,9 @@ test.describe('Secrets System - Preview as Player (task 9.11)', () => {
 })
 
 test.describe('Secrets System - Reveal API (task 9.12)', () => {
-  test('DM reveals secret block, and render with revealedBlockIds shows content', async ({ browser }) => {
+  test('DM reveals secret block, and render with revealedBlockIds shows content', async ({
+    browser,
+  }) => {
     const dmContext = await browser.newContext()
     const dmPage = await dmContext.newPage()
     await registerAndLogin(dmPage, 'Reveal DM')
@@ -90,33 +102,52 @@ test.describe('Secrets System - Reveal API (task 9.12)', () => {
     })
 
     // Before reveal: DM previews as player — block hidden
-    const beforeReveal = await dmPage.evaluate(async ([id, slug]) => {
-      const r = await fetch(`/api/campaigns/${id}/entities/${slug}/render?preview_as=player`, { credentials: 'include' })
-      return r.json()
-    }, [campaignId, entitySlug])
+    const beforeReveal = await dmPage.evaluate(
+      async ([id, slug]) => {
+        const r = await fetch(`/api/campaigns/${id}/entities/${slug}/render?preview_as=player`, {
+          credentials: 'include',
+        })
+        return r.json()
+      },
+      [campaignId, entitySlug],
+    )
     expect((beforeReveal as any).content).not.toContain('butler')
 
     // DM reveals block clue-1
-    const revealRes = await apiFetch(dmPage, `/api/campaigns/${campaignId}/entities/${entitySlug}/secrets`, {
-      method: 'POST',
-      body: { blockId: 'clue-1' },
-    })
+    const revealRes = await apiFetch(
+      dmPage,
+      `/api/campaigns/${campaignId}/entities/${entitySlug}/secrets`,
+      {
+        method: 'POST',
+        body: { blockId: 'clue-1' },
+      },
+    )
     expect((revealRes as any).revealed).toBe(true)
 
     // After reveal: DM previews as player — block now shown
-    const afterReveal = await dmPage.evaluate(async ([id, slug]) => {
-      const r = await fetch(`/api/campaigns/${id}/entities/${slug}/render?preview_as=player`, { credentials: 'include' })
-      return r.json()
-    }, [campaignId, entitySlug])
+    const afterReveal = await dmPage.evaluate(
+      async ([id, slug]) => {
+        const r = await fetch(`/api/campaigns/${id}/entities/${slug}/render?preview_as=player`, {
+          credentials: 'include',
+        })
+        return r.json()
+      },
+      [campaignId, entitySlug],
+    )
     expect((afterReveal as any).content).toContain('butler')
 
     // GET /secrets returns the revealed block
-    const secretsList = await dmPage.evaluate(async ([id, slug]) => {
-      const r = await fetch(`/api/campaigns/${id}/entities/${slug}/secrets`, { credentials: 'include' })
-      return r.json()
-    }, [campaignId, entitySlug])
+    const secretsList = await dmPage.evaluate(
+      async ([id, slug]) => {
+        const r = await fetch(`/api/campaigns/${id}/entities/${slug}/secrets`, {
+          credentials: 'include',
+        })
+        return r.json()
+      },
+      [campaignId, entitySlug],
+    )
     expect(Array.isArray(secretsList)).toBe(true)
-    const found = (secretsList as any[]).find(s => s.blockId === 'clue-1')
+    const found = (secretsList as any[]).find((s) => s.blockId === 'clue-1')
     expect(found).toBeDefined()
 
     await dmContext.close()
@@ -141,17 +172,26 @@ test.describe('Secrets System - Secret Notes (task 9.13)', () => {
     const entitySlug = (entityRes as any).slug
 
     // DM writes secret notes
-    const putRes = await apiFetch(dmPage, `/api/campaigns/${campaignId}/entities/${entitySlug}/secret-notes`, {
-      method: 'PUT',
-      body: { content: 'The villain is hiding at the old mill.' },
-    })
+    const putRes = await apiFetch(
+      dmPage,
+      `/api/campaigns/${campaignId}/entities/${entitySlug}/secret-notes`,
+      {
+        method: 'PUT',
+        body: { content: 'The villain is hiding at the old mill.' },
+      },
+    )
     expect((putRes as any).content).toBe('The villain is hiding at the old mill.')
 
     // DM reads them back
-    const getRes = await dmPage.evaluate(async ([id, slug]) => {
-      const r = await fetch(`/api/campaigns/${id}/entities/${slug}/secret-notes`, { credentials: 'include' })
-      return r.json()
-    }, [campaignId, entitySlug])
+    const getRes = await dmPage.evaluate(
+      async ([id, slug]) => {
+        const r = await fetch(`/api/campaigns/${id}/entities/${slug}/secret-notes`, {
+          credentials: 'include',
+        })
+        return r.json()
+      },
+      [campaignId, entitySlug],
+    )
     expect((getRes as any).content).toBe('The villain is hiding at the old mill.')
 
     // Player cannot access them
@@ -169,10 +209,15 @@ test.describe('Secrets System - Secret Notes (task 9.13)', () => {
     })
 
     // Player tries to read secret notes — should get 403
-    const playerRes = await playerPage.evaluate(async ([id, slug]) => {
-      const r = await fetch(`/api/campaigns/${id}/entities/${slug}/secret-notes`, { credentials: 'include' })
-      return { status: r.status }
-    }, [campaignId, entitySlug])
+    const playerRes = await playerPage.evaluate(
+      async ([id, slug]) => {
+        const r = await fetch(`/api/campaigns/${id}/entities/${slug}/secret-notes`, {
+          credentials: 'include',
+        })
+        return { status: r.status }
+      },
+      [campaignId, entitySlug],
+    )
     expect((playerRes as any).status).toBe(403)
 
     await dmContext.close()

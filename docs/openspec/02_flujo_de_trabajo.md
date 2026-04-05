@@ -26,6 +26,7 @@ Flujo completo con workflow expandido:
 ```
 
 O paso a paso:
+
 ```
 /opsx:new ──► /opsx:continue ──► /opsx:continue ──► /opsx:apply ──► /opsx:archive
 ```
@@ -51,6 +52,7 @@ Cuando sabes lo que quieres hacer:
 ```
 
 **Ejemplo de conversación:**
+
 ```
 Tú: /opsx:propose add-quest-objectives
 
@@ -90,6 +92,7 @@ Cuando no tienes claro cómo atacar el problema:
 ```
 
 **Ejemplo:**
+
 ```
 Tú: /opsx:explore
 
@@ -129,6 +132,7 @@ Change B: /opsx:propose feature-b     ← sin problema, son carpetas distintas
 ```
 
 Cuando hay varios changes completados:
+
 ```
 /opsx:bulk-archive
 # detecta y resuelve conflictos de specs entre changes
@@ -138,12 +142,12 @@ Cuando hay varios changes completados:
 
 ## Cuándo usar `/opsx:ff` vs `/opsx:continue`
 
-| Situación | Usar |
-|-----------|------|
-| Scope claro, quieres ir rápido | `/opsx:ff` |
+| Situación                                        | Usar             |
+| ------------------------------------------------ | ---------------- |
+| Scope claro, quieres ir rápido                   | `/opsx:ff`       |
 | Quieres revisar cada artifact antes de continuar | `/opsx:continue` |
-| Cambio complejo, quieres control granular | `/opsx:continue` |
-| Presión de tiempo | `/opsx:ff` |
+| Cambio complejo, quieres control granular        | `/opsx:continue` |
+| Presión de tiempo                                | `/opsx:ff`       |
 
 **Regla:** Si puedes describir el scope completo desde el principio, usa `/opsx:ff`. Si lo estás definiendo mientras avanzas, usa `/opsx:continue`.
 
@@ -187,25 +191,25 @@ Flujo recomendado antes de cerrar un change importante:
 
 La verificación comprueba tres dimensiones:
 
-| Dimensión | Qué valida |
-|-----------|------------|
+| Dimensión        | Qué valida                                                    |
+| ---------------- | ------------------------------------------------------------- |
 | **Completeness** | Todas las tareas marcadas, todos los requisitos implementados |
-| **Correctness** | La implementación coincide con el intent de los specs |
-| **Coherence** | Las decisiones de diseño se reflejan en el código |
+| **Correctness**  | La implementación coincide con el intent de los specs         |
+| **Coherence**    | Las decisiones de diseño se reflejan en el código             |
 
 ---
 
 ## Tabla de referencia rápida
 
-| Comando | Propósito | Cuándo usarlo |
-|---------|-----------|---------------|
-| `/opsx:propose` | Crear change + todos los artifacts de planificación | Camino rápido (perfil core) |
-| `/opsx:explore` | Pensar en ideas antes de proponer | Requisitos poco claros |
-| `/opsx:new` | Scaffold del change (sin artifacts) | Workflow expandido, control granular |
-| `/opsx:continue` | Crear el siguiente artifact según dependencias | Workflow expandido, paso a paso |
-| `/opsx:ff` | Crear todos los artifacts de planificación de golpe | Workflow expandido, scope claro |
-| `/opsx:apply` | Implementar las tareas del tasks.md | Listo para escribir código |
-| `/opsx:verify` | Validar que la implementación coincide con specs | Antes de archivar |
-| `/opsx:sync` | Fusionar delta specs en specs principales | Opcional, archivo lo hace automáticamente |
-| `/opsx:archive` | Completar el change | Todo el trabajo terminado |
-| `/opsx:bulk-archive` | Archivar varios changes a la vez | Trabajo paralelo |
+| Comando              | Propósito                                           | Cuándo usarlo                             |
+| -------------------- | --------------------------------------------------- | ----------------------------------------- |
+| `/opsx:propose`      | Crear change + todos los artifacts de planificación | Camino rápido (perfil core)               |
+| `/opsx:explore`      | Pensar en ideas antes de proponer                   | Requisitos poco claros                    |
+| `/opsx:new`          | Scaffold del change (sin artifacts)                 | Workflow expandido, control granular      |
+| `/opsx:continue`     | Crear el siguiente artifact según dependencias      | Workflow expandido, paso a paso           |
+| `/opsx:ff`           | Crear todos los artifacts de planificación de golpe | Workflow expandido, scope claro           |
+| `/opsx:apply`        | Implementar las tareas del tasks.md                 | Listo para escribir código                |
+| `/opsx:verify`       | Validar que la implementación coincide con specs    | Antes de archivar                         |
+| `/opsx:sync`         | Fusionar delta specs en specs principales           | Opcional, archivo lo hace automáticamente |
+| `/opsx:archive`      | Completar el change                                 | Todo el trabajo terminado                 |
+| `/opsx:bulk-archive` | Archivar varios changes a la vez                    | Trabajo paralelo                          |

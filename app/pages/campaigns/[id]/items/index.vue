@@ -1,7 +1,9 @@
 <template>
   <div class="p-8">
     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary"> {{ $t('common.campaign') }}</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">
+        {{ $t('common.campaign') }}</NuxtLink
+      >
       <span>/</span><span>{{ $t('items.title') }}</span>
     </div>
     <div class="flex items-center justify-between mb-6">
@@ -11,7 +13,11 @@
       </NuxtLink>
     </div>
     <div class="flex gap-3 mb-4">
-      <select v-model="filter" @change="load" class="rounded-md border border-input bg-background px-3 py-2 text-sm">
+      <select
+        v-model="filter"
+        @change="load"
+        class="rounded-md border border-input bg-background px-3 py-2 text-sm"
+      >
         <option value="">{{ $t('items.allRarities') }}</option>
         <option value="common">{{ $t('items.rarityCommon') }}</option>
         <option value="uncommon">{{ $t('items.rarityUncommon') }}</option>
@@ -22,21 +28,33 @@
     </div>
     <LoadingSkeleton v-if="loading" :rows="4" />
     <div v-else-if="itemList.length" class="space-y-2">
-      <div v-for="item in itemList" :key="item.id" class="p-3 rounded border border-border flex items-center justify-between">
+      <div
+        v-for="item in itemList"
+        :key="item.id"
+        class="p-3 rounded border border-border flex items-center justify-between"
+      >
         <div>
           <span class="font-medium">{{ item.name }}</span>
-          <span :class="['text-xs ml-2 px-2 py-0.5 rounded', rarityColor(item.rarity)]">{{ item.rarity }}</span>
+          <span :class="['text-xs ml-2 px-2 py-0.5 rounded', rarityColor(item.rarity)]">{{
+            item.rarity
+          }}</span>
         </div>
-        <span class="text-xs text-muted-foreground">{{ formatPrice(item.priceJson, currencyList) || $t('items.noPrice') }}</span>
+        <span class="text-xs text-muted-foreground">{{
+          formatPrice(item.priceJson, currencyList) || $t('items.noPrice')
+        }}</span>
       </div>
     </div>
-    <EmptyState v-else icon="🎒" :title="$t('items.empty')" :description="$t('items.emptyDescription')" />
+    <EmptyState
+      v-else
+      icon="🎒"
+      :title="$t('items.empty')"
+      :description="$t('items.emptyDescription')"
+    />
     <ErrorToast v-if="error" :message="error" @dismiss="dismissError" />
   </div>
 </template>
 
 <script setup lang="ts">
-
 import { formatPrice } from '~/composables/useFormatPrice'
 
 const route = useRoute()
@@ -49,8 +67,10 @@ const { loading, error, withLoading, dismissError } = useLoadingState()
 
 function rarityColor(r: string) {
   const map: Record<string, string> = {
-    common: 'bg-secondary text-secondary-foreground', uncommon: 'bg-green-100 text-green-700',
-    rare: 'bg-blue-100 text-blue-700', very_rare: 'bg-purple-100 text-purple-700',
+    common: 'bg-secondary text-secondary-foreground',
+    uncommon: 'bg-green-100 text-green-700',
+    rare: 'bg-blue-100 text-blue-700',
+    very_rare: 'bg-purple-100 text-purple-700',
     legendary: 'bg-amber-100 text-amber-700',
   }
   return map[r] || map.common

@@ -21,7 +21,9 @@ export default defineEventHandler(async (event) => {
   const db = useDb()
   const campaign = event.context.campaign
 
-  const entity = db.select().from(entities)
+  const entity = db
+    .select()
+    .from(entities)
     .where(and(eq(entities.campaignId, campaignId), eq(entities.slug, slug)))
     .get()
   if (!entity) throw createError({ statusCode: 404, message: 'Entity not found' })
@@ -31,14 +33,17 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'No file uploaded' })
   }
 
-  const file = formData.find(f => f.name === 'image')
+  const file = formData.find((f) => f.name === 'image')
   if (!file || !file.data) {
     throw createError({ statusCode: 400, message: 'Image file is required (field name: "image")' })
   }
 
   const mime = file.type || 'application/octet-stream'
   if (!ALLOWED_MIME_TYPES.includes(mime)) {
-    throw createError({ statusCode: 400, message: `Invalid file type "${mime}". Allowed: png, jpeg, webp` })
+    throw createError({
+      statusCode: 400,
+      message: `Invalid file type "${mime}". Allowed: png, jpeg, webp`,
+    })
   }
 
   if (file.data.length > MAX_SIZE_BYTES) {
@@ -48,7 +53,10 @@ export default defineEventHandler(async (event) => {
   // Validate actual file content via magic bytes
   const detectedMime = detectMimeFromBytes(file.data)
   if (!detectedMime || detectedMime !== mime) {
-    throw createError({ statusCode: 400, message: 'File content does not match declared MIME type' })
+    throw createError({
+      statusCode: 400,
+      message: 'File content does not match declared MIME type',
+    })
   }
 
   const mimeToExt: Record<string, string> = {
@@ -64,10 +72,7 @@ export default defineEventHandler(async (event) => {
 
   const imageUrl = `/api/campaigns/${campaignId}/entities/${slug}/image`
 
-  db.update(entities)
-    .set({ imageUrl })
-    .where(eq(entities.id, entity.id))
-    .run()
+  db.update(entities).set({ imageUrl }).where(eq(entities.id, entity.id)).run()
 
   return { imageUrl }
 })

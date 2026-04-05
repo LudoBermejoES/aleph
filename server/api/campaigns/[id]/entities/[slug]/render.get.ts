@@ -4,7 +4,12 @@ import { entities } from '../../../../../db/schema/entities'
 import { secretReveals } from '../../../../../db/schema/secrets'
 import { readEntityFile, stripSecretBlocks } from '../../../../../services/content'
 import { autoLinkContent } from '../../../../../services/autolink-render'
-import { hasMinRole, canUserAccessEntity, getCachedPermission, setCachedPermission } from '../../../../../utils/permissions'
+import {
+  hasMinRole,
+  canUserAccessEntity,
+  getCachedPermission,
+  setCachedPermission,
+} from '../../../../../utils/permissions'
 import type { CampaignRole } from '../../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
@@ -14,16 +19,28 @@ export default defineEventHandler(async (event) => {
   const actualRole = (event.context.campaignRole || 'visitor') as CampaignRole
   const userId = event.context.user?.id || ''
 
-  const entity = db.select().from(entities)
+  const entity = db
+    .select()
+    .from(entities)
     .where(and(eq(entities.campaignId, campaignId), eq(entities.slug, slug)))
     .get()
   if (!entity) throw createError({ statusCode: 404, message: 'Entity not found' })
 
   // Visibility enforcement
   const cached = getCachedPermission(userId, entity.id, 'view')
-  const canAccess = cached !== null
-    ? cached
-    : await canUserAccessEntity(db, userId, 'user', actualRole, entity.id, entity.visibility, entity.createdBy, 'view')
+  const canAccess =
+    cached !== null
+      ? cached
+      : await canUserAccessEntity(
+          db,
+          userId,
+          'user',
+          actualRole,
+          entity.id,
+          entity.visibility,
+          entity.createdBy,
+          'view',
+        )
   if (cached === null) setCachedPermission(userId, entity.id, 'view', canAccess)
   if (!canAccess) throw createError({ statusCode: 404, message: 'Entity not found' })
 
@@ -40,11 +57,12 @@ export default defineEventHandler(async (event) => {
   }
 
   // Load revealed block IDs for this entity
-  const revealsRows = db.select({ secretBlockId: secretReveals.secretBlockId })
+  const revealsRows = db
+    .select({ secretBlockId: secretReveals.secretBlockId })
     .from(secretReveals)
     .where(eq(secretReveals.entityId, entity.id))
     .all()
-  const revealedBlockIds = new Set(revealsRows.map(r => r.secretBlockId))
+  const revealedBlockIds = new Set(revealsRows.map((r) => r.secretBlockId))
 
   let file
   try {

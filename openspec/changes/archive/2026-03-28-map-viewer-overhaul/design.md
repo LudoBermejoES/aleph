@@ -10,6 +10,7 @@ The Arcadia project solves this with a proven approach: ALL maps are tiled (512p
 ## Goals / Non-Goals
 
 **Goals:**
+
 - Fix aspect ratio distortion for all maps (tiled and non-tiled)
 - Always tile every uploaded map — eliminate the `imageOverlay` path entirely
 - Match the proven Arcadia tile generation and rendering approach
@@ -17,6 +18,7 @@ The Arcadia project solves this with a proven approach: ALL maps are tiled (512p
 - Re-tile existing maps via a migration task
 
 **Non-Goals:**
+
 - Switching from Leaflet to OpenLayers (Leaflet is already installed and working for pins/regions/drawing)
 - Changing the tile storage path or API endpoint structure
 - Modifying pins, layers, regions, or drawing tools (those work correctly)
@@ -43,6 +45,7 @@ Max zoom levels: `Math.ceil(Math.log2(maxDim / tileSize))` where `maxDim = Math.
 Use `sharp.resize({ fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })` to resize to the target dimensions WITHOUT distorting. The image is letterboxed with transparent pixels. Edge tiles that extend beyond the image content are padded with transparency.
 
 For each zoom level z:
+
 1. Calculate the target dimensions: `scaledW = Math.ceil(width * scale)`, `scaledH = Math.ceil(height * scale)` where `scale = tileSize * 2^z / maxDim`
 2. Resize the original with `fit: 'contain'` (preserves aspect ratio)
 3. Extract 256x256 tiles, padding edge tiles with transparency

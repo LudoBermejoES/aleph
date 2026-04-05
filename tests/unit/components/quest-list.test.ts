@@ -15,11 +15,11 @@ interface Quest {
 }
 
 function rootQuests(quests: Quest[]): Quest[] {
-  return quests.filter(q => !q.parentQuestId)
+  return quests.filter((q) => !q.parentQuestId)
 }
 
 function childQuests(quests: Quest[], parentId: string): Quest[] {
-  return quests.filter(q => q.parentQuestId === parentId)
+  return quests.filter((q) => q.parentQuestId === parentId)
 }
 
 const sampleQuests: Quest[] = [
@@ -35,7 +35,7 @@ describe('Quest list nesting logic (8.27)', () => {
   it('rootQuests returns only quests without parentQuestId', () => {
     const roots = rootQuests(sampleQuests)
     expect(roots).toHaveLength(2)
-    expect(roots.map(q => q.name)).toEqual([
+    expect(roots.map((q) => q.name)).toEqual([
       'Main Quest: Defeat Strahd',
       'Side Quest: Help Ireena',
     ])
@@ -44,10 +44,7 @@ describe('Quest list nesting logic (8.27)', () => {
   it('childQuests returns children of a specific parent', () => {
     const children = childQuests(sampleQuests, '1')
     expect(children).toHaveLength(2)
-    expect(children.map(q => q.name)).toEqual([
-      'Find the Sunsword',
-      'Find the Holy Symbol',
-    ])
+    expect(children.map((q) => q.name)).toEqual(['Find the Sunsword', 'Find the Holy Symbol'])
   })
 
   it('childQuests returns empty for quest with no children', () => {

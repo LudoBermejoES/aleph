@@ -6,7 +6,8 @@ import type { CampaignRole } from '../../../../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
   const role = event.context.campaignRole as CampaignRole
-  if (!hasMinRole(role, 'editor')) throw createError({ statusCode: 403, message: 'Editors or above can delete pins' })
+  if (!hasMinRole(role, 'editor'))
+    throw createError({ statusCode: 403, message: 'Editors or above can delete pins' })
 
   const pinId = getRouterParam(event, 'pinId')!
   const db = useDb()

@@ -5,6 +5,7 @@ The `GET /api/campaigns/:id/characters` endpoint already handles `type`, `status
 ## Goals / Non-Goals
 
 **Goals:**
+
 - Expose server-side filtering for race, class, alignment, status, org membership, and location
 - Add user-controlled sort (field + direction) with server-side execution
 - Add `/characters/meta` endpoint for distinct filter values (races, classes, alignments)
@@ -13,6 +14,7 @@ The `GET /api/campaigns/:id/characters` endpoint already handles `type`, `status
 - Update aleph-cli `characters list` command with new flags
 
 **Non-Goals:**
+
 - Saved/named filter presets
 - Full-text content search (searching character markdown body)
 - Bulk actions on filtered results
@@ -22,23 +24,29 @@ The `GET /api/campaigns/:id/characters` endpoint already handles `type`, `status
 ## Decisions
 
 ### Server-side filtering over client-side
+
 The existing endpoint does JS post-filtering on the full list. For `race`/`class`/`alignment` this is fine at small scale, but `organizationId` requires a join that can't be done client-side cheaply. All new filters will be applied server-side in the Drizzle query.
 
 **Alternative considered**: Keep client-side filtering and just return more data. Rejected — joining `organizationMembers` server-side is cleaner and avoids sending org data for all characters on every load.
 
 ### Sorting in SQL, not JS
+
 Drizzle supports `orderBy` with dynamic fields. Sort will be resolved server-side via a field map: `{ name: entities.name, updatedAt: entities.updatedAt, status: characters.status, race: characters.race, class: characters.class }`. Default: `desc(entities.updatedAt)` (preserves existing behavior).
 
 ### `/characters/meta` as a separate endpoint
+
 Distinct race/class/alignment values are needed to populate filter dropdowns but are expensive to derive client-side. A dedicated `GET /characters/meta` endpoint runs `SELECT DISTINCT race, class, alignment` grouped by field. Keeping it separate avoids bloating the list response and allows independent caching.
 
 ### URL query param persistence (no Pinia store)
+
 Nuxt's `useRoute` / `useRouter` make URL sync straightforward. Filters and sort are encoded as `?search=&status=&race=&class=&alignment=&org=&location=&sort=updatedAt&sortDir=desc`. On mount, state is initialized from the current URL; each change pushes a new history entry via `router.replace`. This gives deep-linking and browser back for free.
 
 ### Enriched list rows via joined response
+
 The list endpoint will join `entities` (already done), `characters`, and left-join `organizationMembers` + `organizations` for the first org. Location name is resolved by looking up `locationEntityId` in the entities table. This adds one left-join per character to the existing query — acceptable at campaign scale.
 
 ### Debounced search input
+
 Search triggers a server fetch. A 300ms debounce on the input prevents a request per keystroke. The `search` param is passed as-is to the existing server-side `ilike` filter.
 
 ## Risks / Trade-offs

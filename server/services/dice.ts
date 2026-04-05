@@ -46,7 +46,8 @@ export function parseDiceFormula(formula: string): DiceExpression {
   if (tokens.length === 0) throw new Error('Invalid dice formula: no valid tokens')
 
   const { expr, pos } = parseExpression(tokens, 0)
-  if (pos < tokens.length) throw new Error(`Unexpected token at position ${pos}: "${tokens[pos]!.value}"`)
+  if (pos < tokens.length)
+    throw new Error(`Unexpected token at position ${pos}: "${tokens[pos]!.value}"`)
   return expr
 }
 
@@ -70,12 +71,31 @@ function tokenize(input: string): Token[] {
   let i = 0
 
   while (i < input.length) {
-    if (input[i] === ' ') { i++; continue }
+    if (input[i] === ' ') {
+      i++
+      continue
+    }
 
-    if (input[i] === '+') { tokens.push({ type: 'plus', value: '+' }); i++; continue }
-    if (input[i] === '-') { tokens.push({ type: 'minus', value: '-' }); i++; continue }
-    if (input[i] === '!') { tokens.push({ type: 'explode', value: '!' }); i++; continue }
-    if (input[i] === '%') { tokens.push({ type: 'percent', value: '%' }); i++; continue }
+    if (input[i] === '+') {
+      tokens.push({ type: 'plus', value: '+' })
+      i++
+      continue
+    }
+    if (input[i] === '-') {
+      tokens.push({ type: 'minus', value: '-' })
+      i++
+      continue
+    }
+    if (input[i] === '!') {
+      tokens.push({ type: 'explode', value: '!' })
+      i++
+      continue
+    }
+    if (input[i] === '%') {
+      tokens.push({ type: 'percent', value: '%' })
+      i++
+      continue
+    }
 
     if (input[i] === 'd') {
       tokens.push({ type: 'dice', value: 'd' })
@@ -147,7 +167,11 @@ function parsePrimary(tokens: Token[], pos: number): { expr: DiceExpression; pos
   throw new Error(`Unexpected token: "${tokens[pos]!.value}"`)
 }
 
-function parseDiceRoll(count: number, tokens: Token[], pos: number): { expr: DiceExpression; pos: number } {
+function parseDiceRoll(
+  count: number,
+  tokens: Token[],
+  pos: number,
+): { expr: DiceExpression; pos: number } {
   let sides: number
 
   // d% = d100
@@ -281,7 +305,7 @@ function astToFormula(node: DiceExpression): string {
 // --- Formatter ---
 
 export function formatRollResult(result: RollResult): string {
-  const parts = result.rolls.map(r => {
+  const parts = result.rolls.map((r) => {
     const vals = r.values.join(', ')
     if (r.dropped.length > 0) {
       return `[${r.kept.join('+')}] (dropped: ${r.dropped.join(', ')})`

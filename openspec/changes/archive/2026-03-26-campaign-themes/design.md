@@ -1,6 +1,7 @@
 ## Context
 
 The `theme` column already exists on the `campaigns` table (text, nullable) and the `PUT /api/campaigns/:id` handler already accepts `body.theme`. The DB migration is in place. What's missing is:
+
 1. The actual theme definitions (CSS variables)
 2. Theme application at the campaign layout level
 3. Theme picker UI in the create dialog and campaign settings
@@ -8,12 +9,14 @@ The `theme` column already exists on the `campaigns` table (text, nullable) and 
 ## Goals / Non-Goals
 
 **Goals:**
+
 - Define 10 RPG-flavored themes as CSS variable overrides
 - Apply the active campaign theme to all campaign pages automatically
 - Add theme picker to campaign creation form and settings
 - Show a visual preview (color swatches) when selecting a theme
 
 **Non-Goals:**
+
 - Custom CSS per campaign (user-authored styles)
 - Per-user theme preference (theme is per-campaign, set by DM)
 - Dark/light mode toggle (separate concern)
@@ -26,9 +29,10 @@ The `theme` column already exists on the `campaigns` table (text, nullable) and 
 **Decision:** Apply themes by setting `data-theme="<name>"` on the `<main>` element in the campaign layout. CSS defines `:root[data-theme="dark-fantasy"] { --background: ...; --foreground: ...; }` overrides.
 
 **Why over alternatives:**
-- *Tailwind class per theme*: Would require generating all combinations at build time — combinatorial explosion.
-- *Scoped CSS per component*: Every component would need theme-aware variants.
-- *CSS custom properties on a wrapper*: Correct approach — all existing `hsl(var(--background))` usages in components inherit automatically with zero component changes.
+
+- _Tailwind class per theme_: Would require generating all combinations at build time — combinatorial explosion.
+- _Scoped CSS per component_: Every component would need theme-aware variants.
+- _CSS custom properties on a wrapper_: Correct approach — all existing `hsl(var(--background))` usages in components inherit automatically with zero component changes.
 
 ### 2. Theme stored as a string slug on the campaign
 

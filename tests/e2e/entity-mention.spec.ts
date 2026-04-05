@@ -21,12 +21,16 @@ test.describe('Entity @mention autocomplete (9.17)', () => {
 
     // Navigate through the UI (direct goto doesn't hydrate properly)
     await page.click('aside >> text=Wiki')
-    await expect(async () => { expect(page.url()).toContain('/entities') }).toPass({ timeout: 10000 })
+    await expect(async () => {
+      expect(page.url()).toContain('/entities')
+    }).toPass({ timeout: 10000 })
     await page.waitForLoadState('networkidle')
 
     // Click New Entity button to navigate to /entities/new
     await page.click('[data-testid="new-entity-btn"]')
-    await expect(async () => { expect(page.url()).toContain('/entities/new') }).toPass({ timeout: 10000 })
+    await expect(async () => {
+      expect(page.url()).toContain('/entities/new')
+    }).toPass({ timeout: 10000 })
     await page.waitForLoadState('networkidle')
 
     // Wait for the form to render

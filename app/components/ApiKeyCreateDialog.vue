@@ -20,14 +20,13 @@
     <p v-if="nameError" class="mt-1 text-xs text-destructive">{{ nameError }}</p>
 
     <!-- One-time key modal -->
-    <div
-      v-if="createdKey"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-    >
+    <div v-if="createdKey" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div class="w-full max-w-md rounded-lg bg-card p-6 shadow-lg">
         <h3 class="mb-2 text-lg font-semibold">{{ $t('apiKeys.newKeyTitle') }}</h3>
         <p class="mb-4 text-sm text-muted-foreground">{{ $t('apiKeys.newKeyWarning') }}</p>
-        <div class="mb-4 flex items-center gap-2 rounded border bg-muted p-2 font-mono text-xs break-all">
+        <div
+          class="mb-4 flex items-center gap-2 rounded border bg-muted p-2 font-mono text-xs break-all"
+        >
           <span class="flex-1 select-all">{{ createdKey }}</span>
           <button
             class="shrink-0 rounded bg-primary px-2 py-1 text-xs text-primary-foreground hover:bg-primary/90"
@@ -79,7 +78,9 @@ async function copyKey() {
   if (!createdKey.value) return
   await navigator.clipboard.writeText(createdKey.value)
   copied.value = true
-  setTimeout(() => { copied.value = false }, 2000)
+  setTimeout(() => {
+    copied.value = false
+  }, 2000)
 }
 
 function closeModal() {

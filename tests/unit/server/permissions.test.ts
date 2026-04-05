@@ -48,48 +48,84 @@ describe('Permission Resolution', () => {
 
   it('admin bypasses all permission checks', async () => {
     const result = await canUserAccessEntity(
-      testDb.db, 'user-1', 'admin', null,
-      'entity-1', 'dm_only', 'user-2', 'view',
+      testDb.db,
+      'user-1',
+      'admin',
+      null,
+      'entity-1',
+      'dm_only',
+      'user-2',
+      'view',
     )
     expect(result).toBe(true)
   })
 
   it('non-member cannot view non-public entity', async () => {
     const result = await canUserAccessEntity(
-      testDb.db, 'user-1', 'user', null,
-      'entity-1', 'members', 'user-2', 'view',
+      testDb.db,
+      'user-1',
+      'user',
+      null,
+      'entity-1',
+      'members',
+      'user-2',
+      'view',
     )
     expect(result).toBe(false)
   })
 
   it('non-member can view public entity', async () => {
     const result = await canUserAccessEntity(
-      testDb.db, 'user-1', 'user', null,
-      'entity-1', 'public', 'user-2', 'view',
+      testDb.db,
+      'user-1',
+      'user',
+      null,
+      'entity-1',
+      'public',
+      'user-2',
+      'view',
     )
     expect(result).toBe(true)
   })
 
   it('player can view members-visible entity', async () => {
     const result = await canUserAccessEntity(
-      testDb.db, 'user-1', 'user', 'player',
-      'entity-1', 'members', 'user-2', 'view',
+      testDb.db,
+      'user-1',
+      'user',
+      'player',
+      'entity-1',
+      'members',
+      'user-2',
+      'view',
     )
     expect(result).toBe(true)
   })
 
   it('player cannot view dm_only entity', async () => {
     const result = await canUserAccessEntity(
-      testDb.db, 'user-1', 'user', 'player',
-      'entity-1', 'dm_only', 'user-2', 'view',
+      testDb.db,
+      'user-1',
+      'user',
+      'player',
+      'entity-1',
+      'dm_only',
+      'user-2',
+      'view',
     )
     expect(result).toBe(false)
   })
 
   it('dm can view dm_only entity', async () => {
     const result = await canUserAccessEntity(
-      testDb.db, 'user-1', 'user', 'dm',
-      'entity-1', 'dm_only', 'user-2', 'view',
+      testDb.db,
+      'user-1',
+      'user',
+      'dm',
+      'entity-1',
+      'dm_only',
+      'user-2',
+      'view',
     )
     expect(result).toBe(true)
   })
@@ -99,28 +135,52 @@ describe('Permission Resolution', () => {
     const other = 'user-other'
 
     const resultCreator = await canUserAccessEntity(
-      testDb.db, creator, 'user', 'player',
-      'entity-1', 'private', creator, 'view',
+      testDb.db,
+      creator,
+      'user',
+      'player',
+      'entity-1',
+      'private',
+      creator,
+      'view',
     )
     expect(resultCreator).toBe(true)
 
     const resultOther = await canUserAccessEntity(
-      testDb.db, other, 'user', 'player',
-      'entity-1', 'private', creator, 'view',
+      testDb.db,
+      other,
+      'user',
+      'player',
+      'entity-1',
+      'private',
+      creator,
+      'view',
     )
     expect(resultOther).toBe(false)
   })
 
   it('editor can edit but player cannot', async () => {
     const canEditEditor = await canUserAccessEntity(
-      testDb.db, 'user-1', 'user', 'editor',
-      'entity-1', 'members', 'user-2', 'edit',
+      testDb.db,
+      'user-1',
+      'user',
+      'editor',
+      'entity-1',
+      'members',
+      'user-2',
+      'edit',
     )
     expect(canEditEditor).toBe(true)
 
     const canEditPlayer = await canUserAccessEntity(
-      testDb.db, 'user-1', 'user', 'player',
-      'entity-1', 'members', 'user-2', 'edit',
+      testDb.db,
+      'user-1',
+      'user',
+      'player',
+      'entity-1',
+      'members',
+      'user-2',
+      'edit',
     )
     expect(canEditPlayer).toBe(false)
   })
@@ -139,8 +199,14 @@ describe('Permission Resolution', () => {
     `)
 
     const result = await canUserAccessEntity(
-      testDb.db, 'user-1', 'user', 'player',
-      'entity-1', 'dm_only', 'dm-user', 'view',
+      testDb.db,
+      'user-1',
+      'user',
+      'player',
+      'entity-1',
+      'dm_only',
+      'dm-user',
+      'view',
     )
     expect(result).toBe(true)
   })
@@ -158,8 +224,14 @@ describe('Permission Resolution', () => {
     `)
 
     const result = await canUserAccessEntity(
-      testDb.db, 'user-1', 'user', 'editor',
-      'entity-1', 'members', 'dm-user', 'edit',
+      testDb.db,
+      'user-1',
+      'user',
+      'editor',
+      'entity-1',
+      'members',
+      'dm-user',
+      'edit',
     )
     expect(result).toBe(false)
   })
@@ -279,9 +351,11 @@ describe('Invitation Token', () => {
       VALUES ('inv-1', 'camp-1', 'valid-token-abc', 'player', 'dm-user', ${future})
     `)
 
-    const result = testDb.sqlite.prepare(
-      "SELECT * FROM campaign_invitations WHERE token = 'valid-token-abc' AND used_at IS NULL"
-    ).get() as any
+    const result = testDb.sqlite
+      .prepare(
+        "SELECT * FROM campaign_invitations WHERE token = 'valid-token-abc' AND used_at IS NULL",
+      )
+      .get() as any
 
     expect(result).toBeDefined()
     expect(result.role).toBe('player')
@@ -295,9 +369,11 @@ describe('Invitation Token', () => {
       VALUES ('inv-1', 'camp-1', 'expired-token', 'player', 'dm-user', ${past})
     `)
 
-    const result = testDb.sqlite.prepare(
-      "SELECT * FROM campaign_invitations WHERE token = 'expired-token' AND used_at IS NULL"
-    ).get() as any
+    const result = testDb.sqlite
+      .prepare(
+        "SELECT * FROM campaign_invitations WHERE token = 'expired-token' AND used_at IS NULL",
+      )
+      .get() as any
 
     expect(result).toBeDefined()
     expect(result.expires_at).toBeLessThan(Date.now()) // expired
@@ -310,9 +386,9 @@ describe('Invitation Token', () => {
       VALUES ('inv-1', 'camp-1', 'used-token', 'player', 'dm-user', ${future}, ${Date.now()})
     `)
 
-    const result = testDb.sqlite.prepare(
-      "SELECT * FROM campaign_invitations WHERE token = 'used-token' AND used_at IS NULL"
-    ).get()
+    const result = testDb.sqlite
+      .prepare("SELECT * FROM campaign_invitations WHERE token = 'used-token' AND used_at IS NULL")
+      .get()
 
     expect(result).toBeUndefined()
   })

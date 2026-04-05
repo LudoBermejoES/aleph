@@ -126,6 +126,7 @@ THEN an ErrorToast is displayed with a meaningful error message
 #### Scenario: Multiple silent-catch pages converted
 
 GIVEN pages that previously used `.catch(() => [])`:
+
 - `entities/index.vue`
 - `entities/[slug]/index.vue`
 - `organizations/index.vue`
@@ -137,9 +138,9 @@ GIVEN pages that previously used `.catch(() => [])`:
 - `timelines/[slug]/index.vue`
 - `SessionForm.vue`
 - `CharacterForm.vue`
-WHEN those pages are updated
-THEN each uses `withLoading` from `useLoadingState` for its fetch calls
-AND each renders `<ErrorToast>` bound to the composable's `error` ref
+  WHEN those pages are updated
+  THEN each uses `withLoading` from `useLoadingState` for its fetch calls
+  AND each renders `<ErrorToast>` bound to the composable's `error` ref
 
 #### Scenario: Error toast can be dismissed
 

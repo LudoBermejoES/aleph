@@ -23,22 +23,27 @@ Aleph stores all campaign data in a local SQLite database with no way to extract
 ## Impact
 
 ### Server
+
 - New endpoint: `GET /api/campaigns/:id/export` in `server/api/campaigns/[id]/`
 - New service: `server/services/campaign-export.ts` with data assembly logic
 - Authorization: restricted to DM and co-DM roles
 
 ### Frontend
+
 - New UI component or button on campaign dashboard page
 - Download triggered via browser fetch + blob URL
 
 ### CLI (aleph-cli)
+
 - New subcommand in `cli/src/commands/campaign.js`: `export`
 - Update `docs/claude-skill.md` and `.claude/skills/aleph-cli/SKILL.md`
 
 ### i18n
+
 - New keys in `i18n/locales/en.json` and `i18n/locales/es.json`
 
 ### Testing
+
 - Unit tests for the export service (data assembly, selective filtering)
 - Integration tests for the API endpoint (auth, full export, selective export)
 - E2E test for the download button flow

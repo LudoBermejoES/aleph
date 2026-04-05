@@ -36,7 +36,9 @@ describe('Link insertion produces correct markdown (8.11)', () => {
   }
 
   it('produces markdown link syntax', () => {
-    expect(markdownLink('Click here', 'https://example.com')).toBe('[Click here](https://example.com)')
+    expect(markdownLink('Click here', 'https://example.com')).toBe(
+      '[Click here](https://example.com)',
+    )
   })
 
   it('handles empty text', () => {
@@ -44,6 +46,8 @@ describe('Link insertion produces correct markdown (8.11)', () => {
   })
 
   it('handles URL with special characters', () => {
-    expect(markdownLink('Link', 'https://example.com/path?q=1&b=2')).toBe('[Link](https://example.com/path?q=1&b=2)')
+    expect(markdownLink('Link', 'https://example.com/path?q=1&b=2')).toBe(
+      '[Link](https://example.com/path?q=1&b=2)',
+    )
   })
 })

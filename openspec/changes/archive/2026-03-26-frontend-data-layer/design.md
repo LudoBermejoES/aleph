@@ -4,10 +4,18 @@ The frontend currently has 42 pages and ~10 form components that call `$fetch()`
 
 ```ts
 // app/components/forms/CharacterForm.vue
-try { members.value = await $fetch(`/api/campaigns/${props.campaignId}/members`) as any[] } catch { members.value = [] }
+try {
+  members.value = (await $fetch(`/api/campaigns/${props.campaignId}/members`)) as any[]
+} catch {
+  members.value = []
+}
 
 // app/components/forms/RelationForm.vue
-try { relationTypes.value = await $fetch(`/api/campaigns/${props.campaignId}/relation-types`) as any[] } catch { relationTypes.value = [] }
+try {
+  relationTypes.value = (await $fetch(`/api/campaigns/${props.campaignId}/relation-types`)) as any[]
+} catch {
+  relationTypes.value = []
+}
 ```
 
 API paths are scattered across 42 files with no central registry. TypeScript types are absent (`as any[]` in 61 places).
@@ -15,12 +23,14 @@ API paths are scattered across 42 files with no central registry. TypeScript typ
 ## Goals / Non-Goals
 
 **Goals:**
+
 - Single `useCampaignApi(campaignId)` composable that owns all endpoint paths and return types
 - All 42 pages and 10 form components use the composable — no inline `$fetch` in app code
 - Typed response interfaces (no `as any`) for all campaign resources
 - `useLoadingState` already covers primary page loads — keep it, just wire it to composable calls
 
 **Non-Goals:**
+
 - Request caching or deduplication (out of scope — add later if needed)
 - Global state management / Pinia (no shared state required yet)
 - Server-side changes (zero changes to `/server/`)

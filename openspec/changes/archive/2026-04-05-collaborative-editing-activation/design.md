@@ -13,10 +13,12 @@
 **Chosen**: `useRuntimeConfig().public.hocuspocusUrl` with automatic fallback.
 
 **Fallback logic** (in a `useCollaborationUrl()` composable):
+
 1. If `runtimeConfig.public.hocuspocusUrl` is set and non-empty, use it directly (e.g. `wss://aleph.ludobermejo.es/collab` for proxied setups, or `ws://localhost:3334` for dev).
 2. Otherwise, derive from `window.location`: replace `http` with `ws`, replace `https` with `wss`, and append port `3334`.
 
 This supports three deployment modes:
+
 - **Local dev**: no config needed, falls back to `ws://localhost:3334`.
 - **Production with separate WS port**: set `NUXT_PUBLIC_HOCUSPOCUS_URL=wss://aleph.ludobermejo.es:3334`.
 - **Production behind reverse proxy**: set `NUXT_PUBLIC_HOCUSPOCUS_URL=wss://aleph.ludobermejo.es/collab` and configure the proxy to forward `/collab` to Hocuspocus.
@@ -26,6 +28,7 @@ This supports three deployment modes:
 **Chosen**: Compact avatar bar inside the editor chrome (between toolbar and content area).
 
 **Design**:
+
 - A thin bar that appears only when `collaborative` is true.
 - Shows colored dots (matching cursor colors) with user names for each connected peer.
 - Current user shown as "You" with their assigned color.
@@ -38,6 +41,7 @@ This supports three deployment modes:
 ## Decision 4: Document name convention
 
 **Kept as-is**: `campaign:{campaignId}:entity:{slug}` -- already used by Hocuspocus `onAuthenticate` and `onLoadDocument`. For sessions and quests, extend the pattern:
+
 - Sessions: `campaign:{campaignId}:session:{sessionId}`
 - Quests: `campaign:{campaignId}:quest:{questId}`
 

@@ -18,8 +18,8 @@ export default defineEventHandler(async (event) => {
   const visibility = query.visibility as string | undefined
   const parentId = query.parent_id as string | undefined
   const search = query.search as string | undefined
-  const page = parseInt(query.page as string || '1', 10)
-  const limit = Math.min(parseInt(query.limit as string || '50', 10), 100)
+  const page = parseInt((query.page as string) || '1', 10)
+  const limit = Math.min(parseInt((query.limit as string) || '50', 10), 100)
   const offset = (page - 1) * limit
 
   // Build WHERE conditions
@@ -28,21 +28,25 @@ export default defineEventHandler(async (event) => {
   if (type) conditions.push(eq(entities.type, type))
   if (visibility) conditions.push(eq(entities.visibility, visibility))
   if (parentId) conditions.push(eq(entities.parentId, parentId))
-  if (search) conditions.push(sql`${entities.name} LIKE ${'%' + escapeLike(search) + '%'} ESCAPE '\\'`)
+  if (search)
+    conditions.push(sql`${entities.name} LIKE ${'%' + escapeLike(search) + '%'} ESCAPE '\\'`)
 
   // RBAC: filter entities by visibility based on user's campaign role
   buildVisibilityFilter(role, userId, conditions, entities.visibility, entities.createdBy)
 
   const where = conditions.length === 1 ? conditions[0] : and(...conditions)!
 
-  const results = db.select().from(entities)
+  const results = db
+    .select()
+    .from(entities)
     .where(where)
     .orderBy(desc(entities.updatedAt))
     .limit(limit)
     .offset(offset)
     .all()
 
-  const countResult = db.select({ count: sql<number>`count(*)` })
+  const countResult = db
+    .select({ count: sql<number>`count(*)` })
     .from(entities)
     .where(where)
     .get()

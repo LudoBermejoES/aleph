@@ -8,7 +8,7 @@ async function apiRaw(path: string, opts?: any) {
     ...opts,
     headers: {
       'Content-Type': 'application/json',
-      'Origin': BASE_URL,
+      Origin: BASE_URL,
       ...opts?.headers,
     },
     body: opts?.body ? JSON.stringify(opts.body) : undefined,
@@ -26,7 +26,10 @@ async function api(path: string, opts?: any) {
 }
 
 async function signUpAndGetCookie(email: string, password: string) {
-  await apiRaw('/api/auth/sign-up/email', { method: 'POST', body: { name: 'Test User', email, password } })
+  await apiRaw('/api/auth/sign-up/email', {
+    method: 'POST',
+    body: { name: 'Test User', email, password },
+  })
   const res = await apiRaw('/api/auth/sign-in/email', { method: 'POST', body: { email, password } })
   const cookies = res.headers.get('set-cookie') || ''
   const match = cookies.match(/better-auth\.session_token=([^;]+)/)
@@ -42,12 +45,20 @@ async function signUpAndGetCookie(email: string, password: string) {
 async function createApiKey(cookie: string) {
   const csrfMatch = cookie.match(/csrf_token=([^;]+)/)
   const csrfToken = csrfMatch?.[1] || ''
-  const res = await apiRaw('/api/apikeys', { method: 'POST', headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken }, body: { name: 'test-key' } })
+  const res = await apiRaw('/api/apikeys', {
+    method: 'POST',
+    headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
+    body: { name: 'test-key' },
+  })
   return res.json()
 }
 
 async function createCampaign(apiKey: string, name: string) {
-  return api('/api/campaigns', { method: 'POST', headers: { 'X-API-Key': apiKey }, body: { name, theme: 'default' } })
+  return api('/api/campaigns', {
+    method: 'POST',
+    headers: { 'X-API-Key': apiKey },
+    body: { name, theme: 'default' },
+  })
 }
 
 function auth(apiKey: string) {
@@ -97,9 +108,12 @@ describe('Sub-location creation (integration)', () => {
       body: { name: 'Castle Ravenloft', subtype: 'dungeon', parentId, visibility: 'members' },
     })
 
-    const subsBody = await api(`/api/campaigns/${campaignId}/locations/${parentSlug}/sub-locations`, {
-      headers: auth(apiKey),
-    })
+    const subsBody = await api(
+      `/api/campaigns/${campaignId}/locations/${parentSlug}/sub-locations`,
+      {
+        headers: auth(apiKey),
+      },
+    )
     const subs = subsBody.data ?? subsBody
     expect(subs.length).toBeGreaterThanOrEqual(2)
     const names = subs.map((s: any) => s.name)
@@ -133,7 +147,12 @@ describe('Sub-location creation (integration)', () => {
     const res = await apiRaw(`/api/campaigns/${campaignId}/locations`, {
       method: 'POST',
       headers: { ...auth(apiKey), 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: 'Child', subtype: 'room', parentId: otherLoc.id, visibility: 'members' }),
+      body: JSON.stringify({
+        name: 'Child',
+        subtype: 'room',
+        parentId: otherLoc.id,
+        visibility: 'members',
+      }),
     })
     expect([400, 422]).toContain(res.status)
   })
@@ -144,7 +163,12 @@ describe('Sub-location creation (integration)', () => {
     const res = await apiRaw(`/api/campaigns/${campaignId}/locations`, {
       method: 'POST',
       headers: { ...auth(apiKey), 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: 'Child', subtype: 'room', parentId: fakeId, visibility: 'members' }),
+      body: JSON.stringify({
+        name: 'Child',
+        subtype: 'room',
+        parentId: fakeId,
+        visibility: 'members',
+      }),
     })
     expect([400, 422]).toContain(res.status)
   })
@@ -183,12 +207,22 @@ describe('Sub-location creation (integration)', () => {
     const parent2 = await api(`/api/campaigns/${campaignId}/locations`, {
       method: 'POST',
       headers: auth(apiKey),
-      body: { name: 'The Province', subtype: 'region', parentId: grandparent.id, visibility: 'members' },
+      body: {
+        name: 'The Province',
+        subtype: 'region',
+        parentId: grandparent.id,
+        visibility: 'members',
+      },
     })
     const grandchild = await api(`/api/campaigns/${campaignId}/locations`, {
       method: 'POST',
       headers: auth(apiKey),
-      body: { name: 'The Village', subtype: 'village', parentId: parent2.id, visibility: 'members' },
+      body: {
+        name: 'The Village',
+        subtype: 'village',
+        parentId: parent2.id,
+        visibility: 'members',
+      },
     })
 
     const detail = await api(`/api/campaigns/${campaignId}/locations/${grandchild.slug}`, {

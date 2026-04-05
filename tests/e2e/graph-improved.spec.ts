@@ -47,20 +47,23 @@ test.beforeAll(async ({ browser }) => {
 
     // Two entities connected as allies
     const heraRes = await fetch(`/api/campaigns/${id}/entities`, {
-      method: 'POST', headers: mutatingHeaders,
+      method: 'POST',
+      headers: mutatingHeaders,
       body: JSON.stringify({ name: 'Hera', type: 'character', content: '# Hera' }),
     })
     const hera = await heraRes.json()
 
     const zeusRes = await fetch(`/api/campaigns/${id}/entities`, {
-      method: 'POST', headers: mutatingHeaders,
+      method: 'POST',
+      headers: mutatingHeaders,
       body: JSON.stringify({ name: 'Zeus', type: 'character', content: '# Zeus' }),
     })
     const zeus = await zeusRes.json()
 
     // Third entity (Ares) only connected to Zeus — not to Hera
     const aresRes = await fetch(`/api/campaigns/${id}/entities`, {
-      method: 'POST', headers: mutatingHeaders,
+      method: 'POST',
+      headers: mutatingHeaders,
       body: JSON.stringify({ name: 'Ares', type: 'character', content: '# Ares' }),
     })
     const ares = await aresRes.json()
@@ -70,20 +73,28 @@ test.beforeAll(async ({ browser }) => {
     const enemy = types.find((t: any) => t.slug === 'enemy') ?? ally
 
     const r1 = await fetch(`/api/campaigns/${id}/relations`, {
-      method: 'POST', headers: mutatingHeaders,
+      method: 'POST',
+      headers: mutatingHeaders,
       body: JSON.stringify({
-        sourceEntityId: hera.id, targetEntityId: zeus.id,
-        relationTypeId: ally.id, forwardLabel: 'allied with', reverseLabel: 'allied by',
+        sourceEntityId: hera.id,
+        targetEntityId: zeus.id,
+        relationTypeId: ally.id,
+        forwardLabel: 'allied with',
+        reverseLabel: 'allied by',
         attitude: 80,
       }),
     })
     const r1Body = await r1.json()
 
     const r2 = await fetch(`/api/campaigns/${id}/relations`, {
-      method: 'POST', headers: mutatingHeaders,
+      method: 'POST',
+      headers: mutatingHeaders,
       body: JSON.stringify({
-        sourceEntityId: zeus.id, targetEntityId: ares.id,
-        relationTypeId: enemy.id, forwardLabel: 'rival of', reverseLabel: 'rival of',
+        sourceEntityId: zeus.id,
+        targetEntityId: ares.id,
+        relationTypeId: enemy.id,
+        forwardLabel: 'rival of',
+        reverseLabel: 'rival of',
         attitude: -60,
       }),
     })
@@ -107,12 +118,14 @@ test.beforeAll(async ({ browser }) => {
     const mutatingHeaders = { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf }
 
     const c1 = await fetch(`/api/campaigns/${id}/characters`, {
-      method: 'POST', headers: mutatingHeaders,
+      method: 'POST',
+      headers: mutatingHeaders,
       body: JSON.stringify({ name: 'Achilles', characterType: 'pc' }),
     }).then((r: Response) => r.json())
 
     const c2 = await fetch(`/api/campaigns/${id}/characters`, {
-      method: 'POST', headers: mutatingHeaders,
+      method: 'POST',
+      headers: mutatingHeaders,
       body: JSON.stringify({ name: 'Patroclus', characterType: 'pc' }),
     }).then((r: Response) => r.json())
 
@@ -124,10 +137,14 @@ test.beforeAll(async ({ browser }) => {
     const allyType = types.find((t: any) => t.slug === 'ally')
 
     await fetch(`/api/campaigns/${id}/relations`, {
-      method: 'POST', headers: mutatingHeaders,
+      method: 'POST',
+      headers: mutatingHeaders,
       body: JSON.stringify({
-        sourceEntityId: e1.id, targetEntityId: e2.id,
-        relationTypeId: allyType.id, forwardLabel: 'ally', reverseLabel: 'ally',
+        sourceEntityId: e1.id,
+        targetEntityId: e2.id,
+        relationTypeId: allyType.id,
+        forwardLabel: 'ally',
+        reverseLabel: 'ally',
       }),
     })
     return c1.slug
@@ -144,10 +161,15 @@ async function goToGraphPage(page: Page) {
   let graphApiNodes = 0
   const handler = (response: any) => {
     if (response.url().includes('/graph') && response.status() === 200) {
-      response.json().then((data: any) => {
-        graphApiNodes = Object.keys(data.nodes || {}).length
-        console.log(`Graph API returned ${graphApiNodes} nodes, ${Object.keys(data.edges || {}).length} edges`)
-      }).catch(() => {})
+      response
+        .json()
+        .then((data: any) => {
+          graphApiNodes = Object.keys(data.nodes || {}).length
+          console.log(
+            `Graph API returned ${graphApiNodes} nodes, ${Object.keys(data.edges || {}).length} edges`,
+          )
+        })
+        .catch(() => {})
     }
   }
   page.on('response', handler)
@@ -158,7 +180,10 @@ async function goToGraphPage(page: Page) {
 
   // Wait for ClientOnly hydration + SVG render
   await expect(page.locator('[data-testid="entity-graph-view"]')).toBeVisible({ timeout: 15000 })
-  await page.waitForSelector('[data-testid="entity-graph-view"] svg.v-network-graph, [data-testid="entity-graph-view"] svg', { timeout: 20000 })
+  await page.waitForSelector(
+    '[data-testid="entity-graph-view"] svg.v-network-graph, [data-testid="entity-graph-view"] svg',
+    { timeout: 20000 },
+  )
   // Wait for force layout to produce stable positions
   await page.waitForTimeout(1500)
 }
@@ -171,7 +196,9 @@ test('12.11 campaign graph renders nodes and edges', async () => {
   await expect(page.locator('[data-testid="entity-graph-view"]')).toBeVisible()
   await expect(page.locator('[data-testid="entity-graph-view"] svg').first()).toBeVisible()
   // Node labels are rendered as SVG text
-  await expect(page.locator('[data-testid="entity-graph-view"] svg text').first()).toBeVisible({ timeout: 10000 })
+  await expect(page.locator('[data-testid="entity-graph-view"] svg text').first()).toBeVisible({
+    timeout: 10000,
+  })
 })
 
 // 12.12: GraphLegend renders below graph with relation type entries
@@ -191,7 +218,10 @@ test('12.13 clicking a node dims non-neighbor nodes', async () => {
   await goToGraphPage(page)
 
   // Click the "Hera" node — Ares is NOT directly connected to Hera, so Ares should be dimmed
-  const heraText = page.locator('[data-testid="entity-graph-view"] svg text').filter({ hasText: /Hera/ }).first()
+  const heraText = page
+    .locator('[data-testid="entity-graph-view"] svg text')
+    .filter({ hasText: /Hera/ })
+    .first()
   await expect(heraText).toBeVisible({ timeout: 10000 })
   await heraText.click()
   await page.waitForTimeout(1200)
@@ -199,12 +229,27 @@ test('12.13 clicking a node dims non-neighbor nodes', async () => {
   // After focusing Hera, some g elements should have opacity 0.1 (via style or CSS)
   const debugInfo = await page.evaluate(() => {
     const gs = document.querySelectorAll('[data-testid="entity-graph-view"] svg g')
-    const opacities = Array.from(gs).map(g => (g as HTMLElement).style.opacity).filter(Boolean)
+    const opacities = Array.from(gs)
+      .map((g) => (g as HTMLElement).style.opacity)
+      .filter(Boolean)
     const nodeGs = document.querySelectorAll('[data-testid="entity-graph-view"] svg g.v-ng-node')
-    const overrideGs = document.querySelectorAll('[data-testid="entity-graph-view"] svg g.v-ng-node > g')
-    const overrideOpacities = Array.from(overrideGs).map(g => ({ opacity: (g as HTMLElement).style.opacity }))
-    const labels = Array.from(document.querySelectorAll('[data-testid="entity-graph-view"] svg text')).map(t => t.textContent?.trim())
-    return { totalGs: gs.length, opacities, nodeCount: nodeGs.length, overrideGs: overrideGs.length, overrideOpacities, labels }
+    const overrideGs = document.querySelectorAll(
+      '[data-testid="entity-graph-view"] svg g.v-ng-node > g',
+    )
+    const overrideOpacities = Array.from(overrideGs).map((g) => ({
+      opacity: (g as HTMLElement).style.opacity,
+    }))
+    const labels = Array.from(
+      document.querySelectorAll('[data-testid="entity-graph-view"] svg text'),
+    ).map((t) => t.textContent?.trim())
+    return {
+      totalGs: gs.length,
+      opacities,
+      nodeCount: nodeGs.length,
+      overrideGs: overrideGs.length,
+      overrideOpacities,
+      labels,
+    }
   })
   console.log('Debug graph elements:', JSON.stringify(debugInfo))
   const hasDimmedNode = debugInfo.overrideOpacities.some((o: any) => parseFloat(o.opacity) < 0.5)
@@ -217,15 +262,20 @@ test('12.14 clicking background clears node focus', async () => {
   await goToGraphPage(page)
 
   // Focus Hera first
-  const heraText = page.locator('[data-testid="entity-graph-view"] svg text').filter({ hasText: /Hera/ }).first()
+  const heraText = page
+    .locator('[data-testid="entity-graph-view"] svg text')
+    .filter({ hasText: /Hera/ })
+    .first()
   await expect(heraText).toBeVisible({ timeout: 10000 })
   await heraText.click()
   await page.waitForTimeout(1200)
 
   // Confirm something is dimmed
   const hasDimmedNode = await page.evaluate(() => {
-    const overrideGs = document.querySelectorAll('[data-testid="entity-graph-view"] svg g.v-ng-node > g')
-    return Array.from(overrideGs).some(g => parseFloat((g as HTMLElement).style.opacity) < 0.5)
+    const overrideGs = document.querySelectorAll(
+      '[data-testid="entity-graph-view"] svg g.v-ng-node > g',
+    )
+    return Array.from(overrideGs).some((g) => parseFloat((g as HTMLElement).style.opacity) < 0.5)
   })
   expect(hasDimmedNode).toBe(true)
 
@@ -236,8 +286,10 @@ test('12.14 clicking background clears node focus', async () => {
 
   // No dimmed nodes remain
   const stillDimmed = await page.evaluate(() => {
-    const overrideGs = document.querySelectorAll('[data-testid="entity-graph-view"] svg g.v-ng-node > g')
-    return Array.from(overrideGs).some(g => parseFloat((g as HTMLElement).style.opacity) < 0.5)
+    const overrideGs = document.querySelectorAll(
+      '[data-testid="entity-graph-view"] svg g.v-ng-node > g',
+    )
+    return Array.from(overrideGs).some((g) => parseFloat((g as HTMLElement).style.opacity) < 0.5)
   })
   expect(stillDimmed).toBe(false)
 })
@@ -254,20 +306,29 @@ test('12.15 double-clicking character node navigates to character detail', async
   await nodeGroup.dblclick()
 
   // Wait for navigation away from /graph page to a character or entity detail page
-  await page.waitForURL(url => !url.toString().endsWith('/graph'), { timeout: 10000 })
+  await page.waitForURL((url) => !url.toString().endsWith('/graph'), { timeout: 10000 })
   expect(page.url()).toMatch(/\/campaigns\/.+\/(characters|entities)\//)
 })
 
 // 12.16: Character detail graph renders with center node
 test('12.16 character detail graph renders with character as center', async () => {
   const page = sharedPage
-  await page.goto(`${BASE}/campaigns/${campaignId}/characters/${c1Slug}`, { waitUntil: 'domcontentloaded' })
+  await page.goto(`${BASE}/campaigns/${campaignId}/characters/${c1Slug}`, {
+    waitUntil: 'domcontentloaded',
+  })
   await page.waitForLoadState('networkidle')
 
   await expect(page.locator('[data-testid="character-graph"]')).toBeVisible({ timeout: 15000 })
-  await expect(page.locator('[data-testid="character-graph"] [data-testid="entity-graph-view"]')).toBeVisible({ timeout: 15000 })
-  await page.waitForSelector('[data-testid="character-graph"] [data-testid="entity-graph-view"] svg', { timeout: 20000 })
-  await expect(page.locator('[data-testid="character-graph"] [data-testid="entity-graph-view"] svg').first()).toBeVisible()
+  await expect(
+    page.locator('[data-testid="character-graph"] [data-testid="entity-graph-view"]'),
+  ).toBeVisible({ timeout: 15000 })
+  await page.waitForSelector(
+    '[data-testid="character-graph"] [data-testid="entity-graph-view"] svg',
+    { timeout: 20000 },
+  )
+  await expect(
+    page.locator('[data-testid="character-graph"] [data-testid="entity-graph-view"] svg').first(),
+  ).toBeVisible()
 })
 
 // 12.17: Hovering a node shows tooltip with name and connection count

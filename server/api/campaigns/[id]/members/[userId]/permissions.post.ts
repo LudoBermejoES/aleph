@@ -3,7 +3,10 @@ import { randomUUID } from 'crypto'
 import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
 import { validateBody } from '../../../../../utils/validate'
-import { campaignMembers, campaignMemberPermissions } from '../../../../../db/schema/campaign-members'
+import {
+  campaignMembers,
+  campaignMemberPermissions,
+} from '../../../../../db/schema/campaign-members'
 import { hasMinRole } from '../../../../../utils/permissions'
 import { auditLogFromEvent } from '../../../../../utils/audit'
 import type { CampaignRole } from '../../../../../utils/permissions'
@@ -25,25 +28,27 @@ export default defineEventHandler(async (event) => {
   const db = useDb()
 
   // Find campaign member
-  const member = db.select()
+  const member = db
+    .select()
     .from(campaignMembers)
-    .where(and(
-      eq(campaignMembers.campaignId, campaignId),
-      eq(campaignMembers.userId, targetUserId),
-    ))
+    .where(
+      and(eq(campaignMembers.campaignId, campaignId), eq(campaignMembers.userId, targetUserId)),
+    )
     .get()
 
   if (!member) {
     throw createError({ statusCode: 404, message: 'User is not a campaign member' })
   }
 
-  db.insert(campaignMemberPermissions).values({
-    id: randomUUID(),
-    campaignMemberId: member.id,
-    permission,
-    grantedBy: event.context.user.id,
-    grantedAt: new Date(),
-  }).run()
+  db.insert(campaignMemberPermissions)
+    .values({
+      id: randomUUID(),
+      campaignMemberId: member.id,
+      permission,
+      grantedBy: event.context.user.id,
+      grantedAt: new Date(),
+    })
+    .run()
 
   auditLogFromEvent(event, {
     action: 'permission_grant',

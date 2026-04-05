@@ -7,6 +7,7 @@ No schema or API changes are required. All features use existing endpoints.
 ## Goals / Non-Goals
 
 **Goals:**
+
 - Expose decisions/consequences CRUD in the session detail page (DMs can create, add consequences, reveal them)
 - Add attendance RSVP section to session detail page (any user can set own RSVP; DMs mark actual attendance)
 - Add session rolls viewer to session detail page (read-only, last 50 rolls from the session)
@@ -18,6 +19,7 @@ No schema or API changes are required. All features use existing endpoints.
 - Update both skill files (docs/claude-skill.md, .claude/skills/aleph-cli/SKILL.md)
 
 **Non-Goals:**
+
 - No new API endpoints or DB schema changes
 - No bulk attendance management (setting others' attendance from UI — DM can only see, not set it for others)
 - No consequence entity linking UI (entityId field exists but not exposed)

@@ -4,7 +4,9 @@ import { user } from './auth'
 
 export const items = sqliteTable('items', {
   id: text('id').primaryKey(),
-  campaignId: text('campaign_id').notNull().references(() => campaigns.id, { onDelete: 'cascade' }),
+  campaignId: text('campaign_id')
+    .notNull()
+    .references(() => campaigns.id, { onDelete: 'cascade' }),
   name: text('name').notNull(),
   description: text('description'),
   weight: real('weight'),
@@ -21,27 +23,37 @@ export const items = sqliteTable('items', {
 
 export const inventories = sqliteTable('inventories', {
   id: text('id').primaryKey(),
-  campaignId: text('campaign_id').notNull().references(() => campaigns.id, { onDelete: 'cascade' }),
+  campaignId: text('campaign_id')
+    .notNull()
+    .references(() => campaigns.id, { onDelete: 'cascade' }),
   ownerType: text('owner_type').notNull(), // character, party, shop, faction
   ownerId: text('owner_id').notNull(),
   name: text('name').default('Inventory'),
 })
 
-export const inventoryItems = sqliteTable('inventory_items', {
-  id: text('id').primaryKey(),
-  inventoryId: text('inventory_id').notNull().references(() => inventories.id, { onDelete: 'cascade' }),
-  itemId: text('item_id').notNull().references(() => items.id),
-  quantity: integer('quantity').notNull().default(1),
-  position: text('position').default('backpack'), // equipped, backpack, wagon, storage
-  notes: text('notes'),
-  acquiredAt: integer('acquired_at', { mode: 'timestamp' }),
-}, (table) => [
-  index('idx_inventory_items_composite').on(table.inventoryId, table.itemId),
-])
+export const inventoryItems = sqliteTable(
+  'inventory_items',
+  {
+    id: text('id').primaryKey(),
+    inventoryId: text('inventory_id')
+      .notNull()
+      .references(() => inventories.id, { onDelete: 'cascade' }),
+    itemId: text('item_id')
+      .notNull()
+      .references(() => items.id),
+    quantity: integer('quantity').notNull().default(1),
+    position: text('position').default('backpack'), // equipped, backpack, wagon, storage
+    notes: text('notes'),
+    acquiredAt: integer('acquired_at', { mode: 'timestamp' }),
+  },
+  (table) => [index('idx_inventory_items_composite').on(table.inventoryId, table.itemId)],
+)
 
 export const currencies = sqliteTable('currencies', {
   id: text('id').primaryKey(),
-  campaignId: text('campaign_id').notNull().references(() => campaigns.id, { onDelete: 'cascade' }),
+  campaignId: text('campaign_id')
+    .notNull()
+    .references(() => campaigns.id, { onDelete: 'cascade' }),
   name: text('name').notNull(),
   symbol: text('symbol'),
   valueInBase: integer('value_in_base').notNull().default(1),
@@ -52,13 +64,17 @@ export const wealth = sqliteTable('wealth', {
   id: text('id').primaryKey(),
   ownerType: text('owner_type').notNull(), // character, party, shop, faction
   ownerId: text('owner_id').notNull(),
-  currencyId: text('currency_id').notNull().references(() => currencies.id),
+  currencyId: text('currency_id')
+    .notNull()
+    .references(() => currencies.id),
   amount: integer('amount').notNull().default(0),
 })
 
 export const shops = sqliteTable('shops', {
   id: text('id').primaryKey(),
-  campaignId: text('campaign_id').notNull().references(() => campaigns.id, { onDelete: 'cascade' }),
+  campaignId: text('campaign_id')
+    .notNull()
+    .references(() => campaigns.id, { onDelete: 'cascade' }),
   name: text('name').notNull(),
   slug: text('slug').notNull(),
   description: text('description'),
@@ -71,8 +87,12 @@ export const shops = sqliteTable('shops', {
 
 export const shopStock = sqliteTable('shop_stock', {
   id: text('id').primaryKey(),
-  shopId: text('shop_id').notNull().references(() => shops.id, { onDelete: 'cascade' }),
-  itemId: text('item_id').notNull().references(() => items.id),
+  shopId: text('shop_id')
+    .notNull()
+    .references(() => shops.id, { onDelete: 'cascade' }),
+  itemId: text('item_id')
+    .notNull()
+    .references(() => items.id),
   quantity: integer('quantity').notNull().default(-1), // -1 = unlimited
   priceOverrideJson: text('price_override_json'),
   isAvailable: integer('is_available', { mode: 'boolean' }).notNull().default(true),
@@ -80,7 +100,9 @@ export const shopStock = sqliteTable('shop_stock', {
 
 export const transactions = sqliteTable('transactions', {
   id: text('id').primaryKey(),
-  campaignId: text('campaign_id').notNull().references(() => campaigns.id, { onDelete: 'cascade' }),
+  campaignId: text('campaign_id')
+    .notNull()
+    .references(() => campaigns.id, { onDelete: 'cascade' }),
   type: text('type').notNull(), // purchase, sale, loot, trade, gift, loss
   fromEntityId: text('from_entity_id'),
   toEntityId: text('to_entity_id'),

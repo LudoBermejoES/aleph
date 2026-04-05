@@ -17,7 +17,9 @@ export default defineEventHandler(async (event) => {
   const characterPutSchema = z.object({
     name: z.string().min(1).max(200).optional(),
     content: z.string().optional(),
-    visibility: z.enum(['public', 'members', 'editors', 'dm_only', 'private', 'specific_users']).optional(),
+    visibility: z
+      .enum(['public', 'members', 'editors', 'dm_only', 'private', 'specific_users'])
+      .optional(),
     aliases: z.array(z.string()).optional(),
     tags: z.array(z.string()).optional(),
     characterType: z.string().optional(),
@@ -32,14 +34,14 @@ export default defineEventHandler(async (event) => {
   const db = useDb()
   const sqlite = useSqlite()
 
-  const entity = db.select().from(entities)
+  const entity = db
+    .select()
+    .from(entities)
     .where(and(eq(entities.campaignId, campaignId), eq(entities.slug, slug)))
     .get()
   if (!entity) throw createError({ statusCode: 404, message: 'Character not found' })
 
-  const character = db.select().from(characters)
-    .where(eq(characters.entityId, entity.id))
-    .get()
+  const character = db.select().from(characters).where(eq(characters.entityId, entity.id)).get()
   if (!character) throw createError({ statusCode: 404, message: 'Character data not found' })
 
   // Permission check: player can only edit their own PC
@@ -63,7 +65,21 @@ export default defineEventHandler(async (event) => {
 
   // Update entity/content
   let existing
-  try { existing = await readEntityFile(entity.filePath) } catch { existing = { frontmatter: { type: 'character', name: entity.name, aliases: [], tags: [], visibility: 'members' as const, fields: {} }, content: '' } }
+  try {
+    existing = await readEntityFile(entity.filePath)
+  } catch {
+    existing = {
+      frontmatter: {
+        type: 'character',
+        name: entity.name,
+        aliases: [],
+        tags: [],
+        visibility: 'members' as const,
+        fields: {},
+      },
+      content: '',
+    }
+  }
 
   const updatedFm = {
     ...existing.frontmatter,
@@ -76,14 +92,25 @@ export default defineEventHandler(async (event) => {
   const hash = await writeEntityFile(entity.filePath, updatedFm, updatedContent)
 
   const now = new Date()
-  db.update(entities).set({
-    name: updatedFm.name,
-    visibility: updatedFm.visibility,
-    contentHash: hash,
-    updatedAt: now,
-  }).where(eq(entities.id, entity.id)).run()
+  db.update(entities)
+    .set({
+      name: updatedFm.name,
+      visibility: updatedFm.visibility,
+      contentHash: hash,
+      updatedAt: now,
+    })
+    .where(eq(entities.id, entity.id))
+    .run()
 
-  indexEntity(sqlite, entity.id, campaignId, updatedFm.name, updatedFm.aliases || [], updatedFm.tags || [], updatedContent)
+  indexEntity(
+    sqlite,
+    entity.id,
+    campaignId,
+    updatedFm.name,
+    updatedFm.aliases || [],
+    updatedFm.tags || [],
+    updatedContent,
+  )
 
   return { success: true }
 })

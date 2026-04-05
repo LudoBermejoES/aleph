@@ -7,12 +7,14 @@ The editor already supports inline image uploads via `POST /api/campaigns/:id/im
 ## Goals / Non-Goals
 
 **Goals:**
+
 - Every entity type can have a single representative image (upload, store, serve, display)
 - Consistent UX with the existing character portrait flow (click-to-upload, size variants, fallback placeholder)
 - CLI parity: `entity upload-image` mirrors `character upload-portrait`
 - Characters continue to use their existing `portraitUrl` on the `characters` table (no migration of existing data)
 
 **Non-Goals:**
+
 - Multiple images per entity (gallery) — out of scope
 - Image cropping, resizing, or thumbnail generation — serve the uploaded file as-is
 - Replacing the character portrait system — characters keep their own `portraitUrl` field and endpoints
@@ -35,6 +37,7 @@ Mirrors the character pattern (`characters/{slug}/portrait.{ext}`). One image pe
 ### 3. Create a generic `EntityImage.vue` component
 
 Similar to `CharacterPortrait.vue` but with:
+
 - Props: `imageUrl`, `name`, `editable`, `campaignId`, `entitySlug`, `size`
 - Upload endpoint: `/api/campaigns/:id/entities/:slug/image`
 - A generic image placeholder icon (lucide `ImageIcon`) instead of the person silhouette
@@ -56,9 +59,11 @@ If a character entity also has an `imageUrl` set (unlikely but possible), the ch
 ### 6. CLI: `entity upload-image` subcommand
 
 Mirrors `character upload-portrait`:
+
 ```
 aleph entity upload-image --campaign <id> --slug <slug> --file <path>
 ```
+
 Sends multipart POST to `/api/campaigns/:id/entities/:slug/image`.
 
 ## Risks / Trade-offs

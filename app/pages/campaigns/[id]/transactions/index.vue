@@ -1,24 +1,39 @@
 <template>
   <div class="p-8">
     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary"> {{ $t('common.campaign') }}</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">
+        {{ $t('common.campaign') }}</NuxtLink
+      >
       <span>/</span>
       <span>{{ $t('transactions.title') }}</span>
     </div>
 
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-2xl font-bold">{{ $t('transactions.title') }}</h1>
-      <button v-if="canEdit" @click="showForm = !showForm" class="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm" data-testid="new-transaction-btn">
+      <button
+        v-if="canEdit"
+        @click="showForm = !showForm"
+        class="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm"
+        data-testid="new-transaction-btn"
+      >
         {{ showForm ? $t('common.cancel') : $t('transactions.new') }}
       </button>
     </div>
 
     <!-- Create transaction form -->
-    <div v-if="showForm" class="mb-6 p-4 rounded-lg border border-border space-y-4" data-testid="transaction-form">
+    <div
+      v-if="showForm"
+      class="mb-6 p-4 rounded-lg border border-border space-y-4"
+      data-testid="transaction-form"
+    >
       <div class="grid grid-cols-2 gap-3">
         <div>
           <label class="text-sm font-medium block mb-1">{{ $t('transactions.typeLabel') }}</label>
-          <select v-model="txForm.type" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" data-testid="tx-type-select">
+          <select
+            v-model="txForm.type"
+            class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            data-testid="tx-type-select"
+          >
             <option value="purchase">{{ $t('transactions.typePurchase') }}</option>
             <option value="sale">{{ $t('transactions.typeSale') }}</option>
             <option value="transfer">{{ $t('transactions.typeTransfer') }}</option>
@@ -31,12 +46,25 @@
         </div>
         <div>
           <label class="text-sm font-medium block mb-1">{{ $t('transactions.notes') }}</label>
-          <input v-model="txForm.notes" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" data-testid="tx-notes" />
+          <input
+            v-model="txForm.notes"
+            class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            data-testid="tx-notes"
+          />
         </div>
         <div>
           <label class="text-sm font-medium block mb-1">{{ $t('transactions.fromEntity') }}</label>
-          <OwnerPicker :campaign-id="campaignId" :owner-type="txForm.fromType" v-model="txForm.fromId" data-testid="tx-from" />
-          <select v-model="txForm.fromType" class="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-xs" data-testid="tx-from-type">
+          <OwnerPicker
+            :campaign-id="campaignId"
+            :owner-type="txForm.fromType"
+            v-model="txForm.fromId"
+            data-testid="tx-from"
+          />
+          <select
+            v-model="txForm.fromType"
+            class="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-xs"
+            data-testid="tx-from-type"
+          >
             <option value="party">{{ $t('inventories.typeParty') }}</option>
             <option value="character">{{ $t('inventories.typeCharacter') }}</option>
             <option value="faction">{{ $t('inventories.typeFaction') }}</option>
@@ -45,8 +73,17 @@
         </div>
         <div>
           <label class="text-sm font-medium block mb-1">{{ $t('transactions.toEntity') }}</label>
-          <OwnerPicker :campaign-id="campaignId" :owner-type="txForm.toType" v-model="txForm.toId" data-testid="tx-to" />
-          <select v-model="txForm.toType" class="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-xs" data-testid="tx-to-type">
+          <OwnerPicker
+            :campaign-id="campaignId"
+            :owner-type="txForm.toType"
+            v-model="txForm.toId"
+            data-testid="tx-to"
+          />
+          <select
+            v-model="txForm.toType"
+            class="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-xs"
+            data-testid="tx-to-type"
+          >
             <option value="party">{{ $t('inventories.typeParty') }}</option>
             <option value="character">{{ $t('inventories.typeCharacter') }}</option>
             <option value="faction">{{ $t('inventories.typeFaction') }}</option>
@@ -58,7 +95,11 @@
       <!-- Item picker -->
       <div>
         <label class="text-sm font-medium block mb-1">{{ $t('transactions.item') }}</label>
-        <select v-model="txForm.itemId" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" data-testid="tx-item">
+        <select
+          v-model="txForm.itemId"
+          class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+          data-testid="tx-item"
+        >
           <option value="">{{ $t('transactions.empty') }}</option>
           <option v-for="item in itemList" :key="item.id" :value="item.id">{{ item.name }}</option>
         </select>
@@ -66,7 +107,13 @@
 
       <div v-if="txForm.itemId">
         <label class="text-sm font-medium block mb-1">{{ $t('transactions.quantity') }}</label>
-        <input v-model.number="txForm.quantity" type="number" min="1" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" data-testid="tx-quantity" />
+        <input
+          v-model.number="txForm.quantity"
+          type="number"
+          min="1"
+          class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+          data-testid="tx-quantity"
+        />
       </div>
 
       <!-- Currency amounts (for wealth-modifying types) -->
@@ -74,21 +121,40 @@
         <label class="text-sm font-medium block mb-2">{{ $t('transactions.amounts') }}</label>
         <div class="grid grid-cols-2 gap-2">
           <div v-for="c in currencyList" :key="c.id" class="flex items-center gap-2">
-            <span class="text-sm text-muted-foreground w-20">{{ c.name }}<span v-if="c.symbol"> ({{ c.symbol }})</span></span>
-            <input v-model.number="txForm.amounts[c.id]" type="number" min="0" placeholder="0" class="flex-1 rounded-md border border-input bg-background px-2 py-1.5 text-sm" :data-testid="`tx-amount-${c.id}`" />
+            <span class="text-sm text-muted-foreground w-20"
+              >{{ c.name }}<span v-if="c.symbol"> ({{ c.symbol }})</span></span
+            >
+            <input
+              v-model.number="txForm.amounts[c.id]"
+              type="number"
+              min="0"
+              placeholder="0"
+              class="flex-1 rounded-md border border-input bg-background px-2 py-1.5 text-sm"
+              :data-testid="`tx-amount-${c.id}`"
+            />
           </div>
         </div>
       </div>
 
       <p v-if="formError" class="text-sm text-destructive">{{ formError }}</p>
-      <button @click="createTx" :disabled="saving" class="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm disabled:opacity-50" data-testid="tx-save">
+      <button
+        @click="createTx"
+        :disabled="saving"
+        class="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm disabled:opacity-50"
+        data-testid="tx-save"
+      >
         {{ saving ? $t('common.saving') : $t('transactions.create') }}
       </button>
     </div>
 
     <!-- Filters -->
     <div class="flex gap-3 mb-4">
-      <select v-model="typeFilter" @change="load" class="rounded-md border border-input bg-background px-3 py-2 text-sm" data-testid="tx-type-filter">
+      <select
+        v-model="typeFilter"
+        @change="load"
+        class="rounded-md border border-input bg-background px-3 py-2 text-sm"
+        data-testid="tx-type-filter"
+      >
         <option value="">{{ $t('transactions.allTypes') }}</option>
         <option value="purchase">{{ $t('transactions.typePurchase') }}</option>
         <option value="sale">{{ $t('transactions.typeSale') }}</option>
@@ -101,15 +167,29 @@
     </div>
 
     <LoadingSkeleton v-if="loading" :rows="5" />
-    <ScrollableTable v-else-if="txList.length" class="rounded-lg border border-border" data-testid="transaction-table">
+    <ScrollableTable
+      v-else-if="txList.length"
+      class="rounded-lg border border-border"
+      data-testid="transaction-table"
+    >
       <table class="w-full text-sm">
         <thead>
           <tr class="border-b border-border bg-muted/50">
-            <th class="px-4 py-2 text-left font-medium text-muted-foreground">{{ $t('transactions.typeLabel') }}</th>
-            <th class="px-4 py-2 text-left font-medium text-muted-foreground">{{ $t('transactions.description') }}</th>
-            <th class="px-4 py-2 text-left font-medium text-muted-foreground">{{ $t('transactions.item') }}</th>
-            <th class="px-4 py-2 text-right font-medium text-muted-foreground">{{ $t('transactions.amount') }}</th>
-            <th class="px-4 py-2 text-right font-medium text-muted-foreground">{{ $t('transactions.date') }}</th>
+            <th class="px-4 py-2 text-left font-medium text-muted-foreground">
+              {{ $t('transactions.typeLabel') }}
+            </th>
+            <th class="px-4 py-2 text-left font-medium text-muted-foreground">
+              {{ $t('transactions.description') }}
+            </th>
+            <th class="px-4 py-2 text-left font-medium text-muted-foreground">
+              {{ $t('transactions.item') }}
+            </th>
+            <th class="px-4 py-2 text-right font-medium text-muted-foreground">
+              {{ $t('transactions.amount') }}
+            </th>
+            <th class="px-4 py-2 text-right font-medium text-muted-foreground">
+              {{ $t('transactions.date') }}
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -120,21 +200,34 @@
             :data-testid="`tx-row-${tx.id}`"
           >
             <td class="px-4 py-2">
-              <span :class="['px-2 py-0.5 rounded text-xs', typeColor(tx.type)]">{{ tx.type }}</span>
+              <span :class="['px-2 py-0.5 rounded text-xs', typeColor(tx.type)]">{{
+                tx.type
+              }}</span>
             </td>
-            <td class="px-4 py-2 text-muted-foreground">{{ tx.notes || $t('transactions.empty') }}</td>
-            <td class="px-4 py-2">{{ tx.itemId ? (itemMap[tx.itemId] || tx.itemId) : $t('transactions.empty') }}</td>
+            <td class="px-4 py-2 text-muted-foreground">
+              {{ tx.notes || $t('transactions.empty') }}
+            </td>
+            <td class="px-4 py-2">
+              {{ tx.itemId ? itemMap[tx.itemId] || tx.itemId : $t('transactions.empty') }}
+            </td>
             <td class="px-4 py-2 text-right">
               <span v-if="tx.amount">{{ tx.amount }}</span>
               <span v-else-if="tx.quantity">×{{ tx.quantity }}</span>
               <span v-else>{{ $t('transactions.empty') }}</span>
             </td>
-            <td class="px-4 py-2 text-right text-muted-foreground">{{ formatDate(tx.createdAt) }}</td>
+            <td class="px-4 py-2 text-right text-muted-foreground">
+              {{ formatDate(tx.createdAt) }}
+            </td>
           </tr>
         </tbody>
       </table>
     </ScrollableTable>
-    <EmptyState v-else icon="📜" :title="$t('transactions.noTransactions')" :description="$t('transactions.noTransactionsDescription')" />
+    <EmptyState
+      v-else
+      icon="📜"
+      :title="$t('transactions.noTransactions')"
+      :description="$t('transactions.noTransactionsDescription')"
+    />
 
     <ErrorToast v-if="error" :message="error" @dismiss="error = ''" />
   </div>
@@ -168,7 +261,7 @@ const itemMap = computed(() => {
 })
 
 const wealthModifying = computed(() =>
-  ['grant', 'deposit', 'withdrawal', 'loot'].includes(txForm.value.type)
+  ['grant', 'deposit', 'withdrawal', 'loot'].includes(txForm.value.type),
 )
 
 const txForm = ref({
@@ -198,7 +291,11 @@ function typeColor(type: string) {
 }
 
 function formatDate(d: string | Date) {
-  return new Date(d).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+  return new Date(d).toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  })
 }
 
 async function load() {
@@ -234,7 +331,17 @@ async function createTx() {
       if (Object.keys(nonZero).length) body.amount = JSON.stringify(nonZero)
     }
     await api.createTransaction(body)
-    txForm.value = { type: 'purchase', notes: '', fromType: 'party', fromId: '', toType: 'character', toId: '', itemId: '', quantity: 1, amounts: {} }
+    txForm.value = {
+      type: 'purchase',
+      notes: '',
+      fromType: 'party',
+      fromId: '',
+      toType: 'character',
+      toId: '',
+      itemId: '',
+      quantity: 1,
+      amounts: {},
+    }
     showForm.value = false
     await load()
   } catch (e: any) {

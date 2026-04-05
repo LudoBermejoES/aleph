@@ -6,14 +6,17 @@ import type { CampaignRole } from '../../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
   const role = event.context.campaignRole as CampaignRole
-  if (!hasMinRole(role, 'editor')) throw createError({ statusCode: 403, message: 'Editors or above can update entity types' })
+  if (!hasMinRole(role, 'editor'))
+    throw createError({ statusCode: 403, message: 'Editors or above can update entity types' })
 
   const campaignId = getRouterParam(event, 'id')!
   const typeId = getRouterParam(event, 'typeId')!
   const body = await readBody(event)
   const db = useDb()
 
-  const entityType = db.select().from(entityTypes)
+  const entityType = db
+    .select()
+    .from(entityTypes)
     .where(and(eq(entityTypes.campaignId, campaignId), eq(entityTypes.id, typeId)))
     .get()
   if (!entityType) throw createError({ statusCode: 404, message: 'Entity type not found' })

@@ -3,7 +3,10 @@ import { readFileSync } from 'fs'
 import { resolve } from 'path'
 
 describe('CLI session-group delete command', () => {
-  const source = readFileSync(resolve(__dirname, '../../../cli/src/commands/session-group.js'), 'utf-8')
+  const source = readFileSync(
+    resolve(__dirname, '../../../cli/src/commands/session-group.js'),
+    'utf-8',
+  )
 
   it('imports confirm from @inquirer/prompts', () => {
     expect(source).toContain("import { confirm } from '@inquirer/prompts'")

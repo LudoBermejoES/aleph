@@ -24,26 +24,30 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'blockId is required' })
   }
 
-  const entity = db.select({ id: entities.id })
+  const entity = db
+    .select({ id: entities.id })
     .from(entities)
     .where(and(eq(entities.campaignId, campaignId), eq(entities.slug, slug)))
     .get()
   if (!entity) throw createError({ statusCode: 404, message: 'Entity not found' })
 
   // Upsert: ignore if already revealed
-  const existing = db.select({ id: secretReveals.id })
+  const existing = db
+    .select({ id: secretReveals.id })
     .from(secretReveals)
     .where(and(eq(secretReveals.entityId, entity.id), eq(secretReveals.secretBlockId, blockId)))
     .get()
 
   if (!existing) {
-    db.insert(secretReveals).values({
-      id: randomUUID(),
-      entityId: entity.id,
-      secretBlockId: blockId,
-      revealedBy: userId,
-      revealedAt: new Date(),
-    }).run()
+    db.insert(secretReveals)
+      .values({
+        id: randomUUID(),
+        entityId: entity.id,
+        secretBlockId: blockId,
+        revealedBy: userId,
+        revealedAt: new Date(),
+      })
+      .run()
   }
 
   emitCampaignMessage(campaignId, {

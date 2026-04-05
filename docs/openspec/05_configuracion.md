@@ -2,11 +2,11 @@
 
 Tres niveles de personalización:
 
-| Nivel | Qué permite | Para quién |
-|-------|-------------|------------|
-| **Project Config** | Defaults, contexto del proyecto, reglas por artifact | La mayoría de equipos |
-| **Custom Schemas** | Workflow propio con artifacts personalizados | Equipos con procesos únicos |
-| **Global Overrides** | Compartir schemas entre proyectos | Power users |
+| Nivel                | Qué permite                                          | Para quién                  |
+| -------------------- | ---------------------------------------------------- | --------------------------- |
+| **Project Config**   | Defaults, contexto del proyecto, reglas por artifact | La mayoría de equipos       |
+| **Custom Schemas**   | Workflow propio con artifacts personalizados         | Equipos con procesos únicos |
+| **Global Overrides** | Compartir schemas entre proyectos                    | Power users                 |
 
 ---
 
@@ -161,6 +161,7 @@ Los templates guían a la IA sobre qué generar. Son archivos Markdown con secci
 
 ```markdown
 <!-- templates/proposal.md -->
+
 # Propuesta: {nombre-del-change}
 
 ## Motivación
@@ -169,11 +170,9 @@ Los templates guían a la IA sobre qué generar. Son archivos Markdown con secci
 
 ## Alcance
 
-**En scope:**
--
+## **En scope:**
 
-**Fuera de scope:**
--
+## **Fuera de scope:**
 
 ## Enfoque técnico
 
@@ -262,6 +261,7 @@ apply:
 OpenSpec recopila estadísticas anónimas (solo nombres de comandos y versión, sin contenido ni paths).
 
 Para deshabilitar:
+
 ```bash
 export OPENSPEC_TELEMETRY=0
 # o

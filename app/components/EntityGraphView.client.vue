@@ -1,12 +1,16 @@
 <template>
-  <div class="border border-border rounded-lg overflow-hidden relative" :style="{ height: height + 'px' }" data-testid="entity-graph-view">
+  <div
+    class="border border-border rounded-lg overflow-hidden relative"
+    :style="{ height: height + 'px' }"
+    data-testid="entity-graph-view"
+  >
     <ClientOnly>
       <div v-if="hasData" class="w-full h-full relative">
         <!-- Convex hull overlay: rendered as a positioned SVG behind the graph -->
         <svg
           v-if="hullPolygons.length"
           class="absolute inset-0 pointer-events-none"
-          style="width: 100%; height: 100%; overflow: visible;"
+          style="width: 100%; height: 100%; overflow: visible"
         >
           <g :transform="`translate(${hullOrigin.x}, ${hullOrigin.y})`">
             <polygon
@@ -77,7 +81,11 @@
         <div
           v-if="tooltip.visible"
           class="absolute z-10 bg-popover border border-border rounded-lg shadow-lg p-3 pointer-events-none min-w-[140px] max-w-[200px]"
-          :style="{ left: tooltip.x + 'px', top: tooltip.y + 'px', transform: 'translate(-50%, -110%)' }"
+          :style="{
+            left: tooltip.x + 'px',
+            top: tooltip.y + 'px',
+            transform: 'translate(-50%, -110%)',
+          }"
           data-testid="graph-tooltip"
         >
           <div class="flex items-center gap-2 mb-1">
@@ -88,7 +96,9 @@
             />
             <div>
               <p class="font-semibold text-sm leading-tight">{{ tooltip.name }}</p>
-              <span class="text-xs text-muted-foreground px-1 py-0.5 rounded bg-muted">{{ tooltip.type }}</span>
+              <span class="text-xs text-muted-foreground px-1 py-0.5 rounded bg-muted">{{
+                tooltip.type
+              }}</span>
             </div>
           </div>
           <p class="text-xs text-muted-foreground mt-1">
@@ -119,8 +129,27 @@ import {
 } from '~/utils/graph-helpers'
 
 const props = defineProps<{
-  nodes: Record<string, { name: string; type: string; slug?: string; image?: string | null; organizations?: Array<{ slug: string; name: string }> }>
-  edges: Record<string, { source: string; target: string; label: string; color: string; attitude?: number; relationTypeSlug?: string }>
+  nodes: Record<
+    string,
+    {
+      name: string
+      type: string
+      slug?: string
+      image?: string | null
+      organizations?: Array<{ slug: string; name: string }>
+    }
+  >
+  edges: Record<
+    string,
+    {
+      source: string
+      target: string
+      label: string
+      color: string
+      attitude?: number
+      relationTypeSlug?: string
+    }
+  >
   height?: number
   campaignId?: string
   centerNodeId?: string
@@ -139,19 +168,23 @@ const graphRef = ref<InstanceType<typeof VNetworkGraph> | null>(null)
 const currentLayouts = ref<{ nodes: Record<string, { x: number; y: number }> }>({ nodes: {} })
 
 // Seed radial positions for character detail page
-watch(() => [props.centerNodeId, props.nodes] as const, () => {
-  const nodeIds = Object.keys(props.nodes || {})
-  if (!props.centerNodeId || nodeIds.length === 0) return
-  const positions: Record<string, { x: number; y: number }> = {}
-  positions[props.centerNodeId] = { x: 0, y: 0 }
-  const others = nodeIds.filter(id => id !== props.centerNodeId)
-  const radius = Math.max(160, others.length * 30)
-  others.forEach((id, i) => {
-    const angle = (2 * Math.PI * i) / others.length - Math.PI / 2
-    positions[id] = { x: Math.cos(angle) * radius, y: Math.sin(angle) * radius }
-  })
-  currentLayouts.value = { nodes: positions }
-}, { immediate: true })
+watch(
+  () => [props.centerNodeId, props.nodes] as const,
+  () => {
+    const nodeIds = Object.keys(props.nodes || {})
+    if (!props.centerNodeId || nodeIds.length === 0) return
+    const positions: Record<string, { x: number; y: number }> = {}
+    positions[props.centerNodeId] = { x: 0, y: 0 }
+    const others = nodeIds.filter((id) => id !== props.centerNodeId)
+    const radius = Math.max(160, others.length * 30)
+    others.forEach((id, i) => {
+      const angle = (2 * Math.PI * i) / others.length - Math.PI / 2
+      positions[id] = { x: Math.cos(angle) * radius, y: Math.sin(angle) * radius }
+    })
+    currentLayouts.value = { nodes: positions }
+  },
+  { immediate: true },
+)
 
 // ─── Convex Hulls ─────────────────────────────────────────────────────────────
 
@@ -195,7 +228,7 @@ const hullPolygons = computed(() => {
     })
     result.push({
       orgSlug: slug,
-      points: padded.map(p => `${p[0]},${p[1]}`).join(' '),
+      points: padded.map((p) => `${p[0]},${p[1]}`).join(' '),
       color: orgColors[slug]!,
     })
   }
@@ -342,7 +375,10 @@ function showTooltip(nodeId: string, pos: { x: number; y: number }) {
 }
 
 function hideTooltip() {
-  if (tooltipTimer) { clearTimeout(tooltipTimer); tooltipTimer = null }
+  if (tooltipTimer) {
+    clearTimeout(tooltipTimer)
+    tooltipTimer = null
+  }
   tooltip.value.visible = false
 }
 
@@ -351,7 +387,11 @@ function hideTooltip() {
 let clickTimer: ReturnType<typeof setTimeout> | null = null
 
 function handleNodeClick(nodeId: string) {
-  if (clickTimer) { clearTimeout(clickTimer); clickTimer = null; return }
+  if (clickTimer) {
+    clearTimeout(clickTimer)
+    clickTimer = null
+    return
+  }
   clickTimer = setTimeout(() => {
     clickTimer = null
     focusedNodeId.value = focusedNodeId.value === nodeId ? null : nodeId
@@ -360,7 +400,10 @@ function handleNodeClick(nodeId: string) {
 }
 
 function handleNodeDblClick(nodeId: string) {
-  if (clickTimer) { clearTimeout(clickTimer); clickTimer = null }
+  if (clickTimer) {
+    clearTimeout(clickTimer)
+    clickTimer = null
+  }
   const node = props.nodes[nodeId]
   if (!node || !props.campaignId) return
   const cid = props.campaignId
@@ -403,7 +446,8 @@ const configs = defineConfigs({
       width: 2,
     },
     label: {
-      fontSize: (edge: any) => edgeLabelFontSize(edge.id, activeHighlightSet.value, activeMode.value),
+      fontSize: (edge: any) =>
+        edgeLabelFontSize(edge.id, activeHighlightSet.value, activeMode.value),
       color: '#6b7280',
     },
   },
@@ -417,7 +461,10 @@ const eventHandlers = {
   'node:pointerover': ({ node, event }: { node: string; event: PointerEvent }) => {
     if (focusedNodeId.value) return
     hoveredNodeId.value = node
-    if (tooltipTimer) { clearTimeout(tooltipTimer); tooltipTimer = null }
+    if (tooltipTimer) {
+      clearTimeout(tooltipTimer)
+      tooltipTimer = null
+    }
     tooltipTimer = setTimeout(() => {
       const el = (graphRef.value as any)?.$el as HTMLElement | undefined
       if (!el) return

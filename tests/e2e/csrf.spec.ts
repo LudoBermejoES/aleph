@@ -22,7 +22,7 @@ test.describe('CSRF Protection', () => {
     await page.evaluate(() => fetch('/api/campaigns'))
 
     const cookies = await page.context().cookies()
-    const csrfCookie = cookies.find(c => c.name === 'csrf_token')
+    const csrfCookie = cookies.find((c) => c.name === 'csrf_token')
     expect(csrfCookie).toBeDefined()
     expect(csrfCookie?.value).toBeTruthy()
     expect(csrfCookie?.httpOnly).toBe(false) // Must be readable by JS

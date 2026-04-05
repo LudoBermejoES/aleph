@@ -14,7 +14,11 @@ export default defineEventHandler(async (event) => {
   const folderId = getRouterParam(event, 'folderId')!
   const db = useDb()
 
-  const folder = db.select().from(characterFolders).where(and(eq(characterFolders.campaignId, campaignId), eq(characterFolders.id, folderId))).get()
+  const folder = db
+    .select()
+    .from(characterFolders)
+    .where(and(eq(characterFolders.campaignId, campaignId), eq(characterFolders.id, folderId)))
+    .get()
   if (!folder) throw createError({ statusCode: 404, message: 'Character folder not found' })
 
   db.update(characters).set({ folderId: null }).where(eq(characters.folderId, folder.id)).run()

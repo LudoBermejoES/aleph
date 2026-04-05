@@ -42,7 +42,10 @@ export const remarkStripSecrets: Plugin<[StripSecretsOptions], Root> = (options)
 
       if (colonIndex !== -1) {
         requiredRole = secretSpec.substring(0, colonIndex)
-        allowedUsers = secretSpec.substring(colonIndex + 1).split(',').map((s: string) => s.trim())
+        allowedUsers = secretSpec
+          .substring(colonIndex + 1)
+          .split(',')
+          .map((s: string) => s.trim())
       } else {
         requiredRole = secretSpec || 'dm'
       }

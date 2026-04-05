@@ -10,9 +10,30 @@ import { filterPinsByVisibility } from '../../../server/services/maps'
 
 describe('Relation visibility filtering (9.13)', () => {
   const relations = [
-    { id: '1', sourceEntityId: 'a', targetEntityId: 'b', forwardLabel: 'allies', visibility: 'members', attitude: 50 },
-    { id: '2', sourceEntityId: 'b', targetEntityId: 'c', forwardLabel: 'enemies', visibility: 'dm_only', attitude: -80 },
-    { id: '3', sourceEntityId: 'a', targetEntityId: 'c', forwardLabel: 'neutral', visibility: 'public', attitude: 0 },
+    {
+      id: '1',
+      sourceEntityId: 'a',
+      targetEntityId: 'b',
+      forwardLabel: 'allies',
+      visibility: 'members',
+      attitude: 50,
+    },
+    {
+      id: '2',
+      sourceEntityId: 'b',
+      targetEntityId: 'c',
+      forwardLabel: 'enemies',
+      visibility: 'dm_only',
+      attitude: -80,
+    },
+    {
+      id: '3',
+      sourceEntityId: 'a',
+      targetEntityId: 'c',
+      forwardLabel: 'neutral',
+      visibility: 'public',
+      attitude: 0,
+    },
   ]
 
   it('DM sees all relations including dm_only', () => {
@@ -23,9 +44,9 @@ describe('Relation visibility filtering (9.13)', () => {
   it('player sees members + public, not dm_only', () => {
     const visible = filterPinsByVisibility(relations, 'player')
     expect(visible).toHaveLength(2)
-    expect(visible.map(r => r.id)).toContain('1')
-    expect(visible.map(r => r.id)).toContain('3')
-    expect(visible.map(r => r.id)).not.toContain('2')
+    expect(visible.map((r) => r.id)).toContain('1')
+    expect(visible.map((r) => r.id)).toContain('3')
+    expect(visible.map((r) => r.id)).not.toContain('2')
   })
 
   it('visitor sees only public', () => {
@@ -51,11 +72,13 @@ describe('Filter panel logic (9.16)', () => {
 
   function filterByNodeType(nodesObj: typeof nodes, edgesObj: typeof edges, type: string) {
     const filteredNodeIds = new Set(
-      Object.entries(nodesObj).filter(([, n]) => n.type === type).map(([id]) => id),
+      Object.entries(nodesObj)
+        .filter(([, n]) => n.type === type)
+        .map(([id]) => id),
     )
     const filteredEdges = Object.fromEntries(
-      Object.entries(edgesObj).filter(([, e]) =>
-        filteredNodeIds.has(e.source) || filteredNodeIds.has(e.target),
+      Object.entries(edgesObj).filter(
+        ([, e]) => filteredNodeIds.has(e.source) || filteredNodeIds.has(e.target),
       ),
     )
     return { nodes: filteredNodeIds, edges: filteredEdges }
@@ -127,7 +150,13 @@ describe('CytoscapeGraphView element mapping (8.1-8.4)', () => {
         data: { id, label: `${node.name}\n(${node.type})`, color: getNodeColor(node.type) },
       })),
       ...Object.entries(edges).map(([id, edge]) => ({
-        data: { id, source: edge.source, target: edge.target, label: edge.label, color: edge.color || '#9ca3af' },
+        data: {
+          id,
+          source: edge.source,
+          target: edge.target,
+          label: edge.label,
+          color: edge.color || '#9ca3af',
+        },
       })),
     ]
   }
@@ -147,7 +176,7 @@ describe('CytoscapeGraphView element mapping (8.1-8.4)', () => {
 
   it('node element has id, label, and color', () => {
     const els = buildCytoscapeElements(nodes, edges)
-    const strahd = els.find(e => e.data.id === 'n1')!
+    const strahd = els.find((e) => e.data.id === 'n1')!
     expect(strahd.data.label).toContain('Strahd')
     expect(strahd.data.label).toContain('character')
     expect(strahd.data.color).toBe('#3b82f6')
@@ -155,7 +184,9 @@ describe('CytoscapeGraphView element mapping (8.1-8.4)', () => {
 
   it('edge element has source, target, label, and color', () => {
     const els = buildCytoscapeElements(nodes, edges)
-    const edge = els.find(e => e.data.id === 'e1')! as { data: { id: string; source: string; target: string; label: string; color: string } }
+    const edge = els.find((e) => e.data.id === 'e1')! as {
+      data: { id: string; source: string; target: string; label: string; color: string }
+    }
     expect(edge.data.source).toBe('n1')
     expect(edge.data.target).toBe('n2')
     expect(edge.data.label).toBe('rules')
@@ -176,7 +207,7 @@ describe('CytoscapeGraphView element mapping (8.1-8.4)', () => {
   it('edge without color falls back to gray', () => {
     const edgesNoColor = { e1: { source: 'n1', target: 'n2', label: 'test', color: '' } }
     const els = buildCytoscapeElements(nodes, edgesNoColor)
-    const edge = els.find(e => e.data.id === 'e1')!
+    const edge = els.find((e) => e.data.id === 'e1')!
     expect(edge.data.color).toBe('#9ca3af')
   })
 })
@@ -193,7 +224,7 @@ describe('Attitude range slider logic (9.17)', () => {
   ]
 
   function filterByAttitudeRange(edgeList: typeof edges, min: number, max: number) {
-    return edgeList.filter(e => e.attitude >= min && e.attitude <= max)
+    return edgeList.filter((e) => e.attitude >= min && e.attitude <= max)
   }
 
   it('full range returns all edges', () => {
@@ -203,13 +234,13 @@ describe('Attitude range slider logic (9.17)', () => {
   it('positive only returns friendly edges', () => {
     const result = filterByAttitudeRange(edges, 1, 100)
     expect(result).toHaveLength(2)
-    expect(result.map(e => e.label)).toEqual(['allies', 'friends'])
+    expect(result.map((e) => e.label)).toEqual(['allies', 'friends'])
   })
 
   it('negative only returns hostile edges', () => {
     const result = filterByAttitudeRange(edges, -100, -1)
     expect(result).toHaveLength(2)
-    expect(result.map(e => e.label)).toEqual(['rivals', 'enemies'])
+    expect(result.map((e) => e.label)).toEqual(['rivals', 'enemies'])
   })
 
   it('narrow range filters precisely', () => {

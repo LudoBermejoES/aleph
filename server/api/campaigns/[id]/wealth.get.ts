@@ -11,19 +11,22 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'owner_id and owner_type required' })
   }
 
-  const balances = db.select({
-    id: wealth.id,
-    currencyId: wealth.currencyId,
-    currencyName: currencies.name,
-    currencySymbol: currencies.symbol,
-    amount: wealth.amount,
-  })
+  const balances = db
+    .select({
+      id: wealth.id,
+      currencyId: wealth.currencyId,
+      currencyName: currencies.name,
+      currencySymbol: currencies.symbol,
+      amount: wealth.amount,
+    })
     .from(wealth)
     .innerJoin(currencies, eq(wealth.currencyId, currencies.id))
-    .where(and(
-      eq(wealth.ownerId, query.owner_id as string),
-      eq(wealth.ownerType, query.owner_type as string),
-    ))
+    .where(
+      and(
+        eq(wealth.ownerId, query.owner_id as string),
+        eq(wealth.ownerType, query.owner_type as string),
+      ),
+    )
     .all()
 
   return balances

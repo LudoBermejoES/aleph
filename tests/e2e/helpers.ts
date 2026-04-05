@@ -56,24 +56,35 @@ export async function registerAndLogin(page: Page, name: string = 'E2E User'): P
  * Make an authenticated API call from within the page context, automatically
  * injecting the CSRF token for mutating methods.
  */
-export async function apiFetch(page: Page, path: string, opts: { method?: string; body?: unknown } = {}): Promise<any> {
-  return page.evaluate(async ([p, o]: [string, { method?: string; body?: unknown }]) => {
-    const method = (o.method || 'GET').toUpperCase()
-    const mutating = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)
-    const csrf = mutating ? (document.cookie.match(/csrf_token=([^;]+)/)?.[1] || '') : ''
-    const headers: Record<string, string> = { 'Content-Type': 'application/json' }
-    if (csrf) headers['X-CSRF-Token'] = csrf
-    const res = await fetch(p, {
-      method,
-      headers,
-      body: o.body != null ? JSON.stringify(o.body) : undefined,
-    })
-    if (!res.ok && res.status !== 404) {
-      const text = await res.text()
-      throw new Error(`apiFetch ${method} ${p} → ${res.status}: ${text.slice(0, 200)}`)
-    }
-    try { return await res.json() } catch { return null }
-  }, [path, opts] as [string, { method?: string; body?: unknown }])
+export async function apiFetch(
+  page: Page,
+  path: string,
+  opts: { method?: string; body?: unknown } = {},
+): Promise<any> {
+  return page.evaluate(
+    async ([p, o]: [string, { method?: string; body?: unknown }]) => {
+      const method = (o.method || 'GET').toUpperCase()
+      const mutating = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)
+      const csrf = mutating ? document.cookie.match(/csrf_token=([^;]+)/)?.[1] || '' : ''
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+      if (csrf) headers['X-CSRF-Token'] = csrf
+      const res = await fetch(p, {
+        method,
+        headers,
+        body: o.body != null ? JSON.stringify(o.body) : undefined,
+      })
+      if (!res.ok && res.status !== 404) {
+        const text = await res.text()
+        throw new Error(`apiFetch ${method} ${p} → ${res.status}: ${text.slice(0, 200)}`)
+      }
+      try {
+        return await res.json()
+      } catch {
+        return null
+      }
+    },
+    [path, opts] as [string, { method?: string; body?: unknown }],
+  )
 }
 
 /**

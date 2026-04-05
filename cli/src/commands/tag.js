@@ -13,7 +13,10 @@ export function makeTagCommand() {
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
       const data = await get(`/api/campaigns/${opts.campaign}/tags`)
-      print(opts.json ? data : data.map(t => ({ id: t.id, name: t.name, color: t.color || '' })), { json: opts.json })
+      print(
+        opts.json ? data : data.map((t) => ({ id: t.id, name: t.name, color: t.color || '' })),
+        { json: opts.json },
+      )
     })
 
   cmd
@@ -27,7 +30,11 @@ export function makeTagCommand() {
       const body = { name: opts.name }
       if (opts.color !== undefined) body.color = opts.color
       const data = await post(`/api/campaigns/${opts.campaign}/tags`, body)
-      if (opts.json) { print(data, { json: true }) } else { success(`Tag created: ${data.name} (${data.id})`) }
+      if (opts.json) {
+        print(data, { json: true })
+      } else {
+        success(`Tag created: ${data.name} (${data.id})`)
+      }
     })
 
   cmd
@@ -38,8 +45,14 @@ export function makeTagCommand() {
     .option('--yes', 'Skip confirmation')
     .action(async (opts) => {
       if (!opts.yes) {
-        const ok = await confirm({ message: `Delete tag ${opts.id}? This cannot be undone.`, default: false })
-        if (!ok) { process.stdout.write('Cancelled.\n'); return }
+        const ok = await confirm({
+          message: `Delete tag ${opts.id}? This cannot be undone.`,
+          default: false,
+        })
+        if (!ok) {
+          process.stdout.write('Cancelled.\n')
+          return
+        }
       }
       await del(`/api/campaigns/${opts.campaign}/tags/${opts.id}`)
       success(`Tag ${opts.id} deleted.`)

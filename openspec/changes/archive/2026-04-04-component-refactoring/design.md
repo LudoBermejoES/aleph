@@ -5,6 +5,7 @@ The codebase has grown organically with three files exceeding comfortable size l
 ## Goals / Non-Goals
 
 **Goals:**
+
 - Each extracted component has a single responsibility and a clear prop/emit interface
 - MarkdownEditor's entity mention dropdown uses EntitySuggestionList.vue instead of raw DOM
 - Parent components become thin orchestrators (~60-80 lines) that compose children
@@ -12,6 +13,7 @@ The codebase has grown organically with three files exceeding comfortable size l
 - Composables extracted where state + logic form a cohesive unit
 
 **Non-Goals:**
+
 - Redesigning any UI or changing layouts
 - Adding new features (filters, toolbar buttons, etc.)
 - Changing API contracts or data shapes
@@ -91,7 +93,8 @@ export function useCollaborationProvider(options: {
 **Why**: The character list page has 11 filter refs, URL sync logic, and debounced search — ~90 lines of pure logic that belongs in a composable. The filter bar template (~65 lines) becomes a component. The parent page composes both.
 
 ```ts
-const { filters, setType, toggleSortDir, onFilterChange, initFromUrl } = useCharacterFilters(campaignId)
+const { filters, setType, toggleSortDir, onFilterChange, initFromUrl } =
+  useCharacterFilters(campaignId)
 ```
 
 ### Decision 6: CharacterListItem as a component

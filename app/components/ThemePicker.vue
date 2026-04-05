@@ -13,7 +13,12 @@
       </select>
       <div class="pointer-events-none absolute inset-y-0 right-2 flex items-center">
         <svg class="h-4 w-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M19 9l-7 7-7-7"
+          />
         </svg>
       </div>
     </div>
@@ -52,7 +57,7 @@ defineEmits<{
   'update:modelValue': [value: string]
 }>()
 
-const selectedTheme = computed(() =>
-  CAMPAIGN_THEMES.find(t => t.id === props.modelValue) ?? CAMPAIGN_THEMES[0]
+const selectedTheme = computed(
+  () => CAMPAIGN_THEMES.find((t) => t.id === props.modelValue) ?? CAMPAIGN_THEMES[0],
 )
 </script>

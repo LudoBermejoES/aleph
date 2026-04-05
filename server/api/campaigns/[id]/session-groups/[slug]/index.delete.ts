@@ -15,7 +15,9 @@ export default defineEventHandler(async (event) => {
   const slug = getRouterParam(event, 'slug')!
   const db = useDb()
 
-  const group = db.select({ id: sessionGroups.id }).from(sessionGroups)
+  const group = db
+    .select({ id: sessionGroups.id })
+    .from(sessionGroups)
     .where(and(eq(sessionGroups.campaignId, campaignId), eq(sessionGroups.slug, slug)))
     .get()
   if (!group) throw createError({ statusCode: 404, message: 'Session group not found' })

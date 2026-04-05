@@ -157,14 +157,18 @@ describe('File CRUD (temp dir)', () => {
   it('writeEntityFile creates file with frontmatter and body', async () => {
     const filePath = join(testDir.root, 'character', 'strahd.md')
 
-    await writeEntityFile(filePath, {
-      type: 'character',
-      name: 'Strahd von Zarovich',
-      aliases: ['Strahd'],
-      tags: ['vampire'],
-      visibility: 'members',
-      fields: {},
-    }, '# Strahd\n\nA powerful vampire lord.')
+    await writeEntityFile(
+      filePath,
+      {
+        type: 'character',
+        name: 'Strahd von Zarovich',
+        aliases: ['Strahd'],
+        tags: ['vampire'],
+        visibility: 'members',
+        fields: {},
+      },
+      '# Strahd\n\nA powerful vampire lord.',
+    )
 
     expect(existsSync(filePath)).toBe(true)
 
@@ -176,7 +180,9 @@ describe('File CRUD (temp dir)', () => {
   })
 
   it('readEntityFile returns parsed frontmatter and content', async () => {
-    const filePath = testDir.writeFile('location/barovia.md', `---
+    const filePath = testDir.writeFile(
+      'location/barovia.md',
+      `---
 type: location
 name: Village of Barovia
 aliases:
@@ -188,7 +194,8 @@ visibility: public
 # Village of Barovia
 
 A gloomy village.
-`)
+`,
+    )
 
     const result = await readEntityFile(filePath)
     expect(result.frontmatter.name).toBe('Village of Barovia')
@@ -221,7 +228,10 @@ A gloomy village.
   })
 
   it('deleteEntityFile removes the file', async () => {
-    const filePath = testDir.writeFile('npc/test.md', '---\ntype: character\nname: Test\n---\nContent')
+    const filePath = testDir.writeFile(
+      'npc/test.md',
+      '---\ntype: character\nname: Test\n---\nContent',
+    )
     expect(existsSync(filePath)).toBe(true)
 
     await deleteEntityFile(filePath)

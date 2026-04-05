@@ -14,24 +14,25 @@ export default defineEventHandler(async (event) => {
   const db = useDb()
 
   // Get all relations (visibility-filtered) joined with relation type slug
-  const allRelationsRaw = db.select({
-    id: entityRelations.id,
-    campaignId: entityRelations.campaignId,
-    sourceEntityId: entityRelations.sourceEntityId,
-    targetEntityId: entityRelations.targetEntityId,
-    relationTypeId: entityRelations.relationTypeId,
-    forwardLabel: entityRelations.forwardLabel,
-    reverseLabel: entityRelations.reverseLabel,
-    attitude: entityRelations.attitude,
-    description: entityRelations.description,
-    metadataJson: entityRelations.metadataJson,
-    visibility: entityRelations.visibility,
-    isPinned: entityRelations.isPinned,
-    createdBy: entityRelations.createdBy,
-    createdAt: entityRelations.createdAt,
-    updatedAt: entityRelations.updatedAt,
-    relationTypeSlug: relationTypes.slug,
-  })
+  const allRelationsRaw = db
+    .select({
+      id: entityRelations.id,
+      campaignId: entityRelations.campaignId,
+      sourceEntityId: entityRelations.sourceEntityId,
+      targetEntityId: entityRelations.targetEntityId,
+      relationTypeId: entityRelations.relationTypeId,
+      forwardLabel: entityRelations.forwardLabel,
+      reverseLabel: entityRelations.reverseLabel,
+      attitude: entityRelations.attitude,
+      description: entityRelations.description,
+      metadataJson: entityRelations.metadataJson,
+      visibility: entityRelations.visibility,
+      isPinned: entityRelations.isPinned,
+      createdBy: entityRelations.createdBy,
+      createdAt: entityRelations.createdAt,
+      updatedAt: entityRelations.updatedAt,
+      relationTypeSlug: relationTypes.slug,
+    })
     .from(entityRelations)
     .leftJoin(relationTypes, eq(entityRelations.relationTypeId, relationTypes.id))
     .where(eq(entityRelations.campaignId, campaignId))
@@ -41,7 +42,7 @@ export default defineEventHandler(async (event) => {
 
   // Collect entity IDs involved in relations
   const entityIds = new Set<string>()
-  relations.forEach(r => {
+  relations.forEach((r) => {
     entityIds.add(r.sourceEntityId)
     entityIds.add(r.targetEntityId)
   })
@@ -49,47 +50,56 @@ export default defineEventHandler(async (event) => {
   // Fetch entity data for nodes
   const nodes: Record<string, { name: string; type: string; id: string; slug: string }> = {}
   for (const eid of entityIds) {
-    const ent = db.select({ id: entities.id, name: entities.name, type: entities.type, slug: entities.slug })
-      .from(entities).where(eq(entities.id, eid)).get()
+    const ent = db
+      .select({ id: entities.id, name: entities.name, type: entities.type, slug: entities.slug })
+      .from(entities)
+      .where(eq(entities.id, eid))
+      .get()
     if (ent) nodes[eid] = ent
   }
 
   // Fetch portrait URLs for character entities
   const entityIdList = Array.from(entityIds)
-  const charRows = entityIdList.length > 0
-    ? db.select({ entityId: characters.entityId, portraitUrl: characters.portraitUrl })
-        .from(characters)
-        .where(inArray(characters.entityId, entityIdList))
-        .all()
-    : []
-  const portraitMap = Object.fromEntries(charRows.map(c => [c.entityId, c.portraitUrl]))
+  const charRows =
+    entityIdList.length > 0
+      ? db
+          .select({ entityId: characters.entityId, portraitUrl: characters.portraitUrl })
+          .from(characters)
+          .where(inArray(characters.entityId, entityIdList))
+          .all()
+      : []
+  const portraitMap = Object.fromEntries(charRows.map((c) => [c.entityId, c.portraitUrl]))
 
   // Fetch organization memberships for character entities
   // organizationMembers links by characterId; characters links entityId → characterId
-  const charIdRows = entityIdList.length > 0
-    ? db.select({ id: characters.id, entityId: characters.entityId })
-        .from(characters)
-        .where(inArray(characters.entityId, entityIdList))
-        .all()
-    : []
-  const entityToCharId = Object.fromEntries(charIdRows.map(c => [c.entityId, c.id]))
-  const charIds = charIdRows.map(c => c.id)
+  const charIdRows =
+    entityIdList.length > 0
+      ? db
+          .select({ id: characters.id, entityId: characters.entityId })
+          .from(characters)
+          .where(inArray(characters.entityId, entityIdList))
+          .all()
+      : []
+  const entityToCharId = Object.fromEntries(charIdRows.map((c) => [c.entityId, c.id]))
+  const charIds = charIdRows.map((c) => c.id)
 
-  const orgMemberRows = charIds.length > 0
-    ? db.select({
-        characterId: organizationMembers.characterId,
-        orgId: organizations.id,
-        orgSlug: organizations.slug,
-        orgName: organizations.name,
-      })
-        .from(organizationMembers)
-        .leftJoin(organizations, eq(organizationMembers.organizationId, organizations.id))
-        .where(inArray(organizationMembers.characterId, charIds))
-        .all()
-    : []
+  const orgMemberRows =
+    charIds.length > 0
+      ? db
+          .select({
+            characterId: organizationMembers.characterId,
+            orgId: organizations.id,
+            orgSlug: organizations.slug,
+            orgName: organizations.name,
+          })
+          .from(organizationMembers)
+          .leftJoin(organizations, eq(organizationMembers.organizationId, organizations.id))
+          .where(inArray(organizationMembers.characterId, charIds))
+          .all()
+      : []
 
   // Build map: entityId → [{ slug, name }]
-  const charIdToEntityId = Object.fromEntries(charIdRows.map(c => [c.id, c.entityId]))
+  const charIdToEntityId = Object.fromEntries(charIdRows.map((c) => [c.id, c.entityId]))
   const orgsByEntityId: Record<string, Array<{ slug: string; name: string }>> = {}
   for (const row of orgMemberRows) {
     const eid = charIdToEntityId[row.characterId]
@@ -100,24 +110,30 @@ export default defineEventHandler(async (event) => {
 
   // Build v-network-graph format
   const graphNodes = Object.fromEntries(
-    Object.entries(nodes).map(([id, n]) => [id, {
-      name: n.name,
-      type: n.type,
-      slug: n.slug,
-      image: portraitMap[id] ?? null,
-      organizations: orgsByEntityId[id] ?? [],
-    }])
+    Object.entries(nodes).map(([id, n]) => [
+      id,
+      {
+        name: n.name,
+        type: n.type,
+        slug: n.slug,
+        image: portraitMap[id] ?? null,
+        organizations: orgsByEntityId[id] ?? [],
+      },
+    ]),
   )
 
   const graphEdges = Object.fromEntries(
-    relations.map(r => [r.id, {
-      source: r.sourceEntityId,
-      target: r.targetEntityId,
-      label: r.forwardLabel,
-      color: computeAttitudeColor(r.attitude),
-      attitude: r.attitude,
-      relationTypeSlug: (r as any).relationTypeSlug ?? 'custom',
-    }])
+    relations.map((r) => [
+      r.id,
+      {
+        source: r.sourceEntityId,
+        target: r.targetEntityId,
+        label: r.forwardLabel,
+        color: computeAttitudeColor(r.attitude),
+        attitude: r.attitude,
+        relationTypeSlug: (r as any).relationTypeSlug ?? 'custom',
+      },
+    ]),
   )
 
   return { nodes: graphNodes, edges: graphEdges }

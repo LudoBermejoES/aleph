@@ -1,9 +1,13 @@
 <template>
   <div class="p-8 max-w-2xl">
     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">{{ $t('common.campaign') }}</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">{{
+        $t('common.campaign')
+      }}</NuxtLink>
       <span>/</span>
-      <NuxtLink :to="`/campaigns/${campaignId}/templates`" class="hover:text-primary">{{ $t('templates.title') }}</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}/templates`" class="hover:text-primary">{{
+        $t('templates.title')
+      }}</NuxtLink>
       <span>/</span>
       <span>{{ $t('common.edit') }}</span>
     </div>
@@ -15,7 +19,12 @@
       <form class="space-y-6" @submit.prevent="submit">
         <div>
           <label class="text-sm font-medium">{{ $t('templates.name') }}</label>
-          <input v-model="form.name" type="text" required class="w-full mt-1 px-3 py-2 rounded border border-input bg-background" />
+          <input
+            v-model="form.name"
+            type="text"
+            required
+            class="w-full mt-1 px-3 py-2 rounded border border-input bg-background"
+          />
         </div>
 
         <div class="flex items-center gap-2">
@@ -29,7 +38,9 @@
         </div>
 
         <div class="flex gap-2">
-          <Button type="submit" :disabled="saving">{{ saving ? $t('common.saving') : $t('common.save') }}</Button>
+          <Button type="submit" :disabled="saving">{{
+            saving ? $t('common.saving') : $t('common.save')
+          }}</Button>
           <NuxtLink :to="`/campaigns/${campaignId}/templates`">
             <Button type="button" variant="outline">{{ $t('common.cancel') }}</Button>
           </NuxtLink>
@@ -70,7 +81,9 @@ onMounted(async () => {
       required: f.required,
       optionsRaw: Array.isArray(f.optionsJson)
         ? f.optionsJson.join(', ')
-        : (typeof f.optionsJson === 'string' ? JSON.parse(f.optionsJson ?? '[]').join(', ') : ''),
+        : typeof f.optionsJson === 'string'
+          ? JSON.parse(f.optionsJson ?? '[]').join(', ')
+          : '',
     }))
   } catch {
     await router.push(`/campaigns/${campaignId}/templates`)
@@ -92,7 +105,12 @@ async function submit() {
         fieldType: f.fieldType,
         required: f.required,
         sortOrder: i,
-        options: f.optionsRaw ? f.optionsRaw.split(',').map((o: string) => o.trim()).filter(Boolean) : null,
+        options: f.optionsRaw
+          ? f.optionsRaw
+              .split(',')
+              .map((o: string) => o.trim())
+              .filter(Boolean)
+          : null,
       })),
     }
     await api.updateTemplate(templateId, payload)

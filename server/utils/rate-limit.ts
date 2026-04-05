@@ -20,7 +20,7 @@ export function createRateLimiter(options: RateLimiterOptions) {
     const now = Date.now()
     const cutoff = now - windowMs
     for (const [key, entry] of store.entries()) {
-      entry.timestamps = entry.timestamps.filter(t => t > cutoff)
+      entry.timestamps = entry.timestamps.filter((t) => t > cutoff)
       if (entry.timestamps.length === 0) {
         store.delete(key)
       }
@@ -36,7 +36,7 @@ export function createRateLimiter(options: RateLimiterOptions) {
 
     const entry = store.get(key) ?? { timestamps: [] }
     // Remove expired timestamps
-    entry.timestamps = entry.timestamps.filter(t => t > cutoff)
+    entry.timestamps = entry.timestamps.filter((t) => t > cutoff)
 
     if (entry.timestamps.length >= maxRequests) {
       const oldest = entry.timestamps[0]!

@@ -18,6 +18,7 @@ Tracking items, currency, and shops is one of the most tedious parts of running 
 ## Scope
 
 ### In scope
+
 - Item library CRUD per campaign (name, description, weight, rarity, properties, stackable)
 - Inventories for characters, parties, and factions with position/slot system
 - Item transfer between any two inventories
@@ -29,11 +30,13 @@ Tracking items, currency, and shops is one of the most tedious parts of running 
 - Transaction log recording all currency and item movements
 
 ### Out of scope
+
 - Crafting systems
 - Encumbrance auto-calculation with movement penalties (future)
 - Real-world marketplace between campaigns
 
 ## Dependencies
+
 - 01-project-setup
 - 02-auth-rbac
 - 03-markdown-engine

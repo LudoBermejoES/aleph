@@ -4,7 +4,9 @@ import { registerAndLogin, createCampaign } from './helpers'
 const uid = () => Date.now().toString(36).slice(-4)
 
 test.describe('Autosave editor — draft recovery', () => {
-  test('type in editor, reload page, restore banner appears, restore restores content', async ({ page }) => {
+  test('type in editor, reload page, restore banner appears, restore restores content', async ({
+    page,
+  }) => {
     await registerAndLogin(page, `Autosave User ${uid()}`)
     await createCampaign(page, `Autosave Camp ${uid()}`)
 
@@ -25,7 +27,7 @@ test.describe('Autosave editor — draft recovery', () => {
 
     // Verify something was stored in localStorage
     const storedKeys = await page.evaluate(() =>
-      Object.keys(localStorage).filter(k => k.startsWith('aleph:draft:')),
+      Object.keys(localStorage).filter((k) => k.startsWith('aleph:draft:')),
     )
     expect(storedKeys.length).toBeGreaterThan(0)
 
@@ -35,19 +37,25 @@ test.describe('Autosave editor — draft recovery', () => {
     await expect(page.locator('.ProseMirror')).toBeVisible({ timeout: 10000 })
 
     // Restore banner should appear
-    await expect(page.locator('text=You have unsaved changes from a previous session.')).toBeVisible({ timeout: 5000 })
+    await expect(
+      page.locator('text=You have unsaved changes from a previous session.'),
+    ).toBeVisible({ timeout: 5000 })
 
     // Click "Restore draft"
     await page.click('button:has-text("Restore draft")')
 
     // Banner should disappear
-    await expect(page.locator('text=You have unsaved changes from a previous session.')).not.toBeVisible()
+    await expect(
+      page.locator('text=You have unsaved changes from a previous session.'),
+    ).not.toBeVisible()
 
     // Content should be restored
     await expect(page.locator('.ProseMirror')).toContainText(draftText)
   })
 
-  test('type in editor, reload page, discard removes banner and keeps empty content', async ({ page }) => {
+  test('type in editor, reload page, discard removes banner and keeps empty content', async ({
+    page,
+  }) => {
     await registerAndLogin(page, `Autosave Discard ${uid()}`)
     await createCampaign(page, `Autosave Discard Camp ${uid()}`)
 
@@ -67,17 +75,21 @@ test.describe('Autosave editor — draft recovery', () => {
     await expect(page.locator('.ProseMirror')).toBeVisible({ timeout: 10000 })
 
     // Banner appears
-    await expect(page.locator('text=You have unsaved changes from a previous session.')).toBeVisible({ timeout: 5000 })
+    await expect(
+      page.locator('text=You have unsaved changes from a previous session.'),
+    ).toBeVisible({ timeout: 5000 })
 
     // Click "Discard"
     await page.click('button:has-text("Discard")')
 
     // Banner disappears
-    await expect(page.locator('text=You have unsaved changes from a previous session.')).not.toBeVisible()
+    await expect(
+      page.locator('text=You have unsaved changes from a previous session.'),
+    ).not.toBeVisible()
 
     // localStorage key should be gone
     const storedKeys = await page.evaluate(() =>
-      Object.keys(localStorage).filter(k => k.startsWith('aleph:draft:')),
+      Object.keys(localStorage).filter((k) => k.startsWith('aleph:draft:')),
     )
     expect(storedKeys.length).toBe(0)
   })
@@ -113,6 +125,8 @@ test.describe('Autosave editor — draft recovery', () => {
     await expect(page.locator('.ProseMirror')).toBeVisible({ timeout: 10000 })
 
     // No restore banner
-    await expect(page.locator('text=You have unsaved changes from a previous session.')).not.toBeVisible()
+    await expect(
+      page.locator('text=You have unsaved changes from a previous session.'),
+    ).not.toBeVisible()
   })
 })

@@ -11,11 +11,13 @@ All user-facing strings in pages and components MUST be sourced from locale file
 Every user-visible string rendered by Vue components MUST use a translation key via `$t()` or `useI18n().t()`.
 
 #### Scenario: Translated label
+
 - GIVEN the active locale is Spanish
 - WHEN a user views the Characters page
 - THEN all labels, buttons, headings, and messages appear in Spanish
 
 #### Scenario: No raw keys exposed
+
 - GIVEN any locale is active
 - WHEN a page renders
 - THEN no raw translation keys (e.g., `characters.title`) are visible to the user
@@ -25,6 +27,7 @@ Every user-visible string rendered by Vue components MUST use a translation key 
 The `en.json` and `es.json` locale files MUST contain translations for all UI strings used in the app.
 
 #### Scenario: Full coverage
+
 - GIVEN the app is built
 - WHEN all locale files are checked
 - THEN every key referenced by a `$t()` call exists in `en.json`
@@ -35,6 +38,7 @@ The `en.json` and `es.json` locale files MUST contain translations for all UI st
 Data that comes from the database (campaign names, character names, entity content, etc.) MUST NOT be passed through the translation system.
 
 #### Scenario: Campaign name display
+
 - GIVEN a campaign named "La Maldición de Strahd"
 - WHEN displayed in the campaign list
 - THEN the name is shown as-is regardless of active locale

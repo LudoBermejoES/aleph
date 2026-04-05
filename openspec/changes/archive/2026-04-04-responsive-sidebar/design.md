@@ -32,8 +32,9 @@ The sidebar will be hidden by default on screens below the `md` breakpoint (768p
 **Why:** Sheet provides an accessible, animated slide-over with backdrop and focus trapping out of the box. It avoids custom CSS transitions and handles escape-to-close and click-outside-to-close.
 
 **Alternatives considered:**
-- *CSS-only toggle with translate-x*: Simpler but lacks focus trapping, backdrop, and accessibility features that Sheet provides for free.
-- *Always-visible collapsed icon sidebar*: Takes up horizontal space on mobile and requires redesigning every nav item to work as an icon-only element.
+
+- _CSS-only toggle with translate-x_: Simpler but lacks focus trapping, backdrop, and accessibility features that Sheet provides for free.
+- _Always-visible collapsed icon sidebar_: Takes up horizontal space on mobile and requires redesigning every nav item to work as an icon-only element.
 
 ### 2. Use Tailwind breakpoints with md (768px) as the threshold
 
@@ -42,8 +43,9 @@ The `md:` breakpoint (768px) is the dividing line between mobile and desktop lay
 **Why:** 768px is the standard tablet-portrait width and Tailwind's built-in `md` breakpoint. It avoids custom breakpoints and aligns with common responsive design practice.
 
 **Alternatives considered:**
-- *Custom 800px breakpoint*: Marginally wider but requires extending the Tailwind config for a non-standard value. The 32px difference is negligible.
-- *lg (1024px) threshold*: Would hide the sidebar on tablets in landscape, which is unnecessarily aggressive given the sidebar is only 256px wide.
+
+- _Custom 800px breakpoint_: Marginally wider but requires extending the Tailwind config for a non-standard value. The 32px difference is negligible.
+- _lg (1024px) threshold_: Would hide the sidebar on tablets in landscape, which is unnecessarily aggressive given the sidebar is only 256px wide.
 
 ### 3. Character filter sidebar becomes a Sheet on mobile
 
@@ -52,8 +54,9 @@ On screens below `md`, the character filter sidebar will render inside a shadcn-
 **Why:** Reuses the same Sheet pattern as the main sidebar, keeping the mobile UX consistent. Filters are used intermittently, so hiding them behind a button is acceptable on mobile.
 
 **Alternatives considered:**
-- *Collapsible accordion above the list*: Works but takes vertical space away from the character list, which is the primary content.
-- *Popover/dropdown*: Too small for the number of filter controls.
+
+- _Collapsible accordion above the list_: Works but takes vertical space away from the character list, which is the primary content.
+- _Popover/dropdown_: Too small for the number of filter controls.
 
 ### 4. Tables get horizontal scroll wrappers
 
@@ -62,8 +65,9 @@ All data tables (attendance, transactions, rolls) will be wrapped in a `div` wit
 **Why:** This is the simplest, most reliable approach. It requires no structural changes to the tables themselves and preserves the full data display.
 
 **Alternatives considered:**
-- *Responsive table with stacked rows on mobile*: Requires significant restructuring of each table and custom CSS per table. Overkill for tables that are not the primary content on most pages.
-- *Hide columns on mobile*: Loses data visibility; users would need to know which columns are hidden.
+
+- _Responsive table with stacked rows on mobile_: Requires significant restructuring of each table and custom CSS per table. Overkill for tables that are not the primary content on most pages.
+- _Hide columns on mobile_: Loses data visibility; users would need to know which columns are hidden.
 
 ### 5. Timeline grid adapts columns on mobile
 
@@ -72,8 +76,9 @@ The timeline calendar grid will use responsive Tailwind grid classes: `grid-cols
 **Why:** A 7-column grid at 375px makes each cell ~50px wide, which is too narrow for any content. Reducing columns keeps cells usable.
 
 **Alternatives considered:**
-- *Horizontal scroll on the grid*: Loses the calendar visual metaphor and makes it hard to see a full week.
-- *List view on mobile*: Would require a completely separate component; the grid with fewer columns is simpler and still recognizable as a calendar.
+
+- _Horizontal scroll on the grid_: Loses the calendar visual metaphor and makes it hard to see a full week.
+- _List view on mobile_: Would require a completely separate component; the grid with fewer columns is simpler and still recognizable as a calendar.
 
 ## Risks / Trade-offs
 

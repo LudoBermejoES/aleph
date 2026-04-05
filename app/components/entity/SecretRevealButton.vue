@@ -38,18 +38,17 @@ async function toggle() {
       )
       emit('update', props.blockId, false)
     } else {
-      await fetch(
-        `/api/campaigns/${props.campaignId}/entities/${props.entitySlug}/secrets`,
-        {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ blockId: props.blockId }),
-        },
-      )
+      await fetch(`/api/campaigns/${props.campaignId}/entities/${props.entitySlug}/secrets`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ blockId: props.blockId }),
+      })
       emit('update', props.blockId, true)
     }
-  } catch { /* silently ignore */ } finally {
+  } catch {
+    /* silently ignore */
+  } finally {
     loading.value = false
   }
 }

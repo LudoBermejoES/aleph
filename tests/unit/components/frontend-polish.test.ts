@@ -43,7 +43,7 @@ describe('CampaignSidebar highlights active section (7.2)', () => {
 
   function activeSection(currentPath: string, campaignId: string): string | null {
     const relative = currentPath.replace(`/campaigns/${campaignId}/`, '')
-    const item = sidebarItems.find(i => relative.startsWith(i.path))
+    const item = sidebarItems.find((i) => relative.startsWith(i.path))
     return item?.label || null
   }
 

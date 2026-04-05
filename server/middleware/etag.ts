@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
   res.end = (chunk?: any, ...args: any[]) => {
     if (chunk) chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk))
 
-    const contentType = res.getHeader('content-type') as string ?? ''
+    const contentType = (res.getHeader('content-type') as string) ?? ''
     if (!contentType.includes('application/json') || res.statusCode >= 400) {
       // Pass through non-JSON or error responses unchanged
       if (chunks.length) {

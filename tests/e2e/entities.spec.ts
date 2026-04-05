@@ -14,7 +14,9 @@ test.describe('Entity CRUD', () => {
 
     // Click New Entity → navigates to /entities/new
     await page.click('[data-testid="new-entity-btn"]')
-    await expect(async () => { expect(page.url()).toContain('/entities/new') }).toPass({ timeout: 10000 })
+    await expect(async () => {
+      expect(page.url()).toContain('/entities/new')
+    }).toPass({ timeout: 10000 })
 
     const entityName = `Strahd ${uid()}`
     await page.fill('input[placeholder="Entity name"]', entityName)

@@ -5,14 +5,20 @@ const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 async function api(path: string, opts?: RequestInit & { body?: unknown }) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
-    headers: { 'Content-Type': 'application/json', 'Origin': BASE_URL, ...opts?.headers },
+    headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...opts?.headers },
     body: opts?.body !== undefined ? JSON.stringify(opts.body) : undefined,
   })
 }
 
 async function signUpAndGetCookies(email: string) {
-  await api('/api/auth/sign-up/email', { method: 'POST', body: { name: 'Test', email, password: 'password123' } })
-  const loginRes = await api('/api/auth/sign-in/email', { method: 'POST', body: { email, password: 'password123' } })
+  await api('/api/auth/sign-up/email', {
+    method: 'POST',
+    body: { name: 'Test', email, password: 'password123' },
+  })
+  const loginRes = await api('/api/auth/sign-in/email', {
+    method: 'POST',
+    body: { email, password: 'password123' },
+  })
   const setCookieHeader = loginRes.headers.get('set-cookie') || ''
   return setCookieHeader
 }

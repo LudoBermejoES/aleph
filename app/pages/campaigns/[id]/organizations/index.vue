@@ -1,7 +1,9 @@
 <template>
   <div class="p-8">
     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary"> {{ $t('common.campaign') }}</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">
+        {{ $t('common.campaign') }}</NuxtLink
+      >
       <span>/</span>
       <span>{{ $t('organizations.title') }}</span>
     </div>
@@ -26,21 +28,58 @@
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2">
             <span class="font-medium">{{ org.name }}</span>
-            <span class="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground">
-              <component :is="{ faction: ICONS.orgFaction, guild: ICONS.orgGuild, army: ICONS.orgArmy, cult: ICONS.orgCult, government: ICONS.orgGovernment }[org.type] ?? ICONS.orgOther" class="w-3 h-3" />{{ $t(`organizations.types.${org.type}`) }}</span>
-            <span class="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground">
-              <component :is="org.status === 'active' ? ICONS.orgActive : org.status === 'inactive' ? ICONS.orgInactive : org.status === 'secret' ? ICONS.orgSecret : ICONS.orgDissolved" class="w-3 h-3" />{{ $t(`organizations.statuses.${org.status}`) }}</span>
+            <span
+              class="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground"
+            >
+              <component
+                :is="
+                  {
+                    faction: ICONS.orgFaction,
+                    guild: ICONS.orgGuild,
+                    army: ICONS.orgArmy,
+                    cult: ICONS.orgCult,
+                    government: ICONS.orgGovernment,
+                  }[org.type] ?? ICONS.orgOther
+                "
+                class="w-3 h-3"
+              />{{ $t(`organizations.types.${org.type}`) }}</span
+            >
+            <span
+              class="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground"
+            >
+              <component
+                :is="
+                  org.status === 'active'
+                    ? ICONS.orgActive
+                    : org.status === 'inactive'
+                      ? ICONS.orgInactive
+                      : org.status === 'secret'
+                        ? ICONS.orgSecret
+                        : ICONS.orgDissolved
+                "
+                class="w-3 h-3"
+              />{{ $t(`organizations.statuses.${org.status}`) }}</span
+            >
           </div>
-          <span class="text-sm text-muted-foreground">{{ org.memberCount }} {{ org.memberCount === 1 ? 'member' : 'members' }}</span>
+          <span class="text-sm text-muted-foreground"
+            >{{ org.memberCount }} {{ org.memberCount === 1 ? 'member' : 'members' }}</span
+          >
         </div>
-        <p v-if="org.description" class="text-sm text-muted-foreground mt-1 line-clamp-1">{{ org.description }}</p>
+        <p v-if="org.description" class="text-sm text-muted-foreground mt-1 line-clamp-1">
+          {{ org.description }}
+        </p>
       </NuxtLink>
       <PaginationControls
         :page="pagination.page.value"
         :page-size="pagination.pageSize.value"
         :total="pagination.total.value"
         :total-pages="pagination.totalPages.value"
-        @change="p => { pagination.setPage(p); load() }"
+        @change="
+          (p) => {
+            pagination.setPage(p)
+            load()
+          }
+        "
       />
     </div>
     <div v-else class="text-center py-12 text-muted-foreground">

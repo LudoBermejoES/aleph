@@ -15,13 +15,15 @@ export default defineEventHandler(async (event) => {
   const slug = getRouterParam(event, 'slug')!
   const db = useDb()
 
-  const entity = db.select({ id: entities.id })
+  const entity = db
+    .select({ id: entities.id })
     .from(entities)
     .where(and(eq(entities.campaignId, campaignId), eq(entities.slug, slug)))
     .get()
   if (!entity) throw createError({ statusCode: 404, message: 'Entity not found' })
 
-  const notes = db.select({ content: entitySecretNotes.content, updatedAt: entitySecretNotes.updatedAt })
+  const notes = db
+    .select({ content: entitySecretNotes.content, updatedAt: entitySecretNotes.updatedAt })
     .from(entitySecretNotes)
     .where(eq(entitySecretNotes.entityId, entity.id))
     .get()

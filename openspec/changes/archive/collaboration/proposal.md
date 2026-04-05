@@ -17,6 +17,7 @@ Campaign management is inherently collaborative -- DMs and players need to edit 
 ## Scope
 
 ### In scope
+
 - Tiptap 3 editor integration replacing markdown textarea
 - @tiptap/markdown for lossless round-trip: markdown to Tiptap JSON to markdown
 - Hocuspocus server for Y.js document sync
@@ -27,11 +28,13 @@ Campaign management is inherently collaborative -- DMs and players need to edit 
 - Live notifications: entity created/updated/deleted, session status changes
 
 ### Out of scope
+
 - Offline editing with sync-on-reconnect (future)
 - Commenting/annotation system (future)
 - Version history diff viewer (future)
 
 ## Dependencies
+
 - 01-project-setup
 - 02-auth-rbac
 - 03-markdown-engine

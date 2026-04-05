@@ -23,13 +23,22 @@ export default defineEventHandler(async (event) => {
 
   const db = useDb()
 
-  const location = db.select().from(entities)
-    .where(and(eq(entities.campaignId, campaignId), eq(entities.slug, slug), eq(entities.type, 'location')))
+  const location = db
+    .select()
+    .from(entities)
+    .where(
+      and(
+        eq(entities.campaignId, campaignId),
+        eq(entities.slug, slug),
+        eq(entities.type, 'location'),
+      ),
+    )
     .get()
   if (!location) throw createError({ statusCode: 404, message: 'Location not found' })
 
   // Verify character belongs to this campaign
-  const character = db.select({ id: characters.id })
+  const character = db
+    .select({ id: characters.id })
     .from(characters)
     .innerJoin(entities, eq(characters.entityId, entities.id))
     .where(and(eq(characters.id, characterId), eq(entities.campaignId, campaignId)))
@@ -37,7 +46,10 @@ export default defineEventHandler(async (event) => {
   if (!character) throw createError({ statusCode: 404, message: 'Character not found' })
 
   // Set as primary location
-  db.update(characters).set({ locationEntityId: location.id }).where(eq(characters.id, characterId)).run()
+  db.update(characters)
+    .set({ locationEntityId: location.id })
+    .where(eq(characters.id, characterId))
+    .run()
 
   return { success: true }
 })

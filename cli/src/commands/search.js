@@ -9,14 +9,16 @@ export function makeSearchCommand() {
     .argument('<query>', 'Search query')
     .option('--json', 'Output as JSON')
     .action(async (query, opts) => {
-      const data = await get(`/api/campaigns/${opts.campaign}/search?q=${encodeURIComponent(query)}`)
+      const data = await get(
+        `/api/campaigns/${opts.campaign}/search?q=${encodeURIComponent(query)}`,
+      )
       const results = data.results || data
       if (opts.json) {
         print(results, { json: true })
       } else if (!results.length) {
         info('No results found.')
       } else {
-        print(results.map(r => ({ type: r.type, name: r.name, slug: r.slug })))
+        print(results.map((r) => ({ type: r.type, name: r.name, slug: r.slug })))
       }
     })
 }

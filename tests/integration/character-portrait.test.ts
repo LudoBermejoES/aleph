@@ -40,13 +40,23 @@ describe('Character Portrait (integration)', () => {
   )
 
   beforeAll(async () => {
-    await api('/api/auth/sign-up/email', { method: 'POST', body: { name: 'Portrait Tester', email, password: 'password123' } })
-    const login = await api('/api/auth/sign-in/email', { method: 'POST', body: { email, password: 'password123' } })
+    await api('/api/auth/sign-up/email', {
+      method: 'POST',
+      body: { name: 'Portrait Tester', email, password: 'password123' },
+    })
+    const login = await api('/api/auth/sign-in/email', {
+      method: 'POST',
+      body: { email, password: 'password123' },
+    })
     const cookies = login.headers.get('set-cookie') || ''
     const match = cookies.match(/better-auth\.session_token=([^;]+)/)
     cookie = match ? `better-auth.session_token=${match[1]}` : ''
     csrfToken = await getCsrfToken(cookie)
-    const camp = await api('/api/campaigns', { method: 'POST', headers: withCsrf(cookie, csrfToken), body: { name: `Portrait Test ${Date.now()}` } })
+    const camp = await api('/api/campaigns', {
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
+      body: { name: `Portrait Test ${Date.now()}` },
+    })
     campaignId = (await camp.json()).id
     const char = await api(`/api/campaigns/${campaignId}/characters`, {
       method: 'POST',
@@ -57,13 +67,17 @@ describe('Character Portrait (integration)', () => {
   })
 
   it('character show and list include portraitUrl: null before upload', async () => {
-    const show = await api(`/api/campaigns/${campaignId}/characters/${characterSlug}`, { headers: { Cookie: cookie } })
+    const show = await api(`/api/campaigns/${campaignId}/characters/${characterSlug}`, {
+      headers: { Cookie: cookie },
+    })
     expect(show.status).toBe(200)
     const data = await show.json()
     expect('portraitUrl' in data).toBe(true)
     expect(data.portraitUrl).toBeNull()
 
-    const list = await api(`/api/campaigns/${campaignId}/characters`, { headers: { Cookie: cookie } })
+    const list = await api(`/api/campaigns/${campaignId}/characters`, {
+      headers: { Cookie: cookie },
+    })
     const charsBody = await list.json()
     const chars = charsBody.data ?? charsBody
     const found = chars.find((c: any) => c.slug === characterSlug)
@@ -72,7 +86,9 @@ describe('Character Portrait (integration)', () => {
   })
 
   it('GET portrait returns 404 when no portrait uploaded', async () => {
-    const res = await api(`/api/campaigns/${campaignId}/characters/${characterSlug}/portrait`, { headers: { Cookie: cookie } })
+    const res = await api(`/api/campaigns/${campaignId}/characters/${characterSlug}/portrait`, {
+      headers: { Cookie: cookie },
+    })
     expect(res.status).toBe(404)
   })
 
@@ -86,11 +102,15 @@ describe('Character Portrait (integration)', () => {
     })
     expect(res.status).toBe(200)
     const data = await res.json()
-    expect(data.portraitUrl).toBe(`/api/campaigns/${campaignId}/characters/${characterSlug}/portrait`)
+    expect(data.portraitUrl).toBe(
+      `/api/campaigns/${campaignId}/characters/${characterSlug}/portrait`,
+    )
   })
 
   it('GET portrait returns image bytes after upload', async () => {
-    const res = await api(`/api/campaigns/${campaignId}/characters/${characterSlug}/portrait`, { headers: { Cookie: cookie } })
+    const res = await api(`/api/campaigns/${campaignId}/characters/${characterSlug}/portrait`, {
+      headers: { Cookie: cookie },
+    })
     expect(res.status).toBe(200)
     expect(res.headers.get('content-type')).toContain('image/')
     const buf = await res.arrayBuffer()
@@ -98,9 +118,13 @@ describe('Character Portrait (integration)', () => {
   })
 
   it('character show returns portraitUrl after upload', async () => {
-    const res = await api(`/api/campaigns/${campaignId}/characters/${characterSlug}`, { headers: { Cookie: cookie } })
+    const res = await api(`/api/campaigns/${campaignId}/characters/${characterSlug}`, {
+      headers: { Cookie: cookie },
+    })
     const data = await res.json()
-    expect(data.portraitUrl).toBe(`/api/campaigns/${campaignId}/characters/${characterSlug}/portrait`)
+    expect(data.portraitUrl).toBe(
+      `/api/campaigns/${campaignId}/characters/${characterSlug}/portrait`,
+    )
   })
 
   it('POST portrait returns 400 for invalid MIME type (gif)', async () => {

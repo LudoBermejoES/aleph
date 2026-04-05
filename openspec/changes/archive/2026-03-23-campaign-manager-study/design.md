@@ -4,26 +4,26 @@
 
 ### Recommended Tech Stack
 
-| Layer | Technology | Version | Rationale |
-|-------|-----------|---------|-----------|
-| **Runtime** | Node.js | 22.x LTS (latest) | User requirement; excellent ecosystem for real-time apps |
-| **Frontend** | Vue.js 3 | 3.5+ (latest) | User requirement; Composition API, excellent reactivity |
-| **Meta-framework** | Nuxt 3 | 3.15+ (latest) | SSR + API routes in one framework; Vue.js native; file-based routing; auto-imports; server middleware for API |
-| **Database** | SQLite | via native node:sqlite | User requirement; zero-config, self-hosted friendly, single-file DB; native Node.js module (stable in Node 23.4+) |
-| **ORM** | Drizzle ORM | latest | Type-safe, lightweight, SQLite support via node:sqlite adapter, migration system |
-| **Auth** | Better Auth | latest | Session-based, SQLite-native, credential auth, CSRF, rate limiting (Lucia Auth is deprecated as of March 2025) |
-| **Real-time (general)** | Nitro native WebSockets (CrossWS) | built-in | No extra dependencies; handles presence, notifications, dice rolls |
-| **Real-time (collab editing)** | Hocuspocus (Y.js backend) | latest | MIT-licensed, self-hosted Y.js WebSocket server by Tiptap team; handles CRDT sync, persistence hooks |
-| **Rich Text Editor** | Tiptap 3 + @tiptap/markdown | 3.20+ | Official MIT markdown extension (bidirectional); Vue 3 native; collaborative via Y.js |
-| **Markdown Rendering** | @nuxtjs/mdc (standalone) | latest | Runtime MDC parsing + Vue component embedding in markdown; NOT Nuxt Content (which is build-time only) |
-| **Markdown Parsing** | remark/rehype (via MDC) | latest | AST-based pipeline; custom plugins for auto-linking, secret block filtering |
-| **Frontmatter Validation** | Zod | latest | TypeScript-native schema validation; used by Nuxt Content, Astro, Drizzle |
-| **Maps** | Leaflet.js + Leaflet-Geoman | 1.9.4+ | CRS.Simple for custom images; Geoman for region/path drawing; tiling pipeline for images >4K px |
-| **Search** | SQLite FTS5 | built-in | Full-text search with porter stemming; managed via raw SQL (Drizzle lacks FTS5 virtual table support) |
-| **Filesystem Watching** | chokidar v5 | 5.x | Native OS APIs (FSEvents/inotify/ReadDirectoryChangesW); awaitWriteFinish debouncing |
-| **Git Versioning** | isomorphic-git | latest | Pure JS git for optional content versioning; no native deps; server-side only |
-| **Auto-Linking** | Aho-Corasick algorithm | custom impl | Single-pass multi-pattern matching; O(text length); handles 2000+ names/aliases per campaign |
-| **CSS/UI** | Tailwind CSS + shadcn-vue | -- | Utility-first CSS with polished component library for Vue |
+| Layer                          | Technology                        | Version                | Rationale                                                                                                         |
+| ------------------------------ | --------------------------------- | ---------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| **Runtime**                    | Node.js                           | 22.x LTS (latest)      | User requirement; excellent ecosystem for real-time apps                                                          |
+| **Frontend**                   | Vue.js 3                          | 3.5+ (latest)          | User requirement; Composition API, excellent reactivity                                                           |
+| **Meta-framework**             | Nuxt 3                            | 3.15+ (latest)         | SSR + API routes in one framework; Vue.js native; file-based routing; auto-imports; server middleware for API     |
+| **Database**                   | SQLite                            | via native node:sqlite | User requirement; zero-config, self-hosted friendly, single-file DB; native Node.js module (stable in Node 23.4+) |
+| **ORM**                        | Drizzle ORM                       | latest                 | Type-safe, lightweight, SQLite support via node:sqlite adapter, migration system                                  |
+| **Auth**                       | Better Auth                       | latest                 | Session-based, SQLite-native, credential auth, CSRF, rate limiting (Lucia Auth is deprecated as of March 2025)    |
+| **Real-time (general)**        | Nitro native WebSockets (CrossWS) | built-in               | No extra dependencies; handles presence, notifications, dice rolls                                                |
+| **Real-time (collab editing)** | Hocuspocus (Y.js backend)         | latest                 | MIT-licensed, self-hosted Y.js WebSocket server by Tiptap team; handles CRDT sync, persistence hooks              |
+| **Rich Text Editor**           | Tiptap 3 + @tiptap/markdown       | 3.20+                  | Official MIT markdown extension (bidirectional); Vue 3 native; collaborative via Y.js                             |
+| **Markdown Rendering**         | @nuxtjs/mdc (standalone)          | latest                 | Runtime MDC parsing + Vue component embedding in markdown; NOT Nuxt Content (which is build-time only)            |
+| **Markdown Parsing**           | remark/rehype (via MDC)           | latest                 | AST-based pipeline; custom plugins for auto-linking, secret block filtering                                       |
+| **Frontmatter Validation**     | Zod                               | latest                 | TypeScript-native schema validation; used by Nuxt Content, Astro, Drizzle                                         |
+| **Maps**                       | Leaflet.js + Leaflet-Geoman       | 1.9.4+                 | CRS.Simple for custom images; Geoman for region/path drawing; tiling pipeline for images >4K px                   |
+| **Search**                     | SQLite FTS5                       | built-in               | Full-text search with porter stemming; managed via raw SQL (Drizzle lacks FTS5 virtual table support)             |
+| **Filesystem Watching**        | chokidar v5                       | 5.x                    | Native OS APIs (FSEvents/inotify/ReadDirectoryChangesW); awaitWriteFinish debouncing                              |
+| **Git Versioning**             | isomorphic-git                    | latest                 | Pure JS git for optional content versioning; no native deps; server-side only                                     |
+| **Auto-Linking**               | Aho-Corasick algorithm            | custom impl            | Single-pass multi-pattern matching; O(text length); handles 2000+ names/aliases per campaign                      |
+| **CSS/UI**                     | Tailwind CSS + shadcn-vue         | --                     | Utility-first CSS with polished component library for Vue                                                         |
 
 ### Why Nuxt 3 over Express/Fastify
 
@@ -75,16 +75,16 @@
 
 PGlite (PostgreSQL 17.5 compiled to WASM, v0.4.x) was evaluated as an alternative to SQLite. While PGlite offers pg_trgm fuzzy matching, JSONB with GIN indexes, Postgres FTS with 30+ language support, and range types for calendars, the benchmarks are decisive:
 
-| Metric | SQLite (node:sqlite) | PGlite (WASM) |
-|--------|---------------------|---------------|
-| 1000 SELECTs | 1.2ms | 266ms (222x slower) |
-| 1000 INSERTs | 0.5ms | 276ms (552x slower) |
-| 100 FTS searches | 16ms | 165ms (10x slower) |
-| Memory (RSS) | 39 MB | 565 MB |
-| Storage | Single `.db` file | 42MB+ directory |
-| Concurrency | WAL mode (concurrent reads) | Single connection, serialized |
-| npm deps | Zero (built into Node.js) | 23MB package |
-| Stability | SQLite 3.51.2 (most deployed DB); node:sqlite RC | v0.4.x pre-stable |
+| Metric           | SQLite (node:sqlite)                             | PGlite (WASM)                 |
+| ---------------- | ------------------------------------------------ | ----------------------------- |
+| 1000 SELECTs     | 1.2ms                                            | 266ms (222x slower)           |
+| 1000 INSERTs     | 0.5ms                                            | 276ms (552x slower)           |
+| 100 FTS searches | 16ms                                             | 165ms (10x slower)            |
+| Memory (RSS)     | 39 MB                                            | 565 MB                        |
+| Storage          | Single `.db` file                                | 42MB+ directory               |
+| Concurrency      | WAL mode (concurrent reads)                      | Single connection, serialized |
+| npm deps         | Zero (built into Node.js)                        | 23MB package                  |
+| Stability        | SQLite 3.51.2 (most deployed DB); node:sqlite RC | v0.4.x pre-stable             |
 
 SQLite via node:sqlite (Node.js 25.x bundles SQLite 3.51.2) provides FTS5, JSON functions, WAL mode, window functions, recursive CTEs, and a unique Session/changeset API useful for real-time sync. The pg_trgm fuzzy matching loss is mitigated by Aho-Corasick for auto-linking and fuse.js for search suggestions.
 
@@ -125,6 +125,7 @@ SQLite via node:sqlite (Node.js 25.x bundles SQLite 3.51.2) provides FTS5, JSON 
 **Core entities**: User, Campaign, CampaignMember, Role, Permission, Entity (polymorphic), EntityTemplate, EntityField, EntityRelation, Map, MapPin, MapLayer, Session, SessionLog, Calendar, CalendarEvent, Timeline, TimelineEvent, InventoryItem, Shop, DiceRoll, Tag, EntityTag
 
 **Key relationships**:
+
 - User -> many CampaignMembers -> Campaign (with Role)
 - Campaign -> many Entities (wiki entries of various types)
 - Entity -> many EntityFields (custom properties)

@@ -2,7 +2,11 @@ import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
 import { entities } from '../../../../../db/schema/entities'
 import { characters } from '../../../../../db/schema/characters'
-import { canUserAccessEntity, getCachedPermission, setCachedPermission } from '../../../../../utils/permissions'
+import {
+  canUserAccessEntity,
+  getCachedPermission,
+  setCachedPermission,
+} from '../../../../../utils/permissions'
 import type { CampaignRole, Visibility } from '../../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
@@ -12,32 +16,51 @@ export default defineEventHandler(async (event) => {
   const userId = event.context.user?.id || ''
   const db = useDb()
 
-  const location = db.select().from(entities)
-    .where(and(eq(entities.campaignId, campaignId), eq(entities.slug, slug), eq(entities.type, 'location')))
+  const location = db
+    .select()
+    .from(entities)
+    .where(
+      and(
+        eq(entities.campaignId, campaignId),
+        eq(entities.slug, slug),
+        eq(entities.type, 'location'),
+      ),
+    )
     .get()
   if (!location) throw createError({ statusCode: 404, message: 'Location not found' })
 
   const cached = getCachedPermission(userId, location.id, 'view')
-  const canAccess = cached !== null
-    ? cached
-    : await canUserAccessEntity(db, userId, 'user', role, location.id, location.visibility as Visibility, location.createdBy, 'view')
+  const canAccess =
+    cached !== null
+      ? cached
+      : await canUserAccessEntity(
+          db,
+          userId,
+          'user',
+          role,
+          location.id,
+          location.visibility as Visibility,
+          location.createdBy,
+          'view',
+        )
   if (cached === null) setCachedPermission(userId, location.id, 'view', canAccess)
   if (!canAccess) throw createError({ statusCode: 404, message: 'Location not found' })
 
   // Primary inhabitants: characters with locationEntityId = this location
-  const primary = db.select({
-    id: characters.id,
-    entityId: characters.entityId,
-    characterType: characters.characterType,
-    status: characters.status,
-    locationEntityId: characters.locationEntityId,
-    name: entities.name,
-    slug: entities.slug,
-  })
+  const primary = db
+    .select({
+      id: characters.id,
+      entityId: characters.entityId,
+      characterType: characters.characterType,
+      status: characters.status,
+      locationEntityId: characters.locationEntityId,
+      name: entities.name,
+      slug: entities.slug,
+    })
     .from(characters)
     .innerJoin(entities, eq(characters.entityId, entities.id))
     .where(and(eq(characters.locationEntityId, location.id), eq(entities.campaignId, campaignId)))
     .all()
 
-  return primary.map(c => ({ ...c, source: 'primary' as const }))
+  return primary.map((c) => ({ ...c, source: 'primary' as const }))
 })

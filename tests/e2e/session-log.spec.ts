@@ -15,8 +15,12 @@ test.describe('Session Log', () => {
     })
 
     const sessionSlug = sessRes.slug
-    await page.goto(`/campaigns/${campaignId}/sessions/${sessionSlug}`, { waitUntil: 'networkidle' })
-    await page.goto(`/campaigns/${campaignId}/sessions/${sessionSlug}/edit`, { waitUntil: 'networkidle' })
+    await page.goto(`/campaigns/${campaignId}/sessions/${sessionSlug}`, {
+      waitUntil: 'networkidle',
+    })
+    await page.goto(`/campaigns/${campaignId}/sessions/${sessionSlug}/edit`, {
+      waitUntil: 'networkidle',
+    })
 
     // Type in MarkdownEditor (ProseMirror)
     const editor = page.locator('.ProseMirror')

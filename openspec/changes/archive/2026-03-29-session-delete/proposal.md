@@ -11,9 +11,11 @@ Sessions currently cannot be deleted — there is no `DELETE /api/campaigns/:id/
 ## Capabilities
 
 ### New Capabilities
+
 - `session-delete`: Delete a session by slug within a campaign — cascades to session content, attendance, rolls, and decisions
 
 ### Modified Capabilities
+
 - `session-management`: Session CRUD now includes deletion
 
 ## Impact

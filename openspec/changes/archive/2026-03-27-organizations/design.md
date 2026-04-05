@@ -7,6 +7,7 @@ Characters are stored in two tables: `entities` (name, slug, campaignId, visibil
 ## Goals / Non-Goals
 
 **Goals:**
+
 - First-class `organizations` table with campaign scope, type/status enums, and slug-based identity
 - Many-to-many `organization_members` join (characterId + organizationId + role text)
 - Full CRUD API consistent with existing campaign resource endpoints
@@ -16,6 +17,7 @@ Characters are stored in two tables: `entities` (name, slug, campaignId, visibil
 - i18n for all new strings (en + es)
 
 **Non-Goals:**
+
 - Organizations do NOT extend the `entities` table — they are not wiki-searchable or mention-linkable in this iteration
 - No visibility/permission model beyond the existing campaign role check (DMs manage, players view)
 - No nested organizations or org hierarchy
@@ -46,6 +48,7 @@ Characters are stored in two tables: `entities` (name, slug, campaignId, visibil
 ### 4. Auth / permission model
 
 **Decision**: Use the existing campaign role check pattern already used by characters and entities:
+
 - `dm`, `co_dm`, `editor`: full CRUD on organizations and members
 - `player`, `visitor`: read-only (GET endpoints only)
 - Unauthenticated: 401 for all endpoints (campaign data is always protected)

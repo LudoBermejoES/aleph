@@ -3,6 +3,7 @@
 Aleph's server API was built feature-first: each endpoint fetches its primary data and then loops over results to enrich them with related data (location names, organization roles, child counts, etc.). This approach was correct for early development but has become a scaling bottleneck now that campaigns have hundreds of characters, locations, and entities.
 
 The three worst offenders are:
+
 - **Characters list** (`server/api/campaigns/[id]/characters/index.get.ts`): 3 correlated subqueries per row for location name, primary organization name, and primary organization role. 200 characters = 601 queries.
 - **Locations list** (`server/api/campaigns/[id]/locations/index.get.ts`): Loads ALL locations and ALL characters into memory to compute child counts and inhabitant counts via JS loops. Also reads the filesystem for every location to resolve entity subtypes.
 - **Search** (`server/api/campaigns/[id]/search.get.ts`): 1-3 extra queries per search result for visibility checks, type filtering, and slug enrichment. 50 results = up to 150 extra queries.
@@ -12,6 +13,7 @@ Additionally, no list endpoint except entities uses pagination, no database inde
 ## Goals / Non-Goals
 
 **Goals:**
+
 - Eliminate all N+1 query patterns in character list, location list, and search endpoints
 - Add pagination to all unbounded list endpoints (characters, locations, sessions, organizations, maps, quests)
 - Add database indexes on all frequently filtered, joined, or sorted columns
@@ -19,6 +21,7 @@ Additionally, no list endpoint except entities uses pagination, no database inde
 - Maintain backward compatibility — existing API consumers (frontend + CLI) must continue to work, with pagination being opt-in initially (default large page size) then enforced
 
 **Non-Goals:**
+
 - Full-text search engine (e.g., MeiliSearch, Typesense) — SQLite FTS is sufficient for now
 - Server-side response caching layer (Redis, in-memory LRU) — query optimization should be enough
 - WebSocket/real-time list updates — out of scope

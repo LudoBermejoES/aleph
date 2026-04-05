@@ -29,11 +29,7 @@ export const auth = betterAuth({
     expiresIn: 60 * 60 * 24 * 7, // 7 days
     updateAfter: 60 * 60 * 24, // refresh after 1 day
   },
-  trustedOrigins: [
-    'http://localhost:3000',
-    'http://localhost:3001',
-    'http://localhost:3333',
-  ],
+  trustedOrigins: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3333'],
   advanced: {
     cookiePrefix: 'better-auth',
     cookies: {

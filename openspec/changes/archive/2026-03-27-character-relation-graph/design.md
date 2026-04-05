@@ -6,9 +6,13 @@ The entity detail page already has a working relationship graph via `EntityGraph
 - `connections` ref — `CharacterConnection[]` enriched with `targetEntityName`, `targetEntitySlug`, `targetEntityType`; each item has `targetEntityId`, `label`, `description`
 
 `EntityGraphView` expects:
+
 ```ts
 nodes: Record<string, { name: string; type: string }>
-edges: Record<string, { source: string; target: string; label: string; color: string; attitude?: number }>
+edges: Record<
+  string,
+  { source: string; target: string; label: string; color: string; attitude?: number }
+>
 ```
 
 Node IDs are entity UUIDs. Edge IDs are relation/connection UUIDs.
@@ -16,12 +20,14 @@ Node IDs are entity UUIDs. Edge IDs are relation/connection UUIDs.
 ## Goals / Non-Goals
 
 **Goals:**
+
 - Derive `graphData` from the already-loaded `relations` and `connections` refs — zero extra API calls
 - Combine both data sources into a single graph: center node + relation edges (attitude-colored) + connection edges (gray, directed)
 - Navigate to correct page on node click using slug + type already in the data
 - Show graph only when there is at least one relation or connection
 
 **Non-Goals:**
+
 - Showing a full campaign graph (separate page already exists)
 - Filtering or expanding the graph beyond the character's direct links
 - Editing relations from the graph

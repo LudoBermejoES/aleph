@@ -15,7 +15,11 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const db = useDb()
 
-  const shop = db.select().from(shops).where(and(eq(shops.campaignId, campaignId), eq(shops.slug, slug))).get()
+  const shop = db
+    .select()
+    .from(shops)
+    .where(and(eq(shops.campaignId, campaignId), eq(shops.slug, slug)))
+    .get()
   if (!shop) throw createError({ statusCode: 404, message: 'Shop not found' })
 
   const updates: Record<string, unknown> = {}

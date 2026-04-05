@@ -10,15 +10,18 @@ async function setup(page: any, label: string) {
 }
 
 async function createLocationViaApi(page: any, campaignId: string, body: Record<string, unknown>) {
-  return page.evaluate(async ([id, data]: [string, Record<string, unknown>]) => {
-    const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
-    const res = await fetch(`/api/campaigns/${id}/locations`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
-      body: JSON.stringify(data),
-    })
-    return res.json()
-  }, [campaignId, body])
+  return page.evaluate(
+    async ([id, data]: [string, Record<string, unknown>]) => {
+      const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
+      const res = await fetch(`/api/campaigns/${id}/locations`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+        body: JSON.stringify(data),
+      })
+      return res.json()
+    },
+    [campaignId, body],
+  )
 }
 
 // ─── Via UI "+" link on detail page ──────────────────────────────────────────
@@ -27,7 +30,9 @@ test('detail page "+ Sub-location" link pre-fills parent in new form', async ({ 
   const campaignId = await setup(page, 'SubLoc Link User')
 
   const parent: any = await createLocationViaApi(page, campaignId, {
-    name: 'Barovia', subtype: 'region', visibility: 'members',
+    name: 'Barovia',
+    subtype: 'region',
+    visibility: 'members',
   })
 
   await page.goto(`/campaigns/${campaignId}/locations/${parent.slug}`)
@@ -56,11 +61,15 @@ test('detail page "+ Sub-location" link pre-fills parent in new form', async ({ 
   )
 })
 
-test('creating a sub-location via the form creates it under the correct parent', async ({ page }) => {
+test('creating a sub-location via the form creates it under the correct parent', async ({
+  page,
+}) => {
   const campaignId = await setup(page, 'SubLoc Create User')
 
   const parent: any = await createLocationViaApi(page, campaignId, {
-    name: 'The Kingdom', subtype: 'country', visibility: 'members',
+    name: 'The Kingdom',
+    subtype: 'country',
+    visibility: 'members',
   })
 
   await page.goto(`/campaigns/${campaignId}/locations/new?parentId=${parent.id}`)
@@ -75,20 +84,30 @@ test('creating a sub-location via the form creates it under the correct parent',
   await expect(page.locator('main h1')).toContainText(childName, { timeout: 10000 })
 
   // Breadcrumb should include the parent
-  await expect(page.locator('main').getByRole('link', { name: 'The Kingdom' })).toBeVisible({ timeout: 10000 })
+  await expect(page.locator('main').getByRole('link', { name: 'The Kingdom' })).toBeVisible({
+    timeout: 10000,
+  })
 })
 
 test('child location appears in parent sub-locations section', async ({ page }) => {
   const campaignId = await setup(page, 'SubLoc Panel User')
 
   const parent: any = await createLocationViaApi(page, campaignId, {
-    name: 'Dark Forest', subtype: 'wilderness', visibility: 'members',
+    name: 'Dark Forest',
+    subtype: 'wilderness',
+    visibility: 'members',
   })
   await createLocationViaApi(page, campaignId, {
-    name: 'Forest Clearing', subtype: 'wilderness', parentId: parent.id, visibility: 'members',
+    name: 'Forest Clearing',
+    subtype: 'wilderness',
+    parentId: parent.id,
+    visibility: 'members',
   })
   await createLocationViaApi(page, campaignId, {
-    name: "Witch's Hut", subtype: 'building', parentId: parent.id, visibility: 'members',
+    name: "Witch's Hut",
+    subtype: 'building',
+    parentId: parent.id,
+    visibility: 'members',
   })
 
   await page.goto(`/campaigns/${campaignId}/locations/${parent.slug}`)
@@ -102,10 +121,15 @@ test('child detail page breadcrumb links back to parent', async ({ page }) => {
   const campaignId = await setup(page, 'SubLoc Breadcrumb User')
 
   const parent: any = await createLocationViaApi(page, campaignId, {
-    name: 'Ravenloft Castle', subtype: 'dungeon', visibility: 'members',
+    name: 'Ravenloft Castle',
+    subtype: 'dungeon',
+    visibility: 'members',
   })
   const child: any = await createLocationViaApi(page, campaignId, {
-    name: 'Throne Room', subtype: 'room', parentId: parent.id, visibility: 'members',
+    name: 'Throne Room',
+    subtype: 'room',
+    parentId: parent.id,
+    visibility: 'members',
   })
 
   await page.goto(`/campaigns/${campaignId}/locations/${child.slug}`)
@@ -124,18 +148,30 @@ test('3-level nesting: grandchild breadcrumb shows full ancestor chain', async (
   const campaignId = await setup(page, 'SubLoc Deep User')
 
   const grandparent: any = await createLocationViaApi(page, campaignId, {
-    name: 'The Empire', subtype: 'country', visibility: 'members',
+    name: 'The Empire',
+    subtype: 'country',
+    visibility: 'members',
   })
   const parent2: any = await createLocationViaApi(page, campaignId, {
-    name: 'Northern Province', subtype: 'region', parentId: grandparent.id, visibility: 'members',
+    name: 'Northern Province',
+    subtype: 'region',
+    parentId: grandparent.id,
+    visibility: 'members',
   })
   const grandchild: any = await createLocationViaApi(page, campaignId, {
-    name: 'Border Town', subtype: 'town', parentId: parent2.id, visibility: 'members',
+    name: 'Border Town',
+    subtype: 'town',
+    parentId: parent2.id,
+    visibility: 'members',
   })
 
   await page.goto(`/campaigns/${campaignId}/locations/${grandchild.slug}`)
   await page.waitForLoadState('networkidle')
 
-  await expect(page.locator('main').getByRole('link', { name: 'The Empire' })).toBeVisible({ timeout: 10000 })
-  await expect(page.locator('main').getByRole('link', { name: 'Northern Province' })).toBeVisible({ timeout: 10000 })
+  await expect(page.locator('main').getByRole('link', { name: 'The Empire' })).toBeVisible({
+    timeout: 10000,
+  })
+  await expect(page.locator('main').getByRole('link', { name: 'Northern Province' })).toBeVisible({
+    timeout: 10000,
+  })
 })

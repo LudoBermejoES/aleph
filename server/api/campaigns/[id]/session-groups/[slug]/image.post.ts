@@ -13,7 +13,10 @@ const MAX_SIZE_BYTES = 10 * 1024 * 1024 // 10 MB
 export default defineEventHandler(async (event) => {
   const role = event.context.campaignRole as CampaignRole
   if (!hasMinRole(role, 'editor')) {
-    throw createError({ statusCode: 403, message: 'Editors or above can upload session group images' })
+    throw createError({
+      statusCode: 403,
+      message: 'Editors or above can upload session group images',
+    })
   }
 
   const campaignId = getRouterParam(event, 'id')!
@@ -21,7 +24,9 @@ export default defineEventHandler(async (event) => {
   const db = useDb()
   const campaign = event.context.campaign
 
-  const group = db.select().from(sessionGroups)
+  const group = db
+    .select()
+    .from(sessionGroups)
     .where(and(eq(sessionGroups.campaignId, campaignId), eq(sessionGroups.slug, slug)))
     .get()
   if (!group) throw createError({ statusCode: 404, message: 'Session group not found' })
@@ -31,14 +36,17 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'No file uploaded' })
   }
 
-  const file = formData.find(f => f.name === 'image')
+  const file = formData.find((f) => f.name === 'image')
   if (!file || !file.data) {
     throw createError({ statusCode: 400, message: 'Image file is required (field name: "image")' })
   }
 
   const mime = file.type || 'application/octet-stream'
   if (!ALLOWED_MIME_TYPES.includes(mime)) {
-    throw createError({ statusCode: 400, message: `Invalid file type "${mime}". Allowed: png, jpeg, webp` })
+    throw createError({
+      statusCode: 400,
+      message: `Invalid file type "${mime}". Allowed: png, jpeg, webp`,
+    })
   }
 
   if (file.data.length > MAX_SIZE_BYTES) {
@@ -47,7 +55,10 @@ export default defineEventHandler(async (event) => {
 
   const detectedMime = detectMimeFromBytes(file.data)
   if (!detectedMime || detectedMime !== mime) {
-    throw createError({ statusCode: 400, message: 'File content does not match declared MIME type' })
+    throw createError({
+      statusCode: 400,
+      message: 'File content does not match declared MIME type',
+    })
   }
 
   const mimeToExt: Record<string, string> = {
@@ -63,7 +74,8 @@ export default defineEventHandler(async (event) => {
 
   const imageUrl = `/api/campaigns/${campaignId}/session-groups/${slug}/image`
 
-  db.update(sessionGroups).set({ imageUrl, updatedAt: new Date() })
+  db.update(sessionGroups)
+    .set({ imageUrl, updatedAt: new Date() })
     .where(eq(sessionGroups.id, group.id))
     .run()
 

@@ -18,7 +18,11 @@ export default defineEventHandler(async (event) => {
   const chapter = db.select().from(chapters).where(eq(chapters.slug, slug)).get()
   if (!chapter) throw createError({ statusCode: 404, message: 'Chapter not found' })
 
-  const arc = db.select().from(arcs).where(and(eq(arcs.id, chapter.arcId), eq(arcs.campaignId, campaignId))).get()
+  const arc = db
+    .select()
+    .from(arcs)
+    .where(and(eq(arcs.id, chapter.arcId), eq(arcs.campaignId, campaignId)))
+    .get()
   if (!arc) throw createError({ statusCode: 404, message: 'Chapter not found in this campaign' })
 
   const updates: Record<string, unknown> = {}

@@ -16,7 +16,7 @@ export function makeSessionGroupCommand() {
       if (opts.json) {
         print(data, { json: true })
       } else {
-        print(data.map(g => ({ name: g.name, slug: g.slug, description: g.description || '' })))
+        print(data.map((g) => ({ name: g.name, slug: g.slug, description: g.description || '' })))
       }
     })
 
@@ -51,7 +51,9 @@ export function makeSessionGroupCommand() {
       if (opts.name !== undefined) body.name = opts.name
       if (opts.description !== undefined) body.description = opts.description
       if (Object.keys(body).length === 0) {
-        process.stderr.write('Error: Provide at least one field to update (--name, --description)\n')
+        process.stderr.write(
+          'Error: Provide at least one field to update (--name, --description)\n',
+        )
         process.exit(1)
       }
       await put(`/api/campaigns/${opts.campaign}/session-groups/${slug}`, body)
@@ -64,13 +66,18 @@ export function makeSessionGroupCommand() {
 
   cmd
     .command('delete <slug>')
-    .description('Delete a session group (sessions will be unassigned). Use --yes to skip confirmation.')
+    .description(
+      'Delete a session group (sessions will be unassigned). Use --yes to skip confirmation.',
+    )
     .requiredOption('--campaign <id>', 'Campaign ID')
     .option('--yes', 'Skip confirmation prompt')
     .option('--json', 'Output as JSON')
     .action(async (slug, opts) => {
       if (!opts.yes) {
-        const ok = await confirm({ message: `Delete session group "${slug}"? Sessions will be unassigned.`, default: false })
+        const ok = await confirm({
+          message: `Delete session group "${slug}"? Sessions will be unassigned.`,
+          default: false,
+        })
         if (!ok) return
       }
       await del(`/api/campaigns/${opts.campaign}/session-groups/${slug}`)

@@ -131,7 +131,10 @@ test.describe('Thorough Calendar Create (11c)', () => {
     await monthInputs.nth(2).fill('Ches')
 
     // 11.12 Set weekday names
-    await page.fill('input[placeholder*="Sun, Mon"]', 'Soldi, Lunedi, Martedi, Mertedi, Yovedi, Firedi, Sataredi')
+    await page.fill(
+      'input[placeholder*="Sun, Mon"]',
+      'Soldi, Lunedi, Martedi, Mertedi, Yovedi, Firedi, Sataredi',
+    )
 
     // 11.13 Submit
     await page.click('button[type="submit"]:has-text("Create")')
@@ -145,7 +148,9 @@ test.describe('Thorough Calendar Create (11c)', () => {
     await expect(page.locator('[data-testid="month-nav"]')).toContainText('Hammer')
 
     // 11.14 Verify day cells (30 days)
-    const dayCells = page.locator('[data-testid="calendar-grid"] div.min-h-\\[80px\\]:not(.bg-muted\\/30)')
+    const dayCells = page.locator(
+      '[data-testid="calendar-grid"] div.min-h-\\[80px\\]:not(.bg-muted\\/30)',
+    )
     // Should have at least 28 visible day cells (30 - offset cells)
     await expect(async () => {
       const count = await dayCells.count()
@@ -334,19 +339,27 @@ test.describe('Thorough Relation Create (11j)', () => {
     // 11.34 Search and select source — use the search result buttons inside the dropdown
     const sourceInput = page.locator('input[placeholder="Search entities..."]').first()
     await sourceInput.fill('RelSource')
-    const sourceDropdown = page.locator('.border.border-border.rounded.mt-1 button:has-text("RelSource Entity")').first()
+    const sourceDropdown = page
+      .locator('.border.border-border.rounded.mt-1 button:has-text("RelSource Entity")')
+      .first()
     await expect(sourceDropdown).toBeVisible({ timeout: 8000 })
     await sourceDropdown.click()
     // Verify selected
-    await expect(page.locator('.text-primary:has-text("RelSource Entity")')).toBeVisible({ timeout: 3000 })
+    await expect(page.locator('.text-primary:has-text("RelSource Entity")')).toBeVisible({
+      timeout: 3000,
+    })
 
     // 11.35 Search and select target
     const targetInput = page.locator('input[placeholder="Search entities..."]').nth(1)
     await targetInput.fill('RelTarget')
-    const targetDropdown = page.locator('.border.border-border.rounded.mt-1 button:has-text("RelTarget Entity")').last()
+    const targetDropdown = page
+      .locator('.border.border-border.rounded.mt-1 button:has-text("RelTarget Entity")')
+      .last()
     await expect(targetDropdown).toBeVisible({ timeout: 8000 })
     await targetDropdown.click()
-    await expect(page.locator('.text-primary:has-text("RelTarget Entity")')).toBeVisible({ timeout: 3000 })
+    await expect(page.locator('.text-primary:has-text("RelTarget Entity")')).toBeVisible({
+      timeout: 3000,
+    })
 
     // 11.36 Set labels, relation type, and attitude
     await page.fill('input[placeholder="allies with"]:first-of-type', 'rules over')
@@ -368,7 +381,7 @@ test.describe('Thorough Relation Create (11j)', () => {
     const isEnabled = await submitBtn.isEnabled()
 
     // Dismiss any alert that might appear from API errors
-    page.on('dialog', dialog => dialog.dismiss())
+    page.on('dialog', (dialog) => dialog.dismiss())
 
     if (!isEnabled) {
       // Fallback: create relation via API and navigate manually

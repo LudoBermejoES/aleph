@@ -31,7 +31,8 @@ export default defineEventHandler(async (event) => {
   const campaign = event.context.campaign
 
   // Auto-increment session number
-  const maxNum = db.select({ max: sql<number>`COALESCE(MAX(session_number), 0)` })
+  const maxNum = db
+    .select({ max: sql<number>`COALESCE(MAX(session_number), 0)` })
     .from(gameSessions)
     .where(eq(gameSessions.campaignId, campaignId))
     .get()
@@ -58,29 +59,34 @@ export default defineEventHandler(async (event) => {
   // Resolve groupSlug to groupId if provided
   let groupId: string | null = null
   if (body.groupSlug) {
-    const group = db.select({ id: sessionGroups.id }).from(sessionGroups)
+    const group = db
+      .select({ id: sessionGroups.id })
+      .from(sessionGroups)
       .where(and(eq(sessionGroups.campaignId, campaignId), eq(sessionGroups.slug, body.groupSlug)))
       .get()
-    if (!group) throw createError({ statusCode: 404, message: `Session group "${body.groupSlug}" not found` })
+    if (!group)
+      throw createError({ statusCode: 404, message: `Session group "${body.groupSlug}" not found` })
     groupId = group.id
   }
 
-  db.insert(gameSessions).values({
-    id,
-    campaignId,
-    title,
-    slug,
-    sessionNumber,
-    scheduledDate: body.scheduledDate || null,
-    status: body.status || 'planned',
-    summary: body.summary || null,
-    arcId: body.arcId || null,
-    chapterId: body.chapterId || null,
-    groupId,
-    logFilePath: logPath,
-    createdAt: now,
-    updatedAt: now,
-  }).run()
+  db.insert(gameSessions)
+    .values({
+      id,
+      campaignId,
+      title,
+      slug,
+      sessionNumber,
+      scheduledDate: body.scheduledDate || null,
+      status: body.status || 'planned',
+      summary: body.summary || null,
+      arcId: body.arcId || null,
+      chapterId: body.chapterId || null,
+      groupId,
+      logFilePath: logPath,
+      createdAt: now,
+      updatedAt: now,
+    })
+    .run()
 
   return { id, slug, title, sessionNumber, status: body.status || 'planned', groupId }
 })

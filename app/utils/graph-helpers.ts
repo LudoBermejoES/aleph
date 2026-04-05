@@ -2,13 +2,7 @@
  * Graph helper utilities for the campaign relationship graph.
  * Used by EntityGraphView.client.vue and graph.vue.
  */
-import {
-  forceSimulation,
-  forceManyBody,
-  forceLink,
-  forceCollide,
-  forceCenter,
-} from 'd3-force'
+import { forceSimulation, forceManyBody, forceLink, forceCollide, forceCenter } from 'd3-force'
 
 // ─── Degree & Neighbor Utilities ─────────────────────────────────────────────
 
@@ -177,7 +171,12 @@ export function createGraphSimulation(
   const sim = forceSimulation<SimNode>(nodes)
     .force('charge', forceManyBody<SimNode>().strength(-400).distanceMax(600))
     .force('link', linkForce)
-    .force('collide', forceCollide<SimNode>().radius((d: SimNode) => computeNodeRadius(degreeMap[d.id] ?? 0) + 12).iterations(3))
+    .force(
+      'collide',
+      forceCollide<SimNode>()
+        .radius((d: SimNode) => computeNodeRadius(degreeMap[d.id] ?? 0) + 12)
+        .iterations(3),
+    )
     .force('center', forceCenter(0, 0).strength(0.08))
     .alphaDecay(0.01)
 
@@ -195,7 +194,10 @@ export function createGraphSimulation(
       }
     }
     for (const c of Object.values(centroids)) {
-      if (c.count > 0) { c.x /= c.count; c.y /= c.count }
+      if (c.count > 0) {
+        c.x /= c.count
+        c.y /= c.count
+      }
     }
 
     const strength = 0.04

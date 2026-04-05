@@ -31,10 +31,9 @@ export default defineEventHandler(async (event) => {
 
   db.update(campaignMembers)
     .set({ role: newRole })
-    .where(and(
-      eq(campaignMembers.campaignId, campaignId),
-      eq(campaignMembers.userId, targetUserId),
-    ))
+    .where(
+      and(eq(campaignMembers.campaignId, campaignId), eq(campaignMembers.userId, targetUserId)),
+    )
     .run()
 
   invalidatePermissionCache(targetUserId)

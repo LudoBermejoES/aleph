@@ -17,6 +17,7 @@ Dice rolling is a fundamental TTRPG action that currently requires external tool
 ## Scope
 
 ### In scope
+
 - Standard dice types: d4, d6, d8, d10, d12, d20, d100
 - Custom dice with arbitrary side count
 - Formula parser: `NdX`, `NdX+M`, `NdXkh/klN` (keep highest/lowest), `NdX!` (exploding)
@@ -28,11 +29,13 @@ Dice rolling is a fundamental TTRPG action that currently requires external tool
 - Persistent dice roller panel accessible from any campaign page (floating or sidebar)
 
 ### Out of scope
+
 - 3D dice animation
 - Character sheet integration (auto-pulling stat modifiers)
 - Macro system for saved roll formulas (future)
 - Dice roll statistics/history analytics
 
 ## Dependencies
+
 - 01-project-setup
 - 02-auth-rbac

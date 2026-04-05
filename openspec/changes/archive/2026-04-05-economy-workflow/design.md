@@ -59,16 +59,17 @@ Used in: items list, shop stock display, transaction amounts. Implemented as a c
 
 ### New Server Routes Summary
 
-| Route | Method | Purpose |
-|-------|--------|---------|
-| `/api/campaigns/:id/currencies/:currencyId` | PUT | Update currency fields |
-| `/api/campaigns/:id/currencies/:currencyId` | DELETE | Delete currency (cascades via FK) |
-| `/api/campaigns/:id/shops/:slug/stock/:stockId` | PUT | Update stock quantity/price/availability |
-| `/api/campaigns/:id/shops/:slug/stock/:stockId` | DELETE | Remove stock entry |
+| Route                                           | Method | Purpose                                  |
+| ----------------------------------------------- | ------ | ---------------------------------------- |
+| `/api/campaigns/:id/currencies/:currencyId`     | PUT    | Update currency fields                   |
+| `/api/campaigns/:id/currencies/:currencyId`     | DELETE | Delete currency (cascades via FK)        |
+| `/api/campaigns/:id/shops/:slug/stock/:stockId` | PUT    | Update stock quantity/price/availability |
+| `/api/campaigns/:id/shops/:slug/stock/:stockId` | DELETE | Remove stock entry                       |
 
 ### Composable Updates
 
 `useCampaignApi` needs:
+
 - `createTransaction(body)` -- expose the existing POST endpoint
 - `addShopStock(slug, body)`, `updateShopStock(slug, stockId, body)`, `deleteShopStock(slug, stockId)` -- stock management
 - Existing `updateCurrency` and `deleteCurrency` are already exposed

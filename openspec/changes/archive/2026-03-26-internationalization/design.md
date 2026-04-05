@@ -74,12 +74,14 @@ Flat namespaced keys grouped by area:
 ## Component Usage
 
 In `<template>`:
+
 ```html
-<Button>{{ $t('common.save') }}</Button>
+<button>{{ $t('common.save') }}</button>
 <p>{{ $t('campaigns.empty') }}</p>
 ```
 
 In `<script setup>`:
+
 ```ts
 const { t } = useI18n()
 const errorMsg = t('auth.invalidCredentials')
@@ -100,6 +102,7 @@ Add a `<LanguageSwitcher>` component to `app/layouts/default.vue` in the top nav
 ## Migration Strategy
 
 Work area by area to avoid a single massive PR:
+
 1. Install + configure (no string changes yet — verify build passes)
 2. Create complete `en.json` from all hardcoded strings
 3. Migrate pages and components group by group (auth → campaigns → characters → ...)

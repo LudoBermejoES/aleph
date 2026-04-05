@@ -11,20 +11,25 @@ import { markdownToTiptap, tiptapToMarkdown } from '../../../server/services/col
  * the editor uses internally.
  */
 describe('MarkdownEditor — core behavior', () => {
-  it('mounts with markdown: parses to Tiptap JSON with correct structure', { timeout: 15000 }, () => {
-    const md = '# Quest Log\n\nThe party explored **Castle Ravenloft**.\n\n- Found a key\n- Defeated a vampire spawn\n'
-    const json = markdownToTiptap(md)
+  it(
+    'mounts with markdown: parses to Tiptap JSON with correct structure',
+    { timeout: 15000 },
+    () => {
+      const md =
+        '# Quest Log\n\nThe party explored **Castle Ravenloft**.\n\n- Found a key\n- Defeated a vampire spawn\n'
+      const json = markdownToTiptap(md)
 
-    expect(json.type).toBe('doc')
-    const content = json.content as any[]
-    expect(content.length).toBeGreaterThan(0)
+      expect(json.type).toBe('doc')
+      const content = json.content as any[]
+      expect(content.length).toBeGreaterThan(0)
 
-    // Should have heading, paragraph, and list
-    const types = content.map((n: any) => n.type)
-    expect(types).toContain('heading')
-    expect(types).toContain('paragraph')
-    expect(types).toContain('bulletList')
-  })
+      // Should have heading, paragraph, and list
+      const types = content.map((n: any) => n.type)
+      expect(types).toContain('heading')
+      expect(types).toContain('paragraph')
+      expect(types).toContain('bulletList')
+    },
+  )
 
   it('emits on edit: Tiptap JSON serializes back to markdown', () => {
     const original = '# Title\n\nSome **bold** text with *italics*.\n'

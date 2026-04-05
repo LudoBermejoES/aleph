@@ -16,8 +16,16 @@ export default defineEventHandler(async (event) => {
   const characterId = getRouterParam(event, 'characterId')!
   const db = useDb()
 
-  const location = db.select().from(entities)
-    .where(and(eq(entities.campaignId, campaignId), eq(entities.slug, slug), eq(entities.type, 'location')))
+  const location = db
+    .select()
+    .from(entities)
+    .where(
+      and(
+        eq(entities.campaignId, campaignId),
+        eq(entities.slug, slug),
+        eq(entities.type, 'location'),
+      ),
+    )
     .get()
   if (!location) throw createError({ statusCode: 404, message: 'Location not found' })
 

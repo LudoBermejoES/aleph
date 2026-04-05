@@ -22,7 +22,10 @@ test.describe('Calendars & Timelines', () => {
       method: 'POST',
       body: {
         name: 'Harptos Calendar',
-        months: [{ name: 'Hammer', days: 30 }, { name: 'Alturiak', days: 30 }],
+        months: [
+          { name: 'Hammer', days: 30 },
+          { name: 'Alturiak', days: 30 },
+        ],
         yearLength: 60,
         currentDate: { year: 1492, month: 1, day: 1 },
       },

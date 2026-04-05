@@ -30,10 +30,10 @@ export const ROLE_LEVEL = ROLE_HIERARCHY
 
 export const VISIBILITY_MIN_ROLE: Record<string, number> = {
   public: 0,
-  members: 2,    // player+
-  editors: 3,    // editor+
-  dm_only: 4,    // co_dm+
-  private: 99,   // creator only
+  members: 2, // player+
+  editors: 3, // editor+
+  dm_only: 4, // co_dm+
+  private: 99, // creator only
 }
 
 export interface UserContext {
@@ -102,13 +102,16 @@ export async function canUserAccessEntity(
   }
 
   // 1. Entity-level user-specific override (highest priority)
-  const userOverride = db.select()
+  const userOverride = db
+    .select()
     .from(entityPermissions)
-    .where(and(
-      eq(entityPermissions.entityId, entityId),
-      eq(entityPermissions.targetUserId, userId),
-      eq(entityPermissions.permission, permission),
-    ))
+    .where(
+      and(
+        eq(entityPermissions.entityId, entityId),
+        eq(entityPermissions.targetUserId, userId),
+        eq(entityPermissions.permission, permission),
+      ),
+    )
     .get()
 
   if (userOverride) {
@@ -116,13 +119,16 @@ export async function canUserAccessEntity(
   }
 
   // 2. Entity-level role override
-  const roleOverride = db.select()
+  const roleOverride = db
+    .select()
     .from(entityPermissions)
-    .where(and(
-      eq(entityPermissions.entityId, entityId),
-      eq(entityPermissions.targetRole, campaignRole),
-      eq(entityPermissions.permission, permission),
-    ))
+    .where(
+      and(
+        eq(entityPermissions.entityId, entityId),
+        eq(entityPermissions.targetRole, campaignRole),
+        eq(entityPermissions.permission, permission),
+      ),
+    )
     .get()
 
   if (roleOverride) {
@@ -165,12 +171,15 @@ export async function hasNamedPermission(
   campaignMemberId: string,
   permission: NamedPermission,
 ): Promise<boolean> {
-  const result = db.select()
+  const result = db
+    .select()
     .from(campaignMemberPermissions)
-    .where(and(
-      eq(campaignMemberPermissions.campaignMemberId, campaignMemberId),
-      eq(campaignMemberPermissions.permission, permission),
-    ))
+    .where(
+      and(
+        eq(campaignMemberPermissions.campaignMemberId, campaignMemberId),
+        eq(campaignMemberPermissions.permission, permission),
+      ),
+    )
     .get()
 
   return !!result
@@ -192,7 +201,11 @@ function cacheKey(userId: string, entityId: string, permission: Permission): str
   return `${userId}:${entityId}:${permission}`
 }
 
-export function getCachedPermission(userId: string, entityId: string, permission: Permission): boolean | null {
+export function getCachedPermission(
+  userId: string,
+  entityId: string,
+  permission: Permission,
+): boolean | null {
   const key = cacheKey(userId, entityId, permission)
   const entry = cache.get(key)
   if (!entry) return null
@@ -203,7 +216,12 @@ export function getCachedPermission(userId: string, entityId: string, permission
   return entry.result
 }
 
-export function setCachedPermission(userId: string, entityId: string, permission: Permission, result: boolean): void {
+export function setCachedPermission(
+  userId: string,
+  entityId: string,
+  permission: Permission,
+  result: boolean,
+): void {
   // Evict oldest entries if cache is full
   if (cache.size >= MAX_CACHE_SIZE) {
     const firstKey = cache.keys().next().value

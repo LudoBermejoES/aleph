@@ -13,13 +13,16 @@ export default defineEventHandler(async (event) => {
   if (query.parent_map_id) conditions.push(eq(maps.parentMapId, query.parent_map_id as string))
   else if (query.root === 'true') conditions.push(isNull(maps.parentMapId) as ReturnType<typeof eq>)
 
-  const countRow = db.select({ total: sql<number>`COUNT(*)` })
+  const countRow = db
+    .select({ total: sql<number>`COUNT(*)` })
     .from(maps)
     .where(and(...conditions))
     .get()
   const total = countRow?.total ?? 0
 
-  const data = db.select().from(maps)
+  const data = db
+    .select()
+    .from(maps)
     .where(and(...conditions))
     .limit(pagination.limit)
     .offset(pagination.offset)

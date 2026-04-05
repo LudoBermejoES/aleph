@@ -24,7 +24,9 @@ export default defineEventHandler(async (event) => {
   const body = await validateBody(event, questPutSchema)
   const db = useDb()
 
-  const quest = db.select().from(quests)
+  const quest = db
+    .select()
+    .from(quests)
     .where(and(eq(quests.campaignId, campaignId), eq(quests.slug, slug)))
     .get()
   if (!quest) throw createError({ statusCode: 404, message: 'Quest not found' })
@@ -32,7 +34,10 @@ export default defineEventHandler(async (event) => {
   // Validate status transition
   if (body.status && body.status !== quest.status) {
     if (!canTransitionQuestStatus(quest.status, body.status)) {
-      throw createError({ statusCode: 400, message: `Cannot transition from ${quest.status} to ${body.status}` })
+      throw createError({
+        statusCode: 400,
+        message: `Cannot transition from ${quest.status} to ${body.status}`,
+      })
     }
   }
 

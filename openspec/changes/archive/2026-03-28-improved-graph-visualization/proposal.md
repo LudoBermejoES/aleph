@@ -15,10 +15,12 @@ The current relationship graph (both campaign-wide and character-centered) rende
 ## Capabilities
 
 ### New Capabilities
+
 - `graph-interaction`: Focus+context highlighting, hover tooltips, edge label visibility, and node click/hover behaviors for the relationship graph.
 - `graph-layout`: Custom ForceLayout simulation tuning, node sizing by degree, faction clustering with convex hulls, and edge color coding by relation type.
 
 ### Modified Capabilities
+
 - `relationship-graph`: The existing spec's "Interactive Relationship Graph View" requirement is being enhanced with focus+context interaction, dynamic opacity, clustering, and degree-based sizing — all of which are new behavioral requirements beyond the current spec.
 
 ## Impact

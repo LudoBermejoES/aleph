@@ -65,7 +65,8 @@ export function findMatches(text: string, automaton: Automaton): MatchResult[] {
 
       // Word boundary check
       const charBefore = idx > 0 ? lowerText[idx - 1] : ' '
-      const charAfter = idx + pattern.length < lowerText.length ? lowerText[idx + pattern.length] : ' '
+      const charAfter =
+        idx + pattern.length < lowerText.length ? lowerText[idx + pattern.length] : ' '
 
       if (!isWordChar(charBefore) && !isWordChar(charAfter)) {
         matches.push({
@@ -90,7 +91,9 @@ export function findMatches(text: string, automaton: Automaton): MatchResult[] {
  */
 export function resolveOverlaps(matches: MatchResult[]): MatchResult[] {
   // Sort by start position, then by length descending
-  const sorted = [...matches].sort((a, b) => a.start - b.start || (b.end - b.start) - (a.end - a.start))
+  const sorted = [...matches].sort(
+    (a, b) => a.start - b.start || b.end - b.start - (a.end - a.start),
+  )
   const resolved: MatchResult[] = []
   let lastEnd = -1
 
@@ -147,10 +150,11 @@ export function computeExclusionZones(markdown: string): ExclusionZone[] {
 /**
  * Remove matches that fall inside exclusion zones.
  */
-export function filterMatchesByExclusions(matches: MatchResult[], zones: ExclusionZone[]): MatchResult[] {
-  return matches.filter(m =>
-    !zones.some(z => m.start >= z.start && m.end <= z.end)
-  )
+export function filterMatchesByExclusions(
+  matches: MatchResult[],
+  zones: ExclusionZone[],
+): MatchResult[] {
+  return matches.filter((m) => !zones.some((z) => m.start >= z.start && m.end <= z.end))
 }
 
 // --- Campaign Automaton Cache ---

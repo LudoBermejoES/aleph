@@ -1,16 +1,25 @@
 <template>
-  <div v-if="visible" class="fixed bottom-4 right-4 w-80 bg-background border border-border rounded-lg shadow-xl z-40">
+  <div
+    v-if="visible"
+    class="fixed bottom-4 right-4 w-80 bg-background border border-border rounded-lg shadow-xl z-40"
+  >
     <!-- Header -->
     <div class="flex items-center justify-between p-3 border-b border-border cursor-move">
       <h3 class="text-sm font-semibold">{{ $t('dice.title') }}</h3>
-      <button @click="visible = false" class="text-muted-foreground hover:text-foreground text-xs">{{ $t('dice.close') }}</button>
+      <button @click="visible = false" class="text-muted-foreground hover:text-foreground text-xs">
+        {{ $t('dice.close') }}
+      </button>
     </div>
 
     <!-- Quick Roll Buttons -->
     <div class="p-3 grid grid-cols-7 gap-1">
-      <button v-for="d in quickDice" :key="d" @click="quickRoll(d)"
+      <button
+        v-for="d in quickDice"
+        :key="d"
+        @click="quickRoll(d)"
         class="px-1 py-2 text-xs rounded border border-border hover:bg-accent transition-colors text-center"
-        :aria-label="$t(`aria.diceRoller.rollD${d}`, `Roll d${d}`)">
+        :aria-label="$t(`aria.diceRoller.rollD${d}`, `Roll d${d}`)"
+      >
         d{{ d }}
       </button>
     </div>
@@ -24,26 +33,62 @@
         class="flex-1 rounded-md border border-input bg-background px-2 py-1 text-sm"
         data-testid="formula-input"
       />
-      <button @click="rollFormula" class="px-3 py-1 rounded-md bg-primary text-primary-foreground text-sm" data-testid="roll-btn">{{ $t('dice.roll') }}</button>
+      <button
+        @click="rollFormula"
+        class="px-3 py-1 rounded-md bg-primary text-primary-foreground text-sm"
+        data-testid="roll-btn"
+      >
+        {{ $t('dice.roll') }}
+      </button>
     </div>
 
     <!-- Modifier Controls -->
     <div class="px-3 pb-2 flex items-center gap-2">
       <span class="text-xs text-muted-foreground">{{ $t('dice.modifier') }}</span>
-      <button @click="modifier--" class="w-6 h-6 rounded border border-border text-xs hover:bg-accent" data-testid="mod-dec">−</button>
-      <span class="text-sm font-medium w-8 text-center" data-testid="mod-value">{{ modifier >= 0 ? '+' + modifier : modifier }}</span>
-      <button @click="modifier++" class="w-6 h-6 rounded border border-border text-xs hover:bg-accent" data-testid="mod-inc">+</button>
-      <button v-if="modifier !== 0" @click="modifier = 0" class="text-xs text-muted-foreground hover:text-foreground">{{ $t('dice.reset') }}</button>
+      <button
+        @click="modifier--"
+        class="w-6 h-6 rounded border border-border text-xs hover:bg-accent"
+        data-testid="mod-dec"
+      >
+        −
+      </button>
+      <span class="text-sm font-medium w-8 text-center" data-testid="mod-value">{{
+        modifier >= 0 ? '+' + modifier : modifier
+      }}</span>
+      <button
+        @click="modifier++"
+        class="w-6 h-6 rounded border border-border text-xs hover:bg-accent"
+        data-testid="mod-inc"
+      >
+        +
+      </button>
+      <button
+        v-if="modifier !== 0"
+        @click="modifier = 0"
+        class="text-xs text-muted-foreground hover:text-foreground"
+      >
+        {{ $t('dice.reset') }}
+      </button>
     </div>
 
     <!-- Log to session toggle -->
     <div v-if="sessionId" class="px-3 pb-1 flex items-center gap-2">
-      <input id="log-session" v-model="logToSession" type="checkbox" class="rounded" data-testid="log-session-toggle" />
-      <label for="log-session" class="text-xs text-muted-foreground cursor-pointer">{{ $t('dice.logToSession') }}</label>
+      <input
+        id="log-session"
+        v-model="logToSession"
+        type="checkbox"
+        class="rounded"
+        data-testid="log-session-toggle"
+      />
+      <label for="log-session" class="text-xs text-muted-foreground cursor-pointer">{{
+        $t('dice.logToSession')
+      }}</label>
     </div>
 
     <!-- Error -->
-    <p v-if="error" class="px-3 pb-2 text-xs text-destructive" data-testid="roll-error">{{ error }}</p>
+    <p v-if="error" class="px-3 pb-2 text-xs text-destructive" data-testid="roll-error">
+      {{ error }}
+    </p>
 
     <!-- Last Result -->
     <div v-if="lastResult" class="px-3 pb-3" data-testid="last-result">
@@ -51,16 +96,23 @@
         <div class="text-2xl font-bold" data-testid="result-total">{{ lastResult.total }}</div>
         <div class="text-xs text-muted-foreground">
           {{ lastResult.formula }}
-          <span v-for="(r, i) in lastResult.rolls" :key="i">
-            [{{ r.values.join(', ') }}]
-          </span>
+          <span v-for="(r, i) in lastResult.rolls" :key="i"> [{{ r.values.join(', ') }}] </span>
         </div>
       </div>
     </div>
 
     <!-- Roll Log -->
-    <div v-if="rollLog.length" class="border-t border-border max-h-40 overflow-auto" data-testid="roll-log">
-      <div v-for="(entry, i) in rollLog" :key="i" class="px-3 py-1 text-xs border-b border-border/50 flex justify-between" data-testid="roll-log-entry">
+    <div
+      v-if="rollLog.length"
+      class="border-t border-border max-h-40 overflow-auto"
+      data-testid="roll-log"
+    >
+      <div
+        v-for="(entry, i) in rollLog"
+        :key="i"
+        class="px-3 py-1 text-xs border-b border-border/50 flex justify-between"
+        data-testid="roll-log-entry"
+      >
         <span class="text-muted-foreground">{{ entry.formula }}</span>
         <span class="font-medium">{{ entry.total }}</span>
       </div>

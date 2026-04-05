@@ -3,30 +3,39 @@ import { entities } from './entities'
 import { campaigns } from './campaigns'
 import { user } from './auth'
 
-export const characters = sqliteTable('characters', {
-  id: text('id').primaryKey(),
-  entityId: text('entity_id').notNull().unique().references(() => entities.id, { onDelete: 'cascade' }),
-  characterType: text('character_type').notNull().default('npc'), // pc, npc
-  race: text('race'),
-  class: text('class'),
-  alignment: text('alignment'),
-  status: text('status').notNull().default('alive'), // alive, dead, missing, unknown
-  locationEntityId: text('location_entity_id'),
-  ownerUserId: text('owner_user_id').references(() => user.id),
-  isCompanionOf: text('is_companion_of'), // character_id for mounts/companions
-  folderId: text('folder_id'), // references character_folders.id
-  portraitUrl: text('portrait_url'),
-}, (table) => [
-  index('idx_characters_type').on(table.characterType),
-  index('idx_characters_status').on(table.status),
-  index('idx_characters_owner_user').on(table.ownerUserId),
-  index('idx_characters_folder').on(table.folderId),
-  index('idx_characters_location').on(table.locationEntityId),
-])
+export const characters = sqliteTable(
+  'characters',
+  {
+    id: text('id').primaryKey(),
+    entityId: text('entity_id')
+      .notNull()
+      .unique()
+      .references(() => entities.id, { onDelete: 'cascade' }),
+    characterType: text('character_type').notNull().default('npc'), // pc, npc
+    race: text('race'),
+    class: text('class'),
+    alignment: text('alignment'),
+    status: text('status').notNull().default('alive'), // alive, dead, missing, unknown
+    locationEntityId: text('location_entity_id'),
+    ownerUserId: text('owner_user_id').references(() => user.id),
+    isCompanionOf: text('is_companion_of'), // character_id for mounts/companions
+    folderId: text('folder_id'), // references character_folders.id
+    portraitUrl: text('portrait_url'),
+  },
+  (table) => [
+    index('idx_characters_type').on(table.characterType),
+    index('idx_characters_status').on(table.status),
+    index('idx_characters_owner_user').on(table.ownerUserId),
+    index('idx_characters_folder').on(table.folderId),
+    index('idx_characters_location').on(table.locationEntityId),
+  ],
+)
 
 export const statGroups = sqliteTable('stat_groups', {
   id: text('id').primaryKey(),
-  campaignId: text('campaign_id').notNull().references(() => campaigns.id, { onDelete: 'cascade' }),
+  campaignId: text('campaign_id')
+    .notNull()
+    .references(() => campaigns.id, { onDelete: 'cascade' }),
   name: text('name').notNull(),
   templateId: text('template_id'),
   playerEditable: integer('player_editable', { mode: 'boolean' }).notNull().default(false),
@@ -35,7 +44,9 @@ export const statGroups = sqliteTable('stat_groups', {
 
 export const statDefinitions = sqliteTable('stat_definitions', {
   id: text('id').primaryKey(),
-  statGroupId: text('stat_group_id').notNull().references(() => statGroups.id, { onDelete: 'cascade' }),
+  statGroupId: text('stat_group_id')
+    .notNull()
+    .references(() => statGroups.id, { onDelete: 'cascade' }),
   name: text('name').notNull(),
   key: text('key').notNull(),
   valueType: text('value_type').notNull().default('number'), // number, text, boolean
@@ -46,14 +57,20 @@ export const statDefinitions = sqliteTable('stat_definitions', {
 
 export const characterStats = sqliteTable('character_stats', {
   id: text('id').primaryKey(),
-  characterId: text('character_id').notNull().references(() => characters.id, { onDelete: 'cascade' }),
-  statDefinitionId: text('stat_definition_id').notNull().references(() => statDefinitions.id, { onDelete: 'cascade' }),
+  characterId: text('character_id')
+    .notNull()
+    .references(() => characters.id, { onDelete: 'cascade' }),
+  statDefinitionId: text('stat_definition_id')
+    .notNull()
+    .references(() => statDefinitions.id, { onDelete: 'cascade' }),
   value: text('value'),
 })
 
 export const abilities = sqliteTable('abilities', {
   id: text('id').primaryKey(),
-  characterId: text('character_id').notNull().references(() => characters.id, { onDelete: 'cascade' }),
+  characterId: text('character_id')
+    .notNull()
+    .references(() => characters.id, { onDelete: 'cascade' }),
   name: text('name').notNull(),
   type: text('type').notNull().default('custom'), // action, reaction, passive, spell, trait, custom
   description: text('description'),
@@ -64,7 +81,9 @@ export const abilities = sqliteTable('abilities', {
 
 export const characterConnections = sqliteTable('character_connections', {
   id: text('id').primaryKey(),
-  characterId: text('character_id').notNull().references(() => characters.id, { onDelete: 'cascade' }),
+  characterId: text('character_id')
+    .notNull()
+    .references(() => characters.id, { onDelete: 'cascade' }),
   targetEntityId: text('target_entity_id').notNull(),
   label: text('label'),
   description: text('description'),
@@ -73,7 +92,9 @@ export const characterConnections = sqliteTable('character_connections', {
 
 export const characterFolders = sqliteTable('character_folders', {
   id: text('id').primaryKey(),
-  campaignId: text('campaign_id').notNull().references(() => campaigns.id, { onDelete: 'cascade' }),
+  campaignId: text('campaign_id')
+    .notNull()
+    .references(() => campaigns.id, { onDelete: 'cascade' }),
   name: text('name').notNull(),
   parentFolderId: text('parent_folder_id'),
   sortOrder: integer('sort_order').notNull().default(0),

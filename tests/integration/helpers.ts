@@ -3,7 +3,7 @@ const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 export async function apiRaw(path: string, opts?: RequestInit & { body?: unknown }) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
-    headers: { 'Content-Type': 'application/json', 'Origin': BASE_URL, ...opts?.headers },
+    headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...opts?.headers },
     body: opts?.body !== undefined ? JSON.stringify(opts.body) : undefined,
   })
 }
@@ -14,7 +14,10 @@ export async function apiRaw(path: string, opts?: RequestInit & { body?: unknown
  */
 export async function signUpAndLogin(email: string, password = 'password123', name = 'Test User') {
   await apiRaw('/api/auth/sign-up/email', { method: 'POST', body: { name, email, password } })
-  const loginRes = await apiRaw('/api/auth/sign-in/email', { method: 'POST', body: { email, password } })
+  const loginRes = await apiRaw('/api/auth/sign-in/email', {
+    method: 'POST',
+    body: { email, password },
+  })
   const loginCookies = loginRes.headers.get('set-cookie') || ''
   const sessionMatch = loginCookies.match(/better-auth\.session_token=([^;]+)/)
   const sessionCookie = sessionMatch ? `better-auth.session_token=${sessionMatch[1]}` : ''
@@ -24,9 +27,7 @@ export async function signUpAndLogin(email: string, password = 'password123', na
   const setCookie = getRes.headers.get('set-cookie') || ''
   const csrfMatch = setCookie.match(/csrf_token=([^;]+)/)
   const csrfToken = csrfMatch?.[1] || ''
-  const fullCookie = csrfToken
-    ? `${sessionCookie}; csrf_token=${csrfToken}`
-    : sessionCookie
+  const fullCookie = csrfToken ? `${sessionCookie}; csrf_token=${csrfToken}` : sessionCookie
 
   return { cookie: fullCookie, csrfToken }
 }
@@ -34,7 +35,11 @@ export async function signUpAndLogin(email: string, password = 'password123', na
 /**
  * Sign up, sign in, create an API key, and return the raw API key string.
  */
-export async function signUpAndGetApiKey(email: string, password = 'password123', name = 'Test User') {
+export async function signUpAndGetApiKey(
+  email: string,
+  password = 'password123',
+  name = 'Test User',
+) {
   const { cookie, csrfToken } = await signUpAndLogin(email, password, name)
   const keyRes = await apiRaw('/api/apikeys', {
     method: 'POST',

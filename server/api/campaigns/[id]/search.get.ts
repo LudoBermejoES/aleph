@@ -7,7 +7,7 @@ import type { CampaignRole } from '../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)
-  const q = (query.q as string || '').trim()
+  const q = ((query.q as string) || '').trim()
   const campaignId = getRouterParam(event, 'id')!
   const role = (event.context.campaignRole || 'visitor') as CampaignRole
   const userId = event.context.user?.id
@@ -24,30 +24,28 @@ export default defineEventHandler(async (event) => {
   if (!rawResults.length) return { results: [], query: q }
 
   const roleLevel = ROLE_LEVEL[role] ?? 1
-  const entityIds = rawResults.map(r => r.entityId)
+  const entityIds = rawResults.map((r) => r.entityId)
 
   // Single batch query — replaces per-result DB lookups
-  const conditions: any[] = [
-    eq(entities.campaignId, campaignId),
-    inArray(entities.id, entityIds),
-  ]
+  const conditions: any[] = [eq(entities.campaignId, campaignId), inArray(entities.id, entityIds)]
   if (typeFilter) conditions.push(eq(entities.type, typeFilter))
 
-  const entityRows = db.select({
-    id: entities.id,
-    slug: entities.slug,
-    type: entities.type,
-    visibility: entities.visibility,
-    createdBy: entities.createdBy,
-  })
+  const entityRows = db
+    .select({
+      id: entities.id,
+      slug: entities.slug,
+      type: entities.type,
+      visibility: entities.visibility,
+      createdBy: entities.createdBy,
+    })
     .from(entities)
     .where(and(...conditions))
     .all()
 
-  const entityMap = new Map(entityRows.map(e => [e.id, e]))
+  const entityMap = new Map(entityRows.map((e) => [e.id, e]))
 
   const finalResults = rawResults
-    .map(r => {
+    .map((r) => {
       const ent = entityMap.get(r.entityId)
       if (!ent) return null
 

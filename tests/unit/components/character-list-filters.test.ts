@@ -82,8 +82,12 @@ describe('initFiltersFromQuery (8.11)', () => {
 // ─── 8.12: Debounce logic ─────────────────────────────────────────────────────
 
 describe('Debounced search (8.12)', () => {
-  beforeEach(() => { vi.useFakeTimers() })
-  afterEach(() => { vi.useRealTimers() })
+  beforeEach(() => {
+    vi.useFakeTimers()
+  })
+  afterEach(() => {
+    vi.useRealTimers()
+  })
 
   it('only fires once after 300ms of silence', () => {
     const fetchFn = vi.fn()

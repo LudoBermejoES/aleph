@@ -25,7 +25,10 @@ function rollLocal(formula) {
   if (!rolls.length) {
     // Plain number
     const n = parseInt(cleaned)
-    if (!isNaN(n)) { total = n; rolls.push(n) }
+    if (!isNaN(n)) {
+      total = n
+      rolls.push(n)
+    }
   }
   return { formula, rolls, total }
 }

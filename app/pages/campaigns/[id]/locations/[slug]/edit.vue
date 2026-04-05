@@ -1,18 +1,35 @@
 <template>
   <div class="p-8 max-w-3xl">
     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4 flex-wrap">
-      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary"> {{ $t('common.campaign') }}</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">
+        {{ $t('common.campaign') }}</NuxtLink
+      >
       <span>/</span>
-      <NuxtLink :to="`/campaigns/${campaignId}/locations`" class="hover:text-primary">{{ $t('locations.title') }}</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}/locations`" class="hover:text-primary">{{
+        $t('locations.title')
+      }}</NuxtLink>
       <span>/</span>
-      <NuxtLink :to="`/campaigns/${campaignId}/locations/${slug}`" class="hover:text-primary">{{ form.name }}</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}/locations/${slug}`" class="hover:text-primary">{{
+        form.name
+      }}</NuxtLink>
       <span>/</span><span>{{ $t('common.edit') }}</span>
     </div>
     <h1 class="text-2xl font-bold mb-6">{{ $t('locations.edit') }}</h1>
     <div v-if="loading" class="text-muted-foreground">{{ $t('common.loading') }}</div>
-    <LocationForm v-else ref="locationForm" v-model="form" :campaign-id="campaignId" :location-slug="slug" :submit-label="$t('common.save')" :submitting="submitting" @submit="save">
+    <LocationForm
+      v-else
+      ref="locationForm"
+      v-model="form"
+      :campaign-id="campaignId"
+      :location-slug="slug"
+      :submit-label="$t('common.save')"
+      :submitting="submitting"
+      @submit="save"
+    >
       <template #cancel>
-        <NuxtLink :to="`/campaigns/${campaignId}/locations/${slug}`"><Button variant="outline">{{ $t('common.cancel') }}</Button></NuxtLink>
+        <NuxtLink :to="`/campaigns/${campaignId}/locations/${slug}`"
+          ><Button variant="outline">{{ $t('common.cancel') }}</Button></NuxtLink
+        >
       </template>
     </LocationForm>
   </div>

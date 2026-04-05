@@ -8,9 +8,13 @@ export default defineEventHandler(async (event) => {
 
   const cals = db.select().from(calendars).where(eq(calendars.campaignId, campaignId)).all()
 
-  return cals.map(cal => {
+  return cals.map((cal) => {
     const moons = db.select().from(calendarMoons).where(eq(calendarMoons.calendarId, cal.id)).all()
-    const seasons = db.select().from(calendarSeasons).where(eq(calendarSeasons.calendarId, cal.id)).all()
+    const seasons = db
+      .select()
+      .from(calendarSeasons)
+      .where(eq(calendarSeasons.calendarId, cal.id))
+      .all()
     return {
       ...cal,
       config: JSON.parse(cal.configJson),

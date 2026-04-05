@@ -5,7 +5,9 @@
       <div class="flex items-center justify-between">
         <div>
           <h1 class="text-3xl font-bold">{{ campaign.name }}</h1>
-          <p v-if="campaign.description" class="text-muted-foreground">{{ campaign.description }}</p>
+          <p v-if="campaign.description" class="text-muted-foreground">
+            {{ campaign.description }}
+          </p>
         </div>
         <NuxtLink to="/">
           <Button variant="outline" size="sm">{{ $t('campaigns.backToCampaigns') }}</Button>
@@ -171,7 +173,9 @@
           <Button size="sm" @click="saveTheme" :disabled="savingTheme">
             {{ savingTheme ? $t('common.saving') : $t('common.save') }}
           </Button>
-          <span v-if="themeSaved" class="text-sm text-muted-foreground">{{ $t('common.saved') }}</span>
+          <span v-if="themeSaved" class="text-sm text-muted-foreground">{{
+            $t('common.saved')
+          }}</span>
         </div>
       </div>
     </div>
@@ -187,7 +191,13 @@ const route = useRoute()
 const campaignId = route.params.id as string
 const { t } = useI18n()
 
-const { data: campaign } = await useFetch<{ id: string; name: string; description: string | null; theme: string | null; role: string | null }>(`/api/campaigns/${campaignId}`)
+const { data: campaign } = await useFetch<{
+  id: string
+  name: string
+  description: string | null
+  theme: string | null
+  role: string | null
+}>(`/api/campaigns/${campaignId}`)
 
 const isDm = computed(() => ['dm', 'co_dm'].includes(campaign.value?.role ?? ''))
 const selectedTheme = ref(campaign.value?.theme || 'default')
@@ -231,7 +241,9 @@ async function saveTheme() {
     await updateCampaignEntry(campaignId, { theme: selectedTheme.value })
     campaignTheme.value = selectedTheme.value
     themeSaved.value = true
-    setTimeout(() => { themeSaved.value = false }, 2000)
+    setTimeout(() => {
+      themeSaved.value = false
+    }, 2000)
   } catch (e: any) {
     alert(e.data?.message || t('errors.failedSave'))
   } finally {

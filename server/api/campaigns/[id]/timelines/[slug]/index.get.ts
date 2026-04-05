@@ -7,17 +7,21 @@ export default defineEventHandler(async (event) => {
   const slug = getRouterParam(event, 'slug')!
   const db = useDb()
 
-  const tl = db.select().from(timelines)
+  const tl = db
+    .select()
+    .from(timelines)
     .where(and(eq(timelines.campaignId, campaignId), eq(timelines.slug, slug)))
     .get()
 
   if (!tl) throw createError({ statusCode: 404, message: 'Timeline not found' })
 
-  const events = db.select().from(timelineEvents)
+  const events = db
+    .select()
+    .from(timelineEvents)
     .where(eq(timelineEvents.timelineId, tl.id))
     .orderBy(timelineEvents.sortOrder)
     .all()
-    .map(e => ({ ...e, date: JSON.parse(e.dateJson) }))
+    .map((e) => ({ ...e, date: JSON.parse(e.dateJson) }))
 
   return { ...tl, events }
 })

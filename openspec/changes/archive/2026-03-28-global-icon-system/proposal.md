@@ -15,9 +15,11 @@ The app has no icons anywhere — sidebar links, dashboard cards, page headers, 
 ## Capabilities
 
 ### New Capabilities
+
 - `icon-system`: A centralized icon mapping utility (`app/utils/icons.ts`) that exports named icon components for every domain concept (entity types, statuses, nav areas, actions) — consumed by layouts, pages, and components
 
 ### Modified Capabilities
+
 - `sidebar-nav-groups`: Sidebar nav links and group headers now render an icon alongside the label
 - `worldbuilding-wiki`: Entity list/detail pages now show entity-type icons
 - `character-management`: Character list badges (status, type) now show icons

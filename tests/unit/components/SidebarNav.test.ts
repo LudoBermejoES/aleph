@@ -2,21 +2,24 @@ import { describe, it, expect } from 'vitest'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
 
-const source = readFileSync(resolve(__dirname, '../../../app/components/layout/SidebarNav.vue'), 'utf-8')
+const source = readFileSync(
+  resolve(__dirname, '../../../app/components/layout/SidebarNav.vue'),
+  'utf-8',
+)
 
 describe('SidebarNav', () => {
   it('renders app name and subtitle', () => {
-    expect(source).toContain("layout.appName")
-    expect(source).toContain("layout.appSubtitle")
+    expect(source).toContain('layout.appName')
+    expect(source).toContain('layout.appSubtitle')
   })
 
   it('renders dashboard link when campaignId is provided', () => {
-    expect(source).toContain("layout.dashboard")
+    expect(source).toContain('layout.dashboard')
     expect(source).toContain('v-if="campaignId"')
   })
 
   it('renders allCampaigns link', () => {
-    expect(source).toContain("layout.allCampaigns")
+    expect(source).toContain('layout.allCampaigns')
   })
 
   it('renders nav groups via campaignLinkGroups prop', () => {
@@ -28,7 +31,7 @@ describe('SidebarNav', () => {
   })
 
   it('renders user name and sign-out button', () => {
-    expect(source).toContain("auth.signOut")
+    expect(source).toContain('auth.signOut')
     expect(source).toContain("$emit('logout')")
   })
 
@@ -37,7 +40,7 @@ describe('SidebarNav', () => {
   })
 
   it('has settings link', () => {
-    expect(source).toContain("settings.title")
+    expect(source).toContain('settings.title')
     expect(source).toContain('to="/settings"')
   })
 })

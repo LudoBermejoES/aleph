@@ -9,10 +9,7 @@
 
       <ApiKeyCreateDialog class="mb-6" @created="refresh" />
 
-      <ApiKeyList
-        :keys="keys"
-        @revoke="handleRevoke"
-      />
+      <ApiKeyList :keys="keys" @revoke="handleRevoke" />
     </section>
   </div>
 </template>

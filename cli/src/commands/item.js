@@ -13,7 +13,17 @@ export function makeItemCommand() {
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
       const data = await get(`/api/campaigns/${opts.campaign}/items`)
-      print(opts.json ? data : data.map(i => ({ id: i.id, name: i.name, rarity: i.rarity || '', type: i.type || '' })), { json: opts.json })
+      print(
+        opts.json
+          ? data
+          : data.map((i) => ({
+              id: i.id,
+              name: i.name,
+              rarity: i.rarity || '',
+              type: i.type || '',
+            })),
+        { json: opts.json },
+      )
     })
 
   cmd
@@ -31,7 +41,11 @@ export function makeItemCommand() {
       if (opts.price) body.priceJson = opts.price
       if (opts.rarity) body.rarity = opts.rarity
       const data = await post(`/api/campaigns/${opts.campaign}/items`, body)
-      if (opts.json) { print(data, { json: true }) } else { success(`Item created: ${data.name} (${data.id})`) }
+      if (opts.json) {
+        print(data, { json: true })
+      } else {
+        success(`Item created: ${data.name} (${data.id})`)
+      }
     })
 
   cmd
@@ -59,8 +73,14 @@ export function makeItemCommand() {
     .option('--yes', 'Skip confirmation')
     .action(async (opts) => {
       if (!opts.yes) {
-        const ok = await confirm({ message: `Delete item ${opts.id}? This cannot be undone.`, default: false })
-        if (!ok) { process.stdout.write('Cancelled.\n'); return }
+        const ok = await confirm({
+          message: `Delete item ${opts.id}? This cannot be undone.`,
+          default: false,
+        })
+        if (!ok) {
+          process.stdout.write('Cancelled.\n')
+          return
+        }
       }
       await del(`/api/campaigns/${opts.campaign}/items/${opts.id}`)
       success(`Item ${opts.id} deleted.`)

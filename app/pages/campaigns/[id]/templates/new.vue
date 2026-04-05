@@ -1,9 +1,13 @@
 <template>
   <div class="p-8 max-w-2xl">
     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">{{ $t('common.campaign') }}</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">{{
+        $t('common.campaign')
+      }}</NuxtLink>
       <span>/</span>
-      <NuxtLink :to="`/campaigns/${campaignId}/templates`" class="hover:text-primary">{{ $t('templates.title') }}</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}/templates`" class="hover:text-primary">{{
+        $t('templates.title')
+      }}</NuxtLink>
       <span>/</span>
       <span>{{ $t('templates.new') }}</span>
     </div>
@@ -13,12 +17,21 @@
     <form class="space-y-6" @submit.prevent="submit">
       <div>
         <label class="text-sm font-medium">{{ $t('templates.name') }}</label>
-        <input v-model="form.name" type="text" required class="w-full mt-1 px-3 py-2 rounded border border-input bg-background" />
+        <input
+          v-model="form.name"
+          type="text"
+          required
+          class="w-full mt-1 px-3 py-2 rounded border border-input bg-background"
+        />
       </div>
 
       <div>
         <label class="text-sm font-medium">{{ $t('templates.entityType') }}</label>
-        <select v-model="form.entityTypeSlug" required class="w-full mt-1 px-3 py-2 rounded border border-input bg-background">
+        <select
+          v-model="form.entityTypeSlug"
+          required
+          class="w-full mt-1 px-3 py-2 rounded border border-input bg-background"
+        >
           <option value="">{{ $t('templates.selectEntityType') }}</option>
           <option v-for="et in entityTypes" :key="et.slug" :value="et.slug">{{ et.name }}</option>
         </select>
@@ -35,7 +48,9 @@
       </div>
 
       <div class="flex gap-2">
-        <Button type="submit" :disabled="saving">{{ saving ? $t('common.saving') : $t('common.create') }}</Button>
+        <Button type="submit" :disabled="saving">{{
+          saving ? $t('common.saving') : $t('common.create')
+        }}</Button>
         <NuxtLink :to="`/campaigns/${campaignId}/templates`">
           <Button type="button" variant="outline">{{ $t('common.cancel') }}</Button>
         </NuxtLink>
@@ -77,7 +92,12 @@ async function submit() {
         fieldType: f.fieldType,
         required: f.required,
         sortOrder: i,
-        options: f.optionsRaw ? f.optionsRaw.split(',').map((o: string) => o.trim()).filter(Boolean) : null,
+        options: f.optionsRaw
+          ? f.optionsRaw
+              .split(',')
+              .map((o: string) => o.trim())
+              .filter(Boolean)
+          : null,
       })),
     }
     await api.createTemplate(payload)

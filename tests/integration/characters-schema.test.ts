@@ -67,17 +67,21 @@ describe('Character Schema', () => {
              ('cs-2', 'char-1', 'sd-2', 'Sunlight')
     `)
 
-    const allStats = testDb.sqlite.prepare(`
+    const allStats = testDb.sqlite
+      .prepare(
+        `
       SELECT cs.value, sd.name, sd.is_secret
       FROM character_stats cs
       JOIN stat_definitions sd ON cs.stat_definition_id = sd.id
       WHERE cs.character_id = 'char-1'
-    `).all() as any[]
+    `,
+      )
+      .all() as any[]
 
     expect(allStats).toHaveLength(2)
 
     // Simulate secret stripping for player
-    const playerStats = allStats.filter(s => !s.is_secret)
+    const playerStats = allStats.filter((s) => !s.is_secret)
     expect(playerStats).toHaveLength(1)
     expect(playerStats[0].name).toBe('HP')
 
@@ -96,7 +100,9 @@ describe('Character Schema', () => {
              ('ab-2', 'char-1', 'Dark Gift', 'trait', 1, 2)
     `)
 
-    const all = testDb.sqlite.prepare("SELECT * FROM abilities WHERE character_id = 'char-1'").all() as any[]
+    const all = testDb.sqlite
+      .prepare("SELECT * FROM abilities WHERE character_id = 'char-1'")
+      .all() as any[]
     expect(all).toHaveLength(2)
 
     const visible = all.filter((a: any) => !a.is_secret)
@@ -111,8 +117,12 @@ describe('Character Schema', () => {
              ('sg-locked', 'camp-1', 'DM Stats', 0, 2)
     `)
 
-    const editable = testDb.sqlite.prepare("SELECT * FROM stat_groups WHERE player_editable = 1").get() as any
-    const locked = testDb.sqlite.prepare("SELECT * FROM stat_groups WHERE player_editable = 0 AND id LIKE 'sg-%'").get() as any
+    const editable = testDb.sqlite
+      .prepare('SELECT * FROM stat_groups WHERE player_editable = 1')
+      .get() as any
+    const locked = testDb.sqlite
+      .prepare("SELECT * FROM stat_groups WHERE player_editable = 0 AND id LIKE 'sg-%'")
+      .get() as any
 
     expect(editable.name).toBe('Player Stats')
     expect(locked.name).toBe('DM Stats')

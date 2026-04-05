@@ -17,13 +17,17 @@ export default defineEventHandler(async (event) => {
   const templatePutSchema = z.object({
     name: z.string().min(1).optional(),
     isDefault: z.boolean().optional(),
-    fields: z.array(z.object({
-      key: z.string(),
-      label: z.string(),
-      fieldType: z.string().optional(),
-      options: z.unknown().optional(),
-      required: z.boolean().optional(),
-    })).optional(),
+    fields: z
+      .array(
+        z.object({
+          key: z.string(),
+          label: z.string(),
+          fieldType: z.string().optional(),
+          options: z.unknown().optional(),
+          required: z.boolean().optional(),
+        }),
+      )
+      .optional(),
   })
   const body = await validateBody(event, templatePutSchema)
   const db = useDb()
@@ -41,16 +45,18 @@ export default defineEventHandler(async (event) => {
     db.delete(entityTemplateFields).where(eq(entityTemplateFields.templateId, templateId)).run()
     for (let i = 0; i < body.fields.length; i++) {
       const f = body.fields[i]
-      db.insert(entityTemplateFields).values({
-        id: randomUUID(),
-        templateId,
-        key: f.key,
-        label: f.label,
-        fieldType: f.fieldType || 'text',
-        optionsJson: f.options ? JSON.stringify(f.options) : null,
-        sortOrder: i,
-        required: f.required || false,
-      }).run()
+      db.insert(entityTemplateFields)
+        .values({
+          id: randomUUID(),
+          templateId,
+          key: f.key,
+          label: f.label,
+          fieldType: f.fieldType || 'text',
+          optionsJson: f.options ? JSON.stringify(f.options) : null,
+          sortOrder: i,
+          required: f.required || false,
+        })
+        .run()
     }
   }
 

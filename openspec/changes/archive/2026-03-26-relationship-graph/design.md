@@ -12,25 +12,25 @@
 
 17 seeded types created per campaign:
 
-| Forward | Reverse |
-|---------|---------|
-| ally of | ally of |
-| enemy of | enemy of |
-| parent of | child of |
-| sibling of | sibling of |
-| spouse of | spouse of |
-| mentor of | student of |
-| vassal of | liege of |
-| employer of | employee of |
-| member of | has member |
-| leader of | led by |
+| Forward          | Reverse          |
+| ---------------- | ---------------- |
+| ally of          | ally of          |
+| enemy of         | enemy of         |
+| parent of        | child of         |
+| sibling of       | sibling of       |
+| spouse of        | spouse of        |
+| mentor of        | student of       |
+| vassal of        | liege of         |
+| employer of      | employee of      |
+| member of        | has member       |
+| leader of        | led by           |
 | trade partner of | trade partner of |
-| rival of | rival of |
-| worships | worshipped by |
-| created | created by |
-| owns | owned by |
-| guards | guarded by |
-| haunts | haunted by |
+| rival of         | rival of         |
+| worships         | worshipped by    |
+| created          | created by       |
+| owns             | owned by         |
+| guards           | guarded by       |
+| haunts           | haunted by       |
 
 ### Attitude Scoring
 
@@ -47,12 +47,14 @@
 ### Graph Rendering
 
 **Primary: v-network-graph** (Vue 3, SVG-based)
+
 - Nodes: entity name + type icon, colored by entity type
 - Edges: labeled with relation type, colored by attitude score
 - Layout: force-directed (d3-force) for organic spacing
 - Interactions: zoom (scroll), pan (drag canvas), drag nodes, click node to navigate to entity
 
 **Fallback: cytoscape.js** (Canvas-based, >500 nodes)
+
 - Same data model, different renderer
 - Triggered automatically when node count exceeds threshold
 - Uses `cose-bilkent` layout for better large-graph performance
@@ -73,6 +75,7 @@ Business logic extracted into `server/services/relationships.ts` -- pure functio
 Architecture: Write unit tests first (TDD red phase), then implement service functions (green phase), then refactor API handlers to call services. API handlers stay thin -- they call services + DB, return results.
 
 Test layers:
+
 1. **Unit tests**: service functions in isolation (no DB, no server)
 2. **Schema tests**: DB constraints and cascades (`:memory:` SQLite)
 3. **Integration tests**: API contracts against running server

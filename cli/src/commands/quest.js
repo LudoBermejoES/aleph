@@ -15,7 +15,17 @@ export function makeQuestCommand() {
     .action(async (opts) => {
       const params = opts.status ? `?status=${encodeURIComponent(opts.status)}` : ''
       const data = await get(`/api/campaigns/${opts.campaign}/quests${params}`)
-      print(opts.json ? data : data.map(q => ({ name: q.name, slug: q.slug, status: q.status, secret: q.isSecret ? 'yes' : '' })), { json: opts.json })
+      print(
+        opts.json
+          ? data
+          : data.map((q) => ({
+              name: q.name,
+              slug: q.slug,
+              status: q.status,
+              secret: q.isSecret ? 'yes' : '',
+            })),
+        { json: opts.json },
+      )
     })
 
   cmd
@@ -32,7 +42,11 @@ export function makeQuestCommand() {
         status: opts.status || 'active',
         description: opts.description,
       })
-      if (opts.json) { print(data, { json: true }) } else { success(`Quest created: ${data.name} (${data.slug})`) }
+      if (opts.json) {
+        print(data, { json: true })
+      } else {
+        success(`Quest created: ${data.name} (${data.slug})`)
+      }
     })
 
   cmd
@@ -60,8 +74,14 @@ export function makeQuestCommand() {
     .option('--yes', 'Skip confirmation')
     .action(async (opts) => {
       if (!opts.yes) {
-        const ok = await confirm({ message: `Delete quest "${opts.slug}"? This cannot be undone.`, default: false })
-        if (!ok) { process.stdout.write('Cancelled.\n'); return }
+        const ok = await confirm({
+          message: `Delete quest "${opts.slug}"? This cannot be undone.`,
+          default: false,
+        })
+        if (!ok) {
+          process.stdout.write('Cancelled.\n')
+          return
+        }
       }
       await del(`/api/campaigns/${opts.campaign}/quests/${opts.slug}`)
       success(`Quest ${opts.slug} deleted.`)

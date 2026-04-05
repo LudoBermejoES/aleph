@@ -3,7 +3,9 @@ import { campaigns } from './campaigns'
 
 export const entityTypes = sqliteTable('entity_types', {
   id: text('id').primaryKey(),
-  campaignId: text('campaign_id').notNull().references(() => campaigns.id, { onDelete: 'cascade' }),
+  campaignId: text('campaign_id')
+    .notNull()
+    .references(() => campaigns.id, { onDelete: 'cascade' }),
   slug: text('slug').notNull(),
   name: text('name').notNull(),
   icon: text('icon'),

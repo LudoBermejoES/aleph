@@ -9,23 +9,25 @@ export default defineEventHandler(async (event) => {
   const db = useDb()
   const pagination = parsePagination(query as Record<string, unknown>)
 
-  const countRow = db.select({ total: sql<number>`COUNT(*)` })
+  const countRow = db
+    .select({ total: sql<number>`COUNT(*)` })
     .from(organizations)
     .where(eq(organizations.campaignId, campaignId))
     .get()
   const total = countRow?.total ?? 0
 
-  const data = db.select({
-    id: organizations.id,
-    name: organizations.name,
-    slug: organizations.slug,
-    description: organizations.description,
-    type: organizations.type,
-    status: organizations.status,
-    createdAt: organizations.createdAt,
-    updatedAt: organizations.updatedAt,
-    memberCount: sql<number>`(SELECT COUNT(*) FROM organization_members WHERE organization_id = ${organizations.id})`,
-  })
+  const data = db
+    .select({
+      id: organizations.id,
+      name: organizations.name,
+      slug: organizations.slug,
+      description: organizations.description,
+      type: organizations.type,
+      status: organizations.status,
+      createdAt: organizations.createdAt,
+      updatedAt: organizations.updatedAt,
+      memberCount: sql<number>`(SELECT COUNT(*) FROM organization_members WHERE organization_id = ${organizations.id})`,
+    })
     .from(organizations)
     .where(eq(organizations.campaignId, campaignId))
     .limit(pagination.limit)

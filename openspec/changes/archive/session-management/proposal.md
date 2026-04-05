@@ -17,6 +17,7 @@ Sessions are the heartbeat of a campaign -- each one represents a real-world pla
 ## Scope
 
 ### In scope
+
 - Session CRUD API (create, read, update, delete, list)
 - Session fields: title, date, status (planned, active, completed, cancelled), summary
 - Attendance RSVP tracking per player per session
@@ -29,11 +30,13 @@ Sessions are the heartbeat of a campaign -- each one represents a real-world pla
 - Session detail page with log viewer, attendance, quests
 
 ### Out of scope
+
 - Real-time session tools like initiative tracker (future)
 - Dice rolling integration (change 13)
 - Calendar integration for session dates (change 07)
 
 ## Dependencies
+
 - 01-project-setup
 - 02-auth-rbac
 - 03-markdown-engine

@@ -4,7 +4,12 @@ import { join } from 'path'
 import { tmpdir } from 'os'
 import { randomUUID } from 'crypto'
 import Database from 'better-sqlite3'
-import { initFTS5, indexEntity, removeEntityFromIndex, searchEntities } from '../../../server/services/search'
+import {
+  initFTS5,
+  indexEntity,
+  removeEntityFromIndex,
+  searchEntities,
+} from '../../../server/services/search'
 import { readEntityFile, contentHash } from '../../../server/services/content'
 
 /**
@@ -35,7 +40,9 @@ describe('Watcher: new .md file detection (6.14)', () => {
   it('new .md file creates FTS5 entry', async () => {
     const entityId = randomUUID()
     const filePath = join(tmpDir, 'test-entity.md')
-    writeFileSync(filePath, `---
+    writeFileSync(
+      filePath,
+      `---
 id: ${entityId}
 type: character
 name: Test Entity
@@ -47,10 +54,19 @@ fields: {}
 # Test Entity
 
 Some content about the test entity.
-`)
+`,
+    )
 
     const file = await readEntityFile(filePath)
-    indexEntity(db, file.frontmatter.id!, 'test-campaign', file.frontmatter.name, file.frontmatter.aliases, file.frontmatter.tags, file.content)
+    indexEntity(
+      db,
+      file.frontmatter.id!,
+      'test-campaign',
+      file.frontmatter.name,
+      file.frontmatter.aliases,
+      file.frontmatter.tags,
+      file.content,
+    )
 
     const results = searchEntities(db, 'test-campaign', 'test entity')
     expect(results.length).toBeGreaterThan(0)

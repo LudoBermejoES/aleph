@@ -1,11 +1,21 @@
 import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
 import { entities } from '../../../../../db/schema/entities'
-import { characters, characterStats, statDefinitions, statGroups, abilities } from '../../../../../db/schema/characters'
+import {
+  characters,
+  characterStats,
+  statDefinitions,
+  statGroups,
+  abilities,
+} from '../../../../../db/schema/characters'
 import { readEntityFile, stripSecretBlocks } from '../../../../../services/content'
 import { stripSecretStats, stripSecretAbilities } from '../../../../../services/characters'
 import type { CampaignRole } from '../../../../../utils/permissions'
-import { canUserAccessEntity, getCachedPermission, setCachedPermission } from '../../../../../utils/permissions'
+import {
+  canUserAccessEntity,
+  getCachedPermission,
+  setCachedPermission,
+} from '../../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
   const campaignId = getRouterParam(event, 'id')!
@@ -14,37 +24,48 @@ export default defineEventHandler(async (event) => {
   const userId = event.context.user?.id || ''
   const db = useDb()
 
-  const entity = db.select().from(entities)
+  const entity = db
+    .select()
+    .from(entities)
     .where(and(eq(entities.campaignId, campaignId), eq(entities.slug, slug)))
     .get()
   if (!entity) throw createError({ statusCode: 404, message: 'Character not found' })
 
   // Visibility enforcement
   const cached = getCachedPermission(userId, entity.id, 'view')
-  const canAccess = cached !== null
-    ? cached
-    : await canUserAccessEntity(db, userId, 'user', role, entity.id, entity.visibility, entity.createdBy, 'view')
+  const canAccess =
+    cached !== null
+      ? cached
+      : await canUserAccessEntity(
+          db,
+          userId,
+          'user',
+          role,
+          entity.id,
+          entity.visibility,
+          entity.createdBy,
+          'view',
+        )
   if (cached === null) setCachedPermission(userId, entity.id, 'view', canAccess)
   if (!canAccess) throw createError({ statusCode: 404, message: 'Character not found' })
 
-  const character = db.select().from(characters)
-    .where(eq(characters.entityId, entity.id))
-    .get()
+  const character = db.select().from(characters).where(eq(characters.entityId, entity.id)).get()
   if (!character) throw createError({ statusCode: 404, message: 'Character data not found' })
 
   // Get stats with group info
-  const stats = db.select({
-    id: characterStats.id,
-    value: characterStats.value,
-    defId: statDefinitions.id,
-    defName: statDefinitions.name,
-    defKey: statDefinitions.key,
-    defValueType: statDefinitions.valueType,
-    defIsSecret: statDefinitions.isSecret,
-    groupId: statGroups.id,
-    groupName: statGroups.name,
-    groupPlayerEditable: statGroups.playerEditable,
-  })
+  const stats = db
+    .select({
+      id: characterStats.id,
+      value: characterStats.value,
+      defId: statDefinitions.id,
+      defName: statDefinitions.name,
+      defKey: statDefinitions.key,
+      defValueType: statDefinitions.valueType,
+      defIsSecret: statDefinitions.isSecret,
+      groupId: statGroups.id,
+      groupName: statGroups.name,
+      groupPlayerEditable: statGroups.playerEditable,
+    })
     .from(characterStats)
     .innerJoin(statDefinitions, eq(characterStats.statDefinitionId, statDefinitions.id))
     .innerJoin(statGroups, eq(statDefinitions.statGroupId, statGroups.id))
@@ -52,7 +73,9 @@ export default defineEventHandler(async (event) => {
     .all()
 
   // Get abilities
-  let charAbilities = db.select().from(abilities)
+  let charAbilities = db
+    .select()
+    .from(abilities)
     .where(eq(abilities.characterId, character.id))
     .orderBy(abilities.sortOrder)
     .all()
@@ -73,7 +96,8 @@ export default defineEventHandler(async (event) => {
   let locationName: string | null = null
   let locationSlug: string | null = null
   if (character.locationEntityId) {
-    const locationEntity = db.select({ name: entities.name, slug: entities.slug })
+    const locationEntity = db
+      .select({ name: entities.name, slug: entities.slug })
       .from(entities)
       .where(eq(entities.id, character.locationEntityId))
       .get()

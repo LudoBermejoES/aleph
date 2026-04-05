@@ -31,8 +31,8 @@ describe('CollaborationIndicator - peer list logic', () => {
     ])
     const peers = buildPeerList(states, 1)
     expect(peers).toHaveLength(2)
-    expect(peers.map(p => p.name)).toContain('Alice')
-    expect(peers.map(p => p.name)).toContain('Bob')
+    expect(peers.map((p) => p.name)).toContain('Alice')
+    expect(peers.map((p) => p.name)).toContain('Bob')
   })
 
   it('uses fallback color when peer has no color', () => {
@@ -42,7 +42,10 @@ describe('CollaborationIndicator - peer list logic', () => {
   })
 
   it('skips entries without user name', () => {
-    const states = new Map([[2, { user: {} }], [3, {}]])
+    const states = new Map([
+      [2, { user: {} }],
+      [3, {}],
+    ])
     expect(buildPeerList(states, 1)).toEqual([])
   })
 })

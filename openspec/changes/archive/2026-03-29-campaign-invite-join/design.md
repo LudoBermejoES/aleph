@@ -7,12 +7,14 @@ The join URL format needs both the campaign ID and the token: `/join?token=<toke
 ## Goals / Non-Goals
 
 **Goals:**
+
 - `/join` page works for unauthenticated users (register or login inline, then auto-join)
 - `/join` page works for already-authenticated users (join immediately on load)
 - Members page shows a full usable URL with one-click copy
 - CLI `member invite` prints the full join URL
 
 **Non-Goals:**
+
 - No token preview/validation endpoint (not needed — join returns clear error messages)
 - No invite management UI (list/revoke tokens) — separate feature
 - No email sending — URL is shared manually

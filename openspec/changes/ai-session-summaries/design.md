@@ -7,6 +7,7 @@ The AI call is server-side only. The frontend never sees or handles API keys. Th
 ## Goals / Non-Goals
 
 **Goals:**
+
 - DM can generate a narrative summary from manual session notes with one click
 - DM can generate structured AI notes (decisions, NPCs, locations) from manual notes with one click
 - AI provider is configurable (Claude or OpenAI) via environment variables
@@ -16,6 +17,7 @@ The AI call is server-side only. The frontend never sees or handles API keys. Th
 - Generation errors are handled gracefully with clear user feedback
 
 **Non-Goals:**
+
 - Real-time streaming of AI responses to the frontend (batch response is sufficient for v1; streaming can be added later)
 - Audio transcription or voice-to-text (out of scope; manual notes are the input)
 - Custom prompt editing by users (prompts are hardcoded server-side for v1)
@@ -31,6 +33,7 @@ Alternative considered: Installing `@anthropic-ai/sdk` and `openai` packages. Re
 
 **Decision 2: Hardcoded prompts, tailored per target type**
 Two server-side prompt templates:
+
 - **Summary prompt**: "You are a TTRPG session chronicler. Given the following session notes, write a concise narrative summary suitable for players to review before the next session. Focus on key events, plot developments, and character moments. Write in past tense, third person."
 - **AI Notes prompt**: "You are a TTRPG session analyst. Given the following session notes, extract structured information: (1) Key decisions made by the party, (2) NPCs mentioned or encountered, (3) Locations visited or referenced, (4) Plot hooks or unresolved threads. Format each section with a markdown heading."
 
@@ -47,6 +50,7 @@ If the target content type already has content, the frontend shows a confirmatio
 
 **Decision 6: Error handling strategy**
 AI API failures (network errors, rate limits, invalid keys, content policy rejections) are caught server-side and returned as structured error responses with appropriate HTTP status codes:
+
 - 502 Bad Gateway for AI provider errors (network, server errors)
 - 503 Service Unavailable if no AI provider is configured
 - 429 Too Many Requests for cooldown violations
@@ -56,6 +60,7 @@ The frontend displays these as destructive toasts with actionable messages ("AI 
 
 **Decision 7: Environment variable configuration**
 Three env vars:
+
 - `AI_PROVIDER`: `claude` or `openai` (no default -- feature is disabled if unset)
 - `AI_API_KEY`: The provider's API key
 - `AI_MODEL`: Model identifier (defaults to `claude-sonnet-4-20250514` for Claude, `gpt-4o` for OpenAI)

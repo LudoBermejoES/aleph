@@ -13,10 +13,18 @@
     <Teleport to="body">
       <div v-if="open" class="fixed inset-0 z-50" @click.self="open = false">
         <div class="fixed inset-0 bg-black/50" @click="open = false" />
-        <div class="fixed top-[20vh] left-1/2 -translate-x-1/2 z-[51] bg-background border border-border rounded-lg shadow-xl w-full max-w-lg">
+        <div
+          class="fixed top-[20vh] left-1/2 -translate-x-1/2 z-[51] bg-background border border-border rounded-lg shadow-xl w-full max-w-lg"
+        >
           <div class="flex items-center border-b border-border px-4">
-            <svg class="w-4 h-4 text-muted-foreground shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+            <svg
+              class="w-4 h-4 text-muted-foreground shrink-0"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.35-4.35" />
             </svg>
             <input
               ref="searchInput"
@@ -41,29 +49,53 @@
               <button
                 v-for="(recent, i) in recentSearches"
                 :key="i"
-                @click="query = recent; doSearch()"
+                @click="
+                  query = recent
+                  doSearch()
+                "
                 class="block w-full text-left px-3 py-1.5 rounded text-sm hover:bg-accent transition-colors text-muted-foreground"
-              >{{ recent }}</button>
+              >
+                {{ recent }}
+              </button>
             </div>
 
             <div v-if="displayResults.length" class="space-y-1" role="listbox">
               <NuxtLink
                 v-for="(result, i) in displayResults"
                 :key="result.entityId"
-                :ref="(el: any) => { if (el) resultEls[i] = el.$el || el }"
+                :ref="
+                  (el: any) => {
+                    if (el) resultEls[i] = el.$el || el
+                  }
+                "
                 :to="`/campaigns/${campaignId}/entities/${result.slug || result.entityId}`"
                 @click="selectResult(result)"
-                :class="['block px-3 py-2 rounded text-sm transition-colors', i === selectedIndex ? 'bg-accent' : 'hover:bg-accent/50']"
+                :class="[
+                  'block px-3 py-2 rounded text-sm transition-colors',
+                  i === selectedIndex ? 'bg-accent' : 'hover:bg-accent/50',
+                ]"
                 role="option"
                 :aria-selected="i === selectedIndex"
               >
                 <span class="font-medium">{{ result.name }}</span>
-                <span v-if="result.type" class="text-xs text-muted-foreground ml-2">{{ result.type }}</span>
+                <span v-if="result.type" class="text-xs text-muted-foreground ml-2">{{
+                  result.type
+                }}</span>
                 <span v-html="result.snippet" class="block text-xs text-muted-foreground mt-0.5" />
               </NuxtLink>
             </div>
-            <p v-else-if="query && !searching" class="px-3 py-4 text-sm text-muted-foreground text-center">{{ $t('search.noResults') }}</p>
-            <p v-else-if="!query && !recentSearches.length" class="px-3 py-4 text-sm text-muted-foreground text-center">{{ $t('search.startTyping') }}</p>
+            <p
+              v-else-if="query && !searching"
+              class="px-3 py-4 text-sm text-muted-foreground text-center"
+            >
+              {{ $t('search.noResults') }}
+            </p>
+            <p
+              v-else-if="!query && !recentSearches.length"
+              class="px-3 py-4 text-sm text-muted-foreground text-center"
+            >
+              {{ $t('search.startTyping') }}
+            </p>
           </div>
         </div>
       </div>
@@ -97,7 +129,7 @@ function loadRecent() {
 
 function saveRecent(q: string) {
   if (!q.trim()) return
-  const existing = recentSearches.value.filter(r => r !== q)
+  const existing = recentSearches.value.filter((r) => r !== q)
   const updated = [q, ...existing].slice(0, 5)
   recentSearches.value = updated
   localStorage.setItem(RECENT_KEY, JSON.stringify(updated))

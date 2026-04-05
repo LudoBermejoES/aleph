@@ -19,6 +19,7 @@ TTRPGs generate complex webs of relationships -- alliances, rivalries, family ti
 ## Scope
 
 ### In scope
+
 - Entity relations CRUD API (create, update, delete bidirectional relations)
 - 17 built-in relation types (ally, enemy, family, mentor, rival, vassal, trade partner, etc.)
 - Custom relation types with configurable forward/reverse labels
@@ -31,11 +32,13 @@ TTRPGs generate complex webs of relationships -- alliances, rivalries, family ti
 - Performance fallback to cytoscape.js when node count exceeds 500
 
 ### Out of scope
+
 - Automatic relationship inference from narrative content
 - 3D graph rendering
 - Relationship timeline/history tracking
 
 ## Dependencies
+
 - 01-project-setup
 - 02-auth-rbac
 - 03-markdown-engine

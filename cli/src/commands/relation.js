@@ -12,7 +12,11 @@ export function makeRelationCommand() {
     .requiredOption('--campaign <id>', 'Campaign ID')
     .requiredOption('--source <slug>', 'Source entity slug')
     .requiredOption('--target <slug>', 'Target entity slug')
-    .option('--type <slug>', 'Relation type slug (e.g. ally, enemy, rival, mentor, custom)', 'custom')
+    .option(
+      '--type <slug>',
+      'Relation type slug (e.g. ally, enemy, rival, mentor, custom)',
+      'custom',
+    )
     .option('--forward <label>', 'Forward relation label (source → target); overrides type default')
     .option('--reverse <label>', 'Reverse relation label (target → source); overrides type default')
     .option('--attitude <number>', 'Attitude score (-100 to 100)', parseInt)
@@ -25,9 +29,11 @@ export function makeRelationCommand() {
       ])
       // Resolve relation type slug → ID
       const types = await get(`/api/campaigns/${opts.campaign}/relation-types`)
-      const relType = types.find(t => t.slug === opts.type)
+      const relType = types.find((t) => t.slug === opts.type)
       if (!relType) {
-        process.stderr.write(`Error: Unknown relation type "${opts.type}". Available: ${types.map(t => t.slug).join(', ')}\n`)
+        process.stderr.write(
+          `Error: Unknown relation type "${opts.type}". Available: ${types.map((t) => t.slug).join(', ')}\n`,
+        )
         process.exit(2)
       }
       const body = { sourceEntityId, targetEntityId, relationTypeId: relType.id }
@@ -61,15 +67,17 @@ export function makeRelationCommand() {
       } else {
         const entityRes = await get(`/api/campaigns/${opts.campaign}/entities?limit=500`)
         const allEntities = Array.isArray(entityRes) ? entityRes : (entityRes.entities ?? [])
-        const nameMap = Object.fromEntries(allEntities.map(e => [e.id, e.name]))
-        print(data.map(r => ({
-          id: r.id,
-          source: nameMap[r.sourceEntityId] ?? r.sourceEntityId,
-          target: nameMap[r.targetEntityId] ?? r.targetEntityId,
-          forward: r.forwardLabel || '',
-          reverse: r.reverseLabel || '',
-          attitude: r.attitude ?? 0,
-        })))
+        const nameMap = Object.fromEntries(allEntities.map((e) => [e.id, e.name]))
+        print(
+          data.map((r) => ({
+            id: r.id,
+            source: nameMap[r.sourceEntityId] ?? r.sourceEntityId,
+            target: nameMap[r.targetEntityId] ?? r.targetEntityId,
+            forward: r.forwardLabel || '',
+            reverse: r.reverseLabel || '',
+            attitude: r.attitude ?? 0,
+          })),
+        )
       }
     })
 

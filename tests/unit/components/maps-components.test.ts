@@ -39,11 +39,11 @@ interface MapLayer {
 }
 
 function toggleLayer(layers: MapLayer[], layerId: string): MapLayer[] {
-  return layers.map(l => l.id === layerId ? { ...l, visible: !l.visible } : l)
+  return layers.map((l) => (l.id === layerId ? { ...l, visible: !l.visible } : l))
 }
 
 function visibleLayers(layers: MapLayer[]): MapLayer[] {
-  return layers.filter(l => l.visible)
+  return layers.filter((l) => l.visible)
 }
 
 describe('Layer toggle panel (9.21)', () => {
@@ -55,17 +55,17 @@ describe('Layer toggle panel (9.21)', () => {
 
   it('toggle flips visibility', () => {
     const updated = toggleLayer(layers, 'fog')
-    expect(updated.find(l => l.id === 'fog')?.visible).toBe(true)
+    expect(updated.find((l) => l.id === 'fog')?.visible).toBe(true)
   })
 
   it('toggle off a visible layer', () => {
     const updated = toggleLayer(layers, 'pins')
-    expect(updated.find(l => l.id === 'pins')?.visible).toBe(false)
+    expect(updated.find((l) => l.id === 'pins')?.visible).toBe(false)
   })
 
   it('visibleLayers returns only visible', () => {
     expect(visibleLayers(layers)).toHaveLength(2)
-    expect(visibleLayers(layers).map(l => l.id)).toEqual(['pins', 'grid'])
+    expect(visibleLayers(layers).map((l) => l.id)).toEqual(['pins', 'grid'])
   })
 
   it('toggling unknown layer is a no-op', () => {

@@ -1,6 +1,7 @@
 ## Context
 
 The relationship graph is rendered by `EntityGraphView.client.vue` using v-network-graph (Vue 3 SVG library) with `ForceLayout` from `v-network-graph/lib/force-layout` (wraps d3-force). The component already supports:
+
 - Per-node portrait images via `#override-node` SVG slot
 - Per-edge color via callback configs
 - Radial layout when `centerNodeId` is set (character detail page)
@@ -14,6 +15,7 @@ The campaign currently has 11 characters and 40+ relations. Graph is already har
 ## Goals / Non-Goals
 
 **Goals:**
+
 - Make graphs with 20-100 nodes usable and legible
 - Focus+context interaction (click/hover to highlight neighborhood)
 - Visual clustering by faction/organization
@@ -23,6 +25,7 @@ The campaign currently has 11 characters and 40+ relations. Graph is already har
 - Hover tooltip with entity details
 
 **Non-Goals:**
+
 - Canvas/WebGL rendering (SVG is fine for <500 nodes)
 - Edge bundling (overkill for this scale)
 - Fisheye distortion (disorienting, research shows it's slower for topology tasks)
@@ -40,12 +43,14 @@ The campaign currently has 11 characters and 40+ relations. Graph is already har
 **Why not v-network-graph config callbacks for opacity?** The config system doesn't expose an `opacity` field. We already use the `#override-node` slot for portraits, so applying opacity there is natural. For edges, we'll use the `edge.normal.color` callback returning an RGBA color with alpha for dimmed edges.
 
 **Alternatives considered:**
+
 - Hiding non-neighbor nodes entirely: Loses context about graph structure.
 - Using CSS classes: v-network-graph SVG elements don't expose stable class names.
 
 ### 2. Custom ForceLayout simulation via createSimulation callback
 
 **Decision**: Pass a `createSimulation` function to `ForceLayout` constructor with tuned parameters:
+
 - `d3.forceManyBody().strength(-200).distanceMax(400)` — repulsion prevents overlap
 - `d3.forceLink(edges).id(d => d.id).distance(100).iterations(2)` — stiffer links
 - `d3.forceCollide().radius(d => nodeRadius(d) + 8).iterations(2)` — collision based on degree-sized radius
@@ -70,7 +75,7 @@ The campaign currently has 11 characters and 40+ relations. Graph is already har
 | enemy | Red | #ef4444 |
 | rival | Orange | #f97316 |
 | mentor | Amber | #f59e0b |
-| family:* | Blue | #3b82f6 |
+| family:\* | Blue | #3b82f6 |
 | romantic/spouse | Pink | #ec4899 |
 | custom | Gray | #9ca3af |
 

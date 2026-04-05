@@ -24,12 +24,15 @@ export default defineEventHandler(async (event) => {
   }
 
   // Get membership
-  const membership = db.select()
+  const membership = db
+    .select()
     .from(campaignMembers)
-    .where(and(
-      eq(campaignMembers.campaignId, campaignId),
-      eq(campaignMembers.userId, event.context.user.id),
-    ))
+    .where(
+      and(
+        eq(campaignMembers.campaignId, campaignId),
+        eq(campaignMembers.userId, event.context.user.id),
+      ),
+    )
     .get()
 
   if (!membership) {

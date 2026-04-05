@@ -28,7 +28,9 @@ export default defineEventHandler(async (event) => {
   const body = await validateBody(event, sessionPutSchema)
   const db = useDb()
 
-  const session = db.select().from(gameSessions)
+  const session = db
+    .select()
+    .from(gameSessions)
     .where(and(eq(gameSessions.campaignId, campaignId), eq(gameSessions.slug, slug)))
     .get()
   if (!session) throw createError({ statusCode: 404, message: 'Session not found' })
@@ -44,10 +46,18 @@ export default defineEventHandler(async (event) => {
     if (body.groupSlug === null || body.groupSlug === '') {
       updates.groupId = null
     } else {
-      const group = db.select({ id: sessionGroups.id }).from(sessionGroups)
-        .where(and(eq(sessionGroups.campaignId, campaignId), eq(sessionGroups.slug, body.groupSlug)))
+      const group = db
+        .select({ id: sessionGroups.id })
+        .from(sessionGroups)
+        .where(
+          and(eq(sessionGroups.campaignId, campaignId), eq(sessionGroups.slug, body.groupSlug)),
+        )
         .get()
-      if (!group) throw createError({ statusCode: 404, message: `Session group "${body.groupSlug}" not found` })
+      if (!group)
+        throw createError({
+          statusCode: 404,
+          message: `Session group "${body.groupSlug}" not found`,
+        })
       updates.groupId = group.id
     }
   }
@@ -57,7 +67,21 @@ export default defineEventHandler(async (event) => {
   // Update log file content if provided
   if (body.content !== undefined && session.logFilePath) {
     let existing
-    try { existing = await readEntityFile(session.logFilePath) } catch { existing = { frontmatter: { type: 'session', name: session.title, aliases: [], tags: [], visibility: 'members' as const, fields: {} }, content: '' } }
+    try {
+      existing = await readEntityFile(session.logFilePath)
+    } catch {
+      existing = {
+        frontmatter: {
+          type: 'session',
+          name: session.title,
+          aliases: [],
+          tags: [],
+          visibility: 'members' as const,
+          fields: {},
+        },
+        content: '',
+      }
+    }
     await writeEntityFile(session.logFilePath, existing.frontmatter, body.content)
   }
 

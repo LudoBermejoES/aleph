@@ -4,9 +4,13 @@
     <ErrorToast v-if="error" :message="error" @dismiss="error = null" />
     <div v-else-if="calendar">
       <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-        <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary"> {{ $t('common.campaign') }}</NuxtLink>
+        <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">
+          {{ $t('common.campaign') }}</NuxtLink
+        >
         <span>/</span>
-        <NuxtLink :to="`/campaigns/${campaignId}/calendars`" class="hover:text-primary">{{ $t('calendars.title') }}</NuxtLink>
+        <NuxtLink :to="`/campaigns/${campaignId}/calendars`" class="hover:text-primary">{{
+          $t('calendars.title')
+        }}</NuxtLink>
         <span>/</span>
         <span class="text-foreground">{{ calendar.name }}</span>
       </div>
@@ -15,21 +19,41 @@
         <h1 class="text-2xl font-bold">{{ calendar.name }}</h1>
         <div class="flex items-center gap-2">
           <span class="text-sm text-muted-foreground">
-            {{ $t('calendars.currentDate', { year: currentDate.year, month: monthName(currentDate.month), day: currentDate.day }) }}
+            {{
+              $t('calendars.currentDate', {
+                year: currentDate.year,
+                month: monthName(currentDate.month),
+                day: currentDate.day,
+              })
+            }}
           </span>
           <NuxtLink :to="`/campaigns/${campaignId}/calendars/${calendarId}/edit`">
             <Button variant="outline" size="sm">{{ $t('common.edit') }}</Button>
           </NuxtLink>
-          <Button variant="outline" size="sm" data-testid="advance-date" @click="showAdvance = !showAdvance">
+          <Button
+            variant="outline"
+            size="sm"
+            data-testid="advance-date"
+            @click="showAdvance = !showAdvance"
+          >
             {{ $t('calendars.advanceDate') }}
           </Button>
         </div>
       </div>
 
       <!-- Advance Date Panel -->
-      <div v-if="showAdvance" class="mb-4 p-4 rounded border border-border flex items-center gap-4" data-testid="advance-panel">
+      <div
+        v-if="showAdvance"
+        class="mb-4 p-4 rounded border border-border flex items-center gap-4"
+        data-testid="advance-panel"
+      >
         <label class="text-sm">{{ $t('calendars.days') }}</label>
-        <input v-model.number="advanceDays" type="number" min="1" class="w-20 px-2 py-1 rounded border border-input bg-background" />
+        <input
+          v-model.number="advanceDays"
+          type="number"
+          min="1"
+          class="w-20 px-2 py-1 rounded border border-input bg-background"
+        />
         <Button size="sm" @click="advanceDate">{{ $t('calendars.advance') }}</Button>
       </div>
 
@@ -44,7 +68,11 @@
       <div class="border border-border rounded-lg overflow-hidden" data-testid="calendar-grid">
         <!-- Weekday Headers -->
         <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 bg-muted">
-          <div v-for="wd in weekdays" :key="wd" class="text-center text-xs font-medium py-2 border-r border-border last:border-r-0">
+          <div
+            v-for="wd in weekdays"
+            :key="wd"
+            class="text-center text-xs font-medium py-2 border-r border-border last:border-r-0"
+          >
             {{ wd }}
           </div>
         </div>
@@ -52,7 +80,11 @@
         <!-- Day Cells -->
         <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7">
           <!-- Empty cells for offset -->
-          <div v-for="_ in startOffset" :key="'off'+_" class="min-h-[80px] border-r border-b border-border bg-muted/30" />
+          <div
+            v-for="_ in startOffset"
+            :key="'off' + _"
+            class="min-h-[80px] border-r border-b border-border bg-muted/30"
+          />
           <div
             v-for="day in daysInMonth"
             :key="day"
@@ -65,12 +97,22 @@
             <span class="text-xs font-medium">{{ day }}</span>
             <!-- Moon phases -->
             <div v-if="moons.length" class="absolute top-0 right-1 flex gap-0.5">
-              <span v-for="m in moonPhases(day)" :key="m.name" :title="`${m.name}: ${m.label}`" class="text-[10px]">
+              <span
+                v-for="m in moonPhases(day)"
+                :key="m.name"
+                :title="`${m.name}: ${m.label}`"
+                class="text-[10px]"
+              >
                 {{ m.emoji }}
               </span>
             </div>
             <!-- Events -->
-            <div v-for="ev in eventsOnDay(day)" :key="ev.id" class="mt-1 text-[11px] px-1 rounded bg-primary/20 truncate" :title="ev.name">
+            <div
+              v-for="ev in eventsOnDay(day)"
+              :key="ev.id"
+              class="mt-1 text-[11px] px-1 rounded bg-primary/20 truncate"
+              :title="ev.name"
+            >
               {{ ev.name }}
             </div>
           </div>
@@ -99,17 +141,29 @@ const advanceDays = ref(1)
 
 const currentDate = computed(() => {
   if (calendar.value?.currentDate) return calendar.value.currentDate
-  return { year: calendar.value?.currentYear || 1, month: calendar.value?.currentMonth || 1, day: calendar.value?.currentDay || 1 }
+  return {
+    year: calendar.value?.currentYear || 1,
+    month: calendar.value?.currentMonth || 1,
+    day: calendar.value?.currentDay || 1,
+  }
 })
 
 const config = computed(() => {
   // The GET endpoint returns parsed `config` object, but also raw `configJson`
   if (calendar.value?.config) return calendar.value.config
   if (!calendar.value?.configJson) return null
-  try { return typeof calendar.value.configJson === 'string' ? JSON.parse(calendar.value.configJson) : calendar.value.configJson } catch { return null }
+  try {
+    return typeof calendar.value.configJson === 'string'
+      ? JSON.parse(calendar.value.configJson)
+      : calendar.value.configJson
+  } catch {
+    return null
+  }
 })
 
-const weekdays = computed(() => config.value?.weekdays || ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'])
+const weekdays = computed(
+  () => config.value?.weekdays || ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+)
 const moons = computed(() => calendar.value?.moons || [])
 
 const daysInMonth = computed(() => {
@@ -134,7 +188,12 @@ function monthName(m: number) {
 }
 
 function isCurrentDay(day: number) {
-  return calendar.value && viewYear.value === currentDate.value.year && viewMonth.value === currentDate.value.month && day === currentDate.value.day
+  return (
+    calendar.value &&
+    viewYear.value === currentDate.value.year &&
+    viewMonth.value === currentDate.value.month &&
+    day === currentDate.value.day
+  )
 }
 
 function seasonColor(day: number) {
@@ -143,9 +202,10 @@ function seasonColor(day: number) {
     const dateVal = viewMonth.value * 100 + day
     const startVal = s.startMonth * 100 + s.startDay
     const endVal = s.endMonth * 100 + s.endDay
-    const inSeason = startVal <= endVal
-      ? (dateVal >= startVal && dateVal <= endVal)
-      : (dateVal >= startVal || dateVal <= endVal)
+    const inSeason =
+      startVal <= endVal
+        ? dateVal >= startVal && dateVal <= endVal
+        : dateVal >= startVal || dateVal <= endVal
     if (inSeason) return s.color ? `bg-[${s.color}]/10` : ''
   }
   return ''
@@ -153,10 +213,29 @@ function seasonColor(day: number) {
 
 function moonPhases(day: number) {
   return moons.value.map((m: any) => {
-    const totalDays = (viewYear.value * (config.value?.yearLength || 360)) + dayOfYear(viewMonth.value, day)
+    const totalDays =
+      viewYear.value * (config.value?.yearLength || 360) + dayOfYear(viewMonth.value, day)
     const phase = ((totalDays + (m.phaseOffset || 0)) % (m.cycleDays || 28)) / (m.cycleDays || 28)
-    const emoji = phase < 0.125 ? '🌑' : phase < 0.375 ? '🌓' : phase < 0.625 ? '🌕' : phase < 0.875 ? '🌗' : '🌑'
-    const label = phase < 0.125 ? 'New' : phase < 0.375 ? 'Waxing' : phase < 0.625 ? 'Full' : phase < 0.875 ? 'Waning' : 'New'
+    const emoji =
+      phase < 0.125
+        ? '🌑'
+        : phase < 0.375
+          ? '🌓'
+          : phase < 0.625
+            ? '🌕'
+            : phase < 0.875
+              ? '🌗'
+              : '🌑'
+    const label =
+      phase < 0.125
+        ? 'New'
+        : phase < 0.375
+          ? 'Waxing'
+          : phase < 0.625
+            ? 'Full'
+            : phase < 0.875
+              ? 'Waning'
+              : 'New'
     return { name: m.name, emoji, label }
   })
 }
@@ -168,7 +247,7 @@ function dayOfYear(month: number, day: number) {
 }
 
 function eventsOnDay(day: number) {
-  return events.value.filter(e => e.date?.month === viewMonth.value && e.date?.day === day)
+  return events.value.filter((e) => e.date?.month === viewMonth.value && e.date?.day === day)
 }
 
 function prevMonth() {
@@ -205,7 +284,9 @@ async function load() {
     calendar.value = await api.getCalendar(calendarId)
     viewMonth.value = currentDate.value.month || 1
     viewYear.value = currentDate.value.year || 1
-    events.value = await api.getCalendarEvents(calendarId, { from_year: viewYear.value, to_year: viewYear.value }).catch(() => [])
+    events.value = await api
+      .getCalendarEvents(calendarId, { from_year: viewYear.value, to_year: viewYear.value })
+      .catch(() => [])
   })
 }
 

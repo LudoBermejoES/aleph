@@ -25,7 +25,9 @@ export default defineEventHandler(async (event) => {
   const body = await validateBody(event, connectionSchema)
   const db = useDb()
 
-  const entity = db.select().from(entities)
+  const entity = db
+    .select()
+    .from(entities)
     .where(and(eq(entities.campaignId, campaignId), eq(entities.slug, slug)))
     .get()
   if (!entity) throw createError({ statusCode: 404, message: 'Character not found' })
@@ -34,14 +36,16 @@ export default defineEventHandler(async (event) => {
   if (!character) throw createError({ statusCode: 404, message: 'Character data not found' })
 
   const id = randomUUID()
-  db.insert(characterConnections).values({
-    id,
-    characterId: character.id,
-    targetEntityId: body.targetEntityId,
-    label: body.label || null,
-    description: body.description || null,
-    sortOrder: body.sortOrder || 0,
-  }).run()
+  db.insert(characterConnections)
+    .values({
+      id,
+      characterId: character.id,
+      targetEntityId: body.targetEntityId,
+      label: body.label || null,
+      description: body.description || null,
+      sortOrder: body.sortOrder || 0,
+    })
+    .run()
 
   return { id }
 })

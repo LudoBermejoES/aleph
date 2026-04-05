@@ -72,11 +72,20 @@ describe('graphData shape helpers', () => {
   // Helpers that mirror what graphData computed does in the page
   function buildGraphNodes(
     center: { entityId: string; name: string; portraitUrl?: string | null },
-    relations: { relatedEntityId: string; relatedEntityName?: string; relatedEntityType?: string; image?: string | null }[],
+    relations: {
+      relatedEntityId: string
+      relatedEntityName?: string
+      relatedEntityType?: string
+      image?: string | null
+    }[],
     connections: { targetEntityId: string; targetEntityName?: string; targetEntityType?: string }[],
   ) {
     const nodes: Record<string, { name: string; type: string; image?: string | null }> = {}
-    nodes[center.entityId] = { name: center.name, type: 'character', image: center.portraitUrl ?? null }
+    nodes[center.entityId] = {
+      name: center.name,
+      type: 'character',
+      image: center.portraitUrl ?? null,
+    }
     for (const rel of relations) {
       nodes[rel.relatedEntityId] = {
         name: rel.relatedEntityName ?? rel.relatedEntityId,
@@ -102,7 +111,11 @@ describe('graphData shape helpers', () => {
   })
 
   it('includes portrait url on center node when available', () => {
-    const nodes = buildGraphNodes({ entityId: 'e1', name: 'Diana', portraitUrl: '/api/portrait/diana' }, [], [])
+    const nodes = buildGraphNodes(
+      { entityId: 'e1', name: 'Diana', portraitUrl: '/api/portrait/diana' },
+      [],
+      [],
+    )
     expect(nodes['e1'].image).toBe('/api/portrait/diana')
   })
 

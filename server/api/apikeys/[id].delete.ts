@@ -18,10 +18,7 @@ export default defineEventHandler(async (event) => {
 
   if (!key) throw createError({ statusCode: 404, message: 'Not found' })
 
-  db.update(apiKeyTable)
-    .set({ revokedAt: new Date() })
-    .where(eq(apiKeyTable.id, id))
-    .run()
+  db.update(apiKeyTable).set({ revokedAt: new Date() }).where(eq(apiKeyTable.id, id)).run()
 
   return { ok: true }
 })

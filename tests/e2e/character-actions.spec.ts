@@ -17,9 +17,13 @@ test.describe('Character Actions', () => {
     })
 
     // Duplicate
-    await apiFetch(page, `/api/campaigns/${campaignId}/characters/${(charRes as any).slug}/duplicate`, {
-      method: 'POST',
-    })
+    await apiFetch(
+      page,
+      `/api/campaigns/${campaignId}/characters/${(charRes as any).slug}/duplicate`,
+      {
+        method: 'POST',
+      },
+    )
 
     await page.click('aside >> text=Characters')
     await page.waitForLoadState('networkidle')
@@ -37,7 +41,13 @@ test.describe('Character Actions', () => {
     const charName = `Legolas ${uid()}`
     await apiFetch(page, `/api/campaigns/${campaignId}/characters`, {
       method: 'POST',
-      body: { name: charName, characterType: 'pc', race: 'Elf', class: 'Ranger', content: '# Legolas' },
+      body: {
+        name: charName,
+        characterType: 'pc',
+        race: 'Elf',
+        class: 'Ranger',
+        content: '# Legolas',
+      },
     })
 
     await page.click('aside >> text=Characters')

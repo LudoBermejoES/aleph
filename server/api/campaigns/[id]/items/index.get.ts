@@ -9,11 +9,11 @@ export default defineEventHandler(async (event) => {
 
   let results = db.select().from(items).where(eq(items.campaignId, campaignId)).all()
 
-  if (query.rarity) results = results.filter(i => i.rarity === query.rarity)
-  if (query.type) results = results.filter(i => i.type === query.type)
+  if (query.rarity) results = results.filter((i) => i.rarity === query.rarity)
+  if (query.type) results = results.filter((i) => i.type === query.type)
   if (query.search) {
     const s = (query.search as string).toLowerCase()
-    results = results.filter(i => i.name.toLowerCase().includes(s))
+    results = results.filter((i) => i.name.toLowerCase().includes(s))
   }
 
   return results

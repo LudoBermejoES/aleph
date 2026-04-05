@@ -14,7 +14,8 @@ export default defineEventHandler(async (event) => {
   const slug = getRouterParam(event, 'slug')!
   const db = useDb()
 
-  const org = db.select({ id: organizations.id })
+  const org = db
+    .select({ id: organizations.id })
     .from(organizations)
     .where(and(eq(organizations.campaignId, campaignId), eq(organizations.slug, slug)))
     .get()

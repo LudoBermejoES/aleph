@@ -7,9 +7,10 @@ export default defineNuxtPlugin(() => {
     onRequest({ options }) {
       const method = ((options.method as string) || 'GET').toUpperCase()
       if (mutating.has(method)) {
-        const existing = options.headers instanceof Headers
-          ? Object.fromEntries((options.headers as Headers).entries())
-          : (options.headers as Record<string, string> | undefined) ?? {}
+        const existing =
+          options.headers instanceof Headers
+            ? Object.fromEntries((options.headers as Headers).entries())
+            : ((options.headers as Record<string, string> | undefined) ?? {})
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         options.headers = { ...existing, ...csrfHeaders() } as any
       }

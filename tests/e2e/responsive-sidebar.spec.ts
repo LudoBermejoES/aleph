@@ -79,7 +79,9 @@ test.describe('Responsive Sidebar — desktop (1280px)', () => {
 test.describe('Responsive Characters — mobile (375px)', () => {
   test.use({ viewport: { width: 375, height: 812 } })
 
-  test('character page shows Folders button when NPC view is active and hides folder sidebar', async ({ page }) => {
+  test('character page shows Folders button when NPC view is active and hides folder sidebar', async ({
+    page,
+  }) => {
     await registerAndLogin(page, `CharMobile ${uid()}`)
     const path = await createCampaign(page, `CharMobile ${uid()}`)
     await page.goto(`${path}/characters`)
@@ -90,7 +92,9 @@ test.describe('Responsive Characters — mobile (375px)', () => {
     await page.waitForLoadState('networkidle')
 
     // Desktop folder sidebar should be hidden
-    await expect(page.locator('.hidden.md\\:block [data-testid="folder-sidebar"]')).not.toBeVisible()
+    await expect(
+      page.locator('.hidden.md\\:block [data-testid="folder-sidebar"]'),
+    ).not.toBeVisible()
   })
 })
 
@@ -104,7 +108,9 @@ test.describe('Responsive tables — mobile (375px)', () => {
     await page.waitForLoadState('networkidle')
 
     // The page itself should not have horizontal overflow
-    const bodyOverflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)
+    const bodyOverflow = await page.evaluate(
+      () => document.documentElement.scrollWidth > window.innerWidth,
+    )
     expect(bodyOverflow).toBe(false)
   })
 })

@@ -1,9 +1,13 @@
 <template>
   <div class="p-8 max-w-4xl">
     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary"> {{ $t('common.campaign') }}</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">
+        {{ $t('common.campaign') }}</NuxtLink
+      >
       <span>/</span>
-      <NuxtLink :to="`/campaigns/${campaignId}/organizations`" class="hover:text-primary">{{ $t('organizations.title') }}</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}/organizations`" class="hover:text-primary">{{
+        $t('organizations.title')
+      }}</NuxtLink>
       <span>/</span>
       <span>{{ org?.name }}</span>
     </div>
@@ -15,8 +19,12 @@
         <div>
           <h1 class="text-2xl font-bold">{{ org.name }}</h1>
           <div class="flex gap-2 mt-2">
-            <span class="text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground">{{ $t(`organizations.types.${org.type}`) }}</span>
-            <span class="text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground">{{ $t(`organizations.statuses.${org.status}`) }}</span>
+            <span class="text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground">{{
+              $t(`organizations.types.${org.type}`)
+            }}</span>
+            <span class="text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground">{{
+              $t(`organizations.statuses.${org.status}`)
+            }}</span>
           </div>
         </div>
         <NuxtLink :to="`/campaigns/${campaignId}/organizations/${slug}/edit`">
@@ -40,10 +48,15 @@
             :data-testid="`member-row-${member.characterId}`"
           >
             <div>
-              <NuxtLink :to="`/campaigns/${campaignId}/characters/${member.characterSlug}`" class="font-medium hover:underline">
+              <NuxtLink
+                :to="`/campaigns/${campaignId}/characters/${member.characterSlug}`"
+                class="font-medium hover:underline"
+              >
                 {{ member.characterName }}
               </NuxtLink>
-              <span v-if="member.role" class="text-sm text-muted-foreground ml-2">— {{ member.role }}</span>
+              <span v-if="member.role" class="text-sm text-muted-foreground ml-2"
+                >— {{ member.role }}</span
+              >
             </div>
             <Button variant="destructive" size="sm" @click="removeMember(member.characterId)">
               {{ $t('organizations.removeMember') }}
@@ -55,14 +68,23 @@
         <!-- Add member form -->
         <div class="flex gap-2 items-end">
           <div class="flex-1">
-            <label class="block text-xs font-medium mb-1">{{ $t('organizations.selectCharacter') }}</label>
-            <select v-model="newMemberId" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+            <label class="block text-xs font-medium mb-1">{{
+              $t('organizations.selectCharacter')
+            }}</label>
+            <select
+              v-model="newMemberId"
+              class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            >
               <option value="">{{ $t('organizations.selectCharacter') }}</option>
-              <option v-for="c in availableCharacters" :key="c.id" :value="c.id">{{ c.name }}</option>
+              <option v-for="c in availableCharacters" :key="c.id" :value="c.id">
+                {{ c.name }}
+              </option>
             </select>
           </div>
           <div class="w-48">
-            <label class="block text-xs font-medium mb-1">{{ $t('organizations.memberRole') }}</label>
+            <label class="block text-xs font-medium mb-1">{{
+              $t('organizations.memberRole')
+            }}</label>
             <input
               v-model="newMemberRole"
               type="text"
@@ -85,7 +107,8 @@
             :key="loc.id"
             :to="`/campaigns/${campaignId}/locations/${loc.slug}`"
             class="block p-2 rounded border border-border hover:bg-accent/30 text-sm font-medium"
-          >{{ loc.name }}</NuxtLink>
+            >{{ loc.name }}</NuxtLink
+          >
         </div>
         <p v-else class="text-sm text-muted-foreground">{{ $t('locations.noOrganizations') }}</p>
       </div>
@@ -112,19 +135,19 @@ const addingMember = ref(false)
 
 const availableCharacters = computed(() => {
   const memberIds = new Set(org.value?.members?.map((m: any) => m.characterId) ?? [])
-  return allCharacters.value.filter(c => !memberIds.has(c.id))
+  return allCharacters.value.filter((c) => !memberIds.has(c.id))
 })
 
 async function load() {
   await withLoading(async () => {
-  const [orgData, chars, locs] = await Promise.all([
-    api.getOrganization(slug),
-    api.getCharacters({}).catch(() => []),
-    api.getOrganizationLocations(slug).catch(() => []),
-  ])
-  org.value = orgData
-  allCharacters.value = chars
-  orgLocations.value = locs
+    const [orgData, chars, locs] = await Promise.all([
+      api.getOrganization(slug),
+      api.getCharacters({}).catch(() => []),
+      api.getOrganizationLocations(slug).catch(() => []),
+    ])
+    org.value = orgData
+    allCharacters.value = chars
+    orgLocations.value = locs
   })
 }
 
@@ -132,7 +155,10 @@ async function addMember() {
   if (!newMemberId.value) return
   addingMember.value = true
   try {
-    await api.addOrganizationMember(slug, { characterId: newMemberId.value, role: newMemberRole.value || undefined })
+    await api.addOrganizationMember(slug, {
+      characterId: newMemberId.value,
+      role: newMemberRole.value || undefined,
+    })
     newMemberId.value = ''
     newMemberRole.value = ''
     await load()

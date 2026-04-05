@@ -7,7 +7,7 @@ async function apiRaw(path: string, opts?: any) {
     ...opts,
     headers: {
       'Content-Type': 'application/json',
-      'Origin': BASE_URL,
+      Origin: BASE_URL,
       ...opts?.headers,
     },
     body: opts?.body ? JSON.stringify(opts.body) : undefined,

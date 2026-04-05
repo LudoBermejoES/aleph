@@ -6,7 +6,7 @@ const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 async function api(path: string, opts?: RequestInit & { body?: unknown }) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
-    headers: { 'Content-Type': 'application/json', 'Origin': BASE_URL, ...opts?.headers },
+    headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...opts?.headers },
     body: opts?.body !== undefined ? JSON.stringify(opts.body) : undefined,
   })
 }
@@ -28,7 +28,11 @@ async function signUpAndGetCookie(email: string, password = 'password123', name 
 async function createApiKey(cookie: string, name = 'test-key') {
   const csrfMatch = cookie.match(/csrf_token=([^;]+)/)
   const csrfToken = csrfMatch?.[1] || ''
-  const res = await api('/api/apikeys', { method: 'POST', headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken }, body: { name } })
+  const res = await api('/api/apikeys', {
+    method: 'POST',
+    headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
+    body: { name },
+  })
   return res.json()
 }
 
@@ -71,11 +75,14 @@ describe('Character Ability Delete (integration)', () => {
     characterSlug = character.slug
 
     // Create ability
-    const ability = await apiOk(`/api/campaigns/${campaignId}/characters/${characterSlug}/abilities`, {
-      method: 'POST',
-      headers: { 'X-API-Key': apiKey },
-      body: { name: 'Fireball', type: 'spell' },
-    })
+    const ability = await apiOk(
+      `/api/campaigns/${campaignId}/characters/${characterSlug}/abilities`,
+      {
+        method: 'POST',
+        headers: { 'X-API-Key': apiKey },
+        body: { name: 'Fireball', type: 'spell' },
+      },
+    )
     abilityId = ability.id
   })
 
@@ -92,9 +99,12 @@ describe('Character Ability Delete (integration)', () => {
   })
 
   it('GET abilities returns the created ability', async () => {
-    const abilities = await apiOk(`/api/campaigns/${campaignId}/characters/${characterSlug}/abilities`, {
-      headers: { 'X-API-Key': apiKey },
-    })
+    const abilities = await apiOk(
+      `/api/campaigns/${campaignId}/characters/${characterSlug}/abilities`,
+      {
+        headers: { 'X-API-Key': apiKey },
+      },
+    )
     expect(Array.isArray(abilities)).toBe(true)
     const found = abilities.find((a: any) => a.id === abilityId)
     expect(found).toBeDefined()
@@ -103,19 +113,25 @@ describe('Character Ability Delete (integration)', () => {
   })
 
   it('DELETE ability returns 200', async () => {
-    const res = await api(`/api/campaigns/${campaignId}/characters/${characterSlug}/abilities/${abilityId}`, {
-      method: 'DELETE',
-      headers: { 'X-API-Key': apiKey },
-    })
+    const res = await api(
+      `/api/campaigns/${campaignId}/characters/${characterSlug}/abilities/${abilityId}`,
+      {
+        method: 'DELETE',
+        headers: { 'X-API-Key': apiKey },
+      },
+    )
     expect(res.status).toBe(200)
     const data = await res.json()
     expect(data.success).toBe(true)
   })
 
   it('GET abilities after delete does not contain deleted ability', async () => {
-    const abilities = await apiOk(`/api/campaigns/${campaignId}/characters/${characterSlug}/abilities`, {
-      headers: { 'X-API-Key': apiKey },
-    })
+    const abilities = await apiOk(
+      `/api/campaigns/${campaignId}/characters/${characterSlug}/abilities`,
+      {
+        headers: { 'X-API-Key': apiKey },
+      },
+    )
     expect(Array.isArray(abilities)).toBe(true)
     const found = abilities.find((a: any) => a.id === abilityId)
     expect(found).toBeUndefined()
@@ -147,11 +163,14 @@ describe('Character Ability Delete (integration)', () => {
     })
 
     // Create another ability to attempt deletion
-    const ability = await apiOk(`/api/campaigns/${campaignId}/characters/${characterSlug}/abilities`, {
-      method: 'POST',
-      headers: { 'X-API-Key': apiKey },
-      body: { name: 'Protected Ability', type: 'custom' },
-    })
+    const ability = await apiOk(
+      `/api/campaigns/${campaignId}/characters/${characterSlug}/abilities`,
+      {
+        method: 'POST',
+        headers: { 'X-API-Key': apiKey },
+        body: { name: 'Protected Ability', type: 'custom' },
+      },
+    )
 
     const res = await api(
       `/api/campaigns/${campaignId}/characters/${characterSlug}/abilities/${ability.id}`,

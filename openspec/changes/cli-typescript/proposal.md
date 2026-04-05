@@ -3,6 +3,7 @@
 ## Problem
 
 The `cli/` directory is currently plain JavaScript (ESM). As the CLI grows (29 commands, ~15 source files), the lack of types makes it harder to:
+
 - Catch mistakes (wrong option names, wrong API body shape) at compile time rather than at runtime
 - Refactor confidently (renaming fields across commands, changing client function signatures)
 - Document intent (what does `opts` contain? what shape does the API return?)
@@ -10,6 +11,7 @@ The `cli/` directory is currently plain JavaScript (ESM). As the CLI grows (29 c
 ## What We're Changing
 
 Convert all CLI source files from `.js` to `.ts`:
+
 - `cli/src/lib/config.js` → `config.ts` (add `AlephConfig` interface)
 - `cli/src/lib/client.js` → `client.ts` (add generic typed request helpers)
 - `cli/src/lib/output.js` → `output.ts` (add typed `print()` and `success()`)
@@ -17,6 +19,7 @@ Convert all CLI source files from `.js` to `.ts`:
 - `cli/src/index.js` → `index.ts`
 
 Add TypeScript build tooling:
+
 - `typescript` + `@types/node` as devDependencies
 - `tsconfig.json` with `NodeNext` module resolution, `outDir: dist`
 - `build` script (`tsc`) and `dev` script (`tsx src/index.ts`)

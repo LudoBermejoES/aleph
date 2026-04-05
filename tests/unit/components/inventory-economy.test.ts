@@ -24,7 +24,7 @@ function groupByPosition(
   positions: string[],
 ): Record<string, typeof items> {
   return positions.reduce((acc: Record<string, typeof items>, pos) => {
-    acc[pos] = items.filter(i => i.position === pos)
+    acc[pos] = items.filter((i) => i.position === pos)
     return acc
   }, {})
 }
@@ -35,7 +35,7 @@ function canTransferItem(
   quantity: number,
   targetInventoryId: string,
 ): boolean {
-  const item = items.find(i => i.itemId === selectedItemId)
+  const item = items.find((i) => i.itemId === selectedItemId)
   if (!item) return false
   if (!targetInventoryId) return false
   if (quantity < 1) return false
@@ -115,9 +115,9 @@ describe('ItemTransferDialog component logic (9.15)', () => {
       { id: 'inv-3', name: 'Party', ownerType: 'party' },
     ]
     const fromInventoryId = 'inv-1'
-    const targets = allInventories.filter(i => i.id !== fromInventoryId)
+    const targets = allInventories.filter((i) => i.id !== fromInventoryId)
     expect(targets).toHaveLength(2)
-    expect(targets.map(t => t.id)).not.toContain('inv-1')
+    expect(targets.map((t) => t.id)).not.toContain('inv-1')
   })
 
   it('items are grouped by position in inventory panel', () => {

@@ -8,7 +8,8 @@ import type { CampaignRole } from '../../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
   const role = event.context.campaignRole as CampaignRole
-  if (!hasMinRole(role, 'dm')) throw createError({ statusCode: 403, message: 'Only DM can update calendars' })
+  if (!hasMinRole(role, 'dm'))
+    throw createError({ statusCode: 403, message: 'Only DM can update calendars' })
 
   const calendarId = getRouterParam(event, 'calendarId')!
   const calendarPutSchema = z.object({

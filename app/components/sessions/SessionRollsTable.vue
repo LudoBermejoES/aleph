@@ -2,7 +2,10 @@
   <div class="mb-6">
     <button class="flex items-center gap-2 w-full text-left" @click="$emit('toggle')">
       <h2 class="text-lg font-semibold">{{ $t('sessions.rolls') }}</h2>
-      <component :is="open ? ICONS.chevronUp : ICONS.chevronDown" class="w-4 h-4 text-muted-foreground" />
+      <component
+        :is="open ? ICONS.chevronUp : ICONS.chevronDown"
+        class="w-4 h-4 text-muted-foreground"
+      />
     </button>
     <div v-if="open" class="mt-3">
       <div v-if="loading" class="text-sm text-muted-foreground">{{ $t('common.loading') }}</div>
@@ -21,7 +24,9 @@
               <td class="py-1.5 pr-3">{{ r.userName }}</td>
               <td class="py-1.5 pr-3 font-mono">{{ r.formula }}</td>
               <td class="py-1.5 pr-3 text-right font-bold">{{ r.total }}</td>
-              <td class="py-1.5 text-right text-muted-foreground">{{ new Date(r.createdAt).toLocaleTimeString() }}</td>
+              <td class="py-1.5 text-right text-muted-foreground">
+                {{ new Date(r.createdAt).toLocaleTimeString() }}
+              </td>
             </tr>
           </tbody>
         </table>

@@ -14,7 +14,11 @@ export default defineEventHandler(async (event) => {
   const currencyId = getRouterParam(event, 'currencyId')!
   const db = useDb()
 
-  const currency = db.select().from(currencies).where(and(eq(currencies.campaignId, campaignId), eq(currencies.id, currencyId))).get()
+  const currency = db
+    .select()
+    .from(currencies)
+    .where(and(eq(currencies.campaignId, campaignId), eq(currencies.id, currencyId)))
+    .get()
   if (!currency) throw createError({ statusCode: 404, message: 'Currency not found' })
 
   db.delete(wealth).where(eq(wealth.currencyId, currency.id)).run()

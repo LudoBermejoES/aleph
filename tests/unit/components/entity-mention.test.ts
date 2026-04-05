@@ -19,7 +19,7 @@ describe('Entity mention autocomplete logic', () => {
 
   function filterEntities(query: string) {
     if (!query || query.length < 1) return []
-    return entities.filter(e => e.name.toLowerCase().includes(query.toLowerCase()))
+    return entities.filter((e) => e.name.toLowerCase().includes(query.toLowerCase()))
   }
 
   it('filters entities by query', () => {
@@ -52,13 +52,15 @@ describe('Entity-link markdown rendering', () => {
   }
 
   it('renders entity-link MDC syntax with slug only', () => {
-    expect(renderEntityMention('strahd-von-zarovich'))
-      .toBe(':entity-link{slug="strahd-von-zarovich"}')
+    expect(renderEntityMention('strahd-von-zarovich')).toBe(
+      ':entity-link{slug="strahd-von-zarovich"}',
+    )
   })
 
   it('renders entity-link MDC syntax with slug and label', () => {
-    expect(renderEntityMention('strahd-von-zarovich', 'Strahd'))
-      .toBe(':entity-link{slug="strahd-von-zarovich" label="Strahd"}')
+    expect(renderEntityMention('strahd-von-zarovich', 'Strahd')).toBe(
+      ':entity-link{slug="strahd-von-zarovich" label="Strahd"}',
+    )
   })
 })
 
@@ -87,7 +89,10 @@ describe('Suggestion list behavior', () => {
   })
 
   it('enter selects current item', () => {
-    const items = [{ id: '1', name: 'Strahd' }, { id: '2', name: 'Barovia' }]
+    const items = [
+      { id: '1', name: 'Strahd' },
+      { id: '2', name: 'Barovia' },
+    ]
     const selected = 1
     expect(items[selected].name).toBe('Barovia')
   })

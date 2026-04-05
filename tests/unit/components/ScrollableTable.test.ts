@@ -2,7 +2,10 @@ import { describe, it, expect } from 'vitest'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
 
-const source = readFileSync(resolve(__dirname, '../../../app/components/ui/ScrollableTable.vue'), 'utf-8')
+const source = readFileSync(
+  resolve(__dirname, '../../../app/components/ui/ScrollableTable.vue'),
+  'utf-8',
+)
 
 describe('ScrollableTable', () => {
   it('wraps slot content in an overflow-x-auto container', () => {

@@ -42,26 +42,30 @@ export default defineEventHandler(async (event) => {
     name: body.name,
     aliases: [] as string[],
     tags: body.tags || [],
-    visibility: body.isSecret ? 'dm_only' as const : 'members' as const,
+    visibility: body.isSecret ? ('dm_only' as const) : ('members' as const),
     fields: { status: body.status || 'active' },
   }
   await writeEntityFile(logPath, frontmatter, body.content || `# ${body.name}\n\nQuest details...`)
 
-  db.insert(quests).values({
-    id,
-    campaignId,
-    name: body.name,
-    slug,
-    description: body.description || null,
-    status: body.status || 'active',
-    parentQuestId: body.parentQuestId || null,
-    entityId: body.entityId || null,
-    isSecret: body.isSecret || false,
-    assignedCharacterIdsJson: body.assignedCharacterIds ? JSON.stringify(body.assignedCharacterIds) : null,
-    logFilePath: logPath,
-    createdAt: now,
-    updatedAt: now,
-  }).run()
+  db.insert(quests)
+    .values({
+      id,
+      campaignId,
+      name: body.name,
+      slug,
+      description: body.description || null,
+      status: body.status || 'active',
+      parentQuestId: body.parentQuestId || null,
+      entityId: body.entityId || null,
+      isSecret: body.isSecret || false,
+      assignedCharacterIdsJson: body.assignedCharacterIds
+        ? JSON.stringify(body.assignedCharacterIds)
+        : null,
+      logFilePath: logPath,
+      createdAt: now,
+      updatedAt: now,
+    })
+    .run()
 
   return { id, slug, name: body.name, status: body.status || 'active' }
 })

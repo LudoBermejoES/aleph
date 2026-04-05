@@ -1,15 +1,28 @@
 <template>
   <div class="p-8 max-w-3xl">
     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary"> {{ $t('common.campaign') }}</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">
+        {{ $t('common.campaign') }}</NuxtLink
+      >
       <span>/</span>
-      <NuxtLink :to="`/campaigns/${campaignId}/characters`" class="hover:text-primary">{{ $t('characters.title') }}</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}/characters`" class="hover:text-primary">{{
+        $t('characters.title')
+      }}</NuxtLink>
       <span>/</span><span>{{ $t('characters.new') }}</span>
     </div>
     <h1 class="text-2xl font-bold mb-6">{{ $t('characters.new') }}</h1>
-    <CharacterForm ref="charForm" v-model="form" :campaign-id="campaignId" :submit-label="$t('common.create')" :submitting="submitting" @submit="create">
+    <CharacterForm
+      ref="charForm"
+      v-model="form"
+      :campaign-id="campaignId"
+      :submit-label="$t('common.create')"
+      :submitting="submitting"
+      @submit="create"
+    >
       <template #cancel>
-        <NuxtLink :to="`/campaigns/${campaignId}/characters`"><Button variant="outline">{{ $t('common.cancel') }}</Button></NuxtLink>
+        <NuxtLink :to="`/campaigns/${campaignId}/characters`"
+          ><Button variant="outline">{{ $t('common.cancel') }}</Button></NuxtLink
+        >
       </template>
     </CharacterForm>
   </div>
@@ -22,8 +35,16 @@ const campaignId = route.params.id as string
 const submitting = ref(false)
 const { t } = useI18n()
 const form = ref({
-  name: '', characterType: 'npc', race: '', class: '', alignment: '',
-  status: 'alive', visibility: 'members', content: '', ownerUserId: '', locationId: '',
+  name: '',
+  characterType: 'npc',
+  race: '',
+  class: '',
+  alignment: '',
+  status: 'alive',
+  visibility: 'members',
+  content: '',
+  ownerUserId: '',
+  locationId: '',
 })
 
 const api = useCampaignApi(campaignId)

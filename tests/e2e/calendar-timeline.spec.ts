@@ -16,12 +16,16 @@ test.describe('Calendar & Timeline E2E', () => {
         name: 'Harptos Calendar',
         configJson: JSON.stringify({
           months: [
-            { name: 'Hammer', days: 30 }, { name: 'Alturiak', days: 30 },
-            { name: 'Ches', days: 30 }, { name: 'Tarsakh', days: 30 },
+            { name: 'Hammer', days: 30 },
+            { name: 'Alturiak', days: 30 },
+            { name: 'Ches', days: 30 },
+            { name: 'Tarsakh', days: 30 },
           ],
           yearLength: 120,
         }),
-        currentYear: 1492, currentMonth: 1, currentDay: 1,
+        currentYear: 1492,
+        currentMonth: 1,
+        currentDay: 1,
       },
     })
 
@@ -41,17 +45,22 @@ test.describe('Calendar & Timeline E2E', () => {
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
 
     // Create calendar + event via API
-    const calRes = await apiFetch(page, `/api/campaigns/${campaignId}/calendars`, {
+    const calRes = (await apiFetch(page, `/api/campaigns/${campaignId}/calendars`, {
       method: 'POST',
       body: {
         name: 'Grid Calendar',
         configJson: JSON.stringify({
-          months: [{ name: 'Hammer', days: 30 }, { name: 'Alturiak', days: 30 }],
+          months: [
+            { name: 'Hammer', days: 30 },
+            { name: 'Alturiak', days: 30 },
+          ],
           yearLength: 60,
         }),
-        currentYear: 1492, currentMonth: 1, currentDay: 15,
+        currentYear: 1492,
+        currentMonth: 1,
+        currentDay: 15,
       },
-    }) as any
+    })) as any
 
     await apiFetch(page, `/api/campaigns/${campaignId}/calendars/${calRes.id}/events`, {
       method: 'POST',
@@ -74,14 +83,18 @@ test.describe('Calendar & Timeline E2E', () => {
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
 
     // Create timeline + event via API
-    const tlRes = await apiFetch(page, `/api/campaigns/${campaignId}/timelines`, {
+    const tlRes = (await apiFetch(page, `/api/campaigns/${campaignId}/timelines`, {
       method: 'POST',
       body: { name: 'Campaign Arc 1' },
-    }) as any
+    })) as any
 
     await apiFetch(page, `/api/campaigns/${campaignId}/timelines/${tlRes.slug}/events`, {
       method: 'POST',
-      body: { name: 'Arrival in Barovia', date: { year: 1492, month: 3, day: 1 }, description: 'The party crossed the mists.' },
+      body: {
+        name: 'Arrival in Barovia',
+        date: { year: 1492, month: 3, day: 1 },
+        description: 'The party crossed the mists.',
+      },
     })
 
     // Navigate to timeline
@@ -99,10 +112,10 @@ test.describe('Calendar & Timeline E2E', () => {
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
 
     // Create timeline via API
-    const tlRes = await apiFetch(page, `/api/campaigns/${campaignId}/timelines`, {
+    const tlRes = (await apiFetch(page, `/api/campaigns/${campaignId}/timelines`, {
       method: 'POST',
       body: { name: 'Test Timeline' },
-    }) as any
+    })) as any
 
     // Navigate to timeline detail
     await page.goto(`${BASE}/campaigns/${campaignId}/timelines/${tlRes.slug}`)
@@ -116,20 +129,30 @@ test.describe('Calendar & Timeline E2E', () => {
     await expect(page.locator('[data-testid="add-event-form"]')).toBeVisible()
 
     // Fill in event details
-    await page.locator('[data-testid="add-event-form"] input[placeholder*="Event Name"], [data-testid="add-event-form"] input[placeholder*="Battle"]').fill('Fall of Strahd')
-    await page.locator('[data-testid="add-event-form"] input[placeholder*="description"]').fill('The vampire was finally defeated.')
+    await page
+      .locator(
+        '[data-testid="add-event-form"] input[placeholder*="Event Name"], [data-testid="add-event-form"] input[placeholder*="Battle"]',
+      )
+      .fill('Fall of Strahd')
+    await page
+      .locator('[data-testid="add-event-form"] input[placeholder*="description"]')
+      .fill('The vampire was finally defeated.')
     const numInputs = page.locator('[data-testid="add-event-form"] input[type="number"]')
     await numInputs.nth(0).fill('1492') // year
-    await numInputs.nth(1).fill('3')    // month
-    await numInputs.nth(2).fill('15')   // day
+    await numInputs.nth(1).fill('3') // month
+    await numInputs.nth(2).fill('15') // day
 
     // Submit
     await page.locator('[data-testid="add-event-form"] button[type="submit"]').click()
 
     // Form closes and event appears in chronicle
     await expect(page.locator('[data-testid="add-event-form"]')).toBeHidden({ timeout: 5000 })
-    await expect(page.locator('[data-testid="chronicle-view"]')).toContainText('Fall of Strahd', { timeout: 5000 })
-    await expect(page.locator('[data-testid="chronicle-view"]')).toContainText('The vampire was finally defeated.')
+    await expect(page.locator('[data-testid="chronicle-view"]')).toContainText('Fall of Strahd', {
+      timeout: 5000,
+    })
+    await expect(page.locator('[data-testid="chronicle-view"]')).toContainText(
+      'The vampire was finally defeated.',
+    )
   })
 
   test('advance campaign date via UI (9.16)', async ({ page }) => {
@@ -138,17 +161,22 @@ test.describe('Calendar & Timeline E2E', () => {
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
 
     // Create calendar via API
-    const calRes = await apiFetch(page, `/api/campaigns/${campaignId}/calendars`, {
+    const calRes = (await apiFetch(page, `/api/campaigns/${campaignId}/calendars`, {
       method: 'POST',
       body: {
         name: 'Advance Test Cal',
         configJson: JSON.stringify({
-          months: [{ name: 'Hammer', days: 30 }, { name: 'Alturiak', days: 30 }],
+          months: [
+            { name: 'Hammer', days: 30 },
+            { name: 'Alturiak', days: 30 },
+          ],
           yearLength: 60,
         }),
-        currentYear: 1492, currentMonth: 1, currentDay: 1,
+        currentYear: 1492,
+        currentMonth: 1,
+        currentDay: 1,
       },
-    }) as any
+    })) as any
 
     // Navigate to calendar detail
     await page.goto(`${BASE}/campaigns/${campaignId}/calendars/${calRes.id}`)

@@ -17,7 +17,8 @@ export default defineEventHandler(async (event) => {
   const slug = getRouterParam(event, 'slug')!
   const db = useDb()
 
-  const org = db.select()
+  const org = db
+    .select()
     .from(organizations)
     .where(and(eq(organizations.campaignId, campaignId), eq(organizations.slug, slug)))
     .get()
@@ -38,16 +39,22 @@ export default defineEventHandler(async (event) => {
   let newSlug = org.slug
   if (name && name.trim() !== org.name) {
     newSlug = slugify(name)
-    const collision = db.select({ id: organizations.id })
+    const collision = db
+      .select({ id: organizations.id })
       .from(organizations)
-      .where(and(
-        eq(organizations.campaignId, campaignId),
-        eq(organizations.slug, newSlug),
-        ne(organizations.id, org.id),
-      ))
+      .where(
+        and(
+          eq(organizations.campaignId, campaignId),
+          eq(organizations.slug, newSlug),
+          ne(organizations.id, org.id),
+        ),
+      )
       .get()
     if (collision) {
-      throw createError({ statusCode: 409, message: 'An organization with this name already exists in this campaign' })
+      throw createError({
+        statusCode: 409,
+        message: 'An organization with this name already exists in this campaign',
+      })
     }
   }
 

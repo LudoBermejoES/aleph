@@ -21,7 +21,9 @@ test.describe('Entity Deletion', () => {
     await expect(page.locator(`main >> text=${entityName}`)).toBeVisible({ timeout: 10000 })
 
     // Delete via API (DM has permission)
-    await apiFetch(page, `/api/campaigns/${campaignId}/entities/${(createRes as any).slug}`, { method: 'DELETE' })
+    await apiFetch(page, `/api/campaigns/${campaignId}/entities/${(createRes as any).slug}`, {
+      method: 'DELETE',
+    })
 
     // Refresh and verify gone
     await page.reload()

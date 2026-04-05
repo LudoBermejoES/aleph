@@ -17,10 +17,12 @@ These issues compound: a campaign with 200 characters, 150 locations, and 100 en
 ## Capabilities
 
 ### New Capabilities
+
 - `paginated-lists`: All list endpoints support pagination via `?page=N&pageSize=N` or cursor-based parameters, returning total count and page metadata
 - `http-caching`: List and detail endpoints return ETag / Last-Modified headers; clients can use conditional requests to avoid re-fetching unchanged data
 
 ### Modified Capabilities
+
 - `character-list`: Rewrites query to use LEFT JOINs for location and organization data instead of per-row subqueries
 - `location-list`: Replaces in-memory aggregation with SQL COUNT subqueries and removes filesystem reads for subtype resolution
 - `search`: Replaces per-result visibility and enrichment queries with a single pre-filtered JOIN query

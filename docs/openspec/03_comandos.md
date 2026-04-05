@@ -18,11 +18,13 @@ Crea un change y genera todos los artifacts de planificación en un solo paso.
 ```
 
 **Qué hace:**
+
 - Crea `openspec/changes/<nombre>/`
 - Genera: `proposal.md`, `specs/`, `design.md`, `tasks.md`
 - Se detiene cuando el change está listo para `/opsx:apply`
 
 **Ejemplos:**
+
 ```
 /opsx:propose add-quest-objectives
 /opsx:propose add dark mode to the app
@@ -40,6 +42,7 @@ Piensa en ideas e investiga problemas antes de comprometerte con un change.
 ```
 
 **Qué hace:**
+
 - Abre una conversación exploratoria sin estructura forzada
 - Puede leer archivos y buscar en el codebase
 - Compara opciones y enfoques
@@ -60,12 +63,14 @@ Implementa las tareas del change. Trabaja el `tasks.md` uno a uno.
 ```
 
 **Qué hace:**
+
 - Lee `tasks.md` e identifica tareas incompletas (`[ ]`)
 - Implementa código, crea archivos, ejecuta tests según necesario
 - Marca las tareas completadas con `[x]`
 - Puede retomarse donde se quedó si se interrumpe
 
 **Con varios changes activos:**
+
 ```
 /opsx:apply add-quest-objectives    ← especifica cuál
 /opsx:apply                         ← infiere del contexto
@@ -82,12 +87,14 @@ Archiva un change completado.
 ```
 
 **Qué hace:**
+
 1. Verifica que los artifacts existen
 2. Avisa si hay tareas incompletas (pero no bloquea)
 3. Ofrece sincronizar delta specs si aún no se hizo
 4. Mueve la carpeta a `openspec/changes/archive/YYYY-MM-DD-<nombre>/`
 
 **Ejemplo:**
+
 ```
 Tú: /opsx:archive
 
@@ -111,6 +118,7 @@ AI:  ✓ Synced specs to openspec/specs/quests/spec.md
 ## Workflow Expandido
 
 Para activar estos comandos:
+
 ```bash
 openspec config profile   # seleccionar "custom" workflow
 openspec update
@@ -125,6 +133,7 @@ Crea el scaffold del change (solo la carpeta y metadatos). Sin generar artifacts
 ```
 
 **Qué crea:**
+
 ```
 openspec/changes/<nombre>/
 └── .openspec.yaml    ← metadatos (schema, fecha creación)
@@ -143,12 +152,14 @@ Crea el siguiente artifact disponible según las dependencias.
 ```
 
 **Qué hace:**
+
 - Consulta el grafo de dependencias
 - Muestra qué artifacts están listos vs. bloqueados
 - Crea el primero disponible
 - Muestra qué se desbloquea después
 
 **Ejemplo:**
+
 ```
 Tú: /opsx:continue
 
@@ -178,6 +189,7 @@ Fast-forward: crea todos los artifacts de planificación de golpe.
 ```
 
 **Qué hace:**
+
 - Crea todos los artifacts en orden de dependencias
 - Hace tracking del progreso
 - Para cuando todos los artifacts requeridos para `/opsx:apply` están completos
@@ -194,13 +206,14 @@ Valida que la implementación coincide con los artifacts del change.
 
 **Tres dimensiones de verificación:**
 
-| Dimensión | Qué valida |
-|-----------|------------|
+| Dimensión        | Qué valida                                                                        |
+| ---------------- | --------------------------------------------------------------------------------- |
 | **Completeness** | Todas las tareas hechas, todos los requisitos implementados, escenarios cubiertos |
-| **Correctness** | La implementación coincide con el intent de los specs, edge cases manejados |
-| **Coherence** | Las decisiones de diseño reflejadas en el código, patrones consistentes |
+| **Correctness**  | La implementación coincide con el intent de los specs, edge cases manejados       |
+| **Coherence**    | Las decisiones de diseño reflejadas en el código, patrones consistentes           |
 
 **Ejemplo de output:**
+
 ```
 COMPLETENESS
 ✓ All 8 tasks in tasks.md are checked
@@ -234,6 +247,7 @@ Fusiona los delta specs del change en los specs principales (sin archivar el cha
 ```
 
 **Cuándo usarlo manualmente:**
+
 - Change largo donde quieres los specs actualizados antes de terminar
 - Varios changes paralelos que necesitan la base de specs actualizada
 
@@ -250,6 +264,7 @@ Archiva múltiples changes completados de una vez.
 ```
 
 **Qué hace:**
+
 - Lista todos los changes completados
 - Detecta conflictos de specs entre changes
 - Resuelve conflictos inspeccionando el codebase
@@ -271,11 +286,11 @@ Tutorial guiado del workflow completo usando tu codebase real.
 
 ## Comandos legacy (compatibles pero no recomendados)
 
-| Comando | Equivalente moderno |
-|---------|---------------------|
-| `/openspec:proposal` | `/opsx:propose` |
-| `/openspec:apply` | `/opsx:apply` |
-| `/openspec:archive` | `/opsx:archive` |
+| Comando              | Equivalente moderno |
+| -------------------- | ------------------- |
+| `/openspec:proposal` | `/opsx:propose`     |
+| `/openspec:apply`    | `/opsx:apply`       |
+| `/openspec:archive`  | `/opsx:archive`     |
 
 Los changes creados con comandos legacy son compatibles con los comandos `/opsx:*`.
 
@@ -284,16 +299,19 @@ Los changes creados con comandos legacy son compatibles con los comandos `/opsx:
 ## Troubleshooting
 
 ### "Change not found"
+
 - Especifica el nombre: `/opsx:apply add-quest-objectives`
 - Verifica: `openspec list`
 
 ### Los comandos no se reconocen
+
 - Verifica que OpenSpec está inicializado: `openspec init`
 - Regenera skills: `openspec update`
 - Verifica que existe `.claude/skills/` en el proyecto
 - Reinicia Claude Code
 
 ### Los artifacts se generan incorrectos o incompletos
+
 - Añade contexto del proyecto en `openspec/config.yaml`
 - Usa `/opsx:continue` en vez de `/opsx:ff` para más control
 - Da más detalle en la descripción del change

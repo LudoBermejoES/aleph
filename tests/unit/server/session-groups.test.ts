@@ -7,7 +7,7 @@ describe('session group slug generation', () => {
   })
 
   it('handles special characters', () => {
-    expect(slugify('The Dragon\'s Den!')).toMatch(/^the-dragon/)
+    expect(slugify("The Dragon's Den!")).toMatch(/^the-dragon/)
   })
 
   it('handles all-lowercase input', () => {

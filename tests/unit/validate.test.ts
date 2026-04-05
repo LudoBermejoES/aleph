@@ -12,7 +12,8 @@ const mockReadBody = vi.fn()
 
 vi.mock('h3', () => ({
   readBody: (...args: unknown[]) => mockReadBody(...args),
-  createError: (...args: unknown[]) => mockCreateError(...args as [{ statusCode: number; message: string; data?: unknown }]),
+  createError: (...args: unknown[]) =>
+    mockCreateError(...(args as [{ statusCode: number; message: string; data?: unknown }])),
 }))
 
 const { validateBody } = await import('../../server/utils/validate')
@@ -31,20 +32,20 @@ describe('validateBody', () => {
 
   it('throws 422 for missing required field', async () => {
     mockReadBody.mockResolvedValueOnce({ age: 30 })
-    const err = await validateBody({} as never, schema).catch(e => e)
+    const err = await validateBody({} as never, schema).catch((e) => e)
     expect(err.statusCode).toBe(422)
     expect(err.message).toBe('Validation failed')
   })
 
   it('throws 422 for wrong type', async () => {
     mockReadBody.mockResolvedValueOnce({ name: 42 })
-    const err = await validateBody({} as never, schema).catch(e => e)
+    const err = await validateBody({} as never, schema).catch((e) => e)
     expect(err.statusCode).toBe(422)
   })
 
   it('throws 422 for null body', async () => {
     mockReadBody.mockResolvedValueOnce(null)
-    const err = await validateBody({} as never, schema).catch(e => e)
+    const err = await validateBody({} as never, schema).catch((e) => e)
     expect(err.statusCode).toBe(422)
   })
 

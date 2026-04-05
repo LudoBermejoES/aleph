@@ -26,13 +26,15 @@ export default defineEventHandler(async (event) => {
   if (!decision) throw createError({ statusCode: 404, message: 'Decision not found' })
 
   const id = randomUUID()
-  db.insert(consequences).values({
-    id,
-    decisionId,
-    description: body.description,
-    entityId: body.entityId || null,
-    revealed: body.revealed || false,
-  }).run()
+  db.insert(consequences)
+    .values({
+      id,
+      decisionId,
+      description: body.description,
+      entityId: body.entityId || null,
+      revealed: body.revealed || false,
+    })
+    .run()
 
   return { id, description: body.description, revealed: body.revealed || false }
 })

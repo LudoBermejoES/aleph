@@ -5,7 +5,7 @@ const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 async function api(path: string, opts?: any) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
-    headers: { 'Content-Type': 'application/json', 'Origin': BASE_URL, ...opts?.headers },
+    headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...opts?.headers },
     body: opts?.body ? JSON.stringify(opts.body) : undefined,
   })
 }
@@ -29,19 +29,30 @@ describe('Session CRUD (integration)', () => {
   let sessionSlug = ''
 
   beforeAll(async () => {
-    await api('/api/auth/sign-up/email', { method: 'POST', body: { name: 'Session Tester', email, password: 'password123' } })
-    const login = await api('/api/auth/sign-in/email', { method: 'POST', body: { email, password: 'password123' } })
+    await api('/api/auth/sign-up/email', {
+      method: 'POST',
+      body: { name: 'Session Tester', email, password: 'password123' },
+    })
+    const login = await api('/api/auth/sign-in/email', {
+      method: 'POST',
+      body: { email, password: 'password123' },
+    })
     const cookies = login.headers.get('set-cookie') || ''
     const match = cookies.match(/better-auth\.session_token=([^;]+)/)
     cookie = match ? `better-auth.session_token=${match[1]}` : ''
     csrfToken = await getCsrfToken(cookie)
-    const camp = await api('/api/campaigns', { method: 'POST', headers: withCsrf(cookie, csrfToken), body: { name: `Sess Test ${Date.now()}` } })
+    const camp = await api('/api/campaigns', {
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
+      body: { name: `Sess Test ${Date.now()}` },
+    })
     campaignId = (await camp.json()).id
   })
 
   it('POST creates session with auto-increment number', async () => {
     const res = await api(`/api/campaigns/${campaignId}/sessions`, {
-      method: 'POST', headers: withCsrf(cookie, csrfToken),
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
       body: { title: 'The Beginning' },
     })
     expect(res.status).toBe(200)
@@ -53,7 +64,8 @@ describe('Session CRUD (integration)', () => {
 
   it('second session gets number 2', async () => {
     const res = await api(`/api/campaigns/${campaignId}/sessions`, {
-      method: 'POST', headers: withCsrf(cookie, csrfToken),
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
       body: { title: 'Into the Dark' },
     })
     const data = await res.json()
@@ -62,7 +74,8 @@ describe('Session CRUD (integration)', () => {
 
   it('GET session detail includes attendance and log', async () => {
     const res = await api(`/api/campaigns/${campaignId}/sessions/${sessionSlug}`, {
-      method: 'GET', headers: { Cookie: cookie },
+      method: 'GET',
+      headers: { Cookie: cookie },
     })
     expect(res.status).toBe(200)
     const data = await res.json()
@@ -73,13 +86,15 @@ describe('Session CRUD (integration)', () => {
 
   it('PUT updates session status', async () => {
     const res = await api(`/api/campaigns/${campaignId}/sessions/${sessionSlug}`, {
-      method: 'PUT', headers: withCsrf(cookie, csrfToken),
+      method: 'PUT',
+      headers: withCsrf(cookie, csrfToken),
       body: { status: 'active' },
     })
     expect(res.status).toBe(200)
 
     const get = await api(`/api/campaigns/${campaignId}/sessions/${sessionSlug}`, {
-      method: 'GET', headers: { Cookie: cookie },
+      method: 'GET',
+      headers: { Cookie: cookie },
     })
     const data = await get.json()
     expect(data.status).toBe('active')
@@ -87,13 +102,15 @@ describe('Session CRUD (integration)', () => {
 
   it('PATCH attendance sets RSVP', async () => {
     const res = await api(`/api/campaigns/${campaignId}/sessions/${sessionSlug}/attendance`, {
-      method: 'PATCH', headers: withCsrf(cookie, csrfToken),
+      method: 'PATCH',
+      headers: withCsrf(cookie, csrfToken),
       body: { rsvpStatus: 'yes' },
     })
     expect(res.status).toBe(200)
 
     const get = await api(`/api/campaigns/${campaignId}/sessions/${sessionSlug}`, {
-      method: 'GET', headers: { Cookie: cookie },
+      method: 'GET',
+      headers: { Cookie: cookie },
     })
     const data = await get.json()
     expect(data.attendance.length).toBeGreaterThanOrEqual(1)
@@ -102,7 +119,8 @@ describe('Session CRUD (integration)', () => {
 
   it('GET session list returns sessions', async () => {
     const res = await api(`/api/campaigns/${campaignId}/sessions`, {
-      method: 'GET', headers: { Cookie: cookie },
+      method: 'GET',
+      headers: { Cookie: cookie },
     })
     const body = await res.json()
     const data = body.data ?? body
@@ -118,19 +136,30 @@ describe('Quest CRUD (integration)', () => {
   let questSlug = ''
 
   beforeAll(async () => {
-    await api('/api/auth/sign-up/email', { method: 'POST', body: { name: 'Quest Tester', email, password: 'password123' } })
-    const login = await api('/api/auth/sign-in/email', { method: 'POST', body: { email, password: 'password123' } })
+    await api('/api/auth/sign-up/email', {
+      method: 'POST',
+      body: { name: 'Quest Tester', email, password: 'password123' },
+    })
+    const login = await api('/api/auth/sign-in/email', {
+      method: 'POST',
+      body: { email, password: 'password123' },
+    })
     const cookies = login.headers.get('set-cookie') || ''
     const match = cookies.match(/better-auth\.session_token=([^;]+)/)
     cookie = match ? `better-auth.session_token=${match[1]}` : ''
     csrfToken = await getCsrfToken(cookie)
-    const camp = await api('/api/campaigns', { method: 'POST', headers: withCsrf(cookie, csrfToken), body: { name: `Quest Test ${Date.now()}` } })
+    const camp = await api('/api/campaigns', {
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
+      body: { name: `Quest Test ${Date.now()}` },
+    })
     campaignId = (await camp.json()).id
   })
 
   it('POST creates quest', async () => {
     const res = await api(`/api/campaigns/${campaignId}/quests`, {
-      method: 'POST', headers: withCsrf(cookie, csrfToken),
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
       body: { name: 'Find the Lost Sword', description: 'A legendary weapon lies hidden' },
     })
     expect(res.status).toBe(200)
@@ -142,14 +171,16 @@ describe('Quest CRUD (integration)', () => {
 
   it('POST creates sub-quest with parent', async () => {
     const parent = await api(`/api/campaigns/${campaignId}/quests`, {
-      method: 'GET', headers: { Cookie: cookie },
+      method: 'GET',
+      headers: { Cookie: cookie },
     })
     const questsBody = await parent.json()
     const quests = questsBody.data ?? questsBody
     const parentId = quests[0].id
 
     const res = await api(`/api/campaigns/${campaignId}/quests`, {
-      method: 'POST', headers: withCsrf(cookie, csrfToken),
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
       body: { name: 'Visit the Smith', parentQuestId: parentId },
     })
     expect(res.status).toBe(200)
@@ -157,7 +188,8 @@ describe('Quest CRUD (integration)', () => {
 
   it('PUT updates quest status with valid transition', async () => {
     const res = await api(`/api/campaigns/${campaignId}/quests/${questSlug}`, {
-      method: 'PUT', headers: withCsrf(cookie, csrfToken),
+      method: 'PUT',
+      headers: withCsrf(cookie, csrfToken),
       body: { status: 'completed' },
     })
     expect(res.status).toBe(200)
@@ -166,7 +198,8 @@ describe('Quest CRUD (integration)', () => {
   it('PUT rejects invalid status transition', async () => {
     // completed → active is not allowed
     const res = await api(`/api/campaigns/${campaignId}/quests/${questSlug}`, {
-      method: 'PUT', headers: withCsrf(cookie, csrfToken),
+      method: 'PUT',
+      headers: withCsrf(cookie, csrfToken),
       body: { status: 'active' },
     })
     expect(res.status).toBe(400)
@@ -174,7 +207,8 @@ describe('Quest CRUD (integration)', () => {
 
   it('GET quest list returns quests', async () => {
     const res = await api(`/api/campaigns/${campaignId}/quests`, {
-      method: 'GET', headers: { Cookie: cookie },
+      method: 'GET',
+      headers: { Cookie: cookie },
     })
     const body = await res.json()
     const data = body.data ?? body

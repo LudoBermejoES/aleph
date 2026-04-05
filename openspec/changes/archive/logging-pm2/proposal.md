@@ -18,6 +18,7 @@ Aleph needs structured logging for debugging, auditing, and monitoring in produc
 ## Scope
 
 ### In scope
+
 - Winston logger setup with transports (console dev, JSON file production)
 - PM2 ecosystem config (ecosystem.config.cjs)
 - Log file rotation (daily, max 14 days retention)
@@ -27,9 +28,11 @@ Aleph needs structured logging for debugging, auditing, and monitoring in produc
 - Logger DI for testability (mock logger in tests)
 
 ### Out of scope
+
 - External log aggregation (ELK, Grafana Loki) -- future enhancement
 - Client-side error tracking
 - APM/tracing
 
 ## Dependencies
+
 - project-setup

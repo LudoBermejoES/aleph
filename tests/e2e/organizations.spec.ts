@@ -37,7 +37,9 @@ test.describe('Organizations list page', () => {
 
     await page.click('aside >> text=Organizations')
     await page.waitForLoadState('networkidle')
-    await expect(page.locator('[data-testid="new-organization-btn"]')).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('[data-testid="new-organization-btn"]')).toBeVisible({
+      timeout: 10000,
+    })
   })
 
   test('org appears in list after creation via API', async ({ page }) => {
@@ -154,7 +156,9 @@ test.describe('Organization detail page', () => {
     })
     const slug = (detailOrg as any).slug
 
-    await page.goto(`${page.url().split('/campaigns/')[0]}/campaigns/${campaignId}/organizations/${slug}`)
+    await page.goto(
+      `${page.url().split('/campaigns/')[0]}/campaigns/${campaignId}/organizations/${slug}`,
+    )
     await page.waitForLoadState('networkidle')
 
     await expect(page.locator('main h1')).toContainText(orgName, { timeout: 10000 })
@@ -174,7 +178,9 @@ test.describe('Organization detail page', () => {
     })
     const slug = (editableOrg as any).slug
 
-    await page.goto(`${page.url().split('/campaigns/')[0]}/campaigns/${campaignId}/organizations/${slug}`)
+    await page.goto(
+      `${page.url().split('/campaigns/')[0]}/campaigns/${campaignId}/organizations/${slug}`,
+    )
     await page.waitForLoadState('networkidle')
 
     await expect(page.locator('main a[href*="/edit"]')).toBeVisible({ timeout: 10000 })
@@ -275,8 +281,12 @@ test.describe('Organization member management', () => {
     await page.click('button:has-text("Add Member")')
 
     // Member should appear in the list
-    await expect(page.locator('[data-testid="member-list"]')).toContainText('Frodo Baggins', { timeout: 10000 })
-    await expect(page.locator('[data-testid="member-list"]')).toContainText('Ring-bearer', { timeout: 5000 })
+    await expect(page.locator('[data-testid="member-list"]')).toContainText('Frodo Baggins', {
+      timeout: 10000,
+    })
+    await expect(page.locator('[data-testid="member-list"]')).toContainText('Ring-bearer', {
+      timeout: 5000,
+    })
   })
 
   test('DM removes a member and they disappear from list', async ({ page }) => {
@@ -293,17 +303,23 @@ test.describe('Organization member management', () => {
       method: 'POST',
       body: { name: 'Removable Hero', characterType: 'npc' },
     })
-    await apiFetch(page, `/api/campaigns/${campaignId}/organizations/${(removeTestOrg as any).slug}/members`, {
-      method: 'POST',
-      body: { characterId: (removableHero as any).id, role: 'Scout' },
-    })
+    await apiFetch(
+      page,
+      `/api/campaigns/${campaignId}/organizations/${(removeTestOrg as any).slug}/members`,
+      {
+        method: 'POST',
+        body: { characterId: (removableHero as any).id, role: 'Scout' },
+      },
+    )
     const { slug } = removeTestOrg as any
 
     const base = page.url().split('/campaigns/')[0]
     await page.goto(`${base}/campaigns/${campaignId}/organizations/${slug}`)
     await page.waitForLoadState('networkidle')
 
-    await expect(page.locator('[data-testid="member-list"]')).toContainText('Removable Hero', { timeout: 10000 })
+    await expect(page.locator('[data-testid="member-list"]')).toContainText('Removable Hero', {
+      timeout: 10000,
+    })
 
     // Click Remove
     await page.click('button:has-text("Remove")')
@@ -326,10 +342,14 @@ test.describe('Organization member management', () => {
       method: 'POST',
       body: { name: 'Counter NPC', characterType: 'npc' },
     })
-    await apiFetch(page, `/api/campaigns/${campaignId}/organizations/${(countTestOrg as any).slug}/members`, {
-      method: 'POST',
-      body: { characterId: (counterNpc as any).id },
-    })
+    await apiFetch(
+      page,
+      `/api/campaigns/${campaignId}/organizations/${(countTestOrg as any).slug}/members`,
+      {
+        method: 'POST',
+        body: { characterId: (counterNpc as any).id },
+      },
+    )
 
     await page.click('aside >> text=Organizations')
     await page.waitForLoadState('networkidle')
@@ -355,19 +375,31 @@ test.describe('Character detail — Organizations section', () => {
       method: 'POST',
       body: { name: 'The Fellowship' },
     })
-    await apiFetch(page, `/api/campaigns/${campaignId}/organizations/${(fellowship as any).slug}/members`, {
-      method: 'POST',
-      body: { characterId: (samwise as any).id, role: 'Gardener' },
-    })
+    await apiFetch(
+      page,
+      `/api/campaigns/${campaignId}/organizations/${(fellowship as any).slug}/members`,
+      {
+        method: 'POST',
+        body: { characterId: (samwise as any).id, role: 'Gardener' },
+      },
+    )
     const charSlug = (samwise as any).slug
 
     const base = page.url().split('/campaigns/')[0]
     await page.goto(`${base}/campaigns/${campaignId}/characters/${charSlug}`)
     await page.waitForLoadState('networkidle')
 
-    await expect(page.locator('[data-testid="character-organizations"]')).toBeVisible({ timeout: 10000 })
-    await expect(page.locator('[data-testid="character-organizations"]')).toContainText('The Fellowship', { timeout: 5000 })
-    await expect(page.locator('[data-testid="character-organizations"]')).toContainText('Gardener', { timeout: 5000 })
+    await expect(page.locator('[data-testid="character-organizations"]')).toBeVisible({
+      timeout: 10000,
+    })
+    await expect(page.locator('[data-testid="character-organizations"]')).toContainText(
+      'The Fellowship',
+      { timeout: 5000 },
+    )
+    await expect(page.locator('[data-testid="character-organizations"]')).toContainText(
+      'Gardener',
+      { timeout: 5000 },
+    )
   })
 
   test('character detail org name links to org detail page', async ({ page }) => {
@@ -384,10 +416,14 @@ test.describe('Character detail — Organizations section', () => {
       method: 'POST',
       body: { name: 'Guard of the Citadel' },
     })
-    await apiFetch(page, `/api/campaigns/${campaignId}/organizations/${(citadel as any).slug}/members`, {
-      method: 'POST',
-      body: { characterId: (pippin as any).id, role: 'Guard' },
-    })
+    await apiFetch(
+      page,
+      `/api/campaigns/${campaignId}/organizations/${(citadel as any).slug}/members`,
+      {
+        method: 'POST',
+        body: { characterId: (pippin as any).id, role: 'Guard' },
+      },
+    )
     const charSlug = (pippin as any).slug
     const orgSlug = (citadel as any).slug
 

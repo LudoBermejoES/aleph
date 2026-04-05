@@ -78,7 +78,7 @@ Business logic lives in `server/services/campaign-export.ts` -- a pure-ish funct
 ```typescript
 interface ExportOptions {
   campaignId: string
-  include?: string[]  // resource type keys to include; undefined = all
+  include?: string[] // resource type keys to include; undefined = all
 }
 
 async function buildCampaignExport(db: Database, options: ExportOptions): Promise<CampaignExport>
@@ -106,6 +106,7 @@ GET /api/campaigns/:id/export
 ### Frontend Integration
 
 A button on the campaign dashboard (visible only to DM/co-DM) that:
+
 1. Calls `GET /api/campaigns/:id/export` via fetch
 2. Creates a Blob from the response
 3. Triggers a download via a temporary `<a>` element with `download` attribute
@@ -126,6 +127,7 @@ The CLI fetches from the API endpoint and writes the response to the specified f
 ### Import Design (Future)
 
 The export format is designed to support a future `POST /api/campaigns/:id/import` endpoint:
+
 - The `version` field enables format evolution
 - All resources use their original IDs, allowing the import to remap IDs if needed
 - The flat resource-type structure (rather than deeply nested trees) makes incremental import straightforward

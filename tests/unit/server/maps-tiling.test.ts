@@ -41,8 +41,15 @@ describe('generateTiles', () => {
 
     // Create 800x400 non-square image
     await sharp({
-      create: { width: 800, height: 400, channels: 4, background: { r: 255, g: 0, b: 0, alpha: 255 } },
-    }).png().toFile(inputPath)
+      create: {
+        width: 800,
+        height: 400,
+        channels: 4,
+        background: { r: 255, g: 0, b: 0, alpha: 255 },
+      },
+    })
+      .png()
+      .toFile(inputPath)
 
     const result = await generateTiles(inputPath, outputDir, 256)
 
@@ -62,8 +69,15 @@ describe('generateTiles', () => {
 
     // Create 300x300 image (not a multiple of 256 — edge tiles will need padding)
     await sharp({
-      create: { width: 300, height: 300, channels: 4, background: { r: 0, g: 255, b: 0, alpha: 255 } },
-    }).png().toFile(inputPath)
+      create: {
+        width: 300,
+        height: 300,
+        channels: 4,
+        background: { r: 0, g: 255, b: 0, alpha: 255 },
+      },
+    })
+      .png()
+      .toFile(inputPath)
 
     await generateTiles(inputPath, outputDir, 256)
 
@@ -78,7 +92,10 @@ describe('generateTiles', () => {
       // Edge tile should have some transparent pixels (alpha = 0)
       let hasTransparent = false
       for (let i = 3; i < data.length; i += 4) {
-        if (data[i] === 0) { hasTransparent = true; break }
+        if (data[i] === 0) {
+          hasTransparent = true
+          break
+        }
       }
       expect(hasTransparent).toBe(true)
     }
@@ -92,7 +109,9 @@ describe('generateTiles', () => {
     // 1024x512 image: maxDim=1024, ceil(log2(1024/256)) = 2 levels
     await sharp({
       create: { width: 1024, height: 512, channels: 3, background: { r: 0, g: 0, b: 255 } },
-    }).png().toFile(inputPath)
+    })
+      .png()
+      .toFile(inputPath)
 
     const result = await generateTiles(inputPath, outputDir, 256)
     const expectedLevels = Math.ceil(Math.log2(Math.max(1024, 512) / 256))

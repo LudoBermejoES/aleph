@@ -5,7 +5,7 @@ const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 async function api(path: string, opts?: any) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
-    headers: { 'Content-Type': 'application/json', 'Origin': BASE_URL, ...opts?.headers },
+    headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...opts?.headers },
     body: opts?.body ? JSON.stringify(opts.body) : undefined,
   })
 }
@@ -31,17 +31,28 @@ describe('Map CRUD (integration)', () => {
   let pinId = ''
 
   beforeAll(async () => {
-    await api('/api/auth/sign-up/email', { method: 'POST', body: { name: 'Map Tester', email, password: 'password123' } })
-    const login = await api('/api/auth/sign-in/email', { method: 'POST', body: { email, password: 'password123' } })
+    await api('/api/auth/sign-up/email', {
+      method: 'POST',
+      body: { name: 'Map Tester', email, password: 'password123' },
+    })
+    const login = await api('/api/auth/sign-in/email', {
+      method: 'POST',
+      body: { email, password: 'password123' },
+    })
     cookie = `better-auth.session_token=${(login.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1]}`
     csrfToken = await getCsrfToken(cookie)
-    const camp = await api('/api/campaigns', { method: 'POST', headers: withCsrf(cookie, csrfToken), body: { name: `Map Test ${Date.now()}` } })
+    const camp = await api('/api/campaigns', {
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
+      body: { name: `Map Test ${Date.now()}` },
+    })
     campaignId = (await camp.json()).id
   })
 
   it('POST creates map', async () => {
     const res = await api(`/api/campaigns/${campaignId}/maps`, {
-      method: 'POST', headers: withCsrf(cookie, csrfToken),
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
       body: { name: 'World Map' },
     })
     expect(res.status).toBe(200)
@@ -53,7 +64,8 @@ describe('Map CRUD (integration)', () => {
 
   it('GET map returns map with pins, layers, breadcrumb', async () => {
     const res = await api(`/api/campaigns/${campaignId}/maps/${mapSlug}`, {
-      method: 'GET', headers: { Cookie: cookie },
+      method: 'GET',
+      headers: { Cookie: cookie },
     })
     expect(res.status).toBe(200)
     const data = await res.json()
@@ -66,7 +78,8 @@ describe('Map CRUD (integration)', () => {
 
   it('POST pin with coordinates', async () => {
     const res = await api(`/api/campaigns/${campaignId}/maps/${mapSlug}/pins`, {
-      method: 'POST', headers: withCsrf(cookie, csrfToken),
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
       body: { label: 'Castle Ravenloft', lat: 100.5, lng: 200.3, color: '#ff0000' },
     })
     expect(res.status).toBe(200)
@@ -76,7 +89,8 @@ describe('Map CRUD (integration)', () => {
 
   it('GET pins returns created pin', async () => {
     const res = await api(`/api/campaigns/${campaignId}/maps/${mapSlug}/pins`, {
-      method: 'GET', headers: { Cookie: cookie },
+      method: 'GET',
+      headers: { Cookie: cookie },
     })
     const data = await res.json()
     expect(data.length).toBeGreaterThanOrEqual(1)
@@ -85,7 +99,8 @@ describe('Map CRUD (integration)', () => {
 
   it('POST layer with sort order', async () => {
     const res = await api(`/api/campaigns/${campaignId}/maps/${mapSlug}/layers`, {
-      method: 'POST', headers: withCsrf(cookie, csrfToken),
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
       body: { name: 'Political Borders', type: 'overlay', opacity: 0.5, sortOrder: 1 },
     })
     expect(res.status).toBe(200)
@@ -93,10 +108,22 @@ describe('Map CRUD (integration)', () => {
 
   it('POST region with GeoJSON', async () => {
     const res = await api(`/api/campaigns/${campaignId}/maps/${mapSlug}/regions`, {
-      method: 'POST', headers: withCsrf(cookie, csrfToken),
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
       body: {
         name: 'Barovia',
-        geojson: { type: 'Polygon', coordinates: [[[0, 0], [100, 0], [100, 100], [0, 100], [0, 0]]] },
+        geojson: {
+          type: 'Polygon',
+          coordinates: [
+            [
+              [0, 0],
+              [100, 0],
+              [100, 100],
+              [0, 100],
+              [0, 0],
+            ],
+          ],
+        },
         color: '#00ff00',
       },
     })
@@ -105,7 +132,8 @@ describe('Map CRUD (integration)', () => {
 
   it('GET regions returns valid GeoJSON', async () => {
     const res = await api(`/api/campaigns/${campaignId}/maps/${mapSlug}/regions`, {
-      method: 'GET', headers: { Cookie: cookie },
+      method: 'GET',
+      headers: { Cookie: cookie },
     })
     const data = await res.json()
     expect(data.length).toBeGreaterThanOrEqual(1)
@@ -117,13 +145,15 @@ describe('Map CRUD (integration)', () => {
   it('nested map breadcrumb works', async () => {
     // Create child map
     const childRes = await api(`/api/campaigns/${campaignId}/maps`, {
-      method: 'POST', headers: withCsrf(cookie, csrfToken),
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
       body: { name: 'Barovia Region', parentMapId: mapId },
     })
     const child = await childRes.json()
 
     const res = await api(`/api/campaigns/${campaignId}/maps/${child.slug}`, {
-      method: 'GET', headers: { Cookie: cookie },
+      method: 'GET',
+      headers: { Cookie: cookie },
     })
     const data = await res.json()
     expect(data.breadcrumb).toHaveLength(2)
@@ -133,7 +163,8 @@ describe('Map CRUD (integration)', () => {
 
   it('PUT updates map name', async () => {
     const res = await api(`/api/campaigns/${campaignId}/maps/${mapSlug}`, {
-      method: 'PUT', headers: withCsrf(cookie, csrfToken),
+      method: 'PUT',
+      headers: withCsrf(cookie, csrfToken),
       body: { name: 'Updated World Map' },
     })
     expect(res.status).toBe(200)
@@ -141,14 +172,16 @@ describe('Map CRUD (integration)', () => {
 
   it('DELETE pin', async () => {
     const res = await api(`/api/campaigns/${campaignId}/maps/${mapSlug}/pins/${pinId}`, {
-      method: 'DELETE', headers: withCsrf(cookie, csrfToken),
+      method: 'DELETE',
+      headers: withCsrf(cookie, csrfToken),
     })
     expect(res.status).toBe(200)
   })
 
   it('DELETE map', async () => {
     const res = await api(`/api/campaigns/${campaignId}/maps/${mapSlug}`, {
-      method: 'DELETE', headers: withCsrf(cookie, csrfToken),
+      method: 'DELETE',
+      headers: withCsrf(cookie, csrfToken),
     })
     expect(res.status).toBe(200)
   })

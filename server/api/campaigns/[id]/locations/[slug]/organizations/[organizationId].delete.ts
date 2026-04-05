@@ -16,16 +16,26 @@ export default defineEventHandler(async (event) => {
   const organizationId = getRouterParam(event, 'organizationId')!
   const db = useDb()
 
-  const location = db.select().from(entities)
-    .where(and(eq(entities.campaignId, campaignId), eq(entities.slug, slug), eq(entities.type, 'location')))
+  const location = db
+    .select()
+    .from(entities)
+    .where(
+      and(
+        eq(entities.campaignId, campaignId),
+        eq(entities.slug, slug),
+        eq(entities.type, 'location'),
+      ),
+    )
     .get()
   if (!location) throw createError({ statusCode: 404, message: 'Location not found' })
 
   db.delete(organizationLocations)
-    .where(and(
-      eq(organizationLocations.organizationId, organizationId),
-      eq(organizationLocations.locationEntityId, location.id),
-    ))
+    .where(
+      and(
+        eq(organizationLocations.organizationId, organizationId),
+        eq(organizationLocations.locationEntityId, location.id),
+      ),
+    )
     .run()
 
   return null

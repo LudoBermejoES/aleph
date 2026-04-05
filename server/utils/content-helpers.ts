@@ -13,7 +13,8 @@ export function ensureUniqueSlug(
   baseName: string,
 ): string {
   let slug = slugify(baseName)
-  const existing = db.select({ id: entities.id })
+  const existing = db
+    .select({ id: entities.id })
     .from(entities)
     .where(and(eq(entities.campaignId, campaignId), eq(entities.slug, slug)))
     .get()

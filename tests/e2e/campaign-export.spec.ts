@@ -36,7 +36,7 @@ test.describe('Campaign Export', () => {
     await page.waitForTimeout(1500)
     const urlEl = page.locator('[role="dialog"] code')
     await expect(urlEl).toBeVisible({ timeout: 8000 })
-    const joinUrl = (await urlEl.textContent() || '').trim()
+    const joinUrl = ((await urlEl.textContent()) || '').trim()
 
     // Register player in new page
     const playerPage = await context.newPage()

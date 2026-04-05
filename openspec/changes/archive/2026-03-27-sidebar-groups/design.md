@@ -11,6 +11,7 @@
 ## Decisions
 
 **Group structure (hardcoded, not configurable)**
+
 - `world`: Wiki, Characters, Organizations, Locations, Maps
 - `story`: Sessions, Quests, Calendars
 - `economy`: Items, Shops, Inventories, Currencies, Transactions

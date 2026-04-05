@@ -13,9 +13,11 @@ The Arcadia TTRPG universe has 15 years of campaign history across 6 campaigns a
 ## Capabilities
 
 ### New Capabilities
+
 - `arcadia-importer`: A standalone Node.js import script (`cli/src/commands/import-arcadia.js`) that reads the Arcadia docs directory structure and calls Aleph API endpoints to create campaigns, session groups, and sessions with their content (ai_notes, manual_notes, summary)
 
 ### Modified Capabilities
+
 <!-- None — all required API endpoints already exist after the session-groups-and-content-types change -->
 
 ## Impact

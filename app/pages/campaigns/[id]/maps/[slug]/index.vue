@@ -5,12 +5,21 @@
     <div v-else-if="mapData">
       <!-- Breadcrumb -->
       <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-        <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary"> {{ $t('common.campaign') }}</NuxtLink>
+        <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">
+          {{ $t('common.campaign') }}</NuxtLink
+        >
         <span>/</span>
-        <NuxtLink :to="`/campaigns/${campaignId}/maps`" class="hover:text-primary">{{ $t('maps.title') }}</NuxtLink>
+        <NuxtLink :to="`/campaigns/${campaignId}/maps`" class="hover:text-primary">{{
+          $t('maps.title')
+        }}</NuxtLink>
         <template v-for="(crumb, i) in mapData.breadcrumb" :key="crumb.id">
           <span>/</span>
-          <NuxtLink v-if="i < mapData.breadcrumb.length - 1" :to="`/campaigns/${campaignId}/maps/${crumb.slug}`" class="hover:text-primary">{{ crumb.name }}</NuxtLink>
+          <NuxtLink
+            v-if="i < mapData.breadcrumb.length - 1"
+            :to="`/campaigns/${campaignId}/maps/${crumb.slug}`"
+            class="hover:text-primary"
+            >{{ crumb.name }}</NuxtLink
+          >
           <span v-else class="text-foreground">{{ crumb.name }}</span>
         </template>
       </div>
@@ -21,7 +30,9 @@
           <NuxtLink :to="`/campaigns/${campaignId}/maps/${slug}/edit`">
             <Button variant="outline" size="sm">{{ $t('common.edit') }}</Button>
           </NuxtLink>
-          <span v-if="mapData.width" class="text-sm text-muted-foreground">{{ mapData.width }}x{{ mapData.height }}px</span>
+          <span v-if="mapData.width" class="text-sm text-muted-foreground"
+            >{{ mapData.width }}x{{ mapData.height }}px</span
+          >
         </div>
       </div>
 
@@ -48,10 +59,20 @@
       <div v-if="mapData.pins?.length" class="mt-6">
         <h2 class="text-lg font-semibold mb-3">{{ $t('maps.pins') }}</h2>
         <div class="space-y-1">
-          <div v-for="pin in mapData.pins" :key="pin.id" class="p-2 rounded border border-border flex items-center gap-3">
-            <span v-if="pin.color" :style="{ backgroundColor: pin.color }" class="w-3 h-3 rounded-full" />
+          <div
+            v-for="pin in mapData.pins"
+            :key="pin.id"
+            class="p-2 rounded border border-border flex items-center gap-3"
+          >
+            <span
+              v-if="pin.color"
+              :style="{ backgroundColor: pin.color }"
+              class="w-3 h-3 rounded-full"
+            />
             <span class="text-sm">{{ pin.label || $t('maps.unnamedPin') }}</span>
-            <span class="text-xs text-muted-foreground">({{ pin.lat.toFixed(1) }}, {{ pin.lng.toFixed(1) }})</span>
+            <span class="text-xs text-muted-foreground"
+              >({{ pin.lat.toFixed(1) }}, {{ pin.lng.toFixed(1) }})</span
+            >
           </div>
         </div>
       </div>
@@ -60,9 +81,15 @@
       <div v-if="mapData.layers?.length" class="mt-6">
         <h2 class="text-lg font-semibold mb-3">{{ $t('maps.layers') }}</h2>
         <div class="space-y-1">
-          <div v-for="layer in mapData.layers" :key="layer.id" class="p-2 rounded border border-border flex items-center justify-between">
+          <div
+            v-for="layer in mapData.layers"
+            :key="layer.id"
+            class="p-2 rounded border border-border flex items-center justify-between"
+          >
             <span class="text-sm">{{ layer.name }}</span>
-            <span class="text-xs text-muted-foreground">{{ layer.type }} ({{ Math.round(layer.opacity * 100) }}%)</span>
+            <span class="text-xs text-muted-foreground"
+              >{{ layer.type }} ({{ Math.round(layer.opacity * 100) }}%)</span
+            >
           </div>
         </div>
       </div>

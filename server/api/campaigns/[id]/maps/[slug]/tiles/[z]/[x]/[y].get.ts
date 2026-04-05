@@ -13,7 +13,9 @@ export default defineEventHandler(async (event) => {
   const db = useDb()
   const campaign = event.context.campaign
 
-  const map = db.select().from(maps)
+  const map = db
+    .select()
+    .from(maps)
     .where(and(eq(maps.campaignId, campaignId), eq(maps.slug, slug)))
     .get()
   if (!map) throw createError({ statusCode: 404, message: 'Map not found' })
@@ -29,6 +31,9 @@ export default defineEventHandler(async (event) => {
   } catch {
     // Return transparent 256x256 PNG for missing tiles
     setResponseHeader(event, 'Content-Type', 'image/png')
-    return Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQI12NgAAIABQABNjN9GQAAAABJRElEQkSuQmCC', 'base64')
+    return Buffer.from(
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQI12NgAAIABQABNjN9GQAAAABJRElEQkSuQmCC',
+      'base64',
+    )
   }
 })

@@ -29,7 +29,10 @@ async function generateInviteUrl(page: import('@playwright/test').Page): Promise
 }
 
 test.describe('Campaign Join Flow', () => {
-  test('unauthenticated user can register on join page and is redirected to campaign', async ({ page, context }) => {
+  test('unauthenticated user can register on join page and is redirected to campaign', async ({
+    page,
+    context,
+  }) => {
     // DM creates a campaign and generates an invite
     await registerAndLogin(page, `DM ${uid()}`)
     await createCampaign(page, `Join Camp ${uid()}`)
@@ -63,7 +66,10 @@ test.describe('Campaign Join Flow', () => {
     }).toPass({ timeout: 20000 })
   })
 
-  test('authenticated user visiting invite URL is auto-joined and redirected', async ({ page, context }) => {
+  test('authenticated user visiting invite URL is auto-joined and redirected', async ({
+    page,
+    context,
+  }) => {
     // DM creates campaign and invite
     await registerAndLogin(page, `DM2 ${uid()}`)
     await createCampaign(page, `AutoJoin Camp ${uid()}`)

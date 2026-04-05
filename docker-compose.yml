@@ -2,12 +2,14 @@ services:
   aleph:
     build: .
     ports:
-      - "3033:3033"
+      - '3033:3033'
     volumes:
       - aleph-data:/app/data
       - aleph-content:/app/content
       - aleph-logs:/app/logs
-    env_file: .env
+    env_file:
+      - path: .env
+        required: false
     environment:
       - NODE_ENV=production
     restart: unless-stopped

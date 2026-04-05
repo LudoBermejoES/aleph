@@ -114,9 +114,9 @@ describe('Relation Type Seeding', () => {
     const { seedRelationTypes } = await import('../../../server/services/relationships')
     seedRelationTypes(testDb.db, 'camp-1')
 
-    const types = testDb.sqlite.prepare(
-      "SELECT * FROM relation_types WHERE campaign_id = 'camp-1'"
-    ).all() as any[]
+    const types = testDb.sqlite
+      .prepare("SELECT * FROM relation_types WHERE campaign_id = 'camp-1'")
+      .all() as any[]
     expect(types).toHaveLength(17)
     expect(types.every((t: any) => t.is_builtin === 1)).toBe(true)
   })
@@ -125,9 +125,9 @@ describe('Relation Type Seeding', () => {
     const { seedRelationTypes } = await import('../../../server/services/relationships')
     seedRelationTypes(testDb.db, 'camp-1')
 
-    const types = testDb.sqlite.prepare(
-      "SELECT * FROM relation_types WHERE campaign_id = 'camp-1'"
-    ).all() as any[]
+    const types = testDb.sqlite
+      .prepare("SELECT * FROM relation_types WHERE campaign_id = 'camp-1'")
+      .all() as any[]
     expect(types.every((t: any) => t.forward_label && t.reverse_label)).toBe(true)
   })
 })

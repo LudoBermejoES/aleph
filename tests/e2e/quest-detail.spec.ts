@@ -25,7 +25,9 @@ test.describe('Quest Detail Page', () => {
     await questLink.click()
 
     // Should be on quest detail page
-    await expect(page).toHaveURL(`/campaigns/${campaignId}/quests/${quest.slug}`, { timeout: 10000 })
+    await expect(page).toHaveURL(`/campaigns/${campaignId}/quests/${quest.slug}`, {
+      timeout: 10000,
+    })
 
     // Verify quest metadata
     await expect(page.locator('main h1')).toContainText('Find the Artifact', { timeout: 10000 })
@@ -44,7 +46,9 @@ test.describe('Quest Detail Page', () => {
       body: { name: 'Edit Test Quest', status: 'active' },
     })
 
-    await page.goto(`/campaigns/${campaignId}/quests/${quest.slug}`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`/campaigns/${campaignId}/quests/${quest.slug}`, {
+      waitUntil: 'domcontentloaded',
+    })
     await page.waitForLoadState('networkidle')
     await expect(page.locator('main h1')).toContainText('Edit Test Quest', { timeout: 15000 })
 

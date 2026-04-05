@@ -73,12 +73,15 @@ describe('Audit Log Helper', () => {
       ip: '127.0.0.1',
     })
 
-    expect(spy).toHaveBeenCalledWith('login_success', expect.objectContaining({
-      userId: 'user-123',
-      action: 'login_success',
-      target: 'session',
-      ip: '127.0.0.1',
-    }))
+    expect(spy).toHaveBeenCalledWith(
+      'login_success',
+      expect.objectContaining({
+        userId: 'user-123',
+        action: 'login_success',
+        target: 'session',
+        ip: '127.0.0.1',
+      }),
+    )
 
     spy.mockRestore()
   })
@@ -91,9 +94,12 @@ describe('Audit Log Helper', () => {
 
     auditLog({ action: 'login_failure' })
 
-    expect(spy).toHaveBeenCalledWith('login_failure', expect.objectContaining({
-      userId: 'anonymous',
-    }))
+    expect(spy).toHaveBeenCalledWith(
+      'login_failure',
+      expect.objectContaining({
+        userId: 'anonymous',
+      }),
+    )
 
     spy.mockRestore()
   })

@@ -1,5 +1,5 @@
 ---
-name: "Aleph CLI"
+name: 'Aleph CLI'
 description: Run aleph-cli commands to manage campaigns, entities, characters, sessions, members, search, and dice rolls
 category: Workflow
 tags: [aleph, cli, campaign, entity]
@@ -12,9 +12,11 @@ Use the `aleph` CLI to fulfil the user's request.
 **Steps**
 
 1. **Check config**
+
    ```bash
    cat ~/.aleph/config.json 2>/dev/null || echo "not configured"
    ```
+
    Config must have both `url` and `apiKey` fields. If missing or `apiKey` is absent, tell the user to run `aleph login` (which creates an API key and stores it). Do not reference `token` — that field is no longer used.
 
 2. **Map the request to a CLI command**
@@ -22,6 +24,7 @@ Use the `aleph` CLI to fulfil the user's request.
    Use the command reference below to pick the right command(s). Always use `--json` when you need to parse output.
 
 3. **Run the command**
+
    ```bash
    node /Users/ludo/code/aleph/cli/bin/aleph.js <command> [options] --json
    ```
@@ -33,6 +36,7 @@ Use the `aleph` CLI to fulfil the user's request.
 ## Command Reference
 
 ### Campaigns
+
 ```
 campaign list [--json]
 campaign create --name <name> [--description <desc>] [--theme <theme>]
@@ -41,6 +45,7 @@ campaign delete <id> [--yes]
 ```
 
 ### Entities
+
 ```
 entity list --campaign <id> [--type <type>] [--search <q>]
 entity create --campaign <id> --name <name> --type <type> [--content <md>]
@@ -50,6 +55,7 @@ entity delete --campaign <id> <slug> [--yes]
 ```
 
 ### Characters
+
 ```
 character list --campaign <id>
 character create --campaign <id> --name <name> [--class <class>]
@@ -57,6 +63,7 @@ character show --campaign <id> <slug>
 ```
 
 ### Sessions
+
 ```
 session list --campaign <id>
 session create --campaign <id> --title <title> --date <YYYY-MM-DD>
@@ -64,12 +71,14 @@ session show --campaign <id> <slug>
 ```
 
 ### Members
+
 ```
 member list --campaign <id>
 member invite --campaign <id> --role <role> [--expires <days>]
 ```
 
 ### Search & Roll
+
 ```
 search --campaign <id> <query>
 roll <formula> [--campaign <id>]
@@ -78,6 +87,7 @@ roll <formula> [--campaign <id>]
 ---
 
 **Guardrails**
+
 - Always use `--json` when parsing output programmatically
 - Use `--yes` to skip confirmation on destructive operations when appropriate
 - If the campaign ID is unknown, run `campaign list --json` first and let the user select

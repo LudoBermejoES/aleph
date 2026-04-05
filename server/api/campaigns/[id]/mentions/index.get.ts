@@ -13,20 +13,20 @@ export default defineEventHandler(async (event) => {
   const db = useDb()
 
   // Get entities that mention this entity (referenced BY)
-  const mentionedBy = db.select({
-    id: entityMentions.id,
-    sourceEntityId: entityMentions.sourceEntityId,
-    sourceName: entities.name,
-    sourceType: entities.type,
-    sourceSlug: entities.slug,
-    count: entityMentions.count,
-  })
+  const mentionedBy = db
+    .select({
+      id: entityMentions.id,
+      sourceEntityId: entityMentions.sourceEntityId,
+      sourceName: entities.name,
+      sourceType: entities.type,
+      sourceSlug: entities.slug,
+      count: entityMentions.count,
+    })
     .from(entityMentions)
     .innerJoin(entities, eq(entityMentions.sourceEntityId, entities.id))
-    .where(and(
-      eq(entityMentions.targetEntityId, entityId),
-      eq(entityMentions.campaignId, campaignId),
-    ))
+    .where(
+      and(eq(entityMentions.targetEntityId, entityId), eq(entityMentions.campaignId, campaignId)),
+    )
     .all()
 
   return mentionedBy

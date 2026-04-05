@@ -21,7 +21,13 @@ test.describe('Characters', () => {
     const charName = `Gandalf ${uid()}`
     await apiFetch(page, `/api/campaigns/${campaignId}/characters`, {
       method: 'POST',
-      body: { name: charName, characterType: 'npc', race: 'Maiar', class: 'Wizard', content: '# Gandalf\n\nA wise wizard.' },
+      body: {
+        name: charName,
+        characterType: 'npc',
+        race: 'Maiar',
+        class: 'Wizard',
+        content: '# Gandalf\n\nA wise wizard.',
+      },
     })
 
     await page.click('aside >> text=Characters')
@@ -41,7 +47,13 @@ test.describe('Characters', () => {
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
     await apiFetch(page, `/api/campaigns/${campaignId}/characters`, {
       method: 'POST',
-      body: { name: 'Editable NPC', characterType: 'npc', race: 'Elf', alignment: 'Neutral', content: '# Editable' },
+      body: {
+        name: 'Editable NPC',
+        characterType: 'npc',
+        race: 'Elf',
+        alignment: 'Neutral',
+        content: '# Editable',
+      },
     })
 
     await page.click('aside >> text=Characters')
@@ -57,7 +69,9 @@ test.describe('Characters', () => {
     }).toPass({ timeout: 10000 })
 
     // Wait for edit form to load
-    await expect(page.locator('input[placeholder*="Character name"]')).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('input[placeholder*="Character name"]')).toBeVisible({
+      timeout: 10000,
+    })
 
     // Change status to dead on the edit page form
     await page.selectOption('select:has(option[value="dead"])', 'dead')

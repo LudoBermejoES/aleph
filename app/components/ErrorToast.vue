@@ -1,9 +1,18 @@
 <template>
   <Teleport to="body">
     <Transition name="toast">
-      <div v-if="visible" class="fixed bottom-4 right-4 z-50 max-w-sm bg-destructive text-destructive-foreground px-4 py-3 rounded-lg shadow-lg flex items-center gap-3" data-testid="error-toast">
+      <div
+        v-if="visible"
+        class="fixed bottom-4 right-4 z-50 max-w-sm bg-destructive text-destructive-foreground px-4 py-3 rounded-lg shadow-lg flex items-center gap-3"
+        data-testid="error-toast"
+      >
         <span class="text-sm flex-1">{{ message }}</span>
-        <button @click="dismiss" class="text-destructive-foreground/70 hover:text-destructive-foreground text-lg leading-none">&times;</button>
+        <button
+          @click="dismiss"
+          class="text-destructive-foreground/70 hover:text-destructive-foreground text-lg leading-none"
+        >
+          &times;
+        </button>
       </div>
     </Transition>
   </Teleport>
@@ -31,6 +40,13 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.toast-enter-active, .toast-leave-active { transition: all 0.3s ease; }
-.toast-enter-from, .toast-leave-to { opacity: 0; transform: translateY(1rem); }
+.toast-enter-active,
+.toast-leave-active {
+  transition: all 0.3s ease;
+}
+.toast-enter-from,
+.toast-leave-to {
+  opacity: 0;
+  transform: translateY(1rem);
+}
 </style>

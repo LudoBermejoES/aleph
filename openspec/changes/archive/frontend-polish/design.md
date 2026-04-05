@@ -16,6 +16,7 @@ export const { signIn, signUp, signOut, useSession } = createAuthClient({
 ```
 
 This gives us:
+
 - `signIn.email({ email, password })` -- handles CSRF, cookies, errors
 - `signUp.email({ name, email, password })` -- same
 - `signOut()` -- clears session properly
@@ -52,6 +53,7 @@ When inside a campaign, the sidebar should show campaign-specific links (Wiki, C
 ### Playwright E2E Tests
 
 Critical flows:
+
 1. Register → Login → See campaigns
 2. Create campaign → See dashboard
 3. Create entity → View entity → Edit → Search
@@ -63,5 +65,6 @@ Critical flows:
 No new services needed -- this change fixes existing frontend integration.
 
 Test layers:
+
 1. **E2E tests**: Playwright browser tests for critical user flows
 2. **Component tests**: mountSuspended for auth composable behavior

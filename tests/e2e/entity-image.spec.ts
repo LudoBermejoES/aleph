@@ -18,7 +18,9 @@ test.describe('Entity Image', () => {
     })
 
     // Navigate to entity detail
-    await page.goto(`${BASE}/campaigns/${campaignId}/entities/${res.slug}`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${BASE}/campaigns/${campaignId}/entities/${res.slug}`, {
+      waitUntil: 'domcontentloaded',
+    })
     await page.waitForSelector('h1', { timeout: 15000 })
 
     // Wait for canEdit to resolve (needs campaign role fetch)
@@ -33,7 +35,9 @@ test.describe('Entity Image', () => {
       body: { name: 'Edit Image Entity', type: 'faction' },
     })
 
-    await page.goto(`${BASE}/campaigns/${campaignId}/entities/${res.slug}/edit`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${BASE}/campaigns/${campaignId}/entities/${res.slug}/edit`, {
+      waitUntil: 'domcontentloaded',
+    })
     await page.waitForSelector('h1', { timeout: 15000 })
 
     const imageContainer = page.locator('.relative.w-48')

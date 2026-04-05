@@ -4,7 +4,7 @@ description: Use the aleph CLI to manage campaigns, entities, characters, locati
 license: MIT
 metadata:
   author: aleph
-  version: "2.9"
+  version: '2.9'
 ---
 
 You have access to the `aleph` CLI tool at `node /Users/ludo/code/aleph/cli/bin/aleph.js` (or `npm run aleph -- <args>` from the project root). Use it to interact with the running Aleph server.
@@ -12,17 +12,20 @@ You have access to the `aleph` CLI tool at `node /Users/ludo/code/aleph/cli/bin/
 ## Setup
 
 Config is stored at `~/.aleph/config.json`. It contains `url`, `apiKey`, and `apiKeyId`. Check if it exists before running commands that require auth:
+
 ```bash
 cat ~/.aleph/config.json 2>/dev/null || echo "not configured"
 ```
 
 To log in (if not already):
+
 ```bash
 node /Users/ludo/code/aleph/cli/bin/aleph.js login
 # prompts for URL, email, password — creates an API key and stores it automatically
 ```
 
 To set URL manually (then use `aleph login` to generate the key):
+
 ```bash
 node /Users/ludo/code/aleph/cli/bin/aleph.js config set --url http://localhost:3333
 ```
@@ -34,6 +37,7 @@ node /Users/ludo/code/aleph/cli/bin/aleph.js config set --url http://localhost:3
 All commands support `--json` for machine-readable output. Always use `--json` when you need to parse results or pipe to further processing.
 
 ### Authentication
+
 ```bash
 aleph login                          # interactive: prompts for URL, email, password — creates and stores an API key
 aleph logout                         # revokes the stored API key and clears config
@@ -42,6 +46,7 @@ aleph config set --url <url>         # set server URL
 ```
 
 ### Campaigns
+
 ```bash
 aleph campaign list [--json]
 aleph campaign create --name <name> [--description <desc>] [--theme <theme>] [--json]
@@ -53,6 +58,7 @@ aleph campaign export <id> [--format json] [--include <types>] [--output <file>]
 Themes: `default`, `dark-fantasy`, `cyberpunk`, `cosmic-horror`, `high-fantasy`, `western`, `steampunk`, `eldritch`, `fey-wilds`, `undead`, `superhero`
 
 ### Entities (wiki entries)
+
 ```bash
 aleph entity list --campaign <id> [--type <type>] [--search <q>] [--json]
 aleph entity create --campaign <id> --name <name> --type <type> [--content <markdown>] [--json]
@@ -69,6 +75,7 @@ Use `--stdin` on `entity edit` to pipe Markdown content from a file: `cat notes.
 `upload-image` accepts PNG, JPEG, or WebP files up to 10 MB. The image is shown on the entity detail page in the web UI.
 
 ### Characters
+
 ```bash
 node /Users/ludo/code/aleph/cli/bin/aleph.js character list --campaign <id> [--status <alive|dead|missing|unknown>] [--race <race>] [--class <class>] [--alignment <alignment>] [--sort <name|updatedAt|status|race|class>] [--sort-dir <asc|desc>] [--page <n>] [--limit <n>] [--json]
 node /Users/ludo/code/aleph/cli/bin/aleph.js character create --campaign <id> --name <name> [--class <class>] [--json]
@@ -86,6 +93,7 @@ node /Users/ludo/code/aleph/cli/bin/aleph.js character folder-delete <folderId> 
 `upload-portrait` accepts PNG, JPEG, or WebP files up to 10 MB.
 
 ### Sessions
+
 ```bash
 node /Users/ludo/code/aleph/cli/bin/aleph.js session list --campaign <id> [--group <slug>] [--page <n>] [--limit <n>] [--json]
 node /Users/ludo/code/aleph/cli/bin/aleph.js session create --campaign <id> --title <title> [--date <YYYY-MM-DD>] [--group <slug>] [--json]
@@ -103,6 +111,7 @@ node /Users/ludo/code/aleph/cli/bin/aleph.js session attendance set <slug> --cam
 ```
 
 ### Session Groups
+
 ```bash
 node /Users/ludo/code/aleph/cli/bin/aleph.js session-group list --campaign <id> [--json]
 node /Users/ludo/code/aleph/cli/bin/aleph.js session-group create --campaign <id> --name <name> [--description <desc>] [--json]
@@ -111,6 +120,7 @@ node /Users/ludo/code/aleph/cli/bin/aleph.js session-group delete <slug> --campa
 ```
 
 ### Members
+
 ```bash
 aleph member list --campaign <id> [--json]
 aleph member invite --campaign <id> --role <role> [--expires <days>] [--json]
@@ -121,6 +131,7 @@ aleph member invite --campaign <id> --role <role> [--expires <days>] [--json]
 Roles: `player`, `editor`, `co_dm`
 
 ### Organizations
+
 ```bash
 node /Users/ludo/code/aleph/cli/bin/aleph.js organization list --campaign <id> [--page <n>] [--limit <n>] [--json]
 node /Users/ludo/code/aleph/cli/bin/aleph.js organization create --campaign <id> --name <name> [--type <type>] [--status <status>] [--description <desc>] [--json]
@@ -328,6 +339,7 @@ aleph search --campaign <id> <query> [--json]
 Returns entities, characters, and sessions matching the query.
 
 ### Dice Rolls
+
 ```bash
 aleph roll <formula> [--json]                        # local roll (offline)
 aleph roll <formula> --campaign <id> [--json]        # server roll (recorded in history)
@@ -338,9 +350,11 @@ Examples: `aleph roll 2d6+3`, `aleph roll 1d20`, `aleph roll 4d6`
 ## How to Use This Skill
 
 1. **Before any command**, check config exists:
+
    ```bash
    cat ~/.aleph/config.json 2>/dev/null | node -e "const d=require('fs').readFileSync('/dev/stdin','utf8'); const c=JSON.parse(d); console.log('url:', c.url, '| apiKey:', c.apiKey ? c.apiKey.slice(0,14)+'...' : 'MISSING')"
    ```
+
    If `apiKey` is missing or config doesn't exist, prompt the user to run `aleph login`.
 
 2. **Always use `--json`** when parsing output. The human-readable format uses chalk colors that may not parse cleanly.
@@ -356,17 +370,20 @@ Examples: `aleph roll 2d6+3`, `aleph roll 1d20`, `aleph roll 4d6`
 ## Workflow Examples
 
 **Find a campaign and list its NPCs:**
+
 ```bash
 CAMPAIGN=$(node /Users/ludo/code/aleph/cli/bin/aleph.js campaign list --json | node -e "const d=require('fs').readFileSync('/dev/stdin','utf8');console.log(JSON.parse(d)[0].id)")
 node /Users/ludo/code/aleph/cli/bin/aleph.js entity list --campaign $CAMPAIGN --type npc --json
 ```
 
 **Create an entity from a markdown file:**
+
 ```bash
 cat dungeon-notes.md | node /Users/ludo/code/aleph/cli/bin/aleph.js entity edit --campaign <id> <slug> --stdin
 ```
 
 **Roll dice and parse result:**
+
 ```bash
 node /Users/ludo/code/aleph/cli/bin/aleph.js roll 2d6+3 --json
 # → {"formula":"2d6+3","rolls":[4,5],"total":12}

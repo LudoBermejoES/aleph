@@ -19,7 +19,7 @@ interface AbilityEntry {
  */
 export function stripSecretStats<T extends StatEntry>(stats: T[], role: string): T[] {
   if (hasMinRole(role as CampaignRole, 'co_dm')) return stats
-  return stats.filter(s => !s.defIsSecret)
+  return stats.filter((s) => !s.defIsSecret)
 }
 
 /**
@@ -27,7 +27,7 @@ export function stripSecretStats<T extends StatEntry>(stats: T[], role: string):
  */
 export function stripSecretAbilities<T extends AbilityEntry>(abilities: T[], role: string): T[] {
   if (hasMinRole(role as CampaignRole, 'co_dm')) return abilities
-  return abilities.filter(a => !a.isSecret)
+  return abilities.filter((a) => !a.isSecret)
 }
 
 /**

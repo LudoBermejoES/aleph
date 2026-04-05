@@ -61,10 +61,7 @@ export const logger = winston.createLogger({
 // Audit logger: separate file, never rotated, structured JSON
 export const auditLogger = winston.createLogger({
   level: 'info',
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.json(),
-  ),
+  format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
   transports: [
     new winston.transports.File({
       filename: join(LOG_DIR, 'audit.log'),

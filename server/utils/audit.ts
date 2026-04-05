@@ -45,10 +45,11 @@ export function auditLog(entry: AuditEntry): void {
  * Write an audit log entry with IP extracted from an H3 event.
  */
 export function auditLogFromEvent(event: H3Event, entry: Omit<AuditEntry, 'ip'>): void {
-  const ip = getRequestHeader(event, 'x-forwarded-for')
-    || getRequestHeader(event, 'x-real-ip')
-    || event.node.req.socket?.remoteAddress
-    || 'unknown'
+  const ip =
+    getRequestHeader(event, 'x-forwarded-for') ||
+    getRequestHeader(event, 'x-real-ip') ||
+    event.node.req.socket?.remoteAddress ||
+    'unknown'
 
   auditLog({ ...entry, ip })
 }

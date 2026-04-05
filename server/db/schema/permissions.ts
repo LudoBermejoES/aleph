@@ -8,11 +8,15 @@ export const entityPermissions = sqliteTable('entity_permissions', {
   targetRole: text('target_role'), // dm, co_dm, editor, player, visitor
   permission: text('permission').notNull(), // view, edit, delete
   effect: text('effect').notNull(), // allow, deny
-  grantedBy: text('granted_by').notNull().references(() => user.id),
+  grantedBy: text('granted_by')
+    .notNull()
+    .references(() => user.id),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
 })
 
 export const entitySpecificViewers = sqliteTable('entity_specific_viewers', {
   entityId: text('entity_id').notNull(),
-  userId: text('user_id').notNull().references(() => user.id),
+  userId: text('user_id')
+    .notNull()
+    .references(() => user.id),
 })

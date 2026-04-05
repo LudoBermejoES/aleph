@@ -28,6 +28,7 @@ Competitors (Kanka, LegendKeeper, World Anvil) have demonstrated that DMs need f
 ## Impact
 
 ### Files affected
+
 - `server/extensions/secret-block.ts` -- Add `id` attribute to SecretBlock node
 - `server/services/content.ts` -- Update `stripSecretBlocks` to check reveal state
 - `server/db/schema/` -- New `secret_reveals` and `entity_secret_notes` tables
@@ -42,10 +43,12 @@ Competitors (Kanka, LegendKeeper, World Anvil) have demonstrated that DMs need f
 - `i18n/locales/en.json`, `i18n/locales/es.json` -- New keys for secrets UI
 
 ### CLI impact
+
 - New endpoints for secret reveals and secret notes may warrant CLI commands (e.g., `aleph secrets reveal`, `aleph secrets list`), but this is optional and can be deferred. The core feature is UI-driven.
 - `docs/claude-skill.md` and `.claude/skills/aleph-cli/SKILL.md` should be updated if CLI commands are added.
 
 ### Dependencies
+
 - Existing `SecretBlock` extension and `stripSecretBlocks` function
 - Existing CrossWS broadcast infrastructure (`emitCampaignMessage`)
 - Existing entity permissions and visibility system

@@ -1,9 +1,13 @@
 <template>
   <div class="p-8 max-w-2xl">
     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary"> {{ $t('common.campaign') }}</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">
+        {{ $t('common.campaign') }}</NuxtLink
+      >
       <span>/</span>
-      <NuxtLink :to="`/campaigns/${campaignId}/organizations`" class="hover:text-primary">{{ $t('organizations.title') }}</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}/organizations`" class="hover:text-primary">{{
+        $t('organizations.title')
+      }}</NuxtLink>
       <span>/</span>
       <span>{{ $t('organizations.new') }}</span>
     </div>
@@ -24,15 +28,25 @@
 
       <div>
         <label class="block text-sm font-medium mb-1">{{ $t('organizations.type') }}</label>
-        <select v-model="form.type" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
-          <option v-for="t in types" :key="t" :value="t">{{ $t(`organizations.types.${t}`) }}</option>
+        <select
+          v-model="form.type"
+          class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+        >
+          <option v-for="t in types" :key="t" :value="t">
+            {{ $t(`organizations.types.${t}`) }}
+          </option>
         </select>
       </div>
 
       <div>
         <label class="block text-sm font-medium mb-1">{{ $t('organizations.status') }}</label>
-        <select v-model="form.status" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
-          <option v-for="s in statuses" :key="s" :value="s">{{ $t(`organizations.statuses.${s}`) }}</option>
+        <select
+          v-model="form.status"
+          class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+        >
+          <option v-for="s in statuses" :key="s" :value="s">
+            {{ $t(`organizations.statuses.${s}`) }}
+          </option>
         </select>
       </div>
 

@@ -7,11 +7,10 @@ const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 const WS_BASE = BASE_URL.replace('http', 'ws')
 const WS_URL = process.env.TEST_WS_URL || 'ws://localhost:3334'
 
-
 async function api(path: string, opts?: any) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
-    headers: { 'Content-Type': 'application/json', 'Origin': BASE_URL, ...opts?.headers },
+    headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...opts?.headers },
     body: opts?.body ? JSON.stringify(opts.body) : undefined,
   })
 }
@@ -27,7 +26,10 @@ function withCsrf(cookie: string, csrfToken: string) {
   return { Cookie: `${cookie}; csrf_token=${csrfToken}`, 'X-CSRF-Token': csrfToken }
 }
 
-function connectHocuspocus(documentName: string, token: string): Promise<{ provider: HocuspocusProvider; connected: boolean; error?: string }> {
+function connectHocuspocus(
+  documentName: string,
+  token: string,
+): Promise<{ provider: HocuspocusProvider; connected: boolean; error?: string }> {
   return new Promise((resolve) => {
     let resolved = false
     const ydoc = new Y.Doc()
@@ -65,7 +67,7 @@ function connectHocuspocus(documentName: string, token: string): Promise<{ provi
 describe('Hocuspocus Authentication (integration)', () => {
   const dmEmail = `collab-dm-${Date.now()}@example.com`
   const playerEmail = `collab-player-${Date.now()}@example.com`
-  let dmToken = ''  // raw session token for Hocuspocus
+  let dmToken = '' // raw session token for Hocuspocus
   let dmCookie = '' // full cookie string for HTTP requests
   let dmCsrf = ''
   let playerToken = ''
@@ -84,7 +86,9 @@ describe('Hocuspocus Authentication (integration)', () => {
       method: 'POST',
       body: { email: dmEmail, password: 'password123' },
     })
-    dmToken = (dmLogin.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1] || ''
+    dmToken =
+      (dmLogin.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1] ||
+      ''
     dmCookie = `better-auth.session_token=${dmToken}`
     dmCsrf = await getCsrfToken(dmCookie)
 
@@ -100,7 +104,11 @@ describe('Hocuspocus Authentication (integration)', () => {
     const entity = await api(`/api/campaigns/${campaignId}/entities`, {
       method: 'POST',
       headers: withCsrf(dmCookie, dmCsrf),
-      body: { name: 'Collab Test Entity', type: 'character', content: '# Test Entity\n\nSome content.' },
+      body: {
+        name: 'Collab Test Entity',
+        type: 'character',
+        content: '# Test Entity\n\nSome content.',
+      },
     })
     const entityData = await entity.json()
     entitySlug = entityData.slug
@@ -114,7 +122,10 @@ describe('Hocuspocus Authentication (integration)', () => {
       method: 'POST',
       body: { email: playerEmail, password: 'password123' },
     })
-    playerToken = (playerLogin.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1] || ''
+    playerToken =
+      (playerLogin.headers.get('set-cookie') || '').match(
+        /better-auth\.session_token=([^;]+)/,
+      )?.[1] || ''
     playerCookie = `better-auth.session_token=${playerToken}`
     playerCsrf = await getCsrfToken(playerCookie)
 
@@ -169,7 +180,10 @@ describe('Hocuspocus Authentication (integration)', () => {
       method: 'POST',
       body: { email: outsiderEmail, password: 'password123' },
     })
-    const outsiderCookie = (outsiderLogin.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1] || ''
+    const outsiderCookie =
+      (outsiderLogin.headers.get('set-cookie') || '').match(
+        /better-auth\.session_token=([^;]+)/,
+      )?.[1] || ''
 
     const docName = `campaign:${campaignId}:entity:${entitySlug}`
     const { provider, connected } = await connectHocuspocus(docName, outsiderCookie)
@@ -208,7 +222,11 @@ describe('Save Pipeline (integration)', () => {
     const entity = await api(`/api/campaigns/${campaignId}/entities`, {
       method: 'POST',
       headers: withCsrf(cookie, csrfToken),
-      body: { name: 'Save Test NPC', type: 'character', content: '# Save Test NPC\n\nOriginal content.' },
+      body: {
+        name: 'Save Test NPC',
+        type: 'character',
+        content: '# Save Test NPC\n\nOriginal content.',
+      },
     })
     expect(entity.status).toBe(200)
     const data = await entity.json()
@@ -227,7 +245,11 @@ describe('Save Pipeline (integration)', () => {
     const entity = await api(`/api/campaigns/${campaignId}/entities`, {
       method: 'POST',
       headers: withCsrf(cookie, csrfToken),
-      body: { name: 'Hash Test NPC', type: 'character', content: '# Hash Test\n\nContent for hash.' },
+      body: {
+        name: 'Hash Test NPC',
+        type: 'character',
+        content: '# Hash Test\n\nContent for hash.',
+      },
     })
     const data = await entity.json()
 
@@ -276,7 +298,11 @@ describe('Save Pipeline (integration)', () => {
     const entity = await api(`/api/campaigns/${campaignId}/entities`, {
       method: 'POST',
       headers: withCsrf(cookie, csrfToken),
-      body: { name: 'FTS Reindex NPC', type: 'character', content: '# FTS Test\n\nGeneric content.' },
+      body: {
+        name: 'FTS Reindex NPC',
+        type: 'character',
+        content: '# FTS Test\n\nGeneric content.',
+      },
     })
     const data = await entity.json()
 
@@ -317,33 +343,57 @@ async function getWsToken(sessionCookie: string): Promise<string> {
   return data.token
 }
 
-function connectCampaignWs(token: string, campaignId: string): Promise<{ ws: WebSocket; messages: any[]; connected: boolean }> {
+function connectCampaignWs(
+  token: string,
+  campaignId: string,
+): Promise<{ ws: WebSocket; messages: any[]; connected: boolean }> {
   return new Promise((resolve) => {
     let resolved = false
     const messages: any[] = []
-    const ws = new WebSocket(`${WS_BASE}/api/ws?token=${encodeURIComponent(token)}&campaignId=${encodeURIComponent(campaignId)}`)
+    const ws = new WebSocket(
+      `${WS_BASE}/api/ws?token=${encodeURIComponent(token)}&campaignId=${encodeURIComponent(campaignId)}`,
+    )
 
     const timeout = setTimeout(() => {
-      if (!resolved) { resolved = true; resolve({ ws, messages, connected: false }) }
+      if (!resolved) {
+        resolved = true
+        resolve({ ws, messages, connected: false })
+      }
     }, 5000)
 
     ws.on('open', () => {
       // Server validates after WS open — wait to see if it closes us
       setTimeout(() => {
-        if (!resolved) { resolved = true; clearTimeout(timeout); resolve({ ws, messages, connected: true }) }
+        if (!resolved) {
+          resolved = true
+          clearTimeout(timeout)
+          resolve({ ws, messages, connected: true })
+        }
       }, 1500)
     })
 
     ws.on('message', (data: Buffer) => {
-      try { messages.push(JSON.parse(data.toString())) } catch { /* ignore */ }
+      try {
+        messages.push(JSON.parse(data.toString()))
+      } catch {
+        /* ignore */
+      }
     })
 
     ws.on('error', () => {
-      if (!resolved) { resolved = true; clearTimeout(timeout); resolve({ ws, messages, connected: false }) }
+      if (!resolved) {
+        resolved = true
+        clearTimeout(timeout)
+        resolve({ ws, messages, connected: false })
+      }
     })
 
     ws.on('close', (code: number) => {
-      if (!resolved) { resolved = true; clearTimeout(timeout); resolve({ ws, messages, connected: false }) }
+      if (!resolved) {
+        resolved = true
+        clearTimeout(timeout)
+        resolve({ ws, messages, connected: false })
+      }
     })
   })
 }
@@ -364,7 +414,8 @@ describe('CrossWS /api/ws Authentication (integration)', () => {
       method: 'POST',
       body: { email: dmEmail, password: 'password123' },
     })
-    dmToken = (login.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1] || ''
+    dmToken =
+      (login.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1] || ''
     dmCookie = `better-auth.session_token=${dmToken}`
     dmCsrf = await getCsrfToken(dmCookie)
 
@@ -409,7 +460,8 @@ describe('CrossWS /api/ws Authentication (integration)', () => {
       method: 'POST',
       body: { email: outsiderEmail, password: 'password123' },
     })
-    const outsiderCookie = (login.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1] || ''
+    const outsiderCookie =
+      (login.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1] || ''
     const outsiderWsToken = await getWsToken(outsiderCookie)
 
     const { ws, connected } = await connectCampaignWs(outsiderWsToken, campaignId)
@@ -439,7 +491,9 @@ describe('CrossWS Presence (integration)', () => {
       method: 'POST',
       body: { email: dm1Email, password: 'password123' },
     })
-    dm1Token = (login1.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1] || ''
+    dm1Token =
+      (login1.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1] ||
+      ''
     dm1Cookie = `better-auth.session_token=${dm1Token}`
     dm1Csrf = await getCsrfToken(dm1Cookie)
 
@@ -460,7 +514,9 @@ describe('CrossWS Presence (integration)', () => {
       method: 'POST',
       body: { email: dm2Email, password: 'password123' },
     })
-    dm2Token = (login2.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1] || ''
+    dm2Token =
+      (login2.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1] ||
+      ''
     dm2Cookie = `better-auth.session_token=${dm2Token}`
     dm2Csrf = await getCsrfToken(dm2Cookie)
 
@@ -490,7 +546,7 @@ describe('CrossWS Presence (integration)', () => {
 
     // Request fresh presence list from conn2
     conn2.ws.send(JSON.stringify({ type: 'presence:list' }))
-    await new Promise(resolve => setTimeout(resolve, 300))
+    await new Promise((resolve) => setTimeout(resolve, 300))
 
     const presenceMsg = conn2.messages.filter((m: any) => m.type === 'presence:list').pop()
     expect(presenceMsg).toBeDefined()
@@ -503,7 +559,7 @@ describe('CrossWS Presence (integration)', () => {
 
 describe('Hocuspocus Session/Quest Document Auth (integration)', () => {
   const dmEmail = `collab-sq-${Date.now()}@example.com`
-  let dmToken = ''  // raw session token for Hocuspocus
+  let dmToken = '' // raw session token for Hocuspocus
   let dmCookie = '' // full cookie string for HTTP requests
   let dmCsrf = ''
   let campaignId = ''
@@ -519,7 +575,8 @@ describe('Hocuspocus Session/Quest Document Auth (integration)', () => {
       method: 'POST',
       body: { email: dmEmail, password: 'password123' },
     })
-    dmToken = (login.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1] || ''
+    dmToken =
+      (login.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1] || ''
     dmCookie = `better-auth.session_token=${dmToken}`
     dmCsrf = await getCsrfToken(dmCookie)
 

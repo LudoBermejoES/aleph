@@ -1,40 +1,82 @@
 <template>
   <div class="p-8">
     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary"> {{ $t('common.campaign') }}</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">
+        {{ $t('common.campaign') }}</NuxtLink
+      >
       <span>/</span>
       <span>{{ $t('currencies.title') }}</span>
     </div>
 
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-2xl font-bold">{{ $t('currencies.title') }}</h1>
-      <button v-if="canEdit" @click="showForm = !showForm" class="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm" data-testid="new-currency-btn">
+      <button
+        v-if="canEdit"
+        @click="showForm = !showForm"
+        class="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm"
+        data-testid="new-currency-btn"
+      >
         {{ showForm ? $t('common.cancel') : $t('currencies.new') }}
       </button>
     </div>
 
     <!-- Create form -->
-    <div v-if="showForm" class="mb-6 p-4 rounded-lg border border-border space-y-3" data-testid="currency-form">
+    <div
+      v-if="showForm"
+      class="mb-6 p-4 rounded-lg border border-border space-y-3"
+      data-testid="currency-form"
+    >
       <div class="grid grid-cols-2 gap-3">
         <div>
           <label class="text-sm font-medium block mb-1">{{ $t('currencies.name') }}</label>
-          <input v-model="form.name" :placeholder="$t('currencies.namePlaceholder')" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" data-testid="currency-name" />
+          <input
+            v-model="form.name"
+            :placeholder="$t('currencies.namePlaceholder')"
+            class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            data-testid="currency-name"
+          />
         </div>
         <div>
           <label class="text-sm font-medium block mb-1">{{ $t('currencies.symbol') }}</label>
-          <input v-model="form.symbol" :placeholder="$t('currencies.symbolPlaceholder')" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" data-testid="currency-symbol" />
+          <input
+            v-model="form.symbol"
+            :placeholder="$t('currencies.symbolPlaceholder')"
+            class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            data-testid="currency-symbol"
+          />
         </div>
         <div>
-          <label class="text-sm font-medium block mb-1">{{ $t('currencies.valueInBaseUnits') }}</label>
-          <input v-model.number="form.valueInBase" type="number" min="1" placeholder="100" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" data-testid="currency-value" />
+          <label class="text-sm font-medium block mb-1">{{
+            $t('currencies.valueInBaseUnits')
+          }}</label>
+          <input
+            v-model.number="form.valueInBase"
+            type="number"
+            min="1"
+            placeholder="100"
+            class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            data-testid="currency-value"
+          />
         </div>
         <div>
           <label class="text-sm font-medium block mb-1">{{ $t('currencies.sortOrder') }}</label>
-          <input v-model.number="form.sortOrder" type="number" min="0" placeholder="0" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" data-testid="currency-sort" />
+          <input
+            v-model.number="form.sortOrder"
+            type="number"
+            min="0"
+            placeholder="0"
+            class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            data-testid="currency-sort"
+          />
         </div>
       </div>
       <p v-if="formError" class="text-sm text-destructive">{{ formError }}</p>
-      <button @click="create" :disabled="!form.name.trim() || saving" class="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm disabled:opacity-50" data-testid="currency-save">
+      <button
+        @click="create"
+        :disabled="!form.name.trim() || saving"
+        class="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm disabled:opacity-50"
+        data-testid="currency-save"
+      >
         {{ saving ? $t('common.saving') : $t('common.save') }}
       </button>
     </div>
@@ -51,13 +93,31 @@
         <div v-if="editingId !== c.id" class="flex items-center justify-between">
           <div class="flex items-center gap-3">
             <span class="font-medium">{{ c.name }}</span>
-            <span v-if="c.symbol" class="text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground">{{ c.symbol }}</span>
+            <span
+              v-if="c.symbol"
+              class="text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground"
+              >{{ c.symbol }}</span
+            >
           </div>
           <div class="flex items-center gap-3">
-            <span class="text-sm text-muted-foreground">{{ $t('currencies.baseConversion', { value: c.valueInBase }) }}</span>
+            <span class="text-sm text-muted-foreground">{{
+              $t('currencies.baseConversion', { value: c.valueInBase })
+            }}</span>
             <div v-if="canEdit" class="flex gap-2">
-              <button @click="startEdit(c)" class="text-sm text-muted-foreground hover:text-primary" :data-testid="`currency-edit-${c.id}`">{{ $t('common.edit') }}</button>
-              <button @click="confirmDelete(c)" class="text-sm text-muted-foreground hover:text-destructive" :data-testid="`currency-delete-${c.id}`">{{ $t('common.delete') }}</button>
+              <button
+                @click="startEdit(c)"
+                class="text-sm text-muted-foreground hover:text-primary"
+                :data-testid="`currency-edit-${c.id}`"
+              >
+                {{ $t('common.edit') }}
+              </button>
+              <button
+                @click="confirmDelete(c)"
+                class="text-sm text-muted-foreground hover:text-destructive"
+                :data-testid="`currency-delete-${c.id}`"
+              >
+                {{ $t('common.delete') }}
+              </button>
             </div>
           </div>
         </div>
@@ -67,32 +127,70 @@
           <div class="grid grid-cols-2 gap-3">
             <div>
               <label class="text-sm font-medium block mb-1">{{ $t('currencies.name') }}</label>
-              <input v-model="editForm.name" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" :data-testid="`currency-edit-name-${c.id}`" />
+              <input
+                v-model="editForm.name"
+                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                :data-testid="`currency-edit-name-${c.id}`"
+              />
             </div>
             <div>
               <label class="text-sm font-medium block mb-1">{{ $t('currencies.symbol') }}</label>
-              <input v-model="editForm.symbol" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" :data-testid="`currency-edit-symbol-${c.id}`" />
+              <input
+                v-model="editForm.symbol"
+                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                :data-testid="`currency-edit-symbol-${c.id}`"
+              />
             </div>
             <div>
-              <label class="text-sm font-medium block mb-1">{{ $t('currencies.valueInBaseUnits') }}</label>
-              <input v-model.number="editForm.valueInBase" type="number" min="1" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" :data-testid="`currency-edit-value-${c.id}`" />
+              <label class="text-sm font-medium block mb-1">{{
+                $t('currencies.valueInBaseUnits')
+              }}</label>
+              <input
+                v-model.number="editForm.valueInBase"
+                type="number"
+                min="1"
+                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                :data-testid="`currency-edit-value-${c.id}`"
+              />
             </div>
             <div>
               <label class="text-sm font-medium block mb-1">{{ $t('currencies.sortOrder') }}</label>
-              <input v-model.number="editForm.sortOrder" type="number" min="0" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" :data-testid="`currency-edit-sort-${c.id}`" />
+              <input
+                v-model.number="editForm.sortOrder"
+                type="number"
+                min="0"
+                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                :data-testid="`currency-edit-sort-${c.id}`"
+              />
             </div>
           </div>
           <p v-if="editError" class="text-sm text-destructive">{{ editError }}</p>
           <div class="flex gap-2">
-            <button @click="saveEdit(c.id)" :disabled="!editForm.name.trim() || saving" class="px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-sm disabled:opacity-50" :data-testid="`currency-edit-save-${c.id}`">
+            <button
+              @click="saveEdit(c.id)"
+              :disabled="!editForm.name.trim() || saving"
+              class="px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-sm disabled:opacity-50"
+              :data-testid="`currency-edit-save-${c.id}`"
+            >
               {{ saving ? $t('common.saving') : $t('common.save') }}
             </button>
-            <button @click="cancelEdit" class="px-3 py-1.5 rounded-md border border-border text-sm" :data-testid="`currency-edit-cancel-${c.id}`">{{ $t('common.cancel') }}</button>
+            <button
+              @click="cancelEdit"
+              class="px-3 py-1.5 rounded-md border border-border text-sm"
+              :data-testid="`currency-edit-cancel-${c.id}`"
+            >
+              {{ $t('common.cancel') }}
+            </button>
           </div>
         </div>
       </div>
     </div>
-    <EmptyState v-else icon="💰" :title="$t('currencies.empty')" :description="$t('currencies.emptyDescription')" />
+    <EmptyState
+      v-else
+      icon="💰"
+      :title="$t('currencies.empty')"
+      :description="$t('currencies.emptyDescription')"
+    />
 
     <ErrorToast v-if="error" :message="error" @dismiss="error = ''" />
 
@@ -102,10 +200,23 @@
         <DialogHeader>
           <DialogTitle>{{ $t('currencies.deleteTitle') }}</DialogTitle>
         </DialogHeader>
-        <p class="text-sm text-muted-foreground py-2">{{ $t('currencies.deleteConfirm', { name: deletingCurrency?.name }) }}</p>
+        <p class="text-sm text-muted-foreground py-2">
+          {{ $t('currencies.deleteConfirm', { name: deletingCurrency?.name }) }}
+        </p>
         <DialogFooter>
-          <button @click="showDeleteDialog = false" class="px-3 py-1.5 rounded-md border border-border text-sm" data-testid="currency-delete-cancel">{{ $t('common.cancel') }}</button>
-          <button @click="deleteCurrency" :disabled="saving" class="px-3 py-1.5 rounded-md bg-destructive text-destructive-foreground text-sm disabled:opacity-50" data-testid="currency-delete-confirm">
+          <button
+            @click="showDeleteDialog = false"
+            class="px-3 py-1.5 rounded-md border border-border text-sm"
+            data-testid="currency-delete-cancel"
+          >
+            {{ $t('common.cancel') }}
+          </button>
+          <button
+            @click="deleteCurrency"
+            :disabled="saving"
+            class="px-3 py-1.5 rounded-md bg-destructive text-destructive-foreground text-sm disabled:opacity-50"
+            data-testid="currency-delete-confirm"
+          >
             {{ saving ? $t('common.deleting') : $t('common.delete') }}
           </button>
         </DialogFooter>
@@ -115,7 +226,13 @@
 </template>
 
 <script setup lang="ts">
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '~/components/ui/dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '~/components/ui/dialog'
 
 const route = useRoute()
 const campaignId = route.params.id as string
@@ -145,10 +262,7 @@ const canEdit = computed(() => {
 async function load() {
   loading.value = true
   try {
-    const [currencies, camp] = await Promise.all([
-      api.getCurrencies(),
-      api.getCampaign(),
-    ])
+    const [currencies, camp] = await Promise.all([api.getCurrencies(), api.getCampaign()])
     currencyList.value = currencies
     campaign.value = camp
   } catch {
@@ -176,7 +290,12 @@ async function create() {
 
 function startEdit(c: any) {
   editingId.value = c.id
-  editForm.value = { name: c.name, symbol: c.symbol || '', valueInBase: c.valueInBase, sortOrder: c.sortOrder ?? 0 }
+  editForm.value = {
+    name: c.name,
+    symbol: c.symbol || '',
+    valueInBase: c.valueInBase,
+    sortOrder: c.sortOrder ?? 0,
+  }
   editError.value = ''
 }
 

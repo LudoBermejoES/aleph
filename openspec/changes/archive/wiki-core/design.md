@@ -5,6 +5,7 @@
 ### Entity Storage Model
 
 Entities use a hybrid storage pattern:
+
 - **SQLite**: `entities` table holds metadata (id, campaign_id, type, slug, name, parent_id, template_id, visibility, timestamps)
 - **Filesystem**: `content/campaigns/{campaign_slug}/entities/{type}/{slug}.md` holds the markdown body with YAML frontmatter
 

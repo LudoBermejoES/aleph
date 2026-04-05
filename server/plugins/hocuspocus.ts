@@ -45,9 +45,12 @@ export default defineNitroPlugin(async () => {
         const campaignId = parts[1]!
 
         // Check campaign membership
-        const membership = useDb().select()
+        const membership = useDb()
+          .select()
           .from(campaignMembers)
-          .where(and(eq(campaignMembers.campaignId, campaignId), eq(campaignMembers.userId, userId)))
+          .where(
+            and(eq(campaignMembers.campaignId, campaignId), eq(campaignMembers.userId, userId)),
+          )
           .get()
 
         if (!membership) throw new Error('Not a campaign member')
@@ -72,22 +75,37 @@ export default defineNitroPlugin(async () => {
         let filePath: string | null = null
 
         if (docType === 'entity') {
-          const entity = db.select().from(entities)
+          const entity = db
+            .select()
+            .from(entities)
             .where(and(eq(entities.campaignId, campaignId), eq(entities.slug, slug)))
             .get()
-          if (!entity) { logger.warn('Hocuspocus: entity not found', { documentName }); return }
+          if (!entity) {
+            logger.warn('Hocuspocus: entity not found', { documentName })
+            return
+          }
           filePath = entity.filePath
         } else if (docType === 'session') {
-          const session = db.select().from(gameSessions)
+          const session = db
+            .select()
+            .from(gameSessions)
             .where(and(eq(gameSessions.campaignId, campaignId), eq(gameSessions.slug, slug)))
             .get()
-          if (!session) { logger.warn('Hocuspocus: session not found', { documentName }); return }
+          if (!session) {
+            logger.warn('Hocuspocus: session not found', { documentName })
+            return
+          }
           filePath = session.logFilePath ?? null
         } else if (docType === 'quest') {
-          const quest = db.select().from(quests)
+          const quest = db
+            .select()
+            .from(quests)
             .where(and(eq(quests.campaignId, campaignId), eq(quests.slug, slug)))
             .get()
-          if (!quest) { logger.warn('Hocuspocus: quest not found', { documentName }); return }
+          if (!quest) {
+            logger.warn('Hocuspocus: quest not found', { documentName })
+            return
+          }
           filePath = quest.logFilePath ?? null
         }
 
@@ -128,7 +146,9 @@ export default defineNitroPlugin(async () => {
         let entityName: string | null = null
 
         if (docType === 'entity') {
-          const entity = db.select().from(entities)
+          const entity = db
+            .select()
+            .from(entities)
             .where(and(eq(entities.campaignId, campaignId), eq(entities.slug, slug)))
             .get()
           if (!entity) return
@@ -136,13 +156,17 @@ export default defineNitroPlugin(async () => {
           entityId = entity.id
           entityName = entity.name
         } else if (docType === 'session') {
-          const session = db.select().from(gameSessions)
+          const session = db
+            .select()
+            .from(gameSessions)
             .where(and(eq(gameSessions.campaignId, campaignId), eq(gameSessions.slug, slug)))
             .get()
           if (!session || !session.logFilePath) return
           filePath = session.logFilePath
         } else if (docType === 'quest') {
-          const quest = db.select().from(quests)
+          const quest = db
+            .select()
+            .from(quests)
             .where(and(eq(quests.campaignId, campaignId), eq(quests.slug, slug)))
             .get()
           if (!quest || !quest.logFilePath) return
@@ -162,7 +186,11 @@ export default defineNitroPlugin(async () => {
             // Read existing frontmatter and write updated file
             const existing = await readEntityFile(filePath)
             const mergedFm = mergeFrontmatter(existing.frontmatter as Record<string, unknown>, {})
-            const hash = await writeEntityFile(filePath, mergedFm as Record<string, unknown>, markdown)
+            const hash = await writeEntityFile(
+              filePath,
+              mergedFm as Record<string, unknown>,
+              markdown,
+            )
 
             if (docType === 'entity' && entityId && entityName) {
               // Update content hash in DB and re-index in FTS5
@@ -179,20 +207,29 @@ export default defineNitroPlugin(async () => {
             const isLastAttempt = attempt === maxRetries
             if (isLastAttempt) {
               logger.error('Hocuspocus: failed to save document after retries', {
-                documentName, attempts: maxRetries, error: err,
+                documentName,
+                attempts: maxRetries,
+                error: err,
               })
               try {
-                document.broadcastStateless(JSON.stringify({
-                  type: 'save-error',
-                  message: `Failed to save ${slug} after ${maxRetries} attempts`,
-                }))
-              } catch { /* best-effort notification */ }
+                document.broadcastStateless(
+                  JSON.stringify({
+                    type: 'save-error',
+                    message: `Failed to save ${slug} after ${maxRetries} attempts`,
+                  }),
+                )
+              } catch {
+                /* best-effort notification */
+              }
             } else {
               const delay = 500 * Math.pow(2, attempt - 1)
               logger.warn('Hocuspocus: save failed, retrying', {
-                documentName, attempt, delay, error: err,
+                documentName,
+                attempt,
+                delay,
+                error: err,
               })
-              await new Promise(resolve => setTimeout(resolve, delay))
+              await new Promise((resolve) => setTimeout(resolve, delay))
             }
           }
         }

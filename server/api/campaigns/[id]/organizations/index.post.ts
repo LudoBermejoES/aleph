@@ -28,26 +28,32 @@ export default defineEventHandler(async (event) => {
   const now = new Date()
 
   let slug = slugify(name)
-  const existing = db.select({ id: organizations.id })
+  const existing = db
+    .select({ id: organizations.id })
     .from(organizations)
     .where(and(eq(organizations.campaignId, campaignId), eq(organizations.slug, slug)))
     .get()
   if (existing) {
-    throw createError({ statusCode: 409, message: 'An organization with this name already exists in this campaign' })
+    throw createError({
+      statusCode: 409,
+      message: 'An organization with this name already exists in this campaign',
+    })
   }
 
   const id = randomUUID()
-  db.insert(organizations).values({
-    id,
-    campaignId,
-    name: name.trim(),
-    slug,
-    description: description || null,
-    type: type || 'faction',
-    status: status || 'active',
-    createdAt: now,
-    updatedAt: now,
-  }).run()
+  db.insert(organizations)
+    .values({
+      id,
+      campaignId,
+      name: name.trim(),
+      slug,
+      description: description || null,
+      type: type || 'faction',
+      status: status || 'active',
+      createdAt: now,
+      updatedAt: now,
+    })
+    .run()
 
   return db.select().from(organizations).where(eq(organizations.id, id)).get()
 })

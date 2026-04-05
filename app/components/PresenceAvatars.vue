@@ -39,7 +39,7 @@ const overflow = computed(() => Math.max(0, props.users.length - maxShow.value))
 function initials(name: string): string {
   return name
     .split(' ')
-    .map(w => w[0])
+    .map((w) => w[0])
     .slice(0, 2)
     .join('')
     .toUpperCase()

@@ -67,7 +67,7 @@ export function useCampaignSocket(campaignId: Ref<string | undefined>) {
 
         case 'presence:join': {
           const user = data.user as PresenceUser
-          if (!presenceUsers.value.find(u => u.userId === user.userId)) {
+          if (!presenceUsers.value.find((u) => u.userId === user.userId)) {
             presenceUsers.value = [...presenceUsers.value, user]
           }
           break
@@ -75,7 +75,7 @@ export function useCampaignSocket(campaignId: Ref<string | undefined>) {
 
         case 'presence:leave': {
           const userId = data.user?.userId
-          presenceUsers.value = presenceUsers.value.filter(u => u.userId !== userId)
+          presenceUsers.value = presenceUsers.value.filter((u) => u.userId !== userId)
           break
         }
 
@@ -95,7 +95,11 @@ export function useCampaignSocket(campaignId: Ref<string | undefined>) {
         case 'secret:unreveal': {
           for (const entry of secretEventHandlers) {
             if (entry.event === data.type) {
-              entry.handler({ entityId: data.entityId, entitySlug: data.entitySlug, blockId: data.blockId })
+              entry.handler({
+                entityId: data.entityId,
+                entitySlug: data.entitySlug,
+                blockId: data.blockId,
+              })
             }
           }
           break
@@ -132,15 +136,17 @@ export function useCampaignSocket(campaignId: Ref<string | undefined>) {
 
   function sendNotification(message: string, notificationType = 'info') {
     if (!ws || ws.readyState !== WebSocket.OPEN) return
-    ws.send(JSON.stringify({
-      type: 'notification',
-      notificationType,
-      message,
-    }))
+    ws.send(
+      JSON.stringify({
+        type: 'notification',
+        notificationType,
+        message,
+      }),
+    )
   }
 
   function dismissNotification(id: string) {
-    notifications.value = notifications.value.filter(n => n.id !== id)
+    notifications.value = notifications.value.filter((n) => n.id !== id)
   }
 
   function onSecretEvent(event: 'secret:reveal' | 'secret:unreveal', handler: SecretEventHandler) {
@@ -150,10 +156,14 @@ export function useCampaignSocket(campaignId: Ref<string | undefined>) {
   }
 
   // Auto-connect/disconnect when campaignId changes
-  watch(campaignId, (newId, oldId) => {
-    if (oldId) disconnect()
-    if (newId) connect()
-  }, { immediate: true })
+  watch(
+    campaignId,
+    (newId, oldId) => {
+      if (oldId) disconnect()
+      if (newId) connect()
+    },
+    { immediate: true },
+  )
 
   // Cleanup on unmount
   onUnmounted(() => {

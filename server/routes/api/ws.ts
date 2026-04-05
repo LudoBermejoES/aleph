@@ -5,11 +5,7 @@ import { eq, and } from 'drizzle-orm'
 import { campaignMembers } from '../../db/schema/campaign-members'
 import { logger } from '../../utils/logger'
 import { registerBroadcast } from '../../utils/broadcast'
-import {
-  addUserPresence,
-  scheduleRemoval,
-  getPresenceList,
-} from '../../services/presence'
+import { addUserPresence, scheduleRemoval, getPresenceList } from '../../services/presence'
 
 // --- Types ---
 
@@ -36,7 +32,11 @@ registerBroadcast((campaignId: string, message: string) => {
   for (const peer of activePeers) {
     const ctx = peerContexts.get(peer)
     if (ctx?.campaignId === campaignId) {
-      try { peer.send(message) } catch { /* peer may be closing */ }
+      try {
+        peer.send(message)
+      } catch {
+        /* peer may be closing */
+      }
     }
   }
 })
@@ -70,7 +70,8 @@ export default defineWebSocketHandler({
 
     // Check campaign membership
     const db = useDb()
-    const membership = db.select()
+    const membership = db
+      .select()
       .from(campaignMembers)
       .where(and(eq(campaignMembers.campaignId, campaignId), eq(campaignMembers.userId, userId)))
       .get()
@@ -82,9 +83,7 @@ export default defineWebSocketHandler({
     }
 
     // Look up user name
-    const user = db.select().from(campaignMembers)
-      .where(eq(campaignMembers.userId, userId))
-      .get()
+    const user = db.select().from(campaignMembers).where(eq(campaignMembers.userId, userId)).get()
 
     // Store context on peer
     const context: PeerContext = {
@@ -103,18 +102,23 @@ export default defineWebSocketHandler({
     addUserPresence(campaignId, userId, context.userName, membership.role)
 
     // Notify others
-    peer.publish(`campaign:${campaignId}`, JSON.stringify({
-      type: 'presence:join',
-      campaignId,
-      user: { userId, name: context.userName, role: membership.role },
-    }))
+    peer.publish(
+      `campaign:${campaignId}`,
+      JSON.stringify({
+        type: 'presence:join',
+        campaignId,
+        user: { userId, name: context.userName, role: membership.role },
+      }),
+    )
 
     // Send current presence list to the connecting peer
-    peer.send(JSON.stringify({
-      type: 'presence:list',
-      campaignId,
-      users: getPresenceList(campaignId),
-    }))
+    peer.send(
+      JSON.stringify({
+        type: 'presence:list',
+        campaignId,
+        users: getPresenceList(campaignId),
+      }),
+    )
 
     logger.debug('WebSocket: user connected', { userId, campaignId })
   },
@@ -132,36 +136,44 @@ export default defineWebSocketHandler({
 
     switch (data.type) {
       case 'presence:list': {
-        peer.send(JSON.stringify({
-          type: 'presence:list',
-          campaignId: context.campaignId,
-          users: getPresenceList(context.campaignId),
-        }))
+        peer.send(
+          JSON.stringify({
+            type: 'presence:list',
+            campaignId: context.campaignId,
+            users: getPresenceList(context.campaignId),
+          }),
+        )
         break
       }
 
       case 'notification': {
         const { type: _type, ...payload } = data
-        peer.publish(`campaign:${context.campaignId}`, JSON.stringify({
-          type: 'notification',
-          campaignId: context.campaignId,
-          from: { userId: context.userId, name: context.userName },
-          ...payload,
-        }))
+        peer.publish(
+          `campaign:${context.campaignId}`,
+          JSON.stringify({
+            type: 'notification',
+            campaignId: context.campaignId,
+            from: { userId: context.userId, name: context.userName },
+            ...payload,
+          }),
+        )
         break
       }
 
       case 'dice:roll': {
         // Client broadcasts a roll result to all campaign members
-        peer.publish(`campaign:${context.campaignId}`, JSON.stringify({
-          type: 'dice:roll',
-          campaignId: context.campaignId,
-          userId: context.userId,
-          userName: context.userName,
-          formula: data.formula,
-          result: data.result,
-          timestamp: Date.now(),
-        }))
+        peer.publish(
+          `campaign:${context.campaignId}`,
+          JSON.stringify({
+            type: 'dice:roll',
+            campaignId: context.campaignId,
+            userId: context.userId,
+            userName: context.userName,
+            formula: data.formula,
+            result: data.result,
+            timestamp: Date.now(),
+          }),
+        )
         break
       }
 
@@ -180,11 +192,14 @@ export default defineWebSocketHandler({
     // 5s grace period before removing from presence
     scheduleRemoval(campaignId, userId, 5000, () => {
       // Notify remaining users after grace period
-      peer.publish(`campaign:${campaignId}`, JSON.stringify({
-        type: 'presence:leave',
-        campaignId,
-        user: { userId, name: userName },
-      }))
+      peer.publish(
+        `campaign:${campaignId}`,
+        JSON.stringify({
+          type: 'presence:leave',
+          campaignId,
+          user: { userId, name: userName },
+        }),
+      )
       logger.debug('WebSocket: user left (after grace period)', { userId, campaignId })
     })
   },

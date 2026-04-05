@@ -21,7 +21,13 @@ describe('Form component create vs edit mode (12.39)', () => {
     return { name: '', type: 'note', visibility: 'members', tagsRaw: '', content: '' }
   }
 
-  function prefillForm(existing: { name: string; type: string; visibility: string; tags: string[]; content: string }): EntityFormData {
+  function prefillForm(existing: {
+    name: string
+    type: string
+    visibility: string
+    tags: string[]
+    content: string
+  }): EntityFormData {
     return {
       name: existing.name,
       type: existing.type,
@@ -36,7 +42,10 @@ describe('Form component create vs edit mode (12.39)', () => {
       name: form.name,
       type: form.type,
       visibility: form.visibility,
-      tags: form.tagsRaw.split(',').map(t => t.trim()).filter(Boolean),
+      tags: form.tagsRaw
+        .split(',')
+        .map((t) => t.trim())
+        .filter(Boolean),
       content: form.content,
     }
   }

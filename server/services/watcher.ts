@@ -88,9 +88,9 @@ async function handleAddOrChange(
 
   // Check if content actually changed
   if (action === 'change') {
-    const existing = sqlite.prepare(
-      'SELECT content_hash FROM entities_fts_content WHERE entity_id = ?'
-    ).get(frontmatter.id) as { content_hash: string } | undefined
+    const existing = sqlite
+      .prepare('SELECT content_hash FROM entities_fts_content WHERE entity_id = ?')
+      .get(frontmatter.id) as { content_hash: string } | undefined
 
     // We store hash in a separate tracking -- for now just re-index
   }

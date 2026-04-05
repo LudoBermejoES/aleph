@@ -15,6 +15,7 @@ Aleph has a Dockerfile and docker-compose.yml but no automated deployment pipeli
 ## Capabilities
 
 ### New Capabilities
+
 - `server-deployment`: Automated CI/CD deployment pipeline to a remote Linux server
 
 ### Modified Capabilities

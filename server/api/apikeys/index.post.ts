@@ -20,14 +20,16 @@ export default defineEventHandler(async (event) => {
   const id = randomUUID()
   const now = new Date()
 
-  db.insert(apiKeyTable).values({
-    id,
-    userId: user.id,
-    name: name.trim(),
-    keyHash: hash,
-    keyPrefix: prefix,
-    createdAt: now,
-  }).run()
+  db.insert(apiKeyTable)
+    .values({
+      id,
+      userId: user.id,
+      name: name.trim(),
+      keyHash: hash,
+      keyPrefix: prefix,
+      createdAt: now,
+    })
+    .run()
 
   return { id, name: name.trim(), key: raw, keyPrefix: prefix, createdAt: now }
 })

@@ -63,7 +63,7 @@ describe('CampaignToast — notification filtering', () => {
     ]
 
     // Filter: don't show notifications from the current user
-    const filtered = notifications.filter(n => n.actorUserId !== currentUserId)
+    const filtered = notifications.filter((n) => n.actorUserId !== currentUserId)
     expect(filtered).toHaveLength(2)
     expect(filtered[0].message).toBe('Session created')
     expect(filtered[1].message).toBe('Map uploaded')

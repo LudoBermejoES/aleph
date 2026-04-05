@@ -10,7 +10,8 @@ import type { CampaignRole } from '../../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
   const role = event.context.campaignRole as CampaignRole
-  if (!hasMinRole(role, 'player')) throw createError({ statusCode: 403, message: 'Players or above can manage inventory' })
+  if (!hasMinRole(role, 'player'))
+    throw createError({ statusCode: 403, message: 'Players or above can manage inventory' })
 
   const inventoryId = getRouterParam(event, 'inventoryId')!
   const userId = event.context.user?.id
@@ -28,10 +29,16 @@ export default defineEventHandler(async (event) => {
 
   // RBAC: players can only add items to their own character's inventory
   if (role === 'player' && userId && inv.ownerType === 'character') {
-    const ownerChar = db.select().from(characters)
+    const ownerChar = db
+      .select()
+      .from(characters)
       .where(and(eq(characters.id, inv.ownerId), eq(characters.ownerUserId, userId)))
       .get()
-    if (!ownerChar) throw createError({ statusCode: 403, message: 'You can only manage your own character\'s inventory' })
+    if (!ownerChar)
+      throw createError({
+        statusCode: 403,
+        message: "You can only manage your own character's inventory",
+      })
   }
 
   // Check if stackable item already exists
@@ -39,8 +46,12 @@ export default defineEventHandler(async (event) => {
   if (!item) throw createError({ statusCode: 404, message: 'Item not found' })
 
   if (item.stackable) {
-    const existing = db.select().from(inventoryItems)
-      .where(and(eq(inventoryItems.inventoryId, inventoryId), eq(inventoryItems.itemId, body.itemId)))
+    const existing = db
+      .select()
+      .from(inventoryItems)
+      .where(
+        and(eq(inventoryItems.inventoryId, inventoryId), eq(inventoryItems.itemId, body.itemId)),
+      )
       .get()
 
     if (existing) {
@@ -53,15 +64,17 @@ export default defineEventHandler(async (event) => {
   }
 
   const id = randomUUID()
-  db.insert(inventoryItems).values({
-    id,
-    inventoryId,
-    itemId: body.itemId,
-    quantity: body.quantity || 1,
-    position: body.position || 'backpack',
-    notes: body.notes || null,
-    acquiredAt: new Date(),
-  }).run()
+  db.insert(inventoryItems)
+    .values({
+      id,
+      inventoryId,
+      itemId: body.itemId,
+      quantity: body.quantity || 1,
+      position: body.position || 'backpack',
+      notes: body.notes || null,
+      acquiredAt: new Date(),
+    })
+    .run()
 
   return { id, stacked: false }
 })

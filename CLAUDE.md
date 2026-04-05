@@ -16,11 +16,11 @@ TTRPG Campaign Management Suite. Full-stack Nuxt 4 app (Vue 3, Nitro, SQLite via
 
 Every change must include tests at the appropriate levels. Skip a level only with a clear reason.
 
-| Level | Tool | When required |
-|-------|------|---------------|
-| Unit | Vitest (`tests/unit/`) | Any pure logic, utilities, DB helpers, composables |
+| Level       | Tool                          | When required                                                      |
+| ----------- | ----------------------------- | ------------------------------------------------------------------ |
+| Unit        | Vitest (`tests/unit/`)        | Any pure logic, utilities, DB helpers, composables                 |
 | Integration | Vitest (`tests/integration/`) | Any server API endpoint or auth flow; requires server on port 3333 |
-| E2E | Playwright (`tests/e2e/`) | Any user-facing flow (page, form, navigation) |
+| E2E         | Playwright (`tests/e2e/`)     | Any user-facing flow (page, form, navigation)                      |
 
 Run unit tests: `npx vitest run tests/unit/`
 Run integration tests: `npx vitest run tests/integration/` (server must be running)
@@ -33,6 +33,7 @@ The `cli/` directory is a standalone Node.js CLI (`aleph-cli`) that talks to the
 **Before finishing any change, ask:** does this add or modify a server API endpoint, auth flow, or data model?
 
 If yes, update:
+
 - `cli/src/commands/` — relevant command file(s)
 - `cli/src/lib/client.js` — if the HTTP interface changed
 - `cli/src/lib/config.js` — if auth or config shape changed

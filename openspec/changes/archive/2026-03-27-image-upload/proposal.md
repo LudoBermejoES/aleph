@@ -14,9 +14,11 @@ The MarkdownEditor (Tiptap) has no way to include images in wiki entries, charac
 ## Capabilities
 
 ### New Capabilities
+
 - `editor-image-upload`: Paste, drop, or picker-insert images in the MarkdownEditor; images are uploaded to the campaign and rendered inline.
 
 ### Modified Capabilities
+
 - `character-management`: Character description field (MarkdownEditor) gains image support — no spec-level requirement change, implementation only.
 
 ## Impact

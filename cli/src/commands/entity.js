@@ -24,7 +24,14 @@ export function makeEntityCommand() {
       if (opts.json) {
         print(entities, { json: true })
       } else {
-        print(entities.map(e => ({ name: e.name, type: e.type, slug: e.slug, visibility: e.visibility })))
+        print(
+          entities.map((e) => ({
+            name: e.name,
+            type: e.type,
+            slug: e.slug,
+            visibility: e.visibility,
+          })),
+        )
       }
     })
 
@@ -59,7 +66,14 @@ export function makeEntityCommand() {
       if (opts.json) {
         print(data, { json: true })
       } else {
-        print({ name: data.name, type: data.type, slug: data.slug, visibility: data.visibility, tags: (data.tags || []).join(', '), content: (data.content || '').slice(0, 200) })
+        print({
+          name: data.name,
+          type: data.type,
+          slug: data.slug,
+          visibility: data.visibility,
+          tags: (data.tags || []).join(', '),
+          content: (data.content || '').slice(0, 200),
+        })
       }
     })
 
@@ -95,7 +109,10 @@ export function makeEntityCommand() {
     .action(async (slug, opts) => {
       if (!opts.yes) {
         const ok = await confirm({ message: `Delete entity "${slug}"?`, default: false })
-        if (!ok) { process.stdout.write('Cancelled.\n'); return }
+        if (!ok) {
+          process.stdout.write('Cancelled.\n')
+          return
+        }
       }
       await del(`/api/campaigns/${opts.campaign}/entities/${slug}`)
       success(`Entity "${slug}" deleted.`)
@@ -144,8 +161,14 @@ export function makeEntityCommand() {
     .option('--yes', 'Skip confirmation')
     .action(async (typeId, opts) => {
       if (!opts.yes) {
-        const ok = await confirm({ message: `Delete entity type ${typeId}? This cannot be undone.`, default: false })
-        if (!ok) { process.stdout.write('Cancelled.\n'); return }
+        const ok = await confirm({
+          message: `Delete entity type ${typeId}? This cannot be undone.`,
+          default: false,
+        })
+        if (!ok) {
+          process.stdout.write('Cancelled.\n')
+          return
+        }
       }
       await del(`/api/campaigns/${opts.campaign}/entity-types/${typeId}`)
       success(`Entity type ${typeId} deleted.`)

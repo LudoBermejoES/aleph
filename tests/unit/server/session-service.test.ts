@@ -78,7 +78,7 @@ describe('filterSecretQuests', () => {
   it('player sees only non-secret quests', () => {
     const result = filterSecretQuests(quests, 'player')
     expect(result).toHaveLength(2)
-    expect(result.every(q => !q.isSecret)).toBe(true)
+    expect(result.every((q) => !q.isSecret)).toBe(true)
   })
 
   it('editor sees only non-secret quests', () => {

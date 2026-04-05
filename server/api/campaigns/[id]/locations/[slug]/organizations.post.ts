@@ -23,12 +23,21 @@ export default defineEventHandler(async (event) => {
 
   const db = useDb()
 
-  const location = db.select().from(entities)
-    .where(and(eq(entities.campaignId, campaignId), eq(entities.slug, slug), eq(entities.type, 'location')))
+  const location = db
+    .select()
+    .from(entities)
+    .where(
+      and(
+        eq(entities.campaignId, campaignId),
+        eq(entities.slug, slug),
+        eq(entities.type, 'location'),
+      ),
+    )
     .get()
   if (!location) throw createError({ statusCode: 404, message: 'Location not found' })
 
-  const org = db.select({ id: organizations.id })
+  const org = db
+    .select({ id: organizations.id })
     .from(organizations)
     .where(and(eq(organizations.id, organizationId), eq(organizations.campaignId, campaignId)))
     .get()
@@ -36,11 +45,15 @@ export default defineEventHandler(async (event) => {
 
   // Insert link (ignore if already exists)
   try {
-    db.insert(organizationLocations).values({
-      organizationId,
-      locationEntityId: location.id,
-    }).run()
-  } catch { /* duplicate — already linked */ }
+    db.insert(organizationLocations)
+      .values({
+        organizationId,
+        locationEntityId: location.id,
+      })
+      .run()
+  } catch {
+    /* duplicate — already linked */
+  }
 
   return { success: true }
 })

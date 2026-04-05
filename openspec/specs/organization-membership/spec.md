@@ -1,8 +1,11 @@
 # organization-membership Specification
 
 ## Purpose
+
 TBD - created by archiving change organizations. Update Purpose after archive.
+
 ## Requirements
+
 ### Requirement: Add Member to Organization
 
 The system SHALL provide a `POST /api/campaigns/:id/organizations/:slug/members` endpoint that adds a character to an organization with an optional role. Restricted to dm, co_dm, and editor roles.
@@ -171,4 +174,3 @@ The system SHALL provide an `organization` command group in aleph-cli with the f
 - WHEN they run any `aleph organization` subcommand
 - THEN an error message is printed: "Not authenticated. Run `aleph login` first."
 - AND the exit code is non-zero
-

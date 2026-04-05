@@ -25,13 +25,13 @@ describe('filterPinsByVisibility', () => {
   it('editor sees public, members, and editors pins', () => {
     const result = filterPinsByVisibility(pins, 'editor')
     expect(result).toHaveLength(3)
-    expect(result.find(p => p.visibility === 'dm_only')).toBeUndefined()
+    expect(result.find((p) => p.visibility === 'dm_only')).toBeUndefined()
   })
 
   it('player sees public and members pins', () => {
     const result = filterPinsByVisibility(pins, 'player')
     expect(result).toHaveLength(2)
-    expect(result.map(p => p.visibility)).toEqual(['public', 'members'])
+    expect(result.map((p) => p.visibility)).toEqual(['public', 'members'])
   })
 
   it('visitor sees only public pins', () => {

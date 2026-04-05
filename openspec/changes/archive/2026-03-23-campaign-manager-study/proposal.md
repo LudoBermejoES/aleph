@@ -26,6 +26,7 @@ The TTRPG campaign management space is fragmented. After analyzing 10+ existing 
 ## Scope
 
 ### In scope
+
 - Feature analysis and requirements for all core domains:
   - Worldbuilding wiki (entities, templates, auto-linking)
   - Maps (interactive, pins, layers, nested)
@@ -42,6 +43,7 @@ The TTRPG campaign management space is fragmented. After analyzing 10+ existing 
 - Data model conceptual design
 
 ### Out of scope
+
 - Implementation code
 - UI/UX mockups or wireframes
 - VTT (Virtual Tabletop) integration
@@ -56,15 +58,15 @@ Research-first: Each task produces documented findings that feed into the final 
 
 ## Competitive Landscape Summary
 
-| Tool | Strengths | Weaknesses | Key Inspiration |
-|------|-----------|------------|-----------------|
-| **Amsel Suite** (Tome + Lore) | Non-linear storytelling, Arcana tracking, template system, offline | Desktop only, no multiplayer/web | Story structure, Arcana/decision tracking, template builder |
-| **Kanka.io** | 20+ entity types, deep permissions, plugin system, self-hostable | Complex UI, premium gates many features | Entity system, RBAC, mentions, properties, plugin architecture |
-| **World Anvil** | 28+ article templates, autolinker, manuscripts, huge community | Complexity, BBCode editor, subscription tiers | Article templates, autolinker, chronicles, statblocks |
-| **LegendKeeper** | Best wiki UX, auto-linking, massive maps, real-time collab, meters | No calendar (standalone tool), early-stage features | Wiki editor, atlas system, meters, boards, travel navigation |
-| **Chronica** | Session/party management, inventory, kingdom building, shops | No wiki, per-campaign pricing, limited maps | Quest log, inventory system, shops, kingdom building, player roles |
-| **Obsidian Portal** | Longest-running, adventure log, DSTs, community | Dated UI, limited free tier, basic maps | Adventure log, dynamic character sheets, community model |
-| **Scabard** | Connection graph, AI backstory gen, Foundry integration | Limited free tier, basic features | Relationship graph, proper noun detection, auto-linking |
-| **Campaign Logger** | Fast session logging, tag system, generators | Text-only, no visual tools, no maps | Tag-based logging, generator engine, rapid note-taking |
-| **Notebook.ai** | 31 content types, bidirectional linking, writing tools | No session management, no maps, minimal collab | Content type breadth, bidirectional relationships |
-| **YARPS** | Storygraph, music integration, fog-of-war, modular pricing | Uncertain status, complex pricing | Narrative database concept, music/atmosphere tools |
+| Tool                          | Strengths                                                          | Weaknesses                                          | Key Inspiration                                                    |
+| ----------------------------- | ------------------------------------------------------------------ | --------------------------------------------------- | ------------------------------------------------------------------ |
+| **Amsel Suite** (Tome + Lore) | Non-linear storytelling, Arcana tracking, template system, offline | Desktop only, no multiplayer/web                    | Story structure, Arcana/decision tracking, template builder        |
+| **Kanka.io**                  | 20+ entity types, deep permissions, plugin system, self-hostable   | Complex UI, premium gates many features             | Entity system, RBAC, mentions, properties, plugin architecture     |
+| **World Anvil**               | 28+ article templates, autolinker, manuscripts, huge community     | Complexity, BBCode editor, subscription tiers       | Article templates, autolinker, chronicles, statblocks              |
+| **LegendKeeper**              | Best wiki UX, auto-linking, massive maps, real-time collab, meters | No calendar (standalone tool), early-stage features | Wiki editor, atlas system, meters, boards, travel navigation       |
+| **Chronica**                  | Session/party management, inventory, kingdom building, shops       | No wiki, per-campaign pricing, limited maps         | Quest log, inventory system, shops, kingdom building, player roles |
+| **Obsidian Portal**           | Longest-running, adventure log, DSTs, community                    | Dated UI, limited free tier, basic maps             | Adventure log, dynamic character sheets, community model           |
+| **Scabard**                   | Connection graph, AI backstory gen, Foundry integration            | Limited free tier, basic features                   | Relationship graph, proper noun detection, auto-linking            |
+| **Campaign Logger**           | Fast session logging, tag system, generators                       | Text-only, no visual tools, no maps                 | Tag-based logging, generator engine, rapid note-taking             |
+| **Notebook.ai**               | 31 content types, bidirectional linking, writing tools             | No session management, no maps, minimal collab      | Content type breadth, bidirectional relationships                  |
+| **YARPS**                     | Storygraph, music integration, fog-of-war, modular pricing         | Uncertain status, complex pricing                   | Narrative database concept, music/atmosphere tools                 |

@@ -1,7 +1,9 @@
 <template>
   <div class="p-8">
     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary"> {{ $t('common.campaign') }}</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">
+        {{ $t('common.campaign') }}</NuxtLink
+      >
       <span>/</span>
       <span>{{ $t('members.title') }}</span>
     </div>
@@ -20,7 +22,10 @@
           <div class="space-y-4">
             <div class="space-y-2">
               <label class="text-sm font-medium">{{ $t('members.role') }}</label>
-              <select v-model="inviteRole" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+              <select
+                v-model="inviteRole"
+                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              >
                 <option value="player">{{ $t('members.player') }}</option>
                 <option value="editor">{{ $t('members.editor') }}</option>
                 <option value="co_dm">{{ $t('members.coDm') }}</option>
@@ -33,8 +38,10 @@
               <p class="text-xs text-muted-foreground mb-2">{{ $t('members.shareLink') }}</p>
               <div class="flex items-center gap-2">
                 <code class="flex-1 break-all text-xs">{{ inviteUrl }}</code>
-                <button @click="copyInviteUrl"
-                  class="flex-shrink-0 text-xs px-2 py-1 rounded border border-border hover:border-primary/50 transition-colors">
+                <button
+                  @click="copyInviteUrl"
+                  class="flex-shrink-0 text-xs px-2 py-1 rounded border border-border hover:border-primary/50 transition-colors"
+                >
                   {{ copyFeedback ? $t('members.copied') : $t('members.copy') }}
                 </button>
               </div>
@@ -82,7 +89,6 @@
 </template>
 
 <script setup lang="ts">
-
 const route = useRoute()
 const campaignId = route.params.id as string
 const api = useCampaignApi(campaignId)
@@ -122,8 +128,12 @@ async function copyInviteUrl() {
   try {
     await navigator.clipboard.writeText(inviteUrl.value)
     copyFeedback.value = true
-    setTimeout(() => { copyFeedback.value = false }, 2000)
-  } catch { /* ignore */ }
+    setTimeout(() => {
+      copyFeedback.value = false
+    }, 2000)
+  } catch {
+    /* ignore */
+  }
 }
 
 async function changeRole(userId: string, newRole: string) {

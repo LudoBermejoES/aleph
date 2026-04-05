@@ -47,11 +47,15 @@ export const SecretBlock = Node.create({
   },
 
   renderHTML({ node, HTMLAttributes }) {
-    return ['div', {
-      'data-secret': '',
-      ...HTMLAttributes,
-      class: 'secret-block',
-    }, 0] // 0 = render children here
+    return [
+      'div',
+      {
+        'data-secret': '',
+        ...HTMLAttributes,
+        class: 'secret-block',
+      },
+      0,
+    ] // 0 = render children here
   },
 
   // --- Markdown integration via @tiptap/markdown ---

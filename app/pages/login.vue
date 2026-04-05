@@ -8,11 +8,23 @@
       <form @submit.prevent="handleLogin" class="space-y-4">
         <div class="space-y-2">
           <label for="email" class="text-sm font-medium">{{ $t('auth.email') }}</label>
-          <Input id="email" v-model="form.email" type="email" placeholder="dm@example.com" required />
+          <Input
+            id="email"
+            v-model="form.email"
+            type="email"
+            placeholder="dm@example.com"
+            required
+          />
         </div>
         <div class="space-y-2">
           <label for="password" class="text-sm font-medium">{{ $t('auth.password') }}</label>
-          <Input id="password" v-model="form.password" type="password" placeholder="••••••••" required />
+          <Input
+            id="password"
+            v-model="form.password"
+            type="password"
+            placeholder="••••••••"
+            required
+          />
         </div>
         <p v-if="error" class="text-sm text-destructive">{{ error }}</p>
         <Button type="submit" class="w-full" :disabled="loading">
@@ -46,7 +58,8 @@ async function handleLogin() {
     // Full reload to pick up the session cookie
     window.location.href = '/'
   } catch (e: unknown) {
-    error.value = (e as { data?: { message?: string } })?.data?.message || t('auth.invalidCredentials')
+    error.value =
+      (e as { data?: { message?: string } })?.data?.message || t('auth.invalidCredentials')
   } finally {
     loading.value = false
   }

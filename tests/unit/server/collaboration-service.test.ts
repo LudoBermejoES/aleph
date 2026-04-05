@@ -8,7 +8,12 @@ import {
 
 describe('mergeFrontmatter', () => {
   it('preserves unchanged fields', () => {
-    const existing = { name: 'Strahd', type: 'character', created: '2026-01-01', modified: '2026-01-01' }
+    const existing = {
+      name: 'Strahd',
+      type: 'character',
+      created: '2026-01-01',
+      modified: '2026-01-01',
+    }
     const updated = {}
     const result = mergeFrontmatter(existing, updated)
     expect(result.name).toBe('Strahd')
@@ -16,7 +21,12 @@ describe('mergeFrontmatter', () => {
   })
 
   it('updates changed fields', () => {
-    const existing = { name: 'Strahd', type: 'character', created: '2026-01-01', modified: '2026-01-01' }
+    const existing = {
+      name: 'Strahd',
+      type: 'character',
+      created: '2026-01-01',
+      modified: '2026-01-01',
+    }
     const updated = { name: 'Strahd von Zarovich' }
     const result = mergeFrontmatter(existing, updated)
     expect(result.name).toBe('Strahd von Zarovich')
@@ -68,7 +78,6 @@ describe('markdownToTiptap', () => {
 })
 
 describe('markdownToTiptap — entity-link MDC', () => {
-
   it('converts :entity-link{slug="strahd"} MDC to entity-link Tiptap node', () => {
     const md = 'The vampire :entity-link{slug="strahd"} rules Barovia.'
     const json = markdownToTiptap(md)
@@ -100,7 +109,6 @@ describe('tiptapToMarkdown', () => {
 })
 
 describe('tiptapToMarkdown — entity-link node', () => {
-
   it('converts entity-link Tiptap node back to :entity-link{slug} MDC syntax', () => {
     // Build Tiptap JSON with an entity-link node
     const json = {
@@ -130,7 +138,8 @@ describe('tiptapToMarkdown — entity-link node', () => {
 
 describe('isRoundTripSafe', () => {
   it('simple markdown round-trips safely', () => {
-    const md = '# Title\n\nA paragraph with **bold** and *italic*.\n\n- List item 1\n- List item 2\n'
+    const md =
+      '# Title\n\nA paragraph with **bold** and *italic*.\n\n- List item 1\n- List item 2\n'
     expect(isRoundTripSafe(md)).toBe(true)
   })
 
@@ -139,11 +148,10 @@ describe('isRoundTripSafe', () => {
   })
 })
 
-
 describe('secret block round-trip', () => {
-
   it(':::secret{.dm} block with content round-trips correctly', () => {
-    const md = '# Quest Notes\n\n:::secret{.dm}\nThe treasure is hidden under the altar.\n:::\n\nVisible content here.\n'
+    const md =
+      '# Quest Notes\n\n:::secret{.dm}\nThe treasure is hidden under the altar.\n:::\n\nVisible content here.\n'
     const json = markdownToTiptap(md)
     const result = tiptapToMarkdown(json)
     // Secret block must survive the round-trip
@@ -153,7 +161,8 @@ describe('secret block round-trip', () => {
   })
 
   it(':::secret{.player:alice} block round-trips with role annotation', () => {
-    const md = '# Session Notes\n\n:::secret{.player:alice}\nAlice sees a hidden passage.\n:::\n\nEveryone sees this.\n'
+    const md =
+      '# Session Notes\n\n:::secret{.player:alice}\nAlice sees a hidden passage.\n:::\n\nEveryone sees this.\n'
     const json = markdownToTiptap(md)
     const result = tiptapToMarkdown(json)
     expect(result).toContain(':::secret{.player:alice}')

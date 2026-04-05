@@ -14,10 +14,12 @@ A campaign in Aleph can run multiple independent player groups simultaneously (e
 ## Capabilities
 
 ### New Capabilities
+
 - `session-groups`: Campaign-scoped player groups that sessions can be assigned to
 - `session-content-types`: Per-session typed content slots (manual notes, AI notes, summary)
 
 ### Modified Capabilities
+
 - `session-management`: Sessions now have an optional group and multiple content types instead of a single log file
 
 ## Impact

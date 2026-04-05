@@ -1,15 +1,28 @@
 <template>
   <div class="p-8 max-w-3xl">
     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary"> {{ $t('common.campaign') }}</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">
+        {{ $t('common.campaign') }}</NuxtLink
+      >
       <span>/</span>
-      <NuxtLink :to="`/campaigns/${campaignId}/quests`" class="hover:text-primary">{{ $t('quests.title') }}</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}/quests`" class="hover:text-primary">{{
+        $t('quests.title')
+      }}</NuxtLink>
       <span>/</span><span>{{ $t('quests.new') }}</span>
     </div>
     <h1 class="text-2xl font-bold mb-6">{{ $t('quests.new') }}</h1>
-    <QuestForm ref="questForm" v-model="form" :campaign-id="campaignId" :submit-label="$t('common.create')" :submitting="submitting" @submit="create">
+    <QuestForm
+      ref="questForm"
+      v-model="form"
+      :campaign-id="campaignId"
+      :submit-label="$t('common.create')"
+      :submitting="submitting"
+      @submit="create"
+    >
       <template #cancel>
-        <NuxtLink :to="`/campaigns/${campaignId}/quests`"><Button variant="outline">{{ $t('common.cancel') }}</Button></NuxtLink>
+        <NuxtLink :to="`/campaigns/${campaignId}/quests`"
+          ><Button variant="outline">{{ $t('common.cancel') }}</Button></NuxtLink
+        >
       </template>
     </QuestForm>
   </div>

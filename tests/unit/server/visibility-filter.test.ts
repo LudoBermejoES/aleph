@@ -26,7 +26,12 @@ const VISIBILITY_MIN_ROLE: Record<string, number> = {
   private: 99,
 }
 
-function canView(role: CampaignRole, visibility: Visibility, entityCreatedBy: string, userId: string): boolean {
+function canView(
+  role: CampaignRole,
+  visibility: Visibility,
+  entityCreatedBy: string,
+  userId: string,
+): boolean {
   if (visibility === 'private') return entityCreatedBy === userId
   if (visibility === 'specific_users') return false // checked separately
   return ROLE_HIERARCHY[role] >= (VISIBILITY_MIN_ROLE[visibility] ?? 99)
@@ -37,9 +42,7 @@ function getVisibleEntities(
   role: CampaignRole,
   userId: string,
 ): string[] {
-  return entities
-    .filter(e => canView(role, e.visibility, e.createdBy, userId))
-    .map(e => e.id)
+  return entities.filter((e) => canView(role, e.visibility, e.createdBy, userId)).map((e) => e.id)
 }
 
 describe('Visibility filtering (7.6)', () => {

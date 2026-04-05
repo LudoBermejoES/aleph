@@ -9,7 +9,8 @@ import type { CampaignRole } from '../../../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
   const role = event.context.campaignRole as CampaignRole
-  if (!hasMinRole(role, 'editor')) throw createError({ statusCode: 403, message: 'Editors or above can create regions' })
+  if (!hasMinRole(role, 'editor'))
+    throw createError({ statusCode: 403, message: 'Editors or above can create regions' })
 
   const campaignId = getRouterParam(event, 'id')!
   const slug = getRouterParam(event, 'slug')!
@@ -24,20 +25,26 @@ export default defineEventHandler(async (event) => {
   const body = await validateBody(event, regionSchema)
   const db = useDb()
 
-  const map = db.select().from(maps).where(and(eq(maps.campaignId, campaignId), eq(maps.slug, slug))).get()
+  const map = db
+    .select()
+    .from(maps)
+    .where(and(eq(maps.campaignId, campaignId), eq(maps.slug, slug)))
+    .get()
   if (!map) throw createError({ statusCode: 404, message: 'Map not found' })
 
   const id = randomUUID()
-  db.insert(mapRegions).values({
-    id,
-    mapId: map.id,
-    name: body.name || null,
-    geojson: typeof body.geojson === 'string' ? body.geojson : JSON.stringify(body.geojson),
-    color: body.color || null,
-    opacity: body.opacity ?? 0.3,
-    entityId: body.entityId || null,
-    visibility: body.visibility || 'public',
-  }).run()
+  db.insert(mapRegions)
+    .values({
+      id,
+      mapId: map.id,
+      name: body.name || null,
+      geojson: typeof body.geojson === 'string' ? body.geojson : JSON.stringify(body.geojson),
+      color: body.color || null,
+      opacity: body.opacity ?? 0.3,
+      entityId: body.entityId || null,
+      visibility: body.visibility || 'public',
+    })
+    .run()
 
   return { id }
 })

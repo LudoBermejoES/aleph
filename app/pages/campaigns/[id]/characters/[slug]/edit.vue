@@ -1,17 +1,34 @@
 <template>
   <div class="p-8 max-w-3xl">
     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary"> {{ $t('common.campaign') }}</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">
+        {{ $t('common.campaign') }}</NuxtLink
+      >
       <span>/</span>
-      <NuxtLink :to="`/campaigns/${campaignId}/characters`" class="hover:text-primary">{{ $t('characters.title') }}</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}/characters`" class="hover:text-primary">{{
+        $t('characters.title')
+      }}</NuxtLink>
       <span>/</span>
-      <NuxtLink :to="`/campaigns/${campaignId}/characters/${slug}`" class="hover:text-primary">{{ form.name || 'Character' }}</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}/characters/${slug}`" class="hover:text-primary">{{
+        form.name || 'Character'
+      }}</NuxtLink>
       <span>/</span><span>{{ $t('common.edit') }}</span>
     </div>
     <h1 class="text-2xl font-bold mb-6">{{ $t('characters.edit') }}</h1>
-    <CharacterForm ref="charForm" v-if="loaded" v-model="form" :campaign-id="campaignId" :character-slug="slug" :submit-label="$t('common.save')" :submitting="submitting" @submit="save">
+    <CharacterForm
+      ref="charForm"
+      v-if="loaded"
+      v-model="form"
+      :campaign-id="campaignId"
+      :character-slug="slug"
+      :submit-label="$t('common.save')"
+      :submitting="submitting"
+      @submit="save"
+    >
       <template #cancel>
-        <NuxtLink :to="`/campaigns/${campaignId}/characters/${slug}`"><Button variant="outline">{{ $t('common.cancel') }}</Button></NuxtLink>
+        <NuxtLink :to="`/campaigns/${campaignId}/characters/${slug}`"
+          ><Button variant="outline">{{ $t('common.cancel') }}</Button></NuxtLink
+        >
       </template>
     </CharacterForm>
   </div>
@@ -26,8 +43,16 @@ const submitting = ref(false)
 const loaded = ref(false)
 const { t } = useI18n()
 const form = ref({
-  name: '', characterType: 'npc', race: '', class: '', alignment: '',
-  status: 'alive', visibility: 'members', content: '', ownerUserId: '', locationId: '',
+  name: '',
+  characterType: 'npc',
+  race: '',
+  class: '',
+  alignment: '',
+  status: 'alive',
+  visibility: 'members',
+  content: '',
+  ownerUserId: '',
+  locationId: '',
 })
 
 const api = useCampaignApi(campaignId)
@@ -59,7 +84,10 @@ async function save() {
   submitting.value = true
   try {
     const { locationId, ...rest } = form.value
-    await api.updateCharacter(slug, { ...rest, ...(locationId ? { locationEntityId: locationId } : {}) })
+    await api.updateCharacter(slug, {
+      ...rest,
+      ...(locationId ? { locationEntityId: locationId } : {}),
+    })
     await charForm.value?.saveMemberships(slug)
     charForm.value?.clearDraft()
     await router.push(`/campaigns/${campaignId}/characters/${slug}`)

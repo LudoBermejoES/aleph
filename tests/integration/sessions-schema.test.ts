@@ -30,9 +30,9 @@ describe('Session Schema', () => {
              ('s2', 'camp-1', 'Session 2', 'session-2', 2, 'planned', ${now}, ${now})
     `)
 
-    const max = testDb.sqlite.prepare(
-      "SELECT MAX(session_number) as max FROM game_sessions WHERE campaign_id = 'camp-1'"
-    ).get() as any
+    const max = testDb.sqlite
+      .prepare("SELECT MAX(session_number) as max FROM game_sessions WHERE campaign_id = 'camp-1'")
+      .get() as any
     expect(max.max).toBe(2)
 
     // Next session number should be 3
@@ -50,9 +50,9 @@ describe('Session Schema', () => {
       VALUES ('a1', 's1', 'user-2', 'accepted', 0)
     `)
 
-    const attendance = testDb.sqlite.prepare(
-      "SELECT * FROM session_attendance WHERE session_id = 's1'"
-    ).all() as any[]
+    const attendance = testDb.sqlite
+      .prepare("SELECT * FROM session_attendance WHERE session_id = 's1'")
+      .all() as any[]
     expect(attendance).toHaveLength(1)
     expect(attendance[0].rsvp_status).toBe('accepted')
     expect(attendance[0].attended).toBe(0)
@@ -70,7 +70,9 @@ describe('Session Schema', () => {
     `)
 
     const parent = testDb.sqlite.prepare("SELECT * FROM quests WHERE id = 'q1'").get() as any
-    const child = testDb.sqlite.prepare("SELECT * FROM quests WHERE parent_quest_id = 'q1'").get() as any
+    const child = testDb.sqlite
+      .prepare("SELECT * FROM quests WHERE parent_quest_id = 'q1'")
+      .get() as any
 
     expect(parent.name).toBe('Find the Sword')
     expect(child.name).toBe('Visit the Smith')
@@ -99,7 +101,9 @@ describe('Session Schema', () => {
              ('q2', 'camp-1', 'Secret Quest', 'secret', 'active', 1, ${now}, ${now})
     `)
 
-    const all = testDb.sqlite.prepare("SELECT * FROM quests WHERE campaign_id = 'camp-1'").all() as any[]
+    const all = testDb.sqlite
+      .prepare("SELECT * FROM quests WHERE campaign_id = 'camp-1'")
+      .all() as any[]
     const visible = all.filter((q: any) => !q.is_secret)
 
     expect(all).toHaveLength(2)
@@ -123,7 +127,9 @@ describe('Session Schema', () => {
              ('c2', 'd1', 'The villain is now more powerful', 0)
     `)
 
-    const cons = testDb.sqlite.prepare("SELECT * FROM consequences WHERE decision_id = 'd1'").all() as any[]
+    const cons = testDb.sqlite
+      .prepare("SELECT * FROM consequences WHERE decision_id = 'd1'")
+      .all() as any[]
     expect(cons).toHaveLength(2)
 
     // Player sees only revealed
@@ -143,9 +149,9 @@ describe('Session Schema', () => {
              ('ch-2', 'arc-1', 'Chapter 2', 'ch-2', 2)
     `)
 
-    const chaps = testDb.sqlite.prepare(
-      "SELECT * FROM chapters WHERE arc_id = 'arc-1' ORDER BY sort_order"
-    ).all() as any[]
+    const chaps = testDb.sqlite
+      .prepare("SELECT * FROM chapters WHERE arc_id = 'arc-1' ORDER BY sort_order")
+      .all() as any[]
     expect(chaps).toHaveLength(2)
     expect(chaps[0].name).toBe('Chapter 1')
     expect(chaps[1].name).toBe('Chapter 2')

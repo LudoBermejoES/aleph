@@ -5,19 +5,30 @@ import type { CampaignRole } from '../utils/permissions'
 // --- Visibility Filtering ---
 
 const VISIBILITY_MIN_ROLE: Record<string, number> = {
-  public: 0, members: 2, editors: 3, dm_only: 4, private: 99,
+  public: 0,
+  members: 2,
+  editors: 3,
+  dm_only: 4,
+  private: 99,
 }
 const ROLE_LEVEL: Record<string, number> = {
-  dm: 5, co_dm: 4, editor: 3, player: 2, visitor: 1,
+  dm: 5,
+  co_dm: 4,
+  editor: 3,
+  player: 2,
+  visitor: 1,
 }
 
 /**
  * Filter pins by visibility based on user role.
  */
-export function filterPinsByVisibility<T extends { visibility: string }>(pins: T[], role: string): T[] {
+export function filterPinsByVisibility<T extends { visibility: string }>(
+  pins: T[],
+  role: string,
+): T[] {
   if (hasMinRole(role as CampaignRole, 'co_dm')) return pins
   const level = ROLE_LEVEL[role] ?? 0
-  return pins.filter(p => level >= (VISIBILITY_MIN_ROLE[p.visibility] ?? 99))
+  return pins.filter((p) => level >= (VISIBILITY_MIN_ROLE[p.visibility] ?? 99))
 }
 
 // --- Image Validation ---
@@ -40,10 +51,16 @@ interface ValidationResult {
  */
 export function validateMapImage(file: ImageInfo): ValidationResult {
   if (!ALLOWED_MIMETYPES.includes(file.mimetype)) {
-    return { valid: false, error: `Unsupported image format: ${file.mimetype}. Allowed: PNG, JPEG, WebP` }
+    return {
+      valid: false,
+      error: `Unsupported image format: ${file.mimetype}. Allowed: PNG, JPEG, WebP`,
+    }
   }
   if (file.size > MAX_FILE_SIZE) {
-    return { valid: false, error: `File size ${Math.round(file.size / 1_000_000)}MB exceeds maximum size of 100MB` }
+    return {
+      valid: false,
+      error: `File size ${Math.round(file.size / 1_000_000)}MB exceeds maximum size of 100MB`,
+    }
   }
   return { valid: true }
 }
@@ -61,7 +78,9 @@ interface BreadcrumbItem {
  * Compute breadcrumb ancestor chain for a map using recursive CTE.
  */
 export function computeBreadcrumb(sqlite: Database.Database, mapId: string): BreadcrumbItem[] {
-  const results = sqlite.prepare(`
+  const results = sqlite
+    .prepare(
+      `
     WITH RECURSIVE ancestors AS (
       SELECT id, name, slug, parent_map_id, 0 AS depth
       FROM maps WHERE id = ?
@@ -72,7 +91,9 @@ export function computeBreadcrumb(sqlite: Database.Database, mapId: string): Bre
     SELECT id, name, slug, parent_map_id as parentMapId
     FROM ancestors
     ORDER BY depth DESC
-  `).all(mapId) as BreadcrumbItem[]
+  `,
+    )
+    .all(mapId) as BreadcrumbItem[]
 
   return results
 }

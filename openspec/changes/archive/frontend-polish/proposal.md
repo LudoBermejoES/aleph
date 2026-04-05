@@ -18,6 +18,7 @@ The frontend is functionally complete (13 features, all pages exist) but critica
 ## Scope
 
 ### In scope
+
 - Better Auth client SDK integration
 - Auth composable (`useAuth`) for session state
 - Fix login/register pages to use SDK
@@ -29,6 +30,7 @@ The frontend is functionally complete (13 features, all pages exist) but critica
 - Proper 404 page
 
 ### Out of scope
+
 - New features
 - Mobile responsive design
 - i18n

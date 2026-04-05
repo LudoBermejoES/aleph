@@ -15,15 +15,25 @@ export default defineEventHandler(async (event) => {
   const slug = getRouterParam(event, 'slug')!
   const db = useDb()
 
-  const entity = db.select().from(entities)
-    .where(and(eq(entities.campaignId, campaignId), eq(entities.slug, slug), eq(entities.type, 'location')))
+  const entity = db
+    .select()
+    .from(entities)
+    .where(
+      and(
+        eq(entities.campaignId, campaignId),
+        eq(entities.slug, slug),
+        eq(entities.type, 'location'),
+      ),
+    )
     .get()
   if (!entity) throw createError({ statusCode: 404, message: 'Location not found' })
 
   // Delete markdown file
   try {
     await unlink(entity.filePath)
-  } catch { /* file may already be gone */ }
+  } catch {
+    /* file may already be gone */
+  }
 
   // Delete DB row (cascades to entity_relations, permissions, etc.)
   db.delete(entities).where(eq(entities.id, entity.id)).run()

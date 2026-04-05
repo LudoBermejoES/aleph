@@ -6,13 +6,16 @@ import type { CampaignRole } from '../../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
   const role = event.context.campaignRole as CampaignRole
-  if (!hasMinRole(role, 'co_dm')) throw createError({ statusCode: 403, message: 'Co-DM or above can delete inventories' })
+  if (!hasMinRole(role, 'co_dm'))
+    throw createError({ statusCode: 403, message: 'Co-DM or above can delete inventories' })
 
   const campaignId = getRouterParam(event, 'id')!
   const inventoryId = getRouterParam(event, 'inventoryId')!
   const db = useDb()
 
-  const inventory = db.select().from(inventories)
+  const inventory = db
+    .select()
+    .from(inventories)
     .where(and(eq(inventories.campaignId, campaignId), eq(inventories.id, inventoryId)))
     .get()
   if (!inventory) throw createError({ statusCode: 404, message: 'Inventory not found' })

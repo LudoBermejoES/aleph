@@ -5,10 +5,7 @@
       :key="entry.slug"
       class="flex items-center gap-1.5 text-xs text-muted-foreground"
     >
-      <span
-        class="w-3 h-3 rounded-full flex-shrink-0"
-        :style="{ backgroundColor: entry.color }"
-      />
+      <span class="w-3 h-3 rounded-full flex-shrink-0" :style="{ backgroundColor: entry.color }" />
       <span>{{ entry.label }}</span>
     </div>
   </div>

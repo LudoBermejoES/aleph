@@ -10,7 +10,10 @@
 <script setup lang="ts">
 const props = defineProps<{
   nodes: Record<string, { name: string; type: string }>
-  edges: Record<string, { source: string; target: string; label: string; color: string; attitude?: number }>
+  edges: Record<
+    string,
+    { source: string; target: string; label: string; color: string; attitude?: number }
+  >
   height?: number
   campaignId?: string
 }>()
@@ -47,7 +50,13 @@ onMounted(async () => {
       data: { id, label: `${node.name}\n(${node.type})`, color: getNodeColor(node.type) },
     })),
     ...Object.entries(props.edges).map(([id, edge]) => ({
-      data: { id, source: edge.source, target: edge.target, label: edge.label, color: edge.color || '#9ca3af' },
+      data: {
+        id,
+        source: edge.source,
+        target: edge.target,
+        label: edge.label,
+        color: edge.color || '#9ca3af',
+      },
     })),
   ]
 

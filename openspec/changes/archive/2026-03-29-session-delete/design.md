@@ -5,12 +5,14 @@ Sessions have full CRUD except delete. The `game_sessions` table has three child
 ## Goals / Non-Goals
 
 **Goals:**
+
 - Add `DELETE /api/campaigns/:id/sessions/:slug` — cascades to all child records
 - Add `aleph session delete <campaignId> <slug>` CLI subcommand with `--yes` flag
 - Add delete button on session detail page with confirmation dialog
 - Require co_dm or above (same as create/edit)
 
 **Non-Goals:**
+
 - Soft delete / archive — hard delete only
 - Bulk delete — single session at a time
 - Undo / restore

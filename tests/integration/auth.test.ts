@@ -16,7 +16,7 @@ async function apiRaw(path: string, opts?: any) {
     ...opts,
     headers: {
       'Content-Type': 'application/json',
-      'Origin': BASE_URL,
+      Origin: BASE_URL,
       ...opts?.headers,
     },
     body: opts?.body ? JSON.stringify(opts.body) : undefined,
@@ -155,7 +155,9 @@ describe('Campaign RBAC (integration)', () => {
 
     // Get CSRF token for player
     playerCsrfToken = await getCsrfToken(playerSessionCookie)
-    playerCookie = playerCsrfToken ? `${playerSessionCookie}; csrf_token=${playerCsrfToken}` : playerSessionCookie
+    playerCookie = playerCsrfToken
+      ? `${playerSessionCookie}; csrf_token=${playerCsrfToken}`
+      : playerSessionCookie
 
     // Invite player and join
     const inviteRes = await apiRaw(`/api/campaigns/${campaignId}/invite`, {

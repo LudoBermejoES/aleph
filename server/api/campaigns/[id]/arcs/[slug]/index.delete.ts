@@ -14,7 +14,11 @@ export default defineEventHandler(async (event) => {
   const slug = getRouterParam(event, 'slug')!
   const db = useDb()
 
-  const arc = db.select().from(arcs).where(and(eq(arcs.campaignId, campaignId), eq(arcs.slug, slug))).get()
+  const arc = db
+    .select()
+    .from(arcs)
+    .where(and(eq(arcs.campaignId, campaignId), eq(arcs.slug, slug)))
+    .get()
   if (!arc) throw createError({ statusCode: 404, message: 'Arc not found' })
 
   db.update(gameSessions).set({ arcId: null }).where(eq(gameSessions.arcId, arc.id)).run()

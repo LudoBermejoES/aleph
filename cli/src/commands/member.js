@@ -16,7 +16,7 @@ export function makeMemberCommand() {
       if (opts.json) {
         print(data, { json: true })
       } else {
-        print(data.map(m => ({ name: m.name, email: m.email, role: m.role })))
+        print(data.map((m) => ({ name: m.name, email: m.email, role: m.role })))
       }
     })
 

@@ -13,7 +13,12 @@ export function makeArcCommand() {
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
       const data = await get(`/api/campaigns/${opts.campaign}/arcs`)
-      print(opts.json ? data : data.map(a => ({ slug: a.slug, name: a.name, status: a.status || '' })), { json: opts.json })
+      print(
+        opts.json
+          ? data
+          : data.map((a) => ({ slug: a.slug, name: a.name, status: a.status || '' })),
+        { json: opts.json },
+      )
     })
 
   cmd
@@ -29,7 +34,11 @@ export function makeArcCommand() {
       if (opts.status !== undefined) body.status = opts.status
       if (opts.description !== undefined) body.description = opts.description
       const data = await post(`/api/campaigns/${opts.campaign}/arcs`, body)
-      if (opts.json) { print(data, { json: true }) } else { success(`Arc created: ${data.name} (${data.slug})`) }
+      if (opts.json) {
+        print(data, { json: true })
+      } else {
+        success(`Arc created: ${data.name} (${data.slug})`)
+      }
     })
 
   cmd
@@ -57,8 +66,14 @@ export function makeArcCommand() {
     .option('--yes', 'Skip confirmation')
     .action(async (opts) => {
       if (!opts.yes) {
-        const ok = await confirm({ message: `Delete arc "${opts.slug}"? This cannot be undone.`, default: false })
-        if (!ok) { process.stdout.write('Cancelled.\n'); return }
+        const ok = await confirm({
+          message: `Delete arc "${opts.slug}"? This cannot be undone.`,
+          default: false,
+        })
+        if (!ok) {
+          process.stdout.write('Cancelled.\n')
+          return
+        }
       }
       await del(`/api/campaigns/${opts.campaign}/arcs/${opts.slug}`)
       success(`Arc ${opts.slug} deleted.`)

@@ -5,7 +5,7 @@ const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 async function api(path: string, opts?: any) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
-    headers: { 'Content-Type': 'application/json', 'Origin': BASE_URL, ...opts?.headers },
+    headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...opts?.headers },
     body: opts?.body ? JSON.stringify(opts.body) : undefined,
   })
 }
@@ -32,30 +32,43 @@ describe('Relationship Graph (integration)', () => {
   let relationTypeId = ''
 
   beforeAll(async () => {
-    await api('/api/auth/sign-up/email', { method: 'POST', body: { name: 'Rel Tester', email, password: 'password123' } })
-    const login = await api('/api/auth/sign-in/email', { method: 'POST', body: { email, password: 'password123' } })
+    await api('/api/auth/sign-up/email', {
+      method: 'POST',
+      body: { name: 'Rel Tester', email, password: 'password123' },
+    })
+    const login = await api('/api/auth/sign-in/email', {
+      method: 'POST',
+      body: { email, password: 'password123' },
+    })
     cookie = `better-auth.session_token=${(login.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1]}`
     csrfToken = await getCsrfToken(cookie)
 
-    const camp = await api('/api/campaigns', { method: 'POST', headers: withCsrf(cookie, csrfToken), body: { name: `Rel Test ${Date.now()}` } })
+    const camp = await api('/api/campaigns', {
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
+      body: { name: `Rel Test ${Date.now()}` },
+    })
     campaignId = (await camp.json()).id
 
     // Create two entities
     const e1 = await api(`/api/campaigns/${campaignId}/entities`, {
-      method: 'POST', headers: withCsrf(cookie, csrfToken),
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
       body: { name: 'Strahd', type: 'character', content: '# Strahd' },
     })
     entity1Id = (await e1.json()).id
 
     const e2 = await api(`/api/campaigns/${campaignId}/entities`, {
-      method: 'POST', headers: withCsrf(cookie, csrfToken),
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
       body: { name: 'Ireena', type: 'character', content: '# Ireena' },
     })
     entity2Id = (await e2.json()).id
 
     // Get a relation type
     const types = await api(`/api/campaigns/${campaignId}/relation-types`, {
-      method: 'GET', headers: { Cookie: cookie },
+      method: 'GET',
+      headers: { Cookie: cookie },
     })
     const typeList = await types.json()
     relationTypeId = typeList.find((t: any) => t.slug === 'enemy')?.id
@@ -63,7 +76,8 @@ describe('Relationship Graph (integration)', () => {
 
   it('GET relation-types returns 17 built-in types', async () => {
     const res = await api(`/api/campaigns/${campaignId}/relation-types`, {
-      method: 'GET', headers: { Cookie: cookie },
+      method: 'GET',
+      headers: { Cookie: cookie },
     })
     const data = await res.json()
     expect(data).toHaveLength(17)
@@ -72,7 +86,8 @@ describe('Relationship Graph (integration)', () => {
 
   it('POST creates relation between entities', async () => {
     const res = await api(`/api/campaigns/${campaignId}/relations`, {
-      method: 'POST', headers: withCsrf(cookie, csrfToken),
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
       body: {
         sourceEntityId: entity1Id,
         targetEntityId: entity2Id,
@@ -90,7 +105,8 @@ describe('Relationship Graph (integration)', () => {
 
   it('GET entity-centered relations returns correct labels', async () => {
     const res = await api(`/api/campaigns/${campaignId}/relations?entity_id=${entity1Id}`, {
-      method: 'GET', headers: { Cookie: cookie },
+      method: 'GET',
+      headers: { Cookie: cookie },
     })
     const data = await res.json()
     expect(data.length).toBeGreaterThanOrEqual(1)
@@ -101,7 +117,8 @@ describe('Relationship Graph (integration)', () => {
 
   it('GET from target perspective returns reverse label', async () => {
     const res = await api(`/api/campaigns/${campaignId}/relations?entity_id=${entity2Id}`, {
-      method: 'GET', headers: { Cookie: cookie },
+      method: 'GET',
+      headers: { Cookie: cookie },
     })
     const data = await res.json()
     const rel = data.find((r: any) => r.id === relationId)
@@ -111,7 +128,8 @@ describe('Relationship Graph (integration)', () => {
 
   it('PUT updates attitude score', async () => {
     const res = await api(`/api/campaigns/${campaignId}/relations/${relationId}`, {
-      method: 'PUT', headers: withCsrf(cookie, csrfToken),
+      method: 'PUT',
+      headers: withCsrf(cookie, csrfToken),
       body: { attitude: -100 },
     })
     expect(res.status).toBe(200)
@@ -119,7 +137,8 @@ describe('Relationship Graph (integration)', () => {
 
   it('GET graph returns nodes and edges', async () => {
     const res = await api(`/api/campaigns/${campaignId}/graph`, {
-      method: 'GET', headers: { Cookie: cookie },
+      method: 'GET',
+      headers: { Cookie: cookie },
     })
     expect(res.status).toBe(200)
     const data = await res.json()
@@ -132,7 +151,8 @@ describe('Relationship Graph (integration)', () => {
 
   it('POST custom relation type', async () => {
     const res = await api(`/api/campaigns/${campaignId}/relation-types`, {
-      method: 'POST', headers: withCsrf(cookie, csrfToken),
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
       body: { forwardLabel: 'protects', reverseLabel: 'protected by' },
     })
     expect(res.status).toBe(200)
@@ -140,7 +160,8 @@ describe('Relationship Graph (integration)', () => {
 
   it('relation with non-existent entity returns 404', async () => {
     const res = await api(`/api/campaigns/${campaignId}/relations`, {
-      method: 'POST', headers: withCsrf(cookie, csrfToken),
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
       body: {
         sourceEntityId: 'nonexistent-id',
         targetEntityId: entity2Id,
@@ -154,12 +175,14 @@ describe('Relationship Graph (integration)', () => {
 
   it('builtin relation type cannot be modified', async () => {
     const types = await api(`/api/campaigns/${campaignId}/relation-types`, {
-      method: 'GET', headers: { Cookie: cookie },
+      method: 'GET',
+      headers: { Cookie: cookie },
     })
     const builtinType = (await types.json()).find((t: any) => t.slug === 'ally')
 
     const res = await api(`/api/campaigns/${campaignId}/relation-types/${builtinType.id}`, {
-      method: 'PUT', headers: withCsrf(cookie, csrfToken),
+      method: 'PUT',
+      headers: withCsrf(cookie, csrfToken),
       body: { forwardLabel: 'hacked' },
     })
     expect(res.status).toBe(403)
@@ -167,7 +190,8 @@ describe('Relationship Graph (integration)', () => {
 
   it('DELETE removes relation', async () => {
     const res = await api(`/api/campaigns/${campaignId}/relations/${relationId}`, {
-      method: 'DELETE', headers: withCsrf(cookie, csrfToken),
+      method: 'DELETE',
+      headers: withCsrf(cookie, csrfToken),
     })
     expect(res.status).toBe(200)
   })

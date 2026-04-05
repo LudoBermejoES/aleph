@@ -7,6 +7,7 @@ The CLI lives as a separate package in `cli/` at the repo root. It talks to the 
 ## Goals / Non-Goals
 
 **Goals:**
+
 - Cover the core DM workflow: login, list/create/edit campaigns, manage entities, characters, sessions, search, roll dice
 - `--json` on every command for machine-readable stdout (AI agent / pipeline use)
 - `--help` tree fully describes all commands and options (AI agent discovery)
@@ -16,6 +17,7 @@ The CLI lives as a separate package in `cli/` at the repo root. It talks to the 
 - Works as `npx aleph-cli` or globally installed `aleph`
 
 **Non-Goals:**
+
 - Offline / direct DB access (CLI always goes through the HTTP API)
 - Replicating every API endpoint (focus on high-value DM workflows)
 - Interactive TUI (simple prompts only, not a full terminal UI)

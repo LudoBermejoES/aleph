@@ -12,9 +12,11 @@ When a user is editing a character, session, quest, or wiki entity and accidenta
 ## Capabilities
 
 ### New Capabilities
+
 - `editor-autosave`: Draft recovery for the Markdown editor — persists content to localStorage, prompts restore on revisit, clears on save.
 
 ### Modified Capabilities
+
 <!-- No existing spec-level requirements change -->
 
 ## Impact

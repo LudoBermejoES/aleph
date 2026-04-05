@@ -61,14 +61,14 @@ interface RolePermission {
 
 function buildPermissionPayload(permissions: RolePermission[]) {
   return permissions
-    .filter(p => p.effect !== null)
-    .map(p => ({ role: p.role, effect: p.effect }))
+    .filter((p) => p.effect !== null)
+    .map((p) => ({ role: p.role, effect: p.effect }))
 }
 
 describe('Permission editor logic (7.17)', () => {
   it('renders toggles for all roles', () => {
     const roles: CampaignRole[] = ['dm', 'co_dm', 'editor', 'player', 'visitor']
-    const permissions: RolePermission[] = roles.map(role => ({ role, effect: null }))
+    const permissions: RolePermission[] = roles.map((role) => ({ role, effect: null }))
     expect(permissions).toHaveLength(5)
   })
 
@@ -120,13 +120,13 @@ describe('Visibility selector logic (7.18)', () => {
   })
 
   it('selecting an option emits the correct value', () => {
-    const selected = VISIBILITY_OPTIONS.find(o => o.value === 'dm_only')
+    const selected = VISIBILITY_OPTIONS.find((o) => o.value === 'dm_only')
     expect(selected?.value).toBe('dm_only')
     expect(selected?.label).toBe('DM only')
   })
 
   it('default value is members', () => {
     const defaultVisibility = 'members'
-    expect(VISIBILITY_OPTIONS.find(o => o.value === defaultVisibility)).toBeDefined()
+    expect(VISIBILITY_OPTIONS.find((o) => o.value === defaultVisibility)).toBeDefined()
   })
 })

@@ -12,9 +12,10 @@ export default defineEventHandler((event) => {
   if (!path.startsWith('/api/')) return
   if (path === '/api/health') return
 
-  const ip = getRequestHeader(event, 'x-forwarded-for')?.split(',')[0]?.trim()
-    || getRequestHeader(event, 'x-real-ip')
-    || 'unknown'
+  const ip =
+    getRequestHeader(event, 'x-forwarded-for')?.split(',')[0]?.trim() ||
+    getRequestHeader(event, 'x-real-ip') ||
+    'unknown'
 
   // Skip rate limiting for localhost in test/dev environments
   if (ip === '127.0.0.1' || ip === '::1' || ip === 'localhost') return
@@ -23,7 +24,7 @@ export default defineEventHandler((event) => {
 
   if (path.startsWith('/api/auth/')) {
     result = authLimiter.checkRateLimit(ip)
-  } else if (UPLOAD_SUFFIXES.some(s => path.endsWith(s))) {
+  } else if (UPLOAD_SUFFIXES.some((s) => path.endsWith(s))) {
     result = uploadLimiter.checkRateLimit(ip)
   } else {
     result = generalLimiter.checkRateLimit(ip)

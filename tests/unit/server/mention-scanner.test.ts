@@ -22,7 +22,7 @@ describe('Retroactive linking on entity creation (8.8)', () => {
     const resolved = resolveOverlaps(matches)
 
     expect(resolved).toHaveLength(2)
-    expect(resolved.map(m => m.entityId).sort()).toEqual(['e1', 'e2'])
+    expect(resolved.map((m) => m.entityId).sort()).toEqual(['e1', 'e2'])
   })
 
   it('adding a new entity triggers detection in existing text', () => {
@@ -43,7 +43,7 @@ describe('Retroactive linking on entity creation (8.8)', () => {
     automaton = buildAutomaton(entities)
     matches = resolveOverlaps(findMatches(text, automaton))
     expect(matches).toHaveLength(2)
-    expect(matches.map(m => m.entityId).sort()).toEqual(['e1', 'e2'])
+    expect(matches.map((m) => m.entityId).sort()).toEqual(['e1', 'e2'])
   })
 })
 
@@ -78,7 +78,7 @@ describe('Mentions API logic (8.9)', () => {
     // When scanning entity e1's own content, exclude self-mentions
     const text = 'Strahd rules Barovia.'
     const matches = resolveOverlaps(findMatches(text, automaton))
-    const otherMentions = matches.filter(m => m.entityId !== 'e1')
+    const otherMentions = matches.filter((m) => m.entityId !== 'e1')
     expect(otherMentions).toHaveLength(1)
     expect(otherMentions[0].entityId).toBe('e2')
   })

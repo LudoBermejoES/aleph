@@ -9,9 +9,11 @@ test.describe('i18n fixes', () => {
     await registerAndLogin(page, `I18N ${uid()}`)
 
     // Set the i18n locale cookie to Spanish
-    await page.context().addCookies([
-      { name: 'i18n_redirected', value: 'es', domain: new URL(BASE).hostname, path: '/' },
-    ])
+    await page
+      .context()
+      .addCookies([
+        { name: 'i18n_redirected', value: 'es', domain: new URL(BASE).hostname, path: '/' },
+      ])
 
     await page.goto(`${BASE}/some/nonexistent/es-path-${uid()}`)
     await page.waitForLoadState('networkidle')
@@ -24,9 +26,11 @@ test.describe('i18n fixes', () => {
     // Login first (app redirects unauthenticated users to /login)
     await registerAndLogin(page, `I18N EN ${uid()}`)
 
-    await page.context().addCookies([
-      { name: 'i18n_redirected', value: 'en', domain: new URL(BASE).hostname, path: '/' },
-    ])
+    await page
+      .context()
+      .addCookies([
+        { name: 'i18n_redirected', value: 'en', domain: new URL(BASE).hostname, path: '/' },
+      ])
 
     await page.goto(`${BASE}/some/nonexistent/en-path-${uid()}`, { waitUntil: 'domcontentloaded' })
     await page.waitForLoadState('networkidle')

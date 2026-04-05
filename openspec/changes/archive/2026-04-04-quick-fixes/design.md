@@ -7,6 +7,7 @@ The project already has a toast/notification pattern (shadcn-vue `useToast`), ru
 ## Goals / Non-Goals
 
 **Goals:**
+
 - Hocuspocus WebSocket URL is configurable via `NUXT_PUBLIC_HOCUSPOCUS_URL` (defaults to same-origin `/ws`)
 - Graph node clicks navigate to the entity detail page
 - CLI roll recording works with the current `apiKey`-based auth
@@ -18,6 +19,7 @@ The project already has a toast/notification pattern (shadcn-vue `useToast`), ru
 - CLI session-group delete prompts for confirmation unless `--yes` is passed
 
 **Non-Goals:**
+
 - No new features or UI redesigns
 - No migration or schema changes
 - No changes to the auth model itself (just fixing the CLI key name)

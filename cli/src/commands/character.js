@@ -36,14 +36,16 @@ export function makeCharacterCommand() {
       if (opts.json) {
         print(res, { json: true })
       } else {
-        print(data.map(c => ({
-          name: c.name,
-          slug: c.slug,
-          type: c.characterType || '',
-          status: c.status || '',
-          race: c.race || '',
-          class: c.class || '',
-        })))
+        print(
+          data.map((c) => ({
+            name: c.name,
+            slug: c.slug,
+            type: c.characterType || '',
+            status: c.status || '',
+            race: c.race || '',
+            class: c.class || '',
+          })),
+        )
         if (meta) console.error(`Page ${meta.page}/${meta.totalPages} (${meta.total} total)`)
       }
     })
@@ -117,14 +119,18 @@ export function makeCharacterCommand() {
         body.content = await new Promise((resolve) => {
           let data = ''
           process.stdin.setEncoding('utf8')
-          process.stdin.on('data', chunk => { data += chunk })
+          process.stdin.on('data', (chunk) => {
+            data += chunk
+          })
           process.stdin.on('end', () => resolve(data))
         })
       } else if (opts.content !== undefined) {
         body.content = opts.content
       }
       if (Object.keys(body).length === 0) {
-        process.stderr.write('Error: provide at least one field to update (--name, --race, --class, --alignment, --status, --type, --content, --stdin)\n')
+        process.stderr.write(
+          'Error: provide at least one field to update (--name, --race, --class, --alignment, --status, --type, --content, --stdin)\n',
+        )
         process.exit(1)
       }
       const data = await put(`/api/campaigns/${opts.campaign}/characters/${slug}`, body)
@@ -167,7 +173,10 @@ export function makeCharacterCommand() {
       const body = { targetEntityId }
       if (opts.label !== undefined) body.label = opts.label
       if (opts.description !== undefined) body.description = opts.description
-      const data = await post(`/api/campaigns/${opts.campaign}/characters/${slug}/connections`, body)
+      const data = await post(
+        `/api/campaigns/${opts.campaign}/characters/${slug}/connections`,
+        body,
+      )
       if (opts.json) {
         print(data, { json: true })
       } else {
@@ -187,8 +196,15 @@ export function makeCharacterCommand() {
       } else {
         const entityRes = await get(`/api/campaigns/${opts.campaign}/entities?limit=500`)
         const allEntities = Array.isArray(entityRes) ? entityRes : (entityRes.entities ?? [])
-        const nameMap = Object.fromEntries(allEntities.map(e => [e.id, e.name]))
-        print(data.map(c => ({ id: c.id, target: nameMap[c.targetEntityId] ?? c.targetEntityId, label: c.label || '', description: c.description || '' })))
+        const nameMap = Object.fromEntries(allEntities.map((e) => [e.id, e.name]))
+        print(
+          data.map((c) => ({
+            id: c.id,
+            target: nameMap[c.targetEntityId] ?? c.targetEntityId,
+            label: c.label || '',
+            description: c.description || '',
+          })),
+        )
       }
     })
 
@@ -201,9 +217,14 @@ export function makeCharacterCommand() {
       if (!opts.yes) {
         const { createInterface } = await import('readline')
         const rl = createInterface({ input: process.stdin, output: process.stdout })
-        const answer = await new Promise(resolve => rl.question(`Delete connection ${connectionId}? (y/N) `, resolve))
+        const answer = await new Promise((resolve) =>
+          rl.question(`Delete connection ${connectionId}? (y/N) `, resolve),
+        )
         rl.close()
-        if (answer.toLowerCase() !== 'y') { process.stdout.write('Aborted.\n'); process.exit(0) }
+        if (answer.toLowerCase() !== 'y') {
+          process.stdout.write('Aborted.\n')
+          process.exit(0)
+        }
       }
       await del(`/api/campaigns/${opts.campaign}/characters/${slug}/connections/${connectionId}`)
       success(`Connection deleted: ${connectionId}`)
@@ -217,8 +238,14 @@ export function makeCharacterCommand() {
     .action(async (slug, abilityId, opts) => {
       if (!opts.yes) {
         const { confirm } = await import('@inquirer/prompts')
-        const ok = await confirm({ message: `Delete ability ${abilityId} from ${slug}?`, default: false })
-        if (!ok) { process.stdout.write('Cancelled.\n'); return }
+        const ok = await confirm({
+          message: `Delete ability ${abilityId} from ${slug}?`,
+          default: false,
+        })
+        if (!ok) {
+          process.stdout.write('Cancelled.\n')
+          return
+        }
       }
       await del(`/api/campaigns/${opts.campaign}/characters/${slug}/abilities/${abilityId}`)
       success(`Ability ${abilityId} deleted.`)
@@ -244,8 +271,14 @@ export function makeCharacterCommand() {
     .action(async (folderId, opts) => {
       if (!opts.yes) {
         const { confirm } = await import('@inquirer/prompts')
-        const ok = await confirm({ message: `Delete folder ${folderId}? This cannot be undone.`, default: false })
-        if (!ok) { process.stdout.write('Cancelled.\n'); return }
+        const ok = await confirm({
+          message: `Delete folder ${folderId}? This cannot be undone.`,
+          default: false,
+        })
+        if (!ok) {
+          process.stdout.write('Cancelled.\n')
+          return
+        }
       }
       await del(`/api/campaigns/${opts.campaign}/character-folders/${folderId}`)
       success(`Folder ${folderId} deleted.`)

@@ -12,7 +12,19 @@ import { invalidateAutomatonCache } from '../../../../services/autolink'
 import { join } from 'path'
 import type { CampaignRole } from '../../../../utils/permissions'
 
-const VALID_SUBTYPES = ['country', 'region', 'city', 'town', 'village', 'dungeon', 'lair', 'building', 'room', 'wilderness', 'other']
+const VALID_SUBTYPES = [
+  'country',
+  'region',
+  'city',
+  'town',
+  'village',
+  'dungeon',
+  'lair',
+  'building',
+  'room',
+  'wilderness',
+  'other',
+]
 
 export default defineEventHandler(async (event) => {
   const role = event.context.campaignRole as CampaignRole
@@ -39,10 +51,22 @@ export default defineEventHandler(async (event) => {
 
   // Validate parentId belongs to a location in this campaign
   if (parentId) {
-    const parent = db.select().from(entities)
-      .where(and(eq(entities.id, parentId), eq(entities.campaignId, campaignId), eq(entities.type, 'location')))
+    const parent = db
+      .select()
+      .from(entities)
+      .where(
+        and(
+          eq(entities.id, parentId),
+          eq(entities.campaignId, campaignId),
+          eq(entities.type, 'location'),
+        ),
+      )
       .get()
-    if (!parent) throw createError({ statusCode: 400, message: 'Invalid parentId: location not found in this campaign' })
+    if (!parent)
+      throw createError({
+        statusCode: 400,
+        message: 'Invalid parentId: location not found in this campaign',
+      })
   }
 
   const id = randomUUID()
@@ -65,23 +89,32 @@ export default defineEventHandler(async (event) => {
 
   const hash = await writeEntityFile(filePath, frontmatter, content || '')
 
-  db.insert(entities).values({
-    id,
-    campaignId,
-    type: 'location',
-    name: name.trim(),
-    slug,
-    filePath,
-    visibility: visibility || 'members',
-    contentHash: hash,
-    parentId: parentId || null,
-    createdBy: event.context.user.id,
-    createdAt: now,
-    updatedAt: now,
-  }).run()
+  db.insert(entities)
+    .values({
+      id,
+      campaignId,
+      type: 'location',
+      name: name.trim(),
+      slug,
+      filePath,
+      visibility: visibility || 'members',
+      contentHash: hash,
+      parentId: parentId || null,
+      createdBy: event.context.user.id,
+      createdAt: now,
+      updatedAt: now,
+    })
+    .run()
 
   indexEntity(sqlite, id, campaignId, name.trim(), [], [], content || '')
   invalidateAutomatonCache(campaignId)
 
-  return { id, slug, name: name.trim(), subtype: resolvedSubtype, parentId: parentId || null, visibility: visibility || 'members' }
+  return {
+    id,
+    slug,
+    name: name.trim(),
+    subtype: resolvedSubtype,
+    parentId: parentId || null,
+    visibility: visibility || 'members',
+  }
 })

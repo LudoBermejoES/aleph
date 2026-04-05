@@ -14,7 +14,9 @@ export default defineEventHandler(async (event) => {
   const calendarId = getRouterParam(event, 'calendarId')!
   const db = useDb()
 
-  const calendar = db.select().from(calendars)
+  const calendar = db
+    .select()
+    .from(calendars)
     .where(and(eq(calendars.campaignId, campaignId), eq(calendars.id, calendarId)))
     .get()
   if (!calendar) throw createError({ statusCode: 404, message: 'Calendar not found' })

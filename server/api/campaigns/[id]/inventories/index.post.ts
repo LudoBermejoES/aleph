@@ -8,7 +8,8 @@ import type { CampaignRole } from '../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
   const role = event.context.campaignRole as CampaignRole
-  if (!hasMinRole(role, 'editor')) throw createError({ statusCode: 403, message: 'Editors or above can create inventories' })
+  if (!hasMinRole(role, 'editor'))
+    throw createError({ statusCode: 403, message: 'Editors or above can create inventories' })
 
   const campaignId = getRouterParam(event, 'id')!
   const inventorySchema = z.object({
@@ -20,13 +21,15 @@ export default defineEventHandler(async (event) => {
   const db = useDb()
   const id = randomUUID()
 
-  db.insert(inventories).values({
-    id,
-    campaignId,
-    ownerType: body.ownerType || 'character',
-    ownerId: body.ownerId,
-    name: body.name || 'Inventory',
-  }).run()
+  db.insert(inventories)
+    .values({
+      id,
+      campaignId,
+      ownerType: body.ownerType || 'character',
+      ownerId: body.ownerId,
+      name: body.name || 'Inventory',
+    })
+    .run()
 
   return { id }
 })

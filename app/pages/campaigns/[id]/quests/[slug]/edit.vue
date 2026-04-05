@@ -1,17 +1,36 @@
 <template>
   <div class="p-8 max-w-3xl">
     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary"> {{ $t('common.campaign') }}</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">
+        {{ $t('common.campaign') }}</NuxtLink
+      >
       <span>/</span>
-      <NuxtLink :to="`/campaigns/${campaignId}/quests`" class="hover:text-primary">{{ $t('quests.title') }}</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}/quests`" class="hover:text-primary">{{
+        $t('quests.title')
+      }}</NuxtLink>
       <span>/</span>
       <span>{{ form.name || 'Quest' }}</span>
       <span>/</span><span>{{ $t('common.edit') }}</span>
     </div>
     <h1 class="text-2xl font-bold mb-6">{{ $t('quests.edit') }}</h1>
-    <QuestForm ref="questForm" v-if="loaded" v-model="form" :campaign-id="campaignId" :quest-slug="slug" :submit-label="$t('common.save')" :submitting="submitting" :collaborative="isCollaborative" :document-name="documentName" :user-name="userName" :user-color="userColor" @submit="save">
+    <QuestForm
+      ref="questForm"
+      v-if="loaded"
+      v-model="form"
+      :campaign-id="campaignId"
+      :quest-slug="slug"
+      :submit-label="$t('common.save')"
+      :submitting="submitting"
+      :collaborative="isCollaborative"
+      :document-name="documentName"
+      :user-name="userName"
+      :user-color="userColor"
+      @submit="save"
+    >
       <template #cancel>
-        <NuxtLink :to="`/campaigns/${campaignId}/quests`"><Button variant="outline">{{ $t('common.cancel') }}</Button></NuxtLink>
+        <NuxtLink :to="`/campaigns/${campaignId}/quests`"
+          ><Button variant="outline">{{ $t('common.cancel') }}</Button></NuxtLink
+        >
       </template>
     </QuestForm>
     <ErrorToast v-if="error" :message="error" @dismiss="error = ''" />
@@ -30,7 +49,9 @@ const { t } = useI18n()
 const form = ref({ name: '', status: 'active', parentQuestId: '', isSecret: false, content: '' })
 
 const isCollaborative = computed(() => route.query.collab === 'true')
-const documentName = computed(() => isCollaborative.value ? `campaign:${campaignId}:quest:${slug}` : undefined)
+const documentName = computed(() =>
+  isCollaborative.value ? `campaign:${campaignId}:quest:${slug}` : undefined,
+)
 const { userName, userColor } = useCollaborationUser()
 
 const api = useCampaignApi(campaignId)
@@ -38,7 +59,7 @@ const questForm = ref<any>(null)
 
 onMounted(async () => {
   try {
-    const q = await api.getQuest(slug) as any
+    const q = (await api.getQuest(slug)) as any
     form.value = {
       name: q.name || '',
       status: q.status || 'active',

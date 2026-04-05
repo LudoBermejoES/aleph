@@ -8,18 +8,29 @@
         :disabled="page <= 1"
         class="px-2 py-1 rounded border border-border disabled:opacity-40 hover:bg-muted transition-colors"
         @click="$emit('change', page - 1)"
-      >‹</button>
+      >
+        ‹
+      </button>
       <button
         v-for="p in visiblePages"
         :key="p"
-        :class="['px-3 py-1 rounded border transition-colors', p === page ? 'border-primary bg-primary text-primary-foreground' : 'border-border hover:bg-muted']"
+        :class="[
+          'px-3 py-1 rounded border transition-colors',
+          p === page
+            ? 'border-primary bg-primary text-primary-foreground'
+            : 'border-border hover:bg-muted',
+        ]"
         @click="$emit('change', p)"
-      >{{ p }}</button>
+      >
+        {{ p }}
+      </button>
       <button
         :disabled="page >= totalPages"
         class="px-2 py-1 rounded border border-border disabled:opacity-40 hover:bg-muted transition-colors"
         @click="$emit('change', page + 1)"
-      >›</button>
+      >
+        ›
+      </button>
     </div>
   </div>
 </template>

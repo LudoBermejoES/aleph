@@ -14,7 +14,9 @@ export default defineEventHandler(async (event) => {
   const slug = getRouterParam(event, 'slug')!
   const db = useDb()
 
-  const session = db.select({ id: gameSessions.id }).from(gameSessions)
+  const session = db
+    .select({ id: gameSessions.id })
+    .from(gameSessions)
     .where(and(eq(gameSessions.campaignId, campaignId), eq(gameSessions.slug, slug)))
     .get()
   if (!session) throw createError({ statusCode: 404, message: 'Session not found' })

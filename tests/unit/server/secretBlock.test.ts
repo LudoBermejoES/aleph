@@ -84,7 +84,9 @@ describe('SecretBlock extension', () => {
   it('HTML parsing reads data-secret-id attribute', () => {
     const attrs = SecretBlock.config?.addAttributes?.()
     const parseHTML = attrs?.id?.parseHTML
-    const el = { getAttribute: (name: string) => name === 'data-secret-id' ? 'parsed-id' : null } as HTMLElement
+    const el = {
+      getAttribute: (name: string) => (name === 'data-secret-id' ? 'parsed-id' : null),
+    } as HTMLElement
     expect(parseHTML?.(el)).toBe('parsed-id')
   })
 })

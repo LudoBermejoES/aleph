@@ -20,10 +20,10 @@ export default defineEventHandler(async (event) => {
 
   // Run scan in background (non-blocking)
   const scanPromise = scanCampaignMentions(db, campaignId)
-    .then(result => {
+    .then((result) => {
       logger.info('Campaign mention scan completed', { campaignId, ...result })
     })
-    .catch(err => {
+    .catch((err) => {
       logger.error('Campaign mention scan failed', { campaignId, error: err })
     })
 

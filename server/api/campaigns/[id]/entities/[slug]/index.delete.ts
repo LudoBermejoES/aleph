@@ -18,7 +18,9 @@ export default defineEventHandler(async (event) => {
   const db = useDb()
   const sqlite = useSqlite()
 
-  const entity = db.select().from(entities)
+  const entity = db
+    .select()
+    .from(entities)
     .where(and(eq(entities.campaignId, campaignId), eq(entities.slug, slug)))
     .get()
 

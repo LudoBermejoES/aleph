@@ -1,13 +1,17 @@
 # markdown-content Specification
 
 ## Purpose
+
 TBD - created by archiving change campaign-manager-study. Update Purpose after archive.
+
 ## Requirements
+
 ### Requirement: Filesystem-Based Content Storage
 
 The system SHALL store all narrative/textual content as `.md` files in a structured directory hierarchy. SQLite stores only metadata and relationships.
 
 #### Scenario: Content file creation
+
 - GIVEN an Editor creating a new wiki entry "Strahd von Zarovich" of type "character" in campaign "curse-of-strahd"
 - WHEN the entry is saved
 - THEN the system writes a file at `content/campaigns/curse-of-strahd/characters/strahd-von-zarovich.md`
@@ -15,8 +19,10 @@ The system SHALL store all narrative/textual content as `.md` files in a structu
 - AND a corresponding row is inserted in SQLite with the file path, type, visibility, and indexed fields
 
 #### Scenario: File format with frontmatter
+
 - GIVEN a wiki entry file
 - THEN it SHALL follow this format:
+
   ```markdown
   ---
   id: uuid-here
@@ -45,6 +51,7 @@ The system SHALL store all narrative/textual content as `.md` files in a structu
   ```
 
 #### Scenario: Slug generation and uniqueness
+
 - GIVEN a user creating an entry named "Castle Ravenloft"
 - WHEN the file is created
 - THEN the filename is generated as `castle-ravenloft.md` (lowercase, hyphenated)
@@ -56,6 +63,7 @@ The system SHALL store all narrative/textual content as `.md` files in a structu
 The system SHALL organize content in a predictable, navigable directory hierarchy.
 
 #### Scenario: Default campaign structure
+
 - GIVEN a new campaign "Curse of Strahd"
 - WHEN the campaign is created
 - THEN the system creates the following directory structure:
@@ -76,11 +84,13 @@ The system SHALL organize content in a predictable, navigable directory hierarch
 - AND subdirectories can be created for nested organization (e.g., `locations/barovia/`)
 
 #### Scenario: User-created entity types use custom directories
+
 - GIVEN a DM creates a custom entity type "Deities"
 - WHEN entries of that type are created
 - THEN they are stored under `content/campaigns/{slug}/deities/`
 
 #### Scenario: Asset co-location
+
 - GIVEN a wiki entry references images
 - WHEN images are uploaded via the editor
 - THEN they are stored in `content/campaigns/{slug}/assets/images/`
@@ -91,19 +101,23 @@ The system SHALL organize content in a predictable, navigable directory hierarch
 The system SHALL render markdown content with support for embedded Vue components (MDC -- Markdown Components).
 
 #### Scenario: Basic markdown rendering
+
 - GIVEN a `.md` file with standard markdown (headings, bold, italic, lists, tables, links, images, code blocks)
 - WHEN the content is rendered in the browser
 - THEN all markdown elements display with proper formatting
 - AND heading IDs are generated for anchor linking and table-of-contents
 
 #### Scenario: Entity mention rendering
+
 - GIVEN markdown content containing `@[Strahd von Zarovich](characters/strahd-von-zarovich)`
 - WHEN rendered
 - THEN the mention displays as a styled link with hover preview (name, type, image thumbnail)
 - AND clicking navigates to the entity page
 
 #### Scenario: Embedded Vue components in markdown
+
 - GIVEN markdown using MDC syntax for custom components:
+
   ```markdown
   Here is the map of Barovia:
 
@@ -120,11 +134,13 @@ The system SHALL render markdown content with support for embedded Vue component
   ::dice-roller{formula="1d20+3"}
   ::
   ```
+
 - WHEN rendered
 - THEN each `::component` block renders as the corresponding Vue component
 - AND components are interactive (map is pannable, meter is editable by authorized users, dice roller is clickable)
 
 #### Scenario: Auto-linked entity names
+
 - GIVEN a markdown paragraph: "The party arrived at Castle Ravenloft where they met Strahd."
 - WHEN rendered, and "Castle Ravenloft" and "Strahd" are known entity names/aliases
 - THEN both names are automatically converted to entity links with hover previews
@@ -136,6 +152,7 @@ The system SHALL render markdown content with support for embedded Vue component
 The system SHALL provide a WYSIWYG editor (Tiptap) that uses markdown as the underlying format.
 
 #### Scenario: Editing in the browser
+
 - GIVEN a user opens a wiki entry for editing
 - WHEN the Tiptap editor loads
 - THEN the `.md` file content is parsed and rendered as rich text
@@ -143,6 +160,7 @@ The system SHALL provide a WYSIWYG editor (Tiptap) that uses markdown as the und
 - AND the editor provides `@` mention autocomplete for linking to other entities
 
 #### Scenario: Saving edits
+
 - GIVEN a user finishes editing in Tiptap
 - WHEN they save
 - THEN the editor serializes the content back to markdown format
@@ -151,6 +169,7 @@ The system SHALL provide a WYSIWYG editor (Tiptap) that uses markdown as the und
 - AND the database metadata and search index are updated
 
 #### Scenario: Source mode toggle
+
 - GIVEN a user editing in the rich text editor
 - WHEN they toggle "Source Mode"
 - THEN the raw markdown is displayed in a code editor (Monaco or CodeMirror)
@@ -158,6 +177,7 @@ The system SHALL provide a WYSIWYG editor (Tiptap) that uses markdown as the und
 - AND switching back to rich text mode re-renders the markdown
 
 #### Scenario: Slash command palette
+
 - GIVEN a user typing in the editor
 - WHEN they type `/`
 - THEN a command palette appears with options: Heading 1-6, Bullet List, Numbered List, Table, Image, Code Block, Quote, Divider, Entity Mention, Map Embed, Meter, Dice Roller, Secret Block, Callout
@@ -168,6 +188,7 @@ The system SHALL provide a WYSIWYG editor (Tiptap) that uses markdown as the und
 The system SHALL detect external changes to `.md` files and re-sync metadata and indexes.
 
 #### Scenario: External file edit
+
 - GIVEN a DM edits a `.md` file directly in VS Code
 - WHEN the file is saved
 - THEN the server (via chokidar filesystem watcher) detects the change within 2 seconds
@@ -177,6 +198,7 @@ The system SHALL detect external changes to `.md` files and re-sync metadata and
 - AND any connected browser clients receive a real-time update
 
 #### Scenario: External file creation
+
 - GIVEN a DM creates a new `.md` file in the campaign directory manually
 - WHEN the watcher detects the new file
 - THEN the system reads the frontmatter, creates a database record, and indexes the content
@@ -184,6 +206,7 @@ The system SHALL detect external changes to `.md` files and re-sync metadata and
 - AND the entry appears in the UI on the next page load or via real-time push
 
 #### Scenario: External file deletion
+
 - GIVEN a DM deletes a `.md` file from the filesystem
 - WHEN the watcher detects the deletion
 - THEN the corresponding database record is soft-deleted (marked as deleted, not purged)
@@ -191,6 +214,7 @@ The system SHALL detect external changes to `.md` files and re-sync metadata and
 - AND the DM can restore from the database record (re-creating the file from cached content) within 30 days
 
 #### Scenario: Bulk import via filesystem
+
 - GIVEN a DM copies 50 `.md` files into a campaign's `characters/` directory
 - WHEN the watcher detects the batch
 - THEN the system processes them sequentially (debounced, not all at once)
@@ -202,6 +226,7 @@ The system SHALL detect external changes to `.md` files and re-sync metadata and
 The system SHALL define a consistent frontmatter schema for all entity types.
 
 #### Scenario: Required frontmatter fields
+
 - GIVEN any entity `.md` file
 - THEN the following frontmatter fields are REQUIRED:
   - `id` (UUID, auto-generated if missing)
@@ -218,6 +243,7 @@ The system SHALL define a consistent frontmatter schema for all entity types.
   - `parent` (string, slug of parent entity for nesting)
 
 #### Scenario: Frontmatter validation
+
 - GIVEN a `.md` file with invalid or missing required frontmatter
 - WHEN the system reads the file (via editor save or filesystem watcher)
 - THEN missing required fields are auto-populated with defaults
@@ -229,12 +255,14 @@ The system SHALL define a consistent frontmatter schema for all entity types.
 The system SHALL maintain a full-text search index (SQLite FTS5) synchronized with filesystem content.
 
 #### Scenario: Index on file change
+
 - GIVEN a `.md` file is created or modified
 - WHEN the change is detected
 - THEN the file's text content (excluding frontmatter) is extracted and upserted into the FTS5 index
 - AND the entity name, aliases, and tags from frontmatter are added as boosted terms
 
 #### Scenario: Search queries
+
 - GIVEN a user searches for "vampire lord"
 - WHEN the query is executed
 - THEN FTS5 returns ranked results from all entities the user has permission to see
@@ -246,14 +274,15 @@ The system SHALL maintain a full-text search index (SQLite FTS5) synchronized wi
 The system SHALL support optional git-based versioning of campaign content.
 
 #### Scenario: Campaign version history
+
 - GIVEN a campaign with git integration enabled
 - WHEN a file is saved via the UI
 - THEN the system auto-commits the change with a message like "Update: Strahd von Zarovich (character)"
 - AND the user can view file history and diff previous versions from the UI
 
 #### Scenario: Campaign without git
+
 - GIVEN a campaign without git integration
 - WHEN files change
 - THEN no version history is maintained beyond the filesystem timestamps
 - AND this is the default mode (git is opt-in)
-

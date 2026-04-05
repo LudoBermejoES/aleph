@@ -46,12 +46,12 @@ describe('findMatches', () => {
 
   it('matches Orc with word boundaries', () => {
     const matches = findMatches('the Orc attacked', automaton)
-    expect(matches.some(m => m.entityId === '3')).toBe(true)
+    expect(matches.some((m) => m.entityId === '3')).toBe(true)
   })
 
   it('does not match Orc inside Orca', () => {
     const matches = findMatches('the Orca whale swam', automaton)
-    const orcMatches = matches.filter(m => m.entityId === '3')
+    const orcMatches = matches.filter((m) => m.entityId === '3')
     expect(orcMatches).toHaveLength(0)
   })
 })
@@ -79,44 +79,40 @@ describe('resolveOverlaps', () => {
 
 describe('computeExclusionZones', () => {
   it('identifies code blocks', () => {
-    const md = "Some text\n```\nElara\n```\nMore text"
+    const md = 'Some text\n```\nElara\n```\nMore text'
     const zones = computeExclusionZones(md)
-    expect(zones.some(z => z.start <= 14 && z.end >= 19)).toBe(true) // "Elara" inside code
+    expect(zones.some((z) => z.start <= 14 && z.end >= 19)).toBe(true) // "Elara" inside code
   })
 
   it('identifies inline code', () => {
-    const md = "Use `Elara` as a variable"
+    const md = 'Use `Elara` as a variable'
     const zones = computeExclusionZones(md)
-    expect(zones.some(z => z.start <= 4 && z.end >= 11)).toBe(true)
+    expect(zones.some((z) => z.start <= 4 && z.end >= 11)).toBe(true)
   })
 
   it('identifies existing links', () => {
-    const md = "Visit [Elara](http://example.com)"
+    const md = 'Visit [Elara](http://example.com)'
     const zones = computeExclusionZones(md)
     expect(zones.length).toBeGreaterThanOrEqual(1)
   })
 
   it('identifies frontmatter', () => {
-    const md = "---\nname: Elara\n---\nContent"
+    const md = '---\nname: Elara\n---\nContent'
     const zones = computeExclusionZones(md)
-    expect(zones.some(z => z.start === 0)).toBe(true)
+    expect(zones.some((z) => z.start === 0)).toBe(true)
   })
 })
 
 describe('filterMatchesByExclusions', () => {
   it('filters matches inside exclusion zones', () => {
-    const matches = [
-      { entityId: '1', matchedText: 'Elara', start: 10, end: 15 },
-    ]
+    const matches = [{ entityId: '1', matchedText: 'Elara', start: 10, end: 15 }]
     const zones = [{ start: 8, end: 20 }]
     const filtered = filterMatchesByExclusions(matches, zones)
     expect(filtered).toHaveLength(0)
   })
 
   it('keeps matches outside exclusion zones', () => {
-    const matches = [
-      { entityId: '1', matchedText: 'Elara', start: 30, end: 35 },
-    ]
+    const matches = [{ entityId: '1', matchedText: 'Elara', start: 30, end: 35 }]
     const zones = [{ start: 0, end: 20 }]
     const filtered = filterMatchesByExclusions(matches, zones)
     expect(filtered).toHaveLength(1)

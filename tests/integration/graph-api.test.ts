@@ -5,7 +5,7 @@ const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 async function api(path: string, opts?: any) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
-    headers: { 'Content-Type': 'application/json', 'Origin': BASE_URL, ...opts?.headers },
+    headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...opts?.headers },
     body: opts?.body ? JSON.stringify(opts.body) : undefined,
   })
 }
@@ -51,27 +51,31 @@ describe('Graph API — relationTypeSlug and organizations (12.8-12.10)', () => 
 
     // Create two entities
     const e1 = await api(`/api/campaigns/${campaignId}/entities`, {
-      method: 'POST', headers: withCsrf(cookie, csrfToken),
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
       body: { name: 'Arya', type: 'character', content: '# Arya' },
     })
     entity1Id = (await e1.json()).id
 
     const e2 = await api(`/api/campaigns/${campaignId}/entities`, {
-      method: 'POST', headers: withCsrf(cookie, csrfToken),
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
       body: { name: 'Bran', type: 'character', content: '# Bran' },
     })
     entity2Id = (await e2.json()).id
 
     // Get the 'ally' relation type
     const types = await api(`/api/campaigns/${campaignId}/relation-types`, {
-      method: 'GET', headers: { Cookie: cookie },
+      method: 'GET',
+      headers: { Cookie: cookie },
     })
     const typeList = await types.json()
     relationTypeId = typeList.find((t: any) => t.slug === 'ally')?.id
 
     // Create a relation
     await api(`/api/campaigns/${campaignId}/relations`, {
-      method: 'POST', headers: withCsrf(cookie, csrfToken),
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
       body: {
         sourceEntityId: entity1Id,
         targetEntityId: entity2Id,
@@ -86,7 +90,8 @@ describe('Graph API — relationTypeSlug and organizations (12.8-12.10)', () => 
   // 12.8: graph edges include relationTypeSlug
   it('GET /api/campaigns/{id}/graph — each edge includes relationTypeSlug', async () => {
     const res = await api(`/api/campaigns/${campaignId}/graph`, {
-      method: 'GET', headers: { Cookie: cookie },
+      method: 'GET',
+      headers: { Cookie: cookie },
     })
     expect(res.status).toBe(200)
     const data = await res.json()
@@ -104,7 +109,8 @@ describe('Graph API — relationTypeSlug and organizations (12.8-12.10)', () => 
   // 12.9: graph nodes include organizations array
   it('GET /api/campaigns/{id}/graph — each node includes organizations array', async () => {
     const res = await api(`/api/campaigns/${campaignId}/graph`, {
-      method: 'GET', headers: { Cookie: cookie },
+      method: 'GET',
+      headers: { Cookie: cookie },
     })
     expect(res.status).toBe(200)
     const data = await res.json()

@@ -13,7 +13,10 @@ export function makeChapterCommand() {
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
       const data = await get(`/api/campaigns/${opts.campaign}/chapters`)
-      print(opts.json ? data : data.map(c => ({ slug: c.slug, name: c.name, arc: c.arcId || '' })), { json: opts.json })
+      print(
+        opts.json ? data : data.map((c) => ({ slug: c.slug, name: c.name, arc: c.arcId || '' })),
+        { json: opts.json },
+      )
     })
 
   cmd
@@ -29,7 +32,11 @@ export function makeChapterCommand() {
       if (opts.arc !== undefined) body.arcId = opts.arc
       if (opts.description !== undefined) body.description = opts.description
       const data = await post(`/api/campaigns/${opts.campaign}/chapters`, body)
-      if (opts.json) { print(data, { json: true }) } else { success(`Chapter created: ${data.name} (${data.slug})`) }
+      if (opts.json) {
+        print(data, { json: true })
+      } else {
+        success(`Chapter created: ${data.name} (${data.slug})`)
+      }
     })
 
   cmd
@@ -55,8 +62,14 @@ export function makeChapterCommand() {
     .option('--yes', 'Skip confirmation')
     .action(async (opts) => {
       if (!opts.yes) {
-        const ok = await confirm({ message: `Delete chapter "${opts.slug}"? This cannot be undone.`, default: false })
-        if (!ok) { process.stdout.write('Cancelled.\n'); return }
+        const ok = await confirm({
+          message: `Delete chapter "${opts.slug}"? This cannot be undone.`,
+          default: false,
+        })
+        if (!ok) {
+          process.stdout.write('Cancelled.\n')
+          return
+        }
       }
       await del(`/api/campaigns/${opts.campaign}/chapters/${opts.slug}`)
       success(`Chapter ${opts.slug} deleted.`)

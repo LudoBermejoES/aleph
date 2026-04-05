@@ -25,7 +25,10 @@ export function parsePagination(query: Record<string, unknown>): PaginationParam
   }
 
   const page = Math.max(1, Number.isFinite(rawPage) ? Math.floor(rawPage) : 1)
-  const pageSize = Math.min(MAX_PAGE_SIZE, Math.max(1, Number.isFinite(rawPageSize) ? Math.floor(rawPageSize) : DEFAULT_PAGE_SIZE))
+  const pageSize = Math.min(
+    MAX_PAGE_SIZE,
+    Math.max(1, Number.isFinite(rawPageSize) ? Math.floor(rawPageSize) : DEFAULT_PAGE_SIZE),
+  )
 
   return { limit: pageSize, offset: (page - 1) * pageSize, page, pageSize }
 }

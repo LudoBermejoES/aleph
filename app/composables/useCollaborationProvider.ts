@@ -20,7 +20,9 @@ export function useCollaborationProvider(options: {
         const data = await res.json()
         wsToken = data.token
       }
-    } catch { /* fallback to empty token */ }
+    } catch {
+      /* fallback to empty token */
+    }
 
     provider = new HocuspocusProvider({
       url: useRuntimeConfig().public.hocuspocusUrl as string,
@@ -34,7 +36,10 @@ export function useCollaborationProvider(options: {
 
   function getExtensions(prov: HocuspocusProvider) {
     return [
-      StarterKit.configure({ history: false, link: { openOnClick: false, HTMLAttributes: { class: 'text-primary underline' } } }),
+      StarterKit.configure({
+        history: false,
+        link: { openOnClick: false, HTMLAttributes: { class: 'text-primary underline' } },
+      }),
       Collaboration.configure({ document: ydoc }),
       CollaborationCaret.configure({
         provider: prov,

@@ -34,7 +34,12 @@ async function createApiKey(cookie: string) {
   const csrfToken = csrfMatch?.[1] || ''
   const res = await fetch(`${BASE_URL}/api/apikeys`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', Origin: BASE_URL, Cookie: cookie, 'X-CSRF-Token': csrfToken },
+    headers: {
+      'Content-Type': 'application/json',
+      Origin: BASE_URL,
+      Cookie: cookie,
+      'X-CSRF-Token': csrfToken,
+    },
     body: JSON.stringify({ name: 'test-key' }),
   })
   return res.json()

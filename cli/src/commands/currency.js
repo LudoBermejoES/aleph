@@ -13,7 +13,17 @@ export function makeCurrencyCommand() {
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
       const data = await get(`/api/campaigns/${opts.campaign}/currencies`)
-      print(opts.json ? data : data.map(c => ({ id: c.id, name: c.name, symbol: c.symbol, value: c.valueInBaseUnits })), { json: opts.json })
+      print(
+        opts.json
+          ? data
+          : data.map((c) => ({
+              id: c.id,
+              name: c.name,
+              symbol: c.symbol,
+              value: c.valueInBaseUnits,
+            })),
+        { json: opts.json },
+      )
     })
 
   cmd
@@ -26,9 +36,15 @@ export function makeCurrencyCommand() {
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
       const data = await post(`/api/campaigns/${opts.campaign}/currencies`, {
-        name: opts.name, symbol: opts.symbol, valueInBaseUnits: opts.value,
+        name: opts.name,
+        symbol: opts.symbol,
+        valueInBaseUnits: opts.value,
       })
-      if (opts.json) { print(data, { json: true }) } else { success(`Currency created: ${data.name} (${data.symbol})`) }
+      if (opts.json) {
+        print(data, { json: true })
+      } else {
+        success(`Currency created: ${data.name} (${data.symbol})`)
+      }
     })
 
   cmd
@@ -56,8 +72,14 @@ export function makeCurrencyCommand() {
     .option('--yes', 'Skip confirmation')
     .action(async (opts) => {
       if (!opts.yes) {
-        const ok = await confirm({ message: `Delete currency ${opts.id}? This cannot be undone.`, default: false })
-        if (!ok) { process.stdout.write('Cancelled.\n'); return }
+        const ok = await confirm({
+          message: `Delete currency ${opts.id}? This cannot be undone.`,
+          default: false,
+        })
+        if (!ok) {
+          process.stdout.write('Cancelled.\n')
+          return
+        }
       }
       await del(`/api/campaigns/${opts.campaign}/currencies/${opts.id}`)
       success(`Currency ${opts.id} deleted.`)
@@ -72,8 +94,14 @@ export function makeCurrencyCommand() {
     .requiredOption('--to <symbol>', 'Target currency symbol')
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
-      const data = await get(`/api/campaigns/${opts.campaign}/currencies/convert?amount=${opts.amount}&from=${encodeURIComponent(opts.from)}&to=${encodeURIComponent(opts.to)}`)
-      if (opts.json) { print(data, { json: true }) } else { print(data) }
+      const data = await get(
+        `/api/campaigns/${opts.campaign}/currencies/convert?amount=${opts.amount}&from=${encodeURIComponent(opts.from)}&to=${encodeURIComponent(opts.to)}`,
+      )
+      if (opts.json) {
+        print(data, { json: true })
+      } else {
+        print(data)
+      }
     })
 
   return cmd

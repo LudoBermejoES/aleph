@@ -22,13 +22,15 @@ export default defineEventHandler(async (event) => {
   const db = useDb()
   const id = randomUUID()
 
-  db.insert(tags).values({
-    id,
-    campaignId,
-    name: name.trim(),
-    slug: slugify(name),
-    color: color || null,
-  }).run()
+  db.insert(tags)
+    .values({
+      id,
+      campaignId,
+      name: name.trim(),
+      slug: slugify(name),
+      color: color || null,
+    })
+    .run()
 
   return { id, name: name.trim(), slug: slugify(name), color }
 })

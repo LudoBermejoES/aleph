@@ -48,11 +48,11 @@ aleph/
 
 **Three test layers:**
 
-| Layer | Tool | Speed | DB | Files | When to use |
-| ----- | ---- | ----- | -- | ----- | ----------- |
-| **Unit** | Vitest | Fast (~ms) | `:memory:` SQLite | Temp dirs | Every service, handler, composable |
-| **Integration** | @nuxt/test-utils `setup()` + `$fetch` | Medium (~s) | `:memory:` SQLite via runtimeConfig | Temp dirs | API contract verification |
-| **E2E** | Playwright | Slow (~10s) | Temp .db file | Temp content dir | Critical user flows only |
+| Layer           | Tool                                  | Speed       | DB                                  | Files            | When to use                        |
+| --------------- | ------------------------------------- | ----------- | ----------------------------------- | ---------------- | ---------------------------------- |
+| **Unit**        | Vitest                                | Fast (~ms)  | `:memory:` SQLite                   | Temp dirs        | Every service, handler, composable |
+| **Integration** | @nuxt/test-utils `setup()` + `$fetch` | Medium (~s) | `:memory:` SQLite via runtimeConfig | Temp dirs        | API contract verification          |
+| **E2E**         | Playwright                            | Slow (~10s) | Temp .db file                       | Temp content dir | Critical user flows only           |
 
 **Design for testability:**
 

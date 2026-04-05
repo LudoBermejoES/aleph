@@ -19,7 +19,9 @@ test.describe('Locations navigation', () => {
 
     await page.click('aside >> text=Locations')
     await page.waitForLoadState('networkidle')
-    await expect(page.locator('main').getByRole('heading', { name: 'Locations' })).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('main').getByRole('heading', { name: 'Locations' })).toBeVisible({
+      timeout: 10000,
+    })
   })
 })
 
@@ -52,14 +54,17 @@ test.describe('Location creation', () => {
 
     // Create parent via API
     const parentName = `Parent Region ${uid()}`
-    await page.evaluate(async ([id, name]) => {
-      const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
-      await fetch(`/api/campaigns/${id}/locations`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
-        body: JSON.stringify({ name, subtype: 'region', visibility: 'members' }),
-      })
-    }, [campaignId, parentName])
+    await page.evaluate(
+      async ([id, name]) => {
+        const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
+        await fetch(`/api/campaigns/${id}/locations`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+          body: JSON.stringify({ name, subtype: 'region', visibility: 'members' }),
+        })
+      },
+      [campaignId, parentName],
+    )
 
     await page.goto(`/campaigns/${campaignId}/locations/new`)
     await page.waitForLoadState('networkidle')
@@ -82,15 +87,23 @@ test.describe('Location detail page', () => {
     const campaignId = await createCampaignAndGetId(page, `Loc Detail Camp ${uid()}`)
 
     const locName = `Castle Ravenloft ${uid()}`
-    const locData: any = await page.evaluate(async ([id, name]) => {
-      const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
-      const res = await fetch(`/api/campaigns/${id}/locations`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
-        body: JSON.stringify({ name, subtype: 'dungeon', visibility: 'members', content: 'A dark castle.' }),
-      })
-      return res.json()
-    }, [campaignId, locName])
+    const locData: any = await page.evaluate(
+      async ([id, name]) => {
+        const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
+        const res = await fetch(`/api/campaigns/${id}/locations`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+          body: JSON.stringify({
+            name,
+            subtype: 'dungeon',
+            visibility: 'members',
+            content: 'A dark castle.',
+          }),
+        })
+        return res.json()
+      },
+      [campaignId, locName],
+    )
 
     await page.goto(`/campaigns/${campaignId}/locations/${locData.slug}`)
     await page.waitForLoadState('networkidle')
@@ -115,20 +128,30 @@ test.describe('Location detail page', () => {
       return res.json()
     }, campaignId)
 
-    const child: any = await page.evaluate(async ([id, parentId]) => {
-      const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
-      const res = await fetch(`/api/campaigns/${id}/locations`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
-        body: JSON.stringify({ name: 'Village of Barovia', subtype: 'village', parentId, visibility: 'members' }),
-      })
-      return res.json()
-    }, [campaignId, parent.id])
+    const child: any = await page.evaluate(
+      async ([id, parentId]) => {
+        const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
+        const res = await fetch(`/api/campaigns/${id}/locations`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+          body: JSON.stringify({
+            name: 'Village of Barovia',
+            subtype: 'village',
+            parentId,
+            visibility: 'members',
+          }),
+        })
+        return res.json()
+      },
+      [campaignId, parent.id],
+    )
 
     await page.goto(`/campaigns/${campaignId}/locations/${child.slug}`)
     await page.waitForLoadState('networkidle')
 
-    await expect(page.locator('main').getByRole('link', { name: 'Barovia' })).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('main').getByRole('link', { name: 'Barovia' })).toBeVisible({
+      timeout: 10000,
+    })
   })
 })
 

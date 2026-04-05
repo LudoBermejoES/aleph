@@ -10,7 +10,10 @@ export function makeLocationCommand() {
     .description('List locations in a campaign')
     .requiredOption('--campaign <id>', 'Campaign ID')
     .option('--search <query>', 'Filter by name')
-    .option('--subtype <subtype>', 'Filter by subtype (country, region, city, town, village, dungeon, lair, building, room, wilderness, other)')
+    .option(
+      '--subtype <subtype>',
+      'Filter by subtype (country, region, city, town, village, dungeon, lair, building, room, wilderness, other)',
+    )
     .option('--page <n>', 'Page number', '1')
     .option('--limit <n>', 'Results per page (0 = all)', '50')
     .option('--json', 'Output as JSON')
@@ -27,13 +30,15 @@ export function makeLocationCommand() {
       if (opts.json) {
         print(res, { json: true })
       } else {
-        print(data.map(l => ({
-          name: l.name,
-          slug: l.slug,
-          subtype: l.subtype || 'other',
-          parent: l.parentName || '',
-          inhabitants: l.inhabitantCount || 0,
-        })))
+        print(
+          data.map((l) => ({
+            name: l.name,
+            slug: l.slug,
+            subtype: l.subtype || 'other',
+            parent: l.parentName || '',
+            inhabitants: l.inhabitantCount || 0,
+          })),
+        )
         if (meta) console.error(`Page ${meta.page}/${meta.totalPages} (${meta.total} total)`)
       }
     })
@@ -43,9 +48,17 @@ export function makeLocationCommand() {
     .description('Create a location')
     .requiredOption('--campaign <id>', 'Campaign ID')
     .requiredOption('--name <name>', 'Location name')
-    .option('--subtype <subtype>', 'Subtype (country, region, city, town, village, dungeon, lair, building, room, wilderness, other)', 'other')
+    .option(
+      '--subtype <subtype>',
+      'Subtype (country, region, city, town, village, dungeon, lair, building, room, wilderness, other)',
+      'other',
+    )
     .option('--parent <id>', 'Parent location ID')
-    .option('--visibility <vis>', 'Visibility (members, public, editors, dm_only, private)', 'members')
+    .option(
+      '--visibility <vis>',
+      'Visibility (members, public, editors, dm_only, private)',
+      'members',
+    )
     .option('--content <text>', 'Description content')
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
@@ -78,8 +91,10 @@ export function makeLocationCommand() {
           slug: data.slug,
           subtype: data.subtype || 'other',
           visibility: data.visibility,
-          ancestors: (data.ancestors || []).map(a => a.name).join(' > ') || 'none',
-          content: data.content ? data.content.slice(0, 100) + (data.content.length > 100 ? '...' : '') : '',
+          ancestors: (data.ancestors || []).map((a) => a.name).join(' > ') || 'none',
+          content: data.content
+            ? data.content.slice(0, 100) + (data.content.length > 100 ? '...' : '')
+            : '',
         })
       }
     })
@@ -117,8 +132,8 @@ export function makeLocationCommand() {
     .action(async (slug, opts) => {
       if (!opts.yes) {
         process.stdout.write(`Delete location "${slug}"? [y/N] `)
-        const answer = await new Promise(resolve => {
-          process.stdin.once('data', d => resolve(d.toString().trim()))
+        const answer = await new Promise((resolve) => {
+          process.stdin.once('data', (d) => resolve(d.toString().trim()))
         })
         if (answer.toLowerCase() !== 'y') {
           process.stdout.write('Cancelled.\n')
@@ -140,7 +155,7 @@ export function makeLocationCommand() {
       if (opts.json) {
         print(data, { json: true })
       } else {
-        print(data.map(c => ({ name: c.name, slug: c.slug, type: c.characterType })))
+        print(data.map((c) => ({ name: c.name, slug: c.slug, type: c.characterType })))
       }
     })
 
@@ -150,7 +165,9 @@ export function makeLocationCommand() {
     .requiredOption('--campaign <id>', 'Campaign ID')
     .requiredOption('--character <id>', 'Character ID')
     .action(async (slug, opts) => {
-      await post(`/api/campaigns/${opts.campaign}/locations/${slug}/inhabitants`, { characterId: opts.character })
+      await post(`/api/campaigns/${opts.campaign}/locations/${slug}/inhabitants`, {
+        characterId: opts.character,
+      })
       success(`Character added as inhabitant of "${slug}".`)
     })
 
@@ -175,7 +192,7 @@ export function makeLocationCommand() {
       if (opts.json) {
         print(data, { json: true })
       } else {
-        print(data.map(o => ({ name: o.name, slug: o.slug, members: o.memberCount })))
+        print(data.map((o) => ({ name: o.name, slug: o.slug, members: o.memberCount })))
       }
     })
 
@@ -185,7 +202,9 @@ export function makeLocationCommand() {
     .requiredOption('--campaign <id>', 'Campaign ID')
     .requiredOption('--org <id>', 'Organization ID')
     .action(async (slug, opts) => {
-      await post(`/api/campaigns/${opts.campaign}/locations/${slug}/organizations`, { organizationId: opts.org })
+      await post(`/api/campaigns/${opts.campaign}/locations/${slug}/organizations`, {
+        organizationId: opts.org,
+      })
       success(`Organization linked to "${slug}".`)
     })
 

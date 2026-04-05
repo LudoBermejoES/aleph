@@ -7,6 +7,7 @@ Many resources in Aleph have incomplete CRUD coverage. They can be created (and 
 Add the missing PUT (update) and DELETE endpoints across 15 resource types. Each new endpoint follows the established patterns: role-based authorization via `hasMinRole`, campaign-scoped lookups, and reliance on SQLite cascade deletes where foreign keys are already configured.
 
 **New DELETE endpoints:**
+
 - `DELETE /api/campaigns/:id/quests/:slug`
 - `DELETE /api/campaigns/:id/items/:itemId`
 - `DELETE /api/campaigns/:id/calendars/:calendarId`
@@ -27,6 +28,7 @@ Add the missing PUT (update) and DELETE endpoints across 15 resource types. Each
 - `DELETE /api/campaigns/:id/sessions/:slug/content/:contentId`
 
 **New PUT endpoints:**
+
 - `PUT /api/campaigns/:id/items/:itemId`
 - `PUT /api/campaigns/:id/timelines/:slug`
 - `PUT /api/campaigns/:id/arcs/:slug`
@@ -41,6 +43,7 @@ Add the missing PUT (update) and DELETE endpoints across 15 resource types. Each
 ## Capabilities
 
 ### New Capabilities
+
 - `quest-delete`: Delete a quest by slug (cascades to sub-quests via parentQuestId nulling)
 - `item-update`: Update item properties (name, description, weight, price, rarity, type)
 - `item-delete`: Delete an item (removes from shop stock and inventory items)
@@ -63,6 +66,7 @@ Add the missing PUT (update) and DELETE endpoints across 15 resource types. Each
 - `session-content-delete`: Delete a session content record
 
 ### Modified Capabilities
+
 - All existing resource management flows gain complete lifecycle control
 
 ## Impact

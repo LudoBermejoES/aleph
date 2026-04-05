@@ -8,7 +8,8 @@ import type { CampaignRole } from '../../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
   const role = event.context.campaignRole as CampaignRole
-  if (!hasMinRole(role, 'editor')) throw createError({ statusCode: 403, message: 'Editors or above can edit relations' })
+  if (!hasMinRole(role, 'editor'))
+    throw createError({ statusCode: 403, message: 'Editors or above can edit relations' })
 
   const relationId = getRouterParam(event, 'relationId')!
   const relationPutSchema = z.object({

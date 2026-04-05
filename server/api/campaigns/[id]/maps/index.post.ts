@@ -24,16 +24,18 @@ export default defineEventHandler(async (event) => {
   const now = new Date()
   const id = randomUUID()
 
-  db.insert(maps).values({
-    id,
-    campaignId,
-    name: body.name,
-    slug: slugify(body.name),
-    parentMapId: body.parentMapId || null,
-    visibility: body.visibility || 'members',
-    createdAt: now,
-    updatedAt: now,
-  }).run()
+  db.insert(maps)
+    .values({
+      id,
+      campaignId,
+      name: body.name,
+      slug: slugify(body.name),
+      parentMapId: body.parentMapId || null,
+      visibility: body.visibility || 'members',
+      createdAt: now,
+      updatedAt: now,
+    })
+    .run()
 
   return { id, slug: slugify(body.name), name: body.name }
 })

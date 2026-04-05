@@ -1,17 +1,29 @@
 <template>
   <div class="p-8 max-w-3xl">
     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary"> {{ $t('common.campaign') }}</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">
+        {{ $t('common.campaign') }}</NuxtLink
+      >
       <span>/</span>
-      <NuxtLink :to="`/campaigns/${campaignId}/items`" class="hover:text-primary">{{ $t('items.title') }}</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}/items`" class="hover:text-primary">{{
+        $t('items.title')
+      }}</NuxtLink>
       <span>/</span>
       <span>{{ form.name || 'Item' }}</span>
       <span>/</span><span>{{ $t('common.edit') }}</span>
     </div>
     <h1 class="text-2xl font-bold mb-6">{{ $t('items.new') }}</h1>
-    <ItemForm v-if="loaded" v-model="form" :submit-label="$t('common.save')" :submitting="submitting" @submit="save">
+    <ItemForm
+      v-if="loaded"
+      v-model="form"
+      :submit-label="$t('common.save')"
+      :submitting="submitting"
+      @submit="save"
+    >
       <template #cancel>
-        <NuxtLink :to="`/campaigns/${campaignId}/items`"><Button variant="outline">{{ $t('common.cancel') }}</Button></NuxtLink>
+        <NuxtLink :to="`/campaigns/${campaignId}/items`"
+          ><Button variant="outline">{{ $t('common.cancel') }}</Button></NuxtLink
+        >
       </template>
     </ItemForm>
   </div>

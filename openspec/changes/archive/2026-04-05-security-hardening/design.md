@@ -13,6 +13,7 @@ Image upload endpoints check `file.type` (client-declared MIME) against an allow
 ## Goals / Non-Goals
 
 **Goals:**
+
 - Enforce entity visibility on all single-entity GET endpoints using existing `canUserAccessEntity`
 - Add Zod validation to all 69 POST/PUT/PATCH endpoints via a shared utility
 - Add per-IP rate limiting with stricter thresholds on auth endpoints
@@ -22,6 +23,7 @@ Image upload endpoints check `file.type` (client-declared MIME) against an allow
 - Set `SameSite=Strict` on session cookies
 
 **Non-Goals:**
+
 - WAF or CDN-level protection (infrastructure concern, not app-level)
 - Content Security Policy headers (separate change)
 - SQL injection prevention beyond LIKE escaping (Drizzle ORM already parameterizes queries)
@@ -55,6 +57,7 @@ Create `server/utils/validate.ts` exporting `validateBody<T>(event, schema: ZodS
 Use an in-memory Map-based sliding window counter. No external dependency (Redis, etc.) needed since Aleph runs as a single Nitro process on a single server.
 
 **Configuration:**
+
 - General API: 100 requests per 60 seconds per IP
 - Auth endpoints (`/api/auth/*`): 10 requests per 60 seconds per IP
 - File uploads: 20 requests per 60 seconds per IP

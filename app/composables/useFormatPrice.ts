@@ -12,7 +12,10 @@ export interface PriceCurrency {
  * Falls back to raw key if no currency matches.
  * Returns empty string for empty/null price.
  */
-export function formatPrice(priceJson: string | null | undefined, currencies: PriceCurrency[]): string {
+export function formatPrice(
+  priceJson: string | null | undefined,
+  currencies: PriceCurrency[],
+): string {
   if (!priceJson) return ''
 
   let parsed: Record<string, number>
@@ -27,8 +30,10 @@ export function formatPrice(priceJson: string | null | undefined, currencies: Pr
   const parts: string[] = []
   for (const [key, amount] of Object.entries(parsed)) {
     if (typeof amount !== 'number' || amount === 0) continue
-    const currency = currencies.find(c => c.id === key || c.name.toLowerCase() === key.toLowerCase())
-    const label = currency ? (currency.symbol || currency.name) : key
+    const currency = currencies.find(
+      (c) => c.id === key || c.name.toLowerCase() === key.toLowerCase(),
+    )
+    const label = currency ? currency.symbol || currency.name : key
     parts.push(`${amount} ${label}`)
   }
 

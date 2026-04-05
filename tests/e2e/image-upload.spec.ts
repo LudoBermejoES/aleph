@@ -28,7 +28,9 @@ test.describe('Image upload — toolbar button', () => {
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
     const base = page.url().split('/campaigns/')[0]
 
-    await page.goto(`${base}/campaigns/${campaignId}/characters/new`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${base}/campaigns/${campaignId}/characters/new`, {
+      waitUntil: 'domcontentloaded',
+    })
     await expect(page.locator('.ProseMirror')).toBeVisible({ timeout: 10000 })
     await expect(page.locator('button[title="Insert Image"]')).toBeVisible({ timeout: 10000 })
 
@@ -51,7 +53,9 @@ test.describe('Image upload — Markdown round-trip', () => {
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
     const base = page.url().split('/campaigns/')[0]
 
-    await page.goto(`${base}/campaigns/${campaignId}/characters/new`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${base}/campaigns/${campaignId}/characters/new`, {
+      waitUntil: 'domcontentloaded',
+    })
 
     const charName = `Img Hero ${uid()}`
     await page.fill('input[placeholder*="Character name"]', charName)
@@ -78,7 +82,9 @@ test.describe('Image upload — Markdown round-trip', () => {
 
     // Navigate to edit page and confirm img still present
     const charSlug = page.url().split('/characters/')[1]
-    await page.goto(`${page.url().split('/characters/')[0]}/characters/${charSlug}/edit`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${page.url().split('/characters/')[0]}/characters/${charSlug}/edit`, {
+      waitUntil: 'domcontentloaded',
+    })
     await expect(page.locator('.ProseMirror img')).toBeVisible({ timeout: 10000 })
     const reloadedSrc = await page.locator('.ProseMirror img').getAttribute('src')
     expect(reloadedSrc).toBe(uploadedSrc)

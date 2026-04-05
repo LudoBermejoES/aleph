@@ -40,13 +40,23 @@ describe('Entity Image (integration)', () => {
   )
 
   beforeAll(async () => {
-    await api('/api/auth/sign-up/email', { method: 'POST', body: { name: 'Entity Image Tester', email, password: 'password123' } })
-    const login = await api('/api/auth/sign-in/email', { method: 'POST', body: { email, password: 'password123' } })
+    await api('/api/auth/sign-up/email', {
+      method: 'POST',
+      body: { name: 'Entity Image Tester', email, password: 'password123' },
+    })
+    const login = await api('/api/auth/sign-in/email', {
+      method: 'POST',
+      body: { email, password: 'password123' },
+    })
     const cookies = login.headers.get('set-cookie') || ''
     const match = cookies.match(/better-auth\.session_token=([^;]+)/)
     cookie = match ? `better-auth.session_token=${match[1]}` : ''
     csrfToken = await getCsrfToken(cookie)
-    const camp = await api('/api/campaigns', { method: 'POST', headers: withCsrf(cookie, csrfToken), body: { name: `Entity Image Test ${Date.now()}` } })
+    const camp = await api('/api/campaigns', {
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
+      body: { name: `Entity Image Test ${Date.now()}` },
+    })
     campaignId = (await camp.json()).id
     const ent = await api(`/api/campaigns/${campaignId}/entities`, {
       method: 'POST',
@@ -57,7 +67,9 @@ describe('Entity Image (integration)', () => {
   })
 
   it('entity detail includes imageUrl: null before upload', async () => {
-    const res = await api(`/api/campaigns/${campaignId}/entities/${entitySlug}`, { headers: { Cookie: cookie } })
+    const res = await api(`/api/campaigns/${campaignId}/entities/${entitySlug}`, {
+      headers: { Cookie: cookie },
+    })
     expect(res.status).toBe(200)
     const data = await res.json()
     expect('imageUrl' in data).toBe(true)
@@ -73,7 +85,9 @@ describe('Entity Image (integration)', () => {
   })
 
   it('GET image returns 404 when no image uploaded', async () => {
-    const res = await api(`/api/campaigns/${campaignId}/entities/${entitySlug}/image`, { headers: { Cookie: cookie } })
+    const res = await api(`/api/campaigns/${campaignId}/entities/${entitySlug}/image`, {
+      headers: { Cookie: cookie },
+    })
     expect(res.status).toBe(404)
   })
 
@@ -91,7 +105,9 @@ describe('Entity Image (integration)', () => {
   })
 
   it('GET image returns image bytes after upload', async () => {
-    const res = await api(`/api/campaigns/${campaignId}/entities/${entitySlug}/image`, { headers: { Cookie: cookie } })
+    const res = await api(`/api/campaigns/${campaignId}/entities/${entitySlug}/image`, {
+      headers: { Cookie: cookie },
+    })
     expect(res.status).toBe(200)
     expect(res.headers.get('content-type')).toContain('image/')
     expect(res.headers.get('cache-control')).toContain('max-age=3600')
@@ -100,7 +116,9 @@ describe('Entity Image (integration)', () => {
   })
 
   it('entity detail returns imageUrl after upload', async () => {
-    const res = await api(`/api/campaigns/${campaignId}/entities/${entitySlug}`, { headers: { Cookie: cookie } })
+    const res = await api(`/api/campaigns/${campaignId}/entities/${entitySlug}`, {
+      headers: { Cookie: cookie },
+    })
     const data = await res.json()
     expect(data.imageUrl).toBe(`/api/campaigns/${campaignId}/entities/${entitySlug}/image`)
   })
@@ -153,18 +171,29 @@ describe('Character entity imageUrl falls back to portraitUrl (integration)', ()
   )
 
   beforeAll(async () => {
-    await api('/api/auth/sign-up/email', { method: 'POST', body: { name: 'Portrait Fallback Tester', email, password: 'password123' } })
-    const login = await api('/api/auth/sign-in/email', { method: 'POST', body: { email, password: 'password123' } })
+    await api('/api/auth/sign-up/email', {
+      method: 'POST',
+      body: { name: 'Portrait Fallback Tester', email, password: 'password123' },
+    })
+    const login = await api('/api/auth/sign-in/email', {
+      method: 'POST',
+      body: { email, password: 'password123' },
+    })
     const cookies = login.headers.get('set-cookie') || ''
     const match = cookies.match(/better-auth\.session_token=([^;]+)/)
     cookie = match ? `better-auth.session_token=${match[1]}` : ''
     csrfToken = await getCsrfToken(cookie)
 
-    const camp = await api('/api/campaigns', { method: 'POST', headers: withCsrf(cookie, csrfToken), body: { name: `Portrait Fallback Test ${Date.now()}` } })
+    const camp = await api('/api/campaigns', {
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
+      body: { name: `Portrait Fallback Test ${Date.now()}` },
+    })
     campaignId = (await camp.json()).id
 
     const char = await api(`/api/campaigns/${campaignId}/characters`, {
-      method: 'POST', headers: withCsrf(cookie, csrfToken),
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
       body: { name: 'Portrait Hero', characterType: 'pc' },
     })
     const charData = await char.json()
@@ -173,7 +202,9 @@ describe('Character entity imageUrl falls back to portraitUrl (integration)', ()
   })
 
   it('character entity detail has imageUrl null before portrait upload', async () => {
-    const res = await api(`/api/campaigns/${campaignId}/entities/${entitySlug}`, { headers: { Cookie: cookie } })
+    const res = await api(`/api/campaigns/${campaignId}/entities/${entitySlug}`, {
+      headers: { Cookie: cookie },
+    })
     expect(res.status).toBe(200)
     const data = await res.json()
     expect(data.type).toBe('character')
@@ -185,14 +216,18 @@ describe('Character entity imageUrl falls back to portraitUrl (integration)', ()
     const form = new FormData()
     form.append('portrait', new Blob([PNG_1PX], { type: 'image/png' }), 'portrait.png')
     const uploadRes = await api(`/api/campaigns/${campaignId}/characters/${charSlug}/portrait`, {
-      method: 'POST', headers: withCsrf(cookie, csrfToken), body: form,
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
+      body: form,
     })
     expect(uploadRes.status).toBe(200)
     const { portraitUrl } = await uploadRes.json()
     expect(portraitUrl).toContain('/portrait')
 
     // Entity GET should now return the portrait as imageUrl
-    const entityRes = await api(`/api/campaigns/${campaignId}/entities/${entitySlug}`, { headers: { Cookie: cookie } })
+    const entityRes = await api(`/api/campaigns/${campaignId}/entities/${entitySlug}`, {
+      headers: { Cookie: cookie },
+    })
     expect(entityRes.status).toBe(200)
     const entity = await entityRes.json()
     expect(entity.imageUrl).toBe(portraitUrl)
@@ -203,13 +238,17 @@ describe('Character entity imageUrl falls back to portraitUrl (integration)', ()
     const form = new FormData()
     form.append('image', new Blob([PNG_1PX], { type: 'image/png' }), 'image.png')
     const uploadRes = await api(`/api/campaigns/${campaignId}/entities/${entitySlug}/image`, {
-      method: 'POST', headers: withCsrf(cookie, csrfToken), body: form,
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
+      body: form,
     })
     expect(uploadRes.status).toBe(200)
     const { imageUrl: entityImageUrl } = await uploadRes.json()
 
     // Entity GET should return the entity image, not the portrait
-    const entityRes = await api(`/api/campaigns/${campaignId}/entities/${entitySlug}`, { headers: { Cookie: cookie } })
+    const entityRes = await api(`/api/campaigns/${campaignId}/entities/${entitySlug}`, {
+      headers: { Cookie: cookie },
+    })
     const entity = await entityRes.json()
     expect(entity.imageUrl).toBe(entityImageUrl)
     expect(entity.imageUrl).toContain('/entities/')
@@ -218,12 +257,15 @@ describe('Character entity imageUrl falls back to portraitUrl (integration)', ()
   it('non-character entity detail does not use portrait fallback', async () => {
     // Create a location entity (no portrait concept)
     const entRes = await api(`/api/campaigns/${campaignId}/entities`, {
-      method: 'POST', headers: withCsrf(cookie, csrfToken),
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
       body: { name: 'A Location', type: 'location' },
     })
     const locSlug = (await entRes.json()).slug
 
-    const res = await api(`/api/campaigns/${campaignId}/entities/${locSlug}`, { headers: { Cookie: cookie } })
+    const res = await api(`/api/campaigns/${campaignId}/entities/${locSlug}`, {
+      headers: { Cookie: cookie },
+    })
     const data = await res.json()
     expect(data.type).toBe('location')
     expect(data.imageUrl).toBeNull()

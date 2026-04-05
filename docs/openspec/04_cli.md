@@ -35,6 +35,7 @@ openspec init --force
 **Herramientas soportadas:** `claude`, `cursor`, `windsurf`, `github-copilot`, `amazon-q`, `cline`, `gemini`, `codex`, y más.
 
 **Qué crea:**
+
 ```
 openspec/
 ├── specs/
@@ -77,6 +78,7 @@ openspec list --json           # output JSON
 ```
 
 **Output:**
+
 ```
 Active changes:
   add-quest-objectives    Añadir objetivos a quests
@@ -124,6 +126,7 @@ openspec validate --all --strict           # modo estricto
 ```
 
 **Output:**
+
 ```
 Validating migrar-hatchet...
   ✓ proposal.md valid
@@ -164,6 +167,7 @@ openspec status --change migrar-hatchet --json
 ```
 
 **Output:**
+
 ```
 Change: migrar-hatchet
 Schema: spec-driven
@@ -200,6 +204,7 @@ openspec schemas --json
 ```
 
 **Output:**
+
 ```
 Available schemas:
 
@@ -258,6 +263,7 @@ openspec schema which --all
 ```
 
 **Precedencia:**
+
 1. Proyecto: `openspec/schemas/<nombre>/`
 2. Usuario: `~/.local/share/openspec/schemas/<nombre>/`
 3. Paquete: schemas built-in
@@ -280,6 +286,7 @@ openspec config reset --all --yes       # resetear a defaults
 ```
 
 **`openspec config profile`** permite:
+
 - Cambiar modo de entrega + workflows
 - Cambiar solo el modo de entrega
 - Cambiar solo los workflows
@@ -290,19 +297,19 @@ Después de cambiar el perfil, ejecutar `openspec update` en cada proyecto.
 
 ## Variables de entorno
 
-| Variable | Descripción |
-|----------|-------------|
+| Variable               | Descripción                                       |
+| ---------------------- | ------------------------------------------------- |
 | `OPENSPEC_CONCURRENCY` | Concurrencia para validación en bulk (default: 6) |
-| `EDITOR` o `VISUAL` | Editor para `openspec config edit` |
-| `NO_COLOR` | Deshabilitar colores |
-| `OPENSPEC_TELEMETRY=0` | Deshabilitar telemetría |
-| `DO_NOT_TRACK=1` | Deshabilitar telemetría (alternativa) |
+| `EDITOR` o `VISUAL`    | Editor para `openspec config edit`                |
+| `NO_COLOR`             | Deshabilitar colores                              |
+| `OPENSPEC_TELEMETRY=0` | Deshabilitar telemetría                           |
+| `DO_NOT_TRACK=1`       | Deshabilitar telemetría (alternativa)             |
 
 ---
 
 ## Exit codes
 
-| Código | Significado |
-|--------|-------------|
-| `0` | Éxito |
-| `1` | Error (validación fallida, archivos faltantes, etc.) |
+| Código | Significado                                          |
+| ------ | ---------------------------------------------------- |
+| `0`    | Éxito                                                |
+| `1`    | Error (validación fallida, archivos faltantes, etc.) |

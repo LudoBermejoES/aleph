@@ -12,7 +12,11 @@ function applyModifier(formula: string, modifier: number): string {
   return modifier > 0 ? `${formula}+${modifier}` : `${formula}${modifier}`
 }
 
-function addToLog(log: Array<{ formula: string; total: number }>, entry: { formula: string; total: number }, maxSize = 50) {
+function addToLog(
+  log: Array<{ formula: string; total: number }>,
+  entry: { formula: string; total: number },
+  maxSize = 50,
+) {
   log.unshift(entry)
   if (log.length > maxSize) log.pop()
   return log
@@ -38,7 +42,12 @@ describe('DiceRoller quick-roll logic (6.1)', () => {
   })
 
   it('result is stored as lastResult with total', () => {
-    const result = { formula: '1d20', total: 15, rolls: [{ values: [15], kept: [15], dropped: [] }], modifiers: 0 }
+    const result = {
+      formula: '1d20',
+      total: 15,
+      rolls: [{ values: [15], kept: [15], dropped: [] }],
+      modifiers: 0,
+    }
     expect(result.total).toBe(15)
     expect(result.formula).toBe('1d20')
   })

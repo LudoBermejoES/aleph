@@ -5,9 +5,13 @@ import { gameSessions } from './sessions'
 
 export const sessionRolls = sqliteTable('session_rolls', {
   id: text('id').primaryKey(),
-  campaignId: text('campaign_id').notNull().references(() => campaigns.id, { onDelete: 'cascade' }),
+  campaignId: text('campaign_id')
+    .notNull()
+    .references(() => campaigns.id, { onDelete: 'cascade' }),
   sessionId: text('session_id').references(() => gameSessions.id),
-  userId: text('user_id').notNull().references(() => user.id),
+  userId: text('user_id')
+    .notNull()
+    .references(() => user.id),
   characterId: text('character_id'),
   formula: text('formula').notNull(),
   resultJson: text('result_json').notNull(), // JSON-serialized RollResult

@@ -15,10 +15,18 @@ export default defineEventHandler(async (event) => {
   const stockId = getRouterParam(event, 'stockId')!
   const db = useDb()
 
-  const shop = db.select().from(shops).where(and(eq(shops.campaignId, campaignId), eq(shops.slug, slug))).get()
+  const shop = db
+    .select()
+    .from(shops)
+    .where(and(eq(shops.campaignId, campaignId), eq(shops.slug, slug)))
+    .get()
   if (!shop) throw createError({ statusCode: 404, message: 'Shop not found' })
 
-  const entry = db.select().from(shopStock).where(and(eq(shopStock.id, stockId), eq(shopStock.shopId, shop.id))).get()
+  const entry = db
+    .select()
+    .from(shopStock)
+    .where(and(eq(shopStock.id, stockId), eq(shopStock.shopId, shop.id)))
+    .get()
   if (!entry) throw createError({ statusCode: 404, message: 'Stock entry not found' })
 
   db.delete(shopStock).where(eq(shopStock.id, stockId)).run()

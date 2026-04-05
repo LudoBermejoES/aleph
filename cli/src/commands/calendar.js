@@ -13,7 +13,7 @@ export function makeCalendarCommand() {
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
       const data = await get(`/api/campaigns/${opts.campaign}/calendars`)
-      print(opts.json ? data : data.map(c => ({ id: c.id, name: c.name })), { json: opts.json })
+      print(opts.json ? data : data.map((c) => ({ id: c.id, name: c.name })), { json: opts.json })
     })
 
   cmd
@@ -35,7 +35,11 @@ export function makeCalendarCommand() {
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
       const data = await post(`/api/campaigns/${opts.campaign}/calendars`, { name: opts.name })
-      if (opts.json) { print(data, { json: true }) } else { success(`Calendar created: ${data.name} (${data.id})`) }
+      if (opts.json) {
+        print(data, { json: true })
+      } else {
+        success(`Calendar created: ${data.name} (${data.id})`)
+      }
     })
 
   cmd
@@ -59,8 +63,14 @@ export function makeCalendarCommand() {
     .option('--yes', 'Skip confirmation')
     .action(async (opts) => {
       if (!opts.yes) {
-        const ok = await confirm({ message: `Delete calendar ${opts.calendar}? This cannot be undone.`, default: false })
-        if (!ok) { process.stdout.write('Cancelled.\n'); return }
+        const ok = await confirm({
+          message: `Delete calendar ${opts.calendar}? This cannot be undone.`,
+          default: false,
+        })
+        if (!ok) {
+          process.stdout.write('Cancelled.\n')
+          return
+        }
       }
       await del(`/api/campaigns/${opts.campaign}/calendars/${opts.calendar}`)
       success(`Calendar ${opts.calendar} deleted.`)
@@ -74,8 +84,15 @@ export function makeCalendarCommand() {
     .requiredOption('--days <n>', 'Number of days to advance', parseInt)
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
-      const data = await patch(`/api/campaigns/${opts.campaign}/calendars/${opts.calendar}/advance`, { days: opts.days })
-      if (opts.json) { print(data, { json: true }) } else { success(`Calendar advanced by ${opts.days} day(s).`) }
+      const data = await patch(
+        `/api/campaigns/${opts.campaign}/calendars/${opts.calendar}/advance`,
+        { days: opts.days },
+      )
+      if (opts.json) {
+        print(data, { json: true })
+      } else {
+        success(`Calendar advanced by ${opts.days} day(s).`)
+      }
     })
 
   cmd
@@ -86,7 +103,9 @@ export function makeCalendarCommand() {
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
       const data = await get(`/api/campaigns/${opts.campaign}/calendars/${opts.calendar}/events`)
-      print(opts.json ? data : data.map(e => ({ id: e.id, name: e.name, day: e.day })), { json: opts.json })
+      print(opts.json ? data : data.map((e) => ({ id: e.id, name: e.name, day: e.day })), {
+        json: opts.json,
+      })
     })
 
   cmd
@@ -98,8 +117,15 @@ export function makeCalendarCommand() {
     .requiredOption('--day <day>', 'Day number', parseInt)
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
-      const data = await post(`/api/campaigns/${opts.campaign}/calendars/${opts.calendar}/events`, { name: opts.name, day: opts.day })
-      if (opts.json) { print(data, { json: true }) } else { success(`Event added: ${data.name}`) }
+      const data = await post(`/api/campaigns/${opts.campaign}/calendars/${opts.calendar}/events`, {
+        name: opts.name,
+        day: opts.day,
+      })
+      if (opts.json) {
+        print(data, { json: true })
+      } else {
+        success(`Event added: ${data.name}`)
+      }
     })
 
   cmd
@@ -112,7 +138,10 @@ export function makeCalendarCommand() {
     .action(async (opts) => {
       if (!opts.yes) {
         const ok = await confirm({ message: `Delete event ${opts.event}?`, default: false })
-        if (!ok) { process.stdout.write('Cancelled.\n'); return }
+        if (!ok) {
+          process.stdout.write('Cancelled.\n')
+          return
+        }
       }
       await del(`/api/campaigns/${opts.campaign}/calendars/${opts.calendar}/events/${opts.event}`)
       success(`Event ${opts.event} deleted.`)

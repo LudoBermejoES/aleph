@@ -28,11 +28,13 @@ TTRPG campaigns are rich with factions, guilds, armies, cults, and other groups 
 ## Impact
 
 **DB / Schema**
+
 - New file: `server/db/schema/organizations.ts` (organizations + organization_members tables)
 - Updated: `server/db/schema/index.ts` to export new tables
 - New Drizzle migration under `server/db/migrations/`
 
 **Server API**
+
 - New route directory: `server/api/campaigns/[id]/organizations/`
   - `index.get.ts`, `index.post.ts`
   - `[slug]/index.get.ts`, `[slug]/index.put.ts`, `[slug]/index.delete.ts`
@@ -40,6 +42,7 @@ TTRPG campaigns are rich with factions, guilds, armies, cults, and other groups 
   - `[slug]/members/[characterId]/index.delete.ts`
 
 **Frontend**
+
 - New pages under `app/pages/campaigns/[id]/organizations/`
   - `index.vue` (list), `new.vue` (create), `[slug]/index.vue` (detail), `[slug]/edit.vue` (edit)
 - Updated: `app/pages/campaigns/[id]/characters/[slug]/index.vue` — add Organizations section
@@ -47,6 +50,7 @@ TTRPG campaigns are rich with factions, guilds, armies, cults, and other groups 
 - New/updated i18n keys in `app/i18n/en.json` and `app/i18n/es.json`
 
 **aleph-cli** — YES, CLI impact
+
 - New file: `cli/src/commands/organization.js` — command group with list, create, show, delete, member-add, member-remove subcommands
 - Updated: `cli/src/index.js` to register the new command
 - Updated: `docs/claude-skill.md` to document the new `organization` commands

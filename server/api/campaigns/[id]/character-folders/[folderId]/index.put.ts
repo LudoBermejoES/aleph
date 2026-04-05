@@ -15,7 +15,11 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const db = useDb()
 
-  const folder = db.select().from(characterFolders).where(and(eq(characterFolders.campaignId, campaignId), eq(characterFolders.id, folderId))).get()
+  const folder = db
+    .select()
+    .from(characterFolders)
+    .where(and(eq(characterFolders.campaignId, campaignId), eq(characterFolders.id, folderId)))
+    .get()
   if (!folder) throw createError({ statusCode: 404, message: 'Character folder not found' })
 
   const updates: Record<string, unknown> = {}

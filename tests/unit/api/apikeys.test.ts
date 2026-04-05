@@ -8,28 +8,32 @@ import { and, eq, isNull } from 'drizzle-orm'
 // Helpers to simulate what the endpoint handlers do directly against the DB
 async function createUser(db: any, email: string) {
   const id = randomUUID()
-  db.insert(userTable).values({
-    id,
-    name: 'Test User',
-    email,
-    emailVerified: false,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  }).run()
+  db.insert(userTable)
+    .values({
+      id,
+      name: 'Test User',
+      email,
+      emailVerified: false,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    })
+    .run()
   return id
 }
 
 async function createApiKeyForUser(db: any, userId: string, name: string) {
   const { raw, hash, prefix } = generateApiKey()
   const id = randomUUID()
-  db.insert(apiKeyTable).values({
-    id,
-    userId,
-    name,
-    keyHash: hash,
-    keyPrefix: prefix,
-    createdAt: new Date(),
-  }).run()
+  db.insert(apiKeyTable)
+    .values({
+      id,
+      userId,
+      name,
+      keyHash: hash,
+      keyPrefix: prefix,
+      createdAt: new Date(),
+    })
+    .run()
   return { id, raw, hash, prefix }
 }
 
@@ -75,8 +79,16 @@ describe('API key DB operations', () => {
       await createApiKeyForUser(testDb.db, userA, 'key-for-a')
       await createApiKeyForUser(testDb.db, userB, 'key-for-b')
 
-      const keysForA = testDb.db.select().from(apiKeyTable).where(eq(apiKeyTable.userId, userA)).all()
-      const keysForB = testDb.db.select().from(apiKeyTable).where(eq(apiKeyTable.userId, userB)).all()
+      const keysForA = testDb.db
+        .select()
+        .from(apiKeyTable)
+        .where(eq(apiKeyTable.userId, userA))
+        .all()
+      const keysForB = testDb.db
+        .select()
+        .from(apiKeyTable)
+        .where(eq(apiKeyTable.userId, userB))
+        .all()
 
       expect(keysForA).toHaveLength(1)
       expect(keysForA[0].name).toBe('key-for-a')
@@ -96,7 +108,11 @@ describe('API key DB operations', () => {
       const userId = await createUser(testDb.db, `rev-${Date.now()}@test.com`)
       const { id } = await createApiKeyForUser(testDb.db, userId, 'to-revoke')
 
-      testDb.db.update(apiKeyTable).set({ revokedAt: new Date() }).where(eq(apiKeyTable.id, id)).run()
+      testDb.db
+        .update(apiKeyTable)
+        .set({ revokedAt: new Date() })
+        .where(eq(apiKeyTable.id, id))
+        .run()
 
       const row = testDb.db.select().from(apiKeyTable).where(eq(apiKeyTable.id, id)).get()
       expect(row!.revokedAt).not.toBeNull()
@@ -108,7 +124,11 @@ describe('API key DB operations', () => {
       const hash = hashApiKey(raw)
 
       // Revoke it
-      testDb.db.update(apiKeyTable).set({ revokedAt: new Date() }).where(eq(apiKeyTable.id, id)).run()
+      testDb.db
+        .update(apiKeyTable)
+        .set({ revokedAt: new Date() })
+        .where(eq(apiKeyTable.id, id))
+        .run()
 
       // Simulate auth middleware lookup: keyHash = ? AND revokedAt IS NULL
       const found = testDb.db

@@ -4,7 +4,13 @@ import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 import type Database from 'better-sqlite3'
 import { entities } from '../db/schema/entities'
 import { entityMentions } from '../db/schema/mentions'
-import { buildAutomaton, findMatches, resolveOverlaps, computeExclusionZones, filterMatchesByExclusions } from './autolink'
+import {
+  buildAutomaton,
+  findMatches,
+  resolveOverlaps,
+  computeExclusionZones,
+  filterMatchesByExclusions,
+} from './autolink'
 import { readEntityFile } from './content'
 import { logger } from '../utils/logger'
 
@@ -17,11 +23,12 @@ export async function scanCampaignMentions(
   campaignId: string,
 ): Promise<{ scanned: number; mentionsFound: number }> {
   // Get all entities in campaign
-  const allEntities = db.select({
-    id: entities.id,
-    name: entities.name,
-    filePath: entities.filePath,
-  })
+  const allEntities = db
+    .select({
+      id: entities.id,
+      name: entities.name,
+      filePath: entities.filePath,
+    })
     .from(entities)
     .where(eq(entities.campaignId, campaignId))
     .all()
@@ -30,11 +37,13 @@ export async function scanCampaignMentions(
 
   // Build automaton from entity names
   // We need aliases too -- for now just use names
-  const automaton = buildAutomaton(allEntities.map(e => ({
-    id: e.id,
-    name: e.name,
-    aliases: [], // TODO: load from entity_names table
-  })))
+  const automaton = buildAutomaton(
+    allEntities.map((e) => ({
+      id: e.id,
+      name: e.name,
+      aliases: [], // TODO: load from entity_names table
+    })),
+  )
 
   let mentionsFound = 0
 
@@ -50,7 +59,7 @@ export async function scanCampaignMentions(
       const matches = resolveOverlaps(filtered)
 
       // Remove self-mentions
-      const otherMentions = matches.filter(m => m.entityId !== entity.id)
+      const otherMentions = matches.filter((m) => m.entityId !== entity.id)
 
       // Count mentions per target entity
       const countMap = new Map<string, number>()
@@ -60,27 +69,30 @@ export async function scanCampaignMentions(
 
       // Upsert mention records
       for (const [targetId, count] of countMap) {
-        const existing = db.select().from(entityMentions)
-          .where(and(
-            eq(entityMentions.sourceEntityId, entity.id),
-            eq(entityMentions.targetEntityId, targetId),
-          ))
+        const existing = db
+          .select()
+          .from(entityMentions)
+          .where(
+            and(
+              eq(entityMentions.sourceEntityId, entity.id),
+              eq(entityMentions.targetEntityId, targetId),
+            ),
+          )
           .get()
 
         if (existing) {
-          db.update(entityMentions)
-            .set({ count })
-            .where(eq(entityMentions.id, existing.id))
-            .run()
+          db.update(entityMentions).set({ count }).where(eq(entityMentions.id, existing.id)).run()
         } else {
-          db.insert(entityMentions).values({
-            id: randomUUID(),
-            campaignId,
-            sourceEntityId: entity.id,
-            targetEntityId: targetId,
-            count,
-            createdAt: new Date(),
-          }).run()
+          db.insert(entityMentions)
+            .values({
+              id: randomUUID(),
+              campaignId,
+              sourceEntityId: entity.id,
+              targetEntityId: targetId,
+              count,
+              createdAt: new Date(),
+            })
+            .run()
         }
         mentionsFound++
       }
@@ -89,6 +101,10 @@ export async function scanCampaignMentions(
     }
   }
 
-  logger.debug('Campaign mentions scanned', { campaignId, scanned: allEntities.length, mentionsFound })
+  logger.debug('Campaign mentions scanned', {
+    campaignId,
+    scanned: allEntities.length,
+    mentionsFound,
+  })
   return { scanned: allEntities.length, mentionsFound }
 }

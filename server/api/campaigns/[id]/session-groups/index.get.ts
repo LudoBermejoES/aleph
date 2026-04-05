@@ -6,7 +6,9 @@ export default defineEventHandler(async (event) => {
   const campaignId = getRouterParam(event, 'id')!
   const db = useDb()
 
-  return db.select().from(sessionGroups)
+  return db
+    .select()
+    .from(sessionGroups)
     .where(eq(sessionGroups.campaignId, campaignId))
     .orderBy(asc(sessionGroups.sortOrder), asc(sessionGroups.name))
     .all()

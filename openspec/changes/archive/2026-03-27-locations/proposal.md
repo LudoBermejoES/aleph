@@ -16,9 +16,11 @@ TTRPG campaigns are fundamentally tied to place. Parties move between locations 
 ## Capabilities
 
 ### New Capabilities
+
 - `location-management`: CRUD for locations as a first-class entity type — list, create, edit, delete, hierarchy, inhabitants, organizations
 
 ### Modified Capabilities
+
 - `character-management`: Characters gain a "Current Location" field on their form and detail page that links to a location entity
 - `organization-management`: Organizations gain a "Locations" panel on their detail page showing where they have a presence
 

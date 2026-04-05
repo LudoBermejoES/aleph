@@ -3,6 +3,7 @@
 Aleph is a full-stack Nuxt 4 app (SSR disabled, SPA mode) with SQLite, better-auth sessions, and Hocuspocus WebSocket collaboration. It already has a multi-stage Dockerfile and PM2 ecosystem config. The calendar-sync project deploys to the same server (`*.ludobermejo.es`) and we're replicating that proven pattern.
 
 Key differences from calendar-sync:
+
 - Aleph is a Nuxt build (`.output/` directory) vs raw Node.js
 - Aleph has persistent data in 3 directories: `data/` (SQLite), `content/` (markdown files), `logs/`
 - Aleph uses WebSockets (Hocuspocus) — Nginx needs WebSocket upgrade support
@@ -12,6 +13,7 @@ Key differences from calendar-sync:
 ## Goals / Non-Goals
 
 **Goals:**
+
 - Push to `master` → tests pass → auto-deploy to production server
 - Zero-downtime deploys via PM2 restart (not full stop/start)
 - Preserve data/content/logs across deploys
@@ -20,6 +22,7 @@ Key differences from calendar-sync:
 - WebSocket proxy for Hocuspocus real-time collaboration
 
 **Non-Goals:**
+
 - Docker-based deployment on the server (we use PM2 directly, like calendar-sync)
 - Multi-server / load balancer setup
 - Blue-green deployment

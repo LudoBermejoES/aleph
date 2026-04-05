@@ -25,7 +25,9 @@ export function useCollaborationUser() {
         const hue = hashToHue(data.user.id)
         userColor.value = `hsl(${hue}, 70%, 50%)`
       }
-    } catch { /* keep defaults */ }
+    } catch {
+      /* keep defaults */
+    }
   })
 
   return { userName, userColor }

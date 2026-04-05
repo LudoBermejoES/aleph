@@ -9,12 +9,16 @@ test.describe('Create Pages E2E', () => {
     await createCampaign(page, `CharPage ${uid()}`)
 
     await page.click('aside >> text=Characters')
-    await expect(async () => { expect(page.url()).toContain('/characters') }).toPass({ timeout: 10000 })
+    await expect(async () => {
+      expect(page.url()).toContain('/characters')
+    }).toPass({ timeout: 10000 })
     await page.waitForLoadState('networkidle')
 
     // Click New Character → navigates to /characters/new
     await page.click('[data-testid="new-character-btn"]')
-    await expect(async () => { expect(page.url()).toContain('/characters/new') }).toPass({ timeout: 10000 })
+    await expect(async () => {
+      expect(page.url()).toContain('/characters/new')
+    }).toPass({ timeout: 10000 })
 
     // Fill full-page form
     await page.fill('input[placeholder="Character name"]', `TestChar ${uid()}`)
@@ -36,12 +40,16 @@ test.describe('Create Pages E2E', () => {
     await createCampaign(page, `CalPage ${uid()}`)
 
     await page.click('aside >> text=Calendars')
-    await expect(async () => { expect(page.url()).toContain('/calendars') }).toPass({ timeout: 10000 })
+    await expect(async () => {
+      expect(page.url()).toContain('/calendars')
+    }).toPass({ timeout: 10000 })
     await page.waitForLoadState('networkidle')
 
     // Click New Calendar → navigates to /calendars/new
     await page.click('[data-testid="new-calendar-btn"]')
-    await expect(async () => { expect(page.url()).toContain('/calendars/new') }).toPass({ timeout: 10000 })
+    await expect(async () => {
+      expect(page.url()).toContain('/calendars/new')
+    }).toPass({ timeout: 10000 })
 
     // Fill form
     await page.fill('input[placeholder="Harptos Calendar"]', `TestCal ${uid()}`)
@@ -63,12 +71,16 @@ test.describe('Create Pages E2E', () => {
     await createCampaign(page, `TlPage ${uid()}`)
 
     await page.click('aside >> text=Calendars')
-    await expect(async () => { expect(page.url()).toContain('/calendars') }).toPass({ timeout: 10000 })
+    await expect(async () => {
+      expect(page.url()).toContain('/calendars')
+    }).toPass({ timeout: 10000 })
     await page.waitForLoadState('networkidle')
 
     // Click New Timeline → navigates to /timelines/new
     await page.click('[data-testid="new-timeline-btn"]')
-    await expect(async () => { expect(page.url()).toContain('/timelines/new') }).toPass({ timeout: 10000 })
+    await expect(async () => {
+      expect(page.url()).toContain('/timelines/new')
+    }).toPass({ timeout: 10000 })
 
     // Fill form
     await page.fill('input[placeholder="Campaign Arc 1"]', `TestTimeline ${uid()}`)

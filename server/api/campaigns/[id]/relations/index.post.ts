@@ -10,7 +10,8 @@ import type { CampaignRole } from '../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
   const role = event.context.campaignRole as CampaignRole
-  if (!hasMinRole(role, 'editor')) throw createError({ statusCode: 403, message: 'Editors or above can create relations' })
+  if (!hasMinRole(role, 'editor'))
+    throw createError({ statusCode: 403, message: 'Editors or above can create relations' })
 
   const campaignId = getRouterParam(event, 'id')!
   const relationSchema = z.object({
@@ -42,7 +43,9 @@ export default defineEventHandler(async (event) => {
   // Resolve relationTypeId — fall back to the campaign's 'custom' type if not provided
   let relationTypeId = body.relationTypeId
   if (!relationTypeId) {
-    const fallback = db.select({ id: relationTypes.id }).from(relationTypes)
+    const fallback = db
+      .select({ id: relationTypes.id })
+      .from(relationTypes)
       .where(and(eq(relationTypes.campaignId, campaignId), eq(relationTypes.slug, 'custom')))
       .get()
     if (!fallback) throw createError({ statusCode: 400, message: 'relationTypeId is required' })
@@ -50,23 +53,25 @@ export default defineEventHandler(async (event) => {
   }
 
   const id = randomUUID()
-  db.insert(entityRelations).values({
-    id,
-    campaignId,
-    sourceEntityId: body.sourceEntityId,
-    targetEntityId: body.targetEntityId,
-    relationTypeId,
-    forwardLabel: body.forwardLabel || 'related to',
-    reverseLabel: body.reverseLabel || 'related to',
-    attitude: body.attitude ?? 0,
-    description: body.description || null,
-    metadataJson: body.metadata ? JSON.stringify(body.metadata) : null,
-    visibility: body.visibility || 'public',
-    isPinned: body.isPinned || false,
-    createdBy: event.context.user.id,
-    createdAt: now,
-    updatedAt: now,
-  }).run()
+  db.insert(entityRelations)
+    .values({
+      id,
+      campaignId,
+      sourceEntityId: body.sourceEntityId,
+      targetEntityId: body.targetEntityId,
+      relationTypeId,
+      forwardLabel: body.forwardLabel || 'related to',
+      reverseLabel: body.reverseLabel || 'related to',
+      attitude: body.attitude ?? 0,
+      description: body.description || null,
+      metadataJson: body.metadata ? JSON.stringify(body.metadata) : null,
+      visibility: body.visibility || 'public',
+      isPinned: body.isPinned || false,
+      createdBy: event.context.user.id,
+      createdAt: now,
+      updatedAt: now,
+    })
+    .run()
 
   return { id }
 })

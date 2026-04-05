@@ -8,7 +8,8 @@ import type { CampaignRole } from '../../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
   const role = event.context.campaignRole as CampaignRole
-  if (!hasMinRole(role, 'editor')) throw createError({ statusCode: 403, message: 'Editors or above can edit maps' })
+  if (!hasMinRole(role, 'editor'))
+    throw createError({ statusCode: 403, message: 'Editors or above can edit maps' })
 
   const campaignId = getRouterParam(event, 'id')!
   const slug = getRouterParam(event, 'slug')!
@@ -20,7 +21,11 @@ export default defineEventHandler(async (event) => {
   const body = await validateBody(event, mapPutSchema)
   const db = useDb()
 
-  const map = db.select().from(maps).where(and(eq(maps.campaignId, campaignId), eq(maps.slug, slug))).get()
+  const map = db
+    .select()
+    .from(maps)
+    .where(and(eq(maps.campaignId, campaignId), eq(maps.slug, slug)))
+    .get()
   if (!map) throw createError({ statusCode: 404, message: 'Map not found' })
 
   const updates: Record<string, unknown> = { updatedAt: new Date() }

@@ -20,6 +20,7 @@ Aleph needs a properly scaffolded Nuxt 4 project with SQLite database, Drizzle O
 ## Scope
 
 ### In scope
+
 - Nuxt 4 project scaffold with proper directory structure
 - SQLite + Drizzle ORM setup with migration tooling
 - Tailwind CSS + shadcn-vue installation
@@ -28,6 +29,7 @@ Aleph needs a properly scaffolded Nuxt 4 project with SQLite database, Drizzle O
 - Development tooling (ESLint, Prettier, TypeScript)
 
 ### Out of scope
+
 - Authentication (change 02)
 - Any feature implementation
 - Markdown rendering pipeline (change 03)

@@ -16,12 +16,12 @@ export default defineEventHandler(async (event) => {
 
   // Cannot remove the DM
   const db = useDb()
-  const target = db.select()
+  const target = db
+    .select()
     .from(campaignMembers)
-    .where(and(
-      eq(campaignMembers.campaignId, campaignId),
-      eq(campaignMembers.userId, targetUserId),
-    ))
+    .where(
+      and(eq(campaignMembers.campaignId, campaignId), eq(campaignMembers.userId, targetUserId)),
+    )
     .get()
 
   if (target?.role === 'dm') {
@@ -29,10 +29,9 @@ export default defineEventHandler(async (event) => {
   }
 
   db.delete(campaignMembers)
-    .where(and(
-      eq(campaignMembers.campaignId, campaignId),
-      eq(campaignMembers.userId, targetUserId),
-    ))
+    .where(
+      and(eq(campaignMembers.campaignId, campaignId), eq(campaignMembers.userId, targetUserId)),
+    )
     .run()
 
   invalidatePermissionCache(targetUserId)

@@ -20,8 +20,14 @@ describe('Character connections — enriched response (integration)', () => {
   let char2EntityId = ''
 
   beforeAll(async () => {
-    await api('/api/auth/sign-up/email', { method: 'POST', body: { name: 'Conn Tester', email, password: 'password123' } })
-    const login = await api('/api/auth/sign-in/email', { method: 'POST', body: { email, password: 'password123' } })
+    await api('/api/auth/sign-up/email', {
+      method: 'POST',
+      body: { name: 'Conn Tester', email, password: 'password123' },
+    })
+    const login = await api('/api/auth/sign-in/email', {
+      method: 'POST',
+      body: { email, password: 'password123' },
+    })
     const cookies = login.headers.get('set-cookie') || ''
     const match = cookies.match(/better-auth\.session_token=([^;]+)/)
     const sessionCookie = match ? `better-auth.session_token=${match[1]}` : ''
@@ -30,31 +36,41 @@ describe('Character connections — enriched response (integration)', () => {
     csrfToken = setCookie.match(/csrf_token=([^;]+)/)?.[1] || ''
     cookie = csrfToken ? `${sessionCookie}; csrf_token=${csrfToken}` : sessionCookie
 
-    const camp = await api('/api/campaigns', { method: 'POST', headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken }, body: { name: `Conn Enriched Test ${Date.now()}` } })
+    const camp = await api('/api/campaigns', {
+      method: 'POST',
+      headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
+      body: { name: `Conn Enriched Test ${Date.now()}` },
+    })
     campaignId = (await camp.json()).id
 
     // Create two characters
     const c1 = await api(`/api/campaigns/${campaignId}/characters`, {
-      method: 'POST', headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
+      method: 'POST',
+      headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
       body: { name: 'Arwen', characterType: 'pc' },
     })
     char1Slug = (await c1.json()).slug
 
     const c2 = await api(`/api/campaigns/${campaignId}/characters`, {
-      method: 'POST', headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
+      method: 'POST',
+      headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
       body: { name: 'Aragorn', characterType: 'npc' },
     })
     const c2Data = await c2.json()
     char2Slug = c2Data.slug
 
     // Get Aragorn's entity ID via entity list
-    const entities = await api(`/api/campaigns/${campaignId}/entities`, { headers: { Cookie: cookie } })
+    const entities = await api(`/api/campaigns/${campaignId}/entities`, {
+      headers: { Cookie: cookie },
+    })
     const entList = await entities.json()
     char2EntityId = (entList.entities ?? entList).find((e: any) => e.slug === char2Slug)?.id
   })
 
   it('empty connection list before any connections added', async () => {
-    const res = await api(`/api/campaigns/${campaignId}/characters/${char1Slug}/connections`, { headers: { Cookie: cookie } })
+    const res = await api(`/api/campaigns/${campaignId}/characters/${char1Slug}/connections`, {
+      headers: { Cookie: cookie },
+    })
     expect(res.status).toBe(200)
     const data = await res.json()
     expect(data).toEqual([])
@@ -64,7 +80,11 @@ describe('Character connections — enriched response (integration)', () => {
     const res = await api(`/api/campaigns/${campaignId}/characters/${char1Slug}/connections`, {
       method: 'POST',
       headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
-      body: { targetEntityId: char2EntityId, label: 'loves', description: 'Their bond is unbreakable' },
+      body: {
+        targetEntityId: char2EntityId,
+        label: 'loves',
+        description: 'Their bond is unbreakable',
+      },
     })
     expect(res.status).toBe(200)
     const data = await res.json()
@@ -72,7 +92,9 @@ describe('Character connections — enriched response (integration)', () => {
   })
 
   it('GET connections returns enriched targetEntityName, targetEntitySlug, targetEntityType', async () => {
-    const res = await api(`/api/campaigns/${campaignId}/characters/${char1Slug}/connections`, { headers: { Cookie: cookie } })
+    const res = await api(`/api/campaigns/${campaignId}/characters/${char1Slug}/connections`, {
+      headers: { Cookie: cookie },
+    })
     expect(res.status).toBe(200)
     const data = await res.json()
     expect(data).toHaveLength(1)
@@ -98,7 +120,9 @@ describe('Character connections — enriched response (integration)', () => {
     })
     // May succeed or fail depending on FK enforcement — if it succeeds check enrichment
     if (res.status === 200) {
-      const conns = await api(`/api/campaigns/${campaignId}/characters/${char1Slug}/connections`, { headers: { Cookie: cookie } })
+      const conns = await api(`/api/campaigns/${campaignId}/characters/${char1Slug}/connections`, {
+        headers: { Cookie: cookie },
+      })
       const data = await conns.json()
       const dangling = data.find((c: any) => c.label === 'mystery')
       if (dangling) {
@@ -115,7 +139,9 @@ describe('Character connections — enriched response (integration)', () => {
   })
 
   it('404 for unknown character slug', async () => {
-    const res = await api(`/api/campaigns/${campaignId}/characters/nonexistent-slug/connections`, { headers: { Cookie: cookie } })
+    const res = await api(`/api/campaigns/${campaignId}/characters/nonexistent-slug/connections`, {
+      headers: { Cookie: cookie },
+    })
     expect(res.status).toBe(404)
   })
 })

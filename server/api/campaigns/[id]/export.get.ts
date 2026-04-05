@@ -17,7 +17,12 @@ export default defineEventHandler(async (event) => {
   const db = useDb()
   const query = getQuery(event)
   const includeParam = query.include as string | undefined
-  const include = includeParam ? includeParam.split(',').map(s => s.trim()).filter(Boolean) : undefined
+  const include = includeParam
+    ? includeParam
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean)
+    : undefined
 
   const exportData = await buildCampaignExport(db, {
     campaignId: campaign.id,

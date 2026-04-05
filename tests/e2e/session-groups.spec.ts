@@ -28,7 +28,9 @@ test.describe('Session Groups', () => {
     await expect(page.locator('main h1')).toContainText('Sessions', { timeout: 10000 })
 
     // Group tab should appear
-    await expect(page.locator('main button', { hasText: 'La Familia' })).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('main button', { hasText: 'La Familia' })).toBeVisible({
+      timeout: 10000,
+    })
 
     // Click the La Familia tab
     await page.locator('main button', { hasText: 'La Familia' }).click()

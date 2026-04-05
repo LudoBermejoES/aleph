@@ -1,6 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import Database from 'better-sqlite3'
-import { initFTS5, indexEntity, removeEntityFromIndex, searchEntities } from '../../../server/services/search'
+import {
+  initFTS5,
+  indexEntity,
+  removeEntityFromIndex,
+  searchEntities,
+} from '../../../server/services/search'
 
 describe('FTS5 Search', () => {
   let sqlite: Database.Database
@@ -16,20 +21,44 @@ describe('FTS5 Search', () => {
   })
 
   it('indexes and finds an entity by name', () => {
-    indexEntity(sqlite, 'e1', 'c1', 'Strahd von Zarovich', ['Strahd'], ['vampire'], 'A powerful vampire lord.')
+    indexEntity(
+      sqlite,
+      'e1',
+      'c1',
+      'Strahd von Zarovich',
+      ['Strahd'],
+      ['vampire'],
+      'A powerful vampire lord.',
+    )
     const results = searchEntities(sqlite, 'c1', 'Strahd')
     expect(results).toHaveLength(1)
     expect(results[0].name).toBe('Strahd von Zarovich')
   })
 
   it('finds entity by body content', () => {
-    indexEntity(sqlite, 'e1', 'c1', 'Village of Barovia', [], ['village'], 'A gloomy village nestled in the valley.')
+    indexEntity(
+      sqlite,
+      'e1',
+      'c1',
+      'Village of Barovia',
+      [],
+      ['village'],
+      'A gloomy village nestled in the valley.',
+    )
     const results = searchEntities(sqlite, 'c1', 'gloomy')
     expect(results).toHaveLength(1)
   })
 
   it('finds entity by alias', () => {
-    indexEntity(sqlite, 'e1', 'c1', 'Strahd von Zarovich', ['The Devil', 'Lord of Barovia'], [], 'content')
+    indexEntity(
+      sqlite,
+      'e1',
+      'c1',
+      'Strahd von Zarovich',
+      ['The Devil', 'Lord of Barovia'],
+      [],
+      'content',
+    )
     const results = searchEntities(sqlite, 'c1', 'Devil')
     expect(results).toHaveLength(1)
   })

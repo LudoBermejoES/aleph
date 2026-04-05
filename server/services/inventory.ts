@@ -82,7 +82,10 @@ export function canTransferItem(check: TransferCheck): TransferResult {
     return { allowed: false, error: 'Transfer quantity must be positive' }
   }
   if (check.currentQuantity < check.transferQuantity) {
-    return { allowed: false, error: `Insufficient quantity: have ${check.currentQuantity}, need ${check.transferQuantity}` }
+    return {
+      allowed: false,
+      error: `Insufficient quantity: have ${check.currentQuantity}, need ${check.transferQuantity}`,
+    }
   }
   return { allowed: true }
 }

@@ -20,14 +20,16 @@ const BUILTIN_TYPES = [
  */
 export function seedEntityTypes(db: BetterSQLite3Database, campaignId: string): void {
   for (const type of BUILTIN_TYPES) {
-    db.insert(entityTypes).values({
-      id: randomUUID(),
-      campaignId,
-      slug: type.slug,
-      name: type.name,
-      icon: type.icon,
-      isBuiltin: true,
-      sortOrder: type.sortOrder,
-    }).run()
+    db.insert(entityTypes)
+      .values({
+        id: randomUUID(),
+        campaignId,
+        slug: type.slug,
+        name: type.name,
+        icon: type.icon,
+        isBuiltin: true,
+        sortOrder: type.sortOrder,
+      })
+      .run()
   }
 }

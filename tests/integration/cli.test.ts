@@ -8,7 +8,7 @@ async function apiRaw(path: string, opts?: any) {
     ...opts,
     headers: {
       'Content-Type': 'application/json',
-      'Origin': BASE_URL,
+      Origin: BASE_URL,
       ...opts?.headers,
     },
     body: opts?.body ? JSON.stringify(opts.body) : undefined,
@@ -166,10 +166,13 @@ describe('API key revocation (integration)', () => {
     expect(after.status).toBe(401)
   })
 
-  it('cannot revoke another user\'s key (returns 404)', async () => {
+  it("cannot revoke another user's key (returns 404)", async () => {
     // Create a second user with their own key
     const otherEmail = `other-revoke-${Date.now()}@example.com`
-    const { cookie: otherCookie, csrfToken: otherCsrf } = await signUpAndGetCookie(otherEmail, 'password123')
+    const { cookie: otherCookie, csrfToken: otherCsrf } = await signUpAndGetCookie(
+      otherEmail,
+      'password123',
+    )
     const data = await createApiKey(otherCookie, otherCsrf, 'other-key')
 
     // Try to revoke other user's key as first user
@@ -182,7 +185,7 @@ describe('API key revocation (integration)', () => {
 })
 
 describe('API key isolation (integration)', () => {
-  it('GET /api/apikeys returns only current user\'s keys', async () => {
+  it("GET /api/apikeys returns only current user's keys", async () => {
     const emailA = `iso-a-${Date.now()}@example.com`
     const emailB = `iso-b-${Date.now()}@example.com`
     const { cookie: cookieA, csrfToken: csrfA } = await signUpAndGetCookie(emailA, 'password123')

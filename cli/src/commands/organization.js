@@ -22,13 +22,15 @@ export function makeOrganizationCommand() {
       if (opts.json) {
         print(res, { json: true })
       } else {
-        print(data.map(o => ({
-          name: o.name,
-          slug: o.slug,
-          type: o.type,
-          status: o.status,
-          members: o.memberCount,
-        })))
+        print(
+          data.map((o) => ({
+            name: o.name,
+            slug: o.slug,
+            type: o.type,
+            status: o.status,
+            members: o.memberCount,
+          })),
+        )
         if (meta) console.error(`Page ${meta.page}/${meta.totalPages} (${meta.total} total)`)
       }
     })
@@ -72,7 +74,10 @@ export function makeOrganizationCommand() {
           type: data.type,
           status: data.status,
           description: data.description || '',
-          members: (data.members || []).map(m => `${m.characterName}${m.role ? ` (${m.role})` : ''}`).join(', ') || 'none',
+          members:
+            (data.members || [])
+              .map((m) => `${m.characterName}${m.role ? ` (${m.role})` : ''}`)
+              .join(', ') || 'none',
         })
       }
     })
@@ -85,8 +90,8 @@ export function makeOrganizationCommand() {
     .action(async (slug, opts) => {
       if (!opts.yes) {
         process.stdout.write(`Delete organization "${slug}"? [y/N] `)
-        const answer = await new Promise(resolve => {
-          process.stdin.once('data', d => resolve(d.toString().trim()))
+        const answer = await new Promise((resolve) => {
+          process.stdin.once('data', (d) => resolve(d.toString().trim()))
         })
         if (answer.toLowerCase() !== 'y') {
           process.stdout.write('Cancelled.\n')

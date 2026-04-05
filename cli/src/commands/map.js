@@ -14,7 +14,17 @@ export function makeMapCommand() {
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
       const data = await get(`/api/campaigns/${opts.campaign}/maps`)
-      print(opts.json ? data : data.map(m => ({ name: m.name, slug: m.slug, width: m.width || '', height: m.height || '' })), { json: opts.json })
+      print(
+        opts.json
+          ? data
+          : data.map((m) => ({
+              name: m.name,
+              slug: m.slug,
+              width: m.width || '',
+              height: m.height || '',
+            })),
+        { json: opts.json },
+      )
     })
 
   cmd
@@ -36,8 +46,15 @@ export function makeMapCommand() {
     .option('--description <desc>', 'Map description')
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
-      const data = await post(`/api/campaigns/${opts.campaign}/maps`, { name: opts.name, description: opts.description })
-      if (opts.json) { print(data, { json: true }) } else { success(`Map created: ${data.name} (${data.slug})`) }
+      const data = await post(`/api/campaigns/${opts.campaign}/maps`, {
+        name: opts.name,
+        description: opts.description,
+      })
+      if (opts.json) {
+        print(data, { json: true })
+      } else {
+        success(`Map created: ${data.name} (${data.slug})`)
+      }
     })
 
   cmd
@@ -63,8 +80,14 @@ export function makeMapCommand() {
     .option('--yes', 'Skip confirmation')
     .action(async (opts) => {
       if (!opts.yes) {
-        const ok = await confirm({ message: `Delete map "${opts.slug}"? This cannot be undone.`, default: false })
-        if (!ok) { process.stdout.write('Cancelled.\n'); return }
+        const ok = await confirm({
+          message: `Delete map "${opts.slug}"? This cannot be undone.`,
+          default: false,
+        })
+        if (!ok) {
+          process.stdout.write('Cancelled.\n')
+          return
+        }
       }
       await del(`/api/campaigns/${opts.campaign}/maps/${opts.slug}`)
       success(`Map ${opts.slug} deleted.`)
@@ -81,7 +104,11 @@ export function makeMapCommand() {
         process.stderr.write(`Error: File not found: ${opts.file}\n`)
         process.exit(1)
       }
-      await postMultipart(`/api/campaigns/${opts.campaign}/maps/${opts.slug}/upload`, opts.file, 'file')
+      await postMultipart(
+        `/api/campaigns/${opts.campaign}/maps/${opts.slug}/upload`,
+        opts.file,
+        'file',
+      )
       success('Map image uploaded.')
     })
 
@@ -93,7 +120,18 @@ export function makeMapCommand() {
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
       const data = await get(`/api/campaigns/${opts.campaign}/maps/${opts.slug}/pins`)
-      print(opts.json ? data : data.map(p => ({ id: p.id, label: p.label || '', x: p.x, y: p.y, entity: p.entitySlug || '' })), { json: opts.json })
+      print(
+        opts.json
+          ? data
+          : data.map((p) => ({
+              id: p.id,
+              label: p.label || '',
+              x: p.x,
+              y: p.y,
+              entity: p.entitySlug || '',
+            })),
+        { json: opts.json },
+      )
     })
 
   cmd
@@ -110,7 +148,11 @@ export function makeMapCommand() {
       const body = { label: opts.label, x: opts.x, y: opts.y }
       if (opts.entity) body.entitySlug = opts.entity
       const data = await post(`/api/campaigns/${opts.campaign}/maps/${opts.slug}/pins`, body)
-      if (opts.json) { print(data, { json: true }) } else { success(`Pin added: ${data.id}`) }
+      if (opts.json) {
+        print(data, { json: true })
+      } else {
+        success(`Pin added: ${data.id}`)
+      }
     })
 
   cmd
@@ -123,7 +165,10 @@ export function makeMapCommand() {
     .action(async (opts) => {
       if (!opts.yes) {
         const ok = await confirm({ message: `Delete pin ${opts.pin}?`, default: false })
-        if (!ok) { process.stdout.write('Cancelled.\n'); return }
+        if (!ok) {
+          process.stdout.write('Cancelled.\n')
+          return
+        }
       }
       await del(`/api/campaigns/${opts.campaign}/maps/${opts.slug}/pins/${opts.pin}`)
       success(`Pin ${opts.pin} deleted.`)
@@ -155,7 +200,10 @@ export function makeMapCommand() {
     .action(async (opts) => {
       if (!opts.yes) {
         const ok = await confirm({ message: `Delete layer ${opts.layer}?`, default: false })
-        if (!ok) { process.stdout.write('Cancelled.\n'); return }
+        if (!ok) {
+          process.stdout.write('Cancelled.\n')
+          return
+        }
       }
       await del(`/api/campaigns/${opts.campaign}/maps/${opts.slug}/layers/${opts.layer}`)
       success(`Layer ${opts.layer} deleted.`)
@@ -185,7 +233,10 @@ export function makeMapCommand() {
     .action(async (opts) => {
       if (!opts.yes) {
         const ok = await confirm({ message: `Delete region ${opts.region}?`, default: false })
-        if (!ok) { process.stdout.write('Cancelled.\n'); return }
+        if (!ok) {
+          process.stdout.write('Cancelled.\n')
+          return
+        }
       }
       await del(`/api/campaigns/${opts.campaign}/maps/${opts.slug}/regions/${opts.region}`)
       success(`Region ${opts.region} deleted.`)

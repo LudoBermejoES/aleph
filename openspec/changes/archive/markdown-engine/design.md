@@ -22,6 +22,7 @@
 ### Filesystem Watcher
 
 chokidar v5 watches `content/campaigns/**/*.md` with:
+
 - `awaitWriteFinish: { stabilityThreshold: 500 }` for debouncing
 - Batched processing (1s debounce) to handle bulk edits
 - Events: add → index new entity, change → re-index, unlink → remove from DB

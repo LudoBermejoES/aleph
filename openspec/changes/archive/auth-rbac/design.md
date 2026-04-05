@@ -5,6 +5,7 @@
 ### Better Auth Integration
 
 Better Auth with the Nuxt module (`nuxt-better-auth`) provides:
+
 - Credential auth (email/password) with bcrypt hashing
 - Database-backed sessions in SQLite via Drizzle adapter
 - CSRF protection, rate limiting

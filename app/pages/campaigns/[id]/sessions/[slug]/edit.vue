@@ -1,17 +1,38 @@
 <template>
   <div class="p-8 max-w-3xl">
     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary"> {{ $t('common.campaign') }}</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">
+        {{ $t('common.campaign') }}</NuxtLink
+      >
       <span>/</span>
-      <NuxtLink :to="`/campaigns/${campaignId}/sessions`" class="hover:text-primary">{{ $t('sessions.title') }}</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}/sessions`" class="hover:text-primary">{{
+        $t('sessions.title')
+      }}</NuxtLink>
       <span>/</span>
-      <NuxtLink :to="`/campaigns/${campaignId}/sessions/${slug}`" class="hover:text-primary">{{ form.title || 'Session' }}</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}/sessions/${slug}`" class="hover:text-primary">{{
+        form.title || 'Session'
+      }}</NuxtLink>
       <span>/</span><span>{{ $t('common.edit') }}</span>
     </div>
     <h1 class="text-2xl font-bold mb-6">{{ $t('sessions.edit') }}</h1>
-    <SessionForm ref="sessionForm" v-if="loaded" v-model="form" :campaign-id="campaignId" :session-slug="slug" :submit-label="$t('common.save')" :submitting="submitting" :collaborative="isCollaborative" :document-name="documentName" :user-name="userName" :user-color="userColor" @submit="save">
+    <SessionForm
+      ref="sessionForm"
+      v-if="loaded"
+      v-model="form"
+      :campaign-id="campaignId"
+      :session-slug="slug"
+      :submit-label="$t('common.save')"
+      :submitting="submitting"
+      :collaborative="isCollaborative"
+      :document-name="documentName"
+      :user-name="userName"
+      :user-color="userColor"
+      @submit="save"
+    >
       <template #cancel>
-        <NuxtLink :to="`/campaigns/${campaignId}/sessions/${slug}`"><Button variant="outline">{{ $t('common.cancel') }}</Button></NuxtLink>
+        <NuxtLink :to="`/campaigns/${campaignId}/sessions/${slug}`"
+          ><Button variant="outline">{{ $t('common.cancel') }}</Button></NuxtLink
+        >
       </template>
     </SessionForm>
   </div>
@@ -25,10 +46,20 @@ const slug = route.params.slug as string
 const submitting = ref(false)
 const loaded = ref(false)
 const { t } = useI18n()
-const form = ref({ title: '', scheduledDate: '', status: 'planned', content: '', groupSlug: '', arcId: '', chapterId: '' })
+const form = ref({
+  title: '',
+  scheduledDate: '',
+  status: 'planned',
+  content: '',
+  groupSlug: '',
+  arcId: '',
+  chapterId: '',
+})
 
 const isCollaborative = computed(() => route.query.collab === 'true')
-const documentName = computed(() => isCollaborative.value ? `campaign:${campaignId}:session:${slug}` : undefined)
+const documentName = computed(() =>
+  isCollaborative.value ? `campaign:${campaignId}:session:${slug}` : undefined,
+)
 const { userName, userColor } = useCollaborationUser()
 
 const api = useCampaignApi(campaignId)
@@ -39,7 +70,9 @@ onMounted(async () => {
     const session = await api.getSession(slug)
     form.value = {
       title: session.title || '',
-      scheduledDate: session.scheduledDate ? new Date(session.scheduledDate).toISOString().split('T')[0] : '',
+      scheduledDate: session.scheduledDate
+        ? new Date(session.scheduledDate).toISOString().split('T')[0]
+        : '',
       status: session.status || 'planned',
       content: session.logContent || '',
       groupSlug: (session as any).groupSlug || '',

@@ -19,6 +19,7 @@ Visual maps are essential for spatial storytelling in TTRPGs. DMs need to upload
 ## Scope
 
 ### In scope
+
 - Map CRUD API and image upload to filesystem
 - Leaflet.js CRS.Simple map viewer component
 - Map pins with coordinates, entity link, icon, color, visibility
@@ -31,11 +32,13 @@ Visual maps are essential for spatial storytelling in TTRPGs. DMs need to upload
 - Tiling pipeline (sharp) for images exceeding 4K resolution
 
 ### Out of scope
+
 - Real-time collaborative map editing (future)
 - Fog of war (future enhancement)
 - 3D maps
 
 ## Dependencies
+
 - 01-project-setup
 - 02-auth-rbac
 - 03-markdown-engine

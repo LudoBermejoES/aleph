@@ -25,13 +25,13 @@ Aleph is a well-architected TTRPG Campaign Management Suite with a solid foundat
 
 However, this analysis reveals **significant opportunities** across five areas:
 
-| Area | Strengths | Key Issues |
-|------|-----------|------------|
-| **Frontend** | Rich character filtering, dice roller, presence system | Mobile broken, dormant collab editing, missing pages |
-| **Backend** | Good RBAC, entity permission system, 130+ API routes | Missing input validation, incomplete CRUD, N+1 queries |
-| **Security** | Hashed API keys, role hierarchy, session management | No rate limiting, no CSRF, missing entity-level auth checks |
-| **CLI/DevOps** | 15 commands, Docker + PM2 + CI/CD pipeline | CLI covers ~60% of API, no pre-commit hooks, only unit tests in CI |
-| **Features** | Collaborative editing, arcs/chapters, economy system | No interactive maps UI, dormant collab, missing quest detail page |
+| Area           | Strengths                                              | Key Issues                                                         |
+| -------------- | ------------------------------------------------------ | ------------------------------------------------------------------ |
+| **Frontend**   | Rich character filtering, dice roller, presence system | Mobile broken, dormant collab editing, missing pages               |
+| **Backend**    | Good RBAC, entity permission system, 130+ API routes   | Missing input validation, incomplete CRUD, N+1 queries             |
+| **Security**   | Hashed API keys, role hierarchy, session management    | No rate limiting, no CSRF, missing entity-level auth checks        |
+| **CLI/DevOps** | 15 commands, Docker + PM2 + CI/CD pipeline             | CLI covers ~60% of API, no pre-commit hooks, only unit tests in CI |
+| **Features**   | Collaborative editing, arcs/chapters, economy system   | No interactive maps UI, dormant collab, missing quest detail page  |
 
 ---
 
@@ -81,6 +81,7 @@ Other:       entity_mentions, entity_permissions, entity_specific_viewers, sessi
 #### 1. Mobile Responsiveness is Broken
 
 The sidebar is a fixed 256px column with **no collapse mechanism and no hamburger menu**. On screens under ~800px the layout breaks. Additional issues:
+
 - Characters page has a filter sidebar creating a 3-column layout on small screens
 - Transaction/attendance tables overflow without horizontal scroll
 - Timeline calendar grid is a fixed 7-column CSS grid with no mobile adaptation
@@ -93,16 +94,16 @@ Additionally, the Hocuspocus WebSocket URL is **hardcoded to `ws://localhost:333
 
 #### 3. Missing Pages
 
-| Resource | What's Missing | Impact |
-|----------|---------------|--------|
-| **Quests** | No detail page (`quests/[slug]/index.vue`) | Users cannot view quest content, only edit |
-| **Items** | No detail page (`items/[itemId]/index.vue`) | Items only viewable in list |
-| **Arcs & Chapters** | Zero frontend pages | No way to manage narrative structure from UI |
-| **Relations list** | No list page | Relations only discoverable via graph |
-| **Timelines list** | No list page | Must navigate through calendars |
-| **Entity templates** | No management pages | Full API exists but no UI |
-| **Campaign images** | No management page | Upload/retrieve API exists but no UI |
-| **Settings** | Only API keys | No profile editing (name, email, password) |
+| Resource             | What's Missing                              | Impact                                       |
+| -------------------- | ------------------------------------------- | -------------------------------------------- |
+| **Quests**           | No detail page (`quests/[slug]/index.vue`)  | Users cannot view quest content, only edit   |
+| **Items**            | No detail page (`items/[itemId]/index.vue`) | Items only viewable in list                  |
+| **Arcs & Chapters**  | Zero frontend pages                         | No way to manage narrative structure from UI |
+| **Relations list**   | No list page                                | Relations only discoverable via graph        |
+| **Timelines list**   | No list page                                | Must navigate through calendars              |
+| **Entity templates** | No management pages                         | Full API exists but no UI                    |
+| **Campaign images**  | No management page                          | Upload/retrieve API exists but no UI         |
+| **Settings**         | Only API keys                               | No profile editing (name, email, password)   |
 
 #### 4. Graph Page Node Click is Broken
 
@@ -128,11 +129,11 @@ Most API calls use `.catch(() => [])` -- users see empty lists instead of error 
 
 #### 8. Large Components Need Splitting
 
-| Component | Lines | Should Extract |
-|-----------|-------|---------------|
-| `MarkdownEditor.client.vue` | 522 | Toolbar, entity mention dropdown (raw DOM!), collaboration setup |
-| Characters list page | 312 | Filter bar, folder sidebar, list item |
-| Session detail page | 386 | Attendance panel, decisions list, rolls table, content tabs |
+| Component                   | Lines | Should Extract                                                   |
+| --------------------------- | ----- | ---------------------------------------------------------------- |
+| `MarkdownEditor.client.vue` | 522   | Toolbar, entity mention dropdown (raw DOM!), collaboration setup |
+| Characters list page        | 312   | Filter bar, folder sidebar, list item                            |
+| Session detail page         | 386   | Attendance panel, decisions list, rolls table, content tabs      |
 
 #### 9. Missing UI States
 
@@ -154,21 +155,21 @@ Most API calls use `.catch(() => [])` -- users see empty lists instead of error 
 
 ### Missing CRUD Operations
 
-| Resource | Missing | Notes |
-|----------|---------|-------|
-| **Quests** | DELETE | Cannot remove quests |
-| **Items** | PUT, DELETE | Cannot update or remove items |
-| **Calendars** | DELETE | Cannot remove calendars |
-| **Timelines** | PUT, DELETE | Cannot update or remove timelines; no DELETE on events |
-| **Arcs** | PUT, DELETE | Cannot update or remove narrative arcs |
-| **Chapters** | PUT, DELETE | Cannot update or remove chapters |
-| **Inventories** | DELETE | Cannot remove inventories or inventory items |
-| **Shops** | PUT, DELETE | Cannot update or remove shops |
-| **Map layers/regions** | PUT, DELETE | Cannot modify after creation |
-| **Currencies** | PUT, DELETE | Cannot modify after creation |
-| **Character abilities** | DELETE | Cannot remove abilities |
-| **Session contents** | DELETE | Cannot remove content entries |
-| **Character folders** | PUT, DELETE | Cannot rename or remove folders |
+| Resource                | Missing     | Notes                                                  |
+| ----------------------- | ----------- | ------------------------------------------------------ |
+| **Quests**              | DELETE      | Cannot remove quests                                   |
+| **Items**               | PUT, DELETE | Cannot update or remove items                          |
+| **Calendars**           | DELETE      | Cannot remove calendars                                |
+| **Timelines**           | PUT, DELETE | Cannot update or remove timelines; no DELETE on events |
+| **Arcs**                | PUT, DELETE | Cannot update or remove narrative arcs                 |
+| **Chapters**            | PUT, DELETE | Cannot update or remove chapters                       |
+| **Inventories**         | DELETE      | Cannot remove inventories or inventory items           |
+| **Shops**               | PUT, DELETE | Cannot update or remove shops                          |
+| **Map layers/regions**  | PUT, DELETE | Cannot modify after creation                           |
+| **Currencies**          | PUT, DELETE | Cannot modify after creation                           |
+| **Character abilities** | DELETE      | Cannot remove abilities                                |
+| **Session contents**    | DELETE      | Cannot remove content entries                          |
+| **Character folders**   | PUT, DELETE | Cannot rename or remove folders                        |
 
 Additionally, there's a **501 NOT IMPLEMENTED** at `/api/campaigns/[id]/entities/[slug]/render.get.ts` with a TODO comment.
 
@@ -179,6 +180,7 @@ No bulk delete, bulk update, or bulk export exists for any resource. No data exp
 ### Input Validation is Minimal
 
 There is **no validation framework** (no Zod schemas on API routes despite Zod being a dependency). Validation is ad-hoc:
+
 - Campaign update: no validation on name, description, isPublic
 - Calendar POST: no validation that month/weekday structures are valid
 - Character list filters: `search` parameter passed directly to `like()` (potential ReDoS)
@@ -191,17 +193,17 @@ There is **no validation framework** (no Zod schemas on API routes despite Zod b
 
 #### Missing Indexes (Performance Risk)
 
-| Table | Missing Indexes | Impact |
-|-------|----------------|--------|
-| `characters` | `characterType`, `status`, `ownerUserId`, `folderId`, `locationEntityId` | Slow character list filtering |
-| `entities` | `type`, `parentId`, composite `(campaignId, type, visibility)` | Slow entity list queries |
-| `game_sessions` | `status`, `arcId`, `chapterId`, `groupId` | Slow session filtering |
-| `organizations` | `type`, `status` | Slow org queries |
-| `maps` | `parentMapId`, `visibility` | Slow map hierarchies |
-| `calendar_events` | `linkedEntityId` | Slow event lookups |
-| `inventory_items` | `(inventoryId, itemId)` | Slow stacking checks |
-| `session_attendance` | `(sessionId, userId)`, `rsvpStatus` | Slow RSVP lookups |
-| `entity_relations` | `(sourceEntityId, relationTypeId)`, `(targetEntityId, relationTypeId)` | Slow graph queries |
+| Table                | Missing Indexes                                                          | Impact                        |
+| -------------------- | ------------------------------------------------------------------------ | ----------------------------- |
+| `characters`         | `characterType`, `status`, `ownerUserId`, `folderId`, `locationEntityId` | Slow character list filtering |
+| `entities`           | `type`, `parentId`, composite `(campaignId, type, visibility)`           | Slow entity list queries      |
+| `game_sessions`      | `status`, `arcId`, `chapterId`, `groupId`                                | Slow session filtering        |
+| `organizations`      | `type`, `status`                                                         | Slow org queries              |
+| `maps`               | `parentMapId`, `visibility`                                              | Slow map hierarchies          |
+| `calendar_events`    | `linkedEntityId`                                                         | Slow event lookups            |
+| `inventory_items`    | `(inventoryId, itemId)`                                                  | Slow stacking checks          |
+| `session_attendance` | `(sessionId, userId)`, `rsvpStatus`                                      | Slow RSVP lookups             |
+| `entity_relations`   | `(sourceEntityId, relationTypeId)`, `(targetEntityId, relationTypeId)`   | Slow graph queries            |
 
 #### Missing Constraints
 
@@ -238,6 +240,7 @@ All deletions are permanent. No `deletedAt` field exists anywhere. No undo capab
 #### 1. Missing Entity-Level Permission Checks (HIGH)
 
 The middleware checks campaign membership but **individual entity retrieval endpoints do not check entity-level visibility**:
+
 - `GET /api/campaigns/[id]/entities/[slug]` -- no visibility check
 - `GET /api/campaigns/[id]/sessions/[slug]` -- no visibility check
 - `GET /api/campaigns/[id]/locations/[slug]` -- no visibility check
@@ -277,6 +280,7 @@ No CSRF tokens are issued or validated. Cookie-based sessions are used. SameSite
 ### N+1 Queries
 
 **Character list** -- Executes 3 correlated subqueries per character row:
+
 1. Location name lookup (per character)
 2. Primary organization name (per character)
 3. Primary organization role (per character)
@@ -290,6 +294,7 @@ For a campaign with 200 characters, this means 601 queries instead of 1 with pro
 ### Missing Pagination
 
 Only the entities list has pagination (limit/offset). All other list endpoints return unbounded results:
+
 - Characters: all characters, no limit
 - Locations: all locations, no limit
 - Sessions: all sessions, no limit
@@ -320,15 +325,15 @@ Large campaigns with thousands of entities will cause performance issues.
 
 ### Major Test Gaps
 
-| Gap | Risk |
-|-----|------|
-| No tests for Quest operations | Core feature untested |
-| No tests for Shops | Stock/purchase flows untested |
-| No tests for API key CRUD | Only token validation tested |
+| Gap                           | Risk                                                           |
+| ----------------------------- | -------------------------------------------------------------- |
+| No tests for Quest operations | Core feature untested                                          |
+| No tests for Shops            | Stock/purchase flows untested                                  |
+| No tests for API key CRUD     | Only token validation tested                                   |
 | No negative/edge case testing | Invalid transitions, permission denials, concurrent operations |
-| No performance tests | N+1 queries not caught |
-| No security tests | XSS, injection, rate limit scenarios not covered |
-| CI only runs unit tests | Integration and E2E tests skipped in pipeline |
+| No performance tests          | N+1 queries not caught                                         |
+| No security tests             | XSS, injection, rate limit scenarios not covered               |
+| CI only runs unit tests       | Integration and E2E tests skipped in pipeline                  |
 
 ---
 
@@ -338,18 +343,18 @@ Large campaigns with thousands of entities will cause performance issues.
 
 The CLI covers 15 commands but **misses ~40% of the API surface**:
 
-| Missing from CLI | API Exists |
-|-----------------|------------|
+| Missing from CLI                                  | API Exists    |
+| ------------------------------------------------- | ------------- |
 | Maps (CRUD, upload, pins, layers, regions, tiles) | 20+ endpoints |
-| Quests (CRUD) | 3+ endpoints |
-| Calendars & Timelines | 10+ endpoints |
-| Inventory system | 5+ endpoints |
-| Items & Shops | 8+ endpoints |
-| Currencies & Transactions | 5+ endpoints |
-| Templates | 5 endpoints |
-| Tags | 2 endpoints |
-| Arcs & Chapters | 4 endpoints |
-| Health check | 1 endpoint |
+| Quests (CRUD)                                     | 3+ endpoints  |
+| Calendars & Timelines                             | 10+ endpoints |
+| Inventory system                                  | 5+ endpoints  |
+| Items & Shops                                     | 8+ endpoints  |
+| Currencies & Transactions                         | 5+ endpoints  |
+| Templates                                         | 5 endpoints   |
+| Tags                                              | 2 endpoints   |
+| Arcs & Chapters                                   | 4 endpoints   |
+| Health check                                      | 1 endpoint    |
 
 ### CLI Bugs
 
@@ -361,6 +366,7 @@ The CLI covers 15 commands but **misses ~40% of the API surface**:
 ### DevOps
 
 **Good:**
+
 - Multi-stage Dockerfile (node:22-slim)
 - PM2 with 512MB memory limit, log rotation
 - GitHub Actions CI/CD with test gate before deploy
@@ -368,6 +374,7 @@ The CLI covers 15 commands but **misses ~40% of the API surface**:
 - Cross-architecture native module rebuild handled
 
 **Needs Improvement:**
+
 - **CI only runs unit tests** -- integration and E2E tests are skipped
 - **No `.env.example`** -- new developers must guess environment variables
 - **No staging environment** -- pushes directly to production from master
@@ -384,14 +391,14 @@ The CLI covers 15 commands but **misses ~40% of the API surface**:
 
 ### Market Leaders
 
-| Tool | Users | Key Differentiators |
-|------|-------|-------------------|
-| **World Anvil** | 1.5M+ | 25+ entity templates, interactive maps, timelines, FoundryVTT integration |
-| **Kanka** | 375K+ | Open source, family trees, custom calendars, granular permissions/secrets |
-| **LegendKeeper** | Growing | Collaborative whiteboards, 14K-pixel maps, real-time editing |
-| **Chronica** | Niche | Battle screen, campaign shop, fog-of-war maps |
-| **LoreKeeper AI** | New | AI session transcription, auto-summaries, context-aware generation |
-| **Archivist AI** | New | AI session transcription, FoundryVTT integration |
+| Tool              | Users   | Key Differentiators                                                       |
+| ----------------- | ------- | ------------------------------------------------------------------------- |
+| **World Anvil**   | 1.5M+   | 25+ entity templates, interactive maps, timelines, FoundryVTT integration |
+| **Kanka**         | 375K+   | Open source, family trees, custom calendars, granular permissions/secrets |
+| **LegendKeeper**  | Growing | Collaborative whiteboards, 14K-pixel maps, real-time editing              |
+| **Chronica**      | Niche   | Battle screen, campaign shop, fog-of-war maps                             |
+| **LoreKeeper AI** | New     | AI session transcription, auto-summaries, context-aware generation        |
+| **Archivist AI**  | New     | AI session transcription, FoundryVTT integration                          |
 
 ### Aleph's Competitive Advantages
 
@@ -405,29 +412,34 @@ The CLI covers 15 commands but **misses ~40% of the API surface**:
 ### High-Priority Feature Gaps
 
 #### 1. Interactive Maps with Pins/Layers (UI)
+
 Every major competitor offers this. Aleph has the **full backend** (pins, layers, regions, tiles, GeoJSON) but the frontend map editor experience needs enhancement -- particularly around linking pins to entities and nested map navigation. This is the single most differentiating feature in the TTRPG tool space.
 
 #### 2. GM/Player Content Visibility (Secrets System)
+
 Kanka, LegendKeeper, World Anvil, and Chronica all have granular per-section visibility. Aleph has the `entity_permissions` infrastructure but it's not consistently enforced (see Security section) and there's no "preview as player" mode.
 
 #### 3. Entity Templates UI
+
 The backend supports full template CRUD with typed fields (text, number, checkbox, select, date, entity_reference, section). But there are **zero frontend pages** for managing templates. This is a major missed opportunity -- templates reduce blank-page syndrome and guide worldbuilding.
 
 #### 4. AI Session Summaries
+
 This is the hottest feature category in 2025-2026. LoreKeeper AI and Archivist AI are built around session transcription and AI-generated summaries. Aleph already has `session_contents` with `ai_notes` and `summary` content types -- the data model supports it but there's no AI integration.
 
 #### 5. Data Export/Import
+
 No export functionality exists. This creates vendor lock-in anxiety. JSON/CSV export of campaign data would build trust and is expected by technically-minded users (Aleph's target audience given the CLI tool).
 
 ### Medium-Priority Feature Gaps
 
-| Feature | Competitors | Notes |
-|---------|------------|-------|
-| Custom fantasy calendars UI | Kanka, Chronica, LegendKeeper | Backend exists, frontend is basic |
-| Family trees / lineage | Kanka, World Anvil, Scabard | Character connections exist but no tree visualization |
-| Player-contributed journals | Obsidian Portal, Kanka | Session notes are GM-only currently |
-| Entity cross-linking + backlinks | All major competitors | Mentions system exists but not surfaced well |
-| Worldbuilding prompts/templates | World Anvil, LegendKeeper | Template fields exist but no pre-built prompts |
+| Feature                          | Competitors                   | Notes                                                 |
+| -------------------------------- | ----------------------------- | ----------------------------------------------------- |
+| Custom fantasy calendars UI      | Kanka, Chronica, LegendKeeper | Backend exists, frontend is basic                     |
+| Family trees / lineage           | Kanka, World Anvil, Scabard   | Character connections exist but no tree visualization |
+| Player-contributed journals      | Obsidian Portal, Kanka        | Session notes are GM-only currently                   |
+| Entity cross-linking + backlinks | All major competitors         | Mentions system exists but not surfaced well          |
+| Worldbuilding prompts/templates  | World Anvil, LegendKeeper     | Template fields exist but no pre-built prompts        |
 
 ### Low-Priority / Future Considerations
 
@@ -445,67 +457,67 @@ No export functionality exists. This creates vendor lock-in anxiety. JSON/CSV ex
 
 These are bugs, security issues, and broken features that should be addressed first.
 
-| # | Item | Type | Effort |
-|---|------|------|--------|
-| 1 | **Make sidebar responsive** (collapsible on mobile) | UX | Medium |
-| 2 | **Fix Hocuspocus URL** (hardcoded `ws://localhost:3334`) | Bug | Small |
-| 3 | **Add entity-level permission checks** on GET endpoints | Security | Medium |
-| 4 | **Add input validation** (Zod schemas) on all POST/PUT routes | Security | Large |
-| 5 | **Fix graph node click** (currently TODO/dead-end) | Bug | Small |
-| 6 | **Fix CLI roll.js** `config.token` -> `config.apiKey` bug | Bug | Small |
-| 7 | **Add rate limiting** middleware | Security | Medium |
-| 8 | **Fix N+1 queries** in character list (use JOINs) | Performance | Small |
-| 9 | **Add missing database indexes** (characters, entities, sessions, etc.) | Performance | Medium |
-| 10 | **Replace `alert()` calls** with ErrorToast component | UX | Small |
+| #   | Item                                                                    | Type        | Effort |
+| --- | ----------------------------------------------------------------------- | ----------- | ------ |
+| 1   | **Make sidebar responsive** (collapsible on mobile)                     | UX          | Medium |
+| 2   | **Fix Hocuspocus URL** (hardcoded `ws://localhost:3334`)                | Bug         | Small  |
+| 3   | **Add entity-level permission checks** on GET endpoints                 | Security    | Medium |
+| 4   | **Add input validation** (Zod schemas) on all POST/PUT routes           | Security    | Large  |
+| 5   | **Fix graph node click** (currently TODO/dead-end)                      | Bug         | Small  |
+| 6   | **Fix CLI roll.js** `config.token` -> `config.apiKey` bug               | Bug         | Small  |
+| 7   | **Add rate limiting** middleware                                        | Security    | Medium |
+| 8   | **Fix N+1 queries** in character list (use JOINs)                       | Performance | Small  |
+| 9   | **Add missing database indexes** (characters, entities, sessions, etc.) | Performance | Medium |
+| 10  | **Replace `alert()` calls** with ErrorToast component                   | UX          | Small  |
 
 ### Phase 2: Complete the Existing Features (High Value)
 
 These unlock value from infrastructure that's already built but not fully exposed.
 
-| # | Item | Type | Effort |
-|---|------|------|--------|
-| 11 | **Wire up collaborative editing** on entity/session edit pages | Feature | Small |
-| 12 | **Add missing CRUD endpoints** (DELETE for quests, items, calendars, timelines, arcs, chapters, shops, currencies) | Backend | Medium |
-| 13 | **Add quest detail page** | Frontend | Small |
-| 14 | **Add arcs & chapters management pages** | Frontend | Medium |
-| 15 | **Add entity template management UI** | Frontend | Medium |
-| 16 | **Add pagination** to all list endpoints (characters, locations, sessions, etc.) | Backend+FE | Medium |
-| 17 | **Fix economy workflow** (currency edit/delete, transaction creation, inventory owner picker) | Frontend | Medium |
-| 18 | **Fix i18n violations** (404 page, auth layout, breadcrumbs, MarkdownEditor) | Frontend | Small |
-| 19 | **Add .env.example** and update README | DX | Small |
-| 20 | **Add integration + E2E tests to CI** | DevOps | Small |
+| #   | Item                                                                                                               | Type       | Effort |
+| --- | ------------------------------------------------------------------------------------------------------------------ | ---------- | ------ |
+| 11  | **Wire up collaborative editing** on entity/session edit pages                                                     | Feature    | Small  |
+| 12  | **Add missing CRUD endpoints** (DELETE for quests, items, calendars, timelines, arcs, chapters, shops, currencies) | Backend    | Medium |
+| 13  | **Add quest detail page**                                                                                          | Frontend   | Small  |
+| 14  | **Add arcs & chapters management pages**                                                                           | Frontend   | Medium |
+| 15  | **Add entity template management UI**                                                                              | Frontend   | Medium |
+| 16  | **Add pagination** to all list endpoints (characters, locations, sessions, etc.)                                   | Backend+FE | Medium |
+| 17  | **Fix economy workflow** (currency edit/delete, transaction creation, inventory owner picker)                      | Frontend   | Medium |
+| 18  | **Fix i18n violations** (404 page, auth layout, breadcrumbs, MarkdownEditor)                                       | Frontend   | Small  |
+| 19  | **Add .env.example** and update README                                                                             | DX         | Small  |
+| 20  | **Add integration + E2E tests to CI**                                                                              | DevOps     | Small  |
 
 ### Phase 3: Differentiate (New Features)
 
 These are new capabilities that would set Aleph apart from competitors.
 
-| # | Item | Type | Effort |
-|---|------|------|--------|
-| 21 | **GM/Player secrets system** -- per-section visibility with "preview as player" mode | Feature | Large |
-| 22 | **AI session summaries** -- integrate with Claude/OpenAI for `ai_notes` and `summary` generation | Feature | Medium |
-| 23 | **Data export** -- JSON/CSV export of full campaign data | Feature | Medium |
-| 24 | **Enhanced map editor** -- interactive pin placement linked to entities, nested map navigation | Feature | Large |
-| 25 | **Custom calendar UI** -- visual calendar with event management, in-game date tracking | Feature | Medium |
-| 26 | **Family tree visualization** -- leverage character connections for lineage display | Feature | Medium |
-| 27 | **Player-contributed journals** -- allow players to write session recaps | Feature | Small |
-| 28 | **Activity feed / changelog** -- leverage audit log for "what happened" dashboard | Feature | Medium |
+| #   | Item                                                                                             | Type    | Effort |
+| --- | ------------------------------------------------------------------------------------------------ | ------- | ------ |
+| 21  | **GM/Player secrets system** -- per-section visibility with "preview as player" mode             | Feature | Large  |
+| 22  | **AI session summaries** -- integrate with Claude/OpenAI for `ai_notes` and `summary` generation | Feature | Medium |
+| 23  | **Data export** -- JSON/CSV export of full campaign data                                         | Feature | Medium |
+| 24  | **Enhanced map editor** -- interactive pin placement linked to entities, nested map navigation   | Feature | Large  |
+| 25  | **Custom calendar UI** -- visual calendar with event management, in-game date tracking           | Feature | Medium |
+| 26  | **Family tree visualization** -- leverage character connections for lineage display              | Feature | Medium |
+| 27  | **Player-contributed journals** -- allow players to write session recaps                         | Feature | Small  |
+| 28  | **Activity feed / changelog** -- leverage audit log for "what happened" dashboard                | Feature | Medium |
 
 ### Phase 4: Polish & Scale
 
-| # | Item | Type | Effort |
-|---|------|------|--------|
-| 29 | **Refactor large components** (MarkdownEditor, character list, session detail) | Refactor | Medium |
-| 30 | **Add missing CLI commands** (maps, quests, calendars, inventory, items, shops) | CLI | Large |
-| 31 | **Migrate CLI to TypeScript** | DX | Medium |
-| 32 | **Add CSRF protection** | Security | Small |
-| 33 | **Add HTTP caching headers** | Performance | Small |
-| 34 | **Add soft deletes** with undo capability | Backend | Large |
-| 35 | **Standardize CLI prompts** (all use @inquirer/prompts) | CLI | Small |
-| 36 | **Add pre-commit hooks** (Husky + lint-staged + Prettier) | DX | Small |
-| 37 | **Add loading skeletons** to all pages | UX | Medium |
-| 38 | **Add accessibility improvements** (aria-labels, keyboard nav, dialog roles) | UX | Medium |
-| 39 | **PWA / mobile optimization** | Feature | Large |
-| 40 | **VTT integration hooks** (FoundryVTT) | Feature | Large |
+| #   | Item                                                                            | Type        | Effort |
+| --- | ------------------------------------------------------------------------------- | ----------- | ------ |
+| 29  | **Refactor large components** (MarkdownEditor, character list, session detail)  | Refactor    | Medium |
+| 30  | **Add missing CLI commands** (maps, quests, calendars, inventory, items, shops) | CLI         | Large  |
+| 31  | **Migrate CLI to TypeScript**                                                   | DX          | Medium |
+| 32  | **Add CSRF protection**                                                         | Security    | Small  |
+| 33  | **Add HTTP caching headers**                                                    | Performance | Small  |
+| 34  | **Add soft deletes** with undo capability                                       | Backend     | Large  |
+| 35  | **Standardize CLI prompts** (all use @inquirer/prompts)                         | CLI         | Small  |
+| 36  | **Add pre-commit hooks** (Husky + lint-staged + Prettier)                       | DX          | Small  |
+| 37  | **Add loading skeletons** to all pages                                          | UX          | Medium |
+| 38  | **Add accessibility improvements** (aria-labels, keyboard nav, dialog roles)    | UX          | Medium |
+| 39  | **PWA / mobile optimization**                                                   | Feature     | Large  |
+| 40  | **VTT integration hooks** (FoundryVTT)                                          | Feature     | Large  |
 
 ---
 

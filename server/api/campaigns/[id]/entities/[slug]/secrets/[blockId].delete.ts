@@ -18,7 +18,8 @@ export default defineEventHandler(async (event) => {
   const userId = event.context.user!.id
   const db = useDb()
 
-  const entity = db.select({ id: entities.id })
+  const entity = db
+    .select({ id: entities.id })
     .from(entities)
     .where(and(eq(entities.campaignId, campaignId), eq(entities.slug, slug)))
     .get()

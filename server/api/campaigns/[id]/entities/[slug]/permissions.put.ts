@@ -27,7 +27,9 @@ export default defineEventHandler(async (event) => {
   const db = useDb()
 
   // Resolve slug to entity ID
-  const entity = db.select().from(entities)
+  const entity = db
+    .select()
+    .from(entities)
     .where(and(eq(entities.campaignId, campaignId), eq(entities.slug, slug)))
     .get()
   if (!entity) throw createError({ statusCode: 404, message: 'Entity not found' })
@@ -38,16 +40,18 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'Either targetUserId or targetRole is required' })
   }
 
-  db.insert(entityPermissions).values({
-    id: randomUUID(),
-    entityId,
-    targetUserId: targetUserId || null,
-    targetRole: targetRole || null,
-    permission,
-    effect,
-    grantedBy: event.context.user.id,
-    createdAt: new Date(),
-  }).run()
+  db.insert(entityPermissions)
+    .values({
+      id: randomUUID(),
+      entityId,
+      targetUserId: targetUserId || null,
+      targetRole: targetRole || null,
+      permission,
+      effect,
+      grantedBy: event.context.user.id,
+      createdAt: new Date(),
+    })
+    .run()
 
   // Invalidate cache for affected user
   if (targetUserId) {

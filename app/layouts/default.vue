@@ -1,12 +1,23 @@
 <template>
   <div class="flex h-screen bg-background text-foreground" :data-theme="campaignTheme || undefined">
-
     <!-- Mobile top bar (visible below md) -->
-    <div class="md:hidden fixed top-0 left-0 right-0 z-40 h-14 flex items-center gap-3 px-4 border-b border-border bg-sidebar-background">
+    <div
+      class="md:hidden fixed top-0 left-0 right-0 z-40 h-14 flex items-center gap-3 px-4 border-b border-border bg-sidebar-background"
+    >
       <Sheet v-model:open="sidebarOpen">
         <SheetTrigger as-child>
-          <button :aria-label="$t('layout.openMenu')" class="p-1 rounded hover:bg-sidebar-accent transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-sidebar-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <button
+            :aria-label="$t('layout.openMenu')"
+            class="p-1 rounded hover:bg-sidebar-accent transition-colors"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-6 h-6 text-sidebar-foreground"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
               <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
@@ -31,7 +42,9 @@
     </div>
 
     <!-- Desktop sidebar (hidden below md) -->
-    <aside class="hidden md:flex w-64 border-r border-border bg-sidebar-background flex-col shrink-0">
+    <aside
+      class="hidden md:flex w-64 border-r border-border bg-sidebar-background flex-col shrink-0"
+    >
       <SidebarNav
         :campaign-id="campaignId"
         :campaign-name="campaignName"
@@ -74,29 +87,36 @@ const campaignId = computed(() => {
 })
 
 // Close sidebar on route change
-watch(() => route.path, () => {
-  sidebarOpen.value = false
-})
+watch(
+  () => route.path,
+  () => {
+    sidebarOpen.value = false
+  },
+)
 
 // Presence system
 const { presenceUsers } = useCampaignSocket(campaignId)
 
 // Fetch campaign name and theme when inside a campaign
-watch(campaignId, async (id) => {
-  if (id) {
-    try {
-      const data = await useCampaignApi(id).getCampaign()
-      campaignName.value = data?.name || ''
-      campaignTheme.value = data?.theme || null
-    } catch {
+watch(
+  campaignId,
+  async (id) => {
+    if (id) {
+      try {
+        const data = await useCampaignApi(id).getCampaign()
+        campaignName.value = data?.name || ''
+        campaignTheme.value = data?.theme || null
+      } catch {
+        campaignName.value = ''
+        campaignTheme.value = null
+      }
+    } else {
       campaignName.value = ''
       campaignTheme.value = null
     }
-  } else {
-    campaignName.value = ''
-    campaignTheme.value = null
-  }
-}, { immediate: true })
+  },
+  { immediate: true },
+)
 
 const campaignLinkGroups = computed(() => {
   if (!campaignId.value) return []
@@ -108,8 +128,16 @@ const campaignLinkGroups = computed(() => {
       icon: ICONS.groupWorld,
       links: [
         { to: `/campaigns/${id}/entities`, label: t('layout.wiki'), icon: ICONS.wiki },
-        { to: `/campaigns/${id}/characters`, label: t('layout.characters'), icon: ICONS.characters },
-        { to: `/campaigns/${id}/organizations`, label: t('layout.organizations'), icon: ICONS.organizations },
+        {
+          to: `/campaigns/${id}/characters`,
+          label: t('layout.characters'),
+          icon: ICONS.characters,
+        },
+        {
+          to: `/campaigns/${id}/organizations`,
+          label: t('layout.organizations'),
+          icon: ICONS.organizations,
+        },
         { to: `/campaigns/${id}/locations`, label: t('layout.locations'), icon: ICONS.locations },
         { to: `/campaigns/${id}/maps`, label: t('layout.maps'), icon: ICONS.maps },
       ],
@@ -133,9 +161,21 @@ const campaignLinkGroups = computed(() => {
       links: [
         { to: `/campaigns/${id}/items`, label: t('layout.items'), icon: ICONS.items },
         { to: `/campaigns/${id}/shops`, label: t('layout.shops'), icon: ICONS.shops },
-        { to: `/campaigns/${id}/inventories`, label: t('layout.inventories'), icon: ICONS.inventories },
-        { to: `/campaigns/${id}/currencies`, label: t('layout.currencies'), icon: ICONS.currencies },
-        { to: `/campaigns/${id}/transactions`, label: t('layout.transactions'), icon: ICONS.transactions },
+        {
+          to: `/campaigns/${id}/inventories`,
+          label: t('layout.inventories'),
+          icon: ICONS.inventories,
+        },
+        {
+          to: `/campaigns/${id}/currencies`,
+          label: t('layout.currencies'),
+          icon: ICONS.currencies,
+        },
+        {
+          to: `/campaigns/${id}/transactions`,
+          label: t('layout.transactions'),
+          icon: ICONS.transactions,
+        },
       ],
     },
     {

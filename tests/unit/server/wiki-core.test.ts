@@ -42,9 +42,9 @@ describe('Entity Type Seeding', () => {
   it('creates all 9 built-in entity types for a campaign', () => {
     seedEntityTypes(testDb.db, 'camp-1')
 
-    const types = testDb.sqlite.prepare(
-      "SELECT * FROM entity_types WHERE campaign_id = 'camp-1' ORDER BY sort_order"
-    ).all() as any[]
+    const types = testDb.sqlite
+      .prepare("SELECT * FROM entity_types WHERE campaign_id = 'camp-1' ORDER BY sort_order")
+      .all() as any[]
 
     expect(types).toHaveLength(9)
     expect(types[0].slug).toBe('character')
@@ -56,9 +56,9 @@ describe('Entity Type Seeding', () => {
   it('all seeded types have is_builtin flag', () => {
     seedEntityTypes(testDb.db, 'camp-1')
 
-    const nonBuiltin = testDb.sqlite.prepare(
-      "SELECT * FROM entity_types WHERE campaign_id = 'camp-1' AND is_builtin = 0"
-    ).all()
+    const nonBuiltin = testDb.sqlite
+      .prepare("SELECT * FROM entity_types WHERE campaign_id = 'camp-1' AND is_builtin = 0")
+      .all()
 
     expect(nonBuiltin).toHaveLength(0)
   })
@@ -66,11 +66,11 @@ describe('Entity Type Seeding', () => {
   it('each type has a unique slug within the campaign', () => {
     seedEntityTypes(testDb.db, 'camp-1')
 
-    const types = testDb.sqlite.prepare(
-      "SELECT slug FROM entity_types WHERE campaign_id = 'camp-1'"
-    ).all() as { slug: string }[]
+    const types = testDb.sqlite
+      .prepare("SELECT slug FROM entity_types WHERE campaign_id = 'camp-1'")
+      .all() as { slug: string }[]
 
-    const slugs = types.map(t => t.slug)
+    const slugs = types.map((t) => t.slug)
     expect(new Set(slugs).size).toBe(slugs.length)
   })
 
@@ -83,12 +83,12 @@ describe('Entity Type Seeding', () => {
     seedEntityTypes(testDb.db, 'camp-1')
     seedEntityTypes(testDb.db, 'camp-2')
 
-    const camp1Types = testDb.sqlite.prepare(
-      "SELECT * FROM entity_types WHERE campaign_id = 'camp-1'"
-    ).all()
-    const camp2Types = testDb.sqlite.prepare(
-      "SELECT * FROM entity_types WHERE campaign_id = 'camp-2'"
-    ).all()
+    const camp1Types = testDb.sqlite
+      .prepare("SELECT * FROM entity_types WHERE campaign_id = 'camp-1'")
+      .all()
+    const camp2Types = testDb.sqlite
+      .prepare("SELECT * FROM entity_types WHERE campaign_id = 'camp-2'")
+      .all()
 
     expect(camp1Types).toHaveLength(9)
     expect(camp2Types).toHaveLength(9)

@@ -19,7 +19,9 @@
         <Button size="sm" :disabled="saving" @click="save">
           {{ saving ? '...' : $t('secrets.saveNotes') }}
         </Button>
-        <span v-if="saved" class="text-xs text-green-600 dark:text-green-400">{{ $t('secrets.notesSaved') }}</span>
+        <span v-if="saved" class="text-xs text-green-600 dark:text-green-400">{{
+          $t('secrets.notesSaved')
+        }}</span>
       </div>
     </div>
   </div>
@@ -49,25 +51,28 @@ async function load() {
       const data = await res.json()
       localContent.value = data.content ?? ''
     }
-  } catch { /* silently ignore */ }
+  } catch {
+    /* silently ignore */
+  }
 }
 
 async function save() {
   saving.value = true
   saved.value = false
   try {
-    await fetch(
-      `/api/campaigns/${props.campaignId}/entities/${props.entitySlug}/secret-notes`,
-      {
-        method: 'PUT',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: localContent.value }),
-      },
-    )
+    await fetch(`/api/campaigns/${props.campaignId}/entities/${props.entitySlug}/secret-notes`, {
+      method: 'PUT',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: localContent.value }),
+    })
     saved.value = true
-    setTimeout(() => { saved.value = false }, 3000)
-  } catch { /* silently ignore */ } finally {
+    setTimeout(() => {
+      saved.value = false
+    }, 3000)
+  } catch {
+    /* silently ignore */
+  } finally {
     saving.value = false
   }
 }
@@ -76,8 +81,11 @@ watch(open, (isOpen) => {
   if (isOpen && !localContent.value) load()
 })
 
-watch(() => props.entitySlug, () => {
-  localContent.value = ''
-  saved.value = false
-})
+watch(
+  () => props.entitySlug,
+  () => {
+    localContent.value = ''
+    saved.value = false
+  },
+)
 </script>

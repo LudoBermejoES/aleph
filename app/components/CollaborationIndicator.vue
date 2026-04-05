@@ -1,18 +1,17 @@
 <template>
-  <div class="flex items-center gap-2 px-3 py-1.5 text-xs text-muted-foreground border-b border-border bg-muted/30">
+  <div
+    class="flex items-center gap-2 px-3 py-1.5 text-xs text-muted-foreground border-b border-border bg-muted/30"
+  >
     <!-- Connection status dot -->
-    <span
-      class="w-2 h-2 rounded-full flex-shrink-0"
-      :class="statusClass"
-      :title="statusLabel"
-    />
+    <span class="w-2 h-2 rounded-full flex-shrink-0" :class="statusClass" :title="statusLabel" />
 
     <!-- Peer list -->
     <span v-if="peers.length === 0">{{ $t('collaboration.editingAlone') }}</span>
     <span v-else>
       {{ $t('collaboration.editingWith') }}
       <span v-for="(peer, i) in peers" :key="peer.clientId">
-        <span :style="{ color: peer.color }" class="font-medium">{{ peer.name }}</span><span v-if="i < peers.length - 1">, </span>
+        <span :style="{ color: peer.color }" class="font-medium">{{ peer.name }}</span
+        ><span v-if="i < peers.length - 1">, </span>
       </span>
     </span>
   </div>

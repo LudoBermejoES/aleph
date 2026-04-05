@@ -5,6 +5,7 @@
 Aleph's server layer already exposes full CRUD for quests, arcs, chapters, and entity templates. The frontend has partial coverage: quests have list + edit but no detail view; arcs/chapters and entity templates have no pages at all. Sessions reference arcs/chapters via foreign keys, and entities reference templates, but users cannot manage these resources from the browser.
 
 Existing patterns in the codebase:
+
 - Pages live under `app/pages/campaigns/[id]/` with `index.vue` (list), `new.vue`, `[slug]/index.vue` (detail), `[slug]/edit.vue`.
 - API calls go through `useCampaignApi()` composable.
 - Forms use dedicated `app/components/forms/` components.
@@ -29,6 +30,7 @@ Existing patterns in the codebase:
 ### Quest detail layout
 
 The detail page will show a card-style layout:
+
 - Header: quest name + status badge (reusing the same icon/color pattern from the list page).
 - Metadata row: parent quest (link), linked entity (link), secret badge.
 - Assigned characters: chip list with links to character detail.
@@ -43,12 +45,14 @@ This mirrors the pattern used by `characters/[slug]/index.vue` and `entities/[sl
 **Decision: standalone pages under `campaigns/[id]/arcs/`.**
 
 Rationale:
+
 - Arcs and chapters are their own domain objects, not sub-resources of sessions.
 - The session form already has arc/chapter pickers; adding a "Manage Arcs" link there provides the navigation bridge.
 - Standalone pages allow a clean list > detail > edit flow.
 - Chapters are managed inline within the arc detail page (no separate `/chapters/` route) since chapters are always scoped to an arc and the list is typically short.
 
 Routes:
+
 - `/campaigns/[id]/arcs/` -- list + create form
 - `/campaigns/[id]/arcs/[slug]/` -- detail with inline chapter management (add, edit, delete, reorder)
 
@@ -57,6 +61,7 @@ Routes:
 **Decision: simple up/down arrow buttons, not full drag-and-drop.**
 
 Rationale:
+
 - Template field lists are typically 5-15 items -- arrow buttons are perfectly usable at this scale.
 - Avoids adding a DnD library dependency (vuedraggable / @vueuse/integrations).
 - Keeps the implementation straightforward and testable.

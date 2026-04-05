@@ -16,6 +16,7 @@ Every feature in Aleph depends on knowing who the user is and what they're allow
 ## Scope
 
 ### In scope
+
 - Better Auth integration (credentials, sessions, CSRF)
 - User registration and login pages
 - Campaign CRUD (create, list, join, leave)
@@ -28,9 +29,11 @@ Every feature in Aleph depends on knowing who the user is and what they're allow
 - Invitation system (token-based links)
 
 ### Out of scope
+
 - 2FA (future enhancement)
 - OAuth providers (future enhancement)
 - Admin panel UI (future enhancement)
 
 ## Dependencies
+
 - 01-project-setup

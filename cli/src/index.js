@@ -37,12 +37,9 @@ const pkg = JSON.parse(readFileSync(join(__dirname, '../package.json'), 'utf8'))
 
 const program = new Command()
 
-program
-  .name('aleph')
-  .description('CLI for managing Aleph TTRPG campaigns')
-  .version(pkg.version)
-  // --no-color is handled automatically by chalk when NO_COLOR env var is set
-  // or when stdout is not a TTY. chalk also respects FORCE_COLOR.
+program.name('aleph').description('CLI for managing Aleph TTRPG campaigns').version(pkg.version)
+// --no-color is handled automatically by chalk when NO_COLOR env var is set
+// or when stdout is not a TTY. chalk also respects FORCE_COLOR.
 
 program.addCommand(makeConfigCommand())
 program.addCommand(makeLoginCommand())

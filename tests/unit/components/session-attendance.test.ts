@@ -45,8 +45,10 @@ describe('Attendance RSVP component logic (8.26)', () => {
       { id: '3', userName: 'Charlie', rsvpStatus: 'pending' },
     ]
     expect(attendance).toHaveLength(3)
-    expect(attendance.map(a => rsvpColor(a.rsvpStatus))).toEqual([
-      'bg-green-500', 'bg-red-500', 'bg-yellow-500',
+    expect(attendance.map((a) => rsvpColor(a.rsvpStatus))).toEqual([
+      'bg-green-500',
+      'bg-red-500',
+      'bg-yellow-500',
     ])
   })
 

@@ -11,6 +11,7 @@ Define the SQLite database schema for all metadata, relationships, permissions, 
 The system SHALL store user accounts and sessions in SQLite, managed by Better Auth with Drizzle ORM.
 
 #### Scenario: Core user tables
+
 - GIVEN the authentication system
 - WHEN the database is initialized
 - THEN the following tables exist:
@@ -25,6 +26,7 @@ The system SHALL store user accounts and sessions in SQLite, managed by Better A
 The system SHALL store campaigns, memberships, roles, and invitations.
 
 #### Scenario: Campaign tables
+
 - GIVEN the campaign management system
 - WHEN a campaign is created
 - THEN the following tables are used:
@@ -41,6 +43,7 @@ The system SHALL store campaigns, memberships, roles, and invitations.
 The system SHALL store entity metadata in SQLite while content lives in `.md` files. The schema supports polymorphic entities with customizable templates and fields.
 
 #### Scenario: Entity metadata tables
+
 - GIVEN the wiki/entity system
 - WHEN entities are created and managed
 - THEN the following tables are used:
@@ -55,6 +58,7 @@ The system SHALL store entity metadata in SQLite while content lives in `.md` fi
 - AND `field_type` is one of: 'text', 'number', 'checkbox', 'select', 'date', 'entity_reference', 'section'
 
 #### Scenario: Entity names and aliases for auto-linking
+
 - GIVEN the auto-linking engine
 - WHEN entities are created or renamed
 - THEN the following table is updated:
@@ -63,6 +67,7 @@ The system SHALL store entity metadata in SQLite while content lives in `.md` fi
 - AND a unique constraint exists on (entity_id, name_lower)
 
 #### Scenario: Entity relationships (bidirectional connections)
+
 - GIVEN the relationship graph feature
 - WHEN connections between entities are created
 - THEN the following table is used:
@@ -73,6 +78,7 @@ The system SHALL store entity metadata in SQLite while content lives in `.md` fi
 - AND `attitude` is an integer from -100 to +100
 
 #### Scenario: Specific user visibility
+
 - GIVEN an entity with 'specific_users' visibility
 - WHEN users are granted access
 - THEN the following table is used:
@@ -84,6 +90,7 @@ The system SHALL store entity metadata in SQLite while content lives in `.md` fi
 The system SHALL store map metadata, layers, pins, and groups for the interactive map system.
 
 #### Scenario: Map tables
+
 - GIVEN the map system
 - WHEN maps are created with pins and layers
 - THEN the following tables are used:
@@ -100,6 +107,7 @@ The system SHALL store map metadata, layers, pins, and groups for the interactiv
 The system SHALL store session scheduling, adventure logs, story structure, and decision tracking.
 
 #### Scenario: Session and story tables
+
 - GIVEN the campaign/session management system
 - WHEN sessions and story elements are managed
 - THEN the following tables are used:
@@ -120,6 +128,7 @@ The system SHALL store session scheduling, adventure logs, story structure, and 
 The system SHALL store custom calendar definitions and timeline events.
 
 #### Scenario: Calendar and timeline tables
+
 - GIVEN the calendar and timeline system
 - WHEN custom calendars and events are managed
 - THEN the following tables are used:
@@ -138,6 +147,7 @@ The system SHALL store custom calendar definitions and timeline events.
 The system SHALL store items, inventories, shops, currencies, and transactions.
 
 #### Scenario: Inventory and economy tables
+
 - GIVEN the inventory and economy system
 - WHEN items, shops, and transactions are managed
 - THEN the following tables are used:
@@ -158,6 +168,7 @@ The system SHALL store items, inventories, shops, currencies, and transactions.
 The system SHALL store entity-level permission overrides and the visibility resolution data.
 
 #### Scenario: Permission tables
+
 - GIVEN the RBAC system with entity-level overrides
 - WHEN permissions are configured
 - THEN the following table is used:
@@ -172,6 +183,7 @@ The system SHALL store entity-level permission overrides and the visibility reso
 The system SHALL maintain FTS5 virtual tables synchronized with `.md` file content for full-text search.
 
 #### Scenario: FTS5 search index
+
 - GIVEN the search system
 - WHEN the search index is created and maintained
 - THEN the following FTS5 virtual table exists:
@@ -192,6 +204,7 @@ The system SHALL maintain FTS5 virtual tables synchronized with `.md` file conte
 - AND the `snippet()` function provides highlighted search result excerpts
 
 #### Scenario: Entity name index for auto-linking
+
 - GIVEN the auto-linking engine
 - WHEN candidate documents need to be found for retroactive linking
 - THEN FTS5 is used to narrow candidates: `WHERE entities_fts MATCH '"entity name"'`

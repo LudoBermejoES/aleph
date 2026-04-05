@@ -1,6 +1,8 @@
 <template>
   <div data-testid="inventory-panel">
-    <div v-if="loading" class="text-xs text-muted-foreground">{{ $t('inventoryPanel.loading') }}</div>
+    <div v-if="loading" class="text-xs text-muted-foreground">
+      {{ $t('inventoryPanel.loading') }}
+    </div>
     <div v-else-if="inventory">
       <div class="flex items-center justify-between mb-3">
         <h3 class="font-semibold text-sm">{{ inventory.name }}</h3>
@@ -17,7 +19,9 @@
       <!-- Group items by position -->
       <div v-for="pos in positions" :key="pos.key" class="mb-3">
         <div v-if="itemsByPosition[pos.key]?.length">
-          <div class="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">{{ pos.label }}</div>
+          <div class="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">
+            {{ pos.label }}
+          </div>
           <div class="space-y-1">
             <div
               v-for="it in itemsByPosition[pos.key]"
@@ -27,7 +31,9 @@
             >
               <div class="flex items-center gap-2">
                 <span class="font-medium">{{ it.itemName }}</span>
-                <span :class="['text-xs px-1.5 py-0.5 rounded', rarityColor(it.itemRarity)]">{{ it.itemRarity }}</span>
+                <span :class="['text-xs px-1.5 py-0.5 rounded', rarityColor(it.itemRarity)]">{{
+                  it.itemRarity
+                }}</span>
               </div>
               <span class="text-muted-foreground text-xs">×{{ it.quantity }}</span>
             </div>
@@ -35,7 +41,12 @@
         </div>
       </div>
 
-      <EmptyState v-if="!inventory.items?.length" icon="🎒" :title="$t('inventoryPanel.emptyInventory')" :description="$t('inventories.noItems')" />
+      <EmptyState
+        v-if="!inventory.items?.length"
+        icon="🎒"
+        :title="$t('inventoryPanel.emptyInventory')"
+        :description="$t('inventories.noItems')"
+      />
     </div>
     <p v-else class="text-sm text-muted-foreground">{{ $t('inventoryPanel.noInventory') }}</p>
 
@@ -94,7 +105,10 @@ function rarityColor(r: string) {
 async function load() {
   loading.value = true
   try {
-    const all = await useCampaignApi(props.campaignId).getInventories({ owner_id: props.ownerId, owner_type: props.ownerType })
+    const all = await useCampaignApi(props.campaignId).getInventories({
+      owner_id: props.ownerId,
+      owner_type: props.ownerType,
+    })
     inventory.value = all[0] || null
   } catch {
     inventory.value = null

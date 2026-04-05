@@ -90,14 +90,14 @@ Push to `master` triggers `.github/workflows/deploy.yml`:
 
 ### Required GitHub Secrets
 
-| Secret | Description |
-|--------|-------------|
-| `SSH_HOST` | Server hostname or IP |
-| `SSH_USERNAME` | SSH user |
-| `SSH_KEY` | Private SSH key |
-| `SSH_PORT` | SSH port (usually 22) |
-| `BETTER_AUTH_SECRET` | Auth session secret |
-| `BETTER_AUTH_URL` | `https://aleph.ludobermejo.es` |
+| Secret               | Description                    |
+| -------------------- | ------------------------------ |
+| `SSH_HOST`           | Server hostname or IP          |
+| `SSH_USERNAME`       | SSH user                       |
+| `SSH_KEY`            | Private SSH key                |
+| `SSH_PORT`           | SSH port (usually 22)          |
+| `BETTER_AUTH_SECRET` | Auth session secret            |
+| `BETTER_AUTH_URL`    | `https://aleph.ludobermejo.es` |
 
 ## Troubleshooting
 

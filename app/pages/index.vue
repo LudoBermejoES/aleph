@@ -20,13 +20,23 @@
               <Input id="name" v-model="newCampaign.name" placeholder="Curse of Strahd" required />
             </div>
             <div class="space-y-2">
-              <label for="description" class="text-sm font-medium">{{ $t('campaigns.description') }}</label>
-              <Input id="description" v-model="newCampaign.description" placeholder="Gothic horror in Barovia..." />
+              <label for="description" class="text-sm font-medium">{{
+                $t('campaigns.description')
+              }}</label>
+              <Input
+                id="description"
+                v-model="newCampaign.description"
+                placeholder="Gothic horror in Barovia..."
+              />
             </div>
             <ThemePicker v-model="newCampaign.theme" />
             <div class="flex justify-end gap-2">
-              <Button type="button" variant="outline" @click="showCreateDialog = false">{{ $t('common.cancel') }}</Button>
-              <Button type="submit" :disabled="creating">{{ creating ? $t('campaigns.creating') : $t('common.create') }}</Button>
+              <Button type="button" variant="outline" @click="showCreateDialog = false">{{
+                $t('common.cancel')
+              }}</Button>
+              <Button type="submit" :disabled="creating">{{
+                creating ? $t('campaigns.creating') : $t('common.create')
+              }}</Button>
             </div>
           </form>
         </DialogContent>
@@ -39,9 +49,13 @@
           <CardHeader>
             <div class="flex items-center justify-between">
               <CardTitle class="text-lg">{{ campaign.name }}</CardTitle>
-              <span class="text-xs px-2 py-1 rounded bg-secondary text-secondary-foreground">{{ campaign.role }}</span>
+              <span class="text-xs px-2 py-1 rounded bg-secondary text-secondary-foreground">{{
+                campaign.role
+              }}</span>
             </div>
-            <CardDescription v-if="campaign.description">{{ campaign.description }}</CardDescription>
+            <CardDescription v-if="campaign.description">{{
+              campaign.description
+            }}</CardDescription>
           </CardHeader>
         </Card>
       </NuxtLink>
@@ -54,7 +68,6 @@
 </template>
 
 <script setup lang="ts">
-
 const { t } = useI18n()
 const campaigns = ref<any[]>([])
 const loading = ref(true)
@@ -77,7 +90,11 @@ async function createCampaign() {
   console.log('[Aleph] createCampaign called, name:', newCampaign.name)
   creating.value = true
   try {
-    const result = await createCampaignEntry({ name: newCampaign.name, description: newCampaign.description, theme: newCampaign.theme })
+    const result = await createCampaignEntry({
+      name: newCampaign.name,
+      description: newCampaign.description,
+      theme: newCampaign.theme,
+    })
     console.log('[Aleph] Campaign created:', result.id, result.slug)
     showCreateDialog.value = false
     newCampaign.name = ''

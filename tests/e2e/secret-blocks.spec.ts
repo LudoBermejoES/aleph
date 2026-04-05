@@ -17,20 +17,27 @@ test.describe('Secret Content Blocks', () => {
     await apiFetch(dmPage, `/api/campaigns/${campaignId}/entities`, {
       method: 'POST',
       body: {
-        name: entityName, type: 'note',
-        content: '# Public Info\n\nEveryone sees this.\n\n:::secret{.dm}\nOnly the DM sees this secret.\n:::\n\nMore public text.',
+        name: entityName,
+        type: 'note',
+        content:
+          '# Public Info\n\nEveryone sees this.\n\n:::secret{.dm}\nOnly the DM sees this secret.\n:::\n\nMore public text.',
         visibility: 'members',
       },
     })
 
     // DM reads entity -- should see the secret block in raw content
-    const dmRead = await dmPage.evaluate(async ([id]) => {
-      const entities = await fetch(`/api/campaigns/${id}/entities`).then(r => r.json())
-      const entity = entities.entities[0]
-      if (!entity) return { content: '' }
-      const detail = await fetch(`/api/campaigns/${id}/entities/${entity.slug}`).then(r => r.json())
-      return { content: detail.content }
-    }, [campaignId])
+    const dmRead = await dmPage.evaluate(
+      async ([id]) => {
+        const entities = await fetch(`/api/campaigns/${id}/entities`).then((r) => r.json())
+        const entity = entities.entities[0]
+        if (!entity) return { content: '' }
+        const detail = await fetch(`/api/campaigns/${id}/entities/${entity.slug}`).then((r) =>
+          r.json(),
+        )
+        return { content: detail.content }
+      },
+      [campaignId],
+    )
 
     expect((dmRead as any).content).toContain('secret')
     expect((dmRead as any).content).toContain('Public Info')
@@ -53,13 +60,18 @@ test.describe('Secret Content Blocks', () => {
 
     // Player reads entity -- raw .md file still has secret block
     // (secret stripping happens at render time, not storage)
-    const playerRead = await playerPage.evaluate(async ([id]) => {
-      const entities = await fetch(`/api/campaigns/${id}/entities`).then(r => r.json())
-      const entity = entities.entities[0]
-      if (!entity) return { content: '' }
-      const detail = await fetch(`/api/campaigns/${id}/entities/${entity.slug}`).then(r => r.json())
-      return { content: detail.content }
-    }, [campaignId])
+    const playerRead = await playerPage.evaluate(
+      async ([id]) => {
+        const entities = await fetch(`/api/campaigns/${id}/entities`).then((r) => r.json())
+        const entity = entities.entities[0]
+        if (!entity) return { content: '' }
+        const detail = await fetch(`/api/campaigns/${id}/entities/${entity.slug}`).then((r) =>
+          r.json(),
+        )
+        return { content: detail.content }
+      },
+      [campaignId],
+    )
 
     // Player can see the raw content (secret filtering is render-time via remark plugin)
     expect((playerRead as any).content).toContain('Public Info')

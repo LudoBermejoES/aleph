@@ -40,7 +40,9 @@ test.describe('Items & Shops', () => {
 
   // --- 9.25: Full purchase flow (API-driven E2E) ---
 
-  test('full purchase flow: grant wealth → stock shop → buy → verify inventory (9.25)', async ({ page }) => {
+  test('full purchase flow: grant wealth → stock shop → buy → verify inventory (9.25)', async ({
+    page,
+  }) => {
     await registerAndLogin(page, 'Buyer User')
     await createCampaign(page, `Purchase Flow ${uid()}`)
 
@@ -51,44 +53,66 @@ test.describe('Items & Shops', () => {
       const csrfHeader = { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf }
 
       const cur = await fetch(`/api/campaigns/${id}/currencies`, {
-        method: 'POST', headers: csrfHeader,
+        method: 'POST',
+        headers: csrfHeader,
         body: JSON.stringify({ name: 'Gold', symbol: 'gp', valueInBase: 100, sortOrder: 0 }),
-      }).then(r => r.json())
+      }).then((r) => r.json())
 
       const item = await fetch(`/api/campaigns/${id}/items`, {
-        method: 'POST', headers: csrfHeader,
+        method: 'POST',
+        headers: csrfHeader,
         body: JSON.stringify({ name: 'Health Potion', rarity: 'common', stackable: true }),
-      }).then(r => r.json())
+      }).then((r) => r.json())
 
       const shop = await fetch(`/api/campaigns/${id}/shops`, {
-        method: 'POST', headers: csrfHeader,
+        method: 'POST',
+        headers: csrfHeader,
         body: JSON.stringify({ name: 'E2E Shop' }),
-      }).then(r => r.json())
+      }).then((r) => r.json())
 
-      const shops = await fetch(`/api/campaigns/${id}/shops`).then(r => r.json())
+      const shops = await fetch(`/api/campaigns/${id}/shops`).then((r) => r.json())
       const shopSlug = shops.find((s: any) => s.id === shop.id)?.slug
 
       const stock = await fetch(`/api/campaigns/${id}/shops/${shopSlug}/stock`, {
-        method: 'POST', headers: csrfHeader,
+        method: 'POST',
+        headers: csrfHeader,
         body: JSON.stringify({ itemId: item.id, quantity: 10, price: { gold: 1 } }),
-      }).then(r => r.json())
+      }).then((r) => r.json())
 
       const inv = await fetch(`/api/campaigns/${id}/inventories`, {
-        method: 'POST', headers: csrfHeader,
+        method: 'POST',
+        headers: csrfHeader,
         body: JSON.stringify({ name: 'Buyer', ownerType: 'character', ownerId: 'e2e-buyer-1' }),
-      }).then(r => r.json())
+      }).then((r) => r.json())
 
       await fetch(`/api/campaigns/${id}/transactions`, {
-        method: 'POST', headers: csrfHeader,
-        body: JSON.stringify({ type: 'grant', toOwnerId: 'e2e-buyer-1', toOwnerType: 'character', amounts: { [cur.id]: 100 } }),
+        method: 'POST',
+        headers: csrfHeader,
+        body: JSON.stringify({
+          type: 'grant',
+          toOwnerId: 'e2e-buyer-1',
+          toOwnerType: 'character',
+          amounts: { [cur.id]: 100 },
+        }),
       })
 
       const buyRes = await fetch(`/api/campaigns/${id}/shops/${shopSlug}/buy`, {
-        method: 'POST', headers: csrfHeader,
-        body: JSON.stringify({ stockId: stock.id, buyerInventoryId: inv.id, buyerOwnerId: 'e2e-buyer-1', buyerOwnerType: 'character', quantity: 1, currencyId: cur.id, price: 0 }),
-      }).then(r => r.json())
+        method: 'POST',
+        headers: csrfHeader,
+        body: JSON.stringify({
+          stockId: stock.id,
+          buyerInventoryId: inv.id,
+          buyerOwnerId: 'e2e-buyer-1',
+          buyerOwnerType: 'character',
+          quantity: 1,
+          currencyId: cur.id,
+          price: 0,
+        }),
+      }).then((r) => r.json())
 
-      const inventories = await fetch(`/api/campaigns/${id}/inventories?owner_id=e2e-buyer-1&owner_type=character`).then(r => r.json())
+      const inventories = await fetch(
+        `/api/campaigns/${id}/inventories?owner_id=e2e-buyer-1&owner_type=character`,
+      ).then((r) => r.json())
       const hasItem = inventories[0]?.items?.some((i: any) => i.itemId === item.id)
 
       return { buySuccess: buyRes.success, hasItem }

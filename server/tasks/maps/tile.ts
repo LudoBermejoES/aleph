@@ -21,10 +21,7 @@ export default defineTask({
     const result = await generateTiles(imagePath, outputDir)
 
     const db = useDb()
-    db.update(maps)
-      .set({ isTiled: true, updatedAt: new Date() })
-      .where(eq(maps.id, mapId))
-      .run()
+    db.update(maps).set({ isTiled: true, updatedAt: new Date() }).where(eq(maps.id, mapId)).run()
 
     logger.info('Tiling complete', { mapId, levels: result.levels, tileCount: result.tileCount })
 

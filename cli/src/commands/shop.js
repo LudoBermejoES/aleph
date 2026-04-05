@@ -13,7 +13,9 @@ export function makeShopCommand() {
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
       const data = await get(`/api/campaigns/${opts.campaign}/shops`)
-      print(opts.json ? data : data.map(s => ({ name: s.name, slug: s.slug })), { json: opts.json })
+      print(opts.json ? data : data.map((s) => ({ name: s.name, slug: s.slug })), {
+        json: opts.json,
+      })
     })
 
   cmd
@@ -35,8 +37,15 @@ export function makeShopCommand() {
     .option('--description <desc>', 'Shop description')
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
-      const data = await post(`/api/campaigns/${opts.campaign}/shops`, { name: opts.name, description: opts.description })
-      if (opts.json) { print(data, { json: true }) } else { success(`Shop created: ${data.name} (${data.slug})`) }
+      const data = await post(`/api/campaigns/${opts.campaign}/shops`, {
+        name: opts.name,
+        description: opts.description,
+      })
+      if (opts.json) {
+        print(data, { json: true })
+      } else {
+        success(`Shop created: ${data.name} (${data.slug})`)
+      }
     })
 
   cmd
@@ -62,8 +71,14 @@ export function makeShopCommand() {
     .option('--yes', 'Skip confirmation')
     .action(async (opts) => {
       if (!opts.yes) {
-        const ok = await confirm({ message: `Delete shop "${opts.slug}"? This cannot be undone.`, default: false })
-        if (!ok) { process.stdout.write('Cancelled.\n'); return }
+        const ok = await confirm({
+          message: `Delete shop "${opts.slug}"? This cannot be undone.`,
+          default: false,
+        })
+        if (!ok) {
+          process.stdout.write('Cancelled.\n')
+          return
+        }
       }
       await del(`/api/campaigns/${opts.campaign}/shops/${opts.slug}`)
       success(`Shop ${opts.slug} deleted.`)
@@ -80,9 +95,15 @@ export function makeShopCommand() {
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
       const data = await post(`/api/campaigns/${opts.campaign}/shops/${opts.slug}/stock`, {
-        itemId: opts.item, quantity: opts.quantity, isAvailable: !opts.unavailable,
+        itemId: opts.item,
+        quantity: opts.quantity,
+        isAvailable: !opts.unavailable,
       })
-      if (opts.json) { print(data, { json: true }) } else { success('Stock added.') }
+      if (opts.json) {
+        print(data, { json: true })
+      } else {
+        success('Stock added.')
+      }
     })
 
   cmd
@@ -112,8 +133,14 @@ export function makeShopCommand() {
     .option('--yes', 'Skip confirmation')
     .action(async (opts) => {
       if (!opts.yes) {
-        const ok = await confirm({ message: `Remove stock entry ${opts.stockId}? This cannot be undone.`, default: false })
-        if (!ok) { process.stdout.write('Cancelled.\n'); return }
+        const ok = await confirm({
+          message: `Remove stock entry ${opts.stockId}? This cannot be undone.`,
+          default: false,
+        })
+        if (!ok) {
+          process.stdout.write('Cancelled.\n')
+          return
+        }
       }
       await del(`/api/campaigns/${opts.campaign}/shops/${opts.slug}/stock/${opts.stockId}`)
       success(`Stock entry ${opts.stockId} removed.`)
@@ -130,9 +157,15 @@ export function makeShopCommand() {
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
       const data = await post(`/api/campaigns/${opts.campaign}/shops/${opts.slug}/buy`, {
-        itemId: opts.item, quantity: opts.quantity, buyerInventoryId: opts.buyer,
+        itemId: opts.item,
+        quantity: opts.quantity,
+        buyerInventoryId: opts.buyer,
       })
-      if (opts.json) { print(data, { json: true }) } else { success('Purchase complete.') }
+      if (opts.json) {
+        print(data, { json: true })
+      } else {
+        success('Purchase complete.')
+      }
     })
 
   cmd
@@ -146,9 +179,15 @@ export function makeShopCommand() {
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
       const data = await post(`/api/campaigns/${opts.campaign}/shops/${opts.slug}/sell`, {
-        itemId: opts.item, quantity: opts.quantity, sellerInventoryId: opts.seller,
+        itemId: opts.item,
+        quantity: opts.quantity,
+        sellerInventoryId: opts.seller,
       })
-      if (opts.json) { print(data, { json: true }) } else { success('Sale complete.') }
+      if (opts.json) {
+        print(data, { json: true })
+      } else {
+        success('Sale complete.')
+      }
     })
 
   cmd
@@ -170,8 +209,14 @@ export function makeShopCommand() {
     .requiredOption('--amounts <json>', 'Amounts as JSON (e.g. \'{"gp":10}\')')
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
-      const data = await post(`/api/campaigns/${opts.campaign}/shops/${opts.slug}/withdraw`, { amounts: JSON.parse(opts.amounts) })
-      if (opts.json) { print(data, { json: true }) } else { success('Withdrawal complete.') }
+      const data = await post(`/api/campaigns/${opts.campaign}/shops/${opts.slug}/withdraw`, {
+        amounts: JSON.parse(opts.amounts),
+      })
+      if (opts.json) {
+        print(data, { json: true })
+      } else {
+        success('Withdrawal complete.')
+      }
     })
 
   return cmd

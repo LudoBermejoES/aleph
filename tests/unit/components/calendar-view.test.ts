@@ -57,7 +57,7 @@ describe('CalendarView component logic (9.12)', () => {
       phases.push(getMoonPhase({ year: 1400, month: 1, day }, moon, config))
     }
     // All phases should be between 0 and 1
-    expect(phases.every(p => p >= 0 && p < 1)).toBe(true)
+    expect(phases.every((p) => p >= 0 && p < 1)).toBe(true)
     // Phases should change across the month
     expect(new Set(phases).size).toBeGreaterThan(1)
   })
@@ -74,7 +74,7 @@ describe('CalendarView component logic (9.12)', () => {
       { name: 'Festival', date: { year: 1400, month: 3, day: 25 } },
     ]
     const currentMonth = 3
-    const eventsThisMonth = events.filter(e => e.date.month === currentMonth)
+    const eventsThisMonth = events.filter((e) => e.date.month === currentMonth)
     expect(eventsThisMonth).toHaveLength(2)
 
     // Map events to day cells
@@ -96,7 +96,10 @@ describe('Month/year navigation logic (9.13)', () => {
     let month = 6
     let year = 1400
     month++
-    if (month > config.months.length) { month = 1; year++ }
+    if (month > config.months.length) {
+      month = 1
+      year++
+    }
     expect(month).toBe(7)
     expect(year).toBe(1400)
   })
@@ -105,7 +108,10 @@ describe('Month/year navigation logic (9.13)', () => {
     let month = 12
     let year = 1400
     month++
-    if (month > config.months.length) { month = 1; year++ }
+    if (month > config.months.length) {
+      month = 1
+      year++
+    }
     expect(month).toBe(1)
     expect(year).toBe(1401)
   })
@@ -114,7 +120,10 @@ describe('Month/year navigation logic (9.13)', () => {
     let month = 6
     let year = 1400
     month--
-    if (month < 1) { month = config.months.length; year-- }
+    if (month < 1) {
+      month = config.months.length
+      year--
+    }
     expect(month).toBe(5)
     expect(year).toBe(1400)
   })
@@ -123,7 +132,10 @@ describe('Month/year navigation logic (9.13)', () => {
     let month = 1
     let year = 1400
     month--
-    if (month < 1) { month = config.months.length; year-- }
+    if (month < 1) {
+      month = config.months.length
+      year--
+    }
     expect(month).toBe(12)
     expect(year).toBe(1399)
   })

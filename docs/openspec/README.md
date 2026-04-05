@@ -7,6 +7,7 @@ Documentación de referencia para trabajar con OpenSpec en el proyecto Aleph.
 OpenSpec es un framework de **Spec-Driven Development (SDD)** para asistentes de IA (Claude Code, Cursor, Copilot, etc.). Resuelve el problema de que la IA actúe sobre instrucciones vagas que viven solo en el historial de chat.
 
 Su filosofía:
+
 ```
 → fluid not rigid       (no hay fases obligatorias)
 → iterative not waterfall
@@ -16,13 +17,13 @@ Su filosofía:
 
 ## Documentación
 
-| Documento | Descripción |
-|-----------|-------------|
-| [01_conceptos.md](01_conceptos.md) | Conceptos core: specs, changes, artifacts, delta specs |
-| [02_flujo_de_trabajo.md](02_flujo_de_trabajo.md) | Flujos de trabajo y cuándo usar cada comando |
-| [03_comandos.md](03_comandos.md) | Referencia completa de comandos slash `/opsx:*` |
-| [04_cli.md](04_cli.md) | Referencia del CLI (`openspec` en terminal) |
-| [05_configuracion.md](05_configuracion.md) | Configuración del proyecto y schemas personalizados |
+| Documento                                        | Descripción                                            |
+| ------------------------------------------------ | ------------------------------------------------------ |
+| [01_conceptos.md](01_conceptos.md)               | Conceptos core: specs, changes, artifacts, delta specs |
+| [02_flujo_de_trabajo.md](02_flujo_de_trabajo.md) | Flujos de trabajo y cuándo usar cada comando           |
+| [03_comandos.md](03_comandos.md)                 | Referencia completa de comandos slash `/opsx:*`        |
+| [04_cli.md](04_cli.md)                           | Referencia del CLI (`openspec` en terminal)            |
+| [05_configuracion.md](05_configuracion.md)       | Configuración del proyecto y schemas personalizados    |
 
 ## Quickstart
 
@@ -36,6 +37,7 @@ openspec init --tools claude
 ```
 
 Luego en Claude Code:
+
 ```
 /opsx:propose <nombre-del-cambio>
 ```
@@ -47,6 +49,7 @@ Luego en Claude Code:
 ```
 
 O con más control:
+
 ```
 /opsx:explore ──► /opsx:new ──► /opsx:ff ──► /opsx:apply ──► /opsx:verify ──► /opsx:archive
 ```

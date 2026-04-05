@@ -20,7 +20,12 @@ describe('useEditorState', () => {
 
   it('updateEditorState reflects active marks', () => {
     const { editorState, updateEditorState } = useEditorState()
-    const mockEditor = makeMockEditor({ bold: true, italic: false, heading1: true, bulletList: true })
+    const mockEditor = makeMockEditor({
+      bold: true,
+      italic: false,
+      heading1: true,
+      bulletList: true,
+    })
     updateEditorState(mockEditor)
     expect(editorState.isBold).toBe(true)
     expect(editorState.isItalic).toBe(false)
@@ -32,17 +37,35 @@ describe('useEditorState', () => {
   it('updateEditorState updates all 13 fields', () => {
     const { editorState, updateEditorState } = useEditorState()
     const all = makeMockEditor({
-      bold: true, italic: true, strike: true, code: true,
-      heading1: true, heading2: true, heading3: true,
-      bulletList: true, orderedList: true, taskList: true,
-      blockquote: true, codeBlock: true, link: true,
+      bold: true,
+      italic: true,
+      strike: true,
+      code: true,
+      heading1: true,
+      heading2: true,
+      heading3: true,
+      bulletList: true,
+      orderedList: true,
+      taskList: true,
+      blockquote: true,
+      codeBlock: true,
+      link: true,
     })
     updateEditorState(all)
     const keys: (keyof typeof editorState)[] = [
-      'isBold', 'isItalic', 'isStrike', 'isCode',
-      'isH1', 'isH2', 'isH3',
-      'isBulletList', 'isOrderedList', 'isTaskList',
-      'isBlockquote', 'isCodeBlock', 'isLink',
+      'isBold',
+      'isItalic',
+      'isStrike',
+      'isCode',
+      'isH1',
+      'isH2',
+      'isH3',
+      'isBulletList',
+      'isOrderedList',
+      'isTaskList',
+      'isBlockquote',
+      'isCodeBlock',
+      'isLink',
     ]
     for (const key of keys) {
       expect(editorState[key], `${key} should be true`).toBe(true)

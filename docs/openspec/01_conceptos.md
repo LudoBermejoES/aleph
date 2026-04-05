@@ -38,20 +38,24 @@ Organiza por dominio: `characters/`, `sessions/`, `inventory/`, `api/`, etc.
 # Especificación: Inventarios
 
 ## Purpose
+
 Gestión de inventarios de personajes y facciones, incluyendo ítems, riqueza y transacciones.
 
 ## Requirements
 
 ### Requirement: Creación de Inventario
+
 El sistema DEBE permitir crear inventarios asociados a un personaje o facción de campaña.
 
 #### Scenario: Inventario válido
+
 - GIVEN una campaña activa con un personaje existente
 - WHEN se crea un Inventory con nombre y owner válidos
 - THEN el inventario queda asociado al personaje
 - AND aparece en la lista de inventarios de la campaña
 
 #### Scenario: Propietario inexistente
+
 - GIVEN una campaña activa
 - WHEN se intenta crear un inventario con un ownerId que no existe
 - THEN se devuelve un error 404
@@ -60,21 +64,23 @@ El sistema DEBE permitir crear inventarios asociados a un personaje o facción d
 
 ### Palabras clave RFC 2119
 
-| Keyword | Significado |
-|---------|-------------|
-| MUST / SHALL | Requisito absoluto |
-| SHOULD | Recomendado, pero con excepciones válidas |
-| MAY | Opcional |
+| Keyword      | Significado                               |
+| ------------ | ----------------------------------------- |
+| MUST / SHALL | Requisito absoluto                        |
+| SHOULD       | Recomendado, pero con excepciones válidas |
+| MAY          | Opcional                                  |
 
 ### Qué va en un spec (y qué NO)
 
 **Sí:**
+
 - Comportamiento observable por usuarios o sistemas externos
 - Inputs, outputs y condiciones de error
 - Restricciones externas (seguridad, normativa)
 - Escenarios testeables
 
 **No:**
+
 - Nombres de clases/métodos internos
 - Elecciones de librerías o frameworks
 - Planes de implementación paso a paso (eso va en `design.md` o `tasks.md`)
@@ -109,12 +115,12 @@ openspec/changes/frontend-data-layer/
 
 Cada artifact dentro de un change sirve un propósito:
 
-| Artifact | Archivo | Propósito |
-|----------|---------|-----------|
-| proposal | `proposal.md` | El **por qué** y el **qué** — intención, alcance, enfoque |
-| specs | `specs/<dominio>/spec.md` | Delta specs — qué requisitos AÑADIR/MODIFICAR/ELIMINAR |
-| design | `design.md` | El **cómo** — decisiones técnicas y arquitectura |
-| tasks | `tasks.md` | Checklist de implementación con checkboxes |
+| Artifact | Archivo                   | Propósito                                                 |
+| -------- | ------------------------- | --------------------------------------------------------- |
+| proposal | `proposal.md`             | El **por qué** y el **qué** — intención, alcance, enfoque |
+| specs    | `specs/<dominio>/spec.md` | Delta specs — qué requisitos AÑADIR/MODIFICAR/ELIMINAR    |
+| design   | `design.md`               | El **cómo** — decisiones técnicas y arquitectura          |
+| tasks    | `tasks.md`                | Checklist de implementación con checkboxes                |
 
 Los artifacts tienen dependencias entre sí:
 
@@ -145,9 +151,11 @@ Los delta specs son el concepto clave para proyectos brownfield (código existen
 ## ADDED Requirements
 
 ### Requirement: Composable tipado para API de campaña
+
 El frontend DEBE acceder a todos los endpoints de campaña a través de `useCampaignApi(campaignId)`.
 
 #### Scenario: Llamada con tipo correcto
+
 - GIVEN una página de campaña con campaignId válido
 - WHEN se llama a `api.getCharacters()`
 - THEN se devuelve un array tipado de `Character[]`
@@ -156,10 +164,12 @@ El frontend DEBE acceder a todos los endpoints de campaña a través de `useCamp
 ## MODIFIED Requirements
 
 ### Requirement: Acceso a la API de entidades
+
 El composable DEBE devolver `EntityListResult` (con paginación) en vez de `Entity[]`.
 (Anterior: `getEntities()` devolvía `Entity[]` sin paginación)
 
 #### Scenario: Búsqueda paginada
+
 - GIVEN una búsqueda de entidades con parámetros de filtro
 - WHEN se llama a `api.getEntities({ search, limit })`
 - THEN se devuelve `{ entities: Entity[], pagination: { page, limit, total, totalPages } }`
@@ -167,16 +177,17 @@ El composable DEBE devolver `EntityListResult` (con paginación) en vez de `Enti
 ## REMOVED Requirements
 
 ### Requirement: Inline $fetch en páginas y componentes
+
 (Reemplazado por el composable `useCampaignApi`)
 ```
 
 ### Qué pasa al archivar
 
-| Sección | Resultado |
-|---------|-----------|
-| `## ADDED Requirements` | Se añade al spec principal |
+| Sección                    | Resultado                        |
+| -------------------------- | -------------------------------- |
+| `## ADDED Requirements`    | Se añade al spec principal       |
 | `## MODIFIED Requirements` | Reemplaza el requisito existente |
-| `## REMOVED Requirements` | Se elimina del spec principal |
+| `## REMOVED Requirements`  | Se elimina del spec principal    |
 
 ---
 
@@ -231,15 +242,15 @@ Puedes crear schemas personalizados. Ver [05_configuracion.md](05_configuracion.
 
 ## Glosario
 
-| Término | Definición |
-|---------|------------|
-| **Artifact** | Documento dentro de un change (proposal, design, tasks, delta specs) |
-| **Archive** | Proceso de completar un change y fusionar sus deltas en los specs principales |
-| **Change** | Modificación propuesta, empaquetada como carpeta con artifacts |
-| **Delta spec** | Spec que describe cambios (ADDED/MODIFIED/REMOVED) respecto a los specs actuales |
-| **Domain** | Agrupación lógica de specs (ej: `documentos/`, `facturacion/`) |
-| **Requirement** | Comportamiento específico que el sistema debe tener |
-| **Scenario** | Ejemplo concreto de un requisito (Given/When/Then) |
-| **Schema** | Definición de tipos de artifacts y sus dependencias |
-| **Spec** | Especificación que describe comportamiento del sistema |
-| **Source of truth** | Directorio `openspec/specs/` con el comportamiento acordado actualmente |
+| Término             | Definición                                                                       |
+| ------------------- | -------------------------------------------------------------------------------- |
+| **Artifact**        | Documento dentro de un change (proposal, design, tasks, delta specs)             |
+| **Archive**         | Proceso de completar un change y fusionar sus deltas en los specs principales    |
+| **Change**          | Modificación propuesta, empaquetada como carpeta con artifacts                   |
+| **Delta spec**      | Spec que describe cambios (ADDED/MODIFIED/REMOVED) respecto a los specs actuales |
+| **Domain**          | Agrupación lógica de specs (ej: `documentos/`, `facturacion/`)                   |
+| **Requirement**     | Comportamiento específico que el sistema debe tener                              |
+| **Scenario**        | Ejemplo concreto de un requisito (Given/When/Then)                               |
+| **Schema**          | Definición de tipos de artifacts y sus dependencias                              |
+| **Spec**            | Especificación que describe comportamiento del sistema                           |
+| **Source of truth** | Directorio `openspec/specs/` con el comportamiento acordado actualmente          |

@@ -1,9 +1,13 @@
 <template>
   <div class="p-8">
     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary"> {{ $t('common.campaign') }}</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">
+        {{ $t('common.campaign') }}</NuxtLink
+      >
       <span>/</span>
-      <NuxtLink :to="`/campaigns/${campaignId}/sessions`" class="hover:text-primary">{{ $t('sessions.title') }}</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}/sessions`" class="hover:text-primary">{{
+        $t('sessions.title')
+      }}</NuxtLink>
       <span>/</span>
       <span>{{ $t('sessionGroups.title') }}</span>
     </div>
@@ -16,56 +20,99 @@
     <LoadingSkeleton v-if="loading" :rows="3" />
 
     <div v-if="!loading && groups.length" class="space-y-3">
-      <div v-for="group in groups" :key="group.id"
-        class="flex items-center gap-4 p-4 rounded-lg border border-border">
+      <div
+        v-for="group in groups"
+        :key="group.id"
+        class="flex items-center gap-4 p-4 rounded-lg border border-border"
+      >
         <!-- Image upload area -->
-        <div class="relative flex-shrink-0 cursor-pointer group/img" @click="triggerImageUpload(group)">
-          <img v-if="group.imageUrl" :src="group.imageUrl" :alt="group.name"
-            class="w-16 h-16 rounded-lg object-cover" />
-          <div v-else class="w-16 h-16 rounded-lg bg-secondary flex items-center justify-center text-muted-foreground">
+        <div
+          class="relative flex-shrink-0 cursor-pointer group/img"
+          @click="triggerImageUpload(group)"
+        >
+          <img
+            v-if="group.imageUrl"
+            :src="group.imageUrl"
+            :alt="group.name"
+            class="w-16 h-16 rounded-lg object-cover"
+          />
+          <div
+            v-else
+            class="w-16 h-16 rounded-lg bg-secondary flex items-center justify-center text-muted-foreground"
+          >
             <component :is="ICONS.image" class="w-6 h-6" />
           </div>
-          <div class="absolute inset-0 rounded-lg bg-black/40 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity">
+          <div
+            class="absolute inset-0 rounded-lg bg-black/40 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity"
+          >
             <component :is="ICONS.upload" class="w-4 h-4 text-white" />
           </div>
         </div>
-        <input ref="imageInputRefs" type="file" accept="image/png,image/jpeg,image/webp" class="hidden"
-          @change="(e) => handleImageUpload(e, group)" />
+        <input
+          ref="imageInputRefs"
+          type="file"
+          accept="image/png,image/jpeg,image/webp"
+          class="hidden"
+          @change="(e) => handleImageUpload(e, group)"
+        />
 
         <!-- Group info -->
         <div class="flex-1 min-w-0">
           <div class="font-medium">{{ group.name }}</div>
-          <div v-if="group.description" class="text-sm text-muted-foreground truncate">{{ group.description }}</div>
+          <div v-if="group.description" class="text-sm text-muted-foreground truncate">
+            {{ group.description }}
+          </div>
         </div>
 
         <!-- Actions -->
         <div class="flex items-center gap-2 flex-shrink-0">
-          <Button variant="outline" size="sm" @click="openEdit(group)">{{ $t('common.edit') }}</Button>
-          <Button variant="outline" size="sm" @click="confirmDelete(group)"
-            class="text-destructive hover:text-destructive">{{ $t('common.delete') }}</Button>
+          <Button variant="outline" size="sm" @click="openEdit(group)">{{
+            $t('common.edit')
+          }}</Button>
+          <Button
+            variant="outline"
+            size="sm"
+            @click="confirmDelete(group)"
+            class="text-destructive hover:text-destructive"
+            >{{ $t('common.delete') }}</Button
+          >
         </div>
       </div>
     </div>
 
-    <EmptyState v-if="!loading && !groups.length" icon="👥"
-      :title="$t('sessionGroups.empty')" :description="$t('sessionGroups.emptyDescription')" />
+    <EmptyState
+      v-if="!loading && !groups.length"
+      icon="👥"
+      :title="$t('sessionGroups.empty')"
+      :description="$t('sessionGroups.emptyDescription')"
+    />
 
     <!-- Create/Edit dialog -->
     <Dialog v-model:open="showForm">
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{{ editingGroup ? $t('sessionGroups.edit') : $t('sessionGroups.new') }}</DialogTitle>
+          <DialogTitle>{{
+            editingGroup ? $t('sessionGroups.edit') : $t('sessionGroups.new')
+          }}</DialogTitle>
         </DialogHeader>
         <div class="space-y-4 py-2">
           <div>
             <label class="text-sm font-medium">{{ $t('sessionGroups.name') }}</label>
-            <input v-model="formData.name" type="text" :placeholder="$t('sessionGroups.namePlaceholder')"
-              class="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
+            <input
+              v-model="formData.name"
+              type="text"
+              :placeholder="$t('sessionGroups.namePlaceholder')"
+              class="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            />
           </div>
           <div>
             <label class="text-sm font-medium">{{ $t('sessionGroups.description') }}</label>
-            <textarea v-model="formData.description" rows="3" :placeholder="$t('sessionGroups.descriptionPlaceholder')"
-              class="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
+            <textarea
+              v-model="formData.description"
+              rows="3"
+              :placeholder="$t('sessionGroups.descriptionPlaceholder')"
+              class="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            />
           </div>
         </div>
         <DialogFooter>
@@ -83,7 +130,13 @@
 
 <script setup lang="ts">
 import { ICONS } from '~/utils/icons'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '~/components/ui/dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '~/components/ui/dialog'
 
 const route = useRoute()
 const campaignId = route.params.id as string
@@ -145,7 +198,7 @@ async function confirmDelete(group: any) {
 }
 
 function triggerImageUpload(group: any) {
-  const idx = groups.value.findIndex(g => g.id === group.id)
+  const idx = groups.value.findIndex((g) => g.id === group.id)
   if (idx !== -1 && imageInputRefs.value[idx]) {
     imageInputRefs.value[idx].click()
   }
@@ -166,7 +219,7 @@ async function handleImageUpload(event: Event, group: any) {
     error.value = e.data?.message || t('sessionGroups.failedSave')
   }
   // reset input
-  const idx = groups.value.findIndex(g => g.id === group.id)
+  const idx = groups.value.findIndex((g) => g.id === group.id)
   if (idx !== -1 && imageInputRefs.value[idx]) imageInputRefs.value[idx].value = ''
 }
 

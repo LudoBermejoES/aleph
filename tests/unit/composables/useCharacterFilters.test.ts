@@ -67,6 +67,8 @@ describe('useCharacterFilters', () => {
     f.typeFilter.value = 'pc'
     f.searchInput.value = 'Gandalf'
     f.syncUrl()
-    expect(mockReplace).toHaveBeenCalledWith({ query: expect.objectContaining({ type: 'pc', search: 'Gandalf' }) })
+    expect(mockReplace).toHaveBeenCalledWith({
+      query: expect.objectContaining({ type: 'pc', search: 'Gandalf' }),
+    })
   })
 })

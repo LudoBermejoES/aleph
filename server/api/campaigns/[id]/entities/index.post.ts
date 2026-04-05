@@ -17,7 +17,9 @@ const entitySchema = z.object({
   name: z.string().min(1).max(200),
   type: z.string().min(1),
   content: z.string().optional(),
-  visibility: z.enum(['public', 'members', 'editors', 'dm_only', 'private', 'specific_users']).optional(),
+  visibility: z
+    .enum(['public', 'members', 'editors', 'dm_only', 'private', 'specific_users'])
+    .optional(),
   aliases: z.array(z.string()).optional(),
   tags: z.array(z.string()).optional(),
   parentId: z.string().optional(),
@@ -31,7 +33,8 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 403, message: 'Editors or above can create entities' })
   }
 
-  const { name, type, content, visibility, aliases, tags, parentId, templateId, fields } = await validateBody(event, entitySchema)
+  const { name, type, content, visibility, aliases, tags, parentId, templateId, fields } =
+    await validateBody(event, entitySchema)
 
   const db = useDb()
   const sqlite = useSqlite()
@@ -61,21 +64,23 @@ export default defineEventHandler(async (event) => {
   const hash = await writeEntityFile(filePath, frontmatter, content || '')
 
   // Insert DB row
-  db.insert(entities).values({
-    id,
-    campaignId,
-    type,
-    name: name.trim(),
-    slug,
-    filePath,
-    visibility: visibility || 'members',
-    contentHash: hash,
-    parentId: parentId || null,
-    templateId: templateId || null,
-    createdBy: event.context.user.id,
-    createdAt: now,
-    updatedAt: now,
-  }).run()
+  db.insert(entities)
+    .values({
+      id,
+      campaignId,
+      type,
+      name: name.trim(),
+      slug,
+      filePath,
+      visibility: visibility || 'members',
+      contentHash: hash,
+      parentId: parentId || null,
+      templateId: templateId || null,
+      createdBy: event.context.user.id,
+      createdAt: now,
+      updatedAt: now,
+    })
+    .run()
 
   // Index in FTS5
   indexEntity(sqlite, id, campaignId, name.trim(), aliases || [], tags || [], content || '')

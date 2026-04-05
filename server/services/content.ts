@@ -13,7 +13,9 @@ export const baseEntityFrontmatter = z.object({
   name: z.string().min(1),
   aliases: z.array(z.string()).default([]),
   tags: z.array(z.string()).default([]),
-  visibility: z.enum(['public', 'members', 'editors', 'dm_only', 'private', 'specific_users']).default('members'),
+  visibility: z
+    .enum(['public', 'members', 'editors', 'dm_only', 'private', 'specific_users'])
+    .default('members'),
   template: z.string().optional(),
   parent: z.string().optional(),
   created: z.string().optional(),
@@ -50,7 +52,11 @@ export function contentHash(content: string): string {
 // --- Secret Block Stripping ---
 
 const ROLE_LEVEL: Record<string, number> = {
-  dm: 5, co_dm: 4, editor: 3, player: 2, visitor: 1,
+  dm: 5,
+  co_dm: 4,
+  editor: 3,
+  player: 2,
+  visitor: 1,
 }
 
 /**
@@ -61,7 +67,11 @@ const ROLE_LEVEL: Record<string, number> = {
  *   If a block has an ID in this set, its content is shown without the secret wrapper
  *   (regardless of the user's role).
  */
-export function stripSecretBlocks(content: string, userRole: string, revealedBlockIds?: Set<string>): string {
+export function stripSecretBlocks(
+  content: string,
+  userRole: string,
+  revealedBlockIds?: Set<string>,
+): string {
   if ((ROLE_LEVEL[userRole] ?? 0) >= (ROLE_LEVEL['co_dm'] ?? 4)) return content
 
   // Match :::secret{.SPEC} or :::secret{.SPEC #id}\n...\n:::\n patterns
@@ -69,7 +79,7 @@ export function stripSecretBlocks(content: string, userRole: string, revealedBlo
     /:::secret\{\.([^}#\s]+)(?:\s+#([^}]+))?\}\s*\n([\s\S]*?):::\s*\n?/g,
     (_match, spec: string, blockId: string | undefined, body: string) => {
       const colonIndex = spec.indexOf(':')
-      const requiredRole = colonIndex !== -1 ? spec.substring(0, colonIndex) : (spec || 'dm')
+      const requiredRole = colonIndex !== -1 ? spec.substring(0, colonIndex) : spec || 'dm'
       const requiredLevel = ROLE_LEVEL[requiredRole] ?? 5
       const userLevel = ROLE_LEVEL[userRole] ?? 0
 
@@ -92,7 +102,10 @@ export function resolveEntityPath(contentDir: string, type: string, slug: string
 
 // --- Directory Management ---
 
-export async function ensureCampaignDir(contentRoot: string, campaignSlug: string): Promise<string> {
+export async function ensureCampaignDir(
+  contentRoot: string,
+  campaignSlug: string,
+): Promise<string> {
   const dir = join(contentRoot, 'campaigns', campaignSlug)
   await mkdir(dir, { recursive: true })
   return dir
@@ -113,7 +126,11 @@ export async function readEntityFile(filePath: string): Promise<EntityFile> {
   const parsed = baseEntityFrontmatter.safeParse(data)
   const frontmatter = parsed.success
     ? parsed.data
-    : { ...data, type: data.type || 'unknown', name: data.name || 'Untitled' } as EntityFrontmatter
+    : ({
+        ...data,
+        type: data.type || 'unknown',
+        name: data.name || 'Untitled',
+      } as EntityFrontmatter)
 
   return {
     frontmatter,
@@ -172,7 +189,7 @@ export async function findMarkdownFiles(dir: string): Promise<string[]> {
   for (const entry of entries) {
     const fullPath = join(dir, entry.name)
     if (entry.isDirectory()) {
-      files.push(...await findMarkdownFiles(fullPath))
+      files.push(...(await findMarkdownFiles(fullPath)))
     } else if (extname(entry.name) === '.md') {
       files.push(fullPath)
     }

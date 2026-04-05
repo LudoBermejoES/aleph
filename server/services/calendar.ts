@@ -3,7 +3,7 @@
 export interface CalendarDate {
   year: number
   month: number // 1-based
-  day: number   // 1-based
+  day: number // 1-based
 }
 
 export interface CalendarConfig {
@@ -35,7 +35,11 @@ interface RecurringEvent {
 /**
  * Calculate age in custom calendar years.
  */
-export function calculateAge(birth: CalendarDate, current: CalendarDate, config: CalendarConfig): number {
+export function calculateAge(
+  birth: CalendarDate,
+  current: CalendarDate,
+  config: CalendarConfig,
+): number {
   let age = current.year - birth.year
 
   // Check if birthday hasn't occurred yet this year
@@ -52,7 +56,7 @@ export function calculateAge(birth: CalendarDate, current: CalendarDate, config:
  * Get moon phase as a normalized value 0-1 (0 = new moon, 0.5 = full moon).
  */
 export function getMoonPhase(date: CalendarDate, moon: MoonConfig, config: CalendarConfig): number {
-  const totalDays = dateToDayOfYear(date, config) + (date.year * config.yearLength)
+  const totalDays = dateToDayOfYear(date, config) + date.year * config.yearLength
   const adjustedDay = totalDays + moon.phaseOffset
   return (adjustedDay % moon.cycleDays) / moon.cycleDays
 }
@@ -62,7 +66,11 @@ export function getMoonPhase(date: CalendarDate, moon: MoonConfig, config: Calen
 /**
  * Get the next occurrence of a recurring event after a given date.
  */
-export function getNextOccurrence(event: RecurringEvent, after: CalendarDate, config: CalendarConfig): CalendarDate {
+export function getNextOccurrence(
+  event: RecurringEvent,
+  after: CalendarDate,
+  config: CalendarConfig,
+): CalendarDate {
   if (event.recurrence === 'yearly') {
     // Check if it occurs later this year
     if (event.month > after.month || (event.month === after.month && event.day > after.day)) {
@@ -94,7 +102,11 @@ export function getNextOccurrence(event: RecurringEvent, after: CalendarDate, co
  * Check if a date falls within a season range.
  * Handles seasons that wrap around the year boundary.
  */
-export function isDateInSeason(date: CalendarDate, season: SeasonRange, config: CalendarConfig): boolean {
+export function isDateInSeason(
+  date: CalendarDate,
+  season: SeasonRange,
+  config: CalendarConfig,
+): boolean {
   const dateVal = date.month * 100 + date.day
   const startVal = season.startMonth * 100 + season.startDay
   const endVal = season.endMonth * 100 + season.endDay
@@ -113,7 +125,11 @@ export function isDateInSeason(date: CalendarDate, season: SeasonRange, config: 
 /**
  * Advance a date by N days, handling month/year rollover.
  */
-export function advanceDate(date: CalendarDate, days: number, config: CalendarConfig): CalendarDate {
+export function advanceDate(
+  date: CalendarDate,
+  days: number,
+  config: CalendarConfig,
+): CalendarDate {
   let { year, month, day } = date
   let remaining = days
 
@@ -126,7 +142,7 @@ export function advanceDate(date: CalendarDate, days: number, config: CalendarCo
       day += remaining
       remaining = 0
     } else {
-      remaining -= (daysLeftInMonth + 1)
+      remaining -= daysLeftInMonth + 1
       month++
       day = 1
       if (month > config.months.length) {

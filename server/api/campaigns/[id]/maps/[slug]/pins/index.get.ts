@@ -10,7 +10,11 @@ export default defineEventHandler(async (event) => {
   const role = (event.context.campaignRole || 'visitor') as CampaignRole
   const db = useDb()
 
-  const map = db.select().from(maps).where(and(eq(maps.campaignId, campaignId), eq(maps.slug, slug))).get()
+  const map = db
+    .select()
+    .from(maps)
+    .where(and(eq(maps.campaignId, campaignId), eq(maps.slug, slug)))
+    .get()
   if (!map) throw createError({ statusCode: 404, message: 'Map not found' })
 
   const pins = db.select().from(mapPins).where(eq(mapPins.mapId, map.id)).all()

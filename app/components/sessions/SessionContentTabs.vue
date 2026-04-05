@@ -4,7 +4,12 @@
       <button
         v-for="tab in tabs"
         :key="tab.key"
-        :class="['px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px', activeContentTab === tab.key ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground']"
+        :class="[
+          'px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px',
+          activeContentTab === tab.key
+            ? 'border-primary text-primary'
+            : 'border-transparent text-muted-foreground hover:text-foreground',
+        ]"
         @click="activeContentTab = tab.key"
       >
         {{ tab.label }}
@@ -18,9 +23,13 @@
           {{ editingContent ? $t('sessions.previewTab') : $t('sessions.editTab') }}
         </Button>
       </div>
-      <textarea v-if="editingContent" v-model="localDraft[activeContentTab]" rows="12"
+      <textarea
+        v-if="editingContent"
+        v-model="localDraft[activeContentTab]"
+        rows="12"
         :placeholder="$t('sessions.content.empty')"
-        class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono" />
+        class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono"
+      />
       <div v-else class="prose dark:prose-invert max-w-none text-foreground">
         <MDC v-if="localDraft[activeContentTab]" :value="localDraft[activeContentTab]" />
         <p v-else class="text-muted-foreground italic">{{ $t('sessions.content.empty') }}</p>
@@ -45,7 +54,13 @@ const activeContentTab = ref(props.tabs[0]?.key ?? 'manual_notes')
 const editingContent = ref(false)
 const localDraft = ref<Record<string, string>>({ ...props.contentDraft })
 
-watch(() => props.contentDraft, (val) => { localDraft.value = { ...val } }, { deep: true })
+watch(
+  () => props.contentDraft,
+  (val) => {
+    localDraft.value = { ...val }
+  },
+  { deep: true },
+)
 
 function save() {
   emit('save', activeContentTab.value, localDraft.value[activeContentTab.value])

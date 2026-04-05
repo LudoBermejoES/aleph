@@ -24,22 +24,26 @@ export default defineEventHandler(async (event) => {
   const body = await validateBody(event, decisionSchema)
   const db = useDb()
 
-  const session = db.select().from(gameSessions)
+  const session = db
+    .select()
+    .from(gameSessions)
     .where(and(eq(gameSessions.campaignId, campaignId), eq(gameSessions.slug, slug)))
     .get()
   if (!session) throw createError({ statusCode: 404, message: 'Session not found' })
 
   const id = randomUUID()
-  db.insert(decisions).values({
-    id,
-    sessionId: session.id,
-    campaignId,
-    type: body.type || 'choice',
-    title: body.title,
-    description: body.description || null,
-    entityId: body.entityId || null,
-    createdAt: new Date(),
-  }).run()
+  db.insert(decisions)
+    .values({
+      id,
+      sessionId: session.id,
+      campaignId,
+      type: body.type || 'choice',
+      title: body.title,
+      description: body.description || null,
+      entityId: body.entityId || null,
+      createdAt: new Date(),
+    })
+    .run()
 
   return { id, title: body.title, type: body.type || 'choice' }
 })

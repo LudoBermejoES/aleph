@@ -5,10 +5,12 @@ Both `relation list` and `character connections` currently show raw UUID columns
 ## Goals / Non-Goals
 
 **Goals:**
+
 - Replace UUID columns with names in human-readable table output
 - Keep `--json` output unchanged (raw IDs, for scripting)
 
 **Non-Goals:**
+
 - Paginating large entity lists
 - Caching across commands
 

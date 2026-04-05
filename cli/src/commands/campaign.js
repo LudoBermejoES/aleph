@@ -17,7 +17,14 @@ export function makeCampaignCommand() {
       if (opts.json) {
         print(data, { json: true })
       } else {
-        print(data.map(c => ({ id: c.id, name: c.name, role: c.role, description: c.description || '' })))
+        print(
+          data.map((c) => ({
+            id: c.id,
+            name: c.name,
+            role: c.role,
+            description: c.description || '',
+          })),
+        )
       }
     })
 
@@ -50,7 +57,12 @@ export function makeCampaignCommand() {
       if (opts.json) {
         print(data, { json: true })
       } else {
-        print({ id: data.id, name: data.name, description: data.description || '', theme: data.theme || 'default' })
+        print({
+          id: data.id,
+          name: data.name,
+          description: data.description || '',
+          theme: data.theme || 'default',
+        })
       }
     })
 
@@ -60,8 +72,14 @@ export function makeCampaignCommand() {
     .option('--yes', 'Skip confirmation prompt')
     .action(async (id, opts) => {
       if (!opts.yes) {
-        const ok = await confirm({ message: `Delete campaign ${id}? This cannot be undone.`, default: false })
-        if (!ok) { process.stdout.write('Cancelled.\n'); return }
+        const ok = await confirm({
+          message: `Delete campaign ${id}? This cannot be undone.`,
+          default: false,
+        })
+        if (!ok) {
+          process.stdout.write('Cancelled.\n')
+          return
+        }
       }
       await del(`/api/campaigns/${id}`)
       success(`Campaign ${id} deleted.`)
@@ -93,7 +111,9 @@ export function makeCampaignCommand() {
         process.exit(2)
       }
       if (res.status === 403) {
-        process.stderr.write('Error: Access denied. Only DMs and Co-DMs can export campaign data.\n')
+        process.stderr.write(
+          'Error: Access denied. Only DMs and Co-DMs can export campaign data.\n',
+        )
         process.exit(2)
       }
       if (res.status === 404) {

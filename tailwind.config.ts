@@ -2,10 +2,7 @@ import type { Config } from 'tailwindcss'
 import typography from '@tailwindcss/typography'
 
 export default {
-  content: [
-    './app/**/*.{vue,ts,js}',
-    './server/**/*.{ts,js}',
-  ],
+  content: ['./app/**/*.{vue,ts,js}', './server/**/*.{ts,js}'],
   theme: {
     extend: {
       colors: {

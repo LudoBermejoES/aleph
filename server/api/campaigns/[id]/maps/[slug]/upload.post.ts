@@ -20,7 +20,9 @@ export default defineEventHandler(async (event) => {
   const db = useDb()
   const campaign = event.context.campaign
 
-  const map = db.select().from(maps)
+  const map = db
+    .select()
+    .from(maps)
     .where(and(eq(maps.campaignId, campaignId), eq(maps.slug, slug)))
     .get()
   if (!map) throw createError({ statusCode: 404, message: 'Map not found' })
@@ -31,7 +33,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'No file uploaded' })
   }
 
-  const file = formData.find(f => f.name === 'image')
+  const file = formData.find((f) => f.name === 'image')
   if (!file || !file.data) {
     throw createError({ statusCode: 400, message: 'Image file is required (field name: "image")' })
   }
@@ -46,7 +48,10 @@ export default defineEventHandler(async (event) => {
   // Validate actual content via magic bytes
   const detectedMime = detectMimeFromBytes(file.data)
   if (!detectedMime || detectedMime !== fileMime) {
-    throw createError({ statusCode: 400, message: 'File content does not match declared MIME type' })
+    throw createError({
+      statusCode: 400,
+      message: 'File content does not match declared MIME type',
+    })
   }
 
   // Store file
@@ -60,7 +65,7 @@ export default defineEventHandler(async (event) => {
   let width = 1024
   let height = 768
   try {
-    const sharp = await import('sharp').then(m => m.default)
+    const sharp = await import('sharp').then((m) => m.default)
     const metadata = await sharp(imagePath).metadata()
     width = metadata.width || 1024
     height = metadata.height || 768
@@ -69,13 +74,16 @@ export default defineEventHandler(async (event) => {
   }
 
   // Update map record
-  db.update(maps).set({
-    imagePath: `/api/campaigns/${campaignId}/maps/${slug}/image`,
-    width,
-    height,
-    isTiled: false,
-    updatedAt: new Date(),
-  }).where(eq(maps.id, map.id)).run()
+  db.update(maps)
+    .set({
+      imagePath: `/api/campaigns/${campaignId}/maps/${slug}/image`,
+      width,
+      height,
+      isTiled: false,
+      updatedAt: new Date(),
+    })
+    .where(eq(maps.id, map.id))
+    .run()
 
   // Always kick off background tiling
   const tilesDir = join(contentDir, 'tiles')

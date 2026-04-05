@@ -8,7 +8,7 @@ async function apiRaw(path: string, opts?: any) {
     ...opts,
     headers: {
       'Content-Type': 'application/json',
-      'Origin': BASE_URL,
+      Origin: BASE_URL,
       ...opts?.headers,
     },
     body: opts?.body ? JSON.stringify(opts.body) : undefined,
@@ -94,7 +94,12 @@ describe('Organization CRUD (integration)', () => {
     const res = await apiRaw(`/api/campaigns/${campaignId}/organizations`, {
       method: 'POST',
       headers: { 'X-API-Key': apiKey },
-      body: { name: 'The Fellowship', type: 'faction', status: 'active', description: 'Nine walkers.' },
+      body: {
+        name: 'The Fellowship',
+        type: 'faction',
+        status: 'active',
+        description: 'Nine walkers.',
+      },
     })
     expect(res.status).toBe(200)
     const data = await res.json()
@@ -267,10 +272,13 @@ describe('Organization member management (integration)', () => {
   })
 
   it('DELETE /members/:characterId removes member, returns 200', async () => {
-    const res = await apiRaw(`/api/campaigns/${campaignId}/organizations/${orgSlug}/members/${characterId}`, {
-      method: 'DELETE',
-      headers: { 'X-API-Key': apiKey },
-    })
+    const res = await apiRaw(
+      `/api/campaigns/${campaignId}/organizations/${orgSlug}/members/${characterId}`,
+      {
+        method: 'DELETE',
+        headers: { 'X-API-Key': apiKey },
+      },
+    )
     expect(res.status).toBe(200)
 
     const getRes = await apiRaw(`/api/campaigns/${campaignId}/organizations/${orgSlug}`, {
@@ -281,10 +289,13 @@ describe('Organization member management (integration)', () => {
   })
 
   it('DELETE /members/:characterId returns 404 for non-member', async () => {
-    const res = await apiRaw(`/api/campaigns/${campaignId}/organizations/${orgSlug}/members/${characterId}`, {
-      method: 'DELETE',
-      headers: { 'X-API-Key': apiKey },
-    })
+    const res = await apiRaw(
+      `/api/campaigns/${campaignId}/organizations/${orgSlug}/members/${characterId}`,
+      {
+        method: 'DELETE',
+        headers: { 'X-API-Key': apiKey },
+      },
+    )
     expect(res.status).toBe(404)
   })
 })

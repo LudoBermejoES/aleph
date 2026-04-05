@@ -3,7 +3,12 @@ import { registerAndLogin, createCampaign, apiFetch } from './helpers'
 
 const uid = () => Date.now().toString(36).slice(-4)
 
-async function createEntityAndNavigate(page: any, campaignId: string, name: string, content: string) {
+async function createEntityAndNavigate(
+  page: any,
+  campaignId: string,
+  name: string,
+  content: string,
+) {
   const data = await apiFetch(page, `/api/campaigns/${campaignId}/entities`, {
     method: 'POST',
     body: { name, type: 'note', content },
@@ -21,7 +26,12 @@ test.describe('Tiptap Editor (Collaboration)', () => {
     await createCampaign(page, `Tiptap Camp ${uid()}`)
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
 
-    await createEntityAndNavigate(page, campaignId!, `TiptapView ${uid()}`, '# Quest Log\n\nThe party entered Barovia.')
+    await createEntityAndNavigate(
+      page,
+      campaignId!,
+      `TiptapView ${uid()}`,
+      '# Quest Log\n\nThe party entered Barovia.',
+    )
 
     // Enter edit mode
     await page.click('main >> button:has-text("Edit")')
@@ -41,7 +51,12 @@ test.describe('Tiptap Editor (Collaboration)', () => {
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
     const uniqueText = `UniqueContent${Date.now()}`
 
-    await createEntityAndNavigate(page, campaignId!, `Persist ${uid()}`, '# Empty Start\n\nOriginal.')
+    await createEntityAndNavigate(
+      page,
+      campaignId!,
+      `Persist ${uid()}`,
+      '# Empty Start\n\nOriginal.',
+    )
 
     // Enter edit mode
     await page.click('main >> button:has-text("Edit")')
@@ -115,13 +130,17 @@ test.describe('Multi-User Collaboration', () => {
 
     await page1.goto(entityUrl)
     await page1.waitForLoadState('domcontentloaded')
-    await expect(page1.locator('main h1').first()).toContainText('Collab Entity', { timeout: 15000 })
+    await expect(page1.locator('main h1').first()).toContainText('Collab Entity', {
+      timeout: 15000,
+    })
     await page1.click('main >> button:has-text("Edit")')
     await page1.waitForTimeout(2000)
 
     await page2.goto(entityUrl)
     await page2.waitForLoadState('domcontentloaded')
-    await expect(page2.locator('main h1').first()).toContainText('Collab Entity', { timeout: 15000 })
+    await expect(page2.locator('main h1').first()).toContainText('Collab Entity', {
+      timeout: 15000,
+    })
     await page2.click('main >> button:has-text("Edit")')
     await page2.waitForTimeout(2000)
 
@@ -139,9 +158,15 @@ test.describe('Multi-User Collaboration', () => {
 
     // At least one page should see the other user's cursor
     const hasCursors = await Promise.race([
-      cursor1.first().isVisible().catch(() => false),
-      cursor2.first().isVisible().catch(() => false),
-      new Promise(resolve => setTimeout(() => resolve(false), 5000)),
+      cursor1
+        .first()
+        .isVisible()
+        .catch(() => false),
+      cursor2
+        .first()
+        .isVisible()
+        .catch(() => false),
+      new Promise((resolve) => setTimeout(() => resolve(false), 5000)),
     ])
 
     // If cursors are visible, great. If not, at least verify both editors are connected

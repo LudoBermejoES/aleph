@@ -34,7 +34,20 @@ export default defineEventHandler(async (event) => {
     isCompanionOf: z.string().optional(),
   })
   const body = await validateBody(event, characterSchema)
-  const { name, content, visibility, aliases, tags, characterType, race, class: charClass, alignment, status, ownerUserId, isCompanionOf } = body
+  const {
+    name,
+    content,
+    visibility,
+    aliases,
+    tags,
+    characterType,
+    race,
+    class: charClass,
+    alignment,
+    status,
+    ownerUserId,
+    isCompanionOf,
+  } = body
 
   const db = useDb()
   const sqlite = useSqlite()
@@ -65,37 +78,47 @@ export default defineEventHandler(async (event) => {
   const hash = await writeEntityFile(filePath, frontmatter, content || '')
 
   // Insert entity row
-  db.insert(entities).values({
-    id: entityId,
-    campaignId,
-    type: 'character',
-    name: name.trim(),
-    slug,
-    filePath,
-    visibility: visibility || 'members',
-    contentHash: hash,
-    createdBy: event.context.user.id,
-    createdAt: now,
-    updatedAt: now,
-  }).run()
+  db.insert(entities)
+    .values({
+      id: entityId,
+      campaignId,
+      type: 'character',
+      name: name.trim(),
+      slug,
+      filePath,
+      visibility: visibility || 'members',
+      contentHash: hash,
+      createdBy: event.context.user.id,
+      createdAt: now,
+      updatedAt: now,
+    })
+    .run()
 
   // Insert character extension row
-  db.insert(characters).values({
-    id: characterId,
-    entityId,
-    characterType: characterType || 'npc',
-    race: race || null,
-    class: charClass || null,
-    alignment: alignment || null,
-    status: status || 'alive',
-    ownerUserId: ownerUserId || null,
-    isCompanionOf: isCompanionOf || null,
-  }).run()
+  db.insert(characters)
+    .values({
+      id: characterId,
+      entityId,
+      characterType: characterType || 'npc',
+      race: race || null,
+      class: charClass || null,
+      alignment: alignment || null,
+      status: status || 'alive',
+      ownerUserId: ownerUserId || null,
+      isCompanionOf: isCompanionOf || null,
+    })
+    .run()
 
   // Index in FTS5
   indexEntity(sqlite, entityId, campaignId, name.trim(), aliases || [], tags || [], content || '')
 
   logger.debug('Character created', { characterId, entityId, name, campaignId })
 
-  return { id: characterId, entityId, slug, name: name.trim(), characterType: characterType || 'npc' }
+  return {
+    id: characterId,
+    entityId,
+    slug,
+    name: name.trim(),
+    characterType: characterType || 'npc',
+  }
 })

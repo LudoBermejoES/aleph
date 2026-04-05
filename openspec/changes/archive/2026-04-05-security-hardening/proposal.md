@@ -15,11 +15,13 @@ Aleph currently has several security gaps that leave it vulnerable to common web
 ## Capabilities
 
 ### New Capabilities
+
 - `input-validation`: Zod-based request body validation on all mutating endpoints
 - `rate-limiting`: Per-IP rate limiting with configurable windows and thresholds
 - `csrf-protection`: CSRF token generation and validation for cookie-based sessions
 
 ### Modified Capabilities
+
 - `entity-permissions`: Visibility enforcement on read endpoints (currently only enforced on list endpoints via `buildVisibilityFilter`)
 - `file-upload`: MIME type validation via magic bytes, not just declared Content-Type
 - `search`: LIKE wildcard escaping on all search parameters

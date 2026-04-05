@@ -19,6 +19,7 @@ As a campaign wiki grows to hundreds of entities, two problems emerge: finding c
 ## Scope
 
 ### In scope
+
 - Global search UI (Ctrl+K command palette)
 - Search across entity names, aliases, tags, and FTS5-indexed content
 - Permission-filtered search results
@@ -31,11 +32,13 @@ As a campaign wiki grows to hundreds of entities, two problems emerge: finding c
 - In-memory automaton cache per campaign
 
 ### Out of scope
+
 - Full-text search across file attachments (PDFs, images)
 - Fuzzy/typo-tolerant matching
 - Cross-campaign search
 
 ## Dependencies
+
 - 01-project-setup
 - 02-auth-rbac
 - 03-markdown-engine

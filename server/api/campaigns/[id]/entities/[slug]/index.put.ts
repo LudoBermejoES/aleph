@@ -13,7 +13,9 @@ const entityUpdateSchema = z.object({
   name: z.string().min(1).max(200).optional(),
   type: z.string().optional(),
   content: z.string().optional(),
-  visibility: z.enum(['public', 'members', 'editors', 'dm_only', 'private', 'specific_users']).optional(),
+  visibility: z
+    .enum(['public', 'members', 'editors', 'dm_only', 'private', 'specific_users'])
+    .optional(),
   aliases: z.array(z.string()).optional(),
   tags: z.array(z.string()).optional(),
   fields: z.record(z.string(), z.unknown()).optional(),
@@ -31,7 +33,9 @@ export default defineEventHandler(async (event) => {
   const db = useDb()
   const sqlite = useSqlite()
 
-  const entity = db.select().from(entities)
+  const entity = db
+    .select()
+    .from(entities)
     .where(and(eq(entities.campaignId, campaignId), eq(entities.slug, slug)))
     .get()
 
@@ -73,7 +77,9 @@ export default defineEventHandler(async (event) => {
 
   // Re-index FTS5
   indexEntity(
-    sqlite, entity.id, campaignId,
+    sqlite,
+    entity.id,
+    campaignId,
     updatedFrontmatter.name,
     updatedFrontmatter.aliases || [],
     updatedFrontmatter.tags || [],

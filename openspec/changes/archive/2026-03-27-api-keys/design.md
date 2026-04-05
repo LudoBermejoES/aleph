@@ -7,6 +7,7 @@ The new system introduces a dedicated `api_key` table with proper lifecycle mana
 ## Goals / Non-Goals
 
 **Goals:**
+
 - Users can create multiple named API keys (e.g. "aleph-cli", "home-automation", "CI")
 - Keys are shown in full only once at creation; stored hashed (sha256) server-side
 - Keys never expire unless explicitly revoked
@@ -16,6 +17,7 @@ The new system introduces a dedicated `api_key` table with proper lifecycle mana
 - Full test coverage: unit (hashing/validation), integration (endpoint flows), updated CLI tests
 
 **Non-Goals:**
+
 - Key scopes or permissions beyond "authenticated as this user" — all keys carry full user identity
 - Key rotation (create + revoke is sufficient)
 - Rate limiting per key (future concern)
@@ -30,6 +32,7 @@ The new system introduces a dedicated `api_key` table with proper lifecycle mana
 **Why:** Sessions have `expiresAt`, `ipAddress`, `userAgent` — semantics that don't fit permanent keys. A separate table makes queries, indexes, and schema evolution cleaner. Also avoids polluting better-auth's session management.
 
 **Alternatives considered:**
+
 - Reuse `session` with `userAgent: 'aleph-cli'` (current approach) — works but no label, no multi-key, no revocation UI
 - Store in a separate `apiKeys` SQLite file — unnecessary complexity
 
@@ -40,6 +43,7 @@ The new system introduces a dedicated `api_key` table with proper lifecycle mana
 **Why:** If the DB is compromised, keys cannot be used directly. sha256 is fast and sufficient for high-entropy random keys (64 hex chars = 256 bits entropy).
 
 **Alternatives considered:**
+
 - bcrypt — too slow for per-request auth middleware lookups
 - Store plaintext — unacceptable security risk
 
@@ -62,6 +66,7 @@ The new system introduces a dedicated `api_key` table with proper lifecycle mana
 **Why:** No caching needed for SQLite at this scale. A single indexed query is fast. Update `lastUsedAt` asynchronously (fire-and-forget) to avoid blocking the request.
 
 **Alternatives considered:**
+
 - Cache valid keys in memory — adds complexity, invalidation issues on revoke
 
 ### 6. Remove `/api/cli/token` endpoints

@@ -11,8 +11,14 @@ async function api(path: string, opts?: RequestInit & { body?: any }) {
 }
 
 async function signUp(email: string, name = 'Test User') {
-  await api('/api/auth/sign-up/email', { method: 'POST', body: { name, email, password: 'password123' } })
-  const res = await api('/api/auth/sign-in/email', { method: 'POST', body: { email, password: 'password123' } })
+  await api('/api/auth/sign-up/email', {
+    method: 'POST',
+    body: { name, email, password: 'password123' },
+  })
+  const res = await api('/api/auth/sign-in/email', {
+    method: 'POST',
+    body: { email, password: 'password123' },
+  })
   const cookies = res.headers.get('set-cookie') || ''
   const match = cookies.match(/better-auth\.session_token=([^;]+)/)
   const sessionCookie = match ? `better-auth.session_token=${match[1]}` : ''

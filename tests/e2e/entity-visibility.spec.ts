@@ -15,23 +15,29 @@ test.describe('Entity Visibility', () => {
 
     // Create dm_only entity via API (with CSRF)
     const entityName = `Secret Entity ${dmId}`
-    const createRes = await dmPage.evaluate(async ([id, name]: string[]) => {
-      const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
-      const res = await fetch(`/api/campaigns/${id}/entities`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
-        body: JSON.stringify({ name, type: 'lore', visibility: 'dm_only' }),
-      })
-      return res.json()
-    }, [campaignId, entityName])
+    const createRes = await dmPage.evaluate(
+      async ([id, name]: string[]) => {
+        const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
+        const res = await fetch(`/api/campaigns/${id}/entities`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+          body: JSON.stringify({ name, type: 'lore', visibility: 'dm_only' }),
+        })
+        return res.json()
+      },
+      [campaignId, entityName],
+    )
 
     const entitySlug = createRes.slug
 
     // DM can view entity
-    const dmApiRes = await dmPage.evaluate(async ([id, slug]: string[]) => {
-      const res = await fetch(`/api/campaigns/${id}/entities/${slug}`)
-      return res.status
-    }, [campaignId, entitySlug])
+    const dmApiRes = await dmPage.evaluate(
+      async ([id, slug]: string[]) => {
+        const res = await fetch(`/api/campaigns/${id}/entities/${slug}`)
+        return res.status
+      },
+      [campaignId, entitySlug],
+    )
     expect(dmApiRes).toBe(200)
 
     // Create player account
@@ -52,20 +58,26 @@ test.describe('Entity Visibility', () => {
       return data.token as string
     }, campaignId)
 
-    await playerPage.evaluate(async ([id, token]: string[]) => {
-      const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
-      await fetch(`/api/campaigns/${id}/join`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
-        body: JSON.stringify({ token }),
-      })
-    }, [campaignId, inviteToken])
+    await playerPage.evaluate(
+      async ([id, token]: string[]) => {
+        const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
+        await fetch(`/api/campaigns/${id}/join`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+          body: JSON.stringify({ token }),
+        })
+      },
+      [campaignId, inviteToken],
+    )
 
     // Player tries to access dm_only entity — should get 404
-    const playerApiRes = await playerPage.evaluate(async ([id, slug]: string[]) => {
-      const res = await fetch(`/api/campaigns/${id}/entities/${slug}`)
-      return res.status
-    }, [campaignId, entitySlug])
+    const playerApiRes = await playerPage.evaluate(
+      async ([id, slug]: string[]) => {
+        const res = await fetch(`/api/campaigns/${id}/entities/${slug}`)
+        return res.status
+      },
+      [campaignId, entitySlug],
+    )
     expect(playerApiRes).toBe(404)
 
     await dmContext.close()
@@ -83,32 +95,41 @@ test.describe('Entity Visibility', () => {
 
     // Create entity as members visibility
     const entityName = `Toggle Entity ${dmId}`
-    const createRes = await dmPage.evaluate(async ([id, name]: string[]) => {
-      const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
-      const res = await fetch(`/api/campaigns/${id}/entities`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
-        body: JSON.stringify({ name, type: 'lore', visibility: 'members' }),
-      })
-      return res.json()
-    }, [campaignId, entityName])
+    const createRes = await dmPage.evaluate(
+      async ([id, name]: string[]) => {
+        const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
+        const res = await fetch(`/api/campaigns/${id}/entities`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+          body: JSON.stringify({ name, type: 'lore', visibility: 'members' }),
+        })
+        return res.json()
+      },
+      [campaignId, entityName],
+    )
     const entitySlug = createRes.slug
 
     // Change to dm_only
-    await dmPage.evaluate(async ([id, slug]: string[]) => {
-      const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
-      await fetch(`/api/campaigns/${id}/entities/${slug}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
-        body: JSON.stringify({ visibility: 'dm_only' }),
-      })
-    }, [campaignId, entitySlug])
+    await dmPage.evaluate(
+      async ([id, slug]: string[]) => {
+        const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
+        await fetch(`/api/campaigns/${id}/entities/${slug}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+          body: JSON.stringify({ visibility: 'dm_only' }),
+        })
+      },
+      [campaignId, entitySlug],
+    )
 
     // DM still sees it
-    const dmStatus = await dmPage.evaluate(async ([id, slug]: string[]) => {
-      const res = await fetch(`/api/campaigns/${id}/entities/${slug}`)
-      return res.status
-    }, [campaignId, entitySlug])
+    const dmStatus = await dmPage.evaluate(
+      async ([id, slug]: string[]) => {
+        const res = await fetch(`/api/campaigns/${id}/entities/${slug}`)
+        return res.status
+      },
+      [campaignId, entitySlug],
+    )
     expect(dmStatus).toBe(200)
 
     await dmContext.close()

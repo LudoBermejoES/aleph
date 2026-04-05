@@ -30,9 +30,12 @@ export function canTransitionQuestStatus(from: string, to: string): boolean {
 /**
  * Filter secret quests for non-DM/co-DM roles.
  */
-export function filterSecretQuests<T extends { isSecret: boolean }>(quests: T[], role: string): T[] {
+export function filterSecretQuests<T extends { isSecret: boolean }>(
+  quests: T[],
+  role: string,
+): T[] {
   if (hasMinRole(role as CampaignRole, 'co_dm')) return quests
-  return quests.filter(q => !q.isSecret)
+  return quests.filter((q) => !q.isSecret)
 }
 
 /**
@@ -43,5 +46,5 @@ export function filterRevealedConsequences<T extends { revealed: boolean }>(
   role: string,
 ): T[] {
   if (hasMinRole(role as CampaignRole, 'co_dm')) return consequences
-  return consequences.filter(c => c.revealed)
+  return consequences.filter((c) => c.revealed)
 }

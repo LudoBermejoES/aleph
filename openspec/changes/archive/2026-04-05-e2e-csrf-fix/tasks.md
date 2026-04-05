@@ -3,6 +3,7 @@
 ## Approach
 
 Run each E2E spec file individually, **always in headed mode** so failures are visible. For each file:
+
 1. Run the spec: `npx playwright test tests/e2e/<file>.spec.ts --headed --reporter=line 2>&1 > /tmp/e2e-<file>.txt`
 2. Check results — if any tests fail, read the error details
 3. Fix the issues (common causes: missing CSRF token on `page.evaluate` fetch calls, `{ data, meta }` vs `[]` shape mismatches, stale UI assumptions)
@@ -10,11 +11,13 @@ Run each E2E spec file individually, **always in headed mode** so failures are v
 5. Mark task complete and move to the next file
 
 **Important notes:**
+
 - Always run one file at a time — never batch
 - If a test fails with `ERR_CONNECTION_REFUSED` or `SyntaxError: apiFetch not exported`, just re-run — it's a server restart / worker cache issue
 - `api.getCharacters()` returns `{ data, meta }` not `[]` — always unwrap with `Array.isArray(x) ? x : x?.data ?? []`
 
 **Common fix pattern for CSRF:**
+
 - In `page.evaluate()` with fetch POST/PUT/PATCH/DELETE: add `const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''` and `'X-CSRF-Token': csrf` to headers
 - Or replace with `apiFetch(page, path, { method, body })` from `./helpers`
 

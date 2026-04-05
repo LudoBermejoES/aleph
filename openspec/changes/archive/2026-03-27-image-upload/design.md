@@ -7,6 +7,7 @@ Tiptap's `@tiptap/extension-file-handler` (free, not Pro) is the standard way to
 ## Goals / Non-Goals
 
 **Goals:**
+
 - Paste an image from clipboard → upload → inline `<img>` node in editor
 - Drag-and-drop an image file onto the editor → same flow
 - Toolbar "insert image" button → file picker → same flow
@@ -15,6 +16,7 @@ Tiptap's `@tiptap/extension-file-handler` (free, not Pro) is the standard way to
 - Markdown serialisation: image nodes serialise as `![](url)` and round-trip correctly
 
 **Non-Goals:**
+
 - Image resizing/cropping UI in the editor (can add later via tiptap Image `resize` option)
 - Deduplication of identical uploads
 - Image management page / gallery
@@ -23,24 +25,29 @@ Tiptap's `@tiptap/extension-file-handler` (free, not Pro) is the standard way to
 ## Decisions
 
 ### 1. Storage: flat files per campaign, random filename
+
 `{campaign.contentDir}/images/{uuid}{ext}` — mirrors the map upload pattern. A UUID filename avoids collisions and prevents path-traversal guessing. No DB table needed; the image URL embedded in markdown is the reference.
 
 **Alternative considered:** Storing images in a DB table (id, campaignId, path, uploadedBy). Rejected: adds schema complexity and migrations with no benefit for the current use case (images are just embedded URLs in markdown).
 
 ### 2. Upload endpoint: `POST /api/campaigns/:id/images`
+
 Multipart form, field name `file`, returns `{ url: "/api/campaigns/:id/images/:filename" }`. Requires `editor` role minimum (same as entity edit).
 
 **Serve endpoint:** `GET /api/campaigns/:id/images/:filename` — reads file from disk, streams with correct Content-Type and Cache-Control headers. Auth: campaign members (visitor+).
 
 ### 3. Tiptap integration: `@tiptap/extension-file-handler` + `tiptap-image-plus`
+
 `FileHandler` handles paste and drop; its `onPaste`/`onDrop` callbacks call the upload endpoint (via `$fetch`) and insert an image node. Instead of bare `@tiptap/extension-image`, we use `tiptap-image-plus` (free community extension, supports Tiptap v3) which adds drag-to-resize handles, left/center/right alignment, and wrapper styles — with `allowBase64: false`.
 
 **Alternative considered:** Custom PasteRule on the Image extension. `FileHandler` is cleaner — it handles both paste and drop, filters MIME types, and is the officially recommended approach. `tiptap-image-plus` was chosen over bare `@tiptap/extension-image` because it adds resize/alignment UX with no extra cost.
 
 ### 4. Toolbar button: file input (hidden `<input type="file">`)
+
 A toolbar button triggers a hidden file input. On change, same upload-then-insert flow. Reuses the same upload composable.
 
 ### 5. No new DB migration needed
+
 Images are purely filesystem-based. The markdown content already stores the URL string. No schema change required.
 
 ## Risks / Trade-offs

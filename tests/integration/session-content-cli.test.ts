@@ -18,7 +18,10 @@ async function apiRaw(url: string, opts?: any) {
 
 async function api(url: string, opts?: any) {
   const res = await apiRaw(url, opts)
-  if (!res.ok) { const t = await res.text(); throw new Error(`${opts?.method ?? 'GET'} ${url} → ${res.status}: ${t}`) }
+  if (!res.ok) {
+    const t = await res.text()
+    throw new Error(`${opts?.method ?? 'GET'} ${url} → ${res.status}: ${t}`)
+  }
   if (res.status === 204) return null
   return res.json()
 }
@@ -40,7 +43,11 @@ async function signUpAndGetCookie(email: string, password = 'password123', name 
 async function createApiKey(cookie: string, name = 'test-key') {
   const csrfMatch = cookie.match(/csrf_token=([^;]+)/)
   const csrfToken = csrfMatch?.[1] || ''
-  const res = await apiRaw('/api/apikeys', { method: 'POST', headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken }, body: { name } })
+  const res = await apiRaw('/api/apikeys', {
+    method: 'POST',
+    headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
+    body: { name },
+  })
   return res.json()
 }
 
@@ -73,7 +80,7 @@ describe('Session Content CLI (integration)', () => {
   it('session update sets title via CLI', () => {
     const output = execSync(
       `${CLI} session update ${sessionSlug} --campaign ${campaignId} --title "Updated Title"`,
-      { encoding: 'utf8', env: { ...process.env, ALEPH_URL: BASE_URL, ALEPH_TOKEN: apiKey } }
+      { encoding: 'utf8', env: { ...process.env, ALEPH_URL: BASE_URL, ALEPH_TOKEN: apiKey } },
     )
     expect(output).toContain('Session updated.')
   })
@@ -81,10 +88,11 @@ describe('Session Content CLI (integration)', () => {
   it('session update with no fields exits with error', () => {
     let threw = false
     try {
-      execSync(
-        `${CLI} session update ${sessionSlug} --campaign ${campaignId}`,
-        { encoding: 'utf8', env: { ...process.env, ALEPH_URL: BASE_URL, ALEPH_TOKEN: apiKey }, stdio: ['pipe', 'pipe', 'pipe'] }
-      )
+      execSync(`${CLI} session update ${sessionSlug} --campaign ${campaignId}`, {
+        encoding: 'utf8',
+        env: { ...process.env, ALEPH_URL: BASE_URL, ALEPH_TOKEN: apiKey },
+        stdio: ['pipe', 'pipe', 'pipe'],
+      })
     } catch (e: any) {
       threw = true
       expect(e.status).toBe(1)
@@ -100,12 +108,12 @@ describe('Session Content CLI (integration)', () => {
 
     execSync(
       `${CLI} session content set ${sessionSlug} --campaign ${campaignId} --type manual_notes --file ${tmpFile}`,
-      { encoding: 'utf8', env: { ...process.env, ALEPH_URL: BASE_URL, ALEPH_TOKEN: apiKey } }
+      { encoding: 'utf8', env: { ...process.env, ALEPH_URL: BASE_URL, ALEPH_TOKEN: apiKey } },
     )
 
     const output = execSync(
       `${CLI} session content get ${sessionSlug} --campaign ${campaignId} --type manual_notes`,
-      { encoding: 'utf8', env: { ...process.env, ALEPH_URL: BASE_URL, ALEPH_TOKEN: apiKey } }
+      { encoding: 'utf8', env: { ...process.env, ALEPH_URL: BASE_URL, ALEPH_TOKEN: apiKey } },
     )
     expect(output.trim()).toBe(testContent)
     fs.unlinkSync(tmpFile)
@@ -114,7 +122,7 @@ describe('Session Content CLI (integration)', () => {
   it('session attendance set updates RSVP', () => {
     const output = execSync(
       `${CLI} session attendance set ${sessionSlug} --campaign ${campaignId} --status accepted`,
-      { encoding: 'utf8', env: { ...process.env, ALEPH_URL: BASE_URL, ALEPH_TOKEN: apiKey } }
+      { encoding: 'utf8', env: { ...process.env, ALEPH_URL: BASE_URL, ALEPH_TOKEN: apiKey } },
     )
     expect(output).toContain('Attendance updated.')
   })

@@ -25,15 +25,17 @@ export default defineEventHandler(async (event) => {
   const db = useDb()
   const id = randomUUID()
 
-  db.insert(entityTypes).values({
-    id,
-    campaignId,
-    slug: slugify(name),
-    name: name.trim(),
-    icon: icon || null,
-    isBuiltin: false,
-    sortOrder: 100,
-  }).run()
+  db.insert(entityTypes)
+    .values({
+      id,
+      campaignId,
+      slug: slugify(name),
+      name: name.trim(),
+      icon: icon || null,
+      isBuiltin: false,
+      sortOrder: 100,
+    })
+    .run()
 
   return { id, slug: slugify(name), name: name.trim() }
 })

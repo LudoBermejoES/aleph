@@ -57,7 +57,9 @@ test.describe('Economy Workflow', () => {
     await page.waitForLoadState('networkidle')
 
     // Verify removed
-    await expect(page.locator(`[data-testid="currency-row-${currencyId}"]`)).not.toBeVisible({ timeout: 10000 })
+    await expect(page.locator(`[data-testid="currency-row-${currencyId}"]`)).not.toBeVisible({
+      timeout: 10000,
+    })
     await expect(page.locator('main >> text=DeleteMe')).not.toBeVisible()
   })
 
@@ -110,7 +112,9 @@ test.describe('Economy Workflow', () => {
     await page.waitForLoadState('networkidle')
 
     // Form should close and transaction should appear in list
-    await expect(page.locator('[data-testid="transaction-form"]')).not.toBeVisible({ timeout: 10000 })
+    await expect(page.locator('[data-testid="transaction-form"]')).not.toBeVisible({
+      timeout: 10000,
+    })
     await expect(page.locator('[data-testid="transaction-table"]')).toBeVisible({ timeout: 10000 })
     await expect(page.locator('main >> text=E2E grant test')).toBeVisible({ timeout: 10000 })
   })
@@ -141,7 +145,9 @@ test.describe('Economy Workflow', () => {
     await page.waitForSelector('[data-testid="add-stock-form"]')
 
     // Select the item
-    const itemOption = page.locator('[data-testid="stock-item-select"] option:has-text("Iron Shield")')
+    const itemOption = page.locator(
+      '[data-testid="stock-item-select"] option:has-text("Iron Shield")',
+    )
     const hasOption = await itemOption.count()
     if (hasOption > 0) {
       await page.selectOption('[data-testid="stock-item-select"]', { label: 'Iron Shield' })
@@ -170,10 +176,14 @@ test.describe('Economy Workflow', () => {
       method: 'POST',
       body: { name: 'Remove Stock Shop' },
     })
-    const removeStock = await apiFetch(page, `/api/campaigns/${campaignId}/shops/${(removeStockShop as any).slug}/stock`, {
-      method: 'POST',
-      body: { itemId: (removableSword as any).id, quantity: 3 },
-    })
+    const removeStock = await apiFetch(
+      page,
+      `/api/campaigns/${campaignId}/shops/${(removeStockShop as any).slug}/stock`,
+      {
+        method: 'POST',
+        body: { itemId: (removableSword as any).id, quantity: 3 },
+      },
+    )
     const shopSlug = (removeStockShop as any).slug
     const stockId = (removeStock as any).id
 
@@ -204,10 +214,14 @@ test.describe('Economy Workflow', () => {
       method: 'POST',
       body: { name: 'Edit Stock Shop' },
     })
-    const editStock = await apiFetch(page, `/api/campaigns/${campaignId}/shops/${(editStockShop as any).slug}/stock`, {
-      method: 'POST',
-      body: { itemId: (editablePotion as any).id, quantity: 5 },
-    })
+    const editStock = await apiFetch(
+      page,
+      `/api/campaigns/${campaignId}/shops/${(editStockShop as any).slug}/stock`,
+      {
+        method: 'POST',
+        body: { itemId: (editablePotion as any).id, quantity: 5 },
+      },
+    )
     const shopSlug = (editStockShop as any).slug
     const stockId = (editStock as any).id
 
@@ -223,7 +237,9 @@ test.describe('Economy Workflow', () => {
     await page.click(`[data-testid="stock-edit-save-${stockId}"]`)
     await page.waitForLoadState('networkidle')
 
-    await expect(page.locator(`[data-testid="stock-edit-form-${stockId}"]`)).not.toBeVisible({ timeout: 5000 })
+    await expect(page.locator(`[data-testid="stock-edit-form-${stockId}"]`)).not.toBeVisible({
+      timeout: 5000,
+    })
     await expect(page.locator('main >> text=12')).toBeVisible({ timeout: 10000 })
   })
 
@@ -241,7 +257,9 @@ test.describe('Economy Workflow', () => {
     await page.waitForSelector('[data-testid="inventory-form"]')
 
     // OwnerPicker should be rendered (input in place of raw text field)
-    await expect(page.locator('[data-testid="inv-owner-id"] input').first()).toBeVisible({ timeout: 5000 })
+    await expect(page.locator('[data-testid="inv-owner-id"] input').first()).toBeVisible({
+      timeout: 5000,
+    })
 
     // Switching to party type auto-fills owner
     await page.selectOption('[data-testid="inv-owner-type"]', 'party')

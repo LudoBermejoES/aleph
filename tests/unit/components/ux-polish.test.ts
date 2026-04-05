@@ -59,7 +59,10 @@ describe('DiceRoller dice buttons aria-labels (11.6)', () => {
 
 // 11.5 extra — character filter toolbar has role="toolbar"
 describe('CharacterFilterBar accessibility (9.1)', () => {
-  const source = readFileSync(resolve(root, 'app/components/characters/CharacterFilterBar.vue'), 'utf-8')
+  const source = readFileSync(
+    resolve(root, 'app/components/characters/CharacterFilterBar.vue'),
+    'utf-8',
+  )
 
   it('has role="toolbar"', () => {
     expect(source).toContain('role="toolbar"')
@@ -77,18 +80,27 @@ describe('CharacterFilterBar accessibility (9.1)', () => {
 // 11.7 — select elements have accessible names
 describe('Select elements have aria-labels (11.7)', () => {
   it('entities index: entity type filter has aria-label', () => {
-    const source = readFileSync(resolve(root, 'app/pages/campaigns/[id]/entities/index.vue'), 'utf-8')
+    const source = readFileSync(
+      resolve(root, 'app/pages/campaigns/[id]/entities/index.vue'),
+      'utf-8',
+    )
     expect(source).toContain('aria.filters.entityType')
   })
 
   it('inventories index: owner type filter selects have aria-labels', () => {
-    const source = readFileSync(resolve(root, 'app/pages/campaigns/[id]/inventories/index.vue'), 'utf-8')
+    const source = readFileSync(
+      resolve(root, 'app/pages/campaigns/[id]/inventories/index.vue'),
+      'utf-8',
+    )
     expect(source).toContain('aria.filters.inventoryOwnerType')
     expect(source).toContain('aria.filters.inventoryCreateOwnerType')
   })
 
   it('sessions detail: status select has aria-label', () => {
-    const source = readFileSync(resolve(root, 'app/pages/campaigns/[id]/sessions/[slug]/index.vue'), 'utf-8')
+    const source = readFileSync(
+      resolve(root, 'app/pages/campaigns/[id]/sessions/[slug]/index.vue'),
+      'utf-8',
+    )
     expect(source).toContain('aria.filters.sessionStatus')
   })
 
@@ -98,7 +110,10 @@ describe('Select elements have aria-labels (11.7)', () => {
   })
 
   it('locations detail: character and organization selects have aria-labels', () => {
-    const source = readFileSync(resolve(root, 'app/pages/campaigns/[id]/locations/[slug]/index.vue'), 'utf-8')
+    const source = readFileSync(
+      resolve(root, 'app/pages/campaigns/[id]/locations/[slug]/index.vue'),
+      'utf-8',
+    )
     expect(source).toContain('aria.filters.locationCharacter')
     expect(source).toContain('aria.filters.locationOrganization')
   })
@@ -106,7 +121,10 @@ describe('Select elements have aria-labels (11.7)', () => {
 
 // Session-groups dialog uses shadcn Dialog
 describe('SessionGroups uses shadcn Dialog (4.1-4.2)', () => {
-  const source = readFileSync(resolve(root, 'app/pages/campaigns/[id]/session-groups/index.vue'), 'utf-8')
+  const source = readFileSync(
+    resolve(root, 'app/pages/campaigns/[id]/session-groups/index.vue'),
+    'utf-8',
+  )
 
   it('uses Dialog component instead of hand-rolled modal', () => {
     expect(source).toContain('<Dialog')

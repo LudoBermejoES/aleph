@@ -9,7 +9,9 @@ export default defineEventHandler(async (event) => {
   const campaignId = getRouterParam(event, 'id')!
   const slug = getRouterParam(event, 'slug')!
   const attendanceSchema = z.object({
-    rsvpStatus: z.enum(['pending', 'accepted', 'declined', 'tentative', 'yes', 'no', 'maybe']).optional(),
+    rsvpStatus: z
+      .enum(['pending', 'accepted', 'declined', 'tentative', 'yes', 'no', 'maybe'])
+      .optional(),
     attended: z.boolean().optional(),
     characterId: z.string().optional(),
   })
@@ -17,13 +19,17 @@ export default defineEventHandler(async (event) => {
   const userId = event.context.user.id
   const db = useDb()
 
-  const session = db.select().from(gameSessions)
+  const session = db
+    .select()
+    .from(gameSessions)
     .where(and(eq(gameSessions.campaignId, campaignId), eq(gameSessions.slug, slug)))
     .get()
   if (!session) throw createError({ statusCode: 404, message: 'Session not found' })
 
   // Find or create attendance record
-  let record = db.select().from(sessionAttendance)
+  let record = db
+    .select()
+    .from(sessionAttendance)
     .where(and(eq(sessionAttendance.sessionId, session.id), eq(sessionAttendance.userId, userId)))
     .get()
 
@@ -34,14 +40,16 @@ export default defineEventHandler(async (event) => {
     if (body.characterId !== undefined) updates.characterId = body.characterId
     db.update(sessionAttendance).set(updates).where(eq(sessionAttendance.id, record.id)).run()
   } else {
-    db.insert(sessionAttendance).values({
-      id: randomUUID(),
-      sessionId: session.id,
-      userId,
-      characterId: body.characterId || null,
-      rsvpStatus: body.rsvpStatus || 'pending',
-      attended: body.attended || false,
-    }).run()
+    db.insert(sessionAttendance)
+      .values({
+        id: randomUUID(),
+        sessionId: session.id,
+        userId,
+        characterId: body.characterId || null,
+        rsvpStatus: body.rsvpStatus || 'pending',
+        attended: body.attended || false,
+      })
+      .run()
   }
 
   return { success: true }

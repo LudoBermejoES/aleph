@@ -44,11 +44,15 @@ export const EntityMention = Node.create<EntityMentionOptions>({
   },
 
   renderHTML({ node, HTMLAttributes }) {
-    return ['span', mergeAttributes(HTMLAttributes, {
-      'data-entity-mention': '',
-      'data-slug': node.attrs.slug,
-      class: 'entity-mention',
-    }), `@${node.attrs.label || node.attrs.slug}`]
+    return [
+      'span',
+      mergeAttributes(HTMLAttributes, {
+        'data-entity-mention': '',
+        'data-slug': node.attrs.slug,
+        class: 'entity-mention',
+      }),
+      `@${node.attrs.label || node.attrs.slug}`,
+    ]
   },
 
   renderText({ node }) {

@@ -5,7 +5,9 @@ const uid = () => Date.now().toString(36).slice(-4)
 
 test.describe('Collaborative Editing', () => {
   // Task 9.5: "Collaborate" button on entity detail navigates to edit with ?collab=true
-  test('"Collaborate" button on entity detail navigates to edit with ?collab=true', async ({ page }) => {
+  test('"Collaborate" button on entity detail navigates to edit with ?collab=true', async ({
+    page,
+  }) => {
     await registerAndLogin(page, `CollabDM ${uid()}`)
     await createCampaign(page, `Collab Camp ${uid()}`)
 
@@ -38,7 +40,9 @@ test.describe('Collaborative Editing', () => {
   })
 
   // Task 9.5: regular "Edit" button does NOT include ?collab param
-  test('"Edit" button on entity detail navigates to edit without ?collab param', async ({ page }) => {
+  test('"Edit" button on entity detail navigates to edit without ?collab param', async ({
+    page,
+  }) => {
     await registerAndLogin(page, `SoloDM ${uid()}`)
     await createCampaign(page, `Solo Camp ${uid()}`)
 

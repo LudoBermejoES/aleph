@@ -22,13 +22,15 @@ export default defineEventHandler(async (event) => {
   const db = useDb()
 
   const id = randomUUID()
-  db.insert(characterFolders).values({
-    id,
-    campaignId,
-    name: body.name,
-    parentFolderId: body.parentFolderId || null,
-    sortOrder: body.sortOrder || 0,
-  }).run()
+  db.insert(characterFolders)
+    .values({
+      id,
+      campaignId,
+      name: body.name,
+      parentFolderId: body.parentFolderId || null,
+      sortOrder: body.sortOrder || 0,
+    })
+    .run()
 
   return { id, name: body.name }
 })

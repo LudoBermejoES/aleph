@@ -10,14 +10,21 @@ import {
 describe('stripSecretStats', () => {
   const stats = [
     { id: '1', value: '144', defName: 'HP', defKey: 'hp', defIsSecret: false, groupName: 'Combat' },
-    { id: '2', value: 'Sunlight', defName: 'Weakness', defKey: 'weakness', defIsSecret: true, groupName: 'Combat' },
+    {
+      id: '2',
+      value: 'Sunlight',
+      defName: 'Weakness',
+      defKey: 'weakness',
+      defIsSecret: true,
+      groupName: 'Combat',
+    },
     { id: '3', value: '16', defName: 'AC', defKey: 'ac', defIsSecret: false, groupName: 'Combat' },
   ]
 
   it('removes secret stats for player role', () => {
     const result = stripSecretStats(stats, 'player')
     expect(result).toHaveLength(2)
-    expect(result.every(s => !s.defIsSecret)).toBe(true)
+    expect(result.every((s) => !s.defIsSecret)).toBe(true)
   })
 
   it('keeps all stats for DM role', () => {

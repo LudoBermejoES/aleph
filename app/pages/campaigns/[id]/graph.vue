@@ -1,7 +1,9 @@
 <template>
   <div class="p-8">
     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary"> {{ $t('common.campaign') }}</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">
+        {{ $t('common.campaign') }}</NuxtLink
+      >
       <span>/</span>
       <span>{{ $t('graph.title') }}</span>
     </div>
@@ -17,9 +19,14 @@
     <ErrorToast v-if="error" :message="error" @dismiss="error = null" />
 
     <!-- Filter Panel -->
-    <div v-if="!loading && graphData && Object.keys(graphData.nodes).length" class="flex gap-4 mb-4 flex-wrap">
+    <div
+      v-if="!loading && graphData && Object.keys(graphData.nodes).length"
+      class="flex gap-4 mb-4 flex-wrap"
+    >
       <div class="space-y-1">
-        <label class="text-xs font-medium text-muted-foreground">{{ $t('graph.entityTypes') }}</label>
+        <label class="text-xs font-medium text-muted-foreground">{{
+          $t('graph.entityTypes')
+        }}</label>
         <div class="flex gap-2">
           <label v-for="t in entityTypes" :key="t" class="flex items-center gap-1 text-xs">
             <input type="checkbox" :checked="selectedTypes.has(t)" @change="toggleType(t)" />
@@ -49,8 +56,15 @@
       />
       <GraphLegend :edges="filteredEdges" />
       <p class="text-xs text-muted-foreground mt-2">
-        {{ $t('graph.stats', { nodes: Object.keys(filteredNodes).length, edges: Object.keys(filteredEdges).length }) }}
-        <span v-if="Object.keys(filteredNodes).length > 500" class="ml-2 text-amber-600">{{ $t('timelines.largeGraph') }}</span>
+        {{
+          $t('graph.stats', {
+            nodes: Object.keys(filteredNodes).length,
+            edges: Object.keys(filteredEdges).length,
+          })
+        }}
+        <span v-if="Object.keys(filteredNodes).length > 500" class="ml-2 text-amber-600">{{
+          $t('timelines.largeGraph')
+        }}</span>
       </p>
     </div>
     <p v-else class="text-muted-foreground text-center py-16">{{ $t('graph.empty') }}</p>

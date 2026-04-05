@@ -41,9 +41,7 @@ function printTable(rows) {
   }
   const keys = Object.keys(rows[0])
   // Compute column widths
-  const widths = keys.map(k =>
-    Math.max(k.length, ...rows.map(r => String(r[k] ?? '').length))
-  )
+  const widths = keys.map((k) => Math.max(k.length, ...rows.map((r) => String(r[k] ?? '').length)))
   // Header
   const header = keys.map((k, i) => chalk.bold(k.padEnd(widths[i]))).join('  ')
   console.log(header)
@@ -56,7 +54,7 @@ function printTable(rows) {
 }
 
 function printObject(obj) {
-  const maxKey = Math.max(...Object.keys(obj).map(k => k.length))
+  const maxKey = Math.max(...Object.keys(obj).map((k) => k.length))
   for (const [k, v] of Object.entries(obj)) {
     if (v === null || v === undefined) continue
     const val = typeof v === 'object' ? JSON.stringify(v) : String(v)

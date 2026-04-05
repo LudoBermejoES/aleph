@@ -62,7 +62,9 @@ export function useEditorDraft(draftKey: Ref<string | null>, serverContent: Ref<
     if (!draftKey.value) return
     try {
       localStorage.removeItem(draftKey.value)
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
     draftContent.value = null
   }
 

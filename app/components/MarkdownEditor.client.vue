@@ -1,56 +1,260 @@
 <template>
   <div class="border border-border rounded-lg overflow-hidden">
     <!-- Draft restore banner -->
-    <div v-if="hasDraft" class="flex items-center justify-between gap-2 px-3 py-2 bg-yellow-50 dark:bg-yellow-900/20 border-b border-yellow-200 dark:border-yellow-700 text-sm">
+    <div
+      v-if="hasDraft"
+      class="flex items-center justify-between gap-2 px-3 py-2 bg-yellow-50 dark:bg-yellow-900/20 border-b border-yellow-200 dark:border-yellow-700 text-sm"
+    >
       <span class="text-yellow-800 dark:text-yellow-200">{{ $t('editor.draftBanner') }}</span>
       <div class="flex gap-2 shrink-0">
-        <button type="button" class="px-2 py-0.5 rounded bg-yellow-200 dark:bg-yellow-700 hover:bg-yellow-300 dark:hover:bg-yellow-600 text-yellow-900 dark:text-yellow-100 text-xs font-medium" @click="onRestoreDraft">{{ $t('editor.restoreDraft') }}</button>
-        <button type="button" class="px-2 py-0.5 rounded hover:bg-yellow-100 dark:hover:bg-yellow-800 text-yellow-700 dark:text-yellow-300 text-xs" @click="onDiscardDraft">{{ $t('editor.discardDraft') }}</button>
+        <button
+          type="button"
+          class="px-2 py-0.5 rounded bg-yellow-200 dark:bg-yellow-700 hover:bg-yellow-300 dark:hover:bg-yellow-600 text-yellow-900 dark:text-yellow-100 text-xs font-medium"
+          @click="onRestoreDraft"
+        >
+          {{ $t('editor.restoreDraft') }}
+        </button>
+        <button
+          type="button"
+          class="px-2 py-0.5 rounded hover:bg-yellow-100 dark:hover:bg-yellow-800 text-yellow-700 dark:text-yellow-300 text-xs"
+          @click="onDiscardDraft"
+        >
+          {{ $t('editor.discardDraft') }}
+        </button>
       </div>
     </div>
     <!-- Toolbar -->
     <div class="flex flex-wrap items-center gap-0.5 p-2 border-b border-border bg-muted/30">
       <!-- Undo/Redo -->
-      <button type="button" @mousedown.prevent="undo" class="p-1.5 rounded text-xs hover:bg-accent" :title="$t('editor.toolbar.undo')" :aria-label="$t('aria.markdownEditor.undo')">↩</button>
-      <button type="button" @mousedown.prevent="redo" class="p-1.5 rounded text-xs hover:bg-accent" :title="$t('editor.toolbar.redo')" :aria-label="$t('aria.markdownEditor.redo')">↪</button>
+      <button
+        type="button"
+        @mousedown.prevent="undo"
+        class="p-1.5 rounded text-xs hover:bg-accent"
+        :title="$t('editor.toolbar.undo')"
+        :aria-label="$t('aria.markdownEditor.undo')"
+      >
+        ↩
+      </button>
+      <button
+        type="button"
+        @mousedown.prevent="redo"
+        class="p-1.5 rounded text-xs hover:bg-accent"
+        :title="$t('editor.toolbar.redo')"
+        :aria-label="$t('aria.markdownEditor.redo')"
+      >
+        ↪
+      </button>
       <div class="w-px h-4 bg-border mx-1" />
 
       <!-- Text formatting -->
-      <button type="button" @mousedown.prevent="toggleBold" :class="['p-1.5 rounded text-xs font-bold', editorState?.isBold ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.bold')" :aria-label="$t('aria.markdownEditor.bold')" :aria-pressed="editorState?.isBold">B</button>
-      <button type="button" @mousedown.prevent="toggleItalic" :class="['p-1.5 rounded text-xs italic', editorState?.isItalic ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.italic')" :aria-label="$t('aria.markdownEditor.italic')" :aria-pressed="editorState?.isItalic">I</button>
-      <button type="button" @mousedown.prevent="toggleStrike" :class="['p-1.5 rounded text-xs line-through', editorState?.isStrike ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.strikethrough')" :aria-label="$t('aria.markdownEditor.strikethrough')" :aria-pressed="editorState?.isStrike">S</button>
-      <button type="button" @mousedown.prevent="toggleCode" :class="['p-1.5 rounded text-xs font-mono', editorState?.isCode ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.inlineCode')" :aria-label="$t('aria.markdownEditor.inlineCode')" :aria-pressed="editorState?.isCode">&lt;/&gt;</button>
+      <button
+        type="button"
+        @mousedown.prevent="toggleBold"
+        :class="[
+          'p-1.5 rounded text-xs font-bold',
+          editorState?.isBold ? 'bg-accent' : 'hover:bg-accent',
+        ]"
+        :title="$t('editor.toolbar.bold')"
+        :aria-label="$t('aria.markdownEditor.bold')"
+        :aria-pressed="editorState?.isBold"
+      >
+        B
+      </button>
+      <button
+        type="button"
+        @mousedown.prevent="toggleItalic"
+        :class="[
+          'p-1.5 rounded text-xs italic',
+          editorState?.isItalic ? 'bg-accent' : 'hover:bg-accent',
+        ]"
+        :title="$t('editor.toolbar.italic')"
+        :aria-label="$t('aria.markdownEditor.italic')"
+        :aria-pressed="editorState?.isItalic"
+      >
+        I
+      </button>
+      <button
+        type="button"
+        @mousedown.prevent="toggleStrike"
+        :class="[
+          'p-1.5 rounded text-xs line-through',
+          editorState?.isStrike ? 'bg-accent' : 'hover:bg-accent',
+        ]"
+        :title="$t('editor.toolbar.strikethrough')"
+        :aria-label="$t('aria.markdownEditor.strikethrough')"
+        :aria-pressed="editorState?.isStrike"
+      >
+        S
+      </button>
+      <button
+        type="button"
+        @mousedown.prevent="toggleCode"
+        :class="[
+          'p-1.5 rounded text-xs font-mono',
+          editorState?.isCode ? 'bg-accent' : 'hover:bg-accent',
+        ]"
+        :title="$t('editor.toolbar.inlineCode')"
+        :aria-label="$t('aria.markdownEditor.inlineCode')"
+        :aria-pressed="editorState?.isCode"
+      >
+        &lt;/&gt;
+      </button>
       <div class="w-px h-4 bg-border mx-1" />
 
       <!-- Headings -->
-      <button type="button" @mousedown.prevent="setHeading(1)" :class="['p-1.5 rounded text-xs', editorState?.isH1 ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.heading1')" :aria-label="$t('aria.markdownEditor.heading1')" :aria-pressed="editorState?.isH1">H1</button>
-      <button type="button" @mousedown.prevent="setHeading(2)" :class="['p-1.5 rounded text-xs', editorState?.isH2 ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.heading2')" :aria-label="$t('aria.markdownEditor.heading2')" :aria-pressed="editorState?.isH2">H2</button>
-      <button type="button" @mousedown.prevent="setHeading(3)" :class="['p-1.5 rounded text-xs', editorState?.isH3 ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.heading3')" :aria-label="$t('aria.markdownEditor.heading3')" :aria-pressed="editorState?.isH3">H3</button>
+      <button
+        type="button"
+        @mousedown.prevent="setHeading(1)"
+        :class="['p-1.5 rounded text-xs', editorState?.isH1 ? 'bg-accent' : 'hover:bg-accent']"
+        :title="$t('editor.toolbar.heading1')"
+        :aria-label="$t('aria.markdownEditor.heading1')"
+        :aria-pressed="editorState?.isH1"
+      >
+        H1
+      </button>
+      <button
+        type="button"
+        @mousedown.prevent="setHeading(2)"
+        :class="['p-1.5 rounded text-xs', editorState?.isH2 ? 'bg-accent' : 'hover:bg-accent']"
+        :title="$t('editor.toolbar.heading2')"
+        :aria-label="$t('aria.markdownEditor.heading2')"
+        :aria-pressed="editorState?.isH2"
+      >
+        H2
+      </button>
+      <button
+        type="button"
+        @mousedown.prevent="setHeading(3)"
+        :class="['p-1.5 rounded text-xs', editorState?.isH3 ? 'bg-accent' : 'hover:bg-accent']"
+        :title="$t('editor.toolbar.heading3')"
+        :aria-label="$t('aria.markdownEditor.heading3')"
+        :aria-pressed="editorState?.isH3"
+      >
+        H3
+      </button>
       <div class="w-px h-4 bg-border mx-1" />
 
       <!-- Lists -->
-      <button type="button" @mousedown.prevent="toggleBulletList" :class="['p-1.5 rounded text-xs', editorState?.isBulletList ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.bulletList')" :aria-label="$t('aria.markdownEditor.bulletList')" :aria-pressed="editorState?.isBulletList">• List</button>
-      <button type="button" @mousedown.prevent="toggleOrderedList" :class="['p-1.5 rounded text-xs', editorState?.isOrderedList ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.orderedList')" :aria-label="$t('aria.markdownEditor.orderedList')" :aria-pressed="editorState?.isOrderedList">1. List</button>
-      <button type="button" @mousedown.prevent="toggleTaskList" :class="['p-1.5 rounded text-xs', editorState?.isTaskList ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.taskList')" :aria-label="$t('aria.markdownEditor.taskList')" :aria-pressed="editorState?.isTaskList">☑ Tasks</button>
+      <button
+        type="button"
+        @mousedown.prevent="toggleBulletList"
+        :class="[
+          'p-1.5 rounded text-xs',
+          editorState?.isBulletList ? 'bg-accent' : 'hover:bg-accent',
+        ]"
+        :title="$t('editor.toolbar.bulletList')"
+        :aria-label="$t('aria.markdownEditor.bulletList')"
+        :aria-pressed="editorState?.isBulletList"
+      >
+        • List
+      </button>
+      <button
+        type="button"
+        @mousedown.prevent="toggleOrderedList"
+        :class="[
+          'p-1.5 rounded text-xs',
+          editorState?.isOrderedList ? 'bg-accent' : 'hover:bg-accent',
+        ]"
+        :title="$t('editor.toolbar.orderedList')"
+        :aria-label="$t('aria.markdownEditor.orderedList')"
+        :aria-pressed="editorState?.isOrderedList"
+      >
+        1. List
+      </button>
+      <button
+        type="button"
+        @mousedown.prevent="toggleTaskList"
+        :class="[
+          'p-1.5 rounded text-xs',
+          editorState?.isTaskList ? 'bg-accent' : 'hover:bg-accent',
+        ]"
+        :title="$t('editor.toolbar.taskList')"
+        :aria-label="$t('aria.markdownEditor.taskList')"
+        :aria-pressed="editorState?.isTaskList"
+      >
+        ☑ Tasks
+      </button>
       <div class="w-px h-4 bg-border mx-1" />
 
       <!-- Blocks -->
-      <button type="button" @mousedown.prevent="toggleBlockquote" :class="['p-1.5 rounded text-xs', editorState?.isBlockquote ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.blockquote')" :aria-label="$t('aria.markdownEditor.blockquote')" :aria-pressed="editorState?.isBlockquote">❝ Quote</button>
-      <button type="button" @mousedown.prevent="toggleCodeBlock" :class="['p-1.5 rounded text-xs font-mono', editorState?.isCodeBlock ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.codeBlock')" :aria-label="$t('aria.markdownEditor.codeBlock')" :aria-pressed="editorState?.isCodeBlock">{} Block</button>
-      <button type="button" @mousedown.prevent="insertHorizontalRule" class="p-1.5 rounded text-xs hover:bg-accent" :title="$t('editor.toolbar.horizontalRule')" :aria-label="$t('aria.markdownEditor.horizontalRule')">— HR</button>
+      <button
+        type="button"
+        @mousedown.prevent="toggleBlockquote"
+        :class="[
+          'p-1.5 rounded text-xs',
+          editorState?.isBlockquote ? 'bg-accent' : 'hover:bg-accent',
+        ]"
+        :title="$t('editor.toolbar.blockquote')"
+        :aria-label="$t('aria.markdownEditor.blockquote')"
+        :aria-pressed="editorState?.isBlockquote"
+      >
+        ❝ Quote
+      </button>
+      <button
+        type="button"
+        @mousedown.prevent="toggleCodeBlock"
+        :class="[
+          'p-1.5 rounded text-xs font-mono',
+          editorState?.isCodeBlock ? 'bg-accent' : 'hover:bg-accent',
+        ]"
+        :title="$t('editor.toolbar.codeBlock')"
+        :aria-label="$t('aria.markdownEditor.codeBlock')"
+        :aria-pressed="editorState?.isCodeBlock"
+      >
+        {} Block
+      </button>
+      <button
+        type="button"
+        @mousedown.prevent="insertHorizontalRule"
+        class="p-1.5 rounded text-xs hover:bg-accent"
+        :title="$t('editor.toolbar.horizontalRule')"
+        :aria-label="$t('aria.markdownEditor.horizontalRule')"
+      >
+        — HR
+      </button>
       <div class="w-px h-4 bg-border mx-1" />
 
       <!-- Link -->
-      <button type="button" @mousedown.prevent="insertLink($event)" :class="['p-1.5 rounded text-xs', editorState?.isLink ? 'bg-accent' : 'hover:bg-accent']" :title="$t('editor.toolbar.insertLink')" :aria-label="$t('aria.markdownEditor.insertLink')">🔗 Link</button>
+      <button
+        type="button"
+        @mousedown.prevent="insertLink($event)"
+        :class="['p-1.5 rounded text-xs', editorState?.isLink ? 'bg-accent' : 'hover:bg-accent']"
+        :title="$t('editor.toolbar.insertLink')"
+        :aria-label="$t('aria.markdownEditor.insertLink')"
+      >
+        🔗 Link
+      </button>
 
       <!-- Table -->
-      <button type="button" @mousedown.prevent="insertTable" class="p-1.5 rounded text-xs hover:bg-accent" :title="$t('editor.toolbar.insertTable')" :aria-label="$t('aria.markdownEditor.insertTable')">⊞ Table</button>
+      <button
+        type="button"
+        @mousedown.prevent="insertTable"
+        class="p-1.5 rounded text-xs hover:bg-accent"
+        :title="$t('editor.toolbar.insertTable')"
+        :aria-label="$t('aria.markdownEditor.insertTable')"
+      >
+        ⊞ Table
+      </button>
 
       <!-- Image (only shown when campaignId provided) -->
       <template v-if="campaignId">
         <div class="w-px h-4 bg-border mx-1" />
-        <button type="button" @mousedown.prevent="triggerImagePicker" class="p-1.5 rounded text-xs hover:bg-accent" :title="$t('editor.toolbar.insertImage')" :aria-label="$t('aria.markdownEditor.insertImage')">🖼 Image</button>
-        <input ref="imageInputEl" type="file" accept="image/png,image/jpeg,image/webp,image/gif" class="hidden" @change="onImageFilePicked" />
+        <button
+          type="button"
+          @mousedown.prevent="triggerImagePicker"
+          class="p-1.5 rounded text-xs hover:bg-accent"
+          :title="$t('editor.toolbar.insertImage')"
+          :aria-label="$t('aria.markdownEditor.insertImage')"
+        >
+          🖼 Image
+        </button>
+        <input
+          ref="imageInputEl"
+          type="file"
+          accept="image/png,image/jpeg,image/webp,image/gif"
+          class="hidden"
+          @change="onImageFilePicked"
+        />
       </template>
     </div>
 
@@ -58,7 +262,10 @@
     <CollaborationIndicator v-if="props.collaborative && providerRef" :provider="providerRef" />
 
     <!-- Editor -->
-    <div ref="editorEl" class="prose dark:prose-invert max-w-none p-4 min-h-[200px] focus:outline-none" />
+    <div
+      ref="editorEl"
+      class="prose dark:prose-invert max-w-none p-4 min-h-[200px] focus:outline-none"
+    />
   </div>
 
   <!-- Link insert dialog -->
@@ -82,14 +289,22 @@
       </div>
       <DialogFooter>
         <Button variant="outline" @click="cancelLink">{{ $t('common.cancel') }}</Button>
-        <Button :disabled="!linkUrl.trim()" @click="confirmLink">{{ $t('editor.insertLinkButton') }}</Button>
+        <Button :disabled="!linkUrl.trim()" @click="confirmLink">{{
+          $t('editor.insertLinkButton')
+        }}</Button>
       </DialogFooter>
     </DialogContent>
   </Dialog>
 </template>
 
 <script setup lang="ts">
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '~/components/ui/dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '~/components/ui/dialog'
 import { Editor } from '@tiptap/core'
 import StarterKit from '@tiptap/starter-kit'
 import { Markdown } from '@tiptap/markdown'
@@ -144,7 +359,10 @@ const providerRef = ref<HocuspocusProvider | null>(null)
 
 const draftKeyRef = computed(() => props.draftKey ?? null)
 const serverContentRef = computed(() => props.modelValue)
-const { hasDraft, draftContent, scheduleDraftWrite, discardDraft } = useEditorDraft(draftKeyRef, serverContentRef)
+const { hasDraft, draftContent, scheduleDraftWrite, discardDraft } = useEditorDraft(
+  draftKeyRef,
+  serverContentRef,
+)
 
 function onRestoreDraft() {
   if (!editor || draftContent.value === null) return
@@ -159,10 +377,19 @@ function onDiscardDraft() {
 }
 
 const editorState = reactive({
-  isBold: false, isItalic: false, isStrike: false, isCode: false,
-  isH1: false, isH2: false, isH3: false,
-  isBulletList: false, isOrderedList: false, isTaskList: false,
-  isBlockquote: false, isCodeBlock: false, isLink: false,
+  isBold: false,
+  isItalic: false,
+  isStrike: false,
+  isCode: false,
+  isH1: false,
+  isH2: false,
+  isH3: false,
+  isBulletList: false,
+  isOrderedList: false,
+  isTaskList: false,
+  isBlockquote: false,
+  isCodeBlock: false,
+  isLink: false,
 })
 
 function updateEditorState() {
@@ -197,146 +424,174 @@ async function initEditor() {
     TableHeader,
     Placeholder.configure({ placeholder: props.placeholder || 'Start writing...' }),
     ImagePlusFixed.configure({ allowBase64: false }),
-    ...(props.campaignId ? [FileHandler.configure({
-      allowedMimeTypes: ['image/png', 'image/jpeg', 'image/webp', 'image/gif'],
-      onPaste: async (ed, files) => {
-        for (const file of files) {
-          try {
-            const url = await uploadImage(props.campaignId!, file)
-            ed.chain().focus().setImage({ src: url }).run()
-          } catch { /* silently skip */ }
-        }
-      },
-      onDrop: async (ed, files, pos) => {
-        for (const file of files) {
-          try {
-            const url = await uploadImage(props.campaignId!, file)
-            ed.chain().focus().setImage({ src: url }).run()
-            ed.commands.setNodeSelection(pos)
-          } catch { /* silently skip */ }
-        }
-      },
-    })] : []),
+    ...(props.campaignId
+      ? [
+          FileHandler.configure({
+            allowedMimeTypes: ['image/png', 'image/jpeg', 'image/webp', 'image/gif'],
+            onPaste: async (ed, files) => {
+              for (const file of files) {
+                try {
+                  const url = await uploadImage(props.campaignId!, file)
+                  ed.chain().focus().setImage({ src: url }).run()
+                } catch {
+                  /* silently skip */
+                }
+              }
+            },
+            onDrop: async (ed, files, pos) => {
+              for (const file of files) {
+                try {
+                  const url = await uploadImage(props.campaignId!, file)
+                  ed.chain().focus().setImage({ src: url }).run()
+                  ed.commands.setNodeSelection(pos)
+                } catch {
+                  /* silently skip */
+                }
+              }
+            },
+          }),
+        ]
+      : []),
   ]
 
   // Add entity mention autocomplete if campaignId is provided
   if (props.campaignId) {
     try {
-    extensions.push(
-      EntityMention.configure({
-        campaignId: props.campaignId,
-        suggestion: {
-          char: '@',
-          items: async ({ query }: { query: string }) => {
-            if (!query || query.length < 1) return []
-            try {
-              const res = await useCampaignApi(props.campaignId).getEntities({ search: query, limit: '8' })
-              const items = res.entities.map((e) => ({
-                id: e.id,
-                name: e.name,
-                slug: e.slug,
-                type: e.type,
-              }))
-              return items
-            } catch {
-              return []
-            }
-          },
-          command: ({ editor: ed, range, props: item }: any) => {
-            ed.chain().focus().deleteRange(range).insertContent({
-              type: 'entityMention',
-              attrs: { slug: item.slug, label: item.name, id: item.id },
-            }).run()
-          },
-          render: () => {
-            let dropdown: HTMLElement | null = null
-            let selectedIndex = 0
-            let currentItems: any[] = []
-            let currentCommand: any = null
-
-            function updateDropdown(items: any[], command: any, clientRect: (() => DOMRect) | null) {
-              currentItems = items
-              currentCommand = command
-              selectedIndex = 0
-
-              if (!items.length) {
-                removeDropdown()
-                return
-              }
-
-              if (!dropdown) {
-                dropdown = document.createElement('div')
-                dropdown.setAttribute('data-testid', 'entity-suggestions')
-                dropdown.className = 'fixed z-[9999] bg-popover border border-border rounded-lg shadow-lg overflow-hidden max-h-48 overflow-y-auto'
-                document.body.appendChild(dropdown)
-              }
-
-              if (clientRect) {
-                const rect = clientRect()
-                dropdown.style.left = `${rect.left}px`
-                dropdown.style.top = `${rect.bottom + 4}px`
-                dropdown.style.minWidth = '200px'
-              }
-
-              renderItems()
-            }
-
-            function renderItems() {
-              if (!dropdown) return
-              dropdown.innerHTML = ''
-              currentItems.forEach((item, i) => {
-                const btn = document.createElement('button')
-                btn.className = `block w-full text-left px-3 py-2 text-sm cursor-pointer ${i === selectedIndex ? 'bg-accent' : 'hover:bg-accent/50'}`
-                btn.innerHTML = `<span class="font-medium">${item.name}</span> <span class="text-xs text-muted-foreground ml-1">${item.type}</span>`
-                btn.addEventListener('mousedown', (e) => {
-                  e.preventDefault()
-                  currentCommand?.(item)
+      extensions.push(
+        EntityMention.configure({
+          campaignId: props.campaignId,
+          suggestion: {
+            char: '@',
+            items: async ({ query }: { query: string }) => {
+              if (!query || query.length < 1) return []
+              try {
+                const res = await useCampaignApi(props.campaignId).getEntities({
+                  search: query,
+                  limit: '8',
                 })
-                dropdown!.appendChild(btn)
-              })
-            }
+                const items = res.entities.map((e) => ({
+                  id: e.id,
+                  name: e.name,
+                  slug: e.slug,
+                  type: e.type,
+                }))
+                return items
+              } catch {
+                return []
+              }
+            },
+            command: ({ editor: ed, range, props: item }: any) => {
+              ed.chain()
+                .focus()
+                .deleteRange(range)
+                .insertContent({
+                  type: 'entityMention',
+                  attrs: { slug: item.slug, label: item.name, id: item.id },
+                })
+                .run()
+            },
+            render: () => {
+              let dropdown: HTMLElement | null = null
+              let selectedIndex = 0
+              let currentItems: any[] = []
+              let currentCommand: any = null
 
-            function removeDropdown() {
-              dropdown?.remove()
-              dropdown = null
-              currentItems = []
-            }
+              function updateDropdown(
+                items: any[],
+                command: any,
+                clientRect: (() => DOMRect) | null,
+              ) {
+                currentItems = items
+                currentCommand = command
+                selectedIndex = 0
 
-            return {
-              onStart: (renderProps: any) => {
-                updateDropdown(renderProps.items, renderProps.command, renderProps.clientRect)
-              },
-              onUpdate: (renderProps: any) => {
-                updateDropdown(renderProps.items, renderProps.command, renderProps.clientRect)
-              },
-              onKeyDown: (renderProps: any) => {
-                if (!currentItems.length) return false
-                if (renderProps.event.key === 'Escape') { removeDropdown(); return true }
-                if (renderProps.event.key === 'ArrowDown') {
-                  selectedIndex = (selectedIndex + 1) % currentItems.length
-                  renderItems()
-                  return true
+                if (!items.length) {
+                  removeDropdown()
+                  return
                 }
-                if (renderProps.event.key === 'ArrowUp') {
-                  selectedIndex = (selectedIndex + currentItems.length - 1) % currentItems.length
-                  renderItems()
-                  return true
+
+                if (!dropdown) {
+                  dropdown = document.createElement('div')
+                  dropdown.setAttribute('data-testid', 'entity-suggestions')
+                  dropdown.className =
+                    'fixed z-[9999] bg-popover border border-border rounded-lg shadow-lg overflow-hidden max-h-48 overflow-y-auto'
+                  document.body.appendChild(dropdown)
                 }
-                if (renderProps.event.key === 'Enter') {
-                  const item = currentItems[selectedIndex]
-                  if (item) currentCommand?.(item)
-                  return true
+
+                if (clientRect) {
+                  const rect = clientRect()
+                  dropdown.style.left = `${rect.left}px`
+                  dropdown.style.top = `${rect.bottom + 4}px`
+                  dropdown.style.minWidth = '200px'
                 }
-                return false
-              },
-              onExit: () => { removeDropdown() },
-            }
+
+                renderItems()
+              }
+
+              function renderItems() {
+                if (!dropdown) return
+                dropdown.innerHTML = ''
+                currentItems.forEach((item, i) => {
+                  const btn = document.createElement('button')
+                  btn.className = `block w-full text-left px-3 py-2 text-sm cursor-pointer ${i === selectedIndex ? 'bg-accent' : 'hover:bg-accent/50'}`
+                  btn.innerHTML = `<span class="font-medium">${item.name}</span> <span class="text-xs text-muted-foreground ml-1">${item.type}</span>`
+                  btn.addEventListener('mousedown', (e) => {
+                    e.preventDefault()
+                    currentCommand?.(item)
+                  })
+                  dropdown!.appendChild(btn)
+                })
+              }
+
+              function removeDropdown() {
+                dropdown?.remove()
+                dropdown = null
+                currentItems = []
+              }
+
+              return {
+                onStart: (renderProps: any) => {
+                  updateDropdown(renderProps.items, renderProps.command, renderProps.clientRect)
+                },
+                onUpdate: (renderProps: any) => {
+                  updateDropdown(renderProps.items, renderProps.command, renderProps.clientRect)
+                },
+                onKeyDown: (renderProps: any) => {
+                  if (!currentItems.length) return false
+                  if (renderProps.event.key === 'Escape') {
+                    removeDropdown()
+                    return true
+                  }
+                  if (renderProps.event.key === 'ArrowDown') {
+                    selectedIndex = (selectedIndex + 1) % currentItems.length
+                    renderItems()
+                    return true
+                  }
+                  if (renderProps.event.key === 'ArrowUp') {
+                    selectedIndex = (selectedIndex + currentItems.length - 1) % currentItems.length
+                    renderItems()
+                    return true
+                  }
+                  if (renderProps.event.key === 'Enter') {
+                    const item = currentItems[selectedIndex]
+                    if (item) currentCommand?.(item)
+                    return true
+                  }
+                  return false
+                },
+                onExit: () => {
+                  removeDropdown()
+                },
+              }
+            },
           },
-        },
-      }),
-    )
+        }),
+      )
     } catch (e) {
-      console.warn('[Aleph:Mention] Failed to initialize entity mention, editor will work without @autocomplete:', e)
+      console.warn(
+        '[Aleph:Mention] Failed to initialize entity mention, editor will work without @autocomplete:',
+        e,
+      )
     }
   }
 
@@ -350,7 +605,9 @@ async function initEditor() {
         const data = await res.json()
         wsToken = data.token
       }
-    } catch { /* fallback to empty token */ }
+    } catch {
+      /* fallback to empty token */
+    }
 
     provider = new HocuspocusProvider({
       url: useRuntimeConfig().public.hocuspocusUrl as string,
@@ -361,7 +618,10 @@ async function initEditor() {
     providerRef.value = provider
 
     extensions.push(
-      StarterKit.configure({ history: false, link: { openOnClick: false, HTMLAttributes: { class: 'text-primary underline' } } }),
+      StarterKit.configure({
+        history: false,
+        link: { openOnClick: false, HTMLAttributes: { class: 'text-primary underline' } },
+      }),
       Collaboration.configure({ document: ydoc }),
       CollaborationCaret.configure({
         provider,
@@ -372,22 +632,26 @@ async function initEditor() {
       }),
     )
   } else {
-    extensions.unshift(StarterKit.configure({ link: { openOnClick: false, HTMLAttributes: { class: 'text-primary underline' } } }))
+    extensions.unshift(
+      StarterKit.configure({
+        link: { openOnClick: false, HTMLAttributes: { class: 'text-primary underline' } },
+      }),
+    )
   }
 
   try {
-  editor = new Editor({
-    element: editorEl.value,
-    extensions,
-    content: '',
-    onUpdate: ({ editor: e }) => {
-      const md = e.getMarkdown()
-      emit('update:modelValue', md)
-      scheduleDraftWrite(md)
-      updateEditorState()
-    },
-    onSelectionUpdate: () => updateEditorState(),
-  })
+    editor = new Editor({
+      element: editorEl.value,
+      extensions,
+      content: '',
+      onUpdate: ({ editor: e }) => {
+        const md = e.getMarkdown()
+        emit('update:modelValue', md)
+        scheduleDraftWrite(md)
+        updateEditorState()
+      },
+      onSelectionUpdate: () => updateEditorState(),
+    })
   } catch (e) {
     console.error('[Aleph] Editor init failed:', e)
   }
@@ -410,29 +674,58 @@ watch(editorEl, async (el) => {
   }
 })
 
-watch(() => props.modelValue, (newVal) => {
-  if (!editor || props.collaborative) return
-  const currentMd = editor.getMarkdown()
-  if (newVal !== currentMd) {
-    const parsed = editor.markdown.parse(newVal)
-    editor.commands.setContent(parsed)
-  }
-})
+watch(
+  () => props.modelValue,
+  (newVal) => {
+    if (!editor || props.collaborative) return
+    const currentMd = editor.getMarkdown()
+    if (newVal !== currentMd) {
+      const parsed = editor.markdown.parse(newVal)
+      editor.commands.setContent(parsed)
+    }
+  },
+)
 
 // Formatting commands
-function toggleBold() { editor?.chain().focus().toggleBold().run() }
-function toggleItalic() { editor?.chain().focus().toggleItalic().run() }
-function toggleStrike() { editor?.chain().focus().toggleStrike().run() }
-function toggleCode() { editor?.chain().focus().toggleCode().run() }
-function setHeading(level: 1 | 2 | 3) { editor?.chain().focus().toggleHeading({ level }).run() }
-function toggleBulletList() { editor?.chain().focus().toggleBulletList().run() }
-function toggleOrderedList() { editor?.chain().focus().toggleOrderedList().run() }
-function toggleTaskList() { editor?.chain().focus().toggleTaskList().run() }
-function toggleBlockquote() { editor?.chain().focus().toggleBlockquote().run() }
-function toggleCodeBlock() { editor?.chain().focus().toggleCodeBlock().run() }
-function insertHorizontalRule() { editor?.chain().focus().setHorizontalRule().run() }
-function undo() { editor?.chain().focus().undo().run() }
-function redo() { editor?.chain().focus().redo().run() }
+function toggleBold() {
+  editor?.chain().focus().toggleBold().run()
+}
+function toggleItalic() {
+  editor?.chain().focus().toggleItalic().run()
+}
+function toggleStrike() {
+  editor?.chain().focus().toggleStrike().run()
+}
+function toggleCode() {
+  editor?.chain().focus().toggleCode().run()
+}
+function setHeading(level: 1 | 2 | 3) {
+  editor?.chain().focus().toggleHeading({ level }).run()
+}
+function toggleBulletList() {
+  editor?.chain().focus().toggleBulletList().run()
+}
+function toggleOrderedList() {
+  editor?.chain().focus().toggleOrderedList().run()
+}
+function toggleTaskList() {
+  editor?.chain().focus().toggleTaskList().run()
+}
+function toggleBlockquote() {
+  editor?.chain().focus().toggleBlockquote().run()
+}
+function toggleCodeBlock() {
+  editor?.chain().focus().toggleCodeBlock().run()
+}
+function insertHorizontalRule() {
+  editor?.chain().focus().setHorizontalRule().run()
+}
+function undo() {
+  editor?.chain().focus().undo().run()
+}
+function redo() {
+  editor?.chain().focus().redo().run()
+}
 
 function insertLink(event: MouseEvent) {
   _linkButtonEl = event.currentTarget as HTMLElement
@@ -502,16 +795,16 @@ onUnmounted(() => {
   height: 0;
 }
 /* Task list styles */
-.ProseMirror ul[data-type="taskList"] {
+.ProseMirror ul[data-type='taskList'] {
   list-style: none;
   padding: 0;
 }
-.ProseMirror ul[data-type="taskList"] li {
+.ProseMirror ul[data-type='taskList'] li {
   display: flex;
   align-items: flex-start;
   gap: 0.5rem;
 }
-.ProseMirror ul[data-type="taskList"] li > label {
+.ProseMirror ul[data-type='taskList'] li > label {
   flex: 0 0 auto;
   margin-top: 0.25rem;
 }
@@ -521,7 +814,8 @@ onUnmounted(() => {
   width: 100%;
   margin: 1rem 0;
 }
-.ProseMirror th, .ProseMirror td {
+.ProseMirror th,
+.ProseMirror td {
   border: 1px solid hsl(var(--border));
   padding: 0.5rem;
   min-width: 80px;
@@ -549,7 +843,7 @@ onUnmounted(() => {
   position: relative;
 }
 .ProseMirror div[data-secret]::before {
-  content: attr(data-role) " secret";
+  content: attr(data-role) ' secret';
   font-size: 0.65rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -559,7 +853,7 @@ onUnmounted(() => {
   margin-bottom: 0.25rem;
 }
 .ProseMirror div[data-secret][data-secret-id]::before {
-  content: attr(data-role) " secret  #" attr(data-secret-id);
+  content: attr(data-role) ' secret  #' attr(data-secret-id);
 }
 /* Image styles */
 .ProseMirror img {

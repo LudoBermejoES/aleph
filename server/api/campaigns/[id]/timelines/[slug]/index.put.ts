@@ -15,7 +15,9 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const db = useDb()
 
-  const timeline = db.select().from(timelines)
+  const timeline = db
+    .select()
+    .from(timelines)
     .where(and(eq(timelines.campaignId, campaignId), eq(timelines.slug, slug)))
     .get()
   if (!timeline) throw createError({ statusCode: 404, message: 'Timeline not found' })

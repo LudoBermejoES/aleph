@@ -5,14 +5,20 @@ const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 async function api(path: string, opts?: RequestInit & { body?: unknown }) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
-    headers: { 'Content-Type': 'application/json', 'Origin': BASE_URL, ...opts?.headers },
+    headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...opts?.headers },
     body: opts?.body !== undefined ? JSON.stringify(opts.body) : undefined,
   })
 }
 
 async function signUpAndGetApiKey(email: string) {
-  await api('/api/auth/sign-up/email', { method: 'POST', body: { name: 'Test', email, password: 'password123' } })
-  const loginRes = await api('/api/auth/sign-in/email', { method: 'POST', body: { email, password: 'password123' } })
+  await api('/api/auth/sign-up/email', {
+    method: 'POST',
+    body: { name: 'Test', email, password: 'password123' },
+  })
+  const loginRes = await api('/api/auth/sign-in/email', {
+    method: 'POST',
+    body: { email, password: 'password123' },
+  })
   const cookies = loginRes.headers.get('set-cookie') || ''
   const match = cookies.match(/better-auth\.session_token=([^;]+)/)
   const sessionCookie = match ? `better-auth.session_token=${match[1]}` : ''
@@ -22,7 +28,11 @@ async function signUpAndGetApiKey(email: string) {
   const csrfMatch = setCookie.match(/csrf_token=([^;]+)/)
   const csrfToken = csrfMatch?.[1] || ''
   const fullCookie = csrfToken ? `${sessionCookie}; csrf_token=${csrfToken}` : sessionCookie
-  const keyRes = await api('/api/apikeys', { method: 'POST', headers: { Cookie: fullCookie, 'X-CSRF-Token': csrfToken }, body: { name: 'key' } })
+  const keyRes = await api('/api/apikeys', {
+    method: 'POST',
+    headers: { Cookie: fullCookie, 'X-CSRF-Token': csrfToken },
+    body: { name: 'key' },
+  })
   return (await keyRes.json()).key as string
 }
 

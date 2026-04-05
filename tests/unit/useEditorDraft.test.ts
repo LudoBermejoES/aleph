@@ -7,14 +7,23 @@ const localStorageMock = (() => {
   let store: Record<string, string> = {}
   return {
     getItem: (key: string) => store[key] ?? null,
-    setItem: (key: string, val: string) => { store[key] = val },
-    removeItem: (key: string) => { delete store[key] },
-    clear: () => { store = {} },
+    setItem: (key: string, val: string) => {
+      store[key] = val
+    },
+    removeItem: (key: string) => {
+      delete store[key]
+    },
+    clear: () => {
+      store = {}
+    },
   }
 })()
 
 Object.defineProperty(globalThis, 'localStorage', { value: localStorageMock, writable: true })
-Object.defineProperty(globalThis, 'window', { value: { addEventListener: vi.fn(), removeEventListener: vi.fn() }, writable: true })
+Object.defineProperty(globalThis, 'window', {
+  value: { addEventListener: vi.fn(), removeEventListener: vi.fn() },
+  writable: true,
+})
 
 beforeEach(() => {
   localStorageMock.clear()
@@ -89,13 +98,18 @@ describe('useEditorDraft', () => {
     const server = ref('')
     const { scheduleDraftWrite } = useEditorDraft(key, server)
 
-    localStorageMock.setItem = () => { throw new DOMException('QuotaExceededError') }
+    localStorageMock.setItem = () => {
+      throw new DOMException('QuotaExceededError')
+    }
 
     expect(() => {
       scheduleDraftWrite('content')
       vi.advanceTimersByTime(1000)
     }).not.toThrow()
 
-    localStorageMock.setItem = (k, v) => { (localStorageMock as any)._store = (localStorageMock as any)._store || {}; (localStorageMock as any)._store[k] = v }
+    localStorageMock.setItem = (k, v) => {
+      ;(localStorageMock as any)._store = (localStorageMock as any)._store || {}
+      ;(localStorageMock as any)._store[k] = v
+    }
   })
 })

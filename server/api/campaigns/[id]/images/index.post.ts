@@ -22,14 +22,17 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'No file uploaded' })
   }
 
-  const file = formData.find(f => f.name === 'file')
+  const file = formData.find((f) => f.name === 'file')
   if (!file || !file.data) {
     throw createError({ statusCode: 400, message: 'Image file is required (field name: "file")' })
   }
 
   const mime = file.type || 'application/octet-stream'
   if (!ALLOWED_MIME_TYPES.includes(mime)) {
-    throw createError({ statusCode: 400, message: `Invalid file type "${mime}". Allowed: png, jpeg, webp, gif` })
+    throw createError({
+      statusCode: 400,
+      message: `Invalid file type "${mime}". Allowed: png, jpeg, webp, gif`,
+    })
   }
 
   if (file.data.length > MAX_SIZE_BYTES) {
@@ -40,7 +43,10 @@ export default defineEventHandler(async (event) => {
   if (mime !== 'image/gif') {
     const detectedMime = detectMimeFromBytes(file.data)
     if (!detectedMime || detectedMime !== mime) {
-      throw createError({ statusCode: 400, message: 'File content does not match declared MIME type' })
+      throw createError({
+        statusCode: 400,
+        message: 'File content does not match declared MIME type',
+      })
     }
   }
 

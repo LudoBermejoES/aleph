@@ -10,7 +10,10 @@ describe('Hocuspocus URL configuration', () => {
   })
 
   it('MarkdownEditor reads URL from useRuntimeConfig instead of hardcoding', () => {
-    const editor = readFileSync(resolve(__dirname, '../../../app/components/MarkdownEditor.client.vue'), 'utf-8')
+    const editor = readFileSync(
+      resolve(__dirname, '../../../app/components/MarkdownEditor.client.vue'),
+      'utf-8',
+    )
     expect(editor).toContain('useRuntimeConfig().public.hocuspocusUrl')
     expect(editor).not.toContain('ws://${window.location.hostname}:3334')
   })

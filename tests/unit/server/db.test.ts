@@ -51,14 +51,17 @@ describe('Database Setup', () => {
     const now = new Date()
     const userId = randomUUID()
 
-    testDb.db.insert(user).values({
-      id: userId,
-      name: 'testuser',
-      email: 'test@example.com',
-      emailVerified: false,
-      createdAt: now,
-      updatedAt: now,
-    }).run()
+    testDb.db
+      .insert(user)
+      .values({
+        id: userId,
+        name: 'testuser',
+        email: 'test@example.com',
+        emailVerified: false,
+        createdAt: now,
+        updatedAt: now,
+      })
+      .run()
 
     const result = testDb.db.select().from(user).where(eq(user.id, userId)).get()
     expect(result).toBeDefined()
@@ -71,24 +74,30 @@ describe('Database Setup', () => {
     const userId = randomUUID()
     const campaignId = randomUUID()
 
-    testDb.db.insert(user).values({
-      id: userId,
-      name: 'dm',
-      email: 'dm@example.com',
-      emailVerified: false,
-      createdAt: now,
-      updatedAt: now,
-    }).run()
+    testDb.db
+      .insert(user)
+      .values({
+        id: userId,
+        name: 'dm',
+        email: 'dm@example.com',
+        emailVerified: false,
+        createdAt: now,
+        updatedAt: now,
+      })
+      .run()
 
-    testDb.db.insert(campaigns).values({
-      id: campaignId,
-      name: 'Curse of Strahd',
-      slug: 'curse-of-strahd',
-      contentDir: '/content/campaigns/curse-of-strahd',
-      createdBy: userId,
-      createdAt: now,
-      updatedAt: now,
-    }).run()
+    testDb.db
+      .insert(campaigns)
+      .values({
+        id: campaignId,
+        name: 'Curse of Strahd',
+        slug: 'curse-of-strahd',
+        contentDir: '/content/campaigns/curse-of-strahd',
+        createdBy: userId,
+        createdAt: now,
+        updatedAt: now,
+      })
+      .run()
 
     const result = testDb.db.select().from(campaigns).where(eq(campaigns.id, campaignId)).get()
     expect(result).toBeDefined()
@@ -100,15 +109,18 @@ describe('Database Setup', () => {
     const now = new Date()
 
     expect(() => {
-      testDb.db.insert(campaigns).values({
-        id: randomUUID(),
-        name: 'Orphan Campaign',
-        slug: 'orphan',
-        contentDir: '/content/campaigns/orphan',
-        createdBy: 'nonexistent-user-id',
-        createdAt: now,
-        updatedAt: now,
-      }).run()
+      testDb.db
+        .insert(campaigns)
+        .values({
+          id: randomUUID(),
+          name: 'Orphan Campaign',
+          slug: 'orphan',
+          contentDir: '/content/campaigns/orphan',
+          createdBy: 'nonexistent-user-id',
+          createdAt: now,
+          updatedAt: now,
+        })
+        .run()
     }).toThrow()
   })
 })

@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest'
-import { stripSecretStats, stripSecretAbilities, canEditCharacter } from '../../../server/services/characters'
+import {
+  stripSecretStats,
+  stripSecretAbilities,
+  canEditCharacter,
+} from '../../../server/services/characters'
 
 /**
  * Component logic tests for character management (8.18, 8.19)
@@ -17,7 +21,7 @@ describe('Stat group display component logic (8.18)', () => {
   it('player sees only non-secret stats', () => {
     const visible = stripSecretStats(stats, 'player')
     expect(visible).toHaveLength(2)
-    expect(visible.map(s => s.defName)).toEqual(['Strength', 'Dexterity'])
+    expect(visible.map((s) => s.defName)).toEqual(['Strength', 'Dexterity'])
   })
 
   it('DM sees all stats including secret', () => {

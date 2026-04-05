@@ -9,7 +9,9 @@ export const campaigns = sqliteTable('campaigns', {
   isPublic: integer('is_public', { mode: 'boolean' }).notNull().default(false),
   theme: text('theme'),
   contentDir: text('content_dir').notNull(),
-  createdBy: text('created_by').notNull().references(() => user.id),
+  createdBy: text('created_by')
+    .notNull()
+    .references(() => user.id),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
   updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
 })

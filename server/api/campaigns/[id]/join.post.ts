@@ -17,13 +17,16 @@ export default defineEventHandler(async (event) => {
   const db = useDb()
 
   // Find valid invitation
-  const invitation = db.select()
+  const invitation = db
+    .select()
     .from(campaignInvitations)
-    .where(and(
-      eq(campaignInvitations.campaignId, campaignId),
-      eq(campaignInvitations.token, token),
-      isNull(campaignInvitations.usedAt),
-    ))
+    .where(
+      and(
+        eq(campaignInvitations.campaignId, campaignId),
+        eq(campaignInvitations.token, token),
+        isNull(campaignInvitations.usedAt),
+      ),
+    )
     .get()
 
   if (!invitation) {
@@ -35,12 +38,15 @@ export default defineEventHandler(async (event) => {
   }
 
   // Check if already a member
-  const existing = db.select()
+  const existing = db
+    .select()
     .from(campaignMembers)
-    .where(and(
-      eq(campaignMembers.campaignId, campaignId),
-      eq(campaignMembers.userId, event.context.user.id),
-    ))
+    .where(
+      and(
+        eq(campaignMembers.campaignId, campaignId),
+        eq(campaignMembers.userId, event.context.user.id),
+      ),
+    )
     .get()
 
   if (existing) {
@@ -50,13 +56,15 @@ export default defineEventHandler(async (event) => {
   const now = new Date()
 
   // Create membership
-  db.insert(campaignMembers).values({
-    id: randomUUID(),
-    campaignId,
-    userId: event.context.user.id,
-    role: invitation.role,
-    joinedAt: now,
-  }).run()
+  db.insert(campaignMembers)
+    .values({
+      id: randomUUID(),
+      campaignId,
+      userId: event.context.user.id,
+      role: invitation.role,
+      joinedAt: now,
+    })
+    .run()
 
   // Mark invitation as used
   db.update(campaignInvitations)

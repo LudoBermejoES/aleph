@@ -1,7 +1,9 @@
 <template>
   <div class="p-8">
     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary"> {{ $t('common.campaign') }}</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">
+        {{ $t('common.campaign') }}</NuxtLink
+      >
       <span>/</span>
       <span>{{ $t('quests.title') }}</span>
     </div>
@@ -14,9 +16,33 @@
     </div>
 
     <div class="flex gap-2 mb-6">
-      <Button :variant="filter === '' ? 'default' : 'outline'" size="sm" @click="filter = ''; load()">{{ $t('characters.all') }}</Button>
-      <Button :variant="filter === 'active' ? 'default' : 'outline'" size="sm" @click="filter = 'active'; load()">{{ $t('quests.active') }}</Button>
-      <Button :variant="filter === 'completed' ? 'default' : 'outline'" size="sm" @click="filter = 'completed'; load()">{{ $t('quests.completed') }}</Button>
+      <Button
+        :variant="filter === '' ? 'default' : 'outline'"
+        size="sm"
+        @click="
+          filter = ''
+          load()
+        "
+        >{{ $t('characters.all') }}</Button
+      >
+      <Button
+        :variant="filter === 'active' ? 'default' : 'outline'"
+        size="sm"
+        @click="
+          filter = 'active'
+          load()
+        "
+        >{{ $t('quests.active') }}</Button
+      >
+      <Button
+        :variant="filter === 'completed' ? 'default' : 'outline'"
+        size="sm"
+        @click="
+          filter = 'completed'
+          load()
+        "
+        >{{ $t('quests.completed') }}</Button
+      >
     </div>
 
     <LoadingSkeleton v-if="loading" :rows="4" />
@@ -24,23 +50,81 @@
       <div v-for="q in rootQuests" :key="q.id" class="space-y-1">
         <div class="p-3 rounded-lg border border-border">
           <div class="flex items-center justify-between">
-            <NuxtLink :to="`/campaigns/${campaignId}/quests/${q.slug}`" class="font-medium hover:text-primary">{{ q.name }}</NuxtLink>
-            <span :class="['inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded', q.status === 'active' ? 'bg-blue-100 text-blue-700' : q.status === 'completed' ? 'bg-green-100 text-green-700' : q.status === 'failed' ? 'bg-red-100 text-red-700' : 'bg-secondary text-secondary-foreground']">
-              <component :is="q.status === 'active' ? ICONS.questActive : q.status === 'completed' ? ICONS.questCompleted : q.status === 'failed' ? ICONS.questFailed : ICONS.questAbandoned" class="w-3 h-3" />
+            <NuxtLink
+              :to="`/campaigns/${campaignId}/quests/${q.slug}`"
+              class="font-medium hover:text-primary"
+              >{{ q.name }}</NuxtLink
+            >
+            <span
+              :class="[
+                'inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded',
+                q.status === 'active'
+                  ? 'bg-blue-100 text-blue-700'
+                  : q.status === 'completed'
+                    ? 'bg-green-100 text-green-700'
+                    : q.status === 'failed'
+                      ? 'bg-red-100 text-red-700'
+                      : 'bg-secondary text-secondary-foreground',
+              ]"
+            >
+              <component
+                :is="
+                  q.status === 'active'
+                    ? ICONS.questActive
+                    : q.status === 'completed'
+                      ? ICONS.questCompleted
+                      : q.status === 'failed'
+                        ? ICONS.questFailed
+                        : ICONS.questAbandoned
+                "
+                class="w-3 h-3"
+              />
               {{ q.status }}
             </span>
           </div>
           <p v-if="q.description" class="text-sm text-muted-foreground mt-1">{{ q.description }}</p>
         </div>
         <!-- Sub-quests -->
-        <div v-for="sub in childQuests(q.id)" :key="sub.id" class="ml-6 p-2 rounded border border-border/50 text-sm">
-          <NuxtLink :to="`/campaigns/${campaignId}/quests/${sub.slug}`" class="hover:text-primary">{{ sub.name }}</NuxtLink>
-          <span :class="['inline-flex items-center gap-1 text-xs ml-2 px-1.5 py-0.5 rounded', sub.status === 'active' ? 'bg-blue-50 text-blue-600' : 'bg-secondary text-secondary-foreground']">
-            <component :is="sub.status === 'active' ? ICONS.questActive : sub.status === 'completed' ? ICONS.questCompleted : sub.status === 'failed' ? ICONS.questFailed : ICONS.questAbandoned" class="w-3 h-3" />{{ sub.status }}</span>
+        <div
+          v-for="sub in childQuests(q.id)"
+          :key="sub.id"
+          class="ml-6 p-2 rounded border border-border/50 text-sm"
+        >
+          <NuxtLink
+            :to="`/campaigns/${campaignId}/quests/${sub.slug}`"
+            class="hover:text-primary"
+            >{{ sub.name }}</NuxtLink
+          >
+          <span
+            :class="[
+              'inline-flex items-center gap-1 text-xs ml-2 px-1.5 py-0.5 rounded',
+              sub.status === 'active'
+                ? 'bg-blue-50 text-blue-600'
+                : 'bg-secondary text-secondary-foreground',
+            ]"
+          >
+            <component
+              :is="
+                sub.status === 'active'
+                  ? ICONS.questActive
+                  : sub.status === 'completed'
+                    ? ICONS.questCompleted
+                    : sub.status === 'failed'
+                      ? ICONS.questFailed
+                      : ICONS.questAbandoned
+              "
+              class="w-3 h-3"
+            />{{ sub.status }}</span
+          >
         </div>
       </div>
     </div>
-    <EmptyState v-else icon="⚔️" :title="$t('quests.empty')" :description="$t('quests.emptyDescription')" />
+    <EmptyState
+      v-else
+      icon="⚔️"
+      :title="$t('quests.empty')"
+      :description="$t('quests.emptyDescription')"
+    />
     <ErrorToast v-if="error" :message="error" @dismiss="dismissError" />
   </div>
 </template>
@@ -56,8 +140,10 @@ const filter = ref('')
 const api = useCampaignApi(campaignId)
 const { loading, error, withLoading, dismissError } = useLoadingState()
 
-const rootQuests = computed(() => questList.value.filter(q => !q.parentQuestId))
-function childQuests(parentId: string) { return questList.value.filter(q => q.parentQuestId === parentId) }
+const rootQuests = computed(() => questList.value.filter((q) => !q.parentQuestId))
+function childQuests(parentId: string) {
+  return questList.value.filter((q) => q.parentQuestId === parentId)
+}
 
 async function load() {
   await withLoading(async () => {

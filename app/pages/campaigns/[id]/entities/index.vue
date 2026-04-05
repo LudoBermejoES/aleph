@@ -3,7 +3,9 @@
     <div class="flex items-center justify-between mb-6">
       <div>
         <div class="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-          <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary"> {{ $t('common.campaign') }}</NuxtLink>
+          <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">
+            {{ $t('common.campaign') }}</NuxtLink
+          >
           <span>/</span>
           <span>{{ $t('entities.title') }}</span>
         </div>
@@ -19,11 +21,21 @@
 
     <!-- Filters -->
     <div class="flex gap-3 mb-6">
-      <select v-model="filters.type" @change="loadEntities" class="rounded-md border border-input bg-background px-3 py-2 text-sm" :aria-label="$t('aria.filters.entityType')">
+      <select
+        v-model="filters.type"
+        @change="loadEntities"
+        class="rounded-md border border-input bg-background px-3 py-2 text-sm"
+        :aria-label="$t('aria.filters.entityType')"
+      >
         <option value="">{{ $t('entities.allTypes') }}</option>
         <option v-for="t in entityTypes" :key="t.slug" :value="t.slug">{{ t.name }}</option>
       </select>
-      <Input v-model="filters.search" :placeholder="$t('entities.filterPlaceholder')" class="max-w-xs" @input="debouncedSearch" />
+      <Input
+        v-model="filters.search"
+        :placeholder="$t('entities.filterPlaceholder')"
+        class="max-w-xs"
+        @input="debouncedSearch"
+      />
     </div>
 
     <!-- Entity List -->
@@ -44,26 +56,44 @@
             />
             <div>
               <span class="font-medium">{{ entity.name }}</span>
-              <span class="text-xs ml-2 px-2 py-0.5 rounded bg-secondary text-secondary-foreground">{{ entity.type }}</span>
+              <span
+                class="text-xs ml-2 px-2 py-0.5 rounded bg-secondary text-secondary-foreground"
+                >{{ entity.type }}</span
+              >
             </div>
           </div>
           <span class="text-xs text-muted-foreground">{{ entity.visibility }}</span>
         </div>
       </NuxtLink>
     </div>
-    <p v-else-if="!loading" class="text-muted-foreground text-center py-8">{{ $t('entities.empty') }}</p>
+    <p v-else-if="!loading" class="text-muted-foreground text-center py-8">
+      {{ $t('entities.empty') }}
+    </p>
 
     <!-- Pagination -->
     <div v-if="pagination.totalPages > 1" class="flex justify-center gap-2 mt-6">
-      <Button variant="outline" size="sm" :disabled="pagination.page <= 1" @click="goToPage(pagination.page - 1)">{{ $t('common.previous') }}</Button>
-      <span class="text-sm text-muted-foreground py-2">{{ pagination.page }} / {{ pagination.totalPages }}</span>
-      <Button variant="outline" size="sm" :disabled="pagination.page >= pagination.totalPages" @click="goToPage(pagination.page + 1)">{{ $t('common.next') }}</Button>
+      <Button
+        variant="outline"
+        size="sm"
+        :disabled="pagination.page <= 1"
+        @click="goToPage(pagination.page - 1)"
+        >{{ $t('common.previous') }}</Button
+      >
+      <span class="text-sm text-muted-foreground py-2"
+        >{{ pagination.page }} / {{ pagination.totalPages }}</span
+      >
+      <Button
+        variant="outline"
+        size="sm"
+        :disabled="pagination.page >= pagination.totalPages"
+        @click="goToPage(pagination.page + 1)"
+        >{{ $t('common.next') }}</Button
+      >
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-
 const route = useRoute()
 const campaignId = route.params.id as string
 

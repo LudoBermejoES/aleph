@@ -37,6 +37,7 @@ Inspired by Kanka's Arcana system, four decision types:
 - **Destiny**: A fated event triggered by accumulated choices
 
 Schema:
+
 - `decisions` table: `id, session_id, campaign_id, type (choice|role|count|destiny), title, description, entity_id (nullable)`
 - `consequences` table: `id, decision_id, description, entity_id (nullable), revealed (boolean)`
 

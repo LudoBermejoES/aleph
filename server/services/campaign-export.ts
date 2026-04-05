@@ -3,20 +3,11 @@ import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 import { campaigns } from '../db/schema/campaigns'
 import { entities, entityTemplates, entityTemplateFields, tags } from '../db/schema/entities'
 import { characters } from '../db/schema/characters'
-import {
-  sessionGroups, arcs, chapters, gameSessions,
-  quests,
-} from '../db/schema/sessions'
+import { sessionGroups, arcs, chapters, gameSessions, quests } from '../db/schema/sessions'
 import { maps } from '../db/schema/maps'
 import { relationTypes, entityRelations } from '../db/schema/relations'
-import {
-  items, inventories, currencies,
-  shops, transactions,
-} from '../db/schema/inventory'
-import {
-  calendars,
-  timelines,
-} from '../db/schema/calendars'
+import { items, inventories, currencies, shops, transactions } from '../db/schema/inventory'
+import { calendars, timelines } from '../db/schema/calendars'
 import { sessionRolls } from '../db/schema/rolls'
 import { entityMentions } from '../db/schema/mentions'
 import { campaignMembers } from '../db/schema/campaign-members'
@@ -58,10 +49,29 @@ export interface CampaignExport {
 }
 
 export const VALID_RESOURCE_TYPES = new Set([
-  'entityTypes', 'entities', 'characters', 'sessions', 'sessionGroups',
-  'quests', 'maps', 'calendars', 'timelines', 'relations', 'relationTypes',
-  'items', 'inventories', 'currencies', 'shops', 'transactions',
-  'arcs', 'chapters', 'rolls', 'tags', 'templates', 'mentions', 'members',
+  'entityTypes',
+  'entities',
+  'characters',
+  'sessions',
+  'sessionGroups',
+  'quests',
+  'maps',
+  'calendars',
+  'timelines',
+  'relations',
+  'relationTypes',
+  'items',
+  'inventories',
+  'currencies',
+  'shops',
+  'transactions',
+  'arcs',
+  'chapters',
+  'rolls',
+  'tags',
+  'templates',
+  'mentions',
+  'members',
 ])
 
 function shouldInclude(key: string, include?: string[]): boolean {
@@ -86,23 +96,35 @@ export async function buildCampaignExport(
   }
 
   // Filter include to valid keys only
-  const filteredInclude = include?.filter(k => VALID_RESOURCE_TYPES.has(k))
+  const filteredInclude = include?.filter((k) => VALID_RESOURCE_TYPES.has(k))
 
   if (shouldInclude('entityTypes', filteredInclude)) {
-    result.entityTypes = db.select().from(entityTypes).where(eq(entityTypes.campaignId, campaignId)).all()
+    result.entityTypes = db
+      .select()
+      .from(entityTypes)
+      .where(eq(entityTypes.campaignId, campaignId))
+      .all()
   }
 
   if (shouldInclude('entities', filteredInclude)) {
     const entitiesList = db.select().from(entities).where(eq(entities.campaignId, campaignId)).all()
-    const templatesList = db.select().from(entityTemplates).where(eq(entityTemplates.campaignId, campaignId)).all()
-    const templateIds = templatesList.map(t => t.id)
+    const templatesList = db
+      .select()
+      .from(entityTemplates)
+      .where(eq(entityTemplates.campaignId, campaignId))
+      .all()
+    const templateIds = templatesList.map((t) => t.id)
     const templateFieldsList = templateIds.length
-      ? db.select().from(entityTemplateFields).all().filter(f => templateIds.includes(f.templateId))
+      ? db
+          .select()
+          .from(entityTemplateFields)
+          .all()
+          .filter((f) => templateIds.includes(f.templateId))
       : []
     result.entities = entitiesList
-    result.templates = templatesList.map(t => ({
+    result.templates = templatesList.map((t) => ({
       ...t,
-      fields: templateFieldsList.filter(f => f.templateId === t.id),
+      fields: templateFieldsList.filter((f) => f.templateId === t.id),
     }))
   }
 
@@ -111,19 +133,36 @@ export async function buildCampaignExport(
   }
 
   if (shouldInclude('characters', filteredInclude)) {
-    const entityIds = db.select({ id: entities.id }).from(entities).where(eq(entities.campaignId, campaignId)).all().map(e => e.id)
+    const entityIds = db
+      .select({ id: entities.id })
+      .from(entities)
+      .where(eq(entities.campaignId, campaignId))
+      .all()
+      .map((e) => e.id)
     const charactersList = entityIds.length
-      ? db.select().from(characters).all().filter(c => entityIds.includes(c.entityId))
+      ? db
+          .select()
+          .from(characters)
+          .all()
+          .filter((c) => entityIds.includes(c.entityId))
       : []
     result.characters = charactersList
   }
 
   if (shouldInclude('sessions', filteredInclude)) {
-    result.sessions = db.select().from(gameSessions).where(eq(gameSessions.campaignId, campaignId)).all()
+    result.sessions = db
+      .select()
+      .from(gameSessions)
+      .where(eq(gameSessions.campaignId, campaignId))
+      .all()
   }
 
   if (shouldInclude('sessionGroups', filteredInclude)) {
-    result.sessionGroups = db.select().from(sessionGroups).where(eq(sessionGroups.campaignId, campaignId)).all()
+    result.sessionGroups = db
+      .select()
+      .from(sessionGroups)
+      .where(eq(sessionGroups.campaignId, campaignId))
+      .all()
   }
 
   if (shouldInclude('arcs', filteredInclude)) {
@@ -131,9 +170,18 @@ export async function buildCampaignExport(
   }
 
   if (shouldInclude('chapters', filteredInclude)) {
-    const arcIds = db.select({ id: arcs.id }).from(arcs).where(eq(arcs.campaignId, campaignId)).all().map(a => a.id)
+    const arcIds = db
+      .select({ id: arcs.id })
+      .from(arcs)
+      .where(eq(arcs.campaignId, campaignId))
+      .all()
+      .map((a) => a.id)
     result.chapters = arcIds.length
-      ? db.select().from(chapters).all().filter(c => arcIds.includes(c.arcId))
+      ? db
+          .select()
+          .from(chapters)
+          .all()
+          .filter((c) => arcIds.includes(c.arcId))
       : []
   }
 
@@ -154,11 +202,19 @@ export async function buildCampaignExport(
   }
 
   if (shouldInclude('relations', filteredInclude)) {
-    result.relations = db.select().from(entityRelations).where(eq(entityRelations.campaignId, campaignId)).all()
+    result.relations = db
+      .select()
+      .from(entityRelations)
+      .where(eq(entityRelations.campaignId, campaignId))
+      .all()
   }
 
   if (shouldInclude('relationTypes', filteredInclude)) {
-    result.relationTypes = db.select().from(relationTypes).where(eq(relationTypes.campaignId, campaignId)).all()
+    result.relationTypes = db
+      .select()
+      .from(relationTypes)
+      .where(eq(relationTypes.campaignId, campaignId))
+      .all()
   }
 
   if (shouldInclude('items', filteredInclude)) {
@@ -166,11 +222,19 @@ export async function buildCampaignExport(
   }
 
   if (shouldInclude('inventories', filteredInclude)) {
-    result.inventories = db.select().from(inventories).where(eq(inventories.campaignId, campaignId)).all()
+    result.inventories = db
+      .select()
+      .from(inventories)
+      .where(eq(inventories.campaignId, campaignId))
+      .all()
   }
 
   if (shouldInclude('currencies', filteredInclude)) {
-    result.currencies = db.select().from(currencies).where(eq(currencies.campaignId, campaignId)).all()
+    result.currencies = db
+      .select()
+      .from(currencies)
+      .where(eq(currencies.campaignId, campaignId))
+      .all()
   }
 
   if (shouldInclude('shops', filteredInclude)) {
@@ -178,19 +242,35 @@ export async function buildCampaignExport(
   }
 
   if (shouldInclude('transactions', filteredInclude)) {
-    result.transactions = db.select().from(transactions).where(eq(transactions.campaignId, campaignId)).all()
+    result.transactions = db
+      .select()
+      .from(transactions)
+      .where(eq(transactions.campaignId, campaignId))
+      .all()
   }
 
   if (shouldInclude('rolls', filteredInclude)) {
-    result.rolls = db.select().from(sessionRolls).where(eq(sessionRolls.campaignId, campaignId)).all()
+    result.rolls = db
+      .select()
+      .from(sessionRolls)
+      .where(eq(sessionRolls.campaignId, campaignId))
+      .all()
   }
 
   if (shouldInclude('mentions', filteredInclude)) {
-    result.mentions = db.select().from(entityMentions).where(eq(entityMentions.campaignId, campaignId)).all()
+    result.mentions = db
+      .select()
+      .from(entityMentions)
+      .where(eq(entityMentions.campaignId, campaignId))
+      .all()
   }
 
   if (shouldInclude('members', filteredInclude)) {
-    result.members = db.select().from(campaignMembers).where(eq(campaignMembers.campaignId, campaignId)).all()
+    result.members = db
+      .select()
+      .from(campaignMembers)
+      .where(eq(campaignMembers.campaignId, campaignId))
+      .all()
   }
 
   return result

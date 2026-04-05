@@ -20,38 +20,44 @@ export default defineEventHandler(async (event) => {
   const subtype = query.subtype as string | undefined
   const search = query.search as string | undefined
 
-  const conditions = [
-    eq(entities.campaignId, campaignId),
-    eq(entities.type, 'location'),
-  ]
+  const conditions = [eq(entities.campaignId, campaignId), eq(entities.type, 'location')]
 
   if (parentId) conditions.push(eq(entities.parentId, parentId))
   else if (query.parentId === '') conditions.push(sql`${entities.parentId} IS NULL`)
 
-  if (search) conditions.push(sql`${entities.name} LIKE ${'%' + escapeLike(search) + '%'} ESCAPE '\\'`)
+  if (search)
+    conditions.push(sql`${entities.name} LIKE ${'%' + escapeLike(search) + '%'} ESCAPE '\\'`)
 
   buildVisibilityFilter(role, userId, conditions, entities.visibility, entities.createdBy)
 
   const pagination = parsePagination(query as Record<string, unknown>)
 
-  const countRow = db.select({ total: sql<number>`COUNT(*)` })
+  const countRow = db
+    .select({ total: sql<number>`COUNT(*)` })
     .from(entities)
     .where(and(...conditions))
     .get()
   const total = countRow?.total ?? 0
 
-  const results = db.select({
-    id: entities.id,
-    name: entities.name,
-    slug: entities.slug,
-    filePath: entities.filePath,
-    parentId: entities.parentId,
-    visibility: entities.visibility,
-    updatedAt: entities.updatedAt,
-    parentName: parentEntities.name,
-    childCount: sql<number>`(SELECT COUNT(*) FROM entities child WHERE child.parent_id = ${entities.id} AND child.type = 'location' AND child.campaign_id = ${campaignId})`.as('child_count'),
-    inhabitantCount: sql<number>`(SELECT COUNT(*) FROM characters c WHERE c.location_entity_id = ${entities.id})`.as('inhabitant_count'),
-  })
+  const results = db
+    .select({
+      id: entities.id,
+      name: entities.name,
+      slug: entities.slug,
+      filePath: entities.filePath,
+      parentId: entities.parentId,
+      visibility: entities.visibility,
+      updatedAt: entities.updatedAt,
+      parentName: parentEntities.name,
+      childCount:
+        sql<number>`(SELECT COUNT(*) FROM entities child WHERE child.parent_id = ${entities.id} AND child.type = 'location' AND child.campaign_id = ${campaignId})`.as(
+          'child_count',
+        ),
+      inhabitantCount:
+        sql<number>`(SELECT COUNT(*) FROM characters c WHERE c.location_entity_id = ${entities.id})`.as(
+          'inhabitant_count',
+        ),
+    })
     .from(entities)
     .leftJoin(parentEntities, eq(entities.parentId, parentEntities.id))
     .where(and(...conditions))
@@ -60,7 +66,7 @@ export default defineEventHandler(async (event) => {
     .offset(pagination.offset)
     .all()
 
-  const mapRow = (loc: typeof results[number], st = 'other') => ({
+  const mapRow = (loc: (typeof results)[number], st = 'other') => ({
     id: loc.id,
     name: loc.name,
     slug: loc.slug,
@@ -74,17 +80,17 @@ export default defineEventHandler(async (event) => {
   })
 
   const { safeReadEntityFile } = await import('../../../../utils/content-helpers')
-  const withSubtypes = await Promise.all(results.map(async (loc) => {
-    const file = await safeReadEntityFile(loc.filePath ?? '')
-    const st = file?.frontmatter?.fields?.subtype as string ?? 'other'
-    return { loc, st }
-  }))
+  const withSubtypes = await Promise.all(
+    results.map(async (loc) => {
+      const file = await safeReadEntityFile(loc.filePath ?? '')
+      const st = (file?.frontmatter?.fields?.subtype as string) ?? 'other'
+      return { loc, st }
+    }),
+  )
 
   let data: ReturnType<typeof mapRow>[]
   if (subtype) {
-    data = withSubtypes
-      .filter(({ st }) => st === subtype)
-      .map(({ loc, st }) => mapRow(loc, st))
+    data = withSubtypes.filter(({ st }) => st === subtype).map(({ loc, st }) => mapRow(loc, st))
   } else {
     data = withSubtypes.map(({ loc, st }) => mapRow(loc, st))
   }

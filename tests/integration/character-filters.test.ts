@@ -5,7 +5,7 @@ const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 async function api(path: string, opts?: any) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
-    headers: { 'Content-Type': 'application/json', 'Origin': BASE_URL, ...opts?.headers },
+    headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...opts?.headers },
     body: opts?.body ? JSON.stringify(opts.body) : undefined,
   })
 }
@@ -21,8 +21,14 @@ describe('Character list filters and meta (integration)', () => {
 
   beforeAll(async () => {
     // Auth
-    await api('/api/auth/sign-up/email', { method: 'POST', body: { name: 'Filter Tester', email, password: 'password123' } })
-    const login = await api('/api/auth/sign-in/email', { method: 'POST', body: { email, password: 'password123' } })
+    await api('/api/auth/sign-up/email', {
+      method: 'POST',
+      body: { name: 'Filter Tester', email, password: 'password123' },
+    })
+    const login = await api('/api/auth/sign-in/email', {
+      method: 'POST',
+      body: { email, password: 'password123' },
+    })
     const cookies = login.headers.get('set-cookie') || ''
     const match = cookies.match(/better-auth\.session_token=([^;]+)/)
     const sessionCookie = match ? `better-auth.session_token=${match[1]}` : ''
@@ -32,50 +38,91 @@ describe('Character list filters and meta (integration)', () => {
     cookie = csrfToken ? `${sessionCookie}; csrf_token=${csrfToken}` : sessionCookie
 
     // Campaign
-    const camp = await api('/api/campaigns', { method: 'POST', headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken }, body: { name: `Filter Test ${Date.now()}` } })
+    const camp = await api('/api/campaigns', {
+      method: 'POST',
+      headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
+      body: { name: `Filter Test ${Date.now()}` },
+    })
     campaignId = (await camp.json()).id
 
     // Create characters with varied fields
     const elf = await api(`/api/campaigns/${campaignId}/characters`, {
-      method: 'POST', headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
-      body: { name: 'Legolas', characterType: 'pc', race: 'Elf', class: 'Ranger', alignment: 'Neutral Good', status: 'alive' },
+      method: 'POST',
+      headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
+      body: {
+        name: 'Legolas',
+        characterType: 'pc',
+        race: 'Elf',
+        class: 'Ranger',
+        alignment: 'Neutral Good',
+        status: 'alive',
+      },
     })
     elfSlug = (await elf.json()).slug
 
     const human = await api(`/api/campaigns/${campaignId}/characters`, {
-      method: 'POST', headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
-      body: { name: 'Boromir', characterType: 'pc', race: 'Human', class: 'Fighter', alignment: 'Lawful Good', status: 'dead' },
+      method: 'POST',
+      headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
+      body: {
+        name: 'Boromir',
+        characterType: 'pc',
+        race: 'Human',
+        class: 'Fighter',
+        alignment: 'Lawful Good',
+        status: 'dead',
+      },
     })
     humanSlug = (await human.json()).slug
 
     await api(`/api/campaigns/${campaignId}/characters`, {
-      method: 'POST', headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
-      body: { name: 'Gandalf', characterType: 'npc', race: 'Maiar', class: 'Wizard', alignment: 'Neutral Good', status: 'alive' },
+      method: 'POST',
+      headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
+      body: {
+        name: 'Gandalf',
+        characterType: 'npc',
+        race: 'Maiar',
+        class: 'Wizard',
+        alignment: 'Neutral Good',
+        status: 'alive',
+      },
     })
 
     // Create companion
-    const legolasData = await (await api(`/api/campaigns/${campaignId}/characters/${elfSlug}`, { headers: { Cookie: cookie } })).json()
+    const legolasData = await (
+      await api(`/api/campaigns/${campaignId}/characters/${elfSlug}`, {
+        headers: { Cookie: cookie },
+      })
+    ).json()
     await api(`/api/campaigns/${campaignId}/characters`, {
-      method: 'POST', headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
+      method: 'POST',
+      headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
       body: { name: 'Arod', characterType: 'npc', race: 'Horse', isCompanionOf: legolasData.id },
     })
 
     // Create organization and add Legolas
     const org = await api(`/api/campaigns/${campaignId}/organizations`, {
-      method: 'POST', headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
+      method: 'POST',
+      headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
       body: { name: 'The Fellowship', type: 'faction' },
     })
     orgId = (await org.json()).id
-    const legolas = await (await api(`/api/campaigns/${campaignId}/characters/${elfSlug}`, { headers: { Cookie: cookie } })).json()
+    const legolas = await (
+      await api(`/api/campaigns/${campaignId}/characters/${elfSlug}`, {
+        headers: { Cookie: cookie },
+      })
+    ).json()
     await api(`/api/campaigns/${campaignId}/organizations/the-fellowship/members`, {
-      method: 'POST', headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
+      method: 'POST',
+      headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
       body: { characterId: legolas.id, role: 'Scout' },
     })
   })
 
   // 8.1 race filter
   it('GET ?race=Elf returns only Elf characters', async () => {
-    const res = await api(`/api/campaigns/${campaignId}/characters?race=Elf`, { headers: { Cookie: cookie } })
+    const res = await api(`/api/campaigns/${campaignId}/characters?race=Elf`, {
+      headers: { Cookie: cookie },
+    })
     expect(res.status).toBe(200)
     const body = await res.json()
     const data = body.data ?? body
@@ -85,7 +132,9 @@ describe('Character list filters and meta (integration)', () => {
 
   // 8.2 class filter
   it('GET ?class=Wizard returns only Wizard characters', async () => {
-    const res = await api(`/api/campaigns/${campaignId}/characters?class=Wizard`, { headers: { Cookie: cookie } })
+    const res = await api(`/api/campaigns/${campaignId}/characters?class=Wizard`, {
+      headers: { Cookie: cookie },
+    })
     expect(res.status).toBe(200)
     const body = await res.json()
     const data = body.data ?? body
@@ -95,7 +144,9 @@ describe('Character list filters and meta (integration)', () => {
 
   // 8.3 alignment filter
   it('GET ?alignment=Neutral+Good returns only matching characters', async () => {
-    const res = await api(`/api/campaigns/${campaignId}/characters?alignment=Neutral+Good`, { headers: { Cookie: cookie } })
+    const res = await api(`/api/campaigns/${campaignId}/characters?alignment=Neutral+Good`, {
+      headers: { Cookie: cookie },
+    })
     expect(res.status).toBe(200)
     const body = await res.json()
     const data = body.data ?? body
@@ -105,7 +156,9 @@ describe('Character list filters and meta (integration)', () => {
 
   // 8.4 status filter
   it('GET ?status=dead returns only dead characters', async () => {
-    const res = await api(`/api/campaigns/${campaignId}/characters?status=dead`, { headers: { Cookie: cookie } })
+    const res = await api(`/api/campaigns/${campaignId}/characters?status=dead`, {
+      headers: { Cookie: cookie },
+    })
     expect(res.status).toBe(200)
     const body = await res.json()
     const data = body.data ?? body
@@ -115,7 +168,9 @@ describe('Character list filters and meta (integration)', () => {
 
   // 8.5 organizationId filter
   it('GET ?organizationId=<id> returns only org members', async () => {
-    const res = await api(`/api/campaigns/${campaignId}/characters?organizationId=${orgId}`, { headers: { Cookie: cookie } })
+    const res = await api(`/api/campaigns/${campaignId}/characters?organizationId=${orgId}`, {
+      headers: { Cookie: cookie },
+    })
     expect(res.status).toBe(200)
     const body = await res.json()
     const data = body.data ?? body
@@ -127,7 +182,9 @@ describe('Character list filters and meta (integration)', () => {
 
   // 8.6 sort by name asc
   it('GET ?sort=name&sortDir=asc returns alphabetical order', async () => {
-    const res = await api(`/api/campaigns/${campaignId}/characters?sort=name&sortDir=asc`, { headers: { Cookie: cookie } })
+    const res = await api(`/api/campaigns/${campaignId}/characters?sort=name&sortDir=asc`, {
+      headers: { Cookie: cookie },
+    })
     expect(res.status).toBe(200)
     const body = await res.json()
     const data = body.data ?? body
@@ -138,7 +195,9 @@ describe('Character list filters and meta (integration)', () => {
 
   // 8.7 unknown sort field falls back to updatedAt desc
   it('GET ?sort=invalid falls back gracefully', async () => {
-    const res = await api(`/api/campaigns/${campaignId}/characters?sort=invalid`, { headers: { Cookie: cookie } })
+    const res = await api(`/api/campaigns/${campaignId}/characters?sort=invalid`, {
+      headers: { Cookie: cookie },
+    })
     expect(res.status).toBe(200)
     const body = await res.json()
     const data = body.data ?? body
@@ -147,7 +206,9 @@ describe('Character list filters and meta (integration)', () => {
 
   // 8.8 response includes locationName and primaryOrg fields
   it('GET /characters response includes locationName and primaryOrg fields', async () => {
-    const res = await api(`/api/campaigns/${campaignId}/characters`, { headers: { Cookie: cookie } })
+    const res = await api(`/api/campaigns/${campaignId}/characters`, {
+      headers: { Cookie: cookie },
+    })
     expect(res.status).toBe(200)
     const body = await res.json()
     const data = body.data ?? body
@@ -167,7 +228,9 @@ describe('Character list filters and meta (integration)', () => {
 
   // 8.9 meta returns distinct values
   it('GET /characters/meta returns distinct races, classes, alignments', async () => {
-    const res = await api(`/api/campaigns/${campaignId}/characters/meta`, { headers: { Cookie: cookie } })
+    const res = await api(`/api/campaigns/${campaignId}/characters/meta`, {
+      headers: { Cookie: cookie },
+    })
     expect(res.status).toBe(200)
     const data = await res.json()
     expect(data.races).toContain('Elf')
@@ -187,7 +250,9 @@ describe('Character list filters and meta (integration)', () => {
 
   // companions filter
   it('GET ?companions=false excludes companion characters', async () => {
-    const res = await api(`/api/campaigns/${campaignId}/characters?companions=false`, { headers: { Cookie: cookie } })
+    const res = await api(`/api/campaigns/${campaignId}/characters?companions=false`, {
+      headers: { Cookie: cookie },
+    })
     expect(res.status).toBe(200)
     const body = await res.json()
     const data = body.data ?? body

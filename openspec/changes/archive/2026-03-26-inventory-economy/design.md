@@ -61,6 +61,7 @@ Business logic extracted into `server/services/inventory.ts` -- pure functions t
 Architecture: Write unit tests first (TDD red phase), then implement service functions (green phase), then refactor API handlers to call services. API handlers stay thin -- they call services + DB, return results.
 
 Test layers:
+
 1. **Unit tests**: service functions in isolation (no DB, no server)
 2. **Schema tests**: DB constraints and cascades (`:memory:` SQLite)
 3. **Integration tests**: API contracts against running server

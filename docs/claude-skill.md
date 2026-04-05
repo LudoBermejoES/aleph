@@ -4,7 +4,7 @@ description: Use the aleph CLI to manage campaigns, entities, characters, locati
 license: MIT
 metadata:
   author: aleph
-  version: "1.9"
+  version: '1.9'
 ---
 
 You have access to the `aleph` CLI. Run it as `aleph` if installed globally (`npm i -g aleph-cli`), or `npx aleph-cli` otherwise.
@@ -14,17 +14,20 @@ You have access to the `aleph` CLI. Run it as `aleph` if installed globally (`np
 Config is stored at `~/.aleph/config.json` with `url`, `apiKey`, and `apiKeyId` fields.
 
 Check current config:
+
 ```bash
 cat ~/.aleph/config.json 2>/dev/null || echo "not configured"
 ```
 
 Log in (creates an API key and stores it):
+
 ```bash
 aleph login
 # prompts for server URL, email, and password
 ```
 
 Set server URL manually:
+
 ```bash
 aleph config set --url https://your-aleph-instance.com
 ```
@@ -38,6 +41,7 @@ You can also override via environment variables: `ALEPH_URL` and `ALEPH_TOKEN`.
 All commands support `--json` for machine-readable output. Always use `--json` when parsing results programmatically.
 
 ### Authentication
+
 ```bash
 aleph login                           # interactive login — creates and stores an API key
 aleph logout                          # revokes the stored API key and clears config
@@ -46,6 +50,7 @@ aleph config set --url <url>          # set server URL
 ```
 
 ### Campaigns
+
 ```bash
 aleph campaign list [--json]
 aleph campaign create --name <name> [--description <desc>] [--theme <theme>] [--json]
@@ -57,6 +62,7 @@ aleph campaign export <id> [--format json] [--include <types>] [--output <file>]
 Available themes: `default`, `dark-fantasy`, `cyberpunk`, `cosmic-horror`, `high-fantasy`, `western`, `steampunk`, `eldritch`, `fey-wilds`, `undead`, `superhero`
 
 ### Entities (wiki entries)
+
 ```bash
 aleph entity list --campaign <id> [--type <type>] [--search <q>] [--json]
 aleph entity create --campaign <id> --name <name> --type <type> [--content <markdown>] [--json]
@@ -73,6 +79,7 @@ Pipe content from a file: `cat notes.md | aleph entity edit --campaign <id> <slu
 `upload-image` accepts PNG, JPEG, or WebP files up to 10 MB. The image is shown on the entity detail page in the web UI.
 
 ### Characters
+
 ```bash
 aleph character list --campaign <id> [--status <alive|dead|missing|unknown>] [--race <race>] [--class <class>] [--alignment <alignment>] [--sort <name|updatedAt|status|race|class>] [--sort-dir <asc|desc>] [--page <n>] [--limit <n>] [--json]
 aleph character create --campaign <id> --name <name> [--class <class>] [--json]
@@ -90,6 +97,7 @@ aleph character folder-delete <folderId> --campaign <id> [--yes]
 `upload-portrait` accepts PNG, JPEG, or WebP files up to 10 MB. The portrait is shown on the character detail page in the web UI.
 
 ### Sessions
+
 ```bash
 aleph session list --campaign <id> [--group <slug>] [--page <n>] [--limit <n>] [--json]
 aleph session create --campaign <id> --title <title> [--date <YYYY-MM-DD>] [--group <slug>] [--json]
@@ -107,6 +115,7 @@ aleph session attendance set <slug> --campaign <id> --status pending|accepted|de
 ```
 
 ### Session Groups
+
 ```bash
 aleph session-group list --campaign <id> [--json]
 aleph session-group create --campaign <id> --name <name> [--description <desc>] [--json]
@@ -115,6 +124,7 @@ aleph session-group delete <slug> --campaign <id> [--yes]  # --yes skips confirm
 ```
 
 ### Members
+
 ```bash
 aleph member list --campaign <id> [--json]
 aleph member invite --campaign <id> --role <role> [--expires <days>] [--json]
@@ -125,11 +135,13 @@ aleph member invite --campaign <id> --role <role> [--expires <days>] [--json]
 Roles: `player`, `editor`, `co_dm`
 
 ### Search
+
 ```bash
 aleph search --campaign <id> <query> [--json]
 ```
 
 ### Organizations
+
 ```bash
 aleph organization list --campaign <id> [--page <n>] [--limit <n>] [--json]
 aleph organization create --campaign <id> --name <name> [--type <type>] [--status <status>] [--description <desc>] [--json]
@@ -329,6 +341,7 @@ aleph health [--json]    # check server connectivity and status
 ```
 
 ### Dice Rolls
+
 ```bash
 aleph roll <formula> [--json]                      # local (offline)
 aleph roll <formula> --campaign <id> [--json]      # server roll, recorded in session history
@@ -351,18 +364,21 @@ Examples: `aleph roll 2d6+3`, `aleph roll 1d20`, `aleph roll 4d6kh3`
 ## Workflow Examples
 
 **List all campaigns then fetch NPCs from the first one:**
+
 ```bash
 aleph campaign list --json
 aleph entity list --campaign <id> --type npc --json
 ```
 
 **Create a location from a file:**
+
 ```bash
 aleph entity create --campaign <id> --name "Castle Ravenloft" --type location
 cat ravenloft-notes.md | aleph entity edit --campaign <id> castle-ravenloft --stdin
 ```
 
 **Roll dice:**
+
 ```bash
 aleph roll 2d6+3 --json
 # → {"formula":"2d6+3","rolls":[4,5],"total":12}

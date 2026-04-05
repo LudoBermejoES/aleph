@@ -11,14 +11,18 @@ import type { CampaignRole } from '../../../../../../utils/permissions'
 export default defineEventHandler(async (event) => {
   const role = event.context.campaignRole as CampaignRole
   if (!hasMinRole(role, 'editor')) {
-    throw createError({ statusCode: 403, message: 'Editors or above can manage organization members' })
+    throw createError({
+      statusCode: 403,
+      message: 'Editors or above can manage organization members',
+    })
   }
 
   const campaignId = getRouterParam(event, 'id')!
   const slug = getRouterParam(event, 'slug')!
   const db = useDb()
 
-  const org = db.select({ id: organizations.id })
+  const org = db
+    .select({ id: organizations.id })
     .from(organizations)
     .where(and(eq(organizations.campaignId, campaignId), eq(organizations.slug, slug)))
     .get()
@@ -35,7 +39,8 @@ export default defineEventHandler(async (event) => {
   const { characterId, role: memberRole } = body
 
   // Verify character belongs to this campaign
-  const character = db.select({ id: characters.id })
+  const character = db
+    .select({ id: characters.id })
     .from(characters)
     .innerJoin(entities, eq(characters.entityId, entities.id))
     .where(and(eq(characters.id, characterId), eq(entities.campaignId, campaignId)))
@@ -46,23 +51,31 @@ export default defineEventHandler(async (event) => {
   }
 
   // Check for duplicate
-  const existing = db.select()
+  const existing = db
+    .select()
     .from(organizationMembers)
-    .where(and(
-      eq(organizationMembers.organizationId, org.id),
-      eq(organizationMembers.characterId, characterId),
-    ))
+    .where(
+      and(
+        eq(organizationMembers.organizationId, org.id),
+        eq(organizationMembers.characterId, characterId),
+      ),
+    )
     .get()
 
   if (existing) {
-    throw createError({ statusCode: 409, message: 'Character is already a member of this organization' })
+    throw createError({
+      statusCode: 409,
+      message: 'Character is already a member of this organization',
+    })
   }
 
-  db.insert(organizationMembers).values({
-    organizationId: org.id,
-    characterId,
-    role: memberRole || null,
-  }).run()
+  db.insert(organizationMembers)
+    .values({
+      organizationId: org.id,
+      characterId,
+      role: memberRole || null,
+    })
+    .run()
 
   return { organizationId: org.id, characterId, role: memberRole || null }
 })

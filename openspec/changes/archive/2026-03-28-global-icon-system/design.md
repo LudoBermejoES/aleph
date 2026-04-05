@@ -5,6 +5,7 @@
 ## Goals / Non-Goals
 
 **Goals:**
+
 - Every sidebar nav link has a leading icon
 - Every nav group header has a leading icon
 - Every campaign dashboard card has a large icon
@@ -13,6 +14,7 @@
 - A single central file (`app/utils/icons.ts`) owns the icon→component mapping so future additions are one-line changes
 
 **Non-Goals:**
+
 - Custom SVG icons or icon fonts — lucide-vue-next only
 - Animated icons
 - Icon picker UI for DMs to customise per-entity icons
@@ -42,60 +44,60 @@ No `<AppIcon name="characters" />` wrapper component. Lucide components are alre
 
 ### 4. Icon assignments
 
-| Area | Icon |
-|------|------|
+| Area                      | Icon              |
+| ------------------------- | ----------------- |
 | Dashboard / All Campaigns | `LayoutDashboard` |
-| Wiki / Entities | `BookOpen` |
-| Characters | `Users` |
-| Organizations | `Building2` |
-| Locations | `MapPin` |
-| Maps | `Map` |
-| Sessions | `ScrollText` |
-| Quests | `Swords` |
-| Calendars | `CalendarDays` |
-| Items | `Package` |
-| Shops | `Store` |
-| Inventories | `Archive` |
-| Currencies | `Coins` |
-| Transactions | `ArrowLeftRight` |
-| Graph | `Network` |
-| Members | `UserCog` |
-| Settings | `Settings` |
-| Sign Out | `LogOut` |
-| World group | `Globe` |
-| Story group | `BookMarked` |
-| Economy group | `Landmark` |
-| Campaign group | `Shield` |
-| New / Add | `Plus` |
-| Edit | `Pencil` |
-| Delete | `Trash2` |
-| Save | `Check` |
-| Back | `ChevronLeft` |
-| Search | `Search` |
-| **Status: alive** | `Heart` |
-| **Status: dead** | `Skull` |
-| **Status: missing** | `CircleHelp` |
-| **Status: unknown** | `CircleDashed` |
-| **Quest: active** | `Play` |
-| **Quest: completed** | `CheckCircle2` |
-| **Quest: failed** | `XCircle` |
-| **Quest: abandoned** | `Ban` |
-| **Session: planned** | `Clock` |
-| **Session: active** | `Zap` |
-| **Session: completed** | `CheckCircle2` |
-| **Session: cancelled** | `X` |
-| **Org type: faction** | `Shield` |
-| **Org type: guild** | `Star` |
-| **Org type: army** | `Swords` |
-| **Org type: cult** | `Flame` |
-| **Org type: government** | `Landmark` |
-| **Org type: other** | `Circle` |
-| **Org status: active** | `CircleCheck` |
-| **Org status: inactive** | `CircleMinus` |
-| **Org status: secret** | `EyeOff` |
-| **Org status: dissolved** | `CircleX` |
-| PC badge | `Sword` |
-| NPC badge | `Bot` |
+| Wiki / Entities           | `BookOpen`        |
+| Characters                | `Users`           |
+| Organizations             | `Building2`       |
+| Locations                 | `MapPin`          |
+| Maps                      | `Map`             |
+| Sessions                  | `ScrollText`      |
+| Quests                    | `Swords`          |
+| Calendars                 | `CalendarDays`    |
+| Items                     | `Package`         |
+| Shops                     | `Store`           |
+| Inventories               | `Archive`         |
+| Currencies                | `Coins`           |
+| Transactions              | `ArrowLeftRight`  |
+| Graph                     | `Network`         |
+| Members                   | `UserCog`         |
+| Settings                  | `Settings`        |
+| Sign Out                  | `LogOut`          |
+| World group               | `Globe`           |
+| Story group               | `BookMarked`      |
+| Economy group             | `Landmark`        |
+| Campaign group            | `Shield`          |
+| New / Add                 | `Plus`            |
+| Edit                      | `Pencil`          |
+| Delete                    | `Trash2`          |
+| Save                      | `Check`           |
+| Back                      | `ChevronLeft`     |
+| Search                    | `Search`          |
+| **Status: alive**         | `Heart`           |
+| **Status: dead**          | `Skull`           |
+| **Status: missing**       | `CircleHelp`      |
+| **Status: unknown**       | `CircleDashed`    |
+| **Quest: active**         | `Play`            |
+| **Quest: completed**      | `CheckCircle2`    |
+| **Quest: failed**         | `XCircle`         |
+| **Quest: abandoned**      | `Ban`             |
+| **Session: planned**      | `Clock`           |
+| **Session: active**       | `Zap`             |
+| **Session: completed**    | `CheckCircle2`    |
+| **Session: cancelled**    | `X`               |
+| **Org type: faction**     | `Shield`          |
+| **Org type: guild**       | `Star`            |
+| **Org type: army**        | `Swords`          |
+| **Org type: cult**        | `Flame`           |
+| **Org type: government**  | `Landmark`        |
+| **Org type: other**       | `Circle`          |
+| **Org status: active**    | `CircleCheck`     |
+| **Org status: inactive**  | `CircleMinus`     |
+| **Org status: secret**    | `EyeOff`          |
+| **Org status: dissolved** | `CircleX`         |
+| PC badge                  | `Sword`           |
+| NPC badge                 | `Bot`             |
 
 ## Risks / Trade-offs
 

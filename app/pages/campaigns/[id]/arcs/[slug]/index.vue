@@ -4,9 +4,13 @@
     <template v-else-if="arc">
       <!-- Breadcrumb -->
       <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-        <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">{{ $t('common.campaign') }}</NuxtLink>
+        <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">{{
+          $t('common.campaign')
+        }}</NuxtLink>
         <span>/</span>
-        <NuxtLink :to="`/campaigns/${campaignId}/arcs`" class="hover:text-primary">{{ $t('arcs.title') }}</NuxtLink>
+        <NuxtLink :to="`/campaigns/${campaignId}/arcs`" class="hover:text-primary">{{
+          $t('arcs.title')
+        }}</NuxtLink>
         <span>/</span>
         <span>{{ arc.name }}</span>
       </div>
@@ -15,11 +19,16 @@
       <div class="flex items-start justify-between gap-4 mb-6">
         <div>
           <h1 class="text-2xl font-bold">{{ arc.name }}</h1>
-          <span :class="['inline-flex text-xs px-2 py-0.5 rounded mt-1', arcStatusClass(arc.status)]">{{ arc.status }}</span>
+          <span
+            :class="['inline-flex text-xs px-2 py-0.5 rounded mt-1', arcStatusClass(arc.status)]"
+            >{{ arc.status }}</span
+          >
         </div>
         <div v-if="canEdit" class="flex gap-2 shrink-0">
           <Button variant="outline" size="sm" @click="startEditArc">{{ $t('common.edit') }}</Button>
-          <Button variant="destructive" size="sm" @click="confirmDeleteArc">{{ $t('common.delete') }}</Button>
+          <Button variant="destructive" size="sm" @click="confirmDeleteArc">{{
+            $t('common.delete')
+          }}</Button>
         </div>
       </div>
 
@@ -27,15 +36,26 @@
       <div v-if="editingArc" class="mb-6 p-4 rounded-lg border border-border space-y-3">
         <div>
           <label class="text-sm font-medium">{{ $t('arcs.name') }}</label>
-          <input v-model="editArcForm.name" type="text" class="w-full mt-1 px-3 py-1.5 rounded border border-input bg-background text-sm" />
+          <input
+            v-model="editArcForm.name"
+            type="text"
+            class="w-full mt-1 px-3 py-1.5 rounded border border-input bg-background text-sm"
+          />
         </div>
         <div>
           <label class="text-sm font-medium">{{ $t('arcs.description') }}</label>
-          <textarea v-model="editArcForm.description" rows="3" class="w-full mt-1 px-3 py-1.5 rounded border border-input bg-background text-sm" />
+          <textarea
+            v-model="editArcForm.description"
+            rows="3"
+            class="w-full mt-1 px-3 py-1.5 rounded border border-input bg-background text-sm"
+          />
         </div>
         <div>
           <label class="text-sm font-medium">{{ $t('arcs.status') }}</label>
-          <select v-model="editArcForm.status" class="w-full mt-1 px-3 py-1.5 rounded border border-input bg-background text-sm">
+          <select
+            v-model="editArcForm.status"
+            class="w-full mt-1 px-3 py-1.5 rounded border border-input bg-background text-sm"
+          >
             <option value="planned">planned</option>
             <option value="active">active</option>
             <option value="completed">completed</option>
@@ -44,12 +64,16 @@
         </div>
         <div class="flex gap-2">
           <Button size="sm" @click="saveArc">{{ $t('common.save') }}</Button>
-          <Button size="sm" variant="outline" @click="editingArc = false">{{ $t('common.cancel') }}</Button>
+          <Button size="sm" variant="outline" @click="editingArc = false">{{
+            $t('common.cancel')
+          }}</Button>
         </div>
       </div>
 
       <!-- Description -->
-      <p v-if="arc.description && !editingArc" class="text-muted-foreground mb-6">{{ arc.description }}</p>
+      <p v-if="arc.description && !editingArc" class="text-muted-foreground mb-6">
+        {{ arc.description }}
+      </p>
 
       <!-- Linked sessions -->
       <section v-if="linkedSessions.length" class="mb-6">
@@ -70,13 +94,21 @@
       <section>
         <div class="flex items-center justify-between mb-3">
           <h2 class="text-lg font-semibold">{{ $t('arcs.chapters') }}</h2>
-          <Button v-if="canEdit" size="sm" variant="outline" @click="showAddChapter = !showAddChapter">
+          <Button
+            v-if="canEdit"
+            size="sm"
+            variant="outline"
+            @click="showAddChapter = !showAddChapter"
+          >
             {{ showAddChapter ? $t('common.cancel') : $t('arcs.addChapter') }}
           </Button>
         </div>
 
         <!-- Add chapter form -->
-        <div v-if="showAddChapter" class="mb-4 p-3 rounded border border-dashed border-border space-y-2">
+        <div
+          v-if="showAddChapter"
+          class="mb-4 p-3 rounded border border-dashed border-border space-y-2"
+        >
           <input
             v-model="newChapterName"
             type="text"
@@ -89,20 +121,38 @@
             rows="2"
             class="w-full px-3 py-1.5 rounded border border-input bg-background text-sm"
           />
-          <Button size="sm" :disabled="!newChapterName.trim()" @click="addChapter">{{ $t('common.add') }}</Button>
+          <Button size="sm" :disabled="!newChapterName.trim()" @click="addChapter">{{
+            $t('common.add')
+          }}</Button>
         </div>
 
-        <div v-if="arc.chapters?.length === 0" class="text-sm text-muted-foreground">{{ $t('arcs.noChapters') }}</div>
+        <div v-if="arc.chapters?.length === 0" class="text-sm text-muted-foreground">
+          {{ $t('arcs.noChapters') }}
+        </div>
         <div v-else class="space-y-2">
-          <div v-for="(chapter, index) in arc.chapters" :key="chapter.id" class="p-3 rounded border border-border">
+          <div
+            v-for="(chapter, index) in arc.chapters"
+            :key="chapter.id"
+            class="p-3 rounded border border-border"
+          >
             <template v-if="editingChapterId === chapter.id">
               <!-- Inline edit mode -->
               <div class="space-y-2">
-                <input v-model="editChapterForm.name" type="text" class="w-full px-3 py-1.5 rounded border border-input bg-background text-sm" />
-                <textarea v-model="editChapterForm.description" rows="2" class="w-full px-3 py-1.5 rounded border border-input bg-background text-sm" />
+                <input
+                  v-model="editChapterForm.name"
+                  type="text"
+                  class="w-full px-3 py-1.5 rounded border border-input bg-background text-sm"
+                />
+                <textarea
+                  v-model="editChapterForm.description"
+                  rows="2"
+                  class="w-full px-3 py-1.5 rounded border border-input bg-background text-sm"
+                />
                 <div class="flex gap-2">
                   <Button size="sm" @click="saveChapter(chapter)">{{ $t('common.save') }}</Button>
-                  <Button size="sm" variant="outline" @click="editingChapterId = null">{{ $t('common.cancel') }}</Button>
+                  <Button size="sm" variant="outline" @click="editingChapterId = null">{{
+                    $t('common.cancel')
+                  }}</Button>
                 </div>
               </div>
             </template>
@@ -110,7 +160,9 @@
               <div class="flex items-start justify-between gap-2">
                 <div class="flex-1 min-w-0">
                   <span class="font-medium text-sm">{{ chapter.name }}</span>
-                  <p v-if="chapter.description" class="text-xs text-muted-foreground mt-0.5">{{ chapter.description }}</p>
+                  <p v-if="chapter.description" class="text-xs text-muted-foreground mt-0.5">
+                    {{ chapter.description }}
+                  </p>
                 </div>
                 <div v-if="canEdit" class="flex items-center gap-1 shrink-0">
                   <!-- Reorder buttons -->
@@ -119,15 +171,27 @@
                     :disabled="index === 0"
                     class="p-1 rounded hover:bg-accent disabled:opacity-30"
                     @click="moveChapter(chapter, -1)"
-                  >↑</button>
+                  >
+                    ↑
+                  </button>
                   <button
                     type="button"
                     :disabled="index === arc.chapters.length - 1"
                     class="p-1 rounded hover:bg-accent disabled:opacity-30"
                     @click="moveChapter(chapter, 1)"
-                  >↓</button>
-                  <Button size="sm" variant="ghost" @click="startEditChapter(chapter)">{{ $t('common.edit') }}</Button>
-                  <Button size="sm" variant="ghost" class="text-destructive" @click="confirmDeleteChapter(chapter)">{{ $t('common.delete') }}</Button>
+                  >
+                    ↓
+                  </button>
+                  <Button size="sm" variant="ghost" @click="startEditChapter(chapter)">{{
+                    $t('common.edit')
+                  }}</Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    class="text-destructive"
+                    @click="confirmDeleteChapter(chapter)"
+                    >{{ $t('common.delete') }}</Button
+                  >
                 </div>
               </div>
             </template>
@@ -167,10 +231,14 @@ const editChapterForm = reactive({ name: '', description: '' })
 
 function arcStatusClass(status: string) {
   switch (status) {
-    case 'active': return 'bg-blue-100 text-blue-700'
-    case 'completed': return 'bg-green-100 text-green-700'
-    case 'paused': return 'bg-yellow-100 text-yellow-700'
-    default: return 'bg-secondary text-secondary-foreground'
+    case 'active':
+      return 'bg-blue-100 text-blue-700'
+    case 'completed':
+      return 'bg-green-100 text-green-700'
+    case 'paused':
+      return 'bg-yellow-100 text-yellow-700'
+    default:
+      return 'bg-secondary text-secondary-foreground'
   }
 }
 
@@ -200,7 +268,11 @@ function startEditArc() {
 }
 
 async function saveArc() {
-  await api.updateArc(slug, { name: editArcForm.name, description: editArcForm.description, status: editArcForm.status })
+  await api.updateArc(slug, {
+    name: editArcForm.name,
+    description: editArcForm.description,
+    status: editArcForm.status,
+  })
   editingArc.value = false
   await load()
 }
@@ -214,7 +286,12 @@ async function confirmDeleteArc() {
 async function addChapter() {
   if (!newChapterName.value.trim()) return
   const sortOrder = arc.value.chapters?.length ?? 0
-  await api.createChapter({ arcId: arc.value.id, name: newChapterName.value.trim(), description: newChapterDescription.value || null, sortOrder })
+  await api.createChapter({
+    arcId: arc.value.id,
+    name: newChapterName.value.trim(),
+    description: newChapterDescription.value || null,
+    sortOrder,
+  })
   newChapterName.value = ''
   newChapterDescription.value = ''
   showAddChapter.value = false
@@ -228,7 +305,10 @@ function startEditChapter(chapter: any) {
 }
 
 async function saveChapter(chapter: any) {
-  await api.updateChapter(chapter.slug, { name: editChapterForm.name, description: editChapterForm.description })
+  await api.updateChapter(chapter.slug, {
+    name: editChapterForm.name,
+    description: editChapterForm.description,
+  })
   editingChapterId.value = null
   await load()
 }

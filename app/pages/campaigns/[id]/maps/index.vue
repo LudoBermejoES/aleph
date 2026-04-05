@@ -1,7 +1,9 @@
 <template>
   <div class="p-8">
     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary"> {{ $t('common.campaign') }}</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">
+        {{ $t('common.campaign') }}</NuxtLink
+      >
       <span>/</span>
       <span>{{ $t('maps.title') }}</span>
     </div>
@@ -30,16 +32,25 @@
         :page-size="pagination.pageSize.value"
         :total="pagination.total.value"
         :total-pages="pagination.totalPages.value"
-        @change="p => { pagination.setPage(p); load() }"
+        @change="
+          (p) => {
+            pagination.setPage(p)
+            load()
+          }
+        "
       />
     </div>
-    <EmptyState v-else icon="🗺️" :title="$t('maps.empty')" :description="$t('maps.emptyDescription')" />
+    <EmptyState
+      v-else
+      icon="🗺️"
+      :title="$t('maps.empty')"
+      :description="$t('maps.emptyDescription')"
+    />
     <ErrorToast v-if="error" :message="error" @dismiss="dismissError" />
   </div>
 </template>
 
 <script setup lang="ts">
-
 const route = useRoute()
 const campaignId = route.params.id as string
 import type { CampaignMap } from '~/types/api'

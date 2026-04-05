@@ -20,7 +20,11 @@ export default defineNuxtConfig({
       ],
       meta: [
         { property: 'og:title', content: 'Aleph — TTRPG Campaign Manager' },
-        { property: 'og:description', content: 'Manage your tabletop RPG campaigns: characters, sessions, maps, quests and more.' },
+        {
+          property: 'og:description',
+          content:
+            'Manage your tabletop RPG campaigns: characters, sessions, maps, quests and more.',
+        },
         { property: 'og:image', content: '/logo.png' },
         { property: 'og:type', content: 'website' },
         { name: 'twitter:card', content: 'summary' },
@@ -31,13 +35,7 @@ export default defineNuxtConfig({
   ssr: false, // SPA mode -- avoids SSR crashes from client-only libs (leaflet, v-network-graph)
   pages: true,
 
-  modules: [
-    '@nuxtjs/tailwindcss',
-    'shadcn-nuxt',
-    '@nuxt/eslint',
-    '@nuxtjs/mdc',
-    '@nuxtjs/i18n',
-  ],
+  modules: ['@nuxtjs/tailwindcss', 'shadcn-nuxt', '@nuxt/eslint', '@nuxtjs/mdc', '@nuxtjs/i18n'],
 
   i18n: {
     locales: [

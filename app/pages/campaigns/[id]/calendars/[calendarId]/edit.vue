@@ -1,17 +1,33 @@
 <template>
   <div class="p-8 max-w-3xl">
     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary"> {{ $t('common.campaign') }}</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">
+        {{ $t('common.campaign') }}</NuxtLink
+      >
       <span>/</span>
-      <NuxtLink :to="`/campaigns/${campaignId}/calendars`" class="hover:text-primary">{{ $t('calendars.title') }}</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}/calendars`" class="hover:text-primary">{{
+        $t('calendars.title')
+      }}</NuxtLink>
       <span>/</span>
-      <NuxtLink :to="`/campaigns/${campaignId}/calendars/${calendarId}`" class="hover:text-primary">{{ form.name || 'Calendar' }}</NuxtLink>
+      <NuxtLink
+        :to="`/campaigns/${campaignId}/calendars/${calendarId}`"
+        class="hover:text-primary"
+        >{{ form.name || 'Calendar' }}</NuxtLink
+      >
       <span>/</span><span>{{ $t('common.edit') }}</span>
     </div>
     <h1 class="text-2xl font-bold mb-6">{{ $t('calendars.newCalendar') }}</h1>
-    <CalendarForm v-if="loaded" v-model="form" :submit-label="$t('common.save')" :submitting="submitting" @submit="save">
+    <CalendarForm
+      v-if="loaded"
+      v-model="form"
+      :submit-label="$t('common.save')"
+      :submitting="submitting"
+      @submit="save"
+    >
       <template #cancel>
-        <NuxtLink :to="`/campaigns/${campaignId}/calendars/${calendarId}`"><Button variant="outline">{{ $t('common.cancel') }}</Button></NuxtLink>
+        <NuxtLink :to="`/campaigns/${campaignId}/calendars/${calendarId}`"
+          ><Button variant="outline">{{ $t('common.cancel') }}</Button></NuxtLink
+        >
       </template>
     </CalendarForm>
   </div>
@@ -26,7 +42,10 @@ const submitting = ref(false)
 const loaded = ref(false)
 const { t } = useI18n()
 const form = ref({
-  name: '', currentYear: 1, currentMonth: 1, currentDay: 1,
+  name: '',
+  currentYear: 1,
+  currentMonth: 1,
+  currentDay: 1,
   months: [] as Array<{ name: string; days: number }>,
   weekdaysRaw: '',
 })
@@ -56,9 +75,15 @@ onMounted(async () => {
 async function save() {
   submitting.value = true
   try {
-    const yearLength = form.value.months.reduce((sum: number, m: { days: number }) => sum + m.days, 0)
+    const yearLength = form.value.months.reduce(
+      (sum: number, m: { days: number }) => sum + m.days,
+      0,
+    )
     const weekdays = form.value.weekdaysRaw.trim()
-      ? form.value.weekdaysRaw.split(',').map((s: string) => s.trim()).filter(Boolean)
+      ? form.value.weekdaysRaw
+          .split(',')
+          .map((s: string) => s.trim())
+          .filter(Boolean)
       : undefined
     await api.updateCalendar(calendarId, {
       name: form.value.name,

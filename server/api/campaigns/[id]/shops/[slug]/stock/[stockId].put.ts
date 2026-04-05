@@ -16,15 +16,24 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const db = useDb()
 
-  const shop = db.select().from(shops).where(and(eq(shops.campaignId, campaignId), eq(shops.slug, slug))).get()
+  const shop = db
+    .select()
+    .from(shops)
+    .where(and(eq(shops.campaignId, campaignId), eq(shops.slug, slug)))
+    .get()
   if (!shop) throw createError({ statusCode: 404, message: 'Shop not found' })
 
-  const entry = db.select().from(shopStock).where(and(eq(shopStock.id, stockId), eq(shopStock.shopId, shop.id))).get()
+  const entry = db
+    .select()
+    .from(shopStock)
+    .where(and(eq(shopStock.id, stockId), eq(shopStock.shopId, shop.id)))
+    .get()
   if (!entry) throw createError({ statusCode: 404, message: 'Stock entry not found' })
 
   const updates: Record<string, unknown> = {}
   if (body.quantity !== undefined) updates.quantity = body.quantity
-  if (body.priceOverride !== undefined) updates.priceOverrideJson = body.priceOverride ? JSON.stringify(body.priceOverride) : null
+  if (body.priceOverride !== undefined)
+    updates.priceOverrideJson = body.priceOverride ? JSON.stringify(body.priceOverride) : null
   if (body.isAvailable !== undefined) updates.isAvailable = body.isAvailable
 
   if (Object.keys(updates).length > 0) {

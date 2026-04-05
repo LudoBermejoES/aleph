@@ -25,12 +25,24 @@
         <div class="flex gap-1 mb-6 border-b border-border">
           <button
             @click="activeTab = 'login'"
-            :class="['px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors', activeTab === 'login' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground']">
+            :class="[
+              'px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors',
+              activeTab === 'login'
+                ? 'border-primary text-primary'
+                : 'border-transparent text-muted-foreground hover:text-foreground',
+            ]"
+          >
             {{ $t('join.loginTab') }}
           </button>
           <button
             @click="activeTab = 'register'"
-            :class="['px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors', activeTab === 'register' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground']">
+            :class="[
+              'px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors',
+              activeTab === 'register'
+                ? 'border-primary text-primary'
+                : 'border-transparent text-muted-foreground hover:text-foreground',
+            ]"
+          >
             {{ $t('join.registerTab') }}
           </button>
         </div>
@@ -39,11 +51,25 @@
         <form v-if="activeTab === 'login'" @submit.prevent="handleLogin" class="space-y-4">
           <div class="space-y-2">
             <label for="login-email" class="text-sm font-medium">{{ $t('auth.email') }}</label>
-            <Input id="login-email" v-model="loginForm.email" type="email" placeholder="you@example.com" required />
+            <Input
+              id="login-email"
+              v-model="loginForm.email"
+              type="email"
+              placeholder="you@example.com"
+              required
+            />
           </div>
           <div class="space-y-2">
-            <label for="login-password" class="text-sm font-medium">{{ $t('auth.password') }}</label>
-            <Input id="login-password" v-model="loginForm.password" type="password" placeholder="••••••••" required />
+            <label for="login-password" class="text-sm font-medium">{{
+              $t('auth.password')
+            }}</label>
+            <Input
+              id="login-password"
+              v-model="loginForm.password"
+              type="password"
+              placeholder="••••••••"
+              required
+            />
           </div>
           <p v-if="authError" class="text-sm text-destructive">{{ authError }}</p>
           <Button type="submit" class="w-full" :disabled="loading">
@@ -55,15 +81,34 @@
         <form v-else @submit.prevent="handleRegister" class="space-y-4">
           <div class="space-y-2">
             <label for="reg-name" class="text-sm font-medium">{{ $t('auth.name') }}</label>
-            <Input id="reg-name" v-model="registerForm.name" type="text" placeholder="Your name" required />
+            <Input
+              id="reg-name"
+              v-model="registerForm.name"
+              type="text"
+              placeholder="Your name"
+              required
+            />
           </div>
           <div class="space-y-2">
             <label for="reg-email" class="text-sm font-medium">{{ $t('auth.email') }}</label>
-            <Input id="reg-email" v-model="registerForm.email" type="email" placeholder="you@example.com" required />
+            <Input
+              id="reg-email"
+              v-model="registerForm.email"
+              type="email"
+              placeholder="you@example.com"
+              required
+            />
           </div>
           <div class="space-y-2">
             <label for="reg-password" class="text-sm font-medium">{{ $t('auth.password') }}</label>
-            <Input id="reg-password" v-model="registerForm.password" type="password" placeholder="••••••••" required minlength="8" />
+            <Input
+              id="reg-password"
+              v-model="registerForm.password"
+              type="password"
+              placeholder="••••••••"
+              required
+              minlength="8"
+            />
           </div>
           <p v-if="authError" class="text-sm text-destructive">{{ authError }}</p>
           <Button type="submit" class="w-full" :disabled="loading">

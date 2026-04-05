@@ -17,6 +17,7 @@ The wiki is Aleph's central knowledge system -- every piece of campaign lore, ev
 ## Scope
 
 ### In scope
+
 - Entity CRUD API endpoints (create, read, update, delete)
 - Entity types table with built-in seed data and custom type creation
 - Entity templates with ordered custom field definitions
@@ -27,12 +28,14 @@ The wiki is Aleph's central knowledge system -- every piece of campaign lore, ev
 - Slug generation and uniqueness enforcement per campaign
 
 ### Out of scope
+
 - Character-specific fields and stat blocks (change 08)
 - Auto-linking of entity mentions (change 11)
 - Collaborative editing (change 12)
 - Relationship graph between entities (change 10)
 
 ## Dependencies
+
 - 01-project-setup
 - 02-auth-rbac
 - 03-markdown-engine

@@ -13,7 +13,7 @@ export default defineEventHandler((event) => {
   const path = getRequestURL(event).pathname
 
   // Skip static assets and health checks
-  if (EXCLUDED_PATHS.some(p => path.startsWith(p))) return
+  if (EXCLUDED_PATHS.some((p) => path.startsWith(p))) return
 
   const requestId = randomUUID()
   const method = event.method

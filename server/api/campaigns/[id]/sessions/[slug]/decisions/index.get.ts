@@ -10,19 +10,17 @@ export default defineEventHandler(async (event) => {
   const role = event.context.campaignRole as CampaignRole
   const db = useDb()
 
-  const session = db.select().from(gameSessions)
+  const session = db
+    .select()
+    .from(gameSessions)
     .where(and(eq(gameSessions.campaignId, campaignId), eq(gameSessions.slug, slug)))
     .get()
   if (!session) throw createError({ statusCode: 404, message: 'Session not found' })
 
-  const decisionList = db.select().from(decisions)
-    .where(eq(decisions.sessionId, session.id))
-    .all()
+  const decisionList = db.select().from(decisions).where(eq(decisions.sessionId, session.id)).all()
 
-  const result = decisionList.map(d => {
-    const allCons = db.select().from(consequences)
-      .where(eq(consequences.decisionId, d.id))
-      .all()
+  const result = decisionList.map((d) => {
+    const allCons = db.select().from(consequences).where(eq(consequences.decisionId, d.id)).all()
     return { ...d, consequences: filterRevealedConsequences(allCons, role) }
   })
 

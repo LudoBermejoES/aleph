@@ -3,20 +3,46 @@
     <div ref="mapContainer" class="w-full h-full rounded-lg border border-border" />
 
     <!-- Layer Toggle Panel -->
-    <div v-if="layers.length" class="absolute top-3 right-3 z-[1000] bg-background border border-border rounded-lg shadow-lg p-2 max-w-48">
+    <div
+      v-if="layers.length"
+      class="absolute top-3 right-3 z-[1000] bg-background border border-border rounded-lg shadow-lg p-2 max-w-48"
+    >
       <p class="text-xs font-semibold mb-1 text-muted-foreground">Layers</p>
-      <label v-for="layer in layers" :key="layer.id" class="flex items-center gap-2 text-xs py-0.5 cursor-pointer">
-        <input type="checkbox" :checked="layerVisibility[layer.id] ?? layer.visibleDefault" @change="toggleLayer(layer.id)" />
+      <label
+        v-for="layer in layers"
+        :key="layer.id"
+        class="flex items-center gap-2 text-xs py-0.5 cursor-pointer"
+      >
+        <input
+          type="checkbox"
+          :checked="layerVisibility[layer.id] ?? layer.visibleDefault"
+          @change="toggleLayer(layer.id)"
+        />
         {{ layer.name }}
       </label>
     </div>
 
     <!-- Group Toggle Panel -->
-    <div v-if="groups.length" class="absolute top-3 left-3 z-[1000] bg-background border border-border rounded-lg shadow-lg p-2 max-w-48">
+    <div
+      v-if="groups.length"
+      class="absolute top-3 left-3 z-[1000] bg-background border border-border rounded-lg shadow-lg p-2 max-w-48"
+    >
       <p class="text-xs font-semibold mb-1 text-muted-foreground">Groups</p>
-      <label v-for="group in groups" :key="group.id" class="flex items-center gap-2 text-xs py-0.5 cursor-pointer">
-        <input type="checkbox" :checked="groupVisibility[group.id] ?? group.visibleDefault" @change="toggleGroup(group.id)" />
-        <span v-if="group.color" :style="{ backgroundColor: group.color }" class="w-2 h-2 rounded-full inline-block" />
+      <label
+        v-for="group in groups"
+        :key="group.id"
+        class="flex items-center gap-2 text-xs py-0.5 cursor-pointer"
+      >
+        <input
+          type="checkbox"
+          :checked="groupVisibility[group.id] ?? group.visibleDefault"
+          @change="toggleGroup(group.id)"
+        />
+        <span
+          v-if="group.color"
+          :style="{ backgroundColor: group.color }"
+          class="w-2 h-2 rounded-full inline-block"
+        />
         {{ group.name }}
       </label>
     </div>
@@ -123,11 +149,14 @@ onMounted(async () => {
   if (props.regions?.length) {
     for (const region of props.regions) {
       try {
-        const geojson = typeof region.geojson === 'string' ? JSON.parse(region.geojson) : region.geojson
+        const geojson =
+          typeof region.geojson === 'string' ? JSON.parse(region.geojson) : region.geojson
         L.geoJSON(geojson, {
           style: { color: region.color || '#3b82f6', fillOpacity: region.opacity ?? 0.3 },
         }).addTo(map)
-      } catch { /* invalid geojson */ }
+      } catch {
+        /* invalid geojson */
+      }
     }
   }
 
@@ -156,14 +185,18 @@ onMounted(async () => {
   }
 
   // Initialize layer/group visibility
-  props.layers?.forEach(l => { layerVisibility[l.id] = l.visibleDefault })
-  props.groups?.forEach(g => { groupVisibility[g.id] = g.visibleDefault })
+  props.layers?.forEach((l) => {
+    layerVisibility[l.id] = l.visibleDefault
+  })
+  props.groups?.forEach((g) => {
+    groupVisibility[g.id] = g.visibleDefault
+  })
 })
 
 function renderPins(L: typeof import('leaflet')) {
   if (!map || !props.pins) return
 
-  markers.forEach(m => m.remove())
+  markers.forEach((m) => m.remove())
   markers = []
 
   for (const pin of props.pins) {
@@ -208,7 +241,7 @@ function toggleLayer(layerId: string) {
 function toggleGroup(groupId: string) {
   groupVisibility[groupId] = !groupVisibility[groupId]
   if (map) {
-    import('leaflet').then(L => renderPins(L))
+    import('leaflet').then((L) => renderPins(L))
   }
 }
 

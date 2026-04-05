@@ -1,13 +1,23 @@
 <template>
-  <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" @click.self="$emit('close')">
-    <div class="bg-background rounded-lg border border-border w-full max-w-md p-6 shadow-xl" data-testid="transfer-dialog">
+  <div
+    class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center"
+    @click.self="$emit('close')"
+  >
+    <div
+      class="bg-background rounded-lg border border-border w-full max-w-md p-6 shadow-xl"
+      data-testid="transfer-dialog"
+    >
       <h2 class="text-lg font-semibold mb-4">{{ $t('itemTransfer.title') }}</h2>
 
       <div class="space-y-4">
         <!-- Item selector -->
         <div>
           <label class="text-sm font-medium block mb-1">{{ $t('itemTransfer.item') }}</label>
-          <select v-model="selectedItemId" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" data-testid="transfer-item-select">
+          <select
+            v-model="selectedItemId"
+            class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            data-testid="transfer-item-select"
+          >
             <option value="">{{ $t('itemTransfer.selectItem') }}</option>
             <option v-for="it in items" :key="it.id" :value="it.itemId">
               {{ it.itemName }} (×{{ it.quantity }})
@@ -31,7 +41,11 @@
         <!-- Target inventory -->
         <div>
           <label class="text-sm font-medium block mb-1">{{ $t('itemTransfer.toInventory') }}</label>
-          <select v-model="targetInventoryId" class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" data-testid="transfer-target-select">
+          <select
+            v-model="targetInventoryId"
+            class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            data-testid="transfer-target-select"
+          >
             <option value="">{{ $t('itemTransfer.selectTarget') }}</option>
             <option v-for="inv in targetInventories" :key="inv.id" :value="inv.id">
               {{ inv.name }} ({{ inv.ownerType }})
@@ -39,11 +53,18 @@
           </select>
         </div>
 
-        <p v-if="error" class="text-sm text-destructive" data-testid="transfer-error">{{ error }}</p>
+        <p v-if="error" class="text-sm text-destructive" data-testid="transfer-error">
+          {{ error }}
+        </p>
       </div>
 
       <div class="flex justify-end gap-2 mt-6">
-        <button @click="$emit('close')" class="px-4 py-2 rounded-md border border-border text-sm hover:bg-accent">{{ $t('common.cancel') }}</button>
+        <button
+          @click="$emit('close')"
+          class="px-4 py-2 rounded-md border border-border text-sm hover:bg-accent"
+        >
+          {{ $t('common.cancel') }}
+        </button>
         <button
           @click="submit"
           :disabled="!canSubmit || loading"
@@ -61,7 +82,13 @@
 const props = defineProps<{
   campaignId: string
   fromInventoryId: string
-  items: Array<{ id: string; itemId: string; itemName: string; itemRarity: string; quantity: number }>
+  items: Array<{
+    id: string
+    itemId: string
+    itemName: string
+    itemRarity: string
+    quantity: number
+  }>
 }>()
 
 const emit = defineEmits<{ close: []; transferred: [] }>()
@@ -73,11 +100,14 @@ const targetInventories = ref<any[]>([])
 const loading = ref(false)
 const error = ref('')
 
-const selectedItem = computed(() => props.items.find(i => i.itemId === selectedItemId.value))
+const selectedItem = computed(() => props.items.find((i) => i.itemId === selectedItemId.value))
 
 const canSubmit = computed(
-  () => selectedItemId.value && targetInventoryId.value && quantity.value >= 1
-    && quantity.value <= (selectedItem.value?.quantity || 0),
+  () =>
+    selectedItemId.value &&
+    targetInventoryId.value &&
+    quantity.value >= 1 &&
+    quantity.value <= (selectedItem.value?.quantity || 0),
 )
 
 async function loadTargets() {
@@ -95,7 +125,9 @@ async function submit() {
   error.value = ''
   try {
     await useCampaignApi(props.campaignId).transferInventoryItems(props.fromInventoryId, {
-      toInventoryId: targetInventoryId.value, itemId: selectedItemId.value, quantity: quantity.value,
+      toInventoryId: targetInventoryId.value,
+      itemId: selectedItemId.value,
+      quantity: quantity.value,
     })
     emit('transferred')
   } catch (e: any) {

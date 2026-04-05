@@ -18,6 +18,7 @@ Characters are the most frequently accessed entities in any campaign. Both PCs a
 ## Scope
 
 ### In scope
+
 - Character entity subtype with additional structured fields
 - Stat groups: customizable per template, secret stats hidden from players
 - Abilities CRUD with type categorization and tag filtering
@@ -27,12 +28,14 @@ Characters are the most frequently accessed entities in any campaign. Both PCs a
 - Player self-service editing for owned characters (name, description, stats allowed by DM)
 
 ### Out of scope
+
 - Inventory and item management (change 09)
 - Relationship graph visualization (change 10)
 - Character sheet PDF export (future)
 - Game system-specific automation (Aleph is system-agnostic)
 
 ## Dependencies
+
 - 01-project-setup
 - 02-auth-rbac
 - 03-markdown-engine

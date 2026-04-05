@@ -54,13 +54,20 @@ interface BreadcrumbItem {
   href: string
 }
 
-function buildBreadcrumbs(campaignId: string, ancestors: Array<{ name: string; slug: string }>, currentName: string): BreadcrumbItem[] {
+function buildBreadcrumbs(
+  campaignId: string,
+  ancestors: Array<{ name: string; slug: string }>,
+  currentName: string,
+): BreadcrumbItem[] {
   const crumbs: BreadcrumbItem[] = [
     { label: 'Campaign', href: `/campaigns/${campaignId}` },
     { label: 'Wiki', href: `/campaigns/${campaignId}/entities` },
   ]
   for (const ancestor of ancestors) {
-    crumbs.push({ label: ancestor.name, href: `/campaigns/${campaignId}/entities/${ancestor.slug}` })
+    crumbs.push({
+      label: ancestor.name,
+      href: `/campaigns/${campaignId}/entities/${ancestor.slug}`,
+    })
   }
   crumbs.push({ label: currentName, href: '#' })
   return crumbs
@@ -68,16 +75,26 @@ function buildBreadcrumbs(campaignId: string, ancestors: Array<{ name: string; s
 
 describe('Breadcrumb component logic (7.16)', () => {
   it('renders ancestor chain with correct links', () => {
-    const crumbs = buildBreadcrumbs('camp-1', [
-      { name: 'Barovia Region', slug: 'barovia-region' },
-      { name: 'Village of Barovia', slug: 'village-of-barovia' },
-    ], 'Tavern')
+    const crumbs = buildBreadcrumbs(
+      'camp-1',
+      [
+        { name: 'Barovia Region', slug: 'barovia-region' },
+        { name: 'Village of Barovia', slug: 'village-of-barovia' },
+      ],
+      'Tavern',
+    )
 
     expect(crumbs).toHaveLength(5)
     expect(crumbs[0]).toEqual({ label: 'Campaign', href: '/campaigns/camp-1' })
     expect(crumbs[1]).toEqual({ label: 'Wiki', href: '/campaigns/camp-1/entities' })
-    expect(crumbs[2]).toEqual({ label: 'Barovia Region', href: '/campaigns/camp-1/entities/barovia-region' })
-    expect(crumbs[3]).toEqual({ label: 'Village of Barovia', href: '/campaigns/camp-1/entities/village-of-barovia' })
+    expect(crumbs[2]).toEqual({
+      label: 'Barovia Region',
+      href: '/campaigns/camp-1/entities/barovia-region',
+    })
+    expect(crumbs[3]).toEqual({
+      label: 'Village of Barovia',
+      href: '/campaigns/camp-1/entities/village-of-barovia',
+    })
     expect(crumbs[4]).toEqual({ label: 'Tavern', href: '#' })
   })
 
@@ -96,8 +113,11 @@ interface TemplateField {
   type: 'text' | 'number' | 'select'
 }
 
-function renderFields(templateFields: TemplateField[], values: Record<string, unknown>): Array<{ label: string; value: string }> {
-  return templateFields.map(f => ({
+function renderFields(
+  templateFields: TemplateField[],
+  values: Record<string, unknown>,
+): Array<{ label: string; value: string }> {
+  return templateFields.map((f) => ({
     label: f.label,
     value: String(values[f.key] ?? '—'),
   }))

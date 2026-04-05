@@ -10,9 +10,18 @@ async function api(path: string, opts?: any) {
   })
 }
 
-async function signUp(email: string, name = 'Test User'): Promise<{ cookie: string; csrfToken: string }> {
-  await api('/api/auth/sign-up/email', { method: 'POST', body: { name, email, password: 'password123' } })
-  const res = await api('/api/auth/sign-in/email', { method: 'POST', body: { email, password: 'password123' } })
+async function signUp(
+  email: string,
+  name = 'Test User',
+): Promise<{ cookie: string; csrfToken: string }> {
+  await api('/api/auth/sign-up/email', {
+    method: 'POST',
+    body: { name, email, password: 'password123' },
+  })
+  const res = await api('/api/auth/sign-in/email', {
+    method: 'POST',
+    body: { email, password: 'password123' },
+  })
   const cookies = res.headers.get('set-cookie') || ''
   const match = cookies.match(/better-auth\.session_token=([^;]+)/)
   const cookie = match ? `better-auth.session_token=${match[1]}` : ''
@@ -40,7 +49,10 @@ describe('Secrets API (integration)', () => {
 
   beforeAll(async () => {
     ;({ cookie: dmCookie, csrfToken: dmCsrfToken } = await signUp(dmEmail, 'DM User'))
-    ;({ cookie: playerCookie, csrfToken: playerCsrfToken } = await signUp(playerEmail, 'Player User'))
+    ;({ cookie: playerCookie, csrfToken: playerCsrfToken } = await signUp(
+      playerEmail,
+      'Player User',
+    ))
 
     const campRes = await api('/api/campaigns', {
       method: 'POST',
@@ -153,10 +165,13 @@ describe('Secrets API (integration)', () => {
 
   // Task 9.6: DELETE secret - DM can unreveal
   it('DELETE /secrets/:blockId - DM can unreveal', async () => {
-    const res = await api(`/api/campaigns/${campaignId}/entities/${entitySlug}/secrets/test-block-1`, {
-      method: 'DELETE',
-      headers: withCsrf(dmCookie, dmCsrfToken),
-    })
+    const res = await api(
+      `/api/campaigns/${campaignId}/entities/${entitySlug}/secrets/test-block-1`,
+      {
+        method: 'DELETE',
+        headers: withCsrf(dmCookie, dmCsrfToken),
+      },
+    )
     expect(res.status).toBe(200)
     const data = await res.json()
     expect(data.revealed).toBe(false)
@@ -165,19 +180,25 @@ describe('Secrets API (integration)', () => {
 
   // Task 9.6: DELETE secret - idempotent on non-existent
   it('DELETE /secrets/:blockId is idempotent on non-existent block', async () => {
-    const res = await api(`/api/campaigns/${campaignId}/entities/${entitySlug}/secrets/nonexistent-block`, {
-      method: 'DELETE',
-      headers: withCsrf(dmCookie, dmCsrfToken),
-    })
+    const res = await api(
+      `/api/campaigns/${campaignId}/entities/${entitySlug}/secrets/nonexistent-block`,
+      {
+        method: 'DELETE',
+        headers: withCsrf(dmCookie, dmCsrfToken),
+      },
+    )
     expect(res.status).toBe(200)
   })
 
   // Task 9.6: DELETE - player gets 403
   it('DELETE /secrets/:blockId returns 403 for player', async () => {
-    const res = await api(`/api/campaigns/${campaignId}/entities/${entitySlug}/secrets/test-block-1`, {
-      method: 'DELETE',
-      headers: withCsrf(playerCookie, playerCsrfToken),
-    })
+    const res = await api(
+      `/api/campaigns/${campaignId}/entities/${entitySlug}/secrets/test-block-1`,
+      {
+        method: 'DELETE',
+        headers: withCsrf(playerCookie, playerCsrfToken),
+      },
+    )
     expect(res.status).toBe(403)
   })
 })
@@ -195,7 +216,10 @@ describe('Secret Notes API (integration)', () => {
 
   beforeAll(async () => {
     ;({ cookie: dmCookie, csrfToken: dmCsrfToken } = await signUp(dmEmail, 'SN DM User'))
-    ;({ cookie: playerCookie, csrfToken: playerCsrfToken } = await signUp(playerEmail, 'SN Player User'))
+    ;({ cookie: playerCookie, csrfToken: playerCsrfToken } = await signUp(
+      playerEmail,
+      'SN Player User',
+    ))
 
     const campRes = await api('/api/campaigns', {
       method: 'POST',
@@ -302,7 +326,10 @@ describe('Render endpoint with preview_as (integration)', () => {
 
   beforeAll(async () => {
     ;({ cookie: dmCookie, csrfToken: dmCsrfToken } = await signUp(dmEmail, 'Render DM'))
-    ;({ cookie: playerCookie, csrfToken: playerCsrfToken } = await signUp(playerEmail, 'Render Player'))
+    ;({ cookie: playerCookie, csrfToken: playerCsrfToken } = await signUp(
+      playerEmail,
+      'Render Player',
+    ))
 
     const campRes = await api('/api/campaigns', {
       method: 'POST',
@@ -343,9 +370,12 @@ describe('Render endpoint with preview_as (integration)', () => {
   })
 
   it('GET /render?preview_as=player returns previewMode:true for DM', async () => {
-    const res = await api(`/api/campaigns/${campaignId}/entities/${entitySlug}/render?preview_as=player`, {
-      headers: { Cookie: dmCookie },
-    })
+    const res = await api(
+      `/api/campaigns/${campaignId}/entities/${entitySlug}/render?preview_as=player`,
+      {
+        headers: { Cookie: dmCookie },
+      },
+    )
     expect(res.status).toBe(200)
     const data = await res.json()
     expect(data.previewMode).toBe(true)
@@ -353,9 +383,12 @@ describe('Render endpoint with preview_as (integration)', () => {
   })
 
   it("GET /render?preview_as=dm is ignored for player (player can't escalate)", async () => {
-    const res = await api(`/api/campaigns/${campaignId}/entities/${entitySlug}/render?preview_as=dm`, {
-      headers: { Cookie: playerCookie },
-    })
+    const res = await api(
+      `/api/campaigns/${campaignId}/entities/${entitySlug}/render?preview_as=dm`,
+      {
+        headers: { Cookie: playerCookie },
+      },
+    )
     expect(res.status).toBe(200)
     const data = await res.json()
     expect(data.previewMode).toBe(false)

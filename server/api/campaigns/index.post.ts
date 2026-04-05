@@ -24,7 +24,10 @@ export default defineEventHandler(async (event) => {
 
   const db = useDb()
   const id = randomUUID()
-  const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+  const slug = name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
   const contentDir = join('content', 'campaigns', slug)
   const now = new Date()
 
@@ -32,27 +35,31 @@ export default defineEventHandler(async (event) => {
   mkdirSync(join(process.cwd(), contentDir), { recursive: true })
 
   // Insert campaign
-  db.insert(campaigns).values({
-    id,
-    name: name.trim(),
-    slug,
-    description: description || null,
-    isPublic: isPublic || false,
-    theme: theme || null,
-    contentDir,
-    createdBy: user.id,
-    createdAt: now,
-    updatedAt: now,
-  }).run()
+  db.insert(campaigns)
+    .values({
+      id,
+      name: name.trim(),
+      slug,
+      description: description || null,
+      isPublic: isPublic || false,
+      theme: theme || null,
+      contentDir,
+      createdBy: user.id,
+      createdAt: now,
+      updatedAt: now,
+    })
+    .run()
 
   // Auto-assign DM role to creator
-  db.insert(campaignMembers).values({
-    id: randomUUID(),
-    campaignId: id,
-    userId: user.id,
-    role: 'dm',
-    joinedAt: now,
-  }).run()
+  db.insert(campaignMembers)
+    .values({
+      id: randomUUID(),
+      campaignId: id,
+      userId: user.id,
+      role: 'dm',
+      joinedAt: now,
+    })
+    .run()
 
   // Seed built-in entity types and relation types
   seedEntityTypes(db, id)

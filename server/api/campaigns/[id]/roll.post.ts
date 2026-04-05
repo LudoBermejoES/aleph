@@ -26,17 +26,19 @@ export default defineEventHandler(async (event) => {
   // Log to session if sessionId provided
   if (sessionId) {
     const db = useDb()
-    db.insert(sessionRolls).values({
-      id: randomUUID(),
-      campaignId,
-      sessionId,
-      userId: event.context.user.id,
-      characterId: characterId || null,
-      formula,
-      resultJson: JSON.stringify(result),
-      total: result.total,
-      createdAt: new Date(),
-    }).run()
+    db.insert(sessionRolls)
+      .values({
+        id: randomUUID(),
+        campaignId,
+        sessionId,
+        userId: event.context.user.id,
+        characterId: characterId || null,
+        formula,
+        resultJson: JSON.stringify(result),
+        total: result.total,
+        createdAt: new Date(),
+      })
+      .run()
   }
 
   // Broadcast to all connected campaign members (graceful: no-ops if WS unavailable)

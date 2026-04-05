@@ -9,6 +9,7 @@ The `.gitignore` already excludes `.env` and `.env.*` but explicitly allows `.en
 ## Goals / Non-Goals
 
 **Goals:**
+
 - New developers can clone the repo, copy `.env.example` to `.env`, and have a working configuration
 - All code is formatted consistently via Prettier, enforced at commit time
 - CI catches integration and E2E regressions before deployment, not just unit test failures
@@ -16,6 +17,7 @@ The `.gitignore` already excludes `.env` and `.env.*` but explicitly allows `.en
 - Pre-commit hooks prevent committing unformatted or lint-failing code
 
 **Non-Goals:**
+
 - No changes to the application code, features, or database schema
 - No migration to a different CI provider (staying with GitHub Actions)
 - No Docker image rebuild or Dockerfile changes
@@ -26,6 +28,7 @@ The `.gitignore` already excludes `.env` and `.env.*` but explicitly allows `.en
 
 **Decision 1: Prettier config as `.prettierrc` (JSON)**
 Use a simple JSON `.prettierrc` file at project root. Key choices:
+
 - `semi: false` — aligns with the existing codebase style (no semicolons in Vue/TS files)
 - `singleQuote: true` — matches current convention
 - `trailingComma: "all"` — modern default, prevents noisy diffs
@@ -35,6 +38,7 @@ Use a simple JSON `.prettierrc` file at project root. Key choices:
 
 **Decision 2: CI integration test strategy**
 Integration tests require a running Nuxt server. In CI, use the existing `start-server-and-test` approach:
+
 1. Start the dev server on port 3333 in the background
 2. Wait for the server to be ready
 3. Run `vitest run tests/integration/`
@@ -45,6 +49,7 @@ This runs as a separate job after the unit test job passes, to keep failure isol
 E2E tests run in a separate job after integration tests. The job installs Playwright browsers, starts the Nuxt dev server, and runs `npx playwright test`. Playwright test artifacts (screenshots, traces) are uploaded as GitHub Actions artifacts on failure for debugging.
 
 **Decision 4: Husky + lint-staged setup**
+
 - Husky v9+ (modern, uses `.husky/` directory with simple shell scripts)
 - `prepare` script in `package.json` runs `husky` to set up hooks on `npm install`
 - lint-staged config in `package.json` under `"lint-staged"` key (avoids extra config file)
@@ -53,6 +58,7 @@ E2E tests run in a separate job after integration tests. The job installs Playwr
 
 **Decision 5: `.env.example` variable inventory**
 Document all variables the app reads, grouped by subsystem:
+
 - **Auth**: `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`
 - **Server**: `NITRO_PORT`, `NITRO_HOST`, `NODE_ENV`
 - **Database**: `DATABASE_URL` (if applicable, or note that SQLite path is convention-based)

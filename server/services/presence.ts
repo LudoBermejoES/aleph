@@ -51,11 +51,14 @@ export function scheduleRemoval(
   onRemoved?: () => void,
 ) {
   const timerKey = `${campaignId}:${userId}`
-  disconnectTimers.set(timerKey, setTimeout(() => {
-    removeUserPresence(campaignId, userId)
-    disconnectTimers.delete(timerKey)
-    onRemoved?.()
-  }, gracePeriodMs))
+  disconnectTimers.set(
+    timerKey,
+    setTimeout(() => {
+      removeUserPresence(campaignId, userId)
+      disconnectTimers.delete(timerKey)
+      onRemoved?.()
+    }, gracePeriodMs),
+  )
 }
 
 export function cancelRemoval(campaignId: string, userId: string): boolean {

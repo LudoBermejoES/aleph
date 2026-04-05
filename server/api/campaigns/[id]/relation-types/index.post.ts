@@ -9,7 +9,8 @@ import type { CampaignRole } from '../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
   const role = event.context.campaignRole as CampaignRole
-  if (!hasMinRole(role, 'dm')) throw createError({ statusCode: 403, message: 'Only DM can create relation types' })
+  if (!hasMinRole(role, 'dm'))
+    throw createError({ statusCode: 403, message: 'Only DM can create relation types' })
 
   const campaignId = getRouterParam(event, 'id')!
   const relationTypeSchema = z.object({
@@ -20,14 +21,16 @@ export default defineEventHandler(async (event) => {
   const db = useDb()
 
   const id = randomUUID()
-  db.insert(relationTypes).values({
-    id,
-    campaignId,
-    slug: slugify(body.forwardLabel || 'custom'),
-    forwardLabel: body.forwardLabel,
-    reverseLabel: body.reverseLabel,
-    isBuiltin: false,
-  }).run()
+  db.insert(relationTypes)
+    .values({
+      id,
+      campaignId,
+      slug: slugify(body.forwardLabel || 'custom'),
+      forwardLabel: body.forwardLabel,
+      reverseLabel: body.reverseLabel,
+      isBuiltin: false,
+    })
+    .run()
 
   return { id }
 })

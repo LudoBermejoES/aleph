@@ -50,7 +50,14 @@ test.describe('Edit Character via /edit page (12.37)', () => {
     // Create character via API
     const character = await apiFetch(page, `/api/campaigns/${campaignId}/characters`, {
       method: 'POST',
-      body: { name: 'Original NPC', characterType: 'npc', race: 'Human', class: 'Fighter', alignment: 'Neutral', content: '# NPC' },
+      body: {
+        name: 'Original NPC',
+        characterType: 'npc',
+        race: 'Human',
+        class: 'Fighter',
+        alignment: 'Neutral',
+        content: '# NPC',
+      },
     })
     const slug = (character as any).slug
 
@@ -95,7 +102,9 @@ test.describe('Edit Calendar via /edit page (12.38)', () => {
       body: {
         name: 'Old Calendar',
         configJson: JSON.stringify({ months: [{ name: 'Hammer', days: 30 }], yearLength: 30 }),
-        currentYear: 1492, currentMonth: 1, currentDay: 1,
+        currentYear: 1492,
+        currentMonth: 1,
+        currentDay: 1,
       },
     })
     const calId = (calendar as any).id

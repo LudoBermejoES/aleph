@@ -24,15 +24,17 @@ export default defineEventHandler(async (event) => {
   const db = useDb()
 
   const id = randomUUID()
-  db.insert(arcs).values({
-    id,
-    campaignId,
-    name: body.name,
-    slug: slugify(body.name),
-    description: body.description || null,
-    sortOrder: body.sortOrder || 0,
-    status: body.status || 'planned',
-  }).run()
+  db.insert(arcs)
+    .values({
+      id,
+      campaignId,
+      name: body.name,
+      slug: slugify(body.name),
+      description: body.description || null,
+      sortOrder: body.sortOrder || 0,
+      status: body.status || 'planned',
+    })
+    .run()
 
   return { id, name: body.name }
 })

@@ -24,7 +24,9 @@ export default defineEventHandler(async (event) => {
 
   const db = useDb()
 
-  const entity = db.select().from(entities)
+  const entity = db
+    .select()
+    .from(entities)
     .where(and(eq(entities.campaignId, campaignId), eq(entities.slug, slug)))
     .get()
   if (!entity) throw createError({ statusCode: 404, message: 'Entity not found' })
@@ -33,15 +35,15 @@ export default defineEventHandler(async (event) => {
     for (const tagId of add) {
       try {
         db.insert(entityTags).values({ entityId: entity.id, tagId }).run()
-      } catch { /* ignore duplicates */ }
+      } catch {
+        /* ignore duplicates */
+      }
     }
   }
 
   if (remove?.length) {
     for (const tagId of remove) {
-      db.delete(entityTags)
-        .where(eq(entityTags.entityId, entity.id))
-        .run()
+      db.delete(entityTags).where(eq(entityTags.entityId, entity.id)).run()
     }
   }
 

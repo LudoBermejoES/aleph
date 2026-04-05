@@ -19,6 +19,7 @@ Fantasy campaigns rarely use the Gregorian calendar. DMs need fully custom calen
 ## Scope
 
 ### In scope
+
 - Custom calendar definition (months, weekdays, year length, epoch name)
 - Moon definitions with cycle length, phase calculation, display color
 - Season definitions with start/end dates within the calendar year
@@ -31,11 +32,13 @@ Fantasy campaigns rarely use the Gregorian calendar. DMs need fully custom calen
 - Entity linking on calendar events and timeline events
 
 ### Out of scope
+
 - Real-world session scheduling integration
 - Weather generation systems
 - Astronomical simulation beyond moon phases
 
 ## Dependencies
+
 - 01-project-setup
 - 02-auth-rbac
 - 03-markdown-engine

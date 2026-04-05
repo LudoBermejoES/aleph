@@ -43,7 +43,9 @@ describe('Map Schema Tests', () => {
       VALUES ('pin-2', 'map-1', 'map-2', 'Enter Castle', 100.0, 200.0, 'public')
     `)
 
-    const pins = testDb.sqlite.prepare("SELECT * FROM map_pins WHERE map_id = 'map-1'").all() as any[]
+    const pins = testDb.sqlite
+      .prepare("SELECT * FROM map_pins WHERE map_id = 'map-1'")
+      .all() as any[]
     expect(pins).toHaveLength(2)
     expect(pins.find((p: any) => p.entity_id === 'ent-1')).toBeDefined()
     expect(pins.find((p: any) => p.child_map_id === 'map-2')).toBeDefined()
@@ -62,9 +64,9 @@ describe('Map Schema Tests', () => {
              ('layer-3', 'map-1', 'Climate', 'overlay', 0.3, 2, 0)
     `)
 
-    const layers = testDb.sqlite.prepare(
-      "SELECT * FROM map_layers WHERE map_id = 'map-1' ORDER BY sort_order"
-    ).all() as any[]
+    const layers = testDb.sqlite
+      .prepare("SELECT * FROM map_layers WHERE map_id = 'map-1' ORDER BY sort_order")
+      .all() as any[]
     expect(layers).toHaveLength(3)
     expect(layers[0].name).toBe('Base')
     expect(layers[1].name).toBe('Political')
@@ -79,14 +81,28 @@ describe('Map Schema Tests', () => {
     `)
     const geojson = JSON.stringify({
       type: 'Polygon',
-      coordinates: [[[0, 0], [100, 0], [100, 100], [0, 100], [0, 0]]],
+      coordinates: [
+        [
+          [0, 0],
+          [100, 0],
+          [100, 100],
+          [0, 100],
+          [0, 0],
+        ],
+      ],
     })
-    testDb.sqlite.prepare(`
+    testDb.sqlite
+      .prepare(
+        `
       INSERT INTO map_regions (id, map_id, name, geojson, color, opacity, visibility)
       VALUES (?, ?, ?, ?, ?, ?, ?)
-    `).run('reg-1', 'map-1', 'Barovia', geojson, '#00ff00', 0.3, 'public')
+    `,
+      )
+      .run('reg-1', 'map-1', 'Barovia', geojson, '#00ff00', 0.3, 'public')
 
-    const region = testDb.sqlite.prepare("SELECT * FROM map_regions WHERE id = 'reg-1'").get() as any
+    const region = testDb.sqlite
+      .prepare("SELECT * FROM map_regions WHERE id = 'reg-1'")
+      .get() as any
     expect(region).toBeDefined()
     const parsed = JSON.parse(region.geojson)
     expect(parsed.type).toBe('Polygon')

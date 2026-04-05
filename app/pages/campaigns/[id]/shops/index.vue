@@ -1,7 +1,9 @@
 <template>
   <div class="p-8">
     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary"> {{ $t('common.campaign') }}</NuxtLink>
+      <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">
+        {{ $t('common.campaign') }}</NuxtLink
+      >
       <span>/</span><span>{{ $t('shops.title') }}</span>
     </div>
     <div class="flex items-center justify-between mb-6">
@@ -19,13 +21,17 @@
         </CardHeader>
       </Card>
     </div>
-    <EmptyState v-else icon="🏪" :title="$t('shops.empty')" :description="$t('shops.emptyDescription')" />
+    <EmptyState
+      v-else
+      icon="🏪"
+      :title="$t('shops.empty')"
+      :description="$t('shops.emptyDescription')"
+    />
     <ErrorToast v-if="error" :message="error" @dismiss="dismissError" />
   </div>
 </template>
 
 <script setup lang="ts">
-
 const route = useRoute()
 const campaignId = route.params.id as string
 const api = useCampaignApi(campaignId)

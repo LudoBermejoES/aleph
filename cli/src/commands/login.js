@@ -41,7 +41,7 @@ export function makeLoginCommand() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Cookie': `better-auth.session_token=${sessionToken}`,
+          Cookie: `better-auth.session_token=${sessionToken}`,
         },
         body: JSON.stringify({ name: 'aleph-cli' }),
       })

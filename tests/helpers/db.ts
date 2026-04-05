@@ -22,7 +22,7 @@ export function createTestDb(): TestDb {
   const migrationsDir = join(process.cwd(), 'server', 'db', 'migrations')
   try {
     const files = readdirSync(migrationsDir)
-      .filter(f => f.endsWith('.sql'))
+      .filter((f) => f.endsWith('.sql'))
       .sort()
 
     for (const file of files) {

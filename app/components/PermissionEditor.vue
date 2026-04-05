@@ -1,7 +1,11 @@
 <template>
   <div class="space-y-4">
     <h3 class="text-sm font-medium">Permission Overrides</h3>
-    <div v-for="entry in permissions" :key="entry.id" class="flex items-center gap-4 p-2 rounded border border-border">
+    <div
+      v-for="entry in permissions"
+      :key="entry.id"
+      class="flex items-center gap-4 p-2 rounded border border-border"
+    >
       <span class="text-sm flex-1">
         {{ entry.targetRole ? `Role: ${entry.targetRole}` : `User: ${entry.targetUserId}` }}
       </span>
@@ -16,13 +20,14 @@
       </select>
       <button @click="$emit('remove', entry.id)" class="text-destructive text-sm">Remove</button>
     </div>
-    <p v-if="!permissions.length" class="text-sm text-muted-foreground">No overrides set. Using campaign role defaults.</p>
+    <p v-if="!permissions.length" class="text-sm text-muted-foreground">
+      No overrides set. Using campaign role defaults.
+    </p>
     <Button size="sm" variant="outline" @click="$emit('add')">Add Override</Button>
   </div>
 </template>
 
 <script setup lang="ts">
-
 interface PermissionEntry {
   id: string
   targetUserId?: string

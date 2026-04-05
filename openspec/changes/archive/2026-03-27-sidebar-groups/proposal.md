@@ -16,6 +16,7 @@ Each section renders as a collapsible group with a small uppercase label. Groups
 ## Capabilities
 
 ### New Capabilities
+
 - `sidebar-nav-groups`: Collapsible grouped navigation sections in the campaign sidebar
 
 ### Modified Capabilities

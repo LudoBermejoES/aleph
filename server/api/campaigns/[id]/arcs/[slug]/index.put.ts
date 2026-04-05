@@ -15,7 +15,11 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const db = useDb()
 
-  const arc = db.select().from(arcs).where(and(eq(arcs.campaignId, campaignId), eq(arcs.slug, slug))).get()
+  const arc = db
+    .select()
+    .from(arcs)
+    .where(and(eq(arcs.campaignId, campaignId), eq(arcs.slug, slug)))
+    .get()
   if (!arc) throw createError({ statusCode: 404, message: 'Arc not found' })
 
   const updates: Record<string, unknown> = {}

@@ -15,7 +15,11 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const db = useDb()
 
-  const currency = db.select().from(currencies).where(and(eq(currencies.campaignId, campaignId), eq(currencies.id, currencyId))).get()
+  const currency = db
+    .select()
+    .from(currencies)
+    .where(and(eq(currencies.campaignId, campaignId), eq(currencies.id, currencyId)))
+    .get()
   if (!currency) throw createError({ statusCode: 404, message: 'Currency not found' })
 
   const updates: Record<string, unknown> = {}

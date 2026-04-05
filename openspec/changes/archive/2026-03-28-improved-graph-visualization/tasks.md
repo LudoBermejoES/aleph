@@ -68,7 +68,7 @@
 - [x] 12.1 Unit tests for `computeDegreeMap`: empty edges → all zeros, degree counts are symmetric, isolated nodes have degree 0 — in `tests/unit/utils/graph-helpers.test.ts`
 - [x] 12.2 Unit tests for `computeNeighborSet`: returns direct neighbors only, excludes the node itself, returns empty set for isolated node
 - [x] 12.3 Unit tests for `computeNodeRadius`: degree 0 → 14, degree 1 → ~17, degree 9 → ~23, degree 15 → ~25.6 (formula `14 + 3 * sqrt(degree)`)
-- [x] 12.4 Unit tests for `relationTypeColor`: ally/allied_with → #22c55e, enemy → #ef4444, rival → #f97316, mentor → #f59e0b, family:spouse → #ec4899, family:* → #3b82f6, unknown slug → #9ca3af (gray default)
+- [x] 12.4 Unit tests for `relationTypeColor`: ally/allied_with → #22c55e, enemy → #ef4444, rival → #f97316, mentor → #f59e0b, family:spouse → #ec4899, family:\* → #3b82f6, unknown slug → #9ca3af (gray default)
 
 ### 12b. Unit — focus+context logic
 

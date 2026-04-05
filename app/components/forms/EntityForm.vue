@@ -3,18 +3,32 @@
     <div class="grid grid-cols-2 gap-4">
       <div class="col-span-2">
         <label class="text-sm font-medium">{{ $t('characters.name') }}</label>
-        <input v-model="form.name" required class="w-full mt-1 px-3 py-2 rounded border border-input bg-background" :placeholder="$t('entities.namePlaceholder')" />
+        <input
+          v-model="form.name"
+          required
+          class="w-full mt-1 px-3 py-2 rounded border border-input bg-background"
+          :placeholder="$t('entities.namePlaceholder')"
+        />
       </div>
       <div>
         <label class="text-sm font-medium">{{ $t('entities.typeRequired') }}</label>
-        <select v-model="form.type" required class="w-full mt-1 px-3 py-2 rounded border border-input bg-background" @change="onTypeChange">
+        <select
+          v-model="form.type"
+          required
+          class="w-full mt-1 px-3 py-2 rounded border border-input bg-background"
+          @change="onTypeChange"
+        >
           <option v-for="t in entityTypes" :key="t.slug" :value="t.slug">{{ t.name }}</option>
           <option value="note">{{ $t('entities.note') }}</option>
         </select>
       </div>
       <div v-if="typeTemplates.length" class="col-span-2">
         <label class="text-sm font-medium">{{ $t('templates.noTemplate') }}</label>
-        <select v-model="form.templateId" class="w-full mt-1 px-3 py-2 rounded border border-input bg-background" @change="onTemplateChange">
+        <select
+          v-model="form.templateId"
+          class="w-full mt-1 px-3 py-2 rounded border border-input bg-background"
+          @change="onTemplateChange"
+        >
           <option value="">{{ $t('templates.noTemplate') }}</option>
           <option v-for="tpl in typeTemplates" :key="tpl.id" :value="tpl.id">{{ tpl.name }}</option>
         </select>
@@ -22,7 +36,10 @@
 
       <div>
         <label class="text-sm font-medium">{{ $t('characters.visibility') }}</label>
-        <select v-model="form.visibility" class="w-full mt-1 px-3 py-2 rounded border border-input bg-background">
+        <select
+          v-model="form.visibility"
+          class="w-full mt-1 px-3 py-2 rounded border border-input bg-background"
+        >
           <option value="members">{{ $t('characters.visibilityMembers') }}</option>
           <option value="public">{{ $t('characters.visibilityPublic') }}</option>
           <option value="editors">{{ $t('characters.visibilityEditors') }}</option>
@@ -32,40 +49,93 @@
       </div>
       <div class="col-span-2">
         <label class="text-sm font-medium">{{ $t('entities.tags') }}</label>
-        <input v-model="form.tagsRaw" class="w-full mt-1 px-3 py-2 rounded border border-input bg-background" :placeholder="$t('entities.tagsPlaceholder')" />
+        <input
+          v-model="form.tagsRaw"
+          class="w-full mt-1 px-3 py-2 rounded border border-input bg-background"
+          :placeholder="$t('entities.tagsPlaceholder')"
+        />
       </div>
     </div>
 
     <!-- Dynamic template fields -->
     <div v-if="activeTemplate" class="space-y-4 p-4 rounded border border-border bg-accent/10">
-      <p class="text-xs text-muted-foreground">{{ $t('templates.templateFields') }}: {{ activeTemplate.name }}</p>
+      <p class="text-xs text-muted-foreground">
+        {{ $t('templates.templateFields') }}: {{ activeTemplate.name }}
+      </p>
       <div v-for="field in activeTemplateFields" :key="field.id" class="space-y-1">
-        <label class="text-sm font-medium">{{ field.label }}<span v-if="field.required" class="text-destructive ml-0.5">*</span></label>
-        <textarea v-if="field.fieldType === 'textarea'" v-model="templateFieldValues[field.key]" rows="3" class="w-full px-3 py-2 rounded border border-input bg-background text-sm" />
-        <input v-else-if="field.fieldType === 'number'" v-model="templateFieldValues[field.key]" type="number" class="w-full px-3 py-2 rounded border border-input bg-background text-sm" />
-        <select v-else-if="field.fieldType === 'select'" v-model="templateFieldValues[field.key]" class="w-full px-3 py-2 rounded border border-input bg-background text-sm">
+        <label class="text-sm font-medium"
+          >{{ field.label
+          }}<span v-if="field.required" class="text-destructive ml-0.5">*</span></label
+        >
+        <textarea
+          v-if="field.fieldType === 'textarea'"
+          v-model="templateFieldValues[field.key]"
+          rows="3"
+          class="w-full px-3 py-2 rounded border border-input bg-background text-sm"
+        />
+        <input
+          v-else-if="field.fieldType === 'number'"
+          v-model="templateFieldValues[field.key]"
+          type="number"
+          class="w-full px-3 py-2 rounded border border-input bg-background text-sm"
+        />
+        <select
+          v-else-if="field.fieldType === 'select'"
+          v-model="templateFieldValues[field.key]"
+          class="w-full px-3 py-2 rounded border border-input bg-background text-sm"
+        >
           <option v-for="opt in fieldOptions(field)" :key="opt" :value="opt">{{ opt }}</option>
         </select>
-        <input v-else-if="field.fieldType === 'checkbox'" v-model="templateFieldValues[field.key]" type="checkbox" class="rounded" />
-        <input v-else v-model="templateFieldValues[field.key]" type="text" class="w-full px-3 py-2 rounded border border-input bg-background text-sm" />
+        <input
+          v-else-if="field.fieldType === 'checkbox'"
+          v-model="templateFieldValues[field.key]"
+          type="checkbox"
+          class="rounded"
+        />
+        <input
+          v-else
+          v-model="templateFieldValues[field.key]"
+          type="text"
+          class="w-full px-3 py-2 rounded border border-input bg-background text-sm"
+        />
       </div>
     </div>
 
     <div>
       <label class="text-sm font-medium">{{ $t('entities.content') }}</label>
-      <MarkdownEditor v-model="form.content" :placeholder="$t('entities.contentPlaceholder')" :campaign-id="campaignId" :draft-key="draftKey" :collaborative="collaborative" :document-name="documentName" :user-name="userName" :user-color="userColor" class="mt-1" />
+      <MarkdownEditor
+        v-model="form.content"
+        :placeholder="$t('entities.contentPlaceholder')"
+        :campaign-id="campaignId"
+        :draft-key="draftKey"
+        :collaborative="collaborative"
+        :document-name="documentName"
+        :user-name="userName"
+        :user-color="userColor"
+        class="mt-1"
+      />
     </div>
 
     <div class="flex justify-end gap-2">
       <slot name="cancel" />
-      <Button type="submit" :disabled="submitting">{{ submitting ? $t('common.saving') : submitLabel }}</Button>
+      <Button type="submit" :disabled="submitting">{{
+        submitting ? $t('common.saving') : submitLabel
+      }}</Button>
     </div>
   </form>
 </template>
 
 <script setup lang="ts">
 const props = defineProps<{
-  modelValue: { name: string; type: string; visibility: string; tagsRaw: string; content: string; templateId?: string; templateFields?: Record<string, unknown> }
+  modelValue: {
+    name: string
+    type: string
+    visibility: string
+    tagsRaw: string
+    content: string
+    templateId?: string
+    templateFields?: Record<string, unknown>
+  }
   campaignId: string
   entitySlug?: string
   submitLabel?: string
@@ -94,10 +164,12 @@ const form = computed({
 })
 
 const typeTemplates = computed(() =>
-  allTemplates.value.filter(t => t.entityTypeSlug === form.value.type),
+  allTemplates.value.filter((t) => t.entityTypeSlug === form.value.type),
 )
 
-const draftKey = computed(() => `aleph:draft:${props.campaignId}:entity:${props.entitySlug ?? 'new'}`)
+const draftKey = computed(
+  () => `aleph:draft:${props.campaignId}:entity:${props.entitySlug ?? 'new'}`,
+)
 
 function onTypeChange() {
   form.value.templateId = ''
@@ -133,22 +205,27 @@ function fieldOptions(field: any): string[] {
 }
 
 // Sync templateFieldValues back to form
-watch(templateFieldValues, (vals) => {
-  emit('update:modelValue', { ...props.modelValue, templateFields: { ...vals } })
-}, { deep: true })
+watch(
+  templateFieldValues,
+  (vals) => {
+    emit('update:modelValue', { ...props.modelValue, templateFields: { ...vals } })
+  },
+  { deep: true },
+)
 
 function clearDraft() {
-  try { localStorage.removeItem(draftKey.value) } catch { /* ignore */ }
+  try {
+    localStorage.removeItem(draftKey.value)
+  } catch {
+    /* ignore */
+  }
 }
 
 defineExpose({ clearDraft })
 
 onMounted(async () => {
   try {
-    const [types, templates] = await Promise.all([
-      api.getEntityTypes(),
-      api.getTemplates(),
-    ])
+    const [types, templates] = await Promise.all([api.getEntityTypes(), api.getTemplates()])
     entityTypes.value = types
     allTemplates.value = templates
   } catch {

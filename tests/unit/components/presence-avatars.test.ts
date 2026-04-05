@@ -6,7 +6,7 @@ import { describe, it, expect } from 'vitest'
 function initials(name: string): string {
   return name
     .split(' ')
-    .map(w => w[0])
+    .map((w) => w[0])
     .slice(0, 2)
     .join('')
     .toUpperCase()
@@ -68,7 +68,9 @@ describe('PresenceAvatars — overflow calculation', () => {
 
   it('shows overflow when users > maxVisible', () => {
     const users = Array.from({ length: 8 }, (_, i) => ({
-      userId: `u${i}`, name: `User ${i}`, role: 'player',
+      userId: `u${i}`,
+      name: `User ${i}`,
+      role: 'player',
     }))
     const maxVisible = 5
     const overflow = Math.max(0, users.length - maxVisible)

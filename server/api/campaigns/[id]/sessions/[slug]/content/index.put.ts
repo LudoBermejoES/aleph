@@ -24,12 +24,16 @@ export default defineEventHandler(async (event) => {
   const body = await validateBody(event, contentSchema)
   const db = useDb()
 
-  const session = db.select({ id: gameSessions.id }).from(gameSessions)
+  const session = db
+    .select({ id: gameSessions.id })
+    .from(gameSessions)
     .where(and(eq(gameSessions.campaignId, campaignId), eq(gameSessions.slug, slug)))
     .get()
   if (!session) throw createError({ statusCode: 404, message: 'Session not found' })
 
-  const existing = db.select({ id: sessionContents.id }).from(sessionContents)
+  const existing = db
+    .select({ id: sessionContents.id })
+    .from(sessionContents)
     .where(and(eq(sessionContents.sessionId, session.id), eq(sessionContents.type, body.type)))
     .get()
 
@@ -41,14 +45,16 @@ export default defineEventHandler(async (event) => {
       .where(eq(sessionContents.id, existing.id))
       .run()
   } else {
-    db.insert(sessionContents).values({
-      id: randomUUID(),
-      sessionId: session.id,
-      type: body.type,
-      content: body.content ?? null,
-      createdAt: now,
-      updatedAt: now,
-    }).run()
+    db.insert(sessionContents)
+      .values({
+        id: randomUUID(),
+        sessionId: session.id,
+        type: body.type,
+        content: body.content ?? null,
+        createdAt: now,
+        updatedAt: now,
+      })
+      .run()
   }
 
   return { type: body.type, content: body.content ?? null }

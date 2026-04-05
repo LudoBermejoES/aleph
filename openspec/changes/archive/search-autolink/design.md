@@ -21,6 +21,7 @@
 ### Aho-Corasick Auto-Linking Engine
 
 **Automaton Construction:**
+
 - Built from all entity names + aliases for a campaign
 - Each pattern maps to `{ entityId, slug, name }`
 - Case-insensitive: patterns lowercased, input lowercased for matching, but original casing preserved in output
@@ -28,6 +29,7 @@
 - Library: `ahocorasick` npm package (or custom implementation, ~200 lines)
 
 **Automaton Cache:**
+
 - One automaton per campaign, stored in a server-side `Map<campaignId, Automaton>`
 - Rebuilt when: entity created, entity renamed, entity deleted, alias changed
 - Rebuild is fast (<10ms for ~1000 entities) -- no persistence needed
@@ -35,6 +37,7 @@
 ### Exclusion Zones
 
 Auto-linking operates on the markdown AST (after remark parsing). Nodes skipped:
+
 - `code` and `inlineCode` nodes
 - `link` nodes (existing links)
 - `yaml` node (frontmatter)
@@ -53,12 +56,14 @@ Only `text` and `paragraph` nodes are scanned for matches.
 ### Retroactive Linking
 
 When a new entity is created (or renamed):
+
 1. Rebuild the campaign automaton (includes the new name/alias)
 2. Scan all entity `.md` files in the campaign for mentions of the new name
 3. Record mention locations in `entity_mentions` table: `id, source_entity_id, target_entity_id, count`
 4. Mention data used for "Referenced by" sections on entity detail pages
 
 **Batch Processing:**
+
 - If campaign has <20 entities: scan all synchronously during the create request
 - If campaign has >=20 entities: queue a background Nitro task for scanning
 - Background task processes files in batches of 50 with yielding between batches
@@ -76,6 +81,7 @@ Business logic extracted into `server/services/autolink.ts` -- pure functions te
 Architecture: Write unit tests first (TDD red phase), then implement service functions (green phase), then refactor API handlers to call services. API handlers stay thin -- they call services + DB, return results.
 
 Test layers:
+
 1. **Unit tests**: service functions in isolation (no DB, no server)
 2. **Schema tests**: DB constraints and cascades (`:memory:` SQLite)
 3. **Integration tests**: API contracts against running server

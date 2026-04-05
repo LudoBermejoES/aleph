@@ -27,7 +27,15 @@ export function makeSessionCommand() {
       if (opts.json) {
         print(res, { json: true })
       } else {
-        print(data.map(s => ({ title: s.title, slug: s.slug, date: s.scheduledDate || '', status: s.status || '', group: s.groupName || '' })))
+        print(
+          data.map((s) => ({
+            title: s.title,
+            slug: s.slug,
+            date: s.scheduledDate || '',
+            status: s.status || '',
+            group: s.groupName || '',
+          })),
+        )
         if (meta) console.error(`Page ${meta.page}/${meta.totalPages} (${meta.total} total)`)
       }
     })
@@ -94,7 +102,9 @@ export function makeSessionCommand() {
       if (opts.status !== undefined) body.status = opts.status
       if (opts.group !== undefined) body.groupSlug = opts.group
       if (Object.keys(body).length === 0) {
-        process.stderr.write('Error: Provide at least one field to update (--title, --date, --status, --group)\n')
+        process.stderr.write(
+          'Error: Provide at least one field to update (--title, --date, --status, --group)\n',
+        )
         process.exit(1)
       }
       await put(`/api/campaigns/${opts.campaign}/sessions/${slug}`, body)
@@ -112,8 +122,14 @@ export function makeSessionCommand() {
     .option('--yes', 'Skip confirmation prompt')
     .action(async (slug, opts) => {
       if (!opts.yes) {
-        const ok = await confirm({ message: `Delete session "${slug}" in campaign ${opts.campaign}? This cannot be undone.`, default: false })
-        if (!ok) { process.stdout.write('Cancelled.\n'); return }
+        const ok = await confirm({
+          message: `Delete session "${slug}" in campaign ${opts.campaign}? This cannot be undone.`,
+          default: false,
+        })
+        if (!ok) {
+          process.stdout.write('Cancelled.\n')
+          return
+        }
       }
       await del(`/api/campaigns/${opts.campaign}/sessions/${slug}`)
       success(`Session ${slug} deleted.`)
@@ -121,7 +137,9 @@ export function makeSessionCommand() {
 
   // ─── Content subcommand ───────────────────────────────────────────────────
 
-  const content = new Command('content').description('Manage session content (notes, AI notes, summary)')
+  const content = new Command('content').description(
+    'Manage session content (notes, AI notes, summary)',
+  )
 
   content
     .command('get <slug>')
@@ -159,7 +177,10 @@ export function makeSessionCommand() {
       } else {
         contentText = await readStdin()
       }
-      await put(`/api/campaigns/${opts.campaign}/sessions/${slug}/content`, { type: opts.type, content: contentText })
+      await put(`/api/campaigns/${opts.campaign}/sessions/${slug}/content`, {
+        type: opts.type,
+        content: contentText,
+      })
       success('Content updated.')
     })
 
@@ -170,8 +191,12 @@ export function makeSessionCommand() {
     .option('--yes', 'Skip confirmation prompt')
     .action(async (slug, contentId, opts) => {
       if (!opts.yes) {
-        const confirmed = await confirm({ message: `Delete content ${contentId} from session "${slug}"?` })
-        if (!confirmed) { process.exit(0) }
+        const confirmed = await confirm({
+          message: `Delete content ${contentId} from session "${slug}"?`,
+        })
+        if (!confirmed) {
+          process.exit(0)
+        }
       }
       await del(`/api/campaigns/${opts.campaign}/sessions/${slug}/content/${contentId}`)
       success(`Content ${contentId} deleted.`)
@@ -194,7 +219,9 @@ export function makeSessionCommand() {
         process.stderr.write(`Error: --status must be one of: ${validStatuses.join(', ')}\n`)
         process.exit(1)
       }
-      await patch(`/api/campaigns/${opts.campaign}/sessions/${slug}/attendance`, { rsvpStatus: opts.status })
+      await patch(`/api/campaigns/${opts.campaign}/sessions/${slug}/attendance`, {
+        rsvpStatus: opts.status,
+      })
       success('Attendance updated.')
     })
 
@@ -207,7 +234,9 @@ function readStdin() {
   return new Promise((resolve) => {
     let data = ''
     process.stdin.setEncoding('utf8')
-    process.stdin.on('data', chunk => { data += chunk })
+    process.stdin.on('data', (chunk) => {
+      data += chunk
+    })
     process.stdin.on('end', () => resolve(data))
   })
 }

@@ -15,9 +15,11 @@ Characters have portrait images (upload, display, serve), but all other entity t
 ## Capabilities
 
 ### New Capabilities
+
 - `entity-image`: Upload, store, serve, and display images for any entity type. Covers the API endpoints, DB schema change, frontend component, and CLI command.
 
 ### Modified Capabilities
+
 - `worldbuilding-wiki`: Entity detail and list views gain image display support
 - `aleph-cli`: New `entity upload-image` command added to the CLI command surface
 

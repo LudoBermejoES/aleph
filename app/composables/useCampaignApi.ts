@@ -129,7 +129,9 @@ export function useCampaignApi(campaignId: string) {
   }
 
   function deleteAbility(characterSlug: string, abilityId: string) {
-    return $fetch(`${base}/characters/${characterSlug}/abilities/${abilityId}`, { method: 'DELETE' })
+    return $fetch(`${base}/characters/${characterSlug}/abilities/${abilityId}`, {
+      method: 'DELETE',
+    })
   }
 
   function getCharacterOrganizations(slug: string) {
@@ -204,19 +206,40 @@ export function useCampaignApi(campaignId: string) {
     return $fetch<SessionDecision[]>(`${base}/sessions/${slug}/decisions`)
   }
 
-  function createDecision(slug: string, body: { title: string; type?: string; description?: string }) {
+  function createDecision(
+    slug: string,
+    body: { title: string; type?: string; description?: string },
+  ) {
     return $fetch(`${base}/sessions/${slug}/decisions`, { method: 'POST', body })
   }
 
-  function createConsequence(slug: string, decisionId: string, body: { description: string; revealed?: boolean }) {
-    return $fetch(`${base}/sessions/${slug}/decisions/${decisionId}/consequences`, { method: 'POST', body })
+  function createConsequence(
+    slug: string,
+    decisionId: string,
+    body: { description: string; revealed?: boolean },
+  ) {
+    return $fetch(`${base}/sessions/${slug}/decisions/${decisionId}/consequences`, {
+      method: 'POST',
+      body,
+    })
   }
 
-  function revealConsequence(slug: string, decisionId: string, consequenceId: string, revealed: boolean) {
-    return $fetch(`${base}/sessions/${slug}/decisions/${decisionId}/consequences`, { method: 'PATCH', body: { consequenceId, revealed } })
+  function revealConsequence(
+    slug: string,
+    decisionId: string,
+    consequenceId: string,
+    revealed: boolean,
+  ) {
+    return $fetch(`${base}/sessions/${slug}/decisions/${decisionId}/consequences`, {
+      method: 'PATCH',
+      body: { consequenceId, revealed },
+    })
   }
 
-  function patchAttendance(slug: string, body: { rsvpStatus?: string; attended?: boolean; userId?: string }) {
+  function patchAttendance(
+    slug: string,
+    body: { rsvpStatus?: string; attended?: boolean; userId?: string },
+  ) {
     return $fetch(`${base}/sessions/${slug}/attendance`, { method: 'PATCH', body })
   }
 
@@ -375,7 +398,10 @@ export function useCampaignApi(campaignId: string) {
   }
 
   function advanceCalendarDate(calendarId: string, body: Record<string, unknown>) {
-    return $fetch<{ currentDate: CalendarDate }>(`${base}/calendars/${calendarId}/advance`, { method: 'POST', body })
+    return $fetch<{ currentDate: CalendarDate }>(`${base}/calendars/${calendarId}/advance`, {
+      method: 'POST',
+      body,
+    })
   }
 
   function deleteCalendarEvent(calendarId: string, eventId: string) {
@@ -580,11 +606,19 @@ export function useCampaignApi(campaignId: string) {
     return $fetch<any>(`${base}/organizations/${slug}`)
   }
 
-  function createOrganization(body: { name: string; description?: string; type?: string; status?: string }) {
+  function createOrganization(body: {
+    name: string
+    description?: string
+    type?: string
+    status?: string
+  }) {
     return $fetch<any>(`${base}/organizations`, { method: 'POST', body })
   }
 
-  function updateOrganization(slug: string, body: { name?: string; description?: string; type?: string; status?: string }) {
+  function updateOrganization(
+    slug: string,
+    body: { name?: string; description?: string; type?: string; status?: string },
+  ) {
     return $fetch<any>(`${base}/organizations/${slug}`, { method: 'PUT', body })
   }
 
@@ -602,7 +636,12 @@ export function useCampaignApi(campaignId: string) {
 
   // ─── Locations ──────────────────────────────────────────────────────────────
 
-  function getLocations(params?: { parentId?: string; subtype?: string; search?: string; pageSize?: string }) {
+  function getLocations(params?: {
+    parentId?: string
+    subtype?: string
+    search?: string
+    pageSize?: string
+  }) {
     return $fetch<any[]>(`${base}/locations`, { params: { pageSize: '0', ...params } })
   }
 
@@ -610,11 +649,26 @@ export function useCampaignApi(campaignId: string) {
     return $fetch<any>(`${base}/locations/${slug}`)
   }
 
-  function createLocation(body: { name: string; subtype?: string; parentId?: string; visibility?: string; content?: string }) {
+  function createLocation(body: {
+    name: string
+    subtype?: string
+    parentId?: string
+    visibility?: string
+    content?: string
+  }) {
     return $fetch<any>(`${base}/locations`, { method: 'POST', body })
   }
 
-  function updateLocation(slug: string, body: { name?: string; subtype?: string; parentId?: string | null; visibility?: string; content?: string }) {
+  function updateLocation(
+    slug: string,
+    body: {
+      name?: string
+      subtype?: string
+      parentId?: string | null
+      visibility?: string
+      content?: string
+    },
+  ) {
     return $fetch<any>(`${base}/locations/${slug}`, { method: 'PUT', body })
   }
 
@@ -631,7 +685,10 @@ export function useCampaignApi(campaignId: string) {
   }
 
   function addLocationInhabitant(slug: string, characterId: string) {
-    return $fetch(`${base}/locations/${slug}/inhabitants`, { method: 'POST', body: { characterId } })
+    return $fetch(`${base}/locations/${slug}/inhabitants`, {
+      method: 'POST',
+      body: { characterId },
+    })
   }
 
   function removeLocationInhabitant(slug: string, characterId: string) {
@@ -643,7 +700,10 @@ export function useCampaignApi(campaignId: string) {
   }
 
   function addLocationOrganization(slug: string, organizationId: string) {
-    return $fetch(`${base}/locations/${slug}/organizations`, { method: 'POST', body: { organizationId } })
+    return $fetch(`${base}/locations/${slug}/organizations`, {
+      method: 'POST',
+      body: { organizationId },
+    })
   }
 
   function removeLocationOrganization(slug: string, organizationId: string) {
@@ -667,67 +727,179 @@ export function useCampaignApi(campaignId: string) {
   // ─── Dice ───────────────────────────────────────────────────────────────────
 
   function roll(body: { formula: string; sessionId?: string }) {
-    return $fetch<{ formula: string; result: number; total: number; rolls: number[] }>(`${base}/roll`, { method: 'POST', body })
+    return $fetch<{ formula: string; result: number; total: number; rolls: number[] }>(
+      `${base}/roll`,
+      { method: 'POST', body },
+    )
   }
 
   return {
     // Campaign
     getCampaign,
     // Members
-    getMembers, updateMember, removeMember, createInvite,
+    getMembers,
+    updateMember,
+    removeMember,
+    createInvite,
     // Entities
-    getEntities, getEntity, createEntity, updateEntity, deleteEntity,
-    getEntityTypes, updateEntityType, deleteEntityType, getTags, getMentions,
+    getEntities,
+    getEntity,
+    createEntity,
+    updateEntity,
+    deleteEntity,
+    getEntityTypes,
+    updateEntityType,
+    deleteEntityType,
+    getTags,
+    getMentions,
     // Characters
-    getCharacters, getCharacter, getCharactersMeta, createCharacter, updateCharacter, deleteCharacter,
+    getCharacters,
+    getCharacter,
+    getCharactersMeta,
+    createCharacter,
+    updateCharacter,
+    deleteCharacter,
     deleteAbility,
-    getCharacterConnections, getCharacterFolders, updateCharacterFolder, deleteCharacterFolder, getCharacterOrganizations,
+    getCharacterConnections,
+    getCharacterFolders,
+    updateCharacterFolder,
+    deleteCharacterFolder,
+    getCharacterOrganizations,
     // Sessions
-    getSessions, getSession, createSession, updateSession, deleteSession,
-    getSessionContent, updateSessionContent, deleteSessionContent,
-    getSessionGroups, createSessionGroup, updateSessionGroup, deleteSessionGroup,
-    getSessionDecisions, createDecision, createConsequence, revealConsequence,
-    patchAttendance, getSessionRolls,
-    getCampaignArcs, getArcs, getArc, createArc, updateArc, deleteArc,
-    getChapters, createChapter, updateChapter, deleteChapter,
+    getSessions,
+    getSession,
+    createSession,
+    updateSession,
+    deleteSession,
+    getSessionContent,
+    updateSessionContent,
+    deleteSessionContent,
+    getSessionGroups,
+    createSessionGroup,
+    updateSessionGroup,
+    deleteSessionGroup,
+    getSessionDecisions,
+    createDecision,
+    createConsequence,
+    revealConsequence,
+    patchAttendance,
+    getSessionRolls,
+    getCampaignArcs,
+    getArcs,
+    getArc,
+    createArc,
+    updateArc,
+    deleteArc,
+    getChapters,
+    createChapter,
+    updateChapter,
+    deleteChapter,
     // Quests
-    getQuests, getQuest, createQuest, updateQuest, deleteQuest,
+    getQuests,
+    getQuest,
+    createQuest,
+    updateQuest,
+    deleteQuest,
     // Maps
-    getMaps, getMap, createMap, updateMap, deleteMap, uploadMapImage,
-    getMapLayers, updateMapLayer, deleteMapLayer,
-    getMapPins, getMapRegions, updateMapRegions, updateMapRegion, deleteMapRegion,
+    getMaps,
+    getMap,
+    createMap,
+    updateMap,
+    deleteMap,
+    uploadMapImage,
+    getMapLayers,
+    updateMapLayer,
+    deleteMapLayer,
+    getMapPins,
+    getMapRegions,
+    updateMapRegions,
+    updateMapRegion,
+    deleteMapRegion,
     // Calendars
-    getCalendars, getCalendar, createCalendar, updateCalendar, deleteCalendar,
-    getCalendarEvents, advanceCalendarDate, deleteCalendarEvent,
+    getCalendars,
+    getCalendar,
+    createCalendar,
+    updateCalendar,
+    deleteCalendar,
+    getCalendarEvents,
+    advanceCalendarDate,
+    deleteCalendarEvent,
     // Timelines
-    getTimelines, getTimeline, createTimeline, updateTimeline, deleteTimeline,
-    createTimelineEvent, deleteTimelineEvent,
+    getTimelines,
+    getTimeline,
+    createTimeline,
+    updateTimeline,
+    deleteTimeline,
+    createTimelineEvent,
+    deleteTimelineEvent,
     // Relations
-    getRelations, getRelation, createRelation, updateRelation, deleteRelation,
+    getRelations,
+    getRelation,
+    createRelation,
+    updateRelation,
+    deleteRelation,
     getRelationTypes,
     // Inventories
-    getInventories, createInventory, transferInventoryItems, deleteInventory, deleteInventoryItem,
+    getInventories,
+    createInventory,
+    transferInventoryItems,
+    deleteInventory,
+    deleteInventoryItem,
     // Items
-    getItems, getItem, createItem, updateItem, deleteItem,
+    getItems,
+    getItem,
+    createItem,
+    updateItem,
+    deleteItem,
     // Currencies & transactions
-    getCurrencies, createCurrency, updateCurrency, deleteCurrency,
-    getTransactions, getWealth, createTransaction,
+    getCurrencies,
+    createCurrency,
+    updateCurrency,
+    deleteCurrency,
+    getTransactions,
+    getWealth,
+    createTransaction,
     // Shops
-    getShops, getShop, createShop, updateShop, deleteShop,
-    addShopStock, updateShopStock, deleteShopStock,
+    getShops,
+    getShop,
+    createShop,
+    updateShop,
+    deleteShop,
+    addShopStock,
+    updateShopStock,
+    deleteShopStock,
     // Templates
-    getTemplates, getTemplate, createTemplate, updateTemplate, deleteTemplate,
+    getTemplates,
+    getTemplate,
+    createTemplate,
+    updateTemplate,
+    deleteTemplate,
     // Graph
     getGraph,
     // Search & dice
-    search, roll,
+    search,
+    roll,
     // Organizations
-    getOrganizations, getOrganization, createOrganization, updateOrganization, deleteOrganization,
-    addOrganizationMember, removeOrganizationMember,
+    getOrganizations,
+    getOrganization,
+    createOrganization,
+    updateOrganization,
+    deleteOrganization,
+    addOrganizationMember,
+    removeOrganizationMember,
     // Locations
-    getLocations, getLocation, createLocation, updateLocation, deleteLocation,
-    getSubLocations, getLocationInhabitants, addLocationInhabitant, removeLocationInhabitant,
-    getLocationOrganizations, addLocationOrganization, removeLocationOrganization,
+    getLocations,
+    getLocation,
+    createLocation,
+    updateLocation,
+    deleteLocation,
+    getSubLocations,
+    getLocationInhabitants,
+    addLocationInhabitant,
+    removeLocationInhabitant,
+    getLocationOrganizations,
+    addLocationOrganization,
+    removeLocationOrganization,
     getOrganizationLocations,
   }
 }
@@ -736,10 +908,17 @@ export function listCampaigns(): Promise<CampaignListItem[]> {
   return $fetch<CampaignListItem[]>('/api/campaigns')
 }
 
-export function createCampaignEntry(body: { name: string; description?: string; theme?: string }): Promise<{ id: string; slug: string }> {
+export function createCampaignEntry(body: {
+  name: string
+  description?: string
+  theme?: string
+}): Promise<{ id: string; slug: string }> {
   return $fetch<{ id: string; slug: string }>('/api/campaigns', { method: 'POST', body })
 }
 
-export function updateCampaignEntry(id: string, body: { name?: string; description?: string; isPublic?: boolean; theme?: string }): Promise<{ success: boolean }> {
+export function updateCampaignEntry(
+  id: string,
+  body: { name?: string; description?: string; isPublic?: boolean; theme?: string },
+): Promise<{ success: boolean }> {
   return $fetch<{ success: boolean }>(`/api/campaigns/${id}`, { method: 'PUT', body })
 }

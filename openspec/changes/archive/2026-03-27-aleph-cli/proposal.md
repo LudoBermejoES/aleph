@@ -15,9 +15,11 @@ Aleph has no programmatic interface for automation, scripting, or AI agent integ
 ## Capabilities
 
 ### New Capabilities
+
 - `aleph-cli`: Command-line interface for Aleph — auth/config, campaign CRUD, entity/character/session management, member management, dice rolling, and search. Structured JSON output, Unix exit codes, discoverable via --help.
 
 ### Modified Capabilities
+
 <!-- No existing spec-level requirements change — the CLI is additive -->
 
 ## Impact
