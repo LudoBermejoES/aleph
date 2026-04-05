@@ -4,6 +4,7 @@ import { useDb } from '../utils/db'
 import { logger } from '../utils/logger'
 import { hashApiKey } from '../utils/apiKey'
 import { apiKey as apiKeyTable, user as userTable } from '../db/schema/auth'
+import { generateCsrfToken, setCsrfCookie } from '../utils/csrf'
 
 export default defineEventHandler(async (event) => {
   const path = getRequestURL(event).pathname
@@ -64,4 +65,10 @@ export default defineEventHandler(async (event) => {
     name: session.user.name,
   }
   event.context.session = session.session
+
+  // Set CSRF cookie for browser sessions (if not already set)
+  const existingCsrf = getCookie(event, 'csrf_token')
+  if (!existingCsrf) {
+    setCsrfCookie(event, generateCsrfToken())
+  }
 })

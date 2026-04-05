@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { registerAndLogin, createCampaign } from './helpers'
+import { registerAndLogin, createCampaign, apiFetch } from './helpers'
 
 const uid = () => Date.now().toString(36).slice(-4)
 
@@ -11,15 +11,11 @@ test.describe('Session Decisions', () => {
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
 
     // Create a session via API
-    const sessionSlug = await page.evaluate(async (id) => {
-      const res = await fetch(`/api/campaigns/${id}/sessions`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: 'Decision Test Session' }),
-      })
-      const data = await res.json()
-      return data.slug
-    }, campaignId)
+    const sessionRes = await apiFetch(page, `/api/campaigns/${campaignId}/sessions`, {
+      method: 'POST',
+      body: { title: 'Decision Test Session' },
+    })
+    const sessionSlug = sessionRes.slug
 
     // Navigate to session detail
     await page.goto(`http://localhost:3333/campaigns/${campaignId}/sessions/${sessionSlug}`)

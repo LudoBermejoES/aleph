@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { registerAndLogin, createCampaign } from './helpers'
+import { registerAndLogin, createCampaign, apiFetch } from './helpers'
 
 const uid = () => Date.now().toString(36).slice(-4)
 
@@ -19,13 +19,10 @@ test.describe('Characters', () => {
 
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
     const charName = `Gandalf ${uid()}`
-    await page.evaluate(async ([id, name]) => {
-      await fetch(`/api/campaigns/${id}/characters`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, characterType: 'npc', race: 'Maiar', class: 'Wizard', content: '# Gandalf\n\nA wise wizard.' }),
-      })
-    }, [campaignId, charName])
+    await apiFetch(page, `/api/campaigns/${campaignId}/characters`, {
+      method: 'POST',
+      body: { name: charName, characterType: 'npc', race: 'Maiar', class: 'Wizard', content: '# Gandalf\n\nA wise wizard.' },
+    })
 
     await page.click('aside >> text=Characters')
     await page.waitForLoadState('networkidle')
@@ -42,13 +39,10 @@ test.describe('Characters', () => {
     await createCampaign(page, `Edit Camp ${uid()}`)
 
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
-    await page.evaluate(async (id) => {
-      await fetch(`/api/campaigns/${id}/characters`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Editable NPC', characterType: 'npc', race: 'Elf', alignment: 'Neutral', content: '# Editable' }),
-      })
-    }, campaignId)
+    await apiFetch(page, `/api/campaigns/${campaignId}/characters`, {
+      method: 'POST',
+      body: { name: 'Editable NPC', characterType: 'npc', race: 'Elf', alignment: 'Neutral', content: '# Editable' },
+    })
 
     await page.click('aside >> text=Characters')
     await page.waitForLoadState('networkidle')
@@ -85,18 +79,14 @@ test.describe('Characters', () => {
     await createCampaign(page, `Filter Camp ${uid()}`)
 
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
-    await page.evaluate(async (id) => {
-      await fetch(`/api/campaigns/${id}/characters`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'PC Hero', characterType: 'pc', content: '# Hero' }),
-      })
-      await fetch(`/api/campaigns/${id}/characters`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'NPC Villager', characterType: 'npc', content: '# Villager' }),
-      })
-    }, campaignId)
+    await apiFetch(page, `/api/campaigns/${campaignId}/characters`, {
+      method: 'POST',
+      body: { name: 'PC Hero', characterType: 'pc', content: '# Hero' },
+    })
+    await apiFetch(page, `/api/campaigns/${campaignId}/characters`, {
+      method: 'POST',
+      body: { name: 'NPC Villager', characterType: 'npc', content: '# Villager' },
+    })
 
     await page.click('aside >> text=Characters')
     await page.waitForLoadState('networkidle')

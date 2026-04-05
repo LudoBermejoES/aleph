@@ -1,6 +1,8 @@
+import { z } from 'zod'
 import { randomUUID } from 'crypto'
 import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
+import { validateBody } from '../../../../../utils/validate'
 import { timelines, timelineEvents } from '../../../../../db/schema/calendars'
 import { hasMinRole } from '../../../../../utils/permissions'
 import type { CampaignRole } from '../../../../../utils/permissions'
@@ -11,7 +13,16 @@ export default defineEventHandler(async (event) => {
 
   const campaignId = getRouterParam(event, 'id')!
   const slug = getRouterParam(event, 'slug')!
-  const body = await readBody(event)
+  const timelineEventSchema = z.object({
+    name: z.string().min(1),
+    description: z.string().optional(),
+    date: z.record(z.string(), z.unknown()),
+    endDate: z.record(z.string(), z.unknown()).optional(),
+    era: z.string().optional(),
+    linkedEntityId: z.string().optional(),
+    sortOrder: z.number().optional(),
+  })
+  const body = await validateBody(event, timelineEventSchema)
   const db = useDb()
 
   const tl = db.select().from(timelines).where(and(eq(timelines.campaignId, campaignId), eq(timelines.slug, slug))).get()

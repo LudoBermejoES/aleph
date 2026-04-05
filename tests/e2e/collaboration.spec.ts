@@ -1,18 +1,14 @@
 import { test, expect } from '@playwright/test'
-import { registerAndLogin, createCampaign } from './helpers'
+import { registerAndLogin, createCampaign, apiFetch } from './helpers'
 
 const uid = () => Date.now().toString(36).slice(-4)
 
 async function createEntityAndNavigate(page: any, campaignId: string, name: string, content: string) {
-  const slug = await page.evaluate(async ([id, n, c]: string[]) => {
-    const r = await fetch(`/api/campaigns/${id}/entities`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: n, type: 'note', content: c }),
-    })
-    const data = await r.json()
-    return data.slug
-  }, [campaignId, name, content])
+  const data = await apiFetch(page, `/api/campaigns/${campaignId}/entities`, {
+    method: 'POST',
+    body: { name, type: 'note', content },
+  })
+  const slug = (data as any).slug
 
   await page.goto(`http://localhost:3333/campaigns/${campaignId}/entities/${slug}`)
   await page.waitForLoadState('domcontentloaded')
@@ -89,38 +85,30 @@ test.describe('Multi-User Collaboration', () => {
     const campaignId = page1.url().split('/campaigns/')[1]?.split('/')[0]!
 
     // Create entity
-    const slug = await page1.evaluate(async ([id]: string[]) => {
-      const r = await fetch(`/api/campaigns/${id}/entities`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Collab Entity', type: 'note', content: '# Shared Doc\n\nInitial content.' }),
-      })
-      return (await r.json()).slug
-    }, [campaignId])
+    const entityData = await apiFetch(page1, `/api/campaigns/${campaignId}/entities`, {
+      method: 'POST',
+      body: { name: 'Collab Entity', type: 'note', content: '# Shared Doc\n\nInitial content.' },
+    })
+    const slug = (entityData as any).slug
 
     // Invite User 2
-    const inviteToken = await page1.evaluate(async (id) => {
-      const r = await fetch(`/api/campaigns/${id}/invite`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ role: 'editor' }),
-      })
-      return (await r.json()).token
-    }, campaignId)
+    const inviteData = await apiFetch(page1, `/api/campaigns/${campaignId}/invite`, {
+      method: 'POST',
+      body: { role: 'editor' },
+    })
+    const inviteToken = (inviteData as any).token
 
     // --- User 2 setup ---
     const ctx2 = await browser.newContext()
     const page2 = await ctx2.newPage()
     await registerAndLogin(page2, 'CollabUser2')
+    await page2.waitForTimeout(500)
 
     // Join campaign
-    await page2.evaluate(async ([id, token]) => {
-      await fetch(`/api/campaigns/${id}/join`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token }),
-      })
-    }, [campaignId, inviteToken])
+    await apiFetch(page2, `/api/campaigns/${campaignId}/join`, {
+      method: 'POST',
+      body: { token: inviteToken },
+    })
 
     // Both users navigate to the entity and enter edit mode
     const entityUrl = `http://localhost:3333/campaigns/${campaignId}/entities/${slug}?collab=true`

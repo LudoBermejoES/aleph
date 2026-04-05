@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { registerAndLogin, createCampaign } from './helpers'
+import { registerAndLogin, createCampaign, apiFetch } from './helpers'
 
 const uid = () => Date.now().toString(36).slice(-4)
 
@@ -11,18 +11,15 @@ test.describe('Character Actions', () => {
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
     const charName = `Original ${uid()}`
 
-    const charRes = await page.evaluate(async ([id, name]) => {
-      const r = await fetch(`/api/campaigns/${id}/characters`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, characterType: 'npc', race: 'Elf', content: '# Original' }),
-      })
-      return r.json()
-    }, [campaignId, charName])
+    const charRes = await apiFetch(page, `/api/campaigns/${campaignId}/characters`, {
+      method: 'POST',
+      body: { name: charName, characterType: 'npc', race: 'Elf', content: '# Original' },
+    })
 
     // Duplicate
-    await page.evaluate(async ([id, slug]) => {
-      await fetch(`/api/campaigns/${id}/characters/${slug}/duplicate`, { method: 'POST' })
-    }, [campaignId, (charRes as any).slug])
+    await apiFetch(page, `/api/campaigns/${campaignId}/characters/${(charRes as any).slug}/duplicate`, {
+      method: 'POST',
+    })
 
     await page.click('aside >> text=Characters')
     await page.waitForLoadState('networkidle')
@@ -38,12 +35,10 @@ test.describe('Character Actions', () => {
 
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
     const charName = `Legolas ${uid()}`
-    await page.evaluate(async ([id, name]) => {
-      await fetch(`/api/campaigns/${id}/characters`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, characterType: 'pc', race: 'Elf', class: 'Ranger', content: '# Legolas' }),
-      })
-    }, [campaignId, charName])
+    await apiFetch(page, `/api/campaigns/${campaignId}/characters`, {
+      method: 'POST',
+      body: { name: charName, characterType: 'pc', race: 'Elf', class: 'Ranger', content: '# Legolas' },
+    })
 
     await page.click('aside >> text=Characters')
     await page.waitForLoadState('networkidle')

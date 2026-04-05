@@ -1,8 +1,9 @@
-import { eq, and, like, sql, desc } from 'drizzle-orm'
+import { eq, and, sql, desc } from 'drizzle-orm'
 import { useDb } from '../../../../utils/db'
 import { entities } from '../../../../db/schema/entities'
 import { entityTags } from '../../../../db/schema/entities'
 import { buildVisibilityFilter } from '../../../../utils/permissions'
+import { escapeLike } from '../../../../utils/sanitize'
 import type { CampaignRole } from '../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
@@ -27,7 +28,7 @@ export default defineEventHandler(async (event) => {
   if (type) conditions.push(eq(entities.type, type))
   if (visibility) conditions.push(eq(entities.visibility, visibility))
   if (parentId) conditions.push(eq(entities.parentId, parentId))
-  if (search) conditions.push(like(entities.name, `%${search}%`))
+  if (search) conditions.push(sql`${entities.name} LIKE ${'%' + escapeLike(search) + '%'} ESCAPE '\\'`)
 
   // RBAC: filter entities by visibility based on user's campaign role
   buildVisibilityFilter(role, userId, conditions, entities.visibility, entities.createdBy)

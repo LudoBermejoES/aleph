@@ -10,9 +10,21 @@ async function api(path: string, opts?: any) {
   })
 }
 
+async function getCsrfToken(sessionCookie: string): Promise<string> {
+  const res = await api('/api/campaigns', { headers: { Cookie: sessionCookie } })
+  const setCookie = res.headers.get('set-cookie') || ''
+  const match = setCookie.match(/csrf_token=([^;]+)/)
+  return match?.[1] || ''
+}
+
+function withCsrf(cookie: string, csrfToken: string): Record<string, string> {
+  return { Cookie: `${cookie}; csrf_token=${csrfToken}`, 'X-CSRF-Token': csrfToken }
+}
+
 describe('Session CRUD (integration)', () => {
   const email = `sess-test-${Date.now()}@example.com`
   let cookie = ''
+  let csrfToken = ''
   let campaignId = ''
   let sessionSlug = ''
 
@@ -22,13 +34,14 @@ describe('Session CRUD (integration)', () => {
     const cookies = login.headers.get('set-cookie') || ''
     const match = cookies.match(/better-auth\.session_token=([^;]+)/)
     cookie = match ? `better-auth.session_token=${match[1]}` : ''
-    const camp = await api('/api/campaigns', { method: 'POST', headers: { Cookie: cookie }, body: { name: `Sess Test ${Date.now()}` } })
+    csrfToken = await getCsrfToken(cookie)
+    const camp = await api('/api/campaigns', { method: 'POST', headers: withCsrf(cookie, csrfToken), body: { name: `Sess Test ${Date.now()}` } })
     campaignId = (await camp.json()).id
   })
 
   it('POST creates session with auto-increment number', async () => {
     const res = await api(`/api/campaigns/${campaignId}/sessions`, {
-      method: 'POST', headers: { Cookie: cookie },
+      method: 'POST', headers: withCsrf(cookie, csrfToken),
       body: { title: 'The Beginning' },
     })
     expect(res.status).toBe(200)
@@ -40,7 +53,7 @@ describe('Session CRUD (integration)', () => {
 
   it('second session gets number 2', async () => {
     const res = await api(`/api/campaigns/${campaignId}/sessions`, {
-      method: 'POST', headers: { Cookie: cookie },
+      method: 'POST', headers: withCsrf(cookie, csrfToken),
       body: { title: 'Into the Dark' },
     })
     const data = await res.json()
@@ -60,7 +73,7 @@ describe('Session CRUD (integration)', () => {
 
   it('PUT updates session status', async () => {
     const res = await api(`/api/campaigns/${campaignId}/sessions/${sessionSlug}`, {
-      method: 'PUT', headers: { Cookie: cookie },
+      method: 'PUT', headers: withCsrf(cookie, csrfToken),
       body: { status: 'active' },
     })
     expect(res.status).toBe(200)
@@ -74,8 +87,8 @@ describe('Session CRUD (integration)', () => {
 
   it('PATCH attendance sets RSVP', async () => {
     const res = await api(`/api/campaigns/${campaignId}/sessions/${sessionSlug}/attendance`, {
-      method: 'PATCH', headers: { Cookie: cookie },
-      body: { rsvpStatus: 'accepted' },
+      method: 'PATCH', headers: withCsrf(cookie, csrfToken),
+      body: { rsvpStatus: 'yes' },
     })
     expect(res.status).toBe(200)
 
@@ -84,7 +97,7 @@ describe('Session CRUD (integration)', () => {
     })
     const data = await get.json()
     expect(data.attendance.length).toBeGreaterThanOrEqual(1)
-    expect(data.attendance[0].rsvpStatus).toBe('accepted')
+    expect(data.attendance[0].rsvpStatus).toBe('yes')
   })
 
   it('GET session list returns sessions', async () => {
@@ -100,6 +113,7 @@ describe('Session CRUD (integration)', () => {
 describe('Quest CRUD (integration)', () => {
   const email = `quest-test-${Date.now()}@example.com`
   let cookie = ''
+  let csrfToken = ''
   let campaignId = ''
   let questSlug = ''
 
@@ -109,13 +123,14 @@ describe('Quest CRUD (integration)', () => {
     const cookies = login.headers.get('set-cookie') || ''
     const match = cookies.match(/better-auth\.session_token=([^;]+)/)
     cookie = match ? `better-auth.session_token=${match[1]}` : ''
-    const camp = await api('/api/campaigns', { method: 'POST', headers: { Cookie: cookie }, body: { name: `Quest Test ${Date.now()}` } })
+    csrfToken = await getCsrfToken(cookie)
+    const camp = await api('/api/campaigns', { method: 'POST', headers: withCsrf(cookie, csrfToken), body: { name: `Quest Test ${Date.now()}` } })
     campaignId = (await camp.json()).id
   })
 
   it('POST creates quest', async () => {
     const res = await api(`/api/campaigns/${campaignId}/quests`, {
-      method: 'POST', headers: { Cookie: cookie },
+      method: 'POST', headers: withCsrf(cookie, csrfToken),
       body: { name: 'Find the Lost Sword', description: 'A legendary weapon lies hidden' },
     })
     expect(res.status).toBe(200)
@@ -134,7 +149,7 @@ describe('Quest CRUD (integration)', () => {
     const parentId = quests[0].id
 
     const res = await api(`/api/campaigns/${campaignId}/quests`, {
-      method: 'POST', headers: { Cookie: cookie },
+      method: 'POST', headers: withCsrf(cookie, csrfToken),
       body: { name: 'Visit the Smith', parentQuestId: parentId },
     })
     expect(res.status).toBe(200)
@@ -142,7 +157,7 @@ describe('Quest CRUD (integration)', () => {
 
   it('PUT updates quest status with valid transition', async () => {
     const res = await api(`/api/campaigns/${campaignId}/quests/${questSlug}`, {
-      method: 'PUT', headers: { Cookie: cookie },
+      method: 'PUT', headers: withCsrf(cookie, csrfToken),
       body: { status: 'completed' },
     })
     expect(res.status).toBe(200)
@@ -151,7 +166,7 @@ describe('Quest CRUD (integration)', () => {
   it('PUT rejects invalid status transition', async () => {
     // completed → active is not allowed
     const res = await api(`/api/campaigns/${campaignId}/quests/${questSlug}`, {
-      method: 'PUT', headers: { Cookie: cookie },
+      method: 'PUT', headers: withCsrf(cookie, csrfToken),
       body: { status: 'active' },
     })
     expect(res.status).toBe(400)

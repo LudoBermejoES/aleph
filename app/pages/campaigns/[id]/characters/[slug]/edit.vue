@@ -59,7 +59,7 @@ async function save() {
   submitting.value = true
   try {
     const { locationId, ...rest } = form.value
-    await api.updateCharacter(slug, { ...rest, locationEntityId: locationId || null })
+    await api.updateCharacter(slug, { ...rest, ...(locationId ? { locationEntityId: locationId } : {}) })
     await charForm.value?.saveMemberships(slug)
     charForm.value?.clearDraft()
     await router.push(`/campaigns/${campaignId}/characters/${slug}`)

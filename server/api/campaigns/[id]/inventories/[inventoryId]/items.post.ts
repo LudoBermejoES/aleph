@@ -1,6 +1,8 @@
+import { z } from 'zod'
 import { randomUUID } from 'crypto'
 import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
+import { validateBody } from '../../../../../utils/validate'
 import { inventories, inventoryItems, items } from '../../../../../db/schema/inventory'
 import { characters } from '../../../../../db/schema/characters'
 import { hasMinRole } from '../../../../../utils/permissions'
@@ -12,7 +14,13 @@ export default defineEventHandler(async (event) => {
 
   const inventoryId = getRouterParam(event, 'inventoryId')!
   const userId = event.context.user?.id
-  const body = await readBody(event)
+  const inventoryItemSchema = z.object({
+    itemId: z.string(),
+    quantity: z.number().optional(),
+    position: z.string().optional(),
+    notes: z.string().optional(),
+  })
+  const body = await validateBody(event, inventoryItemSchema)
   const db = useDb()
 
   const inv = db.select().from(inventories).where(eq(inventories.id, inventoryId)).get()

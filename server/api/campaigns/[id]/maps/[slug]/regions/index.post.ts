@@ -1,6 +1,8 @@
+import { z } from 'zod'
 import { randomUUID } from 'crypto'
 import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../../utils/db'
+import { validateBody } from '../../../../../../utils/validate'
 import { maps, mapRegions } from '../../../../../../db/schema/maps'
 import { hasMinRole } from '../../../../../../utils/permissions'
 import type { CampaignRole } from '../../../../../../utils/permissions'
@@ -11,7 +13,15 @@ export default defineEventHandler(async (event) => {
 
   const campaignId = getRouterParam(event, 'id')!
   const slug = getRouterParam(event, 'slug')!
-  const body = await readBody(event)
+  const regionSchema = z.object({
+    geojson: z.union([z.string(), z.record(z.string(), z.unknown())]),
+    name: z.string().optional(),
+    color: z.string().optional(),
+    opacity: z.number().optional(),
+    entityId: z.string().optional(),
+    visibility: z.string().optional(),
+  })
+  const body = await validateBody(event, regionSchema)
   const db = useDb()
 
   const map = db.select().from(maps).where(and(eq(maps.campaignId, campaignId), eq(maps.slug, slug))).get()

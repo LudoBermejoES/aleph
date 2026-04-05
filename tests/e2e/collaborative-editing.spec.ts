@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { registerAndLogin, createCampaign } from './helpers'
+import { registerAndLogin, createCampaign, apiFetch } from './helpers'
 
 const uid = () => Date.now().toString(36).slice(-4)
 
@@ -13,13 +13,10 @@ test.describe('Collaborative Editing', () => {
     const entityName = `Collab Entity ${uid()}`
 
     // Create entity via API
-    await page.evaluate(async ([id, name]) => {
-      await fetch(`/api/campaigns/${id}/entities`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, type: 'location', content: '# Test' }),
-      })
-    }, [campaignId, entityName])
+    await apiFetch(page, `/api/campaigns/${campaignId}/entities`, {
+      method: 'POST',
+      body: { name: entityName, type: 'location', content: '# Test' },
+    })
 
     // Navigate to entity detail
     await page.click('aside >> text=Wiki')
@@ -48,13 +45,10 @@ test.describe('Collaborative Editing', () => {
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
     const entityName = `Solo Entity ${uid()}`
 
-    await page.evaluate(async ([id, name]) => {
-      await fetch(`/api/campaigns/${id}/entities`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, type: 'location', content: '# Test' }),
-      })
-    }, [campaignId, entityName])
+    await apiFetch(page, `/api/campaigns/${campaignId}/entities`, {
+      method: 'POST',
+      body: { name: entityName, type: 'location', content: '# Test' },
+    })
 
     await page.click('aside >> text=Wiki')
     await page.waitForLoadState('networkidle')

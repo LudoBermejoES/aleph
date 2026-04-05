@@ -1,4 +1,5 @@
 import { randomUUID } from 'crypto'
+import { z } from 'zod'
 import { useDb } from '../../utils/db'
 import { campaigns } from '../../db/schema/campaigns'
 import { campaignMembers } from '../../db/schema/campaign-members'
@@ -6,17 +7,20 @@ import { logger } from '../../utils/logger'
 import { auditLogFromEvent } from '../../utils/audit'
 import { seedEntityTypes } from '../../services/entity-types'
 import { seedRelationTypes } from '../../services/relationships'
+import { validateBody } from '../../utils/validate'
 import { mkdirSync } from 'fs'
 import { join } from 'path'
 
+const campaignSchema = z.object({
+  name: z.string().min(1).max(200),
+  description: z.string().max(5000).optional(),
+  isPublic: z.boolean().optional(),
+  theme: z.string().optional(),
+})
+
 export default defineEventHandler(async (event) => {
   const user = event.context.user
-  const body = await readBody(event)
-  const { name, description, isPublic, theme } = body
-
-  if (!name?.trim()) {
-    throw createError({ statusCode: 400, message: 'Campaign name is required' })
-  }
+  const { name, description, isPublic, theme } = await validateBody(event, campaignSchema)
 
   const db = useDb()
   const id = randomUUID()

@@ -1,5 +1,7 @@
+import { z } from 'zod'
 import { randomUUID } from 'crypto'
 import { useDb } from '../../../../utils/db'
+import { validateBody } from '../../../../utils/validate'
 import { shops } from '../../../../db/schema/inventory'
 import { hasMinRole } from '../../../../utils/permissions'
 import { slugify } from '../../../../services/content'
@@ -10,7 +12,15 @@ export default defineEventHandler(async (event) => {
   if (!hasMinRole(role, 'editor')) throw createError({ statusCode: 403, message: 'Editors or above can create shops' })
 
   const campaignId = getRouterParam(event, 'id')!
-  const body = await readBody(event)
+  const shopSchema = z.object({
+    name: z.string().min(1),
+    description: z.string().optional(),
+    locationEntityId: z.string().optional(),
+    shopkeeperEntityId: z.string().optional(),
+    isPlayerOwned: z.boolean().optional(),
+    ownedByUserId: z.string().optional(),
+  })
+  const body = await validateBody(event, shopSchema)
   const db = useDb()
   const id = randomUUID()
 

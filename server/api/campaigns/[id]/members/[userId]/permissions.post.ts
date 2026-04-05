@@ -1,6 +1,8 @@
+import { z } from 'zod'
 import { randomUUID } from 'crypto'
 import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
+import { validateBody } from '../../../../../utils/validate'
 import { campaignMembers, campaignMemberPermissions } from '../../../../../db/schema/campaign-members'
 import { hasMinRole } from '../../../../../utils/permissions'
 import { auditLogFromEvent } from '../../../../../utils/audit'
@@ -12,14 +14,13 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 403, message: 'Only DM can grant named permissions' })
   }
 
-  const body = await readBody(event)
+  const memberPermSchema = z.object({
+    permission: z.string().min(1),
+  })
+  const body = await validateBody(event, memberPermSchema)
   const campaignId = getRouterParam(event, 'id')!
   const targetUserId = getRouterParam(event, 'userId')!
   const { permission } = body
-
-  if (!permission) {
-    throw createError({ statusCode: 400, message: 'Permission is required' })
-  }
 
   const db = useDb()
 

@@ -1,6 +1,8 @@
+import { z } from 'zod'
 import { randomUUID } from 'crypto'
 import { eq, and } from 'drizzle-orm'
 import { useDb, useSqlite } from '../../../../utils/db'
+import { validateBody } from '../../../../utils/validate'
 import { entities } from '../../../../db/schema/entities'
 import { hasMinRole } from '../../../../utils/permissions'
 import { writeEntityFile, resolveEntityPath } from '../../../../services/content'
@@ -18,12 +20,15 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 403, message: 'Editors or above can create locations' })
   }
 
-  const body = await readBody(event)
+  const locationSchema = z.object({
+    name: z.string().min(1),
+    subtype: z.string().optional(),
+    parentId: z.string().optional(),
+    visibility: z.string().optional(),
+    content: z.string().optional(),
+  })
+  const body = await validateBody(event, locationSchema)
   const { name, subtype, parentId, visibility, content } = body
-
-  if (!name?.trim()) {
-    throw createError({ statusCode: 400, message: 'Name is required' })
-  }
 
   const resolvedSubtype = VALID_SUBTYPES.includes(subtype) ? subtype : 'other'
 

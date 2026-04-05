@@ -1,6 +1,8 @@
+import { z } from 'zod'
 import { randomUUID } from 'crypto'
 import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../utils/db'
+import { validateBody } from '../../../../utils/validate'
 import { organizations } from '../../../../db/schema'
 import { hasMinRole } from '../../../../utils/permissions'
 import { slugify } from '../../../../services/content'
@@ -12,12 +14,14 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 403, message: 'Editors or above can create organizations' })
   }
 
-  const body = await readBody(event)
+  const orgSchema = z.object({
+    name: z.string().min(1),
+    description: z.string().optional(),
+    type: z.string().optional(),
+    status: z.string().optional(),
+  })
+  const body = await validateBody(event, orgSchema)
   const { name, description, type, status } = body
-
-  if (!name?.trim()) {
-    throw createError({ statusCode: 400, message: 'Name is required' })
-  }
 
   const db = useDb()
   const campaignId = getRouterParam(event, 'id')!

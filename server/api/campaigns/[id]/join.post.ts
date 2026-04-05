@@ -1,16 +1,17 @@
+import { z } from 'zod'
 import { randomUUID } from 'crypto'
 import { eq, and, isNull } from 'drizzle-orm'
 import { useDb } from '../../../utils/db'
+import { validateBody } from '../../../utils/validate'
 import { campaignInvitations, campaignMembers } from '../../../db/schema/campaign-members'
 import { auditLogFromEvent } from '../../../utils/audit'
 
 export default defineEventHandler(async (event) => {
-  const body = await readBody(event)
+  const joinSchema = z.object({
+    token: z.string().min(1),
+  })
+  const body = await validateBody(event, joinSchema)
   const { token } = body
-
-  if (!token) {
-    throw createError({ statusCode: 400, message: 'Invitation token is required' })
-  }
 
   const campaignId = getRouterParam(event, 'id')!
   const db = useDb()

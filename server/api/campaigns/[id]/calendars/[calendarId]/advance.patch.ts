@@ -1,5 +1,7 @@
+import { z } from 'zod'
 import { eq } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
+import { validateBody } from '../../../../../utils/validate'
 import { calendars } from '../../../../../db/schema/calendars'
 import { advanceDate, type CalendarConfig, type CalendarDate } from '../../../../../services/calendar'
 import { hasMinRole } from '../../../../../utils/permissions'
@@ -10,7 +12,10 @@ export default defineEventHandler(async (event) => {
   if (!hasMinRole(role, 'dm')) throw createError({ statusCode: 403, message: 'Only DM can advance calendar date' })
 
   const calendarId = getRouterParam(event, 'calendarId')!
-  const body = await readBody(event)
+  const advanceSchema = z.object({
+    days: z.number().optional(),
+  })
+  const body = await validateBody(event, advanceSchema)
   const db = useDb()
 
   const cal = db.select().from(calendars).where(eq(calendars.id, calendarId)).get()

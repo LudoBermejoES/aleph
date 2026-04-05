@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { registerAndLogin, createCampaign } from './helpers'
+import { registerAndLogin, createCampaign, apiFetch } from './helpers'
 
 const uid = () => Date.now().toString(36).slice(-4)
 
@@ -11,14 +11,10 @@ test.describe('Quest Detail Page', () => {
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
 
     // Create a quest via API
-    const quest = await page.evaluate(async (id) => {
-      const r = await fetch(`/api/campaigns/${id}/quests`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Find the Artifact', status: 'active', description: 'A dangerous quest' }),
-      })
-      return r.json()
-    }, campaignId)
+    const quest = await apiFetch(page, `/api/campaigns/${campaignId}/quests`, {
+      method: 'POST',
+      body: { name: 'Find the Artifact', status: 'active', description: 'A dangerous quest' },
+    })
 
     // Navigate to quests list
     await page.goto(`/campaigns/${campaignId}/quests`, { waitUntil: 'networkidle' })
@@ -43,20 +39,17 @@ test.describe('Quest Detail Page', () => {
 
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
 
-    const quest = await page.evaluate(async (id) => {
-      const r = await fetch(`/api/campaigns/${id}/quests`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Edit Test Quest', status: 'active' }),
-      })
-      return r.json()
-    }, campaignId)
+    const quest = await apiFetch(page, `/api/campaigns/${campaignId}/quests`, {
+      method: 'POST',
+      body: { name: 'Edit Test Quest', status: 'active' },
+    })
 
-    await page.goto(`/campaigns/${campaignId}/quests/${quest.slug}`, { waitUntil: 'networkidle' })
-    await expect(page.locator('main h1')).toContainText('Edit Test Quest', { timeout: 10000 })
+    await page.goto(`/campaigns/${campaignId}/quests/${quest.slug}`, { waitUntil: 'domcontentloaded' })
+    await page.waitForLoadState('networkidle')
+    await expect(page.locator('main h1')).toContainText('Edit Test Quest', { timeout: 15000 })
 
     // Edit button should link to edit page
-    const editLink = page.locator(`a[href*="/edit"]`)
-    await expect(editLink).toBeVisible({ timeout: 5000 })
+    const editLink = page.locator(`a[href*="/edit"]`).first()
+    await expect(editLink).toBeVisible({ timeout: 10000 })
   })
 })

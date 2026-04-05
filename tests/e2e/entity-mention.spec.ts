@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { registerAndLogin, createCampaign } from './helpers'
+import { registerAndLogin, createCampaign, apiFetch } from './helpers'
 
 const uid = () => Date.now().toString(36).slice(-4)
 
@@ -10,18 +10,14 @@ test.describe('Entity @mention autocomplete (9.17)', () => {
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
 
     // Create entities to search for
-    await page.evaluate(async (id) => {
-      await fetch(`/api/campaigns/${id}/entities`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Strahd von Zarovich', type: 'character', content: '# Strahd' }),
-      })
-      await fetch(`/api/campaigns/${id}/entities`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Barovia Village', type: 'location', content: '# Barovia' }),
-      })
-    }, campaignId)
+    await apiFetch(page, `/api/campaigns/${campaignId}/entities`, {
+      method: 'POST',
+      body: { name: 'Strahd von Zarovich', type: 'character', content: '# Strahd' },
+    })
+    await apiFetch(page, `/api/campaigns/${campaignId}/entities`, {
+      method: 'POST',
+      body: { name: 'Barovia Village', type: 'location', content: '# Barovia' },
+    })
 
     // Navigate through the UI (direct goto doesn't hydrate properly)
     await page.click('aside >> text=Wiki')

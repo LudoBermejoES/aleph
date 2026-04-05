@@ -18,13 +18,23 @@ async function signUpAndGetCookie(email: string, password: string, name = 'Test 
   })
   const cookies = res.headers.get('set-cookie') || ''
   const match = cookies.match(/better-auth\.session_token=([^;]+)/)
-  return match ? `better-auth.session_token=${match[1]}` : ''
+  const sessionCookie = match ? `better-auth.session_token=${match[1]}` : ''
+  // Trigger CSRF token generation
+  const getRes = await fetch(`${BASE_URL}/api/campaigns`, {
+    headers: { 'Content-Type': 'application/json', Origin: BASE_URL, Cookie: sessionCookie },
+  })
+  const setCookie = getRes.headers.get('set-cookie') || ''
+  const csrfMatch = setCookie.match(/csrf_token=([^;]+)/)
+  const csrfToken = csrfMatch?.[1] || ''
+  return csrfToken ? `${sessionCookie}; csrf_token=${csrfToken}` : sessionCookie
 }
 
 async function createApiKey(cookie: string) {
+  const csrfMatch = cookie.match(/csrf_token=([^;]+)/)
+  const csrfToken = csrfMatch?.[1] || ''
   const res = await fetch(`${BASE_URL}/api/apikeys`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', Origin: BASE_URL, Cookie: cookie },
+    headers: { 'Content-Type': 'application/json', Origin: BASE_URL, Cookie: cookie, 'X-CSRF-Token': csrfToken },
     body: JSON.stringify({ name: 'test-key' }),
   })
   return res.json()

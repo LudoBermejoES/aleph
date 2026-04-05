@@ -28,7 +28,7 @@ test.describe('i18n fixes', () => {
       { name: 'i18n_redirected', value: 'en', domain: new URL(BASE).hostname, path: '/' },
     ])
 
-    await page.goto(`${BASE}/some/nonexistent/en-path-${uid()}`)
+    await page.goto(`${BASE}/some/nonexistent/en-path-${uid()}`, { waitUntil: 'domcontentloaded' })
     await page.waitForLoadState('networkidle')
     await expect(page.locator('text=404')).toBeVisible({ timeout: 10000 })
     await expect(page.locator('text=Page not found')).toBeVisible()

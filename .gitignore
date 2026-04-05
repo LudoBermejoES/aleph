@@ -38,3 +38,5 @@ playwright-report/
 
 # Coverage
 coverage/
+.playwright-mcp/
+resultado.txt

@@ -1,5 +1,7 @@
+import { z } from 'zod'
 import { randomUUID, randomBytes } from 'crypto'
 import { useDb } from '../../../utils/db'
+import { validateBody } from '../../../utils/validate'
 import { campaignInvitations } from '../../../db/schema/campaign-members'
 import { hasMinRole } from '../../../utils/permissions'
 import type { CampaignRole } from '../../../utils/permissions'
@@ -10,7 +12,10 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 403, message: 'Only DM or Co-DM can invite members' })
   }
 
-  const body = await readBody(event)
+  const inviteSchema = z.object({
+    role: z.string().optional(),
+  })
+  const body = await validateBody(event, inviteSchema)
   const campaignId = getRouterParam(event, 'id')!
   const db = useDb()
 

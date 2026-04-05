@@ -1,6 +1,8 @@
+import { z } from 'zod'
 import { randomUUID } from 'crypto'
 import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../../utils/db'
+import { validateBody } from '../../../../../../utils/validate'
 import { gameSessions, sessionContents } from '../../../../../../db/schema/sessions'
 import { hasMinRole } from '../../../../../../utils/permissions'
 import type { CampaignRole } from '../../../../../../utils/permissions'
@@ -15,12 +17,12 @@ export default defineEventHandler(async (event) => {
 
   const campaignId = getRouterParam(event, 'id')!
   const slug = getRouterParam(event, 'slug')!
-  const body = await readBody(event)
+  const contentSchema = z.object({
+    type: z.enum(['manual_notes', 'ai_notes', 'summary']),
+    content: z.string().nullable().optional(),
+  })
+  const body = await validateBody(event, contentSchema)
   const db = useDb()
-
-  if (!body.type || !VALID_TYPES.includes(body.type)) {
-    throw createError({ statusCode: 400, message: `Invalid type. Must be one of: ${VALID_TYPES.join(', ')}` })
-  }
 
   const session = db.select({ id: gameSessions.id }).from(gameSessions)
     .where(and(eq(gameSessions.campaignId, campaignId), eq(gameSessions.slug, slug)))

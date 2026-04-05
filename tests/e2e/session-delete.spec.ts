@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { registerAndLogin, createCampaign } from './helpers'
+import { registerAndLogin, createCampaign, apiFetch } from './helpers'
 
 const uid = () => Date.now().toString(36).slice(-4)
 
@@ -11,13 +11,10 @@ test.describe('Session Delete', () => {
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
 
     // Create a session via API
-    await page.evaluate(async (id) => {
-      await fetch(`/api/campaigns/${id}/sessions`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: 'Session To Delete' }),
-      })
-    }, campaignId)
+    await apiFetch(page, `/api/campaigns/${campaignId}/sessions`, {
+      method: 'POST',
+      body: { title: 'Session To Delete' },
+    })
 
     // Navigate to sessions list
     await page.click('aside >> text=Sessions')

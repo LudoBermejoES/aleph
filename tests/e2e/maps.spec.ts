@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { registerAndLogin, createCampaign } from './helpers'
+import { registerAndLogin, createCampaign, apiFetch } from './helpers'
 
 const uid = () => Date.now().toString(36).slice(-4)
 
@@ -18,13 +18,10 @@ test.describe('Maps', () => {
     await createCampaign(page, `Map Detail ${uid()}`)
 
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
-    await page.evaluate(async (id) => {
-      await fetch(`/api/campaigns/${id}/maps`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'World Map' }),
-      })
-    }, campaignId)
+    await apiFetch(page, `/api/campaigns/${campaignId}/maps`, {
+      method: 'POST',
+      body: { name: 'World Map' },
+    })
 
     await page.click('aside >> text=Maps')
     await page.waitForLoadState('networkidle')
@@ -40,13 +37,10 @@ test.describe('Maps', () => {
     await createCampaign(page, `Map Leaflet ${uid()}`)
 
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
-    await page.evaluate(async (id) => {
-      await fetch(`/api/campaigns/${id}/maps`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Leaflet Map' }),
-      })
-    }, campaignId)
+    await apiFetch(page, `/api/campaigns/${campaignId}/maps`, {
+      method: 'POST',
+      body: { name: 'Leaflet Map' },
+    })
 
     await page.click('aside >> text=Maps')
     await page.waitForLoadState('networkidle')

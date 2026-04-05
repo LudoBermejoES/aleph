@@ -1,6 +1,8 @@
+import { z } from 'zod'
 import { randomUUID } from 'crypto'
 import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
+import { validateBody } from '../../../../../utils/validate'
 import { shops, shopStock, inventoryItems, wealth, transactions } from '../../../../../db/schema/inventory'
 import { hasMinRole } from '../../../../../utils/permissions'
 import type { CampaignRole } from '../../../../../utils/permissions'
@@ -11,7 +13,16 @@ export default defineEventHandler(async (event) => {
 
   const campaignId = getRouterParam(event, 'id')!
   const slug = getRouterParam(event, 'slug')!
-  const body = await readBody(event)
+  const buySchema = z.object({
+    stockId: z.string(),
+    buyerInventoryId: z.string(),
+    buyerOwnerId: z.string(),
+    buyerOwnerType: z.string(),
+    quantity: z.number().optional(),
+    currencyId: z.string(),
+    price: z.number().optional(),
+  })
+  const body = await validateBody(event, buySchema)
   const { stockId, buyerInventoryId, buyerOwnerId, buyerOwnerType, quantity, currencyId } = body
   const db = useDb()
 

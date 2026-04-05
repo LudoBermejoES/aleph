@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 
-async function api(path: string, opts?: RequestInit & { body?: any }) {
+async function api(path: string, opts?: any) {
   const isFormData = opts?.body instanceof FormData
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
@@ -15,9 +15,21 @@ async function api(path: string, opts?: RequestInit & { body?: any }) {
   })
 }
 
+async function getCsrfToken(sessionCookie: string): Promise<string> {
+  const res = await api('/api/campaigns', { headers: { Cookie: sessionCookie } })
+  const setCookie = res.headers.get('set-cookie') || ''
+  const match = setCookie.match(/csrf_token=([^;]+)/)
+  return match?.[1] || ''
+}
+
+function withCsrf(cookie: string, csrfToken: string) {
+  return { Cookie: `${cookie}; csrf_token=${csrfToken}`, 'X-CSRF-Token': csrfToken }
+}
+
 describe('Entity Image (integration)', () => {
   const email = `entity-img-${Date.now()}@example.com`
   let cookie = ''
+  let csrfToken = ''
   let campaignId = ''
   let entitySlug = ''
 
@@ -33,11 +45,12 @@ describe('Entity Image (integration)', () => {
     const cookies = login.headers.get('set-cookie') || ''
     const match = cookies.match(/better-auth\.session_token=([^;]+)/)
     cookie = match ? `better-auth.session_token=${match[1]}` : ''
-    const camp = await api('/api/campaigns', { method: 'POST', headers: { Cookie: cookie }, body: { name: `Entity Image Test ${Date.now()}` } })
+    csrfToken = await getCsrfToken(cookie)
+    const camp = await api('/api/campaigns', { method: 'POST', headers: withCsrf(cookie, csrfToken), body: { name: `Entity Image Test ${Date.now()}` } })
     campaignId = (await camp.json()).id
     const ent = await api(`/api/campaigns/${campaignId}/entities`, {
       method: 'POST',
-      headers: { Cookie: cookie },
+      headers: withCsrf(cookie, csrfToken),
       body: { name: 'Image Test Entity', type: 'location' },
     })
     entitySlug = (await ent.json()).slug
@@ -69,7 +82,7 @@ describe('Entity Image (integration)', () => {
     form.append('image', new Blob([PNG_1PX], { type: 'image/png' }), 'image.png')
     const res = await api(`/api/campaigns/${campaignId}/entities/${entitySlug}/image`, {
       method: 'POST',
-      headers: { Cookie: cookie },
+      headers: withCsrf(cookie, csrfToken),
       body: form,
     })
     expect(res.status).toBe(200)
@@ -97,7 +110,7 @@ describe('Entity Image (integration)', () => {
     form.append('image', new Blob([PNG_1PX], { type: 'image/gif' }), 'image.gif')
     const res = await api(`/api/campaigns/${campaignId}/entities/${entitySlug}/image`, {
       method: 'POST',
-      headers: { Cookie: cookie },
+      headers: withCsrf(cookie, csrfToken),
       body: form,
     })
     expect(res.status).toBe(400)
@@ -118,7 +131,7 @@ describe('Entity Image (integration)', () => {
     form.append('image', new Blob([PNG_1PX], { type: 'image/png' }), 'image.png')
     const res = await api(`/api/campaigns/${campaignId}/entities/nonexistent-slug/image`, {
       method: 'POST',
-      headers: { Cookie: cookie },
+      headers: withCsrf(cookie, csrfToken),
       body: form,
     })
     expect(res.status).toBe(404)
@@ -128,6 +141,7 @@ describe('Entity Image (integration)', () => {
 describe('Character entity imageUrl falls back to portraitUrl (integration)', () => {
   const email = `char-entity-img-${Date.now()}@example.com`
   let cookie = ''
+  let csrfToken = ''
   let campaignId = ''
   let charSlug = ''
   let entitySlug = ''
@@ -144,12 +158,13 @@ describe('Character entity imageUrl falls back to portraitUrl (integration)', ()
     const cookies = login.headers.get('set-cookie') || ''
     const match = cookies.match(/better-auth\.session_token=([^;]+)/)
     cookie = match ? `better-auth.session_token=${match[1]}` : ''
+    csrfToken = await getCsrfToken(cookie)
 
-    const camp = await api('/api/campaigns', { method: 'POST', headers: { Cookie: cookie }, body: { name: `Portrait Fallback Test ${Date.now()}` } })
+    const camp = await api('/api/campaigns', { method: 'POST', headers: withCsrf(cookie, csrfToken), body: { name: `Portrait Fallback Test ${Date.now()}` } })
     campaignId = (await camp.json()).id
 
     const char = await api(`/api/campaigns/${campaignId}/characters`, {
-      method: 'POST', headers: { Cookie: cookie },
+      method: 'POST', headers: withCsrf(cookie, csrfToken),
       body: { name: 'Portrait Hero', characterType: 'pc' },
     })
     const charData = await char.json()
@@ -170,7 +185,7 @@ describe('Character entity imageUrl falls back to portraitUrl (integration)', ()
     const form = new FormData()
     form.append('portrait', new Blob([PNG_1PX], { type: 'image/png' }), 'portrait.png')
     const uploadRes = await api(`/api/campaigns/${campaignId}/characters/${charSlug}/portrait`, {
-      method: 'POST', headers: { Cookie: cookie }, body: form,
+      method: 'POST', headers: withCsrf(cookie, csrfToken), body: form,
     })
     expect(uploadRes.status).toBe(200)
     const { portraitUrl } = await uploadRes.json()
@@ -188,7 +203,7 @@ describe('Character entity imageUrl falls back to portraitUrl (integration)', ()
     const form = new FormData()
     form.append('image', new Blob([PNG_1PX], { type: 'image/png' }), 'image.png')
     const uploadRes = await api(`/api/campaigns/${campaignId}/entities/${entitySlug}/image`, {
-      method: 'POST', headers: { Cookie: cookie }, body: form,
+      method: 'POST', headers: withCsrf(cookie, csrfToken), body: form,
     })
     expect(uploadRes.status).toBe(200)
     const { imageUrl: entityImageUrl } = await uploadRes.json()
@@ -203,7 +218,7 @@ describe('Character entity imageUrl falls back to portraitUrl (integration)', ()
   it('non-character entity detail does not use portrait fallback', async () => {
     // Create a location entity (no portrait concept)
     const entRes = await api(`/api/campaigns/${campaignId}/entities`, {
-      method: 'POST', headers: { Cookie: cookie },
+      method: 'POST', headers: withCsrf(cookie, csrfToken),
       body: { name: 'A Location', type: 'location' },
     })
     const locSlug = (await entRes.json()).slug

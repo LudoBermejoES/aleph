@@ -1,5 +1,7 @@
+import { z } from 'zod'
 import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
+import { validateBody } from '../../../../../utils/validate'
 import { entities } from '../../../../../db/schema/entities'
 import { characters } from '../../../../../db/schema/characters'
 import { hasMinRole } from '../../../../../utils/permissions'
@@ -13,10 +15,11 @@ export default defineEventHandler(async (event) => {
 
   const campaignId = getRouterParam(event, 'id')!
   const slug = getRouterParam(event, 'slug')!
-  const body = await readBody(event)
+  const inhabitantSchema = z.object({
+    characterId: z.string(),
+  })
+  const body = await validateBody(event, inhabitantSchema)
   const { characterId } = body
-
-  if (!characterId) throw createError({ statusCode: 400, message: 'characterId is required' })
 
   const db = useDb()
 

@@ -1,5 +1,7 @@
+import { z } from 'zod'
 import { randomUUID } from 'crypto'
 import { useDb } from '../../../../utils/db'
+import { validateBody } from '../../../../utils/validate'
 import { quests } from '../../../../db/schema/sessions'
 import { hasMinRole } from '../../../../utils/permissions'
 import { slugify, writeEntityFile, resolveEntityPath } from '../../../../services/content'
@@ -13,7 +15,18 @@ export default defineEventHandler(async (event) => {
   }
 
   const campaignId = getRouterParam(event, 'id')!
-  const body = await readBody(event)
+  const questSchema = z.object({
+    name: z.string().min(1),
+    content: z.string().optional(),
+    description: z.string().optional(),
+    status: z.enum(['active', 'completed', 'failed', 'on_hold']).optional(),
+    tags: z.array(z.string()).optional(),
+    isSecret: z.boolean().optional(),
+    parentQuestId: z.string().optional(),
+    entityId: z.string().optional(),
+    assignedCharacterIds: z.array(z.string()).optional(),
+  })
+  const body = await validateBody(event, questSchema)
   const db = useDb()
   const campaign = event.context.campaign
 

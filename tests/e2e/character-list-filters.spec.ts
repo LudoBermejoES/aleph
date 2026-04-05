@@ -1,26 +1,21 @@
 import { test, expect } from '@playwright/test'
-import { BASE, registerAndLogin, createCampaign } from './helpers'
+import { BASE, registerAndLogin, createCampaign, apiFetch } from './helpers'
 
 const uid = () => Date.now().toString(36).slice(-4)
 
 async function setupChars(page: any, campaignId: string) {
-  await page.evaluate(async (id: string) => {
-    await fetch(`/api/campaigns/${id}/characters`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: 'Aragorn', characterType: 'pc', race: 'Human', status: 'alive' }),
-    })
-    await fetch(`/api/campaigns/${id}/characters`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: 'Boromir', characterType: 'pc', race: 'Human', status: 'dead' }),
-    })
-    await fetch(`/api/campaigns/${id}/characters`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: 'Gandalf', characterType: 'npc', race: 'Maiar', status: 'alive' }),
-    })
-  }, campaignId)
+  await apiFetch(page, `/api/campaigns/${campaignId}/characters`, {
+    method: 'POST',
+    body: { name: 'Aragorn', characterType: 'pc', race: 'Human', status: 'alive' },
+  })
+  await apiFetch(page, `/api/campaigns/${campaignId}/characters`, {
+    method: 'POST',
+    body: { name: 'Boromir', characterType: 'pc', race: 'Human', status: 'dead' },
+  })
+  await apiFetch(page, `/api/campaigns/${campaignId}/characters`, {
+    method: 'POST',
+    body: { name: 'Gandalf', characterType: 'npc', race: 'Maiar', status: 'alive' },
+  })
 }
 
 test.describe('Character list filters (E2E)', () => {

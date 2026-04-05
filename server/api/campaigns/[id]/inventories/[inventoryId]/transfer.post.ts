@@ -1,6 +1,8 @@
+import { z } from 'zod'
 import { randomUUID } from 'crypto'
 import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
+import { validateBody } from '../../../../../utils/validate'
 import { inventories, inventoryItems, items, transactions } from '../../../../../db/schema/inventory'
 import { characters } from '../../../../../db/schema/characters'
 import { canTransferItem } from '../../../../../services/inventory'
@@ -14,7 +16,12 @@ export default defineEventHandler(async (event) => {
   const campaignId = getRouterParam(event, 'id')!
   const fromInventoryId = getRouterParam(event, 'inventoryId')!
   const userId = event.context.user?.id
-  const body = await readBody(event)
+  const transferSchema = z.object({
+    toInventoryId: z.string(),
+    itemId: z.string(),
+    quantity: z.number().positive(),
+  })
+  const body = await validateBody(event, transferSchema)
   const { toInventoryId, itemId, quantity } = body
   const db = useDb()
 

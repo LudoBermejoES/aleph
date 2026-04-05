@@ -105,7 +105,7 @@ export function useCampaignApi(campaignId: string) {
   // ─── Characters ─────────────────────────────────────────────────────────────
 
   function getCharacters(params?: Record<string, string>) {
-    return $fetch<Character[]>(`${base}/characters`, { params })
+    return $fetch<Character[]>(`${base}/characters`, { params: { pageSize: '0', ...params } })
   }
 
   function getCharactersMeta() {
@@ -573,7 +573,7 @@ export function useCampaignApi(campaignId: string) {
   // ─── Organizations ──────────────────────────────────────────────────────────
 
   function getOrganizations() {
-    return $fetch<any[]>(`${base}/organizations`)
+    return $fetch<any[]>(`${base}/organizations`, { params: { pageSize: '0' } })
   }
 
   function getOrganization(slug: string) {
@@ -602,8 +602,8 @@ export function useCampaignApi(campaignId: string) {
 
   // ─── Locations ──────────────────────────────────────────────────────────────
 
-  function getLocations(params?: { parentId?: string; subtype?: string; search?: string }) {
-    return $fetch<any[]>(`${base}/locations`, { params })
+  function getLocations(params?: { parentId?: string; subtype?: string; search?: string; pageSize?: string }) {
+    return $fetch<any[]>(`${base}/locations`, { params: { pageSize: '0', ...params } })
   }
 
   function getLocation(slug: string) {

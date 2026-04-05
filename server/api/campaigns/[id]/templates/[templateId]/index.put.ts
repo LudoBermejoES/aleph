@@ -1,6 +1,8 @@
+import { z } from 'zod'
 import { eq } from 'drizzle-orm'
 import { randomUUID } from 'crypto'
 import { useDb } from '../../../../../utils/db'
+import { validateBody } from '../../../../../utils/validate'
 import { entityTemplates, entityTemplateFields } from '../../../../../db/schema/entities'
 import { hasMinRole } from '../../../../../utils/permissions'
 import type { CampaignRole } from '../../../../../utils/permissions'
@@ -12,7 +14,18 @@ export default defineEventHandler(async (event) => {
   }
 
   const templateId = getRouterParam(event, 'templateId')!
-  const body = await readBody(event)
+  const templatePutSchema = z.object({
+    name: z.string().min(1).optional(),
+    isDefault: z.boolean().optional(),
+    fields: z.array(z.object({
+      key: z.string(),
+      label: z.string(),
+      fieldType: z.string().optional(),
+      options: z.unknown().optional(),
+      required: z.boolean().optional(),
+    })).optional(),
+  })
+  const body = await validateBody(event, templatePutSchema)
   const db = useDb()
 
   // Update template name/default

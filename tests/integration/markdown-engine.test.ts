@@ -10,11 +10,24 @@ async function api(path: string, opts?: any) {
   })
 }
 
+async function getCsrfToken(sessionCookie: string): Promise<string> {
+  const res = await api('/api/campaigns', { headers: { Cookie: sessionCookie } })
+  const setCookie = res.headers.get('set-cookie') || ''
+  const match = setCookie.match(/csrf_token=([^;]+)/)
+  return match?.[1] || ''
+}
+
+function withCsrf(cookie: string, csrfToken: string) {
+  return { Cookie: `${cookie}; csrf_token=${csrfToken}`, 'X-CSRF-Token': csrfToken }
+}
+
 describe('Search Permission Filtering (6.11)', () => {
   const dmEmail = `md-dm-${Date.now()}@example.com`
   const playerEmail = `md-player-${Date.now()}@example.com`
   let dmCookie = ''
+  let dmCsrf = ''
   let playerCookie = ''
+  let playerCsrf = ''
   let campaignId = ''
 
   beforeAll(async () => {
@@ -22,17 +35,18 @@ describe('Search Permission Filtering (6.11)', () => {
     await api('/api/auth/sign-up/email', { method: 'POST', body: { name: 'MD DM', email: dmEmail, password: 'password123' } })
     const dmLogin = await api('/api/auth/sign-in/email', { method: 'POST', body: { email: dmEmail, password: 'password123' } })
     dmCookie = `better-auth.session_token=${(dmLogin.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1]}`
+    dmCsrf = await getCsrfToken(dmCookie)
 
-    const camp = await api('/api/campaigns', { method: 'POST', headers: { Cookie: dmCookie }, body: { name: `MD Test ${Date.now()}` } })
+    const camp = await api('/api/campaigns', { method: 'POST', headers: withCsrf(dmCookie, dmCsrf), body: { name: `MD Test ${Date.now()}` } })
     campaignId = (await camp.json()).id
 
     // Create entities with different visibility levels
     await api(`/api/campaigns/${campaignId}/entities`, {
-      method: 'POST', headers: { Cookie: dmCookie },
+      method: 'POST', headers: withCsrf(dmCookie, dmCsrf),
       body: { name: 'Public Entity', type: 'note', content: '# Public\n\nVisible to all.', visibility: 'public' },
     })
     await api(`/api/campaigns/${campaignId}/entities`, {
-      method: 'POST', headers: { Cookie: dmCookie },
+      method: 'POST', headers: withCsrf(dmCookie, dmCsrf),
       body: { name: 'DM Only Entity', type: 'note', content: '# DM Only\n\nSecret DM notes.', visibility: 'dm_only' },
     })
 
@@ -40,11 +54,12 @@ describe('Search Permission Filtering (6.11)', () => {
     await api('/api/auth/sign-up/email', { method: 'POST', body: { name: 'MD Player', email: playerEmail, password: 'password123' } })
     const playerLogin = await api('/api/auth/sign-in/email', { method: 'POST', body: { email: playerEmail, password: 'password123' } })
     playerCookie = `better-auth.session_token=${(playerLogin.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1]}`
+    playerCsrf = await getCsrfToken(playerCookie)
 
     // Invite player
-    const invite = await api(`/api/campaigns/${campaignId}/invite`, { method: 'POST', headers: { Cookie: dmCookie }, body: { role: 'player' } })
+    const invite = await api(`/api/campaigns/${campaignId}/invite`, { method: 'POST', headers: withCsrf(dmCookie, dmCsrf), body: { role: 'player' } })
     const { token: inviteToken } = await invite.json()
-    await api(`/api/campaigns/${campaignId}/join`, { method: 'POST', headers: { Cookie: playerCookie }, body: { token: inviteToken } })
+    await api(`/api/campaigns/${campaignId}/join`, { method: 'POST', headers: withCsrf(playerCookie, playerCsrf), body: { token: inviteToken } })
   })
 
   it('DM search returns all entities including dm_only', async () => {
@@ -68,7 +83,9 @@ describe('Secret Block Rendering (6.12, 6.13)', () => {
   const dmEmail = `secret-dm-${Date.now()}@example.com`
   const playerEmail = `secret-player-${Date.now()}@example.com`
   let dmCookie = ''
+  let dmCsrf = ''
   let playerCookie = ''
+  let playerCsrf = ''
   let campaignId = ''
   let entitySlug = ''
 
@@ -76,12 +93,13 @@ describe('Secret Block Rendering (6.12, 6.13)', () => {
     await api('/api/auth/sign-up/email', { method: 'POST', body: { name: 'Secret DM', email: dmEmail, password: 'password123' } })
     const dmLogin = await api('/api/auth/sign-in/email', { method: 'POST', body: { email: dmEmail, password: 'password123' } })
     dmCookie = `better-auth.session_token=${(dmLogin.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1]}`
+    dmCsrf = await getCsrfToken(dmCookie)
 
-    const camp = await api('/api/campaigns', { method: 'POST', headers: { Cookie: dmCookie }, body: { name: `Secret Test ${Date.now()}` } })
+    const camp = await api('/api/campaigns', { method: 'POST', headers: withCsrf(dmCookie, dmCsrf), body: { name: `Secret Test ${Date.now()}` } })
     campaignId = (await camp.json()).id
 
     const entity = await api(`/api/campaigns/${campaignId}/entities`, {
-      method: 'POST', headers: { Cookie: dmCookie },
+      method: 'POST', headers: withCsrf(dmCookie, dmCsrf),
       body: { name: 'Secret Entity', type: 'note', content: '# Lore\n\nPublic info.\n\n:::secret{.dm}\nHidden treasure location.\n:::\n' },
     })
     entitySlug = (await entity.json()).slug
@@ -90,10 +108,11 @@ describe('Secret Block Rendering (6.12, 6.13)', () => {
     await api('/api/auth/sign-up/email', { method: 'POST', body: { name: 'Secret Player', email: playerEmail, password: 'password123' } })
     const playerLogin = await api('/api/auth/sign-in/email', { method: 'POST', body: { email: playerEmail, password: 'password123' } })
     playerCookie = `better-auth.session_token=${(playerLogin.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1]}`
+    playerCsrf = await getCsrfToken(playerCookie)
 
-    const invite = await api(`/api/campaigns/${campaignId}/invite`, { method: 'POST', headers: { Cookie: dmCookie }, body: { role: 'player' } })
+    const invite = await api(`/api/campaigns/${campaignId}/invite`, { method: 'POST', headers: withCsrf(dmCookie, dmCsrf), body: { role: 'player' } })
     const { token: inviteToken } = await invite.json()
-    await api(`/api/campaigns/${campaignId}/join`, { method: 'POST', headers: { Cookie: playerCookie }, body: { token: inviteToken } })
+    await api(`/api/campaigns/${campaignId}/join`, { method: 'POST', headers: withCsrf(playerCookie, playerCsrf), body: { token: inviteToken } })
   })
 
   it('DM receives full content including secret blocks (6.13)', async () => {

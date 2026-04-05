@@ -1,5 +1,7 @@
+import { z } from 'zod'
 import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
+import { validateBody } from '../../../../../utils/validate'
 import { quests } from '../../../../../db/schema/sessions'
 import { hasMinRole } from '../../../../../utils/permissions'
 import { canTransitionQuestStatus } from '../../../../../services/sessions'
@@ -13,7 +15,13 @@ export default defineEventHandler(async (event) => {
 
   const campaignId = getRouterParam(event, 'id')!
   const slug = getRouterParam(event, 'slug')!
-  const body = await readBody(event)
+  const questPutSchema = z.object({
+    name: z.string().min(1).optional(),
+    description: z.string().optional(),
+    status: z.enum(['active', 'completed', 'failed', 'on_hold']).optional(),
+    isSecret: z.boolean().optional(),
+  })
+  const body = await validateBody(event, questPutSchema)
   const db = useDb()
 
   const quest = db.select().from(quests)

@@ -1,6 +1,8 @@
+import { z } from 'zod'
 import { randomUUID } from 'crypto'
 import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
+import { validateBody } from '../../../../../utils/validate'
 import { entities } from '../../../../../db/schema/entities'
 import { entityPermissions } from '../../../../../db/schema/permissions'
 import { hasMinRole, invalidatePermissionCache } from '../../../../../utils/permissions'
@@ -13,7 +15,13 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 403, message: 'Only DM can set entity permission overrides' })
   }
 
-  const body = await readBody(event)
+  const permissionsSchema = z.object({
+    targetUserId: z.string().optional(),
+    targetRole: z.string().optional(),
+    permission: z.string(),
+    effect: z.string(),
+  })
+  const body = await validateBody(event, permissionsSchema)
   const slug = getRouterParam(event, 'slug')!
   const campaignId = getRouterParam(event, 'id')!
   const db = useDb()
@@ -25,10 +33,6 @@ export default defineEventHandler(async (event) => {
   if (!entity) throw createError({ statusCode: 404, message: 'Entity not found' })
   const entityId = entity.id
   const { targetUserId, targetRole, permission, effect } = body
-
-  if (!permission || !effect) {
-    throw createError({ statusCode: 400, message: 'Permission and effect are required' })
-  }
 
   if (!targetUserId && !targetRole) {
     throw createError({ statusCode: 400, message: 'Either targetUserId or targetRole is required' })

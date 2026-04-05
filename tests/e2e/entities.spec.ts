@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { registerAndLogin, createCampaign } from './helpers'
+import { registerAndLogin, createCampaign, apiFetch } from './helpers'
 
 const uid = () => Date.now().toString(36).slice(-4)
 
@@ -36,17 +36,14 @@ test.describe('Entity CRUD', () => {
 
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
     const entityName = `Barovia ${uid()}`
-    await page.evaluate(async ([id, name]) => {
-      await fetch(`/api/campaigns/${id}/entities`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name,
-          type: 'location',
-          content: '# Barovia\n\nA **gloomy** village nestled in the valley.',
-        }),
-      })
-    }, [campaignId, entityName])
+    await apiFetch(page, `/api/campaigns/${campaignId}/entities`, {
+      method: 'POST',
+      body: {
+        name: entityName,
+        type: 'location',
+        content: '# Barovia\n\nA **gloomy** village nestled in the valley.',
+      },
+    })
 
     await page.click('aside >> text=Wiki')
     await page.waitForLoadState('networkidle')
@@ -63,13 +60,10 @@ test.describe('Entity CRUD', () => {
 
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
     const entityName = `Dragon ${uid()}`
-    await page.evaluate(async ([id, name]) => {
-      await fetch(`/api/campaigns/${id}/entities`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, type: 'character', content: '# Dragon' }),
-      })
-    }, [campaignId, entityName])
+    await apiFetch(page, `/api/campaigns/${campaignId}/entities`, {
+      method: 'POST',
+      body: { name: entityName, type: 'character', content: '# Dragon' },
+    })
 
     await page.click('aside >> text=Wiki')
     await page.waitForLoadState('networkidle')

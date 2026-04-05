@@ -16,6 +16,17 @@ async function api(path: string, opts?: any) {
   })
 }
 
+async function getCsrfToken(sessionCookie: string): Promise<string> {
+  const res = await api('/api/campaigns', { headers: { Cookie: sessionCookie } })
+  const setCookie = res.headers.get('set-cookie') || ''
+  const match = setCookie.match(/csrf_token=([^;]+)/)
+  return match?.[1] || ''
+}
+
+function withCsrf(cookie: string, csrfToken: string) {
+  return { Cookie: `${cookie}; csrf_token=${csrfToken}`, 'X-CSRF-Token': csrfToken }
+}
+
 function connectHocuspocus(documentName: string, token: string): Promise<{ provider: HocuspocusProvider; connected: boolean; error?: string }> {
   return new Promise((resolve) => {
     let resolved = false
@@ -54,8 +65,12 @@ function connectHocuspocus(documentName: string, token: string): Promise<{ provi
 describe('Hocuspocus Authentication (integration)', () => {
   const dmEmail = `collab-dm-${Date.now()}@example.com`
   const playerEmail = `collab-player-${Date.now()}@example.com`
-  let dmCookie = ''
+  let dmToken = ''  // raw session token for Hocuspocus
+  let dmCookie = '' // full cookie string for HTTP requests
+  let dmCsrf = ''
+  let playerToken = ''
   let playerCookie = ''
+  let playerCsrf = ''
   let campaignId = ''
   let entitySlug = ''
 
@@ -69,12 +84,14 @@ describe('Hocuspocus Authentication (integration)', () => {
       method: 'POST',
       body: { email: dmEmail, password: 'password123' },
     })
-    dmCookie = (dmLogin.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1] || ''
+    dmToken = (dmLogin.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1] || ''
+    dmCookie = `better-auth.session_token=${dmToken}`
+    dmCsrf = await getCsrfToken(dmCookie)
 
     // Create campaign
     const camp = await api('/api/campaigns', {
       method: 'POST',
-      headers: { Cookie: `better-auth.session_token=${dmCookie}` },
+      headers: withCsrf(dmCookie, dmCsrf),
       body: { name: `Collab Test ${Date.now()}` },
     })
     campaignId = (await camp.json()).id
@@ -82,7 +99,7 @@ describe('Hocuspocus Authentication (integration)', () => {
     // Create an entity to collaborate on
     const entity = await api(`/api/campaigns/${campaignId}/entities`, {
       method: 'POST',
-      headers: { Cookie: `better-auth.session_token=${dmCookie}` },
+      headers: withCsrf(dmCookie, dmCsrf),
       body: { name: 'Collab Test Entity', type: 'character', content: '# Test Entity\n\nSome content.' },
     })
     const entityData = await entity.json()
@@ -97,32 +114,34 @@ describe('Hocuspocus Authentication (integration)', () => {
       method: 'POST',
       body: { email: playerEmail, password: 'password123' },
     })
-    playerCookie = (playerLogin.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1] || ''
+    playerToken = (playerLogin.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1] || ''
+    playerCookie = `better-auth.session_token=${playerToken}`
+    playerCsrf = await getCsrfToken(playerCookie)
 
     // Add player to campaign via invite/join flow as 'player' role (not editor)
     const invite = await api(`/api/campaigns/${campaignId}/invite`, {
       method: 'POST',
-      headers: { Cookie: `better-auth.session_token=${dmCookie}` },
+      headers: withCsrf(dmCookie, dmCsrf),
       body: { role: 'player' },
     })
     const { token: inviteToken } = await invite.json()
     await api(`/api/campaigns/${campaignId}/join`, {
       method: 'POST',
-      headers: { Cookie: `better-auth.session_token=${playerCookie}` },
+      headers: withCsrf(playerCookie, playerCsrf),
       body: { token: inviteToken },
     })
   })
 
   it('DM (editor+ role) can connect to Hocuspocus', async () => {
     const docName = `campaign:${campaignId}:entity:${entitySlug}`
-    const { provider, connected } = await connectHocuspocus(docName, dmCookie)
+    const { provider, connected } = await connectHocuspocus(docName, dmToken)
     expect(connected).toBe(true)
     provider.destroy()
   })
 
   it('player role is rejected by Hocuspocus (insufficient permissions)', async () => {
     const docName = `campaign:${campaignId}:entity:${entitySlug}`
-    const { provider, connected } = await connectHocuspocus(docName, playerCookie)
+    const { provider, connected } = await connectHocuspocus(docName, playerToken)
     expect(connected).toBe(false)
     provider.destroy()
   })
@@ -135,7 +154,7 @@ describe('Hocuspocus Authentication (integration)', () => {
   })
 
   it('invalid document name format is rejected', async () => {
-    const { provider, connected } = await connectHocuspocus('bad-format', dmCookie)
+    const { provider, connected } = await connectHocuspocus('bad-format', dmToken)
     expect(connected).toBe(false)
     provider.destroy()
   })
@@ -162,6 +181,7 @@ describe('Hocuspocus Authentication (integration)', () => {
 describe('Save Pipeline (integration)', () => {
   const email = `save-pipe-${Date.now()}@example.com`
   let cookie = ''
+  let csrfToken = ''
   let campaignId = ''
 
   beforeAll(async () => {
@@ -174,10 +194,11 @@ describe('Save Pipeline (integration)', () => {
       body: { email, password: 'password123' },
     })
     cookie = `better-auth.session_token=${(login.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1]}`
+    csrfToken = await getCsrfToken(cookie)
 
     const camp = await api('/api/campaigns', {
       method: 'POST',
-      headers: { Cookie: cookie },
+      headers: withCsrf(cookie, csrfToken),
       body: { name: `SavePipe ${Date.now()}` },
     })
     campaignId = (await camp.json()).id
@@ -186,7 +207,7 @@ describe('Save Pipeline (integration)', () => {
   it('entity content is persisted after creation and retrievable', async () => {
     const entity = await api(`/api/campaigns/${campaignId}/entities`, {
       method: 'POST',
-      headers: { Cookie: cookie },
+      headers: withCsrf(cookie, csrfToken),
       body: { name: 'Save Test NPC', type: 'character', content: '# Save Test NPC\n\nOriginal content.' },
     })
     expect(entity.status).toBe(200)
@@ -205,7 +226,7 @@ describe('Save Pipeline (integration)', () => {
   it('entity content_hash is set after creation', async () => {
     const entity = await api(`/api/campaigns/${campaignId}/entities`, {
       method: 'POST',
-      headers: { Cookie: cookie },
+      headers: withCsrf(cookie, csrfToken),
       body: { name: 'Hash Test NPC', type: 'character', content: '# Hash Test\n\nContent for hash.' },
     })
     const data = await entity.json()
@@ -222,7 +243,7 @@ describe('Save Pipeline (integration)', () => {
   it('updating entity content changes the content_hash', async () => {
     const entity = await api(`/api/campaigns/${campaignId}/entities`, {
       method: 'POST',
-      headers: { Cookie: cookie },
+      headers: withCsrf(cookie, csrfToken),
       body: { name: 'Hash Change NPC', type: 'character', content: '# Before\n\nInitial.' },
     })
     const data = await entity.json()
@@ -236,7 +257,7 @@ describe('Save Pipeline (integration)', () => {
     // Update the entity content
     await api(`/api/campaigns/${campaignId}/entities/${data.slug}`, {
       method: 'PUT',
-      headers: { Cookie: cookie },
+      headers: withCsrf(cookie, csrfToken),
       body: { content: '# After\n\nModified content.' },
     })
 
@@ -254,7 +275,7 @@ describe('Save Pipeline (integration)', () => {
 
     const entity = await api(`/api/campaigns/${campaignId}/entities`, {
       method: 'POST',
-      headers: { Cookie: cookie },
+      headers: withCsrf(cookie, csrfToken),
       body: { name: 'FTS Reindex NPC', type: 'character', content: '# FTS Test\n\nGeneric content.' },
     })
     const data = await entity.json()
@@ -270,7 +291,7 @@ describe('Save Pipeline (integration)', () => {
     // Update entity with unique term
     await api(`/api/campaigns/${campaignId}/entities/${data.slug}`, {
       method: 'PUT',
-      headers: { Cookie: cookie },
+      headers: withCsrf(cookie, csrfToken),
       body: { content: `# FTS Test\n\nThis contains ${uniqueTerm} for searching.` },
     })
 
@@ -330,6 +351,8 @@ function connectCampaignWs(token: string, campaignId: string): Promise<{ ws: Web
 describe('CrossWS /api/ws Authentication (integration)', () => {
   const dmEmail = `ws-dm-${Date.now()}@example.com`
   let dmToken = ''
+  let dmCookie = ''
+  let dmCsrf = ''
   let campaignId = ''
 
   beforeAll(async () => {
@@ -342,10 +365,12 @@ describe('CrossWS /api/ws Authentication (integration)', () => {
       body: { email: dmEmail, password: 'password123' },
     })
     dmToken = (login.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1] || ''
+    dmCookie = `better-auth.session_token=${dmToken}`
+    dmCsrf = await getCsrfToken(dmCookie)
 
     const camp = await api('/api/campaigns', {
       method: 'POST',
-      headers: { Cookie: `better-auth.session_token=${dmToken}` },
+      headers: withCsrf(dmCookie, dmCsrf),
       body: { name: `WS Test ${Date.now()}` },
     })
     campaignId = (await camp.json()).id
@@ -397,7 +422,11 @@ describe('CrossWS Presence (integration)', () => {
   const dm1Email = `ws-pres1-${Date.now()}@example.com`
   const dm2Email = `ws-pres2-${Date.now()}@example.com`
   let dm1Token = ''
+  let dm1Cookie = ''
+  let dm1Csrf = ''
   let dm2Token = ''
+  let dm2Cookie = ''
+  let dm2Csrf = ''
   let campaignId = ''
 
   beforeAll(async () => {
@@ -411,11 +440,13 @@ describe('CrossWS Presence (integration)', () => {
       body: { email: dm1Email, password: 'password123' },
     })
     dm1Token = (login1.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1] || ''
+    dm1Cookie = `better-auth.session_token=${dm1Token}`
+    dm1Csrf = await getCsrfToken(dm1Cookie)
 
     // Create campaign
     const camp = await api('/api/campaigns', {
       method: 'POST',
-      headers: { Cookie: `better-auth.session_token=${dm1Token}` },
+      headers: withCsrf(dm1Cookie, dm1Csrf),
       body: { name: `WS Pres ${Date.now()}` },
     })
     campaignId = (await camp.json()).id
@@ -430,18 +461,20 @@ describe('CrossWS Presence (integration)', () => {
       body: { email: dm2Email, password: 'password123' },
     })
     dm2Token = (login2.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1] || ''
+    dm2Cookie = `better-auth.session_token=${dm2Token}`
+    dm2Csrf = await getCsrfToken(dm2Cookie)
 
     // Invite DM2 to campaign via invite/join flow
     const invite = await api(`/api/campaigns/${campaignId}/invite`, {
       method: 'POST',
-      headers: { Cookie: `better-auth.session_token=${dm1Token}` },
+      headers: withCsrf(dm1Cookie, dm1Csrf),
       body: { role: 'editor' },
     })
     const { token: inviteToken } = await invite.json()
 
     await api(`/api/campaigns/${campaignId}/join`, {
       method: 'POST',
-      headers: { Cookie: `better-auth.session_token=${dm2Token}` },
+      headers: withCsrf(dm2Cookie, dm2Csrf),
       body: { token: inviteToken },
     })
   })
@@ -470,7 +503,9 @@ describe('CrossWS Presence (integration)', () => {
 
 describe('Hocuspocus Session/Quest Document Auth (integration)', () => {
   const dmEmail = `collab-sq-${Date.now()}@example.com`
-  let dmCookie = ''
+  let dmToken = ''  // raw session token for Hocuspocus
+  let dmCookie = '' // full cookie string for HTTP requests
+  let dmCsrf = ''
   let campaignId = ''
   let sessionSlug = ''
   let questSlug = ''
@@ -484,11 +519,13 @@ describe('Hocuspocus Session/Quest Document Auth (integration)', () => {
       method: 'POST',
       body: { email: dmEmail, password: 'password123' },
     })
-    dmCookie = (login.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1] || ''
+    dmToken = (login.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1] || ''
+    dmCookie = `better-auth.session_token=${dmToken}`
+    dmCsrf = await getCsrfToken(dmCookie)
 
     const camp = await api('/api/campaigns', {
       method: 'POST',
-      headers: { Cookie: `better-auth.session_token=${dmCookie}` },
+      headers: withCsrf(dmCookie, dmCsrf),
       body: { name: `SQ Collab ${Date.now()}` },
     })
     campaignId = (await camp.json()).id
@@ -496,7 +533,7 @@ describe('Hocuspocus Session/Quest Document Auth (integration)', () => {
     // Create a session
     const sess = await api(`/api/campaigns/${campaignId}/sessions`, {
       method: 'POST',
-      headers: { Cookie: `better-auth.session_token=${dmCookie}` },
+      headers: withCsrf(dmCookie, dmCsrf),
       body: { title: 'Collab Session', scheduledDate: new Date().toISOString(), status: 'planned' },
     })
     sessionSlug = (await sess.json()).slug
@@ -504,7 +541,7 @@ describe('Hocuspocus Session/Quest Document Auth (integration)', () => {
     // Create a quest
     const quest = await api(`/api/campaigns/${campaignId}/quests`, {
       method: 'POST',
-      headers: { Cookie: `better-auth.session_token=${dmCookie}` },
+      headers: withCsrf(dmCookie, dmCsrf),
       body: { name: 'Collab Quest', status: 'active' },
     })
     questSlug = (await quest.json()).slug
@@ -512,21 +549,21 @@ describe('Hocuspocus Session/Quest Document Auth (integration)', () => {
 
   it('DM can connect to a session document', async () => {
     const docName = `campaign:${campaignId}:session:${sessionSlug}`
-    const { provider, connected } = await connectHocuspocus(docName, dmCookie)
+    const { provider, connected } = await connectHocuspocus(docName, dmToken)
     expect(connected).toBe(true)
     provider.destroy()
   })
 
   it('DM can connect to a quest document', async () => {
     const docName = `campaign:${campaignId}:quest:${questSlug}`
-    const { provider, connected } = await connectHocuspocus(docName, dmCookie)
+    const { provider, connected } = await connectHocuspocus(docName, dmToken)
     expect(connected).toBe(true)
     provider.destroy()
   })
 
   it('unknown document type is rejected', async () => {
     const docName = `campaign:${campaignId}:location:some-slug`
-    const { provider, connected } = await connectHocuspocus(docName, dmCookie)
+    const { provider, connected } = await connectHocuspocus(docName, dmToken)
     expect(connected).toBe(false)
     provider.destroy()
   })

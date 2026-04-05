@@ -1,5 +1,7 @@
+import { z } from 'zod'
 import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
+import { validateBody } from '../../../../../utils/validate'
 import { sessionGroups } from '../../../../../db/schema/sessions'
 import { hasMinRole } from '../../../../../utils/permissions'
 import type { CampaignRole } from '../../../../../utils/permissions'
@@ -12,7 +14,12 @@ export default defineEventHandler(async (event) => {
 
   const campaignId = getRouterParam(event, 'id')!
   const slug = getRouterParam(event, 'slug')!
-  const body = await readBody(event)
+  const sessionGroupPutSchema = z.object({
+    name: z.string().min(1).optional(),
+    description: z.string().optional(),
+    sortOrder: z.number().optional(),
+  })
+  const body = await validateBody(event, sessionGroupPutSchema)
   const db = useDb()
 
   const group = db.select().from(sessionGroups)

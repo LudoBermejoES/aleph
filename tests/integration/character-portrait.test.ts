@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 
-async function api(path: string, opts?: RequestInit & { body?: any }) {
+async function api(path: string, opts?: any) {
   const isFormData = opts?.body instanceof FormData
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
@@ -15,9 +15,21 @@ async function api(path: string, opts?: RequestInit & { body?: any }) {
   })
 }
 
+async function getCsrfToken(sessionCookie: string): Promise<string> {
+  const res = await api('/api/campaigns', { headers: { Cookie: sessionCookie } })
+  const setCookie = res.headers.get('set-cookie') || ''
+  const match = setCookie.match(/csrf_token=([^;]+)/)
+  return match?.[1] || ''
+}
+
+function withCsrf(cookie: string, csrfToken: string) {
+  return { Cookie: `${cookie}; csrf_token=${csrfToken}`, 'X-CSRF-Token': csrfToken }
+}
+
 describe('Character Portrait (integration)', () => {
   const email = `portrait-test-${Date.now()}@example.com`
   let cookie = ''
+  let csrfToken = ''
   let campaignId = ''
   let characterSlug = ''
 
@@ -33,11 +45,12 @@ describe('Character Portrait (integration)', () => {
     const cookies = login.headers.get('set-cookie') || ''
     const match = cookies.match(/better-auth\.session_token=([^;]+)/)
     cookie = match ? `better-auth.session_token=${match[1]}` : ''
-    const camp = await api('/api/campaigns', { method: 'POST', headers: { Cookie: cookie }, body: { name: `Portrait Test ${Date.now()}` } })
+    csrfToken = await getCsrfToken(cookie)
+    const camp = await api('/api/campaigns', { method: 'POST', headers: withCsrf(cookie, csrfToken), body: { name: `Portrait Test ${Date.now()}` } })
     campaignId = (await camp.json()).id
     const char = await api(`/api/campaigns/${campaignId}/characters`, {
       method: 'POST',
-      headers: { Cookie: cookie },
+      headers: withCsrf(cookie, csrfToken),
       body: { name: 'Portrait Test Character', characterType: 'npc' },
     })
     characterSlug = (await char.json()).slug
@@ -68,7 +81,7 @@ describe('Character Portrait (integration)', () => {
     form.append('portrait', new Blob([PNG_1PX], { type: 'image/png' }), 'portrait.png')
     const res = await api(`/api/campaigns/${campaignId}/characters/${characterSlug}/portrait`, {
       method: 'POST',
-      headers: { Cookie: cookie },
+      headers: withCsrf(cookie, csrfToken),
       body: form,
     })
     expect(res.status).toBe(200)
@@ -95,7 +108,7 @@ describe('Character Portrait (integration)', () => {
     form.append('portrait', new Blob([PNG_1PX], { type: 'image/gif' }), 'portrait.gif')
     const res = await api(`/api/campaigns/${campaignId}/characters/${characterSlug}/portrait`, {
       method: 'POST',
-      headers: { Cookie: cookie },
+      headers: withCsrf(cookie, csrfToken),
       body: form,
     })
     expect(res.status).toBe(400)

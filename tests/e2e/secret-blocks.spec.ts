@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { BASE, registerAndLogin, createCampaign } from './helpers'
+import { registerAndLogin, createCampaign, apiFetch } from './helpers'
 
 const uid = () => Date.now().toString(36).slice(-4)
 
@@ -14,16 +14,14 @@ test.describe('Secret Content Blocks', () => {
     const campaignId = dmPage.url().split('/campaigns/')[1]?.split('/')[0]
     const entityName = `Secret Entity ${uid()}`
 
-    await dmPage.evaluate(async ([id, name]) => {
-      await fetch(`/api/campaigns/${id}/entities`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name, type: 'note',
-          content: '# Public Info\n\nEveryone sees this.\n\n:::secret{.dm}\nOnly the DM sees this secret.\n:::\n\nMore public text.',
-          visibility: 'members',
-        }),
-      })
-    }, [campaignId, entityName])
+    await apiFetch(dmPage, `/api/campaigns/${campaignId}/entities`, {
+      method: 'POST',
+      body: {
+        name: entityName, type: 'note',
+        content: '# Public Info\n\nEveryone sees this.\n\n:::secret{.dm}\nOnly the DM sees this secret.\n:::\n\nMore public text.',
+        visibility: 'members',
+      },
+    })
 
     // DM reads entity -- should see the secret block in raw content
     const dmRead = await dmPage.evaluate(async ([id]) => {
@@ -38,25 +36,20 @@ test.describe('Secret Content Blocks', () => {
     expect((dmRead as any).content).toContain('Public Info')
 
     // Invite player
-    const inviteRes = await dmPage.evaluate(async (id) => {
-      const r = await fetch(`/api/campaigns/${id}/invite`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ role: 'player' }),
-      })
-      return r.json()
-    }, campaignId)
+    const inviteRes = await apiFetch(dmPage, `/api/campaigns/${campaignId}/invite`, {
+      method: 'POST',
+      body: { role: 'player' },
+    })
 
     // Player joins and reads
     const playerContext = await browser.newContext()
     const playerPage = await playerContext.newPage()
     await registerAndLogin(playerPage, 'Player Seeker')
-    await playerPage.goto(`${BASE}/`, { waitUntil: 'domcontentloaded' })
-    await playerPage.evaluate(async ([id, token]) => {
-      await fetch(`/api/campaigns/${id}/join`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token }),
-      })
-    }, [campaignId, (inviteRes as any).token])
+    await playerPage.waitForTimeout(500)
+    await apiFetch(playerPage, `/api/campaigns/${campaignId}/join`, {
+      method: 'POST',
+      body: { token: (inviteRes as any).token },
+    })
 
     // Player reads entity -- raw .md file still has secret block
     // (secret stripping happens at render time, not storage)

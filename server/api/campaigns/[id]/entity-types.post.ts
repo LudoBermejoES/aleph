@@ -1,5 +1,7 @@
+import { z } from 'zod'
 import { randomUUID } from 'crypto'
 import { useDb } from '../../../utils/db'
+import { validateBody } from '../../../utils/validate'
 import { entityTypes } from '../../../db/schema/entity-types'
 import { hasMinRole } from '../../../utils/permissions'
 import { slugify } from '../../../services/content'
@@ -11,13 +13,14 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 403, message: 'Only DM can create custom entity types' })
   }
 
-  const body = await readBody(event)
+  const entityTypeSchema = z.object({
+    name: z.string().min(1),
+    icon: z.string().optional(),
+    color: z.string().optional(),
+  })
+  const body = await validateBody(event, entityTypeSchema)
   const campaignId = getRouterParam(event, 'id')!
   const { name, icon } = body
-
-  if (!name?.trim()) {
-    throw createError({ statusCode: 400, message: 'Name is required' })
-  }
 
   const db = useDb()
   const id = randomUUID()

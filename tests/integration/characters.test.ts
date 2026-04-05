@@ -13,6 +13,7 @@ async function api(path: string, opts?: any) {
 describe('Character CRUD (integration)', () => {
   const email = `char-test-${Date.now()}@example.com`
   let cookie = ''
+  let csrfToken = ''
   let campaignId = ''
   let characterSlug = ''
 
@@ -21,15 +22,20 @@ describe('Character CRUD (integration)', () => {
     const login = await api('/api/auth/sign-in/email', { method: 'POST', body: { email, password: 'password123' } })
     const cookies = login.headers.get('set-cookie') || ''
     const match = cookies.match(/better-auth\.session_token=([^;]+)/)
-    cookie = match ? `better-auth.session_token=${match[1]}` : ''
-    const camp = await api('/api/campaigns', { method: 'POST', headers: { Cookie: cookie }, body: { name: `Char Test ${Date.now()}` } })
+    const sessionCookie = match ? `better-auth.session_token=${match[1]}` : ''
+    const campList = await api('/api/campaigns', { headers: { Cookie: sessionCookie } })
+    const setCookie = campList.headers.get('set-cookie') || ''
+    const csrfMatch = setCookie.match(/csrf_token=([^;]+)/)
+    csrfToken = csrfMatch?.[1] || ''
+    cookie = csrfToken ? `${sessionCookie}; csrf_token=${csrfToken}` : sessionCookie
+    const camp = await api('/api/campaigns', { method: 'POST', headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken }, body: { name: `Char Test ${Date.now()}` } })
     campaignId = (await camp.json()).id
   })
 
   it('POST creates character with entity + character row', async () => {
     const res = await api(`/api/campaigns/${campaignId}/characters`, {
       method: 'POST',
-      headers: { Cookie: cookie },
+      headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
       body: { name: 'Gandalf the Grey', characterType: 'npc', race: 'Maiar', class: 'Wizard', content: '# Gandalf\n\nA wise wizard.' },
     })
     expect(res.status).toBe(200)
@@ -55,7 +61,7 @@ describe('Character CRUD (integration)', () => {
 
   it('POST ability adds to character', async () => {
     const res = await api(`/api/campaigns/${campaignId}/characters/${characterSlug}/abilities`, {
-      method: 'POST', headers: { Cookie: cookie },
+      method: 'POST', headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
       body: { name: 'Fireball', type: 'spell', description: 'Hurls a ball of fire' },
     })
     expect(res.status).toBe(200)
@@ -76,7 +82,7 @@ describe('Character CRUD (integration)', () => {
 
   it('PUT updates character fields', async () => {
     const res = await api(`/api/campaigns/${campaignId}/characters/${characterSlug}`, {
-      method: 'PUT', headers: { Cookie: cookie },
+      method: 'PUT', headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
       body: { race: 'Istari', status: 'alive' },
     })
     expect(res.status).toBe(200)
@@ -99,7 +105,7 @@ describe('Character CRUD (integration)', () => {
 
   it('POST duplicate creates copy', async () => {
     const res = await api(`/api/campaigns/${campaignId}/characters/${characterSlug}/duplicate`, {
-      method: 'POST', headers: { Cookie: cookie },
+      method: 'POST', headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
     })
     expect(res.status).toBe(200)
     const data = await res.json()
@@ -109,7 +115,7 @@ describe('Character CRUD (integration)', () => {
 
   it('DELETE removes character', async () => {
     const res = await api(`/api/campaigns/${campaignId}/characters/${characterSlug}`, {
-      method: 'DELETE', headers: { Cookie: cookie },
+      method: 'DELETE', headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
     })
     expect(res.status).toBe(200)
 

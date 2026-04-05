@@ -3,16 +3,27 @@ import { useDb } from '../../../../../utils/db'
 import { entities } from '../../../../../db/schema/entities'
 import { characters } from '../../../../../db/schema/characters'
 import { safeReadEntityFile } from '../../../../../utils/content-helpers'
+import { canUserAccessEntity, getCachedPermission, setCachedPermission } from '../../../../../utils/permissions'
+import type { CampaignRole, Visibility } from '../../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
   const campaignId = getRouterParam(event, 'id')!
   const slug = getRouterParam(event, 'slug')!
+  const role = (event.context.campaignRole || 'visitor') as CampaignRole
+  const userId = event.context.user?.id || ''
   const db = useDb()
 
   const parent = db.select().from(entities)
     .where(and(eq(entities.campaignId, campaignId), eq(entities.slug, slug), eq(entities.type, 'location')))
     .get()
   if (!parent) throw createError({ statusCode: 404, message: 'Location not found' })
+
+  const cached = getCachedPermission(userId, parent.id, 'view')
+  const canAccess = cached !== null
+    ? cached
+    : await canUserAccessEntity(db, userId, 'user', role, parent.id, parent.visibility as Visibility, parent.createdBy, 'view')
+  if (cached === null) setCachedPermission(userId, parent.id, 'view', canAccess)
+  if (!canAccess) throw createError({ statusCode: 404, message: 'Location not found' })
 
   const children = db.select().from(entities)
     .where(and(eq(entities.campaignId, campaignId), eq(entities.type, 'location'), eq(entities.parentId, parent.id)))

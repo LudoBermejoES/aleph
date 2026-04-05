@@ -22,8 +22,14 @@ async function setup() {
   const email = `subtype-${Date.now()}@example.com`
   await apiRaw('/api/auth/sign-up/email', { method: 'POST', body: { name: 'T', email, password: 'password123' } })
   const lr = await apiRaw('/api/auth/sign-in/email', { method: 'POST', body: { email, password: 'password123' } })
-  const cookie = lr.headers.get('set-cookie')!.match(/better-auth\.session_token=([^;]+)/)![1]
-  const { key } = await (await apiRaw('/api/apikeys', { method: 'POST', headers: { Cookie: `better-auth.session_token=${cookie}` }, body: { name: 'k' } })).json()
+  const sessionToken = lr.headers.get('set-cookie')!.match(/better-auth\.session_token=([^;]+)/)![1]
+  const sessionCookie = `better-auth.session_token=${sessionToken}`
+  // Get CSRF token
+  const getRes = await apiRaw('/api/campaigns', { headers: { Cookie: sessionCookie } })
+  const setCookie = getRes.headers.get('set-cookie') || ''
+  const csrfToken = setCookie.match(/csrf_token=([^;]+)/)?.[1] || ''
+  const fullCookie = csrfToken ? `${sessionCookie}; csrf_token=${csrfToken}` : sessionCookie
+  const { key } = await (await apiRaw('/api/apikeys', { method: 'POST', headers: { Cookie: fullCookie, 'X-CSRF-Token': csrfToken }, body: { name: 'k' } })).json()
   const camp = await api('/api/campaigns', { method: 'POST', headers: { 'X-API-Key': key }, body: { name: `ST ${Date.now()}`, theme: 'default' } })
   return { key, campaignId: camp.id }
 }

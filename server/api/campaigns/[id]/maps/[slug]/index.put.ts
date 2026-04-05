@@ -1,5 +1,7 @@
+import { z } from 'zod'
 import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
+import { validateBody } from '../../../../../utils/validate'
 import { maps } from '../../../../../db/schema/maps'
 import { hasMinRole } from '../../../../../utils/permissions'
 import type { CampaignRole } from '../../../../../utils/permissions'
@@ -10,7 +12,12 @@ export default defineEventHandler(async (event) => {
 
   const campaignId = getRouterParam(event, 'id')!
   const slug = getRouterParam(event, 'slug')!
-  const body = await readBody(event)
+  const mapPutSchema = z.object({
+    name: z.string().min(1).optional(),
+    visibility: z.string().optional(),
+    parentMapId: z.string().nullable().optional(),
+  })
+  const body = await validateBody(event, mapPutSchema)
   const db = useDb()
 
   const map = db.select().from(maps).where(and(eq(maps.campaignId, campaignId), eq(maps.slug, slug))).get()

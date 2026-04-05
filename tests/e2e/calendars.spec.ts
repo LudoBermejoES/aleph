@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { registerAndLogin, createCampaign } from './helpers'
+import { registerAndLogin, createCampaign, apiFetch } from './helpers'
 
 const uid = () => Date.now().toString(36).slice(-4)
 
@@ -18,17 +18,15 @@ test.describe('Calendars & Timelines', () => {
     await createCampaign(page, `Cal List ${uid()}`)
 
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
-    await page.evaluate(async (id) => {
-      await fetch(`/api/campaigns/${id}/calendars`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: 'Harptos Calendar',
-          months: [{ name: 'Hammer', days: 30 }, { name: 'Alturiak', days: 30 }],
-          yearLength: 60,
-          currentDate: { year: 1492, month: 1, day: 1 },
-        }),
-      })
-    }, campaignId)
+    await apiFetch(page, `/api/campaigns/${campaignId}/calendars`, {
+      method: 'POST',
+      body: {
+        name: 'Harptos Calendar',
+        months: [{ name: 'Hammer', days: 30 }, { name: 'Alturiak', days: 30 }],
+        yearLength: 60,
+        currentDate: { year: 1492, month: 1, day: 1 },
+      },
+    })
 
     await page.click('aside >> text=Calendars')
     await page.waitForLoadState('networkidle')

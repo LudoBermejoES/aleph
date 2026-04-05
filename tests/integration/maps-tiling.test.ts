@@ -11,11 +11,22 @@ async function api(path: string, opts?: any) {
   })
 }
 
-async function apiRaw(path: string, opts?: RequestInit) {
+async function apiRaw(path: string, opts?: any) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
     headers: { Origin: BASE_URL, ...opts?.headers },
   })
+}
+
+async function getCsrfToken(sessionCookie: string): Promise<string> {
+  const res = await api('/api/campaigns', { headers: { Cookie: sessionCookie } })
+  const setCookie = res.headers.get('set-cookie') || ''
+  const match = setCookie.match(/csrf_token=([^;]+)/)
+  return match?.[1] || ''
+}
+
+function withCsrf(cookie: string, csrfToken: string) {
+  return { Cookie: `${cookie}; csrf_token=${csrfToken}`, 'X-CSRF-Token': csrfToken }
 }
 
 // Minimal valid 1×1 PNG decoded without Buffer/Node APIs
@@ -39,6 +50,7 @@ function fsjoin(...parts: string[]) {
 describe('Map Tiling Background Task (5.2)', () => {
   const email = `map-tiling-${Date.now()}@example.com`
   let cookie = ''
+  let csrfToken = ''
   let campaignId = ''
   let mapSlug = ''
   let mapId = ''
@@ -54,17 +66,18 @@ describe('Map Tiling Background Task (5.2)', () => {
       body: { email, password: 'password123' },
     })
     cookie = `better-auth.session_token=${(login.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1]}`
+    csrfToken = await getCsrfToken(cookie)
 
     const camp = await api('/api/campaigns', {
       method: 'POST',
-      headers: { Cookie: cookie },
+      headers: withCsrf(cookie, csrfToken),
       body: { name: `Tiling Test ${Date.now()}` },
     })
     campaignId = (await camp.json()).id
 
     const mapRes = await api(`/api/campaigns/${campaignId}/maps`, {
       method: 'POST',
-      headers: { Cookie: cookie },
+      headers: withCsrf(cookie, csrfToken),
       body: { name: 'Tile Map' },
     })
     const mapData = await mapRes.json()
@@ -78,7 +91,7 @@ describe('Map Tiling Background Task (5.2)', () => {
 
     const res = await apiRaw(`/api/campaigns/${campaignId}/maps/${mapSlug}/upload`, {
       method: 'POST',
-      headers: { Cookie: cookie },
+      headers: withCsrf(cookie, csrfToken),
       body: form,
     })
     expect(res.status).toBe(200)
@@ -96,7 +109,7 @@ describe('Map Tiling Background Task (5.2)', () => {
     for (let i = 0; i < 10; i++) {
       const res = await api(`/api/campaigns/${campaignId}/maps/${mapSlug}`, {
         method: 'GET',
-        headers: { Cookie: cookie },
+        headers: { Cookie: `${cookie}; csrf_token=${csrfToken}` },
       })
       expect(res.status).toBe(200)
       const data = await res.json()
@@ -141,7 +154,7 @@ describe('Map Tiling Background Task (5.2)', () => {
 
     const res = await apiRaw(`/api/campaigns/${campaignId}/maps/${mapSlug}/upload`, {
       method: 'POST',
-      headers: { Cookie: cookie },
+      headers: withCsrf(cookie, csrfToken),
       body: form,
     })
     expect(res.status).toBe(400)

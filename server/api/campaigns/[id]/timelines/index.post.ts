@@ -1,5 +1,7 @@
+import { z } from 'zod'
 import { randomUUID } from 'crypto'
 import { useDb } from '../../../../utils/db'
+import { validateBody } from '../../../../utils/validate'
 import { timelines } from '../../../../db/schema/calendars'
 import { hasMinRole } from '../../../../utils/permissions'
 import { slugify } from '../../../../services/content'
@@ -10,7 +12,12 @@ export default defineEventHandler(async (event) => {
   if (!hasMinRole(role, 'editor')) throw createError({ statusCode: 403, message: 'Editors or above can create timelines' })
 
   const campaignId = getRouterParam(event, 'id')!
-  const body = await readBody(event)
+  const timelineSchema = z.object({
+    name: z.string().min(1),
+    description: z.string().optional(),
+    sortOrder: z.number().optional(),
+  })
+  const body = await validateBody(event, timelineSchema)
   const db = useDb()
   const id = randomUUID()
 

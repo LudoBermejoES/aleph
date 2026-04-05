@@ -1,5 +1,7 @@
+import { z } from 'zod'
 import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../../utils/db'
+import { validateBody } from '../../../../../../utils/validate'
 import { organizations, organizationMembers } from '../../../../../../db/schema'
 import { entities } from '../../../../../../db/schema/entities'
 import { characters } from '../../../../../../db/schema/characters'
@@ -25,12 +27,12 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, message: 'Organization not found' })
   }
 
-  const body = await readBody(event)
+  const orgMemberSchema = z.object({
+    characterId: z.string(),
+    role: z.string().optional(),
+  })
+  const body = await validateBody(event, orgMemberSchema)
   const { characterId, role: memberRole } = body
-
-  if (!characterId) {
-    throw createError({ statusCode: 400, message: 'characterId is required' })
-  }
 
   // Verify character belongs to this campaign
   const character = db.select({ id: characters.id })

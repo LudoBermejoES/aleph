@@ -1,5 +1,7 @@
+import { z } from 'zod'
 import { eq } from 'drizzle-orm'
 import { useDb } from '../../../../../../../utils/db'
+import { validateBody } from '../../../../../../../utils/validate'
 import { abilities } from '../../../../../../../db/schema/characters'
 import { hasMinRole } from '../../../../../../../utils/permissions'
 import type { CampaignRole } from '../../../../../../../utils/permissions'
@@ -11,7 +13,15 @@ export default defineEventHandler(async (event) => {
   }
 
   const abilityId = getRouterParam(event, 'abilityId')!
-  const body = await readBody(event)
+  const abilityPutSchema = z.object({
+    name: z.string().min(1).optional(),
+    type: z.string().optional(),
+    description: z.string().optional(),
+    sortOrder: z.number().optional(),
+    isSecret: z.boolean().optional(),
+    tags: z.array(z.string()).optional(),
+  })
+  const body = await validateBody(event, abilityPutSchema)
   const db = useDb()
 
   const updates: Record<string, unknown> = {}

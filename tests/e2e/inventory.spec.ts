@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { registerAndLogin, createCampaign } from './helpers'
+import { registerAndLogin, createCampaign, apiFetch } from './helpers'
 
 const uid = () => Date.now().toString(36).slice(-4)
 
@@ -18,13 +18,10 @@ test.describe('Items & Shops', () => {
     await createCampaign(page, `Item List ${uid()}`)
 
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
-    await page.evaluate(async (id) => {
-      await fetch(`/api/campaigns/${id}/items`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Sunblade', rarity: 'legendary', description: 'A radiant weapon' }),
-      })
-    }, campaignId)
+    await apiFetch(page, `/api/campaigns/${campaignId}/items`, {
+      method: 'POST',
+      body: { name: 'Sunblade', rarity: 'legendary', description: 'A radiant weapon' },
+    })
 
     await page.click('aside >> text=Items')
     await page.waitForLoadState('networkidle')
@@ -50,18 +47,21 @@ test.describe('Items & Shops', () => {
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
 
     const res = await page.evaluate(async (id) => {
+      const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
+      const csrfHeader = { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf }
+
       const cur = await fetch(`/api/campaigns/${id}/currencies`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: csrfHeader,
         body: JSON.stringify({ name: 'Gold', symbol: 'gp', valueInBase: 100, sortOrder: 0 }),
       }).then(r => r.json())
 
       const item = await fetch(`/api/campaigns/${id}/items`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: csrfHeader,
         body: JSON.stringify({ name: 'Health Potion', rarity: 'common', stackable: true }),
       }).then(r => r.json())
 
       const shop = await fetch(`/api/campaigns/${id}/shops`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: csrfHeader,
         body: JSON.stringify({ name: 'E2E Shop' }),
       }).then(r => r.json())
 
@@ -69,22 +69,22 @@ test.describe('Items & Shops', () => {
       const shopSlug = shops.find((s: any) => s.id === shop.id)?.slug
 
       const stock = await fetch(`/api/campaigns/${id}/shops/${shopSlug}/stock`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: csrfHeader,
         body: JSON.stringify({ itemId: item.id, quantity: 10, price: { gold: 1 } }),
       }).then(r => r.json())
 
       const inv = await fetch(`/api/campaigns/${id}/inventories`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: csrfHeader,
         body: JSON.stringify({ name: 'Buyer', ownerType: 'character', ownerId: 'e2e-buyer-1' }),
       }).then(r => r.json())
 
       await fetch(`/api/campaigns/${id}/transactions`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: csrfHeader,
         body: JSON.stringify({ type: 'grant', toOwnerId: 'e2e-buyer-1', toOwnerType: 'character', amounts: { [cur.id]: 100 } }),
       })
 
       const buyRes = await fetch(`/api/campaigns/${id}/shops/${shopSlug}/buy`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: csrfHeader,
         body: JSON.stringify({ stockId: stock.id, buyerInventoryId: inv.id, buyerOwnerId: 'e2e-buyer-1', buyerOwnerType: 'character', quantity: 1, currencyId: cur.id, price: 0 }),
       }).then(r => r.json())
 

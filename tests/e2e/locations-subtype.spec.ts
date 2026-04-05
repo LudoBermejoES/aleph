@@ -11,9 +11,10 @@ async function setup(page: any, label: string) {
 
 async function createLocationViaApi(page: any, campaignId: string, body: Record<string, unknown>) {
   return page.evaluate(async ([id, data]: [string, Record<string, unknown>]) => {
+    const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
     const res = await fetch(`/api/campaigns/${id}/locations`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
       body: JSON.stringify(data),
     })
     return res.json()

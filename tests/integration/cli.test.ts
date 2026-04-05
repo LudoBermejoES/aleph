@@ -16,7 +16,7 @@ async function apiRaw(path: string, opts?: any) {
   return res
 }
 
-/** Sign up a new user and return a session cookie */
+/** Sign up a new user and return { cookie, csrfToken } */
 async function signUpAndGetCookie(email: string, password: string, name = 'Test User') {
   await apiRaw('/api/auth/sign-up/email', {
     method: 'POST',
@@ -28,14 +28,21 @@ async function signUpAndGetCookie(email: string, password: string, name = 'Test 
   })
   const cookies = res.headers.get('set-cookie') || ''
   const match = cookies.match(/better-auth\.session_token=([^;]+)/)
-  return match ? `better-auth.session_token=${match[1]}` : ''
+  const sessionCookie = match ? `better-auth.session_token=${match[1]}` : ''
+  // Trigger CSRF token generation
+  const getRes = await apiRaw('/api/campaigns', { headers: { Cookie: sessionCookie } })
+  const setCookie = getRes.headers.get('set-cookie') || ''
+  const csrfMatch = setCookie.match(/csrf_token=([^;]+)/)
+  const csrfToken = csrfMatch?.[1] || ''
+  const fullCookie = csrfToken ? `${sessionCookie}; csrf_token=${csrfToken}` : sessionCookie
+  return { cookie: fullCookie, csrfToken }
 }
 
 /** Create an API key using a cookie session */
-async function createApiKey(cookie: string, name = 'test-key') {
+async function createApiKey(cookie: string, csrfToken: string, name = 'test-key') {
   const res = await apiRaw('/api/apikeys', {
     method: 'POST',
-    headers: { Cookie: cookie },
+    headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
     body: { name },
   })
   return res.json()
@@ -45,14 +52,15 @@ describe('API key endpoint (integration)', () => {
   const email = `apikey-${Date.now()}@example.com`
   const password = 'password123'
   let cookie = ''
+  let csrfToken = ''
   let createdKeyId = ''
 
   beforeAll(async () => {
-    cookie = await signUpAndGetCookie(email, password)
+    ;({ cookie, csrfToken } = await signUpAndGetCookie(email, password))
   })
 
   it('POST /api/apikeys returns key with raw value', async () => {
-    const data = await createApiKey(cookie, 'my-cli-key')
+    const data = await createApiKey(cookie, csrfToken, 'my-cli-key')
     expect(data.id).toBeDefined()
     expect(data.key).toMatch(/^aleph_[0-9a-f]{64}$/)
     expect(data.keyPrefix).toBe(data.key.slice(0, 14))
@@ -72,13 +80,13 @@ describe('API key endpoint (integration)', () => {
     expect(found.keyPrefix).toBeDefined()
   })
 
-  it('POST /api/apikeys rejects missing name with 400', async () => {
+  it('POST /api/apikeys rejects missing name with 422', async () => {
     const res = await apiRaw('/api/apikeys', {
       method: 'POST',
-      headers: { Cookie: cookie },
+      headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
       body: {},
     })
-    expect(res.status).toBe(400)
+    expect([400, 422]).toContain(res.status)
   })
 
   it('POST /api/apikeys rejects unauthenticated with 401', async () => {
@@ -94,11 +102,12 @@ describe('API key authentication (integration)', () => {
   const email = `xapikey-${Date.now()}@example.com`
   const password = 'password123'
   let cookie = ''
+  let csrfToken = ''
   let apiKeyRaw = ''
 
   beforeAll(async () => {
-    cookie = await signUpAndGetCookie(email, password)
-    const data = await createApiKey(cookie, 'auth-test-key')
+    ;({ cookie, csrfToken } = await signUpAndGetCookie(email, password))
+    const data = await createApiKey(cookie, csrfToken, 'auth-test-key')
     apiKeyRaw = data.key
   })
 
@@ -125,13 +134,14 @@ describe('API key revocation (integration)', () => {
   const email = `revoke-${Date.now()}@example.com`
   const password = 'password123'
   let cookie = ''
+  let csrfToken = ''
 
   beforeAll(async () => {
-    cookie = await signUpAndGetCookie(email, password)
+    ;({ cookie, csrfToken } = await signUpAndGetCookie(email, password))
   })
 
   it('create → use → revoke → verify 401', async () => {
-    const data = await createApiKey(cookie, 'revocation-key')
+    const data = await createApiKey(cookie, csrfToken, 'revocation-key')
     const { key: apiKey, id } = data
 
     // Key works before revocation
@@ -144,7 +154,7 @@ describe('API key revocation (integration)', () => {
     // Revoke
     const revRes = await apiRaw(`/api/apikeys/${id}`, {
       method: 'DELETE',
-      headers: { Cookie: cookie },
+      headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
     })
     expect(revRes.status).toBe(200)
 
@@ -159,13 +169,13 @@ describe('API key revocation (integration)', () => {
   it('cannot revoke another user\'s key (returns 404)', async () => {
     // Create a second user with their own key
     const otherEmail = `other-revoke-${Date.now()}@example.com`
-    const otherCookie = await signUpAndGetCookie(otherEmail, 'password123')
-    const data = await createApiKey(otherCookie, 'other-key')
+    const { cookie: otherCookie, csrfToken: otherCsrf } = await signUpAndGetCookie(otherEmail, 'password123')
+    const data = await createApiKey(otherCookie, otherCsrf, 'other-key')
 
     // Try to revoke other user's key as first user
     const res = await apiRaw(`/api/apikeys/${data.id}`, {
       method: 'DELETE',
-      headers: { Cookie: cookie },
+      headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
     })
     expect(res.status).toBe(404)
   })
@@ -175,11 +185,11 @@ describe('API key isolation (integration)', () => {
   it('GET /api/apikeys returns only current user\'s keys', async () => {
     const emailA = `iso-a-${Date.now()}@example.com`
     const emailB = `iso-b-${Date.now()}@example.com`
-    const cookieA = await signUpAndGetCookie(emailA, 'password123')
-    const cookieB = await signUpAndGetCookie(emailB, 'password123')
+    const { cookie: cookieA, csrfToken: csrfA } = await signUpAndGetCookie(emailA, 'password123')
+    const { cookie: cookieB, csrfToken: csrfB } = await signUpAndGetCookie(emailB, 'password123')
 
-    const keyA = await createApiKey(cookieA, 'key-a')
-    const keyB = await createApiKey(cookieB, 'key-b')
+    const keyA = await createApiKey(cookieA, csrfA, 'key-a')
+    const keyB = await createApiKey(cookieB, csrfB, 'key-b')
 
     const resA = await apiRaw('/api/apikeys', { method: 'GET', headers: { Cookie: cookieA } })
     const keysA = await resA.json()
@@ -211,8 +221,8 @@ describe('CLI campaign workflow via API key (integration)', () => {
   let campaignId = ''
 
   beforeAll(async () => {
-    const cookie = await signUpAndGetCookie(email, password)
-    const data = await createApiKey(cookie, 'cli-workflow-key')
+    const { cookie, csrfToken } = await signUpAndGetCookie(email, password)
+    const data = await createApiKey(cookie, csrfToken, 'cli-workflow-key')
     apiKeyRaw = data.key
   })
 

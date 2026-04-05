@@ -4,6 +4,7 @@ import { entities } from '../../../../../db/schema/entities'
 import { hasMinRole } from '../../../../../utils/permissions'
 import { writeFile, mkdir } from 'fs/promises'
 import { join, extname } from 'path'
+import { detectMimeFromBytes } from '../../../../../utils/sanitize'
 import type { CampaignRole } from '../../../../../utils/permissions'
 
 const ALLOWED_MIME_TYPES = ['image/png', 'image/jpeg', 'image/webp']
@@ -42,6 +43,12 @@ export default defineEventHandler(async (event) => {
 
   if (file.data.length > MAX_SIZE_BYTES) {
     throw createError({ statusCode: 400, message: 'File exceeds the 10 MB size limit' })
+  }
+
+  // Validate actual file content via magic bytes
+  const detectedMime = detectMimeFromBytes(file.data)
+  if (!detectedMime || detectedMime !== mime) {
+    throw createError({ statusCode: 400, message: 'File content does not match declared MIME type' })
   }
 
   const mimeToExt: Record<string, string> = {

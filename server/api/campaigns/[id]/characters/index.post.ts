@@ -1,5 +1,7 @@
+import { z } from 'zod'
 import { randomUUID } from 'crypto'
 import { useDb, useSqlite } from '../../../../utils/db'
+import { validateBody } from '../../../../utils/validate'
 import { entities } from '../../../../db/schema/entities'
 import { characters } from '../../../../db/schema/characters'
 import { hasMinRole } from '../../../../utils/permissions'
@@ -17,12 +19,22 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 403, message: 'Editors or above can create characters' })
   }
 
-  const body = await readBody(event)
+  const characterSchema = z.object({
+    name: z.string().min(1).max(200),
+    content: z.string().optional(),
+    visibility: z.enum(['members', 'players', 'dm_only', 'public']).optional(),
+    aliases: z.array(z.string()).optional(),
+    tags: z.array(z.string()).optional(),
+    characterType: z.string().optional(),
+    race: z.string().optional(),
+    class: z.string().optional(),
+    alignment: z.string().optional(),
+    status: z.string().optional(),
+    ownerUserId: z.string().optional(),
+    isCompanionOf: z.string().optional(),
+  })
+  const body = await validateBody(event, characterSchema)
   const { name, content, visibility, aliases, tags, characterType, race, class: charClass, alignment, status, ownerUserId, isCompanionOf } = body
-
-  if (!name?.trim()) {
-    throw createError({ statusCode: 400, message: 'Name is required' })
-  }
 
   const db = useDb()
   const sqlite = useSqlite()

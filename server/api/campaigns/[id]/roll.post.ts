@@ -1,17 +1,20 @@
+import { z } from 'zod'
 import { randomUUID } from 'crypto'
 import { useDb } from '../../../utils/db'
+import { validateBody } from '../../../utils/validate'
 import { sessionRolls } from '../../../db/schema/rolls'
 import { parseDiceFormula, evaluateDiceRoll, isValidFormula } from '../../../services/dice'
 import { emitCampaignMessage } from '../../../utils/broadcast'
 
 export default defineEventHandler(async (event) => {
   const campaignId = getRouterParam(event, 'id')!
-  const body = await readBody(event)
+  const rollSchema = z.object({
+    formula: z.string().min(1),
+    sessionId: z.string().optional(),
+    characterId: z.string().optional(),
+  })
+  const body = await validateBody(event, rollSchema)
   const { formula, sessionId, characterId } = body
-
-  if (!formula?.trim()) {
-    throw createError({ statusCode: 400, message: 'Formula is required' })
-  }
 
   if (!isValidFormula(formula)) {
     throw createError({ statusCode: 400, message: `Invalid dice formula: "${formula}"` })

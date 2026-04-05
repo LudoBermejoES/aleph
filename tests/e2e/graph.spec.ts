@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { registerAndLogin, createCampaign } from './helpers'
+import { registerAndLogin, createCampaign, apiFetch } from './helpers'
 
 const uid = () => Date.now().toString(36).slice(-4)
 
@@ -19,33 +19,29 @@ test.describe('Relationship Graph', () => {
 
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
 
-    const [e1, e2, types] = await page.evaluate(async (id) => {
-      const r1 = await fetch(`/api/campaigns/${id}/entities`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Hero', type: 'character', content: '# Hero' }),
-      }).then(r => r.json())
-
-      const r2 = await fetch(`/api/campaigns/${id}/entities`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Villain', type: 'character', content: '# Villain' }),
-      }).then(r => r.json())
-
-      const typesRes = await fetch(`/api/campaigns/${id}/relation-types`).then(r => r.json())
-      return [r1, r2, typesRes]
-    }, campaignId)
+    const e1 = await apiFetch(page, `/api/campaigns/${campaignId}/entities`, {
+      method: 'POST',
+      body: { name: 'Hero', type: 'character', content: '# Hero' },
+    })
+    const e2 = await apiFetch(page, `/api/campaigns/${campaignId}/entities`, {
+      method: 'POST',
+      body: { name: 'Villain', type: 'character', content: '# Villain' },
+    })
+    const types = await apiFetch(page, `/api/campaigns/${campaignId}/relation-types`)
 
     const enemyType = (types as any[]).find((t: any) => t.slug === 'enemy')
 
-    await page.evaluate(async ([id, srcId, tgtId, typeId]) => {
-      await fetch(`/api/campaigns/${id}/relations`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sourceEntityId: srcId, targetEntityId: tgtId,
-          relationTypeId: typeId, forwardLabel: 'enemy of', reverseLabel: 'enemy of',
-          attitude: -80,
-        }),
-      })
-    }, [campaignId, (e1 as any).id, (e2 as any).id, enemyType?.id])
+    await apiFetch(page, `/api/campaigns/${campaignId}/relations`, {
+      method: 'POST',
+      body: {
+        sourceEntityId: (e1 as any).id,
+        targetEntityId: (e2 as any).id,
+        relationTypeId: enemyType?.id,
+        forwardLabel: 'enemy of',
+        reverseLabel: 'enemy of',
+        attitude: -80,
+      },
+    })
 
     await page.click('aside a:has-text("Graph")')
     await page.waitForLoadState('networkidle')

@@ -1,6 +1,8 @@
+import { z } from 'zod'
 import { randomUUID } from 'crypto'
 import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
+import { validateBody } from '../../../../../utils/validate'
 import { shops, shopStock } from '../../../../../db/schema/inventory'
 import { hasMinRole } from '../../../../../utils/permissions'
 import type { CampaignRole } from '../../../../../utils/permissions'
@@ -11,7 +13,13 @@ export default defineEventHandler(async (event) => {
 
   const campaignId = getRouterParam(event, 'id')!
   const slug = getRouterParam(event, 'slug')!
-  const body = await readBody(event)
+  const stockSchema = z.object({
+    itemId: z.string(),
+    quantity: z.number().optional(),
+    priceOverride: z.record(z.string(), z.number()).optional(),
+    isAvailable: z.boolean().optional(),
+  })
+  const body = await validateBody(event, stockSchema)
   const db = useDb()
 
   const shop = db.select().from(shops).where(and(eq(shops.campaignId, campaignId), eq(shops.slug, slug))).get()

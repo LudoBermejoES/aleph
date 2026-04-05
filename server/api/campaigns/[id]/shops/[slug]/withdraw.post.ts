@@ -1,6 +1,8 @@
+import { z } from 'zod'
 import { randomUUID } from 'crypto'
 import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
+import { validateBody } from '../../../../../utils/validate'
 import { shops, wealth, transactions } from '../../../../../db/schema/inventory'
 import { hasMinRole } from '../../../../../utils/permissions'
 import type { CampaignRole } from '../../../../../utils/permissions'
@@ -11,13 +13,15 @@ export default defineEventHandler(async (event) => {
 
   const campaignId = getRouterParam(event, 'id')!
   const slug = getRouterParam(event, 'slug')!
-  const body = await readBody(event)
+  const withdrawSchema = z.object({
+    currencyId: z.string(),
+    amount: z.number().positive(),
+    toOwnerId: z.string().optional(),
+    toOwnerType: z.string().optional(),
+  })
+  const body = await validateBody(event, withdrawSchema)
   const { currencyId, amount, toOwnerId, toOwnerType } = body
   const db = useDb()
-
-  if (!currencyId || !amount || amount <= 0) {
-    throw createError({ statusCode: 400, message: 'currencyId and a positive amount are required' })
-  }
 
   const shop = db.select().from(shops).where(and(eq(shops.campaignId, campaignId), eq(shops.slug, slug))).get()
   if (!shop) throw createError({ statusCode: 404, message: 'Shop not found' })

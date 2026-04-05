@@ -14,9 +14,21 @@ async function apiRaw(path: string, opts?: any) {
   })
 }
 
+async function getCsrfToken(sessionCookie: string): Promise<string> {
+  const res = await apiRaw('/api/campaigns', { headers: { Cookie: sessionCookie } })
+  const setCookie = res.headers.get('set-cookie') || ''
+  const match = setCookie.match(/csrf_token=([^;]+)/)
+  return match?.[1] || ''
+}
+
+function withCsrf(cookie: string, csrfToken: string) {
+  return { Cookie: `${cookie}; csrf_token=${csrfToken}`, 'X-CSRF-Token': csrfToken }
+}
+
 describe('Entity CRUD (integration)', () => {
   const email = `entity-test-${Date.now()}@example.com`
   let cookie = ''
+  let csrfToken = ''
   let campaignId = ''
   let entitySlug = ''
 
@@ -33,11 +45,12 @@ describe('Entity CRUD (integration)', () => {
     const cookies = login.headers.get('set-cookie') || ''
     const match = cookies.match(/better-auth\.session_token=([^;]+)/)
     cookie = match ? `better-auth.session_token=${match[1]}` : ''
+    csrfToken = await getCsrfToken(cookie)
 
     // Create campaign
     const campRes = await apiRaw('/api/campaigns', {
       method: 'POST',
-      headers: { Cookie: cookie },
+      headers: withCsrf(cookie, csrfToken),
       body: { name: `Entity Test ${Date.now()}` },
     })
     const campData = await campRes.json()
@@ -47,7 +60,7 @@ describe('Entity CRUD (integration)', () => {
   it('POST creates entity with .md file', async () => {
     const res = await apiRaw(`/api/campaigns/${campaignId}/entities`, {
       method: 'POST',
-      headers: { Cookie: cookie },
+      headers: withCsrf(cookie, csrfToken),
       body: {
         name: 'Strahd von Zarovich',
         type: 'character',
@@ -79,7 +92,7 @@ describe('Entity CRUD (integration)', () => {
   it('PUT updates entity', async () => {
     const res = await apiRaw(`/api/campaigns/${campaignId}/entities/${entitySlug}`, {
       method: 'PUT',
-      headers: { Cookie: cookie },
+      headers: withCsrf(cookie, csrfToken),
       body: { name: 'Strahd von Zarovich (Updated)', content: '# Updated\n\nNew content.' },
     })
     expect(res.status).toBe(200)
@@ -128,7 +141,7 @@ describe('Entity CRUD (integration)', () => {
   it('DELETE removes entity', async () => {
     const res = await apiRaw(`/api/campaigns/${campaignId}/entities/${entitySlug}`, {
       method: 'DELETE',
-      headers: { Cookie: cookie },
+      headers: withCsrf(cookie, csrfToken),
     })
     expect(res.status).toBe(200)
 

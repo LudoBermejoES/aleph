@@ -10,9 +10,21 @@ async function api(path: string, opts?: any) {
   })
 }
 
+async function getCsrfToken(sessionCookie: string): Promise<string> {
+  const res = await api('/api/campaigns', { headers: { Cookie: sessionCookie } })
+  const setCookie = res.headers.get('set-cookie') || ''
+  const match = setCookie.match(/csrf_token=([^;]+)/)
+  return match?.[1] || ''
+}
+
+function withCsrf(cookie: string, csrfToken: string) {
+  return { Cookie: `${cookie}; csrf_token=${csrfToken}`, 'X-CSRF-Token': csrfToken }
+}
+
 describe('Dice Roll API (integration)', () => {
   const email = `dice-test-${Date.now()}@example.com`
   let cookie = ''
+  let csrfToken = ''
   let campaignId = ''
 
   beforeAll(async () => {
@@ -21,14 +33,15 @@ describe('Dice Roll API (integration)', () => {
     const cookies = login.headers.get('set-cookie') || ''
     const match = cookies.match(/better-auth\.session_token=([^;]+)/)
     cookie = match ? `better-auth.session_token=${match[1]}` : ''
-    const camp = await api('/api/campaigns', { method: 'POST', headers: { Cookie: cookie }, body: { name: `Dice Test ${Date.now()}` } })
+    csrfToken = await getCsrfToken(cookie)
+    const camp = await api('/api/campaigns', { method: 'POST', headers: withCsrf(cookie, csrfToken), body: { name: `Dice Test ${Date.now()}` } })
     campaignId = (await camp.json()).id
   })
 
   it('POST /roll with valid formula returns RollResult', async () => {
     const res = await api(`/api/campaigns/${campaignId}/roll`, {
       method: 'POST',
-      headers: { Cookie: cookie },
+      headers: withCsrf(cookie, csrfToken),
       body: { formula: '2d6+4' },
     })
     expect(res.status).toBe(200)
@@ -43,7 +56,7 @@ describe('Dice Roll API (integration)', () => {
   it('POST /roll with invalid formula returns 400', async () => {
     const res = await api(`/api/campaigns/${campaignId}/roll`, {
       method: 'POST',
-      headers: { Cookie: cookie },
+      headers: withCsrf(cookie, csrfToken),
       body: { formula: 'not a formula' },
     })
     expect(res.status).toBe(400)
@@ -52,7 +65,7 @@ describe('Dice Roll API (integration)', () => {
   it('POST /roll with d20 returns 1-20', async () => {
     const res = await api(`/api/campaigns/${campaignId}/roll`, {
       method: 'POST',
-      headers: { Cookie: cookie },
+      headers: withCsrf(cookie, csrfToken),
       body: { formula: 'd20' },
     })
     const data = await res.json()
@@ -63,7 +76,7 @@ describe('Dice Roll API (integration)', () => {
   it('POST /roll with 4d6kh3 returns valid result', async () => {
     const res = await api(`/api/campaigns/${campaignId}/roll`, {
       method: 'POST',
-      headers: { Cookie: cookie },
+      headers: withCsrf(cookie, csrfToken),
       body: { formula: '4d6kh3' },
     })
     const data = await res.json()

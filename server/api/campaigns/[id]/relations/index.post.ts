@@ -1,6 +1,8 @@
+import { z } from 'zod'
 import { randomUUID } from 'crypto'
 import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../utils/db'
+import { validateBody } from '../../../../utils/validate'
 import { entityRelations, relationTypes } from '../../../../db/schema/relations'
 import { entities } from '../../../../db/schema/entities'
 import { hasMinRole } from '../../../../utils/permissions'
@@ -11,7 +13,19 @@ export default defineEventHandler(async (event) => {
   if (!hasMinRole(role, 'editor')) throw createError({ statusCode: 403, message: 'Editors or above can create relations' })
 
   const campaignId = getRouterParam(event, 'id')!
-  const body = await readBody(event)
+  const relationSchema = z.object({
+    sourceEntityId: z.string(),
+    targetEntityId: z.string(),
+    relationTypeId: z.string().optional(),
+    forwardLabel: z.string().optional(),
+    reverseLabel: z.string().optional(),
+    attitude: z.number().int().min(-100).max(100).optional(),
+    description: z.string().optional(),
+    metadata: z.record(z.string(), z.unknown()).optional(),
+    visibility: z.string().optional(),
+    isPinned: z.boolean().optional(),
+  })
+  const body = await validateBody(event, relationSchema)
   const db = useDb()
   const now = new Date()
 

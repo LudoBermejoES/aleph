@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 
-async function api(path: string, opts?: RequestInit & { body?: any }) {
+async function api(path: string, opts?: any) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
     headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...opts?.headers },
@@ -10,12 +10,21 @@ async function api(path: string, opts?: RequestInit & { body?: any }) {
   })
 }
 
-async function signUp(email: string, name = 'Test User') {
+async function signUp(email: string, name = 'Test User'): Promise<{ cookie: string; csrfToken: string }> {
   await api('/api/auth/sign-up/email', { method: 'POST', body: { name, email, password: 'password123' } })
   const res = await api('/api/auth/sign-in/email', { method: 'POST', body: { email, password: 'password123' } })
   const cookies = res.headers.get('set-cookie') || ''
   const match = cookies.match(/better-auth\.session_token=([^;]+)/)
-  return match ? `better-auth.session_token=${match[1]}` : ''
+  const cookie = match ? `better-auth.session_token=${match[1]}` : ''
+  const getRes = await api('/api/campaigns', { headers: { Cookie: cookie } })
+  const setCookie = getRes.headers.get('set-cookie') || ''
+  const csrfMatch = setCookie.match(/csrf_token=([^;]+)/)
+  const csrfToken = csrfMatch?.[1] || ''
+  return { cookie, csrfToken }
+}
+
+function withCsrf(cookie: string, csrfToken: string): Record<string, string> {
+  return { Cookie: `${cookie}; csrf_token=${csrfToken}`, 'X-CSRF-Token': csrfToken }
 }
 
 describe('Secrets API (integration)', () => {
@@ -23,17 +32,19 @@ describe('Secrets API (integration)', () => {
   const dmEmail = `secrets-dm-${ts}@example.com`
   const playerEmail = `secrets-player-${ts}@example.com`
   let dmCookie = ''
+  let dmCsrfToken = ''
   let playerCookie = ''
+  let playerCsrfToken = ''
   let campaignId = ''
   let entitySlug = ''
 
   beforeAll(async () => {
-    dmCookie = await signUp(dmEmail, 'DM User')
-    playerCookie = await signUp(playerEmail, 'Player User')
+    ;({ cookie: dmCookie, csrfToken: dmCsrfToken } = await signUp(dmEmail, 'DM User'))
+    ;({ cookie: playerCookie, csrfToken: playerCsrfToken } = await signUp(playerEmail, 'Player User'))
 
     const campRes = await api('/api/campaigns', {
       method: 'POST',
-      headers: { Cookie: dmCookie },
+      headers: withCsrf(dmCookie, dmCsrfToken),
       body: { name: `Secrets Test ${ts}` },
     })
     campaignId = (await campRes.json()).id
@@ -41,7 +52,7 @@ describe('Secrets API (integration)', () => {
     // Create entity
     const entRes = await api(`/api/campaigns/${campaignId}/entities`, {
       method: 'POST',
-      headers: { Cookie: dmCookie },
+      headers: withCsrf(dmCookie, dmCsrfToken),
       body: { name: 'Secret Test Entity', type: 'location' },
     })
     entitySlug = (await entRes.json()).slug
@@ -49,13 +60,13 @@ describe('Secrets API (integration)', () => {
     // Invite and join player
     const inviteRes = await api(`/api/campaigns/${campaignId}/invite`, {
       method: 'POST',
-      headers: { Cookie: dmCookie },
+      headers: withCsrf(dmCookie, dmCsrfToken),
       body: { role: 'player' },
     })
     const { token } = await inviteRes.json()
     await api(`/api/campaigns/${campaignId}/join`, {
       method: 'POST',
-      headers: { Cookie: playerCookie },
+      headers: withCsrf(playerCookie, playerCsrfToken),
       body: { token },
     })
   })
@@ -89,7 +100,7 @@ describe('Secrets API (integration)', () => {
   it('POST /secrets - DM can reveal a block', async () => {
     const res = await api(`/api/campaigns/${campaignId}/entities/${entitySlug}/secrets`, {
       method: 'POST',
-      headers: { Cookie: dmCookie },
+      headers: withCsrf(dmCookie, dmCsrfToken),
       body: { blockId: 'test-block-1' },
     })
     expect(res.status).toBe(200)
@@ -102,7 +113,7 @@ describe('Secrets API (integration)', () => {
   it('POST /secrets returns 403 for player', async () => {
     const res = await api(`/api/campaigns/${campaignId}/entities/${entitySlug}/secrets`, {
       method: 'POST',
-      headers: { Cookie: playerCookie },
+      headers: withCsrf(playerCookie, playerCsrfToken),
       body: { blockId: 'test-block-1' },
     })
     expect(res.status).toBe(403)
@@ -134,7 +145,7 @@ describe('Secrets API (integration)', () => {
   it('POST /secrets is idempotent on already-revealed block', async () => {
     const res = await api(`/api/campaigns/${campaignId}/entities/${entitySlug}/secrets`, {
       method: 'POST',
-      headers: { Cookie: dmCookie },
+      headers: withCsrf(dmCookie, dmCsrfToken),
       body: { blockId: 'test-block-1' },
     })
     expect(res.status).toBe(200)
@@ -144,7 +155,7 @@ describe('Secrets API (integration)', () => {
   it('DELETE /secrets/:blockId - DM can unreveal', async () => {
     const res = await api(`/api/campaigns/${campaignId}/entities/${entitySlug}/secrets/test-block-1`, {
       method: 'DELETE',
-      headers: { Cookie: dmCookie },
+      headers: withCsrf(dmCookie, dmCsrfToken),
     })
     expect(res.status).toBe(200)
     const data = await res.json()
@@ -156,7 +167,7 @@ describe('Secrets API (integration)', () => {
   it('DELETE /secrets/:blockId is idempotent on non-existent block', async () => {
     const res = await api(`/api/campaigns/${campaignId}/entities/${entitySlug}/secrets/nonexistent-block`, {
       method: 'DELETE',
-      headers: { Cookie: dmCookie },
+      headers: withCsrf(dmCookie, dmCsrfToken),
     })
     expect(res.status).toBe(200)
   })
@@ -165,7 +176,7 @@ describe('Secrets API (integration)', () => {
   it('DELETE /secrets/:blockId returns 403 for player', async () => {
     const res = await api(`/api/campaigns/${campaignId}/entities/${entitySlug}/secrets/test-block-1`, {
       method: 'DELETE',
-      headers: { Cookie: playerCookie },
+      headers: withCsrf(playerCookie, playerCsrfToken),
     })
     expect(res.status).toBe(403)
   })
@@ -176,37 +187,39 @@ describe('Secret Notes API (integration)', () => {
   const dmEmail = `sn-dm-${ts}@example.com`
   const playerEmail = `sn-player-${ts}@example.com`
   let dmCookie = ''
+  let dmCsrfToken = ''
   let playerCookie = ''
+  let playerCsrfToken = ''
   let campaignId = ''
   let entitySlug = ''
 
   beforeAll(async () => {
-    dmCookie = await signUp(dmEmail, 'SN DM User')
-    playerCookie = await signUp(playerEmail, 'SN Player User')
+    ;({ cookie: dmCookie, csrfToken: dmCsrfToken } = await signUp(dmEmail, 'SN DM User'))
+    ;({ cookie: playerCookie, csrfToken: playerCsrfToken } = await signUp(playerEmail, 'SN Player User'))
 
     const campRes = await api('/api/campaigns', {
       method: 'POST',
-      headers: { Cookie: dmCookie },
+      headers: withCsrf(dmCookie, dmCsrfToken),
       body: { name: `Secret Notes Test ${ts}` },
     })
     campaignId = (await campRes.json()).id
 
     const entRes = await api(`/api/campaigns/${campaignId}/entities`, {
       method: 'POST',
-      headers: { Cookie: dmCookie },
+      headers: withCsrf(dmCookie, dmCsrfToken),
       body: { name: 'Note Entity', type: 'location' },
     })
     entitySlug = (await entRes.json()).slug
 
     const inviteRes = await api(`/api/campaigns/${campaignId}/invite`, {
       method: 'POST',
-      headers: { Cookie: dmCookie },
+      headers: withCsrf(dmCookie, dmCsrfToken),
       body: { role: 'player' },
     })
     const { token } = await inviteRes.json()
     await api(`/api/campaigns/${campaignId}/join`, {
       method: 'POST',
-      headers: { Cookie: playerCookie },
+      headers: withCsrf(playerCookie, playerCsrfToken),
       body: { token },
     })
   })
@@ -233,7 +246,7 @@ describe('Secret Notes API (integration)', () => {
   it('PUT /secret-notes - DM can save notes', async () => {
     const res = await api(`/api/campaigns/${campaignId}/entities/${entitySlug}/secret-notes`, {
       method: 'PUT',
-      headers: { Cookie: dmCookie },
+      headers: withCsrf(dmCookie, dmCsrfToken),
       body: { content: 'DM private notes here.' },
     })
     expect(res.status).toBe(200)
@@ -255,7 +268,7 @@ describe('Secret Notes API (integration)', () => {
   it('PUT /secret-notes returns 403 for player', async () => {
     const res = await api(`/api/campaigns/${campaignId}/entities/${entitySlug}/secret-notes`, {
       method: 'PUT',
-      headers: { Cookie: playerCookie },
+      headers: withCsrf(playerCookie, playerCsrfToken),
       body: { content: 'Trying to inject notes.' },
     })
     expect(res.status).toBe(403)
@@ -265,7 +278,7 @@ describe('Secret Notes API (integration)', () => {
   it('PUT /secret-notes upserts on repeat call', async () => {
     await api(`/api/campaigns/${campaignId}/entities/${entitySlug}/secret-notes`, {
       method: 'PUT',
-      headers: { Cookie: dmCookie },
+      headers: withCsrf(dmCookie, dmCsrfToken),
       body: { content: 'Updated notes.' },
     })
     const res = await api(`/api/campaigns/${campaignId}/entities/${entitySlug}/secret-notes`, {
@@ -281,37 +294,39 @@ describe('Render endpoint with preview_as (integration)', () => {
   const dmEmail = `render-dm-${ts}@example.com`
   const playerEmail = `render-player-${ts}@example.com`
   let dmCookie = ''
+  let dmCsrfToken = ''
   let playerCookie = ''
+  let playerCsrfToken = ''
   let campaignId = ''
   let entitySlug = ''
 
   beforeAll(async () => {
-    dmCookie = await signUp(dmEmail, 'Render DM')
-    playerCookie = await signUp(playerEmail, 'Render Player')
+    ;({ cookie: dmCookie, csrfToken: dmCsrfToken } = await signUp(dmEmail, 'Render DM'))
+    ;({ cookie: playerCookie, csrfToken: playerCsrfToken } = await signUp(playerEmail, 'Render Player'))
 
     const campRes = await api('/api/campaigns', {
       method: 'POST',
-      headers: { Cookie: dmCookie },
+      headers: withCsrf(dmCookie, dmCsrfToken),
       body: { name: `Render Preview Test ${ts}` },
     })
     campaignId = (await campRes.json()).id
 
     const entRes = await api(`/api/campaigns/${campaignId}/entities`, {
       method: 'POST',
-      headers: { Cookie: dmCookie },
+      headers: withCsrf(dmCookie, dmCsrfToken),
       body: { name: 'Preview Entity', type: 'location' },
     })
     entitySlug = (await entRes.json()).slug
 
     const inviteRes = await api(`/api/campaigns/${campaignId}/invite`, {
       method: 'POST',
-      headers: { Cookie: dmCookie },
+      headers: withCsrf(dmCookie, dmCsrfToken),
       body: { role: 'player' },
     })
     const { token } = await inviteRes.json()
     await api(`/api/campaigns/${campaignId}/join`, {
       method: 'POST',
-      headers: { Cookie: playerCookie },
+      headers: withCsrf(playerCookie, playerCsrfToken),
       body: { token },
     })
   })

@@ -1,6 +1,8 @@
+import { z } from 'zod'
 import { randomUUID } from 'crypto'
 import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../../utils/db'
+import { validateBody } from '../../../../../../utils/validate'
 import { gameSessions, decisions } from '../../../../../../db/schema/sessions'
 import { hasMinRole } from '../../../../../../utils/permissions'
 import type { CampaignRole } from '../../../../../../utils/permissions'
@@ -13,7 +15,13 @@ export default defineEventHandler(async (event) => {
 
   const campaignId = getRouterParam(event, 'id')!
   const slug = getRouterParam(event, 'slug')!
-  const body = await readBody(event)
+  const decisionSchema = z.object({
+    title: z.string().min(1),
+    type: z.string().optional(),
+    description: z.string().optional(),
+    entityId: z.string().optional(),
+  })
+  const body = await validateBody(event, decisionSchema)
   const db = useDb()
 
   const session = db.select().from(gameSessions)

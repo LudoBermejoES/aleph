@@ -15,7 +15,13 @@ async function signUp(email: string, name = 'Test User') {
   const res = await api('/api/auth/sign-in/email', { method: 'POST', body: { email, password: 'password123' } })
   const cookies = res.headers.get('set-cookie') || ''
   const match = cookies.match(/better-auth\.session_token=([^;]+)/)
-  return match ? `better-auth.session_token=${match[1]}` : ''
+  const sessionCookie = match ? `better-auth.session_token=${match[1]}` : ''
+  // Get CSRF token
+  const getRes = await api('/api/campaigns', { headers: { Cookie: sessionCookie } })
+  const setCookie = getRes.headers.get('set-cookie') || ''
+  const csrfMatch = setCookie.match(/csrf_token=([^;]+)/)
+  const csrfToken = csrfMatch?.[1] || ''
+  return csrfToken ? `${sessionCookie}; csrf_token=${csrfToken}` : sessionCookie
 }
 
 describe('Campaign Export API (integration)', () => {
@@ -34,9 +40,12 @@ describe('Campaign Export API (integration)', () => {
     playerCookie = await signUp(playerEmail, 'Export Player')
     outsiderCookie = await signUp(outsiderEmail, 'Export Outsider')
 
+    const dmCsrfToken = dmCookie.match(/csrf_token=([^;]+)/)?.[1] || ''
+    const playerCsrfToken = playerCookie.match(/csrf_token=([^;]+)/)?.[1] || ''
+
     const campRes = await api('/api/campaigns', {
       method: 'POST',
-      headers: { Cookie: dmCookie },
+      headers: { Cookie: dmCookie, 'X-CSRF-Token': dmCsrfToken },
       body: { name: `Export Test ${ts}` },
     })
     const camp = await campRes.json()
@@ -46,13 +55,13 @@ describe('Campaign Export API (integration)', () => {
     // Invite and add player
     const inviteRes = await api(`/api/campaigns/${campaignId}/invite`, {
       method: 'POST',
-      headers: { Cookie: dmCookie },
+      headers: { Cookie: dmCookie, 'X-CSRF-Token': dmCsrfToken },
       body: { role: 'player' },
     })
     const { token } = await inviteRes.json()
     await api(`/api/campaigns/${campaignId}/join`, {
       method: 'POST',
-      headers: { Cookie: playerCookie },
+      headers: { Cookie: playerCookie, 'X-CSRF-Token': playerCsrfToken },
       body: { token },
     })
   })

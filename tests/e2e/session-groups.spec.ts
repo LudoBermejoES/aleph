@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { registerAndLogin, createCampaign } from './helpers'
+import { registerAndLogin, createCampaign, apiFetch } from './helpers'
 
 const uid = () => Date.now().toString(36).slice(-4)
 
@@ -11,22 +11,16 @@ test.describe('Session Groups', () => {
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
 
     // Create a session group via API
-    await page.evaluate(async (id) => {
-      await fetch(`/api/campaigns/${id}/session-groups`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'La Familia', description: 'Main group' }),
-      })
-    }, campaignId)
+    await apiFetch(page, `/api/campaigns/${campaignId}/session-groups`, {
+      method: 'POST',
+      body: { name: 'La Familia', description: 'Main group' },
+    })
 
     // Create a session in that group via API
-    await page.evaluate(async (id) => {
-      await fetch(`/api/campaigns/${id}/sessions`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: 'Group Session One', groupSlug: 'la-familia' }),
-      })
-    }, campaignId)
+    await apiFetch(page, `/api/campaigns/${campaignId}/sessions`, {
+      method: 'POST',
+      body: { title: 'Group Session One', groupSlug: 'la-familia' },
+    })
 
     // Navigate to sessions page
     await page.click('aside >> text=Sessions')

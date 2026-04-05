@@ -1,5 +1,7 @@
+import { z } from 'zod'
 import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
+import { validateBody } from '../../../../../utils/validate'
 import { gameSessions, sessionGroups } from '../../../../../db/schema/sessions'
 import { hasMinRole } from '../../../../../utils/permissions'
 import { writeEntityFile, readEntityFile } from '../../../../../services/content'
@@ -13,7 +15,17 @@ export default defineEventHandler(async (event) => {
 
   const campaignId = getRouterParam(event, 'id')!
   const slug = getRouterParam(event, 'slug')!
-  const body = await readBody(event)
+  const sessionPutSchema = z.object({
+    title: z.string().optional(),
+    status: z.string().optional(),
+    scheduledDate: z.string().nullable().optional(),
+    summary: z.string().nullable().optional(),
+    arcId: z.string().nullable().optional(),
+    chapterId: z.string().nullable().optional(),
+    groupSlug: z.string().nullable().optional(),
+    content: z.string().optional(),
+  })
+  const body = await validateBody(event, sessionPutSchema)
   const db = useDb()
 
   const session = db.select().from(gameSessions)

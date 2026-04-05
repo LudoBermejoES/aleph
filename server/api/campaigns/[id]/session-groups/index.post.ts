@@ -1,6 +1,8 @@
+import { z } from 'zod'
 import { randomUUID } from 'crypto'
 import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../utils/db'
+import { validateBody } from '../../../../utils/validate'
 import { sessionGroups } from '../../../../db/schema/sessions'
 import { hasMinRole } from '../../../../utils/permissions'
 import { slugify } from '../../../../services/content'
@@ -13,10 +15,12 @@ export default defineEventHandler(async (event) => {
   }
 
   const campaignId = getRouterParam(event, 'id')!
-  const body = await readBody(event)
-  if (!body.name?.trim()) {
-    throw createError({ statusCode: 400, message: 'Name is required' })
-  }
+  const sessionGroupSchema = z.object({
+    name: z.string().min(1),
+    description: z.string().optional(),
+    sortOrder: z.number().optional(),
+  })
+  const body = await validateBody(event, sessionGroupSchema)
 
   const db = useDb()
   const slug = slugify(body.name)

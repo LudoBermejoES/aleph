@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { registerAndLogin, createCampaign } from './helpers'
+import { registerAndLogin, createCampaign, apiFetch } from './helpers'
 
 const uid = () => Date.now().toString(36).slice(-4)
 
@@ -24,13 +24,10 @@ test.describe('Character create — organization picker', () => {
     await createCampaign(page, `Char Org Picker Camp ${uid()}`)
 
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
-    await page.evaluate(async (id) => {
-      await fetch(`/api/campaigns/${id}/organizations`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'The Order' }),
-      })
-    }, campaignId)
+    await apiFetch(page, `/api/campaigns/${campaignId}/organizations`, {
+      method: 'POST',
+      body: { name: 'The Order' },
+    })
 
     await page.click('aside >> text=Characters')
     await page.waitForLoadState('networkidle')
@@ -46,13 +43,10 @@ test.describe('Character create — organization picker', () => {
     await createCampaign(page, `Char Org Create Camp ${uid()}`)
 
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
-    await page.evaluate(async (id) => {
-      await fetch(`/api/campaigns/${id}/organizations`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'The Fellowship' }),
-      })
-    }, campaignId)
+    await apiFetch(page, `/api/campaigns/${campaignId}/organizations`, {
+      method: 'POST',
+      body: { name: 'The Fellowship' },
+    })
 
     await page.click('aside >> text=Characters')
     await page.waitForLoadState('networkidle')
@@ -96,29 +90,19 @@ test.describe('Character edit — organization picker', () => {
 
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
 
-    const charSlug = await page.evaluate(async (id) => {
-      const orgRes = await fetch(`/api/campaigns/${id}/organizations`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Rivendell Council' }),
-      })
-      const org = await orgRes.json()
-
-      const charRes = await fetch(`/api/campaigns/${id}/characters`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Elrond', characterType: 'npc' }),
-      })
-      const char = await charRes.json()
-
-      await fetch(`/api/campaigns/${id}/organizations/${org.slug}/members`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ characterId: char.id, role: 'Lord' }),
-      })
-
-      return char.slug
-    }, campaignId)
+    const org = await apiFetch(page, `/api/campaigns/${campaignId}/organizations`, {
+      method: 'POST',
+      body: { name: 'Rivendell Council' },
+    })
+    const char = await apiFetch(page, `/api/campaigns/${campaignId}/characters`, {
+      method: 'POST',
+      body: { name: 'Elrond', characterType: 'npc' },
+    })
+    await apiFetch(page, `/api/campaigns/${campaignId}/organizations/${(org as any).slug}/members`, {
+      method: 'POST',
+      body: { characterId: (char as any).id, role: 'Lord' },
+    })
+    const charSlug = (char as any).slug
 
     const base = page.url().split('/campaigns/')[0]
     await page.goto(`${base}/campaigns/${campaignId}/characters/${charSlug}/edit`)
@@ -140,19 +124,15 @@ test.describe('Character edit — organization picker', () => {
 
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
 
-    const charSlug = await page.evaluate(async (id) => {
-      await fetch(`/api/campaigns/${id}/organizations`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Grey Havens' }),
-      })
-      const charRes = await fetch(`/api/campaigns/${id}/characters`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Cirdan', characterType: 'npc' }),
-      })
-      return (await charRes.json()).slug
-    }, campaignId)
+    await apiFetch(page, `/api/campaigns/${campaignId}/organizations`, {
+      method: 'POST',
+      body: { name: 'Grey Havens' },
+    })
+    const cirdan = await apiFetch(page, `/api/campaigns/${campaignId}/characters`, {
+      method: 'POST',
+      body: { name: 'Cirdan', characterType: 'npc' },
+    })
+    const charSlug = (cirdan as any).slug
 
     const base = page.url().split('/campaigns/')[0]
     await page.goto(`${base}/campaigns/${campaignId}/characters/${charSlug}/edit`)
@@ -183,29 +163,19 @@ test.describe('Character edit — organization picker', () => {
 
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
 
-    const charSlug = await page.evaluate(async (id) => {
-      const orgRes = await fetch(`/api/campaigns/${id}/organizations`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Shire Watch' }),
-      })
-      const org = await orgRes.json()
-
-      const charRes = await fetch(`/api/campaigns/${id}/characters`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Bilbo', characterType: 'pc' }),
-      })
-      const char = await charRes.json()
-
-      await fetch(`/api/campaigns/${id}/organizations/${org.slug}/members`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ characterId: char.id, role: 'Burglar' }),
-      })
-
-      return char.slug
-    }, campaignId)
+    const shireWatch = await apiFetch(page, `/api/campaigns/${campaignId}/organizations`, {
+      method: 'POST',
+      body: { name: 'Shire Watch' },
+    })
+    const bilbo = await apiFetch(page, `/api/campaigns/${campaignId}/characters`, {
+      method: 'POST',
+      body: { name: 'Bilbo', characterType: 'pc' },
+    })
+    await apiFetch(page, `/api/campaigns/${campaignId}/organizations/${(shireWatch as any).slug}/members`, {
+      method: 'POST',
+      body: { characterId: (bilbo as any).id, role: 'Burglar' },
+    })
+    const charSlug = (bilbo as any).slug
 
     const base = page.url().split('/campaigns/')[0]
     await page.goto(`${base}/campaigns/${campaignId}/characters/${charSlug}/edit`)

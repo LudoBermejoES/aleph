@@ -1,10 +1,11 @@
-import { eq, and, like, desc, asc, sql, isNull } from 'drizzle-orm'
+import { eq, and, desc, asc, sql, isNull } from 'drizzle-orm'
 import { alias } from 'drizzle-orm/sqlite-core'
 import { useDb } from '../../../../utils/db'
 import { entities } from '../../../../db/schema/entities'
 import { characters } from '../../../../db/schema/characters'
 import { organizations, organizationMembers } from '../../../../db/schema/organizations'
 import { parsePagination, buildMeta } from '../../../../utils/pagination'
+import { escapeLike } from '../../../../utils/sanitize'
 
 const locationEntities = alias(entities, 'loc_entities')
 
@@ -40,7 +41,7 @@ export default defineEventHandler(async (event) => {
   const conditions: ReturnType<typeof eq>[] = [eq(entities.campaignId, campaignId)]
   if (characterType) conditions.push(eq(characters.characterType, characterType))
   if (status) conditions.push(eq(characters.status, status))
-  if (search) conditions.push(like(entities.name, `%${search}%`))
+  if (search) conditions.push(sql`${entities.name} LIKE ${'%' + escapeLike(search) + '%'} ESCAPE '\\'` as ReturnType<typeof eq>)
   if (folderId) conditions.push(eq(characters.folderId, folderId))
   if (companionOf) conditions.push(eq(characters.isCompanionOf, companionOf))
   if (companions === 'false') conditions.push(isNull(characters.isCompanionOf) as ReturnType<typeof eq>)

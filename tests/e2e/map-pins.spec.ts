@@ -12,8 +12,9 @@ test.describe('Map Pins', () => {
 
     // Create map via API
     const mapRes = await page.evaluate(async (id) => {
+      const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
       const r = await fetch(`/api/campaigns/${id}/maps`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
         body: JSON.stringify({ name: 'Pin Test Map' }),
       })
       return r.json()
@@ -23,12 +24,13 @@ test.describe('Map Pins', () => {
 
     // Add pins via API
     await page.evaluate(async ([id, slug]) => {
+      const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
       await fetch(`/api/campaigns/${id}/maps/${slug}/pins`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
         body: JSON.stringify({ label: 'Castle Ravenloft', lat: 100, lng: 200, color: '#ff0000' }),
       })
       await fetch(`/api/campaigns/${id}/maps/${slug}/pins`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
         body: JSON.stringify({ label: 'Village of Barovia', lat: 300, lng: 150, color: '#00ff00' }),
       })
     }, [campaignId, mapSlug])
@@ -51,16 +53,18 @@ test.describe('Map Pins', () => {
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
 
     const mapRes = await page.evaluate(async (id) => {
+      const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
       const r = await fetch(`/api/campaigns/${id}/maps`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
         body: JSON.stringify({ name: 'Layer Test Map' }),
       })
       return r.json()
     }, campaignId)
 
     await page.evaluate(async ([id, slug]) => {
+      const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
       await fetch(`/api/campaigns/${id}/maps/${slug}/layers`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
         body: JSON.stringify({ name: 'Political Borders', type: 'overlay', opacity: 0.5 }),
       })
     }, [campaignId, (mapRes as any).slug])

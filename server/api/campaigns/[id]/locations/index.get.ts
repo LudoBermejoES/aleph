@@ -1,9 +1,10 @@
-import { eq, and, like, sql } from 'drizzle-orm'
+import { eq, and, sql } from 'drizzle-orm'
 import { alias } from 'drizzle-orm/sqlite-core'
 import { useDb } from '../../../../utils/db'
 import { entities } from '../../../../db/schema/entities'
 import { buildVisibilityFilter } from '../../../../utils/permissions'
 import { parsePagination, buildMeta } from '../../../../utils/pagination'
+import { escapeLike } from '../../../../utils/sanitize'
 import type { CampaignRole } from '../../../../utils/permissions'
 
 const parentEntities = alias(entities, 'parent_entities')
@@ -27,7 +28,7 @@ export default defineEventHandler(async (event) => {
   if (parentId) conditions.push(eq(entities.parentId, parentId))
   else if (query.parentId === '') conditions.push(sql`${entities.parentId} IS NULL`)
 
-  if (search) conditions.push(like(entities.name, `%${search}%`))
+  if (search) conditions.push(sql`${entities.name} LIKE ${'%' + escapeLike(search) + '%'} ESCAPE '\\'`)
 
   buildVisibilityFilter(role, userId, conditions, entities.visibility, entities.createdBy)
 

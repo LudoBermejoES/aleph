@@ -1,5 +1,7 @@
+import { z } from 'zod'
 import { eq } from 'drizzle-orm'
 import { useDb } from '../../../../utils/db'
+import { validateBody } from '../../../../utils/validate'
 import { relationTypes } from '../../../../db/schema/relations'
 import { hasMinRole } from '../../../../utils/permissions'
 import type { CampaignRole } from '../../../../utils/permissions'
@@ -9,7 +11,11 @@ export default defineEventHandler(async (event) => {
   if (!hasMinRole(role, 'dm')) throw createError({ statusCode: 403, message: 'Only DM can edit relation types' })
 
   const typeId = getRouterParam(event, 'typeId')!
-  const body = await readBody(event)
+  const relationTypePutSchema = z.object({
+    forwardLabel: z.string().min(1).optional(),
+    reverseLabel: z.string().min(1).optional(),
+  })
+  const body = await validateBody(event, relationTypePutSchema)
   const db = useDb()
 
   const type = db.select().from(relationTypes).where(eq(relationTypes.id, typeId)).get()

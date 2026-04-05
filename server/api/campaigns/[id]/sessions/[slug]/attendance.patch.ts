@@ -1,12 +1,19 @@
+import { z } from 'zod'
 import { randomUUID } from 'crypto'
 import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
+import { validateBody } from '../../../../../utils/validate'
 import { gameSessions, sessionAttendance } from '../../../../../db/schema/sessions'
 
 export default defineEventHandler(async (event) => {
   const campaignId = getRouterParam(event, 'id')!
   const slug = getRouterParam(event, 'slug')!
-  const body = await readBody(event)
+  const attendanceSchema = z.object({
+    rsvpStatus: z.enum(['pending', 'accepted', 'declined', 'tentative', 'yes', 'no', 'maybe']).optional(),
+    attended: z.boolean().optional(),
+    characterId: z.string().optional(),
+  })
+  const body = await validateBody(event, attendanceSchema)
   const userId = event.context.user.id
   const db = useDb()
 

@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { registerAndLogin, createCampaign } from './helpers'
+import { registerAndLogin, createCampaign, apiFetch } from './helpers'
 
 const uid = () => Date.now().toString(36).slice(-4)
 
@@ -12,15 +12,11 @@ test.describe('Economy Workflow', () => {
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
 
     // Create currency via API
-    const currencyId = await page.evaluate(async (id) => {
-      const res = await fetch(`/api/campaigns/${id}/currencies`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'OldName', symbol: 'on', valueInBase: 10, sortOrder: 0 }),
-      })
-      const data = await res.json()
-      return data.id
-    }, campaignId)
+    const currency1 = await apiFetch(page, `/api/campaigns/${campaignId}/currencies`, {
+      method: 'POST',
+      body: { name: 'OldName', symbol: 'on', valueInBase: 10, sortOrder: 0 },
+    })
+    const currencyId = (currency1 as any).id
 
     await page.goto(`/campaigns/${campaignId}/currencies`)
     await page.waitForLoadState('networkidle')
@@ -45,15 +41,11 @@ test.describe('Economy Workflow', () => {
     await createCampaign(page, `Currency Delete ${uid()}`)
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
 
-    const currencyId = await page.evaluate(async (id) => {
-      const res = await fetch(`/api/campaigns/${id}/currencies`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'DeleteMe', symbol: 'dm', valueInBase: 1, sortOrder: 0 }),
-      })
-      const data = await res.json()
-      return data.id
-    }, campaignId)
+    const currency2 = await apiFetch(page, `/api/campaigns/${campaignId}/currencies`, {
+      method: 'POST',
+      body: { name: 'DeleteMe', symbol: 'dm', valueInBase: 1, sortOrder: 0 },
+    })
+    const currencyId = (currency2 as any).id
 
     await page.goto(`/campaigns/${campaignId}/currencies`)
     await page.waitForLoadState('networkidle')
@@ -76,19 +68,14 @@ test.describe('Economy Workflow', () => {
     await createCampaign(page, `Item Price ${uid()}`)
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
 
-    await page.evaluate(async (id) => {
-      const currency = await fetch(`/api/campaigns/${id}/currencies`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Gold', symbol: 'gp', valueInBase: 100, sortOrder: 0 }),
-      }).then(r => r.json())
-
-      await fetch(`/api/campaigns/${id}/items`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Magic Wand', rarity: 'rare', price: { [currency.id]: 50 } }),
-      })
-    }, campaignId)
+    const gold = await apiFetch(page, `/api/campaigns/${campaignId}/currencies`, {
+      method: 'POST',
+      body: { name: 'Gold', symbol: 'gp', valueInBase: 100, sortOrder: 0 },
+    })
+    await apiFetch(page, `/api/campaigns/${campaignId}/items`, {
+      method: 'POST',
+      body: { name: 'Magic Wand', rarity: 'rare', price: { [(gold as any).id]: 50 } },
+    })
 
     await page.goto(`/campaigns/${campaignId}/items`)
     await page.waitForLoadState('networkidle')
@@ -135,21 +122,15 @@ test.describe('Economy Workflow', () => {
     await createCampaign(page, `Stock Add ${uid()}`)
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
 
-    const { shopSlug } = await page.evaluate(async (id) => {
-      const item = await fetch(`/api/campaigns/${id}/items`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Iron Shield', rarity: 'common' }),
-      }).then(r => r.json())
-
-      const shop = await fetch(`/api/campaigns/${id}/shops`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'E2E Armory' }),
-      }).then(r => r.json())
-
-      return { shopSlug: shop.slug, itemId: item.id }
-    }, campaignId)
+    await apiFetch(page, `/api/campaigns/${campaignId}/items`, {
+      method: 'POST',
+      body: { name: 'Iron Shield', rarity: 'common' },
+    })
+    const armory = await apiFetch(page, `/api/campaigns/${campaignId}/shops`, {
+      method: 'POST',
+      body: { name: 'E2E Armory' },
+    })
+    const shopSlug = (armory as any).slug
 
     await page.goto(`/campaigns/${campaignId}/shops/${shopSlug}`)
     await page.waitForLoadState('networkidle')
@@ -181,27 +162,20 @@ test.describe('Economy Workflow', () => {
     await createCampaign(page, `Stock Remove ${uid()}`)
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
 
-    const { shopSlug, stockId } = await page.evaluate(async (id) => {
-      const item = await fetch(`/api/campaigns/${id}/items`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Removable Sword', rarity: 'common' }),
-      }).then(r => r.json())
-
-      const shop = await fetch(`/api/campaigns/${id}/shops`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Remove Stock Shop' }),
-      }).then(r => r.json())
-
-      const stock = await fetch(`/api/campaigns/${id}/shops/${shop.slug}/stock`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ itemId: item.id, quantity: 3 }),
-      }).then(r => r.json())
-
-      return { shopSlug: shop.slug, stockId: stock.id }
-    }, campaignId)
+    const removableSword = await apiFetch(page, `/api/campaigns/${campaignId}/items`, {
+      method: 'POST',
+      body: { name: 'Removable Sword', rarity: 'common' },
+    })
+    const removeStockShop = await apiFetch(page, `/api/campaigns/${campaignId}/shops`, {
+      method: 'POST',
+      body: { name: 'Remove Stock Shop' },
+    })
+    const removeStock = await apiFetch(page, `/api/campaigns/${campaignId}/shops/${(removeStockShop as any).slug}/stock`, {
+      method: 'POST',
+      body: { itemId: (removableSword as any).id, quantity: 3 },
+    })
+    const shopSlug = (removeStockShop as any).slug
+    const stockId = (removeStock as any).id
 
     await page.goto(`/campaigns/${campaignId}/shops/${shopSlug}`)
     await page.waitForLoadState('networkidle')
@@ -222,27 +196,20 @@ test.describe('Economy Workflow', () => {
     await createCampaign(page, `Stock Edit ${uid()}`)
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
 
-    const { shopSlug, stockId } = await page.evaluate(async (id) => {
-      const item = await fetch(`/api/campaigns/${id}/items`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Editable Potion', rarity: 'common' }),
-      }).then(r => r.json())
-
-      const shop = await fetch(`/api/campaigns/${id}/shops`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Edit Stock Shop' }),
-      }).then(r => r.json())
-
-      const stock = await fetch(`/api/campaigns/${id}/shops/${shop.slug}/stock`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ itemId: item.id, quantity: 5 }),
-      }).then(r => r.json())
-
-      return { shopSlug: shop.slug, stockId: stock.id }
-    }, campaignId)
+    const editablePotion = await apiFetch(page, `/api/campaigns/${campaignId}/items`, {
+      method: 'POST',
+      body: { name: 'Editable Potion', rarity: 'common' },
+    })
+    const editStockShop = await apiFetch(page, `/api/campaigns/${campaignId}/shops`, {
+      method: 'POST',
+      body: { name: 'Edit Stock Shop' },
+    })
+    const editStock = await apiFetch(page, `/api/campaigns/${campaignId}/shops/${(editStockShop as any).slug}/stock`, {
+      method: 'POST',
+      body: { itemId: (editablePotion as any).id, quantity: 5 },
+    })
+    const shopSlug = (editStockShop as any).slug
+    const stockId = (editStock as any).id
 
     await page.goto(`/campaigns/${campaignId}/shops/${shopSlug}`)
     await page.waitForLoadState('networkidle')

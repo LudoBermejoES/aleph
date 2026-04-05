@@ -24,10 +24,18 @@ async function apiRaw(path: string, opts?: any) {
   return res
 }
 
+async function getCsrfToken(sessionCookie: string): Promise<string> {
+  const res = await apiRaw('/api/campaigns', { headers: { Cookie: sessionCookie } })
+  const setCookie = res.headers.get('set-cookie') || ''
+  const match = setCookie.match(/csrf_token=([^;]+)/)
+  return match?.[1] || ''
+}
+
 describe('Auth API (integration)', () => {
   const testEmail = `inttest-${Date.now()}@example.com`
   const testPassword = 'testpassword123'
   let sessionCookie = ''
+  let csrfToken = ''
 
   it('registers a new user', async () => {
     const res = await apiRaw('/api/auth/sign-up/email', {
@@ -76,12 +84,17 @@ describe('Auth API (integration)', () => {
     expect(res.status).toBe(200)
     const data = await res.json()
     expect(Array.isArray(data)).toBe(true)
+    // Extract CSRF token from set-cookie
+    const setCookie = res.headers.get('set-cookie') || ''
+    const csrfMatch = setCookie.match(/csrf_token=([^;]+)/)
+    csrfToken = csrfMatch?.[1] || ''
   })
 
   it('creates a campaign with auth', async () => {
+    const cookieWithCsrf = csrfToken ? `${sessionCookie}; csrf_token=${csrfToken}` : sessionCookie
     const res = await apiRaw('/api/campaigns', {
       method: 'POST',
-      headers: { Cookie: sessionCookie },
+      headers: { Cookie: cookieWithCsrf, 'X-CSRF-Token': csrfToken },
       body: { name: `IntTest Campaign ${Date.now()}` },
     })
     expect(res.status).toBe(200)
@@ -95,7 +108,9 @@ describe('Campaign RBAC (integration)', () => {
   const dmEmail = `dm-${Date.now()}@example.com`
   const playerEmail = `player-${Date.now()}@example.com`
   let dmCookie = ''
+  let dmCsrfToken = ''
   let playerCookie = ''
+  let playerCsrfToken = ''
   let campaignId = ''
 
   beforeAll(async () => {
@@ -110,12 +125,16 @@ describe('Campaign RBAC (integration)', () => {
     })
     const dmCookies = dmLogin.headers.get('set-cookie') || ''
     const dmMatch = dmCookies.match(/better-auth\.session_token=([^;]+)/)
-    dmCookie = dmMatch ? `better-auth.session_token=${dmMatch[1]}` : ''
+    const dmSessionCookie = dmMatch ? `better-auth.session_token=${dmMatch[1]}` : ''
+
+    // Get CSRF token for DM
+    dmCsrfToken = await getCsrfToken(dmSessionCookie)
+    dmCookie = dmCsrfToken ? `${dmSessionCookie}; csrf_token=${dmCsrfToken}` : dmSessionCookie
 
     // Create campaign as DM
     const campRes = await apiRaw('/api/campaigns', {
       method: 'POST',
-      headers: { Cookie: dmCookie },
+      headers: { Cookie: dmCookie, 'X-CSRF-Token': dmCsrfToken },
       body: { name: `RBAC Test ${Date.now()}` },
     })
     const campData = await campRes.json()
@@ -132,19 +151,23 @@ describe('Campaign RBAC (integration)', () => {
     })
     const playerCookies = playerLogin.headers.get('set-cookie') || ''
     const playerMatch = playerCookies.match(/better-auth\.session_token=([^;]+)/)
-    playerCookie = playerMatch ? `better-auth.session_token=${playerMatch[1]}` : ''
+    const playerSessionCookie = playerMatch ? `better-auth.session_token=${playerMatch[1]}` : ''
+
+    // Get CSRF token for player
+    playerCsrfToken = await getCsrfToken(playerSessionCookie)
+    playerCookie = playerCsrfToken ? `${playerSessionCookie}; csrf_token=${playerCsrfToken}` : playerSessionCookie
 
     // Invite player and join
     const inviteRes = await apiRaw(`/api/campaigns/${campaignId}/invite`, {
       method: 'POST',
-      headers: { Cookie: dmCookie },
+      headers: { Cookie: dmCookie, 'X-CSRF-Token': dmCsrfToken },
       body: { role: 'player' },
     })
     const inviteData = await inviteRes.json()
 
     await apiRaw(`/api/campaigns/${campaignId}/join`, {
       method: 'POST',
-      headers: { Cookie: playerCookie },
+      headers: { Cookie: playerCookie, 'X-CSRF-Token': playerCsrfToken },
       body: { token: inviteData.token },
     })
   })
@@ -152,7 +175,7 @@ describe('Campaign RBAC (integration)', () => {
   it('player cannot delete campaign (403)', async () => {
     const res = await apiRaw(`/api/campaigns/${campaignId}`, {
       method: 'DELETE',
-      headers: { Cookie: playerCookie },
+      headers: { Cookie: playerCookie, 'X-CSRF-Token': playerCsrfToken },
     })
     expect(res.status).toBe(403)
   })

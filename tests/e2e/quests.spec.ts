@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { registerAndLogin, createCampaign } from './helpers'
+import { registerAndLogin, createCampaign, apiFetch } from './helpers'
 
 const uid = () => Date.now().toString(36).slice(-4)
 
@@ -9,12 +9,10 @@ test.describe('Quests', () => {
     await createCampaign(page, `Quest Camp ${uid()}`)
 
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
-    await page.evaluate(async (id) => {
-      await fetch(`/api/campaigns/${id}/quests`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Find the Lost Sword', description: 'A legendary weapon lies hidden' }),
-      })
-    }, campaignId)
+    await apiFetch(page, `/api/campaigns/${campaignId}/quests`, {
+      method: 'POST',
+      body: { name: 'Find the Lost Sword', description: 'A legendary weapon lies hidden' },
+    })
 
     await page.click('aside >> text=Quests')
     await page.waitForLoadState('networkidle')
@@ -27,17 +25,14 @@ test.describe('Quests', () => {
     await createCampaign(page, `Sub Camp ${uid()}`)
 
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
-    await page.evaluate(async (id) => {
-      const parent = await fetch(`/api/campaigns/${id}/quests`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Main Quest' }),
-      }).then(r => r.json())
-
-      await fetch(`/api/campaigns/${id}/quests`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Sub Quest Step', parentQuestId: parent.id }),
-      })
-    }, campaignId)
+    const parent = await apiFetch(page, `/api/campaigns/${campaignId}/quests`, {
+      method: 'POST',
+      body: { name: 'Main Quest' },
+    })
+    await apiFetch(page, `/api/campaigns/${campaignId}/quests`, {
+      method: 'POST',
+      body: { name: 'Sub Quest Step', parentQuestId: (parent as any).id },
+    })
 
     await page.click('aside >> text=Quests')
     await page.waitForLoadState('networkidle')
@@ -50,20 +45,18 @@ test.describe('Quests', () => {
     await createCampaign(page, `Status Camp ${uid()}`)
 
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
-    await page.evaluate(async (id) => {
-      await fetch(`/api/campaigns/${id}/quests`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Active Quest', status: 'active' }),
-      })
-      const q = await fetch(`/api/campaigns/${id}/quests`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Done Quest' }),
-      }).then(r => r.json())
-      await fetch(`/api/campaigns/${id}/quests/${q.slug}`, {
-        method: 'PUT', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'completed' }),
-      })
-    }, campaignId)
+    await apiFetch(page, `/api/campaigns/${campaignId}/quests`, {
+      method: 'POST',
+      body: { name: 'Active Quest', status: 'active' },
+    })
+    const doneQuest = await apiFetch(page, `/api/campaigns/${campaignId}/quests`, {
+      method: 'POST',
+      body: { name: 'Done Quest' },
+    })
+    await apiFetch(page, `/api/campaigns/${campaignId}/quests/${(doneQuest as any).slug}`, {
+      method: 'PUT',
+      body: { status: 'completed' },
+    })
 
     await page.click('aside >> text=Quests')
     await page.waitForLoadState('networkidle')

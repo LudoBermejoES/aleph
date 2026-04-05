@@ -10,9 +10,21 @@ async function api(path: string, opts?: any) {
   })
 }
 
+async function getCsrfToken(sessionCookie: string): Promise<string> {
+  const res = await api('/api/campaigns', { headers: { Cookie: sessionCookie } })
+  const setCookie = res.headers.get('set-cookie') || ''
+  const match = setCookie.match(/csrf_token=([^;]+)/)
+  return match?.[1] || ''
+}
+
+function withCsrf(cookie: string, csrfToken: string) {
+  return { Cookie: `${cookie}; csrf_token=${csrfToken}`, 'X-CSRF-Token': csrfToken }
+}
+
 describe('Pagination integration tests', () => {
   const email = `pagination-${Date.now()}@example.com`
   let cookie = ''
+  let csrfToken = ''
   let campaignId = ''
 
   beforeAll(async () => {
@@ -21,14 +33,15 @@ describe('Pagination integration tests', () => {
     const cookies = login.headers.get('set-cookie') || ''
     const match = cookies.match(/better-auth\.session_token=([^;]+)/)
     cookie = match ? `better-auth.session_token=${match[1]}` : ''
+    csrfToken = await getCsrfToken(cookie)
 
-    const camp = await api('/api/campaigns', { method: 'POST', headers: { Cookie: cookie }, body: { name: `Pagination Test ${Date.now()}` } })
+    const camp = await api('/api/campaigns', { method: 'POST', headers: withCsrf(cookie, csrfToken), body: { name: `Pagination Test ${Date.now()}` } })
     campaignId = (await camp.json()).id
 
     // Create 5 characters for pagination tests
     for (let i = 1; i <= 5; i++) {
       await api(`/api/campaigns/${campaignId}/characters`, {
-        method: 'POST', headers: { Cookie: cookie },
+        method: 'POST', headers: withCsrf(cookie, csrfToken),
         body: { name: `Character ${i}`, characterType: 'npc' },
       })
     }
@@ -84,7 +97,7 @@ describe('Pagination integration tests', () => {
   describe('organizations endpoint', () => {
     beforeAll(async () => {
       await api(`/api/campaigns/${campaignId}/organizations`, {
-        method: 'POST', headers: { Cookie: cookie },
+        method: 'POST', headers: withCsrf(cookie, csrfToken),
         body: { name: 'Test Guild', type: 'guild', status: 'active' },
       })
     })

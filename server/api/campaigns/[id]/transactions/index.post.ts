@@ -1,6 +1,8 @@
+import { z } from 'zod'
 import { randomUUID } from 'crypto'
 import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../utils/db'
+import { validateBody } from '../../../../utils/validate'
 import { transactions, wealth } from '../../../../db/schema/inventory'
 import { hasMinRole } from '../../../../utils/permissions'
 import type { CampaignRole } from '../../../../utils/permissions'
@@ -13,7 +15,20 @@ export default defineEventHandler(async (event) => {
   if (!hasMinRole(role, 'editor')) throw createError({ statusCode: 403, message: 'Editors or above can log transactions' })
 
   const campaignId = getRouterParam(event, 'id')!
-  const body = await readBody(event)
+  const transactionSchema = z.object({
+    type: z.string().optional(),
+    fromEntityId: z.string().optional(),
+    toEntityId: z.string().optional(),
+    itemId: z.string().optional(),
+    quantity: z.number().optional(),
+    amounts: z.record(z.string(), z.number()).optional(),
+    notes: z.string().optional(),
+    toOwnerId: z.string().optional(),
+    toOwnerType: z.string().optional(),
+    fromOwnerId: z.string().optional(),
+    fromOwnerType: z.string().optional(),
+  })
+  const body = await validateBody(event, transactionSchema)
   const db = useDb()
   const id = randomUUID()
   const type = body.type || 'trade'

@@ -1,4 +1,5 @@
 import { hasMinRole } from '../../../../utils/permissions'
+import { detectMimeFromBytes } from '../../../../utils/sanitize'
 import { writeFile, mkdir } from 'fs/promises'
 import { join, extname } from 'path'
 import { randomUUID } from 'crypto'
@@ -33,6 +34,14 @@ export default defineEventHandler(async (event) => {
 
   if (file.data.length > MAX_SIZE_BYTES) {
     throw createError({ statusCode: 400, message: 'File exceeds the 10 MB size limit' })
+  }
+
+  // Magic byte validation (skipped for GIF which lacks a check)
+  if (mime !== 'image/gif') {
+    const detectedMime = detectMimeFromBytes(file.data)
+    if (!detectedMime || detectedMime !== mime) {
+      throw createError({ statusCode: 400, message: 'File content does not match declared MIME type' })
+    }
   }
 
   const mimeToExt: Record<string, string> = {

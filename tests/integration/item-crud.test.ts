@@ -26,11 +26,19 @@ async function signUpAndGetCookie(email: string, password = 'password123', name 
   const res = await apiRaw('/api/auth/sign-in/email', { method: 'POST', body: { email, password } })
   const cookies = res.headers.get('set-cookie') || ''
   const match = cookies.match(/better-auth\.session_token=([^;]+)/)
-  return match ? `better-auth.session_token=${match[1]}` : ''
+  const sessionCookie = match ? `better-auth.session_token=${match[1]}` : ''
+  // Trigger CSRF token generation
+  const getRes = await apiRaw('/api/campaigns', { headers: { Cookie: sessionCookie } })
+  const setCookie = getRes.headers.get('set-cookie') || ''
+  const csrfMatch = setCookie.match(/csrf_token=([^;]+)/)
+  const csrfToken = csrfMatch?.[1] || ''
+  return csrfToken ? `${sessionCookie}; csrf_token=${csrfToken}` : sessionCookie
 }
 
 async function createApiKey(cookie: string, name = 'test-key') {
-  const res = await apiRaw('/api/apikeys', { method: 'POST', headers: { Cookie: cookie }, body: { name } })
+  const csrfMatch = cookie.match(/csrf_token=([^;]+)/)
+  const csrfToken = csrfMatch?.[1] || ''
+  const res = await apiRaw('/api/apikeys', { method: 'POST', headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken }, body: { name } })
   return res.json()
 }
 

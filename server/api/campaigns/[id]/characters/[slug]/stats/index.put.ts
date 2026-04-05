@@ -1,6 +1,8 @@
+import { z } from 'zod'
 import { eq, and } from 'drizzle-orm'
 import { randomUUID } from 'crypto'
 import { useDb } from '../../../../../../utils/db'
+import { validateBody } from '../../../../../../utils/validate'
 import { entities } from '../../../../../../db/schema/entities'
 import { characters, characterStats, statDefinitions, statGroups } from '../../../../../../db/schema/characters'
 import { hasMinRole } from '../../../../../../utils/permissions'
@@ -11,12 +13,14 @@ export default defineEventHandler(async (event) => {
   const userId = event.context.user.id
   const campaignId = getRouterParam(event, 'id')!
   const slug = getRouterParam(event, 'slug')!
-  const body = await readBody(event)
+  const statsSchema = z.object({
+    stats: z.array(z.object({
+      statDefinitionId: z.string(),
+      value: z.union([z.string(), z.number()]),
+    })),
+  })
+  const body = await validateBody(event, statsSchema)
   const { stats } = body // Array of { statDefinitionId, value }
-
-  if (!Array.isArray(stats)) {
-    throw createError({ statusCode: 400, message: 'Stats array is required' })
-  }
 
   // Empty array is a no-op
   if (stats.length === 0) return { success: true }

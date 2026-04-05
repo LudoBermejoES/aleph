@@ -1,5 +1,7 @@
+import { z } from 'zod'
 import { eq, and } from 'drizzle-orm'
 import { useDb, useSqlite } from '../../../../../utils/db'
+import { validateBody } from '../../../../../utils/validate'
 import { entities } from '../../../../../db/schema/entities'
 import { characters } from '../../../../../db/schema/characters'
 import { canEditCharacter } from '../../../../../services/characters'
@@ -12,7 +14,21 @@ export default defineEventHandler(async (event) => {
   const userId = event.context.user.id
   const campaignId = getRouterParam(event, 'id')!
   const slug = getRouterParam(event, 'slug')!
-  const body = await readBody(event)
+  const characterPutSchema = z.object({
+    name: z.string().min(1).max(200).optional(),
+    content: z.string().optional(),
+    visibility: z.enum(['public', 'members', 'editors', 'dm_only', 'private', 'specific_users']).optional(),
+    aliases: z.array(z.string()).optional(),
+    tags: z.array(z.string()).optional(),
+    characterType: z.string().optional(),
+    race: z.string().optional(),
+    class: z.string().optional(),
+    alignment: z.string().optional(),
+    status: z.string().optional(),
+    locationEntityId: z.string().nullable().optional(),
+    folderId: z.string().optional(),
+  })
+  const body = await validateBody(event, characterPutSchema)
   const db = useDb()
   const sqlite = useSqlite()
 

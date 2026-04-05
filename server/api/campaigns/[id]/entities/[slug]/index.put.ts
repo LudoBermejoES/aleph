@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import { eq, and } from 'drizzle-orm'
 import { useDb, useSqlite } from '../../../../../utils/db'
 import { entities } from '../../../../../db/schema/entities'
@@ -5,7 +6,18 @@ import { hasMinRole } from '../../../../../utils/permissions'
 import { writeEntityFile, readEntityFile } from '../../../../../services/content'
 import { indexEntity } from '../../../../../services/search'
 import { invalidateAutomatonCache } from '../../../../../services/autolink'
+import { validateBody } from '../../../../../utils/validate'
 import type { CampaignRole } from '../../../../../utils/permissions'
+
+const entityUpdateSchema = z.object({
+  name: z.string().min(1).max(200).optional(),
+  type: z.string().optional(),
+  content: z.string().optional(),
+  visibility: z.enum(['public', 'members', 'editors', 'dm_only', 'private', 'specific_users']).optional(),
+  aliases: z.array(z.string()).optional(),
+  tags: z.array(z.string()).optional(),
+  fields: z.record(z.string(), z.unknown()).optional(),
+})
 
 export default defineEventHandler(async (event) => {
   const role = event.context.campaignRole as CampaignRole
@@ -15,7 +27,7 @@ export default defineEventHandler(async (event) => {
 
   const campaignId = getRouterParam(event, 'id')!
   const slug = getRouterParam(event, 'slug')!
-  const body = await readBody(event)
+  const body = await validateBody(event, entityUpdateSchema)
   const db = useDb()
   const sqlite = useSqlite()
 

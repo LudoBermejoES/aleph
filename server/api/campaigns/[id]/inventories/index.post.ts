@@ -1,5 +1,7 @@
+import { z } from 'zod'
 import { randomUUID } from 'crypto'
 import { useDb } from '../../../../utils/db'
+import { validateBody } from '../../../../utils/validate'
 import { inventories } from '../../../../db/schema/inventory'
 import { hasMinRole } from '../../../../utils/permissions'
 import type { CampaignRole } from '../../../../utils/permissions'
@@ -9,7 +11,12 @@ export default defineEventHandler(async (event) => {
   if (!hasMinRole(role, 'editor')) throw createError({ statusCode: 403, message: 'Editors or above can create inventories' })
 
   const campaignId = getRouterParam(event, 'id')!
-  const body = await readBody(event)
+  const inventorySchema = z.object({
+    ownerType: z.string().optional(),
+    ownerId: z.string(),
+    name: z.string().optional(),
+  })
+  const body = await validateBody(event, inventorySchema)
   const db = useDb()
   const id = randomUUID()
 

@@ -6,6 +6,7 @@ import { validateMapImage } from '../../../../../services/maps'
 import { logger } from '../../../../../utils/logger'
 import { writeFile, mkdir } from 'fs/promises'
 import { join, extname } from 'path'
+import { detectMimeFromBytes } from '../../../../../utils/sanitize'
 import type { CampaignRole } from '../../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
@@ -35,13 +36,17 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'Image file is required (field name: "image")' })
   }
 
-  // Validate
-  const validation = validateMapImage({
-    mimetype: file.type || 'application/octet-stream',
-    size: file.data.length,
-  })
+  // Validate declared MIME + size
+  const fileMime = file.type || 'application/octet-stream'
+  const validation = validateMapImage({ mimetype: fileMime, size: file.data.length })
   if (!validation.valid) {
     throw createError({ statusCode: 400, message: validation.error })
+  }
+
+  // Validate actual content via magic bytes
+  const detectedMime = detectMimeFromBytes(file.data)
+  if (!detectedMime || detectedMime !== fileMime) {
+    throw createError({ statusCode: 400, message: 'File content does not match declared MIME type' })
   }
 
   // Store file

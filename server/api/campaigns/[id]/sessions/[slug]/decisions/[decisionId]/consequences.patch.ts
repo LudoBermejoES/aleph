@@ -1,5 +1,7 @@
+import { z } from 'zod'
 import { eq } from 'drizzle-orm'
 import { useDb } from '../../../../../../../utils/db'
+import { validateBody } from '../../../../../../../utils/validate'
 import { consequences } from '../../../../../../../db/schema/sessions'
 import { hasMinRole } from '../../../../../../../utils/permissions'
 import type { CampaignRole } from '../../../../../../../utils/permissions'
@@ -10,11 +12,13 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 403, message: 'Co-DM or above can reveal consequences' })
   }
 
-  const body = await readBody(event)
+  const consequencePatchSchema = z.object({
+    consequenceId: z.string(),
+    revealed: z.boolean().optional(),
+  })
+  const body = await validateBody(event, consequencePatchSchema)
   const { consequenceId, revealed } = body
   const db = useDb()
-
-  if (!consequenceId) throw createError({ statusCode: 400, message: 'consequenceId required' })
 
   db.update(consequences)
     .set({ revealed: revealed ?? true })

@@ -2,16 +2,27 @@ import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
 import { entities } from '../../../../../db/schema/entities'
 import { characters } from '../../../../../db/schema/characters'
+import { canUserAccessEntity, getCachedPermission, setCachedPermission } from '../../../../../utils/permissions'
+import type { CampaignRole, Visibility } from '../../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
   const campaignId = getRouterParam(event, 'id')!
   const slug = getRouterParam(event, 'slug')!
+  const role = (event.context.campaignRole || 'visitor') as CampaignRole
+  const userId = event.context.user?.id || ''
   const db = useDb()
 
   const location = db.select().from(entities)
     .where(and(eq(entities.campaignId, campaignId), eq(entities.slug, slug), eq(entities.type, 'location')))
     .get()
   if (!location) throw createError({ statusCode: 404, message: 'Location not found' })
+
+  const cached = getCachedPermission(userId, location.id, 'view')
+  const canAccess = cached !== null
+    ? cached
+    : await canUserAccessEntity(db, userId, 'user', role, location.id, location.visibility as Visibility, location.createdBy, 'view')
+  if (cached === null) setCachedPermission(userId, location.id, 'view', canAccess)
+  if (!canAccess) throw createError({ statusCode: 404, message: 'Location not found' })
 
   // Primary inhabitants: characters with locationEntityId = this location
   const primary = db.select({

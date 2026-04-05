@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { registerAndLogin, createCampaign } from './helpers'
+import { registerAndLogin, createCampaign, apiFetch } from './helpers'
 
 const uid = () => Date.now().toString(36).slice(-4)
 
@@ -12,12 +12,10 @@ test.describe('Pagination UI', () => {
 
     // Create 2 characters (fewer than page size of 50)
     for (let i = 0; i < 2; i++) {
-      await page.evaluate(async (id) => {
-        await fetch(`/api/campaigns/${id}/characters`, {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: `NPC ${Date.now()}`, characterType: 'npc' }),
-        })
-      }, campaignId)
+      await apiFetch(page, `/api/campaigns/${campaignId}/characters`, {
+        method: 'POST',
+        body: { name: `NPC ${Date.now()}`, characterType: 'npc' },
+      })
     }
 
     await page.goto(`/campaigns/${campaignId}/characters`, { waitUntil: 'networkidle' })
@@ -35,12 +33,10 @@ test.describe('Pagination UI', () => {
     // Use API to set a tiny page size by navigating with ?pageSize=2
     // First create 3 characters
     for (let i = 0; i < 3; i++) {
-      await page.evaluate(async (id) => {
-        await fetch(`/api/campaigns/${id}/characters`, {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: `NPC ${Date.now()}`, characterType: 'npc' }),
-        })
-      }, campaignId)
+      await apiFetch(page, `/api/campaigns/${campaignId}/characters`, {
+        method: 'POST',
+        body: { name: `NPC ${Date.now()}`, characterType: 'npc' },
+      })
     }
 
     // Navigate with pageSize=2 to force pagination
@@ -58,12 +54,10 @@ test.describe('Pagination UI', () => {
 
     // Create 3 characters
     for (let i = 0; i < 3; i++) {
-      await page.evaluate(async (id) => {
-        await fetch(`/api/campaigns/${id}/characters`, {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: `NPC ${Date.now()}`, characterType: 'npc' }),
-        })
-      }, campaignId)
+      await apiFetch(page, `/api/campaigns/${campaignId}/characters`, {
+        method: 'POST',
+        body: { name: `NPC ${Date.now()}`, characterType: 'npc' },
+      })
     }
 
     await page.goto(`/campaigns/${campaignId}/characters?pageSize=2`, { waitUntil: 'networkidle' })

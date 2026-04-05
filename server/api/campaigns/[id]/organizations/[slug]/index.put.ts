@@ -1,5 +1,7 @@
+import { z } from 'zod'
 import { eq, and, ne } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
+import { validateBody } from '../../../../../utils/validate'
 import { organizations } from '../../../../../db/schema'
 import { hasMinRole } from '../../../../../utils/permissions'
 import { slugify } from '../../../../../services/content'
@@ -24,7 +26,13 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, message: 'Organization not found' })
   }
 
-  const body = await readBody(event)
+  const orgPutSchema = z.object({
+    name: z.string().min(1).optional(),
+    description: z.string().optional(),
+    type: z.string().optional(),
+    status: z.string().optional(),
+  })
+  const body = await validateBody(event, orgPutSchema)
   const { name, description, type, status } = body
 
   let newSlug = org.slug

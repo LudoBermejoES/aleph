@@ -13,6 +13,7 @@ async function api(path: string, opts?: RequestInit & { body?: any }) {
 describe('Character connections — enriched response (integration)', () => {
   const email = `conn-enriched-${Date.now()}@example.com`
   let cookie = ''
+  let csrfToken = ''
   let campaignId = ''
   let char1Slug = ''
   let char2Slug = ''
@@ -23,20 +24,24 @@ describe('Character connections — enriched response (integration)', () => {
     const login = await api('/api/auth/sign-in/email', { method: 'POST', body: { email, password: 'password123' } })
     const cookies = login.headers.get('set-cookie') || ''
     const match = cookies.match(/better-auth\.session_token=([^;]+)/)
-    cookie = match ? `better-auth.session_token=${match[1]}` : ''
+    const sessionCookie = match ? `better-auth.session_token=${match[1]}` : ''
+    const campList = await api('/api/campaigns', { headers: { Cookie: sessionCookie } })
+    const setCookie = campList.headers.get('set-cookie') || ''
+    csrfToken = setCookie.match(/csrf_token=([^;]+)/)?.[1] || ''
+    cookie = csrfToken ? `${sessionCookie}; csrf_token=${csrfToken}` : sessionCookie
 
-    const camp = await api('/api/campaigns', { method: 'POST', headers: { Cookie: cookie }, body: { name: `Conn Enriched Test ${Date.now()}` } })
+    const camp = await api('/api/campaigns', { method: 'POST', headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken }, body: { name: `Conn Enriched Test ${Date.now()}` } })
     campaignId = (await camp.json()).id
 
     // Create two characters
     const c1 = await api(`/api/campaigns/${campaignId}/characters`, {
-      method: 'POST', headers: { Cookie: cookie },
+      method: 'POST', headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
       body: { name: 'Arwen', characterType: 'pc' },
     })
     char1Slug = (await c1.json()).slug
 
     const c2 = await api(`/api/campaigns/${campaignId}/characters`, {
-      method: 'POST', headers: { Cookie: cookie },
+      method: 'POST', headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
       body: { name: 'Aragorn', characterType: 'npc' },
     })
     const c2Data = await c2.json()
@@ -58,7 +63,7 @@ describe('Character connections — enriched response (integration)', () => {
   it('POST connection returns id', async () => {
     const res = await api(`/api/campaigns/${campaignId}/characters/${char1Slug}/connections`, {
       method: 'POST',
-      headers: { Cookie: cookie },
+      headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
       body: { targetEntityId: char2EntityId, label: 'loves', description: 'Their bond is unbreakable' },
     })
     expect(res.status).toBe(200)
@@ -88,7 +93,7 @@ describe('Character connections — enriched response (integration)', () => {
     // (server won't validate FK strictly in SQLite without PRAGMA)
     const res = await api(`/api/campaigns/${campaignId}/characters/${char1Slug}/connections`, {
       method: 'POST',
-      headers: { Cookie: cookie },
+      headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
       body: { targetEntityId: '00000000-0000-0000-0000-000000000000', label: 'mystery' },
     })
     // May succeed or fail depending on FK enforcement — if it succeeds check enrichment

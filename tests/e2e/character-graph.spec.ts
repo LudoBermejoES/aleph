@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { registerAndLogin, createCampaign } from './helpers'
+import { registerAndLogin, createCampaign, apiFetch } from './helpers'
 
 const uid = () => Date.now().toString(36).slice(-4)
 
@@ -10,12 +10,10 @@ test.describe('Character Relationship Graph', () => {
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
 
     // Create a character with no relations
-    await page.evaluate(async (id) => {
-      await fetch(`/api/campaigns/${id}/characters`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Loner', characterType: 'npc' }),
-      })
-    }, campaignId)
+    await apiFetch(page, `/api/campaigns/${campaignId}/characters`, {
+      method: 'POST',
+      body: { name: 'Loner', characterType: 'npc' },
+    })
 
     await page.click('aside a:has-text("Characters")')
     await page.waitForLoadState('networkidle')
@@ -32,13 +30,16 @@ test.describe('Character Relationship Graph', () => {
 
     // Create two characters and a relation between them
     const [c1Slug, c2Slug] = await page.evaluate(async (id) => {
+      const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
+      const mutatingHeaders = { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf }
+
       const c1 = await fetch(`/api/campaigns/${id}/characters`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: mutatingHeaders,
         body: JSON.stringify({ name: 'HeroA', characterType: 'npc' }),
       }).then(r => r.json())
 
       const c2 = await fetch(`/api/campaigns/${id}/characters`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: mutatingHeaders,
         body: JSON.stringify({ name: 'HeroB', characterType: 'npc' }),
       }).then(r => r.json())
 
@@ -48,12 +49,13 @@ test.describe('Character Relationship Graph', () => {
       const e1 = entityList.find((e: any) => e.slug === c1.slug)
       const e2 = entityList.find((e: any) => e.slug === c2.slug)
 
-      // Get a relation type
+      // Get a relation type (use first available)
       const types = await fetch(`/api/campaigns/${id}/relation-types`).then(r => r.json())
-      const customType = types.find((t: any) => t.slug === 'ally')
+      const customType = types.find((t: any) => t.slug === 'ally') ?? types[0]
+      if (!customType) throw new Error('No relation types found')
 
-      await fetch(`/api/campaigns/${id}/relations`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+      const relRes = await fetch(`/api/campaigns/${id}/relations`, {
+        method: 'POST', headers: mutatingHeaders,
         body: JSON.stringify({
           sourceEntityId: e1.id,
           targetEntityId: e2.id,
@@ -63,6 +65,7 @@ test.describe('Character Relationship Graph', () => {
           attitude: 80,
         }),
       })
+      if (!relRes.ok) throw new Error(`Relation create failed: ${relRes.status} ${await relRes.text()}`)
 
       return [c1.slug, c2.slug]
     }, campaignId)
@@ -83,13 +86,16 @@ test.describe('Character Relationship Graph', () => {
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
 
     const c1Slug = await page.evaluate(async (id) => {
+      const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
+      const mutatingHeaders = { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf }
+
       const c1 = await fetch(`/api/campaigns/${id}/characters`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: mutatingHeaders,
         body: JSON.stringify({ name: 'Connector', characterType: 'npc' }),
       }).then(r => r.json())
 
       const c2 = await fetch(`/api/campaigns/${id}/characters`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: mutatingHeaders,
         body: JSON.stringify({ name: 'Connected', characterType: 'npc' }),
       }).then(r => r.json())
 
@@ -98,7 +104,7 @@ test.describe('Character Relationship Graph', () => {
       const e2 = entityList.find((e: any) => e.slug === c2.slug)
 
       await fetch(`/api/campaigns/${id}/characters/${c1.slug}/connections`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: mutatingHeaders,
         body: JSON.stringify({ targetEntityId: e2.id, label: 'knows' }),
       })
 

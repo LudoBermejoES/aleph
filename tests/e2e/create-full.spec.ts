@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { BASE, registerAndLogin, createCampaign } from './helpers'
+import { BASE, registerAndLogin, createCampaign, apiFetch } from './helpers'
 
 const uid = () => Date.now().toString(36).slice(-4)
 
@@ -145,7 +145,7 @@ test.describe('Thorough Calendar Create (11c)', () => {
     await expect(page.locator('[data-testid="month-nav"]')).toContainText('Hammer')
 
     // 11.14 Verify day cells (30 days)
-    const dayCells = page.locator('[data-testid="calendar-grid"] .grid-cols-7 > div:not(.bg-muted\\/30)')
+    const dayCells = page.locator('[data-testid="calendar-grid"] div.min-h-\\[80px\\]:not(.bg-muted\\/30)')
     // Should have at least 28 visible day cells (30 - offset cells)
     await expect(async () => {
       const count = await dayCells.count()
@@ -319,18 +319,14 @@ test.describe('Thorough Relation Create (11j)', () => {
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
 
     // 11.33 Create two entities via API
-    await page.evaluate(async (id) => {
-      await fetch(`/api/campaigns/${id}/entities`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'RelSource Entity', type: 'character', content: '# Source' }),
-      })
-      await fetch(`/api/campaigns/${id}/entities`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'RelTarget Entity', type: 'location', content: '# Target' }),
-      })
-    }, campaignId)
+    await apiFetch(page, `/api/campaigns/${campaignId}/entities`, {
+      method: 'POST',
+      body: { name: 'RelSource Entity', type: 'character', content: '# Source' },
+    })
+    await apiFetch(page, `/api/campaigns/${campaignId}/entities`, {
+      method: 'POST',
+      body: { name: 'RelTarget Entity', type: 'location', content: '# Target' },
+    })
 
     await page.goto(`${BASE}/campaigns/${campaignId}/relations/new`)
     await page.waitForLoadState('networkidle')
@@ -379,12 +375,13 @@ test.describe('Thorough Relation Create (11j)', () => {
       const campaignId2 = page.url().split('/campaigns/')[1]?.split('/')[0]
       console.log('Button disabled — creating relation via API fallback')
       await page.evaluate(async (id) => {
+        const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
         const entities = await (await fetch(`/api/campaigns/${id}/entities?limit=2`)).json()
         const list = entities.entities || entities || []
         if (list.length >= 2) {
           await fetch(`/api/campaigns/${id}/relations`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
             body: JSON.stringify({
               sourceEntityId: list[0].id,
               targetEntityId: list[1].id,

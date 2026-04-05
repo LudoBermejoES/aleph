@@ -34,4 +34,15 @@ export const auth = betterAuth({
     'http://localhost:3001',
     'http://localhost:3333',
   ],
+  advanced: {
+    cookiePrefix: 'better-auth',
+    cookies: {
+      session_token: {
+        attributes: {
+          sameSite: 'strict' as const,
+          secure: process.env.NODE_ENV === 'production',
+        },
+      },
+    },
+  },
 })

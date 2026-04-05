@@ -10,22 +10,35 @@ async function api(path: string, opts?: any) {
   })
 }
 
+async function getCsrfToken(sessionCookie: string): Promise<string> {
+  const res = await api('/api/campaigns', { headers: { Cookie: sessionCookie } })
+  const setCookie = res.headers.get('set-cookie') || ''
+  const match = setCookie.match(/csrf_token=([^;]+)/)
+  return match?.[1] || ''
+}
+
+function withCsrf(cookie: string, csrfToken: string) {
+  return { Cookie: `${cookie}; csrf_token=${csrfToken}`, 'X-CSRF-Token': csrfToken }
+}
+
 describe('Character create with all fields (9.19)', () => {
   const email = `create-char-${Date.now()}@example.com`
   let cookie = ''
+  let csrfToken = ''
   let campaignId = ''
 
   beforeAll(async () => {
     await api('/api/auth/sign-up/email', { method: 'POST', body: { name: 'CreateChar', email, password: 'password123' } })
     const login = await api('/api/auth/sign-in/email', { method: 'POST', body: { email, password: 'password123' } })
     cookie = `better-auth.session_token=${(login.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1]}`
-    const camp = await api('/api/campaigns', { method: 'POST', headers: { Cookie: cookie }, body: { name: `CreateChar ${Date.now()}` } })
+    csrfToken = await getCsrfToken(cookie)
+    const camp = await api('/api/campaigns', { method: 'POST', headers: withCsrf(cookie, csrfToken), body: { name: `CreateChar ${Date.now()}` } })
     campaignId = (await camp.json()).id
   })
 
   it('returns all fields in response', async () => {
     const res = await api(`/api/campaigns/${campaignId}/characters`, {
-      method: 'POST', headers: { Cookie: cookie },
+      method: 'POST', headers: withCsrf(cookie, csrfToken),
       body: {
         name: 'Full Character',
         characterType: 'npc',
@@ -57,19 +70,21 @@ describe('Character create with all fields (9.19)', () => {
 describe('Calendar create with configJson (9.20)', () => {
   const email = `create-cal-${Date.now()}@example.com`
   let cookie = ''
+  let csrfToken = ''
   let campaignId = ''
 
   beforeAll(async () => {
     await api('/api/auth/sign-up/email', { method: 'POST', body: { name: 'CreateCal', email, password: 'password123' } })
     const login = await api('/api/auth/sign-in/email', { method: 'POST', body: { email, password: 'password123' } })
     cookie = `better-auth.session_token=${(login.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1]}`
-    const camp = await api('/api/campaigns', { method: 'POST', headers: { Cookie: cookie }, body: { name: `CreateCal ${Date.now()}` } })
+    csrfToken = await getCsrfToken(cookie)
+    const camp = await api('/api/campaigns', { method: 'POST', headers: withCsrf(cookie, csrfToken), body: { name: `CreateCal ${Date.now()}` } })
     campaignId = (await camp.json()).id
   })
 
   it('returns correct nested structure', async () => {
     const res = await api(`/api/campaigns/${campaignId}/calendars`, {
-      method: 'POST', headers: { Cookie: cookie },
+      method: 'POST', headers: withCsrf(cookie, csrfToken),
       body: {
         name: 'Harptos',
         configJson: JSON.stringify({
@@ -100,6 +115,7 @@ describe('Calendar create with configJson (9.20)', () => {
 describe('Relation create validates entities (9.21)', () => {
   const email = `create-rel-${Date.now()}@example.com`
   let cookie = ''
+  let csrfToken = ''
   let campaignId = ''
   let entity1Id = ''
   let entity2Id = ''
@@ -108,18 +124,19 @@ describe('Relation create validates entities (9.21)', () => {
     await api('/api/auth/sign-up/email', { method: 'POST', body: { name: 'CreateRel', email, password: 'password123' } })
     const login = await api('/api/auth/sign-in/email', { method: 'POST', body: { email, password: 'password123' } })
     cookie = `better-auth.session_token=${(login.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1]}`
-    const camp = await api('/api/campaigns', { method: 'POST', headers: { Cookie: cookie }, body: { name: `CreateRel ${Date.now()}` } })
+    csrfToken = await getCsrfToken(cookie)
+    const camp = await api('/api/campaigns', { method: 'POST', headers: withCsrf(cookie, csrfToken), body: { name: `CreateRel ${Date.now()}` } })
     campaignId = (await camp.json()).id
 
-    const e1 = await api(`/api/campaigns/${campaignId}/entities`, { method: 'POST', headers: { Cookie: cookie }, body: { name: 'Source', type: 'character', content: '# S' } })
+    const e1 = await api(`/api/campaigns/${campaignId}/entities`, { method: 'POST', headers: withCsrf(cookie, csrfToken), body: { name: 'Source', type: 'character', content: '# S' } })
     entity1Id = (await e1.json()).id
-    const e2 = await api(`/api/campaigns/${campaignId}/entities`, { method: 'POST', headers: { Cookie: cookie }, body: { name: 'Target', type: 'location', content: '# T' } })
+    const e2 = await api(`/api/campaigns/${campaignId}/entities`, { method: 'POST', headers: withCsrf(cookie, csrfToken), body: { name: 'Target', type: 'location', content: '# T' } })
     entity2Id = (await e2.json()).id
   })
 
   it('rejects non-existent source entity', async () => {
     const res = await api(`/api/campaigns/${campaignId}/relations`, {
-      method: 'POST', headers: { Cookie: cookie },
+      method: 'POST', headers: withCsrf(cookie, csrfToken),
       body: { sourceEntityId: 'nonexistent-id', targetEntityId: entity2Id, forwardLabel: 'test' },
     })
     expect(res.status).toBe(404)
@@ -127,7 +144,7 @@ describe('Relation create validates entities (9.21)', () => {
 
   it('rejects non-existent target entity', async () => {
     const res = await api(`/api/campaigns/${campaignId}/relations`, {
-      method: 'POST', headers: { Cookie: cookie },
+      method: 'POST', headers: withCsrf(cookie, csrfToken),
       body: { sourceEntityId: entity1Id, targetEntityId: 'nonexistent-id', forwardLabel: 'test' },
     })
     expect(res.status).toBe(404)
@@ -140,7 +157,7 @@ describe('Relation create validates entities (9.21)', () => {
     const typeId = typeList[0]?.id
 
     const res = await api(`/api/campaigns/${campaignId}/relations`, {
-      method: 'POST', headers: { Cookie: cookie },
+      method: 'POST', headers: withCsrf(cookie, csrfToken),
       body: {
         sourceEntityId: entity1Id,
         targetEntityId: entity2Id,

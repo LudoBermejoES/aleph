@@ -1,4 +1,5 @@
 import { randomUUID } from 'crypto'
+import { z } from 'zod'
 import { useDb } from '../../../../utils/db'
 import { useSqlite } from '../../../../utils/db'
 import { entities } from '../../../../db/schema/entities'
@@ -8,8 +9,21 @@ import { ensureUniqueSlug } from '../../../../utils/content-helpers'
 import { indexEntity } from '../../../../services/search'
 import { logger } from '../../../../utils/logger'
 import { invalidateAutomatonCache } from '../../../../services/autolink'
+import { validateBody } from '../../../../utils/validate'
 import { join } from 'path'
 import type { CampaignRole } from '../../../../utils/permissions'
+
+const entitySchema = z.object({
+  name: z.string().min(1).max(200),
+  type: z.string().min(1),
+  content: z.string().optional(),
+  visibility: z.enum(['public', 'members', 'editors', 'dm_only', 'private', 'specific_users']).optional(),
+  aliases: z.array(z.string()).optional(),
+  tags: z.array(z.string()).optional(),
+  parentId: z.string().optional(),
+  templateId: z.string().optional(),
+  fields: z.record(z.string(), z.unknown()).optional(),
+})
 
 export default defineEventHandler(async (event) => {
   const role = event.context.campaignRole as CampaignRole
@@ -17,12 +31,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 403, message: 'Editors or above can create entities' })
   }
 
-  const body = await readBody(event)
-  const { name, type, content, visibility, aliases, tags, parentId, templateId, fields } = body
-
-  if (!name?.trim() || !type?.trim()) {
-    throw createError({ statusCode: 400, message: 'Name and type are required' })
-  }
+  const { name, type, content, visibility, aliases, tags, parentId, templateId, fields } = await validateBody(event, entitySchema)
 
   const db = useDb()
   const sqlite = useSqlite()

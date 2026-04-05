@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { registerAndLogin, createCampaign } from './helpers'
+import { registerAndLogin, createCampaign, apiFetch } from './helpers'
 
 const uid = () => Date.now().toString(36).slice(-4)
 
@@ -9,13 +9,10 @@ test.describe('Session Log', () => {
     await createCampaign(page, `Log Camp ${uid()}`)
 
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
-    const sessRes = await page.evaluate(async (id) => {
-      const r = await fetch(`/api/campaigns/${id}/sessions`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: 'Session With Log' }),
-      })
-      return r.json()
-    }, campaignId)
+    const sessRes = await apiFetch(page, `/api/campaigns/${campaignId}/sessions`, {
+      method: 'POST',
+      body: { title: 'Session With Log' },
+    })
 
     const sessionSlug = sessRes.slug
     await page.goto(`/campaigns/${campaignId}/sessions/${sessionSlug}`, { waitUntil: 'networkidle' })
@@ -43,12 +40,10 @@ test.describe('Session Log', () => {
     await createCampaign(page, `Status Camp ${uid()}`)
 
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
-    await page.evaluate(async (id) => {
-      await fetch(`/api/campaigns/${id}/sessions`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: 'Status Session' }),
-      })
-    }, campaignId)
+    await apiFetch(page, `/api/campaigns/${campaignId}/sessions`, {
+      method: 'POST',
+      body: { title: 'Status Session' },
+    })
 
     await page.click('aside >> text=Sessions')
     await page.waitForLoadState('networkidle')

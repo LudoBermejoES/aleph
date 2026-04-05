@@ -10,9 +10,21 @@ async function api(path: string, opts?: any) {
   })
 }
 
+async function getCsrfToken(sessionCookie: string): Promise<string> {
+  const res = await api('/api/campaigns', { headers: { Cookie: sessionCookie } })
+  const setCookie = res.headers.get('set-cookie') || ''
+  const match = setCookie.match(/csrf_token=([^;]+)/)
+  return match?.[1] || ''
+}
+
+function withCsrf(cookie: string, csrfToken: string): Record<string, string> {
+  return { Cookie: `${cookie}; csrf_token=${csrfToken}`, 'X-CSRF-Token': csrfToken }
+}
+
 describe('Session Groups + Content (integration)', () => {
   const email = `sgtest-${Date.now()}@example.com`
   let cookie = ''
+  let csrfToken = ''
   let campaignId = ''
   let groupSlug = ''
   let sessionSlug = ''
@@ -23,13 +35,14 @@ describe('Session Groups + Content (integration)', () => {
     const cookies = login.headers.get('set-cookie') || ''
     const match = cookies.match(/better-auth\.session_token=([^;]+)/)
     cookie = match ? `better-auth.session_token=${match[1]}` : ''
-    const camp = await api('/api/campaigns', { method: 'POST', headers: { Cookie: cookie }, body: { name: `SG Test ${Date.now()}` } })
+    csrfToken = await getCsrfToken(cookie)
+    const camp = await api('/api/campaigns', { method: 'POST', headers: withCsrf(cookie, csrfToken), body: { name: `SG Test ${Date.now()}` } })
     campaignId = (await camp.json()).id
   })
 
   it('POST /session-groups creates a group', async () => {
     const res = await api(`/api/campaigns/${campaignId}/session-groups`, {
-      method: 'POST', headers: { Cookie: cookie },
+      method: 'POST', headers: withCsrf(cookie, csrfToken),
       body: { name: 'La Familia', description: 'The main group' },
     })
     expect(res.status).toBe(200)
@@ -51,7 +64,7 @@ describe('Session Groups + Content (integration)', () => {
 
   it('PUT /session-groups/:slug updates name', async () => {
     const res = await api(`/api/campaigns/${campaignId}/session-groups/${groupSlug}`, {
-      method: 'PUT', headers: { Cookie: cookie },
+      method: 'PUT', headers: withCsrf(cookie, csrfToken),
       body: { name: 'La Familia Updated', description: 'Updated desc' },
     })
     expect(res.status).toBe(200)
@@ -61,7 +74,7 @@ describe('Session Groups + Content (integration)', () => {
 
   it('POST /sessions with groupSlug assigns group', async () => {
     const res = await api(`/api/campaigns/${campaignId}/sessions`, {
-      method: 'POST', headers: { Cookie: cookie },
+      method: 'POST', headers: withCsrf(cookie, csrfToken),
       body: { title: 'Group Session', groupSlug },
     })
     expect(res.status).toBe(200)
@@ -83,7 +96,7 @@ describe('Session Groups + Content (integration)', () => {
   it('GET /sessions?groupSlug= filters by group', async () => {
     // Create a session without a group
     await api(`/api/campaigns/${campaignId}/sessions`, {
-      method: 'POST', headers: { Cookie: cookie },
+      method: 'POST', headers: withCsrf(cookie, csrfToken),
       body: { title: 'Ungrouped Session' },
     })
 
@@ -109,7 +122,7 @@ describe('Session Groups + Content (integration)', () => {
 
   it('PUT /sessions/:slug/content upserts content', async () => {
     const res = await api(`/api/campaigns/${campaignId}/sessions/${sessionSlug}/content`, {
-      method: 'PUT', headers: { Cookie: cookie },
+      method: 'PUT', headers: withCsrf(cookie, csrfToken),
       body: { type: 'manual_notes', content: 'These are manual notes.' },
     })
     expect(res.status).toBe(200)
@@ -127,7 +140,7 @@ describe('Session Groups + Content (integration)', () => {
 
   it('PUT /sessions/:slug/content upserts (overwrites) on repeat call', async () => {
     await api(`/api/campaigns/${campaignId}/sessions/${sessionSlug}/content`, {
-      method: 'PUT', headers: { Cookie: cookie },
+      method: 'PUT', headers: withCsrf(cookie, csrfToken),
       body: { type: 'manual_notes', content: 'Updated notes.' },
     })
     const res = await api(`/api/campaigns/${campaignId}/sessions/${sessionSlug}/content`, {
@@ -147,7 +160,7 @@ describe('Session Groups + Content (integration)', () => {
 
   it('DELETE /session-groups/:slug sets sessions groupId to null', async () => {
     await api(`/api/campaigns/${campaignId}/session-groups/${groupSlug}`, {
-      method: 'DELETE', headers: { Cookie: cookie },
+      method: 'DELETE', headers: withCsrf(cookie, csrfToken),
     })
 
     const res = await api(`/api/campaigns/${campaignId}/sessions/${sessionSlug}`, {

@@ -1,5 +1,7 @@
+import { z } from 'zod'
 import { randomUUID } from 'crypto'
 import { useDb } from '../../../../utils/db'
+import { validateBody } from '../../../../utils/validate'
 import { entityTemplates, entityTemplateFields } from '../../../../db/schema/entities'
 import { hasMinRole } from '../../../../utils/permissions'
 import type { CampaignRole } from '../../../../utils/permissions'
@@ -11,12 +13,20 @@ export default defineEventHandler(async (event) => {
   }
 
   const campaignId = getRouterParam(event, 'id')!
-  const body = await readBody(event)
+  const templateSchema = z.object({
+    name: z.string().min(1),
+    entityTypeSlug: z.string().min(1),
+    isDefault: z.boolean().optional(),
+    fields: z.array(z.object({
+      key: z.string(),
+      label: z.string(),
+      fieldType: z.string().optional(),
+      options: z.unknown().optional(),
+      required: z.boolean().optional(),
+    })).optional(),
+  })
+  const body = await validateBody(event, templateSchema)
   const { name, entityTypeSlug, isDefault, fields } = body
-
-  if (!name?.trim() || !entityTypeSlug) {
-    throw createError({ statusCode: 400, message: 'Name and entity type are required' })
-  }
 
   const db = useDb()
   const templateId = randomUUID()

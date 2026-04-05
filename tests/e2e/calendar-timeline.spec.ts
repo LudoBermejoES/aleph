@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { BASE, registerAndLogin, createCampaign } from './helpers'
+import { BASE, registerAndLogin, createCampaign, apiFetch } from './helpers'
 
 const uid = () => Date.now().toString(36).slice(-4)
 
@@ -10,23 +10,20 @@ test.describe('Calendar & Timeline E2E', () => {
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
 
     // Create calendar via API
-    await page.evaluate(async (id) => {
-      await fetch(`/api/campaigns/${id}/calendars`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: 'Harptos Calendar',
-          configJson: JSON.stringify({
-            months: [
-              { name: 'Hammer', days: 30 }, { name: 'Alturiak', days: 30 },
-              { name: 'Ches', days: 30 }, { name: 'Tarsakh', days: 30 },
-            ],
-            yearLength: 120,
-          }),
-          currentYear: 1492, currentMonth: 1, currentDay: 1,
+    await apiFetch(page, `/api/campaigns/${campaignId}/calendars`, {
+      method: 'POST',
+      body: {
+        name: 'Harptos Calendar',
+        configJson: JSON.stringify({
+          months: [
+            { name: 'Hammer', days: 30 }, { name: 'Alturiak', days: 30 },
+            { name: 'Ches', days: 30 }, { name: 'Tarsakh', days: 30 },
+          ],
+          yearLength: 120,
         }),
-      })
-    }, campaignId)
+        currentYear: 1492, currentMonth: 1, currentDay: 1,
+      },
+    })
 
     // Navigate to calendars
     await page.click('aside >> text=Calendars')
@@ -44,29 +41,22 @@ test.describe('Calendar & Timeline E2E', () => {
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
 
     // Create calendar + event via API
-    const calRes = await page.evaluate(async (id) => {
-      const res = await fetch(`/api/campaigns/${id}/calendars`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: 'Grid Calendar',
-          configJson: JSON.stringify({
-            months: [{ name: 'Hammer', days: 30 }, { name: 'Alturiak', days: 30 }],
-            yearLength: 60,
-          }),
-          currentYear: 1492, currentMonth: 1, currentDay: 15,
+    const calRes = await apiFetch(page, `/api/campaigns/${campaignId}/calendars`, {
+      method: 'POST',
+      body: {
+        name: 'Grid Calendar',
+        configJson: JSON.stringify({
+          months: [{ name: 'Hammer', days: 30 }, { name: 'Alturiak', days: 30 }],
+          yearLength: 60,
         }),
-      })
-      return res.json()
-    }, campaignId) as any
+        currentYear: 1492, currentMonth: 1, currentDay: 15,
+      },
+    }) as any
 
-    await page.evaluate(async ([id, calId]) => {
-      await fetch(`/api/campaigns/${id}/calendars/${calId}/events`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Midwinter Feast', date: { year: 1492, month: 1, day: 15 } }),
-      })
-    }, [campaignId, calRes.id])
+    await apiFetch(page, `/api/campaigns/${campaignId}/calendars/${calRes.id}/events`, {
+      method: 'POST',
+      body: { name: 'Midwinter Feast', date: { year: 1492, month: 1, day: 15 } },
+    })
 
     // Navigate to calendar detail
     await page.goto(`${BASE}/campaigns/${campaignId}/calendars/${calRes.id}`)
@@ -84,22 +74,15 @@ test.describe('Calendar & Timeline E2E', () => {
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
 
     // Create timeline + event via API
-    const tlRes = await page.evaluate(async (id) => {
-      const res = await fetch(`/api/campaigns/${id}/timelines`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Campaign Arc 1' }),
-      })
-      return res.json()
-    }, campaignId) as any
+    const tlRes = await apiFetch(page, `/api/campaigns/${campaignId}/timelines`, {
+      method: 'POST',
+      body: { name: 'Campaign Arc 1' },
+    }) as any
 
-    await page.evaluate(async ([id, slug]) => {
-      await fetch(`/api/campaigns/${id}/timelines/${slug}/events`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Arrival in Barovia', date: { year: 1492, month: 3, day: 1 }, description: 'The party crossed the mists.' }),
-      })
-    }, [campaignId, tlRes.slug])
+    await apiFetch(page, `/api/campaigns/${campaignId}/timelines/${tlRes.slug}/events`, {
+      method: 'POST',
+      body: { name: 'Arrival in Barovia', date: { year: 1492, month: 3, day: 1 }, description: 'The party crossed the mists.' },
+    })
 
     // Navigate to timeline
     await page.goto(`${BASE}/campaigns/${campaignId}/timelines/${tlRes.slug}`)
@@ -116,14 +99,10 @@ test.describe('Calendar & Timeline E2E', () => {
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
 
     // Create timeline via API
-    const tlRes = await page.evaluate(async (id) => {
-      const res = await fetch(`/api/campaigns/${id}/timelines`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Test Timeline' }),
-      })
-      return res.json()
-    }, campaignId) as any
+    const tlRes = await apiFetch(page, `/api/campaigns/${campaignId}/timelines`, {
+      method: 'POST',
+      body: { name: 'Test Timeline' },
+    }) as any
 
     // Navigate to timeline detail
     await page.goto(`${BASE}/campaigns/${campaignId}/timelines/${tlRes.slug}`)
@@ -159,21 +138,17 @@ test.describe('Calendar & Timeline E2E', () => {
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
 
     // Create calendar via API
-    const calRes = await page.evaluate(async (id) => {
-      const res = await fetch(`/api/campaigns/${id}/calendars`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: 'Advance Test Cal',
-          configJson: JSON.stringify({
-            months: [{ name: 'Hammer', days: 30 }, { name: 'Alturiak', days: 30 }],
-            yearLength: 60,
-          }),
-          currentYear: 1492, currentMonth: 1, currentDay: 1,
+    const calRes = await apiFetch(page, `/api/campaigns/${campaignId}/calendars`, {
+      method: 'POST',
+      body: {
+        name: 'Advance Test Cal',
+        configJson: JSON.stringify({
+          months: [{ name: 'Hammer', days: 30 }, { name: 'Alturiak', days: 30 }],
+          yearLength: 60,
         }),
-      })
-      return res.json()
-    }, campaignId) as any
+        currentYear: 1492, currentMonth: 1, currentDay: 1,
+      },
+    }) as any
 
     // Navigate to calendar detail
     await page.goto(`${BASE}/campaigns/${campaignId}/calendars/${calRes.id}`)

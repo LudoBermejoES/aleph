@@ -53,9 +53,10 @@ test.describe('Location creation', () => {
     // Create parent via API
     const parentName = `Parent Region ${uid()}`
     await page.evaluate(async ([id, name]) => {
+      const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
       await fetch(`/api/campaigns/${id}/locations`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
         body: JSON.stringify({ name, subtype: 'region', visibility: 'members' }),
       })
     }, [campaignId, parentName])
@@ -82,9 +83,10 @@ test.describe('Location detail page', () => {
 
     const locName = `Castle Ravenloft ${uid()}`
     const locData: any = await page.evaluate(async ([id, name]) => {
+      const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
       const res = await fetch(`/api/campaigns/${id}/locations`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
         body: JSON.stringify({ name, subtype: 'dungeon', visibility: 'members', content: 'A dark castle.' }),
       })
       return res.json()
@@ -104,18 +106,20 @@ test.describe('Location detail page', () => {
     const campaignId = await createCampaignAndGetId(page, `Loc Ancestor Camp ${uid()}`)
 
     const parent: any = await page.evaluate(async (id) => {
+      const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
       const res = await fetch(`/api/campaigns/${id}/locations`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
         body: JSON.stringify({ name: 'Barovia', subtype: 'region', visibility: 'members' }),
       })
       return res.json()
     }, campaignId)
 
     const child: any = await page.evaluate(async ([id, parentId]) => {
+      const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
       const res = await fetch(`/api/campaigns/${id}/locations`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
         body: JSON.stringify({ name: 'Village of Barovia', subtype: 'village', parentId, visibility: 'members' }),
       })
       return res.json()
@@ -136,9 +140,10 @@ test.describe('Location edit page', () => {
     const campaignId = await createCampaignAndGetId(page, `Loc Edit Camp ${uid()}`)
 
     const loc: any = await page.evaluate(async (id) => {
+      const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
       const res = await fetch(`/api/campaigns/${id}/locations`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
         body: JSON.stringify({ name: 'Old Name', subtype: 'city', visibility: 'members' }),
       })
       return res.json()

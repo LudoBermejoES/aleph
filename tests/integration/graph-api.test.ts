@@ -10,9 +10,21 @@ async function api(path: string, opts?: any) {
   })
 }
 
+async function getCsrfToken(sessionCookie: string): Promise<string> {
+  const res = await api('/api/campaigns', { headers: { Cookie: sessionCookie } })
+  const setCookie = res.headers.get('set-cookie') || ''
+  const match = setCookie.match(/csrf_token=([^;]+)/)
+  return match?.[1] || ''
+}
+
+function withCsrf(cookie: string, csrfToken: string) {
+  return { Cookie: `${cookie}; csrf_token=${csrfToken}`, 'X-CSRF-Token': csrfToken }
+}
+
 describe('Graph API — relationTypeSlug and organizations (12.8-12.10)', () => {
   const email = `graph-api-test-${Date.now()}@example.com`
   let cookie = ''
+  let csrfToken = ''
   let campaignId = ''
   let entity1Id = ''
   let entity2Id = ''
@@ -28,23 +40,24 @@ describe('Graph API — relationTypeSlug and organizations (12.8-12.10)', () => 
       body: { email, password: 'password123' },
     })
     cookie = `better-auth.session_token=${(login.headers.get('set-cookie') || '').match(/better-auth\.session_token=([^;]+)/)?.[1]}`
+    csrfToken = await getCsrfToken(cookie)
 
     const camp = await api('/api/campaigns', {
       method: 'POST',
-      headers: { Cookie: cookie },
+      headers: withCsrf(cookie, csrfToken),
       body: { name: `Graph API Test ${Date.now()}` },
     })
     campaignId = (await camp.json()).id
 
     // Create two entities
     const e1 = await api(`/api/campaigns/${campaignId}/entities`, {
-      method: 'POST', headers: { Cookie: cookie },
+      method: 'POST', headers: withCsrf(cookie, csrfToken),
       body: { name: 'Arya', type: 'character', content: '# Arya' },
     })
     entity1Id = (await e1.json()).id
 
     const e2 = await api(`/api/campaigns/${campaignId}/entities`, {
-      method: 'POST', headers: { Cookie: cookie },
+      method: 'POST', headers: withCsrf(cookie, csrfToken),
       body: { name: 'Bran', type: 'character', content: '# Bran' },
     })
     entity2Id = (await e2.json()).id
@@ -58,7 +71,7 @@ describe('Graph API — relationTypeSlug and organizations (12.8-12.10)', () => 
 
     // Create a relation
     await api(`/api/campaigns/${campaignId}/relations`, {
-      method: 'POST', headers: { Cookie: cookie },
+      method: 'POST', headers: withCsrf(cookie, csrfToken),
       body: {
         sourceEntityId: entity1Id,
         targetEntityId: entity2Id,

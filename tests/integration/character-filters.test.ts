@@ -13,6 +13,7 @@ async function api(path: string, opts?: any) {
 describe('Character list filters and meta (integration)', () => {
   const email = `char-filters-${Date.now()}@example.com`
   let cookie = ''
+  let csrfToken = ''
   let campaignId = ''
   let elfSlug = ''
   let humanSlug = ''
@@ -24,46 +25,50 @@ describe('Character list filters and meta (integration)', () => {
     const login = await api('/api/auth/sign-in/email', { method: 'POST', body: { email, password: 'password123' } })
     const cookies = login.headers.get('set-cookie') || ''
     const match = cookies.match(/better-auth\.session_token=([^;]+)/)
-    cookie = match ? `better-auth.session_token=${match[1]}` : ''
+    const sessionCookie = match ? `better-auth.session_token=${match[1]}` : ''
+    const campList = await api('/api/campaigns', { headers: { Cookie: sessionCookie } })
+    const setCookie = campList.headers.get('set-cookie') || ''
+    csrfToken = setCookie.match(/csrf_token=([^;]+)/)?.[1] || ''
+    cookie = csrfToken ? `${sessionCookie}; csrf_token=${csrfToken}` : sessionCookie
 
     // Campaign
-    const camp = await api('/api/campaigns', { method: 'POST', headers: { Cookie: cookie }, body: { name: `Filter Test ${Date.now()}` } })
+    const camp = await api('/api/campaigns', { method: 'POST', headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken }, body: { name: `Filter Test ${Date.now()}` } })
     campaignId = (await camp.json()).id
 
     // Create characters with varied fields
     const elf = await api(`/api/campaigns/${campaignId}/characters`, {
-      method: 'POST', headers: { Cookie: cookie },
+      method: 'POST', headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
       body: { name: 'Legolas', characterType: 'pc', race: 'Elf', class: 'Ranger', alignment: 'Neutral Good', status: 'alive' },
     })
     elfSlug = (await elf.json()).slug
 
     const human = await api(`/api/campaigns/${campaignId}/characters`, {
-      method: 'POST', headers: { Cookie: cookie },
+      method: 'POST', headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
       body: { name: 'Boromir', characterType: 'pc', race: 'Human', class: 'Fighter', alignment: 'Lawful Good', status: 'dead' },
     })
     humanSlug = (await human.json()).slug
 
     await api(`/api/campaigns/${campaignId}/characters`, {
-      method: 'POST', headers: { Cookie: cookie },
+      method: 'POST', headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
       body: { name: 'Gandalf', characterType: 'npc', race: 'Maiar', class: 'Wizard', alignment: 'Neutral Good', status: 'alive' },
     })
 
     // Create companion
     const legolasData = await (await api(`/api/campaigns/${campaignId}/characters/${elfSlug}`, { headers: { Cookie: cookie } })).json()
     await api(`/api/campaigns/${campaignId}/characters`, {
-      method: 'POST', headers: { Cookie: cookie },
+      method: 'POST', headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
       body: { name: 'Arod', characterType: 'npc', race: 'Horse', isCompanionOf: legolasData.id },
     })
 
     // Create organization and add Legolas
     const org = await api(`/api/campaigns/${campaignId}/organizations`, {
-      method: 'POST', headers: { Cookie: cookie },
+      method: 'POST', headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
       body: { name: 'The Fellowship', type: 'faction' },
     })
     orgId = (await org.json()).id
     const legolas = await (await api(`/api/campaigns/${campaignId}/characters/${elfSlug}`, { headers: { Cookie: cookie } })).json()
     await api(`/api/campaigns/${campaignId}/organizations/the-fellowship/members`, {
-      method: 'POST', headers: { Cookie: cookie },
+      method: 'POST', headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
       body: { characterId: legolas.id, role: 'Scout' },
     })
   })

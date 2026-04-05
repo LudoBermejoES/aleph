@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { BASE, registerAndLogin, createCampaign } from './helpers'
+import { BASE, registerAndLogin, createCampaign, apiFetch } from './helpers'
 
 const uid = () => Date.now().toString(36).slice(-4)
 
@@ -10,14 +10,11 @@ test.describe('Edit Entity via /edit page (12.36)', () => {
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
 
     // Create entity via API
-    const slug = await page.evaluate(async (id) => {
-      const res = await fetch(`/api/campaigns/${id}/entities`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Original Entity', type: 'note', content: '# Original', visibility: 'members' }),
-      })
-      return (await res.json()).slug
-    }, campaignId)
+    const entity = await apiFetch(page, `/api/campaigns/${campaignId}/entities`, {
+      method: 'POST',
+      body: { name: 'Original Entity', type: 'note', content: '# Original', visibility: 'members' },
+    })
+    const slug = (entity as any).slug
 
     // Navigate to edit page
     await page.goto(`${BASE}/campaigns/${campaignId}/entities/${slug}/edit`)
@@ -51,14 +48,11 @@ test.describe('Edit Character via /edit page (12.37)', () => {
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
 
     // Create character via API
-    const slug = await page.evaluate(async (id) => {
-      const res = await fetch(`/api/campaigns/${id}/characters`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Original NPC', characterType: 'npc', race: 'Human', class: 'Fighter', alignment: 'Neutral', content: '# NPC' }),
-      })
-      return (await res.json()).slug
-    }, campaignId)
+    const character = await apiFetch(page, `/api/campaigns/${campaignId}/characters`, {
+      method: 'POST',
+      body: { name: 'Original NPC', characterType: 'npc', race: 'Human', class: 'Fighter', alignment: 'Neutral', content: '# NPC' },
+    })
+    const slug = (character as any).slug
 
     // Navigate to edit page
     await page.goto(`${BASE}/campaigns/${campaignId}/characters/${slug}/edit`)
@@ -96,18 +90,15 @@ test.describe('Edit Calendar via /edit page (12.38)', () => {
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
 
     // Create calendar via API
-    const calId = await page.evaluate(async (id) => {
-      const res = await fetch(`/api/campaigns/${id}/calendars`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: 'Old Calendar',
-          configJson: JSON.stringify({ months: [{ name: 'Hammer', days: 30 }], yearLength: 30 }),
-          currentYear: 1492, currentMonth: 1, currentDay: 1,
-        }),
-      })
-      return (await res.json()).id
-    }, campaignId)
+    const calendar = await apiFetch(page, `/api/campaigns/${campaignId}/calendars`, {
+      method: 'POST',
+      body: {
+        name: 'Old Calendar',
+        configJson: JSON.stringify({ months: [{ name: 'Hammer', days: 30 }], yearLength: 30 }),
+        currentYear: 1492, currentMonth: 1, currentDay: 1,
+      },
+    })
+    const calId = (calendar as any).id
 
     // Navigate to edit page
     await page.goto(`${BASE}/campaigns/${campaignId}/calendars/${calId}/edit`)

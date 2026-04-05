@@ -1,5 +1,7 @@
+import { z } from 'zod'
 import { randomUUID } from 'crypto'
 import { useDb } from '../../utils/db'
+import { validateBody } from '../../utils/validate'
 import { generateApiKey } from '../../utils/apiKey'
 import { apiKey as apiKeyTable } from '../../db/schema/auth'
 
@@ -7,11 +9,11 @@ export default defineEventHandler(async (event) => {
   const user = event.context.user
   if (!user) throw createError({ statusCode: 401, message: 'Unauthorized' })
 
-  const body = await readBody(event)
-  const { name } = body || {}
-  if (!name || typeof name !== 'string' || !name.trim()) {
-    throw createError({ statusCode: 400, message: 'name is required' })
-  }
+  const apiKeySchema = z.object({
+    name: z.string().min(1).max(100),
+  })
+  const body = await validateBody(event, apiKeySchema)
+  const { name } = body
 
   const db = useDb()
   const { raw, hash, prefix } = generateApiKey()

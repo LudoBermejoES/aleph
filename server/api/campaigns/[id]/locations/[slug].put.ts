@@ -1,5 +1,7 @@
+import { z } from 'zod'
 import { eq, and } from 'drizzle-orm'
 import { useDb, useSqlite } from '../../../../utils/db'
+import { validateBody } from '../../../../utils/validate'
 import { entities } from '../../../../db/schema/entities'
 import { hasMinRole } from '../../../../utils/permissions'
 import { writeEntityFile, readEntityFile } from '../../../../services/content'
@@ -16,7 +18,14 @@ export default defineEventHandler(async (event) => {
 
   const campaignId = getRouterParam(event, 'id')!
   const slug = getRouterParam(event, 'slug')!
-  const body = await readBody(event)
+  const locationPutSchema = z.object({
+    name: z.string().min(1).optional(),
+    subtype: z.string().optional(),
+    parentId: z.string().nullable().optional(),
+    visibility: z.string().optional(),
+    content: z.string().optional(),
+  })
+  const body = await validateBody(event, locationPutSchema)
   const db = useDb()
   const sqlite = useSqlite()
 

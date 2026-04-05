@@ -15,8 +15,9 @@ test.describe('Role-Based Visibility', () => {
 
     // Create DM-only entity
     const entityRes = await dmPage.evaluate(async (id) => {
+      const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
       const r = await fetch(`/api/campaigns/${id}/entities`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
         body: JSON.stringify({ name: 'DM Secret Notes', type: 'note', content: '# Secret', visibility: 'dm_only' }),
       })
       return r.json()
@@ -24,16 +25,18 @@ test.describe('Role-Based Visibility', () => {
 
     // Create public entity for comparison
     await dmPage.evaluate(async (id) => {
+      const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
       await fetch(`/api/campaigns/${id}/entities`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
         body: JSON.stringify({ name: 'Public Lore', type: 'lore', content: '# Public', visibility: 'public' }),
       })
     }, campaignId)
 
     // Generate invite for player role
     const inviteRes = await dmPage.evaluate(async (id) => {
+      const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
       const r = await fetch(`/api/campaigns/${id}/invite`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
         body: JSON.stringify({ role: 'player' }),
       })
       return r.json()
@@ -46,8 +49,9 @@ test.describe('Role-Based Visibility', () => {
 
     // Join campaign via API
     await playerPage.evaluate(async ([id, token]) => {
+      const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
       await fetch(`/api/campaigns/${id}/join`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
         body: JSON.stringify({ token }),
       })
     }, [campaignId, (inviteRes as any).token])
@@ -77,8 +81,9 @@ test.describe('Role-Based Visibility', () => {
     const campaignId = dmPage.url().split('/campaigns/')[1]?.split('/')[0]
 
     const entityRes = await dmPage.evaluate(async (id) => {
+      const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
       const r = await fetch(`/api/campaigns/${id}/entities`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
         body: JSON.stringify({ name: 'Protected Entity', type: 'note', content: '# Protected' }),
       })
       return r.json()
@@ -86,8 +91,9 @@ test.describe('Role-Based Visibility', () => {
 
     // Invite player
     const inviteRes = await dmPage.evaluate(async (id) => {
+      const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
       const r = await fetch(`/api/campaigns/${id}/invite`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
         body: JSON.stringify({ role: 'player' }),
       })
       return r.json()
@@ -97,16 +103,21 @@ test.describe('Role-Based Visibility', () => {
     const playerContext = await browser.newContext()
     const playerPage = await playerContext.newPage()
     await registerAndLogin(playerPage, 'Cant Delete')
+    await playerPage.waitForTimeout(500)
     await playerPage.evaluate(async ([id, token]) => {
+      const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
       await fetch(`/api/campaigns/${id}/join`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
         body: JSON.stringify({ token }),
       })
     }, [campaignId, (inviteRes as any).token])
 
     // Player tries to delete entity via API
     const deleteResult = await playerPage.evaluate(async ([id, slug]) => {
-      const r = await fetch(`/api/campaigns/${id}/entities/${slug}`, { method: 'DELETE' })
+      const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
+      const r = await fetch(`/api/campaigns/${id}/entities/${slug}`, {
+        method: 'DELETE', headers: { 'X-CSRF-Token': csrf },
+      })
       return { status: r.status }
     }, [campaignId, (entityRes as any).slug])
 

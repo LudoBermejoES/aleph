@@ -128,6 +128,8 @@ async function handleLogin() {
   loading.value = true
   try {
     await authSignIn(loginForm.email, loginForm.password)
+    // Trigger an authenticated GET so the server sets the csrf_token cookie before we POST
+    await fetch('/api/campaigns', { credentials: 'include' })
     await joinCampaign()
   } catch (e: any) {
     authError.value = e?.data?.message || t('auth.invalidCredentials')
@@ -141,6 +143,8 @@ async function handleRegister() {
   loading.value = true
   try {
     await authSignUp(registerForm.name, registerForm.email, registerForm.password)
+    // Trigger an authenticated GET so the server sets the csrf_token cookie before we POST
+    await fetch('/api/campaigns', { credentials: 'include' })
     await joinCampaign()
   } catch (e: any) {
     authError.value = e?.data?.message || t('auth.registrationFailed')

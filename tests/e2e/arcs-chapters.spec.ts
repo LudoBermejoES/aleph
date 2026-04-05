@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { registerAndLogin, createCampaign } from './helpers'
+import { registerAndLogin, createCampaign, apiFetch } from './helpers'
 
 const uid = () => Date.now().toString(36).slice(-4)
 
@@ -21,14 +21,10 @@ test.describe('Arcs and Chapters', () => {
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
 
     // Create arc via API
-    await page.evaluate(async (id) => {
-      const r = await fetch(`/api/campaigns/${id}/arcs`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'The Crimson Arc', status: 'active' }),
-      })
-      return r.json()
-    }, campaignId)
+    await apiFetch(page, `/api/campaigns/${campaignId}/arcs`, {
+      method: 'POST',
+      body: { name: 'The Crimson Arc', status: 'active' },
+    })
 
     await page.goto(`/campaigns/${campaignId}/arcs`, { waitUntil: 'networkidle' })
 

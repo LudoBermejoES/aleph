@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { registerAndLogin, createCampaign, BASE } from './helpers'
+import { registerAndLogin, createCampaign, BASE, apiFetch } from './helpers'
 
 test.describe('Entity Image', () => {
   let campaignId: string
@@ -12,14 +12,10 @@ test.describe('Entity Image', () => {
 
   test('entity detail page shows EntityImage placeholder for editor', async ({ page }) => {
     // Create an entity via API
-    const res = await page.evaluate(async ({ base, campaignId }) => {
-      const r = await fetch(`${base}/api/campaigns/${campaignId}/entities`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Test Entity With Image', type: 'location' }),
-      })
-      return r.json()
-    }, { base: BASE, campaignId })
+    const res = await apiFetch(page, `/api/campaigns/${campaignId}/entities`, {
+      method: 'POST',
+      body: { name: 'Test Entity With Image', type: 'location' },
+    })
 
     // Navigate to entity detail
     await page.goto(`${BASE}/campaigns/${campaignId}/entities/${res.slug}`, { waitUntil: 'domcontentloaded' })
@@ -32,14 +28,10 @@ test.describe('Entity Image', () => {
   })
 
   test('entity edit page shows EntityImage component', async ({ page }) => {
-    const res = await page.evaluate(async ({ base, campaignId }) => {
-      const r = await fetch(`${base}/api/campaigns/${campaignId}/entities`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Edit Image Entity', type: 'faction' }),
-      })
-      return r.json()
-    }, { base: BASE, campaignId })
+    const res = await apiFetch(page, `/api/campaigns/${campaignId}/entities`, {
+      method: 'POST',
+      body: { name: 'Edit Image Entity', type: 'faction' },
+    })
 
     await page.goto(`${BASE}/campaigns/${campaignId}/entities/${res.slug}/edit`, { waitUntil: 'domcontentloaded' })
     await page.waitForSelector('h1', { timeout: 15000 })

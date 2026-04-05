@@ -1,5 +1,7 @@
+import { z } from 'zod'
 import { randomUUID } from 'crypto'
 import { useDb } from '../../../../utils/db'
+import { validateBody } from '../../../../utils/validate'
 import { maps } from '../../../../db/schema/maps'
 import { hasMinRole } from '../../../../utils/permissions'
 import { slugify } from '../../../../services/content'
@@ -12,7 +14,12 @@ export default defineEventHandler(async (event) => {
   }
 
   const campaignId = getRouterParam(event, 'id')!
-  const body = await readBody(event)
+  const mapSchema = z.object({
+    name: z.string().min(1),
+    parentMapId: z.string().optional(),
+    visibility: z.string().optional(),
+  })
+  const body = await validateBody(event, mapSchema)
   const db = useDb()
   const now = new Date()
   const id = randomUUID()
