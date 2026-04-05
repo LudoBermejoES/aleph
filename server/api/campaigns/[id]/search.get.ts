@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm'
+import { eq, and, inArray } from 'drizzle-orm'
 import { useDb, useSqlite } from '../../../utils/db'
 import { searchEntities } from '../../../services/search'
 import { entities } from '../../../db/schema/entities'
@@ -11,6 +11,7 @@ export default defineEventHandler(async (event) => {
   const campaignId = getRouterParam(event, 'id')!
   const role = (event.context.campaignRole || 'visitor') as CampaignRole
   const userId = event.context.user?.id
+  const typeFilter = query.type as string | undefined
 
   if (!q) {
     return { results: [], query: '' }
@@ -18,40 +19,47 @@ export default defineEventHandler(async (event) => {
 
   const sqlite = useSqlite()
   const db = useDb()
-  const results = searchEntities(sqlite, campaignId, q)
+  const rawResults = searchEntities(sqlite, campaignId, q)
 
-  // Filter by user permissions
+  if (!rawResults.length) return { results: [], query: q }
+
   const roleLevel = ROLE_LEVEL[role] ?? 1
-  const filtered = results.filter(r => {
-    const entity = db.select({ visibility: entities.visibility, createdBy: entities.createdBy })
-      .from(entities)
-      .where(eq(entities.id, r.entityId))
-      .get()
+  const entityIds = rawResults.map(r => r.entityId)
 
-    if (!entity) return false
-    if (entity.visibility === 'private') return entity.createdBy === userId
-    if (entity.visibility === 'specific_users') return false // would need entity_specific_viewers check
-    const minLevel = VISIBILITY_MIN_ROLE[entity.visibility] ?? 99
-    return roleLevel >= minLevel
+  // Single batch query — replaces per-result DB lookups
+  const conditions: any[] = [
+    eq(entities.campaignId, campaignId),
+    inArray(entities.id, entityIds),
+  ]
+  if (typeFilter) conditions.push(eq(entities.type, typeFilter))
+
+  const entityRows = db.select({
+    id: entities.id,
+    slug: entities.slug,
+    type: entities.type,
+    visibility: entities.visibility,
+    createdBy: entities.createdBy,
   })
+    .from(entities)
+    .where(and(...conditions))
+    .all()
 
-  // Optional type filter
-  const typeFilter = query.type as string | undefined
-  const filteredByType = typeFilter
-    ? filtered.filter(r => {
-        const ent = db.select({ type: entities.type }).from(entities).where(eq(entities.id, r.entityId)).get()
-        return ent?.type === typeFilter
-      })
-    : filtered
+  const entityMap = new Map(entityRows.map(e => [e.id, e]))
 
-  // Enrich results with slug and type
-  const finalResults = filteredByType.map(r => {
-    const ent = db.select({ slug: entities.slug, type: entities.type })
-      .from(entities)
-      .where(eq(entities.id, r.entityId))
-      .get()
-    return { ...r, slug: ent?.slug ?? null, type: ent?.type ?? null }
-  })
+  const finalResults = rawResults
+    .map(r => {
+      const ent = entityMap.get(r.entityId)
+      if (!ent) return null
+
+      // Visibility filtering in-memory (data already fetched)
+      if (ent.visibility === 'private' && ent.createdBy !== userId) return null
+      if (ent.visibility === 'specific_users') return null
+      const minLevel = VISIBILITY_MIN_ROLE[ent.visibility] ?? 99
+      if (roleLevel < minLevel) return null
+
+      return { ...r, slug: ent.slug, type: ent.type }
+    })
+    .filter(Boolean)
 
   return { results: finalResults, query: q }
 })

@@ -72,7 +72,8 @@ describe('Character list filters and meta (integration)', () => {
   it('GET ?race=Elf returns only Elf characters', async () => {
     const res = await api(`/api/campaigns/${campaignId}/characters?race=Elf`, { headers: { Cookie: cookie } })
     expect(res.status).toBe(200)
-    const data = await res.json()
+    const body = await res.json()
+    const data = body.data ?? body
     expect(data.length).toBeGreaterThan(0)
     expect(data.every((c: any) => c.race === 'Elf')).toBe(true)
   })
@@ -81,7 +82,8 @@ describe('Character list filters and meta (integration)', () => {
   it('GET ?class=Wizard returns only Wizard characters', async () => {
     const res = await api(`/api/campaigns/${campaignId}/characters?class=Wizard`, { headers: { Cookie: cookie } })
     expect(res.status).toBe(200)
-    const data = await res.json()
+    const body = await res.json()
+    const data = body.data ?? body
     expect(data.length).toBeGreaterThan(0)
     expect(data.every((c: any) => c.class === 'Wizard')).toBe(true)
   })
@@ -90,7 +92,8 @@ describe('Character list filters and meta (integration)', () => {
   it('GET ?alignment=Neutral+Good returns only matching characters', async () => {
     const res = await api(`/api/campaigns/${campaignId}/characters?alignment=Neutral+Good`, { headers: { Cookie: cookie } })
     expect(res.status).toBe(200)
-    const data = await res.json()
+    const body = await res.json()
+    const data = body.data ?? body
     expect(data.length).toBeGreaterThan(0)
     expect(data.every((c: any) => c.alignment === 'Neutral Good')).toBe(true)
   })
@@ -99,7 +102,8 @@ describe('Character list filters and meta (integration)', () => {
   it('GET ?status=dead returns only dead characters', async () => {
     const res = await api(`/api/campaigns/${campaignId}/characters?status=dead`, { headers: { Cookie: cookie } })
     expect(res.status).toBe(200)
-    const data = await res.json()
+    const body = await res.json()
+    const data = body.data ?? body
     expect(data.length).toBeGreaterThan(0)
     expect(data.every((c: any) => c.status === 'dead')).toBe(true)
   })
@@ -108,7 +112,8 @@ describe('Character list filters and meta (integration)', () => {
   it('GET ?organizationId=<id> returns only org members', async () => {
     const res = await api(`/api/campaigns/${campaignId}/characters?organizationId=${orgId}`, { headers: { Cookie: cookie } })
     expect(res.status).toBe(200)
-    const data = await res.json()
+    const body = await res.json()
+    const data = body.data ?? body
     expect(data.length).toBeGreaterThan(0)
     // Only Legolas is in the org
     expect(data.some((c: any) => c.name === 'Legolas')).toBe(true)
@@ -119,7 +124,8 @@ describe('Character list filters and meta (integration)', () => {
   it('GET ?sort=name&sortDir=asc returns alphabetical order', async () => {
     const res = await api(`/api/campaigns/${campaignId}/characters?sort=name&sortDir=asc`, { headers: { Cookie: cookie } })
     expect(res.status).toBe(200)
-    const data = await res.json()
+    const body = await res.json()
+    const data = body.data ?? body
     const names = data.map((c: any) => c.name)
     const sorted = [...names].sort((a, b) => a.localeCompare(b))
     expect(names).toEqual(sorted)
@@ -129,7 +135,8 @@ describe('Character list filters and meta (integration)', () => {
   it('GET ?sort=invalid falls back gracefully', async () => {
     const res = await api(`/api/campaigns/${campaignId}/characters?sort=invalid`, { headers: { Cookie: cookie } })
     expect(res.status).toBe(200)
-    const data = await res.json()
+    const body = await res.json()
+    const data = body.data ?? body
     expect(Array.isArray(data)).toBe(true)
   })
 
@@ -137,7 +144,8 @@ describe('Character list filters and meta (integration)', () => {
   it('GET /characters response includes locationName and primaryOrg fields', async () => {
     const res = await api(`/api/campaigns/${campaignId}/characters`, { headers: { Cookie: cookie } })
     expect(res.status).toBe(200)
-    const data = await res.json()
+    const body = await res.json()
+    const data = body.data ?? body
     expect(data.length).toBeGreaterThan(0)
     // All rows have these keys (may be null)
     for (const c of data) {
@@ -176,7 +184,8 @@ describe('Character list filters and meta (integration)', () => {
   it('GET ?companions=false excludes companion characters', async () => {
     const res = await api(`/api/campaigns/${campaignId}/characters?companions=false`, { headers: { Cookie: cookie } })
     expect(res.status).toBe(200)
-    const data = await res.json()
+    const body = await res.json()
+    const data = body.data ?? body
     expect(data.every((c: any) => c.isCompanionOf === null)).toBe(true)
   })
 })

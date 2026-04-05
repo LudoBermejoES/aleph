@@ -98,9 +98,10 @@ const upcoming = computed(() => sessions.value.filter(s => ['planned', 'active']
 const past = computed(() => sessions.value.filter(s => ['completed', 'cancelled'].includes(s.status)))
 
 async function loadSessions() {
-  const params: Record<string, string> = {}
+  const params: Record<string, string> = { pageSize: '0' }
   if (activeGroupSlug.value) params.groupSlug = activeGroupSlug.value
-  sessions.value = await api.getSessions(params)
+  const res = await api.getSessions(params)
+  sessions.value = Array.isArray(res) ? res : (res as any).data
 }
 
 async function load() {

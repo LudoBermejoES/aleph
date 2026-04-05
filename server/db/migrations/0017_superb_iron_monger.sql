@@ -1,0 +1,19 @@
+CREATE INDEX `idx_entities_type` ON `entities` (`type`);--> statement-breakpoint
+CREATE INDEX `idx_entities_parent` ON `entities` (`parent_id`);--> statement-breakpoint
+CREATE INDEX `idx_characters_type` ON `characters` (`character_type`);--> statement-breakpoint
+CREATE INDEX `idx_characters_status` ON `characters` (`status`);--> statement-breakpoint
+CREATE INDEX `idx_characters_owner_user` ON `characters` (`owner_user_id`);--> statement-breakpoint
+CREATE INDEX `idx_characters_folder` ON `characters` (`folder_id`);--> statement-breakpoint
+CREATE INDEX `idx_characters_location` ON `characters` (`location_entity_id`);--> statement-breakpoint
+CREATE INDEX `idx_sessions_status` ON `game_sessions` (`status`);--> statement-breakpoint
+CREATE INDEX `idx_sessions_arc` ON `game_sessions` (`arc_id`);--> statement-breakpoint
+CREATE INDEX `idx_sessions_chapter` ON `game_sessions` (`chapter_id`);--> statement-breakpoint
+CREATE INDEX `idx_sessions_group` ON `game_sessions` (`group_id`);--> statement-breakpoint
+CREATE INDEX `idx_attendance_session_user` ON `session_attendance` (`session_id`,`user_id`);--> statement-breakpoint
+CREATE INDEX `idx_maps_parent` ON `maps` (`parent_map_id`);--> statement-breakpoint
+CREATE INDEX `idx_maps_visibility` ON `maps` (`visibility`);--> statement-breakpoint
+CREATE INDEX `idx_relations_source` ON `entity_relations` (`source_entity_id`,`relation_type_id`);--> statement-breakpoint
+CREATE INDEX `idx_relations_target` ON `entity_relations` (`target_entity_id`,`relation_type_id`);--> statement-breakpoint
+CREATE INDEX `idx_inventory_items_composite` ON `inventory_items` (`inventory_id`,`item_id`);--> statement-breakpoint
+CREATE INDEX `idx_orgs_type` ON `organizations` (`type`);--> statement-breakpoint
+CREATE INDEX `idx_orgs_status` ON `organizations` (`status`);

@@ -67,7 +67,8 @@ describe('Organization CRUD (integration)', () => {
       headers: { 'X-API-Key': apiKey },
     })
     expect(res.status).toBe(200)
-    const data = await res.json()
+    const body = await res.json()
+    const data = body.data ?? body
     expect(Array.isArray(data)).toBe(true)
     expect(data.length).toBe(0)
   })
@@ -109,7 +110,8 @@ describe('Organization CRUD (integration)', () => {
       headers: { 'X-API-Key': apiKey },
     })
     expect(res.status).toBe(200)
-    const data = await res.json()
+    const body = await res.json()
+    const data = body.data ?? body
     const org = data.find((o: any) => o.slug === orgSlug)
     expect(org).toBeDefined()
     expect(org.memberCount).toBeDefined()

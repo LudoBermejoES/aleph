@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core'
+import { sqliteTable, text, integer, index } from 'drizzle-orm/sqlite-core'
 import { entities } from './entities'
 import { campaigns } from './campaigns'
 import { user } from './auth'
@@ -16,7 +16,13 @@ export const characters = sqliteTable('characters', {
   isCompanionOf: text('is_companion_of'), // character_id for mounts/companions
   folderId: text('folder_id'), // references character_folders.id
   portraitUrl: text('portrait_url'),
-})
+}, (table) => [
+  index('idx_characters_type').on(table.characterType),
+  index('idx_characters_status').on(table.status),
+  index('idx_characters_owner_user').on(table.ownerUserId),
+  index('idx_characters_folder').on(table.folderId),
+  index('idx_characters_location').on(table.locationEntityId),
+])
 
 export const statGroups = sqliteTable('stat_groups', {
   id: text('id').primaryKey(),

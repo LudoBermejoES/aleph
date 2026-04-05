@@ -195,8 +195,9 @@ describe('Arc and Chapter CRUD (integration)', () => {
     const sessionsRes = await api(`/api/campaigns/${campaignId}/sessions`, {
       headers: { 'X-API-Key': apiKey },
     })
-    const sessions = await sessionsRes.json()
-    const updatedSession = sessions.find((s: any) => s.id === session.id)
+    const sessionsBody = await sessionsRes.json()
+    const sessionsList = sessionsBody.data ?? sessionsBody
+    const updatedSession = sessionsList.find((s: any) => s.id === session.id)
     expect(updatedSession?.arcId).toBeNull()
   })
 
@@ -245,8 +246,9 @@ describe('Arc and Chapter CRUD (integration)', () => {
     const sessionsRes = await api(`/api/campaigns/${campaignId}/sessions`, {
       headers: { 'X-API-Key': apiKey },
     })
-    const sessions = await sessionsRes.json()
-    const updatedSession = sessions.find((s: any) => s.id === session.id)
+    const sessionsBody = await sessionsRes.json()
+    const sessionsList = sessionsBody.data ?? sessionsBody
+    const updatedSession = sessionsList.find((s: any) => s.id === session.id)
     expect(updatedSession?.chapterId).toBeNull()
   })
 

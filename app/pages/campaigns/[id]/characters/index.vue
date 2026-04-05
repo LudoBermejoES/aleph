@@ -88,6 +88,13 @@
             :character="c"
             :campaign-id="campaignId"
           />
+          <PaginationControls
+            :page="pagination.page.value"
+            :page-size="pagination.pageSize.value"
+            :total="pagination.total.value"
+            :total-pages="pagination.totalPages.value"
+            @change="p => { pagination.setPage(p); load() }"
+          />
         </div>
         <EmptyState v-else icon="🧙" :title="$t('characters.empty')" :description="$t('characters.emptyDescription')">
           <NuxtLink :to="`/campaigns/${campaignId}/characters/new`"><Button size="sm">{{ $t('characters.new') }}</Button></NuxtLink>
@@ -132,6 +139,7 @@ const locationOptions = computed(() => {
 
 const { loading, error, withLoading, dismissError } = useLoadingState()
 const api = useCampaignApi(campaignId)
+const pagination = usePagination()
 
 let searchTimer: ReturnType<typeof setTimeout>
 watch(searchInput, () => {
@@ -141,7 +149,14 @@ watch(searchInput, () => {
 
 async function load() {
   await withLoading(async () => {
-    chars.value = await api.getCharacters(buildParams())
+    const params = { ...buildParams(), ...pagination.queryParams() }
+    const res = await api.getCharacters(params)
+    if (Array.isArray(res)) {
+      chars.value = res
+    } else {
+      chars.value = res.data
+      pagination.updateMeta(res.meta)
+    }
   })
 }
 
@@ -151,7 +166,7 @@ onMounted(async () => {
     load(),
     api.getCharacterFolders().then(f => { folders.value = f }).catch(() => {}),
     api.getCharactersMeta().then(m => { meta.value = m }).catch(() => {}),
-    api.getOrganizations().then(o => { organizations.value = o }).catch(() => {}),
+    api.getOrganizations().then(o => { organizations.value = Array.isArray(o) ? o : (o as any).data }).catch(() => {}),
   ])
 })
 </script>

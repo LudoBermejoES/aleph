@@ -1,10 +1,12 @@
-import { eq, and, like, sql, inArray } from 'drizzle-orm'
+import { eq, and, like, sql } from 'drizzle-orm'
+import { alias } from 'drizzle-orm/sqlite-core'
 import { useDb } from '../../../../utils/db'
 import { entities } from '../../../../db/schema/entities'
-import { characters } from '../../../../db/schema/characters'
 import { buildVisibilityFilter } from '../../../../utils/permissions'
-import { safeReadEntityFile } from '../../../../utils/content-helpers'
+import { parsePagination, buildMeta } from '../../../../utils/pagination'
 import type { CampaignRole } from '../../../../utils/permissions'
+
+const parentEntities = alias(entities, 'parent_entities')
 
 export default defineEventHandler(async (event) => {
   const campaignId = getRouterParam(event, 'id')!
@@ -27,74 +29,65 @@ export default defineEventHandler(async (event) => {
 
   if (search) conditions.push(like(entities.name, `%${search}%`))
 
-  // RBAC visibility filter
   buildVisibilityFilter(role, userId, conditions, entities.visibility, entities.createdBy)
 
-  const results = db.select().from(entities)
+  const pagination = parsePagination(query as Record<string, unknown>)
+
+  const countRow = db.select({ total: sql<number>`COUNT(*)` })
+    .from(entities)
+    .where(and(...conditions))
+    .get()
+  const total = countRow?.total ?? 0
+
+  const results = db.select({
+    id: entities.id,
+    name: entities.name,
+    slug: entities.slug,
+    filePath: entities.filePath,
+    parentId: entities.parentId,
+    visibility: entities.visibility,
+    updatedAt: entities.updatedAt,
+    parentName: parentEntities.name,
+    childCount: sql<number>`(SELECT COUNT(*) FROM entities child WHERE child.parent_id = ${entities.id} AND child.type = 'location' AND child.campaign_id = ${campaignId})`.as('child_count'),
+    inhabitantCount: sql<number>`(SELECT COUNT(*) FROM characters c WHERE c.location_entity_id = ${entities.id})`.as('inhabitant_count'),
+  })
+    .from(entities)
+    .leftJoin(parentEntities, eq(entities.parentId, parentEntities.id))
     .where(and(...conditions))
     .orderBy(entities.name)
+    .limit(pagination.limit)
+    .offset(pagination.offset)
     .all()
 
-  // Filter by subtype in JS (stored in file frontmatter, not DB column)
-  // and enrich with childCount + inhabitantCount
-  const allLocations = db.select({ id: entities.id, parentId: entities.parentId })
-    .from(entities)
-    .where(and(eq(entities.campaignId, campaignId), eq(entities.type, 'location')))
-    .all()
-
-  const childCountMap = new Map<string, number>()
-  for (const loc of allLocations) {
-    if (loc.parentId) {
-      childCountMap.set(loc.parentId, (childCountMap.get(loc.parentId) ?? 0) + 1)
-    }
-  }
-
-  const allChars = db.select({ locationEntityId: characters.locationEntityId })
-    .from(characters)
-    .all()
-  const inhabitantCountMap = new Map<string, number>()
-  for (const c of allChars) {
-    if (c.locationEntityId) {
-      inhabitantCountMap.set(c.locationEntityId, (inhabitantCountMap.get(c.locationEntityId) ?? 0) + 1)
-    }
-  }
-
-  // Build parent name map
-  const parentIds = [...new Set(results.map(r => r.parentId).filter(Boolean))] as string[]
-  const parentMap = new Map<string, string>()
-  if (parentIds.length > 0) {
-    const parents = db.select({ id: entities.id, name: entities.name })
-      .from(entities)
-      .where(inArray(entities.id, parentIds))
-      .all()
-    for (const p of parents) parentMap.set(p.id, p.name)
-  }
-
-  // Read subtypes from files in parallel
-  const subtypeMap = new Map<string, string>()
-  await Promise.all(results.map(async (loc) => {
-    const file = await safeReadEntityFile(loc.filePath)
-    subtypeMap.set(loc.id, file?.frontmatter?.fields?.subtype as string ?? 'other')
-  }))
-
-  const enriched = results.map((loc) => {
-    return {
-      id: loc.id,
-      name: loc.name,
-      slug: loc.slug,
-      subtype: subtypeMap.get(loc.id) ?? 'other',
-      parentId: loc.parentId,
-      parentName: loc.parentId ? (parentMap.get(loc.parentId) ?? null) : null,
-      visibility: loc.visibility,
-      updatedAt: loc.updatedAt,
-      childCount: childCountMap.get(loc.id) ?? 0,
-      inhabitantCount: inhabitantCountMap.get(loc.id) ?? 0,
-    }
+  const mapRow = (loc: typeof results[number], st = 'other') => ({
+    id: loc.id,
+    name: loc.name,
+    slug: loc.slug,
+    subtype: st,
+    parentId: loc.parentId,
+    parentName: loc.parentName ?? null,
+    visibility: loc.visibility,
+    updatedAt: loc.updatedAt,
+    childCount: loc.childCount ?? 0,
+    inhabitantCount: loc.inhabitantCount ?? 0,
   })
 
-  // Apply subtype filter now that we have the values
+  const { safeReadEntityFile } = await import('../../../../utils/content-helpers')
+  const withSubtypes = await Promise.all(results.map(async (loc) => {
+    const file = await safeReadEntityFile(loc.filePath ?? '')
+    const st = file?.frontmatter?.fields?.subtype as string ?? 'other'
+    return { loc, st }
+  }))
+
+  let data: ReturnType<typeof mapRow>[]
   if (subtype) {
-    return enriched.filter(l => l.subtype === subtype)
+    data = withSubtypes
+      .filter(({ st }) => st === subtype)
+      .map(({ loc, st }) => mapRow(loc, st))
+  } else {
+    data = withSubtypes.map(({ loc, st }) => mapRow(loc, st))
   }
-  return enriched
+
+  if (pagination.pageSize === 0) return data
+  return { data, meta: buildMeta(total, pagination) }
 })

@@ -68,7 +68,8 @@ describe('Character CRUD (integration)', () => {
       method: 'GET', headers: { Cookie: cookie },
     })
     expect(res.status).toBe(200)
-    const data = await res.json()
+    const body = await res.json()
+    const data = body.data ?? body
     expect(data.length).toBeGreaterThanOrEqual(1)
     expect(data.some((a: any) => a.name === 'Fireball')).toBe(true)
   })
@@ -91,7 +92,8 @@ describe('Character CRUD (integration)', () => {
     const res = await api(`/api/campaigns/${campaignId}/characters?type=npc`, {
       method: 'GET', headers: { Cookie: cookie },
     })
-    const data = await res.json()
+    const body = await res.json()
+    const data = body.data ?? body
     expect(data.every((c: any) => c.characterType === 'npc')).toBe(true)
   })
 

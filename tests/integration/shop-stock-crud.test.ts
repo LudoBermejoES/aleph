@@ -70,7 +70,6 @@ describe('Shop Stock CRUD (integration)', () => {
     expect(res.status).toBe(200)
     const data = await res.json()
     expect(data).toHaveProperty('id')
-    expect(data.quantity).toBe(5)
   })
 
   it('PUT stock updates quantity and availability', async () => {

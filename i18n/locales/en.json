@@ -631,6 +631,9 @@
       "campaign": "Campaign"
     }
   },
+  "pagination": {
+    "showing": "Showing {from}–{to} of {total}"
+  },
   "search": {
     "placeholder": "Search...",
     "shortcut": "Ctrl+K",

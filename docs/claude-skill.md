@@ -4,7 +4,7 @@ description: Use the aleph CLI to manage campaigns, entities, characters, locati
 license: MIT
 metadata:
   author: aleph
-  version: "1.8"
+  version: "1.9"
 ---
 
 You have access to the `aleph` CLI. Run it as `aleph` if installed globally (`npm i -g aleph-cli`), or `npx aleph-cli` otherwise.
@@ -73,7 +73,7 @@ Pipe content from a file: `cat notes.md | aleph entity edit --campaign <id> <slu
 
 ### Characters
 ```bash
-aleph character list --campaign <id> [--status <alive|dead|missing|unknown>] [--race <race>] [--class <class>] [--alignment <alignment>] [--sort <name|updatedAt|status|race|class>] [--sort-dir <asc|desc>] [--json]
+aleph character list --campaign <id> [--status <alive|dead|missing|unknown>] [--race <race>] [--class <class>] [--alignment <alignment>] [--sort <name|updatedAt|status|race|class>] [--sort-dir <asc|desc>] [--page <n>] [--limit <n>] [--json]
 aleph character create --campaign <id> --name <name> [--class <class>] [--json]
 aleph character show --campaign <id> <slug> [--json]
 aleph character update --campaign <id> <slug> [--name <n>] [--race <r>] [--class <c>] [--alignment <a>] [--status <s>] [--content <md>] [--stdin]
@@ -90,7 +90,7 @@ aleph character folder-delete <folderId> --campaign <id> [--yes]
 
 ### Sessions
 ```bash
-aleph session list --campaign <id> [--group <slug>] [--json]
+aleph session list --campaign <id> [--group <slug>] [--page <n>] [--limit <n>] [--json]
 aleph session create --campaign <id> --title <title> [--date <YYYY-MM-DD>] [--group <slug>] [--json]
 aleph session show <slug> --campaign <id> [--json]   # includes groupName, hasManualNotes/hasAiNotes/hasSummary
 aleph session update <slug> --campaign <id> [--title <title>] [--date <YYYY-MM-DD>] [--status planned|active|completed|cancelled] [--group <slug>]
@@ -130,7 +130,7 @@ aleph search --campaign <id> <query> [--json]
 
 ### Organizations
 ```bash
-aleph organization list --campaign <id> [--json]
+aleph organization list --campaign <id> [--page <n>] [--limit <n>] [--json]
 aleph organization create --campaign <id> --name <name> [--type <type>] [--status <status>] [--description <desc>] [--json]
 aleph organization show <slug> --campaign <id> [--json]
 aleph organization edit <slug> --campaign <id> [--name <name>] [--type <type>] [--status <status>] [--description <desc>] [--json]
@@ -145,7 +145,7 @@ Statuses: `active`, `inactive`, `secret`, `dissolved`
 ### Locations
 
 ```bash
-aleph location list --campaign <id> [--search <q>] [--subtype <subtype>] [--json]
+aleph location list --campaign <id> [--search <q>] [--subtype <subtype>] [--page <n>] [--limit <n>] [--json]
 aleph location create --campaign <id> --name <name> [--subtype <subtype>] [--parent <id>] [--visibility <vis>] [--content <text>] [--json]
 aleph location show <slug> --campaign <id> [--json]
 aleph location edit <slug> --campaign <id> [--name <name>] [--subtype <subtype>] [--parent <id>] [--visibility <vis>] [--content <text>] [--json]

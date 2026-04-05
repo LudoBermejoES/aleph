@@ -1,12 +1,21 @@
 import { eq, sql } from 'drizzle-orm'
 import { useDb } from '../../../../utils/db'
-import { organizations, organizationMembers } from '../../../../db/schema'
+import { organizations } from '../../../../db/schema'
+import { parsePagination, buildMeta } from '../../../../utils/pagination'
 
 export default defineEventHandler(async (event) => {
   const campaignId = getRouterParam(event, 'id')!
+  const query = getQuery(event)
   const db = useDb()
+  const pagination = parsePagination(query as Record<string, unknown>)
 
-  const rows = db.select({
+  const countRow = db.select({ total: sql<number>`COUNT(*)` })
+    .from(organizations)
+    .where(eq(organizations.campaignId, campaignId))
+    .get()
+  const total = countRow?.total ?? 0
+
+  const data = db.select({
     id: organizations.id,
     name: organizations.name,
     slug: organizations.slug,
@@ -19,7 +28,10 @@ export default defineEventHandler(async (event) => {
   })
     .from(organizations)
     .where(eq(organizations.campaignId, campaignId))
+    .limit(pagination.limit)
+    .offset(pagination.offset)
     .all()
 
-  return rows
+  if (pagination.pageSize === 0) return data
+  return { data, meta: buildMeta(total, pagination) }
 })

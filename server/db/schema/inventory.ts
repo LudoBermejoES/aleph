@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, real } from 'drizzle-orm/sqlite-core'
+import { sqliteTable, text, integer, real, index } from 'drizzle-orm/sqlite-core'
 import { campaigns } from './campaigns'
 import { user } from './auth'
 
@@ -35,7 +35,9 @@ export const inventoryItems = sqliteTable('inventory_items', {
   position: text('position').default('backpack'), // equipped, backpack, wagon, storage
   notes: text('notes'),
   acquiredAt: integer('acquired_at', { mode: 'timestamp' }),
-})
+}, (table) => [
+  index('idx_inventory_items_composite').on(table.inventoryId, table.itemId),
+])
 
 export const currencies = sqliteTable('currencies', {
   id: text('id').primaryKey(),

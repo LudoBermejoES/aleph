@@ -9,11 +9,18 @@ export function makeOrganizationCommand() {
     .command('list')
     .description('List organizations in a campaign')
     .requiredOption('--campaign <id>', 'Campaign ID')
+    .option('--page <n>', 'Page number', '1')
+    .option('--limit <n>', 'Results per page (0 = all)', '50')
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
-      const data = await get(`/api/campaigns/${opts.campaign}/organizations`)
+      const params = new URLSearchParams()
+      params.set('page', opts.page)
+      params.set('pageSize', opts.limit)
+      const res = await get(`/api/campaigns/${opts.campaign}/organizations?${params.toString()}`)
+      const data = Array.isArray(res) ? res : res.data
+      const meta = Array.isArray(res) ? null : res.meta
       if (opts.json) {
-        print(data, { json: true })
+        print(res, { json: true })
       } else {
         print(data.map(o => ({
           name: o.name,
@@ -22,6 +29,7 @@ export function makeOrganizationCommand() {
           status: o.status,
           members: o.memberCount,
         })))
+        if (meta) console.error(`Page ${meta.page}/${meta.totalPages} (${meta.total} total)`)
       }
     })
 

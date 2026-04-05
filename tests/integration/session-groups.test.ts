@@ -43,7 +43,8 @@ describe('Session Groups + Content (integration)', () => {
     const res = await api(`/api/campaigns/${campaignId}/session-groups`, {
       method: 'GET', headers: { Cookie: cookie },
     })
-    const data = await res.json()
+    const body = await res.json()
+    const data = body.data ?? body
     expect(data.length).toBeGreaterThanOrEqual(1)
     expect(data[0].name).toBe('La Familia')
   })
@@ -73,7 +74,8 @@ describe('Session Groups + Content (integration)', () => {
     const res = await api(`/api/campaigns/${campaignId}/sessions`, {
       method: 'GET', headers: { Cookie: cookie },
     })
-    const data = await res.json()
+    const body = await res.json()
+    const data = body.data ?? body
     const grouped = data.find((s: any) => s.slug === sessionSlug)
     expect(grouped?.groupName).toBeTruthy()
   })
@@ -88,7 +90,8 @@ describe('Session Groups + Content (integration)', () => {
     const res = await api(`/api/campaigns/${campaignId}/sessions?groupSlug=${groupSlug}`, {
       method: 'GET', headers: { Cookie: cookie },
     })
-    const data = await res.json()
+    const body = await res.json()
+    const data = body.data ?? body
     expect(data.length).toBe(1)
     expect(data[0].slug).toBe(sessionSlug)
   })
@@ -117,7 +120,7 @@ describe('Session Groups + Content (integration)', () => {
       method: 'GET', headers: { Cookie: cookie },
     })
     const data = await res.json()
-    expect(data.manual_notes).toBe('These are manual notes.')
+    expect(data.manual_notes?.content).toBe('These are manual notes.')
     expect(data.ai_notes).toBeNull()
     expect(data.summary).toBeNull()
   })
@@ -131,7 +134,7 @@ describe('Session Groups + Content (integration)', () => {
       method: 'GET', headers: { Cookie: cookie },
     })
     const data = await res.json()
-    expect(data.manual_notes).toBe('Updated notes.')
+    expect(data.manual_notes?.content).toBe('Updated notes.')
   })
 
   it('GET /sessions/:slug returns hasContent.manual_notes=true after upsert', async () => {

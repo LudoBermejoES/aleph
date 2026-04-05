@@ -14,15 +14,24 @@
     </div>
 
     <LoadingSkeleton v-if="loading" :rows="4" />
-    <div v-else-if="mapList.length" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      <NuxtLink v-for="m in mapList" :key="m.id" :to="`/campaigns/${campaignId}/maps/${m.slug}`">
-        <Card class="hover:border-primary/50 transition-colors cursor-pointer h-full">
-          <CardHeader>
-            <CardTitle class="text-lg">{{ m.name }}</CardTitle>
-            <CardDescription v-if="m.width">{{ m.width }}x{{ m.height }}px</CardDescription>
-          </CardHeader>
-        </Card>
-      </NuxtLink>
+    <div v-else-if="mapList.length">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <NuxtLink v-for="m in mapList" :key="m.id" :to="`/campaigns/${campaignId}/maps/${m.slug}`">
+          <Card class="hover:border-primary/50 transition-colors cursor-pointer h-full">
+            <CardHeader>
+              <CardTitle class="text-lg">{{ m.name }}</CardTitle>
+              <CardDescription v-if="m.width">{{ m.width }}x{{ m.height }}px</CardDescription>
+            </CardHeader>
+          </Card>
+        </NuxtLink>
+      </div>
+      <PaginationControls
+        :page="pagination.page.value"
+        :page-size="pagination.pageSize.value"
+        :total="pagination.total.value"
+        :total-pages="pagination.totalPages.value"
+        @change="p => { pagination.setPage(p); load() }"
+      />
     </div>
     <EmptyState v-else icon="🗺️" :title="$t('maps.empty')" :description="$t('maps.emptyDescription')" />
     <ErrorToast v-if="error" :message="error" @dismiss="dismissError" />
@@ -38,10 +47,17 @@ import type { CampaignMap } from '~/types/api'
 const mapList = ref<CampaignMap[]>([])
 const { loading, error, withLoading, dismissError } = useLoadingState()
 const api = useCampaignApi(campaignId)
+const pagination = usePagination()
 
 async function load() {
   await withLoading(async () => {
-    mapList.value = await api.getMaps({ root: 'true' })
+    const res = await api.getMaps({ root: 'true', ...pagination.queryParams() })
+    if (Array.isArray(res)) {
+      mapList.value = res as CampaignMap[]
+    } else {
+      mapList.value = (res as any).data as CampaignMap[]
+      pagination.updateMeta((res as any).meta)
+    }
   })
 }
 

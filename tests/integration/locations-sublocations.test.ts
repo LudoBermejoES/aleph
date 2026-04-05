@@ -89,9 +89,10 @@ describe('Sub-location creation (integration)', () => {
       body: { name: 'Castle Ravenloft', subtype: 'dungeon', parentId, visibility: 'members' },
     })
 
-    const subs = await api(`/api/campaigns/${campaignId}/locations/${parentSlug}/sub-locations`, {
+    const subsBody = await api(`/api/campaigns/${campaignId}/locations/${parentSlug}/sub-locations`, {
       headers: auth(apiKey),
     })
+    const subs = subsBody.data ?? subsBody
     expect(subs.length).toBeGreaterThanOrEqual(2)
     const names = subs.map((s: any) => s.name)
     expect(names).toContain('Village of Barovia')
@@ -159,7 +160,8 @@ describe('Sub-location creation (integration)', () => {
       body: { name: 'Child B', subtype: 'town', parentId: freshParent.id, visibility: 'members' },
     })
 
-    const list = await api(`/api/campaigns/${campaignId}/locations`, { headers: auth(apiKey) })
+    const listBody = await api(`/api/campaigns/${campaignId}/locations`, { headers: auth(apiKey) })
+    const list = listBody.data ?? listBody
     const parent = list.find((l: any) => l.id === freshParent.id)
     expect(parent?.childCount).toBe(2)
   })

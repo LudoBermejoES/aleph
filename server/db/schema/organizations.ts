@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, primaryKey } from 'drizzle-orm/sqlite-core'
+import { sqliteTable, text, integer, primaryKey, index } from 'drizzle-orm/sqlite-core'
 import { campaigns } from './campaigns'
 import { characters } from './characters'
 import { entities } from './entities'
@@ -13,7 +13,10 @@ export const organizations = sqliteTable('organizations', {
   status: text('status').notNull().default('active'), // active, inactive, secret, dissolved
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
   updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
-})
+}, (table) => [
+  index('idx_orgs_type').on(table.type),
+  index('idx_orgs_status').on(table.status),
+])
 
 export const organizationMembers = sqliteTable('organization_members', {
   organizationId: text('organization_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),

@@ -1,7 +1,12 @@
 import { eq, and, like, desc, asc, sql, isNull } from 'drizzle-orm'
+import { alias } from 'drizzle-orm/sqlite-core'
 import { useDb } from '../../../../utils/db'
 import { entities } from '../../../../db/schema/entities'
 import { characters } from '../../../../db/schema/characters'
+import { organizations, organizationMembers } from '../../../../db/schema/organizations'
+import { parsePagination, buildMeta } from '../../../../utils/pagination'
+
+const locationEntities = alias(entities, 'loc_entities')
 
 export default defineEventHandler(async (event) => {
   const campaignId = getRouterParam(event, 'id')!
@@ -22,8 +27,7 @@ export default defineEventHandler(async (event) => {
   const sortField = query.sort as string | undefined
   const sortDir = (query.sortDir as string | undefined) ?? 'desc'
 
-  // Resolve sort column; unknown fields fall back to updatedAt desc
-  const sortColumns: Record<string, any> = {
+  const sortColumns: Record<string, unknown> = {
     name: entities.name,
     updatedAt: entities.updatedAt,
     status: characters.status,
@@ -31,25 +35,37 @@ export default defineEventHandler(async (event) => {
     class: characters.class,
   }
   const sortCol = sortColumns[sortField ?? ''] ?? entities.updatedAt
-  const order = sortDir === 'asc' ? asc(sortCol) : desc(sortCol)
+  const order = sortDir === 'asc' ? asc(sortCol as Parameters<typeof asc>[0]) : desc(sortCol as Parameters<typeof desc>[0])
 
-  // Build WHERE conditions server-side
-  const conditions: any[] = [eq(entities.campaignId, campaignId)]
+  const conditions: ReturnType<typeof eq>[] = [eq(entities.campaignId, campaignId)]
   if (characterType) conditions.push(eq(characters.characterType, characterType))
   if (status) conditions.push(eq(characters.status, status))
   if (search) conditions.push(like(entities.name, `%${search}%`))
   if (folderId) conditions.push(eq(characters.folderId, folderId))
   if (companionOf) conditions.push(eq(characters.isCompanionOf, companionOf))
-  if (companions === 'false') conditions.push(isNull(characters.isCompanionOf))
+  if (companions === 'false') conditions.push(isNull(characters.isCompanionOf) as ReturnType<typeof eq>)
   if (race) conditions.push(eq(characters.race, race))
   if (cls) conditions.push(eq(characters.class, cls))
   if (alignment) conditions.push(eq(characters.alignment, alignment))
   if (locationEntityId) conditions.push(eq(characters.locationEntityId, locationEntityId))
   if (organizationId) {
     conditions.push(
-      sql`EXISTS (SELECT 1 FROM organization_members om WHERE om.character_id = ${characters.id} AND om.organization_id = ${organizationId})`
+      sql`EXISTS (SELECT 1 FROM organization_members om WHERE om.character_id = ${characters.id} AND om.organization_id = ${organizationId})` as ReturnType<typeof eq>
     )
   }
+
+  const pagination = parsePagination(query as Record<string, unknown>)
+
+  // Total count for pagination meta
+  const countRow = db.select({ total: sql<number>`COUNT(*)` })
+    .from(characters)
+    .innerJoin(entities, eq(characters.entityId, entities.id))
+    .where(and(...conditions))
+    .get()
+  const total = countRow?.total ?? 0
+
+  const primaryOrgMember = alias(organizationMembers, 'pom')
+  const primaryOrg = alias(organizations, 'po')
 
   const rows = db.select({
     id: characters.id,
@@ -68,17 +84,25 @@ export default defineEventHandler(async (event) => {
     portraitUrl: characters.portraitUrl,
     locationEntityId: characters.locationEntityId,
     updatedAt: entities.updatedAt,
-    locationName: sql<string | null>`(SELECT e.name FROM entities e WHERE e.id = ${characters.locationEntityId})`.as('location_name'),
-    primaryOrgName: sql<string | null>`(SELECT o.name FROM organization_members om JOIN organizations o ON om.organization_id = o.id WHERE om.character_id = ${characters.id} LIMIT 1)`.as('primary_org_name'),
-    primaryOrgRole: sql<string | null>`(SELECT om.role FROM organization_members om JOIN organizations o ON om.organization_id = o.id WHERE om.character_id = ${characters.id} LIMIT 1)`.as('primary_org_role'),
+    locationName: locationEntities.name,
+    primaryOrgName: primaryOrg.name,
+    primaryOrgRole: primaryOrgMember.role,
   })
     .from(characters)
     .innerJoin(entities, eq(characters.entityId, entities.id))
+    .leftJoin(locationEntities, eq(characters.locationEntityId, locationEntities.id))
+    .leftJoin(
+      primaryOrgMember,
+      sql`${primaryOrgMember.characterId} = ${characters.id} AND ${primaryOrgMember.organizationId} = (SELECT organization_id FROM organization_members WHERE character_id = ${characters.id} LIMIT 1)`
+    )
+    .leftJoin(primaryOrg, eq(primaryOrgMember.organizationId, primaryOrg.id))
     .where(and(...conditions))
     .orderBy(order)
+    .limit(pagination.limit)
+    .offset(pagination.offset)
     .all()
 
-  return rows.map(r => ({
+  const data = rows.map(r => ({
     id: r.id,
     entityId: r.entityId,
     name: r.name,
@@ -98,4 +122,8 @@ export default defineEventHandler(async (event) => {
     locationName: r.locationName ?? null,
     primaryOrg: r.primaryOrgName ? { name: r.primaryOrgName, role: r.primaryOrgRole } : null,
   }))
+
+  // pageSize=0 means backward-compat (return flat array)
+  if (pagination.pageSize === 0) return data
+  return { data, meta: buildMeta(total, pagination) }
 })

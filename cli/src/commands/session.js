@@ -12,14 +12,23 @@ export function makeSessionCommand() {
     .description('List sessions in a campaign')
     .requiredOption('--campaign <id>', 'Campaign ID')
     .option('--group <slug>', 'Filter by session group slug')
+    .option('--page <n>', 'Page number', '1')
+    .option('--limit <n>', 'Results per page (0 = all)', '50')
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
-      const params = opts.group ? `?groupSlug=${encodeURIComponent(opts.group)}` : ''
-      const data = await get(`/api/campaigns/${opts.campaign}/sessions${params}`)
+      const params = new URLSearchParams()
+      if (opts.group) params.set('groupSlug', opts.group)
+      params.set('page', opts.page)
+      params.set('pageSize', opts.limit)
+      const qs = params.toString()
+      const res = await get(`/api/campaigns/${opts.campaign}/sessions${qs ? `?${qs}` : ''}`)
+      const data = Array.isArray(res) ? res : res.data
+      const meta = Array.isArray(res) ? null : res.meta
       if (opts.json) {
-        print(data, { json: true })
+        print(res, { json: true })
       } else {
         print(data.map(s => ({ title: s.title, slug: s.slug, date: s.scheduledDate || '', status: s.status || '', group: s.groupName || '' })))
+        if (meta) console.error(`Page ${meta.page}/${meta.totalPages} (${meta.total} total)`)
       }
     })
 
@@ -121,12 +130,13 @@ export function makeSessionCommand() {
     .option('--type <type>', 'Content type: manual_notes|ai_notes|summary (omit to show all)')
     .action(async (slug, opts) => {
       const data = await get(`/api/campaigns/${opts.campaign}/sessions/${slug}/content`)
+      const getContent = (v) => (v && typeof v === 'object' ? v.content : v) || ''
       if (opts.type) {
         // raw output suitable for piping
-        process.stdout.write((data[opts.type] || '') + '\n')
+        process.stdout.write(getContent(data[opts.type]) + '\n')
       } else {
         for (const type of ['manual_notes', 'ai_notes', 'summary']) {
-          process.stdout.write(`\n=== ${type} ===\n${data[type] || '(empty)'}\n`)
+          process.stdout.write(`\n=== ${type} ===\n${getContent(data[type]) || '(empty)'}\n`)
         }
       }
     })

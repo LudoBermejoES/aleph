@@ -55,7 +55,8 @@ describe('Location subtype roundtrip', () => {
         body: { name: `List ${subtype} ${Date.now()}`, subtype, visibility: 'members' },
       })
 
-      const list = await api(`/api/campaigns/${campaignId}/locations`, { headers: { 'X-API-Key': key } })
+      const listBody = await api(`/api/campaigns/${campaignId}/locations`, { headers: { 'X-API-Key': key } })
+      const list = listBody.data ?? listBody
       const item = list.find((l: any) => l.id === created.id)
       expect(item).toBeDefined()
       expect(item.subtype).toBe(subtype)
@@ -90,9 +91,10 @@ describe('Location subtype roundtrip', () => {
       body: { name: `Child ${Date.now()}`, subtype: 'dungeon', parentId: parent.id, visibility: 'members' },
     })
 
-    const subs = await api(`/api/campaigns/${campaignId}/locations/${parent.slug}/sub-locations`, {
+    const subsBody = await api(`/api/campaigns/${campaignId}/locations/${parent.slug}/sub-locations`, {
       headers: { 'X-API-Key': key },
     })
+    const subs = subsBody.data ?? subsBody
     expect(subs.length).toBeGreaterThan(0)
     expect(subs[0].subtype).toBe('dungeon')
   })

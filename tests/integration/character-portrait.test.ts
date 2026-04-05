@@ -51,7 +51,8 @@ describe('Character Portrait (integration)', () => {
     expect(data.portraitUrl).toBeNull()
 
     const list = await api(`/api/campaigns/${campaignId}/characters`, { headers: { Cookie: cookie } })
-    const chars = await list.json()
+    const charsBody = await list.json()
+    const chars = charsBody.data ?? charsBody
     const found = chars.find((c: any) => c.slug === characterSlug)
     expect(found).toBeDefined()
     expect('portraitUrl' in found).toBe(true)

@@ -69,9 +69,10 @@ describe('Character Folder CRUD (integration)', () => {
   })
 
   it('GET character folders includes the created folder', async () => {
-    const folders = await apiOk(`/api/campaigns/${campaignId}/character-folders`, {
+    const foldersBody = await apiOk(`/api/campaigns/${campaignId}/character-folders`, {
       headers: { 'X-API-Key': apiKey },
     })
+    const folders = foldersBody.data ?? foldersBody
     expect(Array.isArray(folders)).toBe(true)
     const found = folders.find((f: any) => f.id === folderId)
     expect(found).toBeDefined()
@@ -89,9 +90,10 @@ describe('Character Folder CRUD (integration)', () => {
     expect(data.success).toBe(true)
 
     // Verify name updated
-    const folders = await apiOk(`/api/campaigns/${campaignId}/character-folders`, {
+    const foldersBody = await apiOk(`/api/campaigns/${campaignId}/character-folders`, {
       headers: { 'X-API-Key': apiKey },
     })
+    const folders = foldersBody.data ?? foldersBody
     const found = folders.find((f: any) => f.id === folderId)
     expect(found?.name).toBe('Villains Updated')
   })
@@ -113,9 +115,10 @@ describe('Character Folder CRUD (integration)', () => {
     })
 
     // Verify folderId on the character list
-    const characters = await apiOk(`/api/campaigns/${campaignId}/characters`, {
+    const charactersBody = await apiOk(`/api/campaigns/${campaignId}/characters`, {
       headers: { 'X-API-Key': apiKey },
     })
+    const characters = charactersBody.data ?? charactersBody
     const found = characters.find((c: any) => c.slug === characterSlug)
     expect(found).toBeDefined()
     expect(found.folderId).toBe(folderId)
@@ -131,16 +134,18 @@ describe('Character Folder CRUD (integration)', () => {
     expect(data.success).toBe(true)
 
     // Folder should be gone
-    const folders = await apiOk(`/api/campaigns/${campaignId}/character-folders`, {
+    const foldersBody = await apiOk(`/api/campaigns/${campaignId}/character-folders`, {
       headers: { 'X-API-Key': apiKey },
     })
+    const folders = foldersBody.data ?? foldersBody
     const found = folders.find((f: any) => f.id === folderId)
     expect(found).toBeUndefined()
 
     // Character folderId should now be null
-    const characters = await apiOk(`/api/campaigns/${campaignId}/characters`, {
+    const charactersBody = await apiOk(`/api/campaigns/${campaignId}/characters`, {
       headers: { 'X-API-Key': apiKey },
     })
+    const characters = charactersBody.data ?? charactersBody
     const char = characters.find((c: any) => c.slug === characterSlug)
     expect(char).toBeDefined()
     expect(char.folderId).toBeNull()

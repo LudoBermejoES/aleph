@@ -4,7 +4,7 @@ description: Use the aleph CLI to manage campaigns, entities, characters, locati
 license: MIT
 metadata:
   author: aleph
-  version: "2.7"
+  version: "2.8"
 ---
 
 You have access to the `aleph` CLI tool at `node /Users/ludo/code/aleph/cli/bin/aleph.js` (or `npm run aleph -- <args>` from the project root). Use it to interact with the running Aleph server.
@@ -69,7 +69,7 @@ Use `--stdin` on `entity edit` to pipe Markdown content from a file: `cat notes.
 
 ### Characters
 ```bash
-node /Users/ludo/code/aleph/cli/bin/aleph.js character list --campaign <id> [--status <alive|dead|missing|unknown>] [--race <race>] [--class <class>] [--alignment <alignment>] [--sort <name|updatedAt|status|race|class>] [--sort-dir <asc|desc>] [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js character list --campaign <id> [--status <alive|dead|missing|unknown>] [--race <race>] [--class <class>] [--alignment <alignment>] [--sort <name|updatedAt|status|race|class>] [--sort-dir <asc|desc>] [--page <n>] [--limit <n>] [--json]
 node /Users/ludo/code/aleph/cli/bin/aleph.js character create --campaign <id> --name <name> [--class <class>] [--json]
 node /Users/ludo/code/aleph/cli/bin/aleph.js character show --campaign <id> <slug> [--json]
 node /Users/ludo/code/aleph/cli/bin/aleph.js character update --campaign <id> <slug> [--name <n>] [--race <r>] [--class <c>] [--alignment <a>] [--status <s>] [--content <md>] [--stdin]
@@ -86,7 +86,7 @@ node /Users/ludo/code/aleph/cli/bin/aleph.js character folder-delete <folderId> 
 
 ### Sessions
 ```bash
-node /Users/ludo/code/aleph/cli/bin/aleph.js session list --campaign <id> [--group <slug>] [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js session list --campaign <id> [--group <slug>] [--page <n>] [--limit <n>] [--json]
 node /Users/ludo/code/aleph/cli/bin/aleph.js session create --campaign <id> --title <title> [--date <YYYY-MM-DD>] [--group <slug>] [--json]
 node /Users/ludo/code/aleph/cli/bin/aleph.js session show <slug> --campaign <id> [--json]   # includes groupName, hasManualNotes/hasAiNotes/hasSummary
 node /Users/ludo/code/aleph/cli/bin/aleph.js session update <slug> --campaign <id> [--title <title>] [--date <YYYY-MM-DD>] [--status planned|active|completed|cancelled] [--group <slug>]
@@ -121,7 +121,7 @@ Roles: `player`, `editor`, `co_dm`
 
 ### Organizations
 ```bash
-node /Users/ludo/code/aleph/cli/bin/aleph.js organization list --campaign <id> [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js organization list --campaign <id> [--page <n>] [--limit <n>] [--json]
 node /Users/ludo/code/aleph/cli/bin/aleph.js organization create --campaign <id> --name <name> [--type <type>] [--status <status>] [--description <desc>] [--json]
 node /Users/ludo/code/aleph/cli/bin/aleph.js organization show <slug> --campaign <id> [--json]
 node /Users/ludo/code/aleph/cli/bin/aleph.js organization edit <slug> --campaign <id> [--name <name>] [--type <type>] [--status <status>] [--description <desc>] [--json]
@@ -136,7 +136,7 @@ Statuses: `active`, `inactive`, `secret`, `dissolved`
 ### Locations
 
 ```bash
-node /Users/ludo/code/aleph/cli/bin/aleph.js location list --campaign <id> [--search <q>] [--subtype <subtype>] [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js location list --campaign <id> [--search <q>] [--subtype <subtype>] [--page <n>] [--limit <n>] [--json]
 node /Users/ludo/code/aleph/cli/bin/aleph.js location create --campaign <id> --name <name> [--subtype <subtype>] [--parent <id>] [--visibility <vis>] [--content <text>] [--json]
 node /Users/ludo/code/aleph/cli/bin/aleph.js location show <slug> --campaign <id> [--json]
 node /Users/ludo/code/aleph/cli/bin/aleph.js location edit <slug> --campaign <id> [--name <name>] [--subtype <subtype>] [--parent <id>] [--visibility <vis>] [--content <text>] [--json]

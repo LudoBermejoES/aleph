@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, unique } from 'drizzle-orm/sqlite-core'
+import { sqliteTable, text, integer, unique, index } from 'drizzle-orm/sqlite-core'
 import { campaigns } from './campaigns'
 import { user } from './auth'
 
@@ -50,7 +50,12 @@ export const gameSessions = sqliteTable('game_sessions', {
   logFilePath: text('log_file_path'),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
   updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
-})
+}, (table) => [
+  index('idx_sessions_status').on(table.status),
+  index('idx_sessions_arc').on(table.arcId),
+  index('idx_sessions_chapter').on(table.chapterId),
+  index('idx_sessions_group').on(table.groupId),
+])
 
 export const sessionAttendance = sqliteTable('session_attendance', {
   id: text('id').primaryKey(),
@@ -59,7 +64,9 @@ export const sessionAttendance = sqliteTable('session_attendance', {
   characterId: text('character_id'),
   rsvpStatus: text('rsvp_status').notNull().default('pending'), // pending, accepted, declined, tentative
   attended: integer('attended', { mode: 'boolean' }).default(false),
-})
+}, (table) => [
+  index('idx_attendance_session_user').on(table.sessionId, table.userId),
+])
 
 export const quests = sqliteTable('quests', {
   id: text('id').primaryKey(),

@@ -35,6 +35,13 @@
         </div>
         <p v-if="org.description" class="text-sm text-muted-foreground mt-1 line-clamp-1">{{ org.description }}</p>
       </NuxtLink>
+      <PaginationControls
+        :page="pagination.page.value"
+        :page-size="pagination.pageSize.value"
+        :total="pagination.total.value"
+        :total-pages="pagination.totalPages.value"
+        @change="p => { pagination.setPage(p); load() }"
+      />
     </div>
     <div v-else class="text-center py-12 text-muted-foreground">
       <p class="text-lg">{{ $t('organizations.empty') }}</p>
@@ -51,10 +58,17 @@ const api = useCampaignApi(campaignId)
 
 const orgs = ref<any[]>([])
 const { loading, error, withLoading } = useLoadingState()
+const pagination = usePagination()
 
 async function load() {
   await withLoading(async () => {
-    orgs.value = await api.getOrganizations()
+    const res = await api.getOrganizations()
+    if (Array.isArray(res)) {
+      orgs.value = res
+    } else {
+      orgs.value = (res as any).data
+      pagination.updateMeta((res as any).meta)
+    }
   })
 }
 

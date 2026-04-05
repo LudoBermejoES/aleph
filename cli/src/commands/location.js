@@ -11,15 +11,21 @@ export function makeLocationCommand() {
     .requiredOption('--campaign <id>', 'Campaign ID')
     .option('--search <query>', 'Filter by name')
     .option('--subtype <subtype>', 'Filter by subtype (country, region, city, town, village, dungeon, lair, building, room, wilderness, other)')
+    .option('--page <n>', 'Page number', '1')
+    .option('--limit <n>', 'Results per page (0 = all)', '50')
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
       const params = new URLSearchParams()
       if (opts.search) params.set('search', opts.search)
       if (opts.subtype) params.set('subtype', opts.subtype)
+      params.set('page', opts.page)
+      params.set('pageSize', opts.limit)
       const qs = params.toString()
-      const data = await get(`/api/campaigns/${opts.campaign}/locations${qs ? `?${qs}` : ''}`)
+      const res = await get(`/api/campaigns/${opts.campaign}/locations${qs ? `?${qs}` : ''}`)
+      const data = Array.isArray(res) ? res : res.data
+      const meta = Array.isArray(res) ? null : res.meta
       if (opts.json) {
-        print(data, { json: true })
+        print(res, { json: true })
       } else {
         print(data.map(l => ({
           name: l.name,
@@ -28,6 +34,7 @@ export function makeLocationCommand() {
           parent: l.parentName || '',
           inhabitants: l.inhabitantCount || 0,
         })))
+        if (meta) console.error(`Page ${meta.page}/${meta.totalPages} (${meta.total} total)`)
       }
     })
 

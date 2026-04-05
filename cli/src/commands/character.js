@@ -16,6 +16,8 @@ export function makeCharacterCommand() {
     .option('--alignment <alignment>', 'Filter by alignment')
     .option('--sort <field>', 'Sort field (name, updatedAt, status, race, class)')
     .option('--sort-dir <dir>', 'Sort direction (asc, desc)')
+    .option('--page <n>', 'Page number', '1')
+    .option('--limit <n>', 'Results per page (0 = all)', '50')
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
       const params = new URLSearchParams()
@@ -25,10 +27,14 @@ export function makeCharacterCommand() {
       if (opts.alignment) params.set('alignment', opts.alignment)
       if (opts.sort) params.set('sort', opts.sort)
       if (opts.sortDir) params.set('sortDir', opts.sortDir)
+      params.set('page', opts.page)
+      params.set('pageSize', opts.limit)
       const qs = params.toString()
-      const data = await get(`/api/campaigns/${opts.campaign}/characters${qs ? `?${qs}` : ''}`)
+      const res = await get(`/api/campaigns/${opts.campaign}/characters${qs ? `?${qs}` : ''}`)
+      const data = Array.isArray(res) ? res : res.data
+      const meta = Array.isArray(res) ? null : res.meta
       if (opts.json) {
-        print(data, { json: true })
+        print(res, { json: true })
       } else {
         print(data.map(c => ({
           name: c.name,
@@ -38,6 +44,7 @@ export function makeCharacterCommand() {
           race: c.race || '',
           class: c.class || '',
         })))
+        if (meta) console.error(`Page ${meta.page}/${meta.totalPages} (${meta.total} total)`)
       }
     })
 

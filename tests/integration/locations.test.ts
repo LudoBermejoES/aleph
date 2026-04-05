@@ -72,9 +72,10 @@ describe('Location CRUD (integration)', () => {
   })
 
   it('GET /locations returns empty array initially', async () => {
-    const data = await api(`/api/campaigns/${campaignId}/locations`, {
+    const body = await api(`/api/campaigns/${campaignId}/locations`, {
       headers: { 'X-API-Key': apiKey },
     })
+    const data = body.data ?? body
     expect(Array.isArray(data)).toBe(true)
     expect(data.length).toBe(0)
   })
@@ -92,9 +93,10 @@ describe('Location CRUD (integration)', () => {
   })
 
   it('GET /locations returns the created location', async () => {
-    const data = await api(`/api/campaigns/${campaignId}/locations`, {
+    const body = await api(`/api/campaigns/${campaignId}/locations`, {
       headers: { 'X-API-Key': apiKey },
     })
+    const data = body.data ?? body
     expect(data.length).toBe(1)
     expect(data[0].name).toBe('Barovia')
   })
@@ -123,9 +125,10 @@ describe('Location CRUD (integration)', () => {
   })
 
   it('GET /locations/:slug/sub-locations returns child', async () => {
-    const data = await api(`/api/campaigns/${campaignId}/locations/${locationSlug}/sub-locations`, {
+    const body = await api(`/api/campaigns/${campaignId}/locations/${locationSlug}/sub-locations`, {
       headers: { 'X-API-Key': apiKey },
     })
+    const data = body.data ?? body
     expect(data.length).toBe(1)
     expect(data[0].name).toBe('Castle Ravenloft')
   })
@@ -198,9 +201,10 @@ describe('Location inhabitants (integration)', () => {
   })
 
   it('GET /inhabitants returns empty initially', async () => {
-    const data = await api(`/api/campaigns/${campaignId}/locations/${locationSlug}/inhabitants`, {
+    const body = await api(`/api/campaigns/${campaignId}/locations/${locationSlug}/inhabitants`, {
       headers: { 'X-API-Key': apiKey },
     })
+    const data = body.data ?? body
     expect(data.length).toBe(0)
   })
 
@@ -210,9 +214,10 @@ describe('Location inhabitants (integration)', () => {
       headers: { 'X-API-Key': apiKey },
       body: { characterId },
     })
-    const data = await api(`/api/campaigns/${campaignId}/locations/${locationSlug}/inhabitants`, {
+    const body = await api(`/api/campaigns/${campaignId}/locations/${locationSlug}/inhabitants`, {
       headers: { 'X-API-Key': apiKey },
     })
+    const data = body.data ?? body
     expect(data.length).toBe(1)
     expect(data[0].name).toBe('Strahd')
   })
@@ -223,9 +228,10 @@ describe('Location inhabitants (integration)', () => {
       headers: { 'X-API-Key': apiKey },
     })
     expect(delRes.ok).toBe(true)
-    const data = await api(`/api/campaigns/${campaignId}/locations/${locationSlug}/inhabitants`, {
+    const body = await api(`/api/campaigns/${campaignId}/locations/${locationSlug}/inhabitants`, {
       headers: { 'X-API-Key': apiKey },
     })
+    const data = body.data ?? body
     expect(data.length).toBe(0)
   })
 })
@@ -261,9 +267,10 @@ describe('Location organizations (integration)', () => {
   })
 
   it('GET /organizations returns empty initially', async () => {
-    const data = await api(`/api/campaigns/${campaignId}/locations/${locationSlug}/organizations`, {
+    const body = await api(`/api/campaigns/${campaignId}/locations/${locationSlug}/organizations`, {
       headers: { 'X-API-Key': apiKey },
     })
+    const data = body.data ?? body
     expect(data.length).toBe(0)
   })
 
@@ -273,9 +280,10 @@ describe('Location organizations (integration)', () => {
       headers: { 'X-API-Key': apiKey },
       body: { organizationId: orgId },
     })
-    const data = await api(`/api/campaigns/${campaignId}/locations/${locationSlug}/organizations`, {
+    const body = await api(`/api/campaigns/${campaignId}/locations/${locationSlug}/organizations`, {
       headers: { 'X-API-Key': apiKey },
     })
+    const data = body.data ?? body
     expect(data.length).toBe(1)
     expect(data[0].name).toBe('City Guard')
   })
@@ -286,9 +294,10 @@ describe('Location organizations (integration)', () => {
       headers: { 'X-API-Key': apiKey },
     })
     expect(delRes.ok).toBe(true)
-    const data = await api(`/api/campaigns/${campaignId}/locations/${locationSlug}/organizations`, {
+    const body = await api(`/api/campaigns/${campaignId}/locations/${locationSlug}/organizations`, {
       headers: { 'X-API-Key': apiKey },
     })
+    const data = body.data ?? body
     expect(data.length).toBe(0)
   })
 })

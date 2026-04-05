@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, real } from 'drizzle-orm/sqlite-core'
+import { sqliteTable, text, integer, real, index } from 'drizzle-orm/sqlite-core'
 import { campaigns } from './campaigns'
 import { entities } from './entities'
 
@@ -17,7 +17,10 @@ export const maps = sqliteTable('maps', {
   visibility: text('visibility').notNull().default('members'),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
   updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
-})
+}, (table) => [
+  index('idx_maps_parent').on(table.parentMapId),
+  index('idx_maps_visibility').on(table.visibility),
+])
 
 export const mapPins = sqliteTable('map_pins', {
   id: text('id').primaryKey(),

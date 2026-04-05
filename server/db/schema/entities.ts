@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, uniqueIndex } from 'drizzle-orm/sqlite-core'
+import { sqliteTable, text, integer, uniqueIndex, index } from 'drizzle-orm/sqlite-core'
 import { campaigns } from './campaigns'
 import { user } from './auth'
 
@@ -19,6 +19,8 @@ export const entities = sqliteTable('entities', {
   updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
 }, (table) => [
   uniqueIndex('entities_campaign_slug').on(table.campaignId, table.slug),
+  index('idx_entities_type').on(table.type),
+  index('idx_entities_parent').on(table.parentId),
 ])
 
 export const entityTemplates = sqliteTable('entity_templates', {

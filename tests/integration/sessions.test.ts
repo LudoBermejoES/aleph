@@ -91,7 +91,8 @@ describe('Session CRUD (integration)', () => {
     const res = await api(`/api/campaigns/${campaignId}/sessions`, {
       method: 'GET', headers: { Cookie: cookie },
     })
-    const data = await res.json()
+    const body = await res.json()
+    const data = body.data ?? body
     expect(data.length).toBeGreaterThanOrEqual(2)
   })
 })
@@ -128,7 +129,8 @@ describe('Quest CRUD (integration)', () => {
     const parent = await api(`/api/campaigns/${campaignId}/quests`, {
       method: 'GET', headers: { Cookie: cookie },
     })
-    const quests = await parent.json()
+    const questsBody = await parent.json()
+    const quests = questsBody.data ?? questsBody
     const parentId = quests[0].id
 
     const res = await api(`/api/campaigns/${campaignId}/quests`, {
@@ -159,7 +161,8 @@ describe('Quest CRUD (integration)', () => {
     const res = await api(`/api/campaigns/${campaignId}/quests`, {
       method: 'GET', headers: { Cookie: cookie },
     })
-    const data = await res.json()
+    const body = await res.json()
+    const data = body.data ?? body
     expect(data.length).toBeGreaterThanOrEqual(2)
   })
 })

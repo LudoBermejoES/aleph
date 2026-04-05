@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core'
+import { sqliteTable, text, integer, index } from 'drizzle-orm/sqlite-core'
 import { campaigns } from './campaigns'
 import { entities } from './entities'
 import { user } from './auth'
@@ -28,4 +28,7 @@ export const entityRelations = sqliteTable('entity_relations', {
   createdBy: text('created_by').notNull().references(() => user.id),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
   updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
-})
+}, (table) => [
+  index('idx_relations_source').on(table.sourceEntityId, table.relationTypeId),
+  index('idx_relations_target').on(table.targetEntityId, table.relationTypeId),
+])
