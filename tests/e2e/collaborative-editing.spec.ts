@@ -4,64 +4,71 @@ import { registerAndLogin, createCampaign } from './helpers'
 const uid = () => Date.now().toString(36).slice(-4)
 
 test.describe('Collaborative Editing', () => {
+  // Task 9.5: "Collaborate" button on entity detail navigates to edit with ?collab=true
   test('"Collaborate" button on entity detail navigates to edit with ?collab=true', async ({ page }) => {
     await registerAndLogin(page, `CollabDM ${uid()}`)
     await createCampaign(page, `Collab Camp ${uid()}`)
 
-    // Create an entity
-    await page.click('aside >> text=Wiki')
-    await page.waitForLoadState('networkidle')
-    await page.click('button:has-text("New Entity")')
-    await page.waitForSelector('[role="dialog"]', { timeout: 5000 })
-    await page.fill('[role="dialog"] input[name="name"], [role="dialog"] input[placeholder*="name" i]', `Collab Entity ${uid()}`)
-    await page.click('[role="dialog"] button[type="submit"]')
-    await page.waitForLoadState('networkidle')
+    const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
+    const entityName = `Collab Entity ${uid()}`
+
+    // Create entity via API
+    await page.evaluate(async ([id, name]) => {
+      await fetch(`/api/campaigns/${id}/entities`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, type: 'location', content: '# Test' }),
+      })
+    }, [campaignId, entityName])
 
     // Navigate to entity detail
-    const entityLink = page.locator('main a').filter({ hasText: 'Collab Entity' }).first()
-    await expect(entityLink).toBeVisible({ timeout: 10000 })
-    await entityLink.click()
+    await page.click('aside >> text=Wiki')
+    await page.waitForLoadState('networkidle')
+    await page.click(`main >> text=${entityName}`)
+    await page.waitForURL('**/entities/**', { timeout: 15000 })
     await page.waitForLoadState('networkidle')
 
-    // Collaborate button should be visible (canEdit is true for DM)
+    // "Collaborate" button should be visible for DM (canEdit=true)
     const collaborateBtn = page.locator('a:has-text("Collaborate")')
     await expect(collaborateBtn).toBeVisible({ timeout: 10000 })
 
-    // Clicking it navigates to edit with ?collab=true
+    // Clicking navigates to edit with ?collab=true
     await collaborateBtn.click()
-    await page.waitForLoadState('networkidle')
-    expect(page.url()).toContain('collab=true')
-    expect(page.url()).toContain('/edit')
+    await expect(async () => {
+      expect(page.url()).toContain('collab=true')
+      expect(page.url()).toContain('/edit')
+    }).toPass({ timeout: 10000 })
   })
 
-  test('entity edit page in solo mode has no collaboration indicator', async ({ page }) => {
+  // Task 9.5: regular "Edit" button does NOT include ?collab param
+  test('"Edit" button on entity detail navigates to edit without ?collab param', async ({ page }) => {
     await registerAndLogin(page, `SoloDM ${uid()}`)
     await createCampaign(page, `Solo Camp ${uid()}`)
 
-    // Create an entity via API-like navigation
+    const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
+    const entityName = `Solo Entity ${uid()}`
+
+    await page.evaluate(async ([id, name]) => {
+      await fetch(`/api/campaigns/${id}/entities`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, type: 'location', content: '# Test' }),
+      })
+    }, [campaignId, entityName])
+
     await page.click('aside >> text=Wiki')
     await page.waitForLoadState('networkidle')
-
-    // Click new entity and create it
-    await page.click('button:has-text("New Entity")')
-    await page.waitForSelector('[role="dialog"]', { timeout: 5000 })
-    const nameField = page.locator('[role="dialog"] input').first()
-    await nameField.fill(`Solo Entity ${uid()}`)
-    await page.click('[role="dialog"] button[type="submit"]')
+    await page.click(`main >> text=${entityName}`)
+    await page.waitForURL('**/entities/**', { timeout: 15000 })
     await page.waitForLoadState('networkidle')
 
-    // Go to entity detail and then regular Edit (no collab)
-    const entityLink = page.locator('main a').filter({ hasText: 'Solo Entity' }).first()
-    await expect(entityLink).toBeVisible({ timeout: 10000 })
-    await entityLink.click()
-    await page.waitForLoadState('networkidle')
-
+    // Regular Edit button (first one, not Collaborate)
     const editBtn = page.locator('a:has-text("Edit")').first()
+    await expect(editBtn).toBeVisible({ timeout: 10000 })
     await editBtn.click()
-    await page.waitForLoadState('networkidle')
-
-    // No collaboration indicator in solo mode
-    await expect(page.locator('.collaboration-indicator, [class*="collaboration"]')).not.toBeVisible({ timeout: 3000 }).catch(() => {})
-    expect(page.url()).not.toContain('collab=true')
+    await expect(async () => {
+      expect(page.url()).toContain('/edit')
+      expect(page.url()).not.toContain('collab=true')
+    }).toPass({ timeout: 10000 })
   })
 })
