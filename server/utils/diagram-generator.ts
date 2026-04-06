@@ -3,7 +3,6 @@ import { randomUUID } from 'crypto'
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 import { entities } from '../db/schema/entities'
 import { entityRelations } from '../db/schema/relations'
-import { characters } from '../db/schema/characters'
 import { organizations } from '../db/schema/organizations'
 import { quests, gameSessions } from '../db/schema/sessions'
 
@@ -36,7 +35,7 @@ function makeArrowBinding(fromId: string, toId: string): GeneratedBinding {
 // ─── Entity Graph ─────────────────────────────────────────────────────────────
 
 export function generateEntityGraph(
-  db: BetterSQLite3Database<any>,
+  db: BetterSQLite3Database<Record<string, unknown>>,
   campaignId: string,
 ): GeneratedDiagram {
   const entityList = db
@@ -84,7 +83,7 @@ export function generateEntityGraph(
     },
   }))
 
-  const entityIdToShapeId = new Map(entityList.map((e, i) => [e.id, shapes[i].id]))
+  const entityIdToShapeId = new Map(entityList.map((e, i) => [e.id, shapes[i]!.id]))
 
   const bindings: GeneratedBinding[] = []
   for (const rel of relations) {
@@ -101,7 +100,7 @@ export function generateEntityGraph(
 // ─── Quest Tree ───────────────────────────────────────────────────────────────
 
 export function generateQuestTree(
-  db: BetterSQLite3Database<any>,
+  db: BetterSQLite3Database<Record<string, unknown>>,
   campaignId: string,
 ): GeneratedDiagram {
   const questList = db
@@ -178,9 +177,10 @@ export function generateQuestTree(
 // ─── Faction Web ─────────────────────────────────────────────────────────────
 
 export function generateFactionWeb(
-  db: BetterSQLite3Database<any>,
+  db: BetterSQLite3Database<Record<string, unknown>>,
   campaignId: string,
 ): GeneratedDiagram {
+  // Try dedicated organizations table first, fall back to entities of type 'organization'
   const orgList = db
     .select()
     .from(organizations)
@@ -188,7 +188,17 @@ export function generateFactionWeb(
     .limit(20)
     .all()
 
-  if (orgList.length === 0) {
+  const items: { id: string; name: string; slug: string }[] =
+    orgList.length > 0
+      ? orgList
+      : db
+          .select({ id: entities.id, name: entities.name, slug: entities.slug })
+          .from(entities)
+          .where(and(eq(entities.campaignId, campaignId), eq(entities.type, 'organization')))
+          .limit(20)
+          .all()
+
+  if (items.length === 0) {
     throw new Error('No organizations found for faction-web generation')
   }
 
@@ -196,8 +206,8 @@ export function generateFactionWeb(
   const centerX = 400
   const centerY = 400
   const radius = 300
-  const shapes: GeneratedShape[] = orgList.map((org, i) => {
-    const angle = (i / orgList.length) * 2 * Math.PI - Math.PI / 2
+  const shapes: GeneratedShape[] = items.map((org, i) => {
+    const angle = (i / items.length) * 2 * Math.PI - Math.PI / 2
     return {
       id: randomUUID(),
       type: 'entityCard',
@@ -221,7 +231,7 @@ export function generateFactionWeb(
 // ─── Session Timeline ─────────────────────────────────────────────────────────
 
 export function generateSessionTimeline(
-  db: BetterSQLite3Database<any>,
+  db: BetterSQLite3Database<Record<string, unknown>>,
   campaignId: string,
 ): GeneratedDiagram {
   const sessionList = db
@@ -240,7 +250,7 @@ export function generateSessionTimeline(
   const bindings: GeneratedBinding[] = []
 
   for (let i = 0; i < sessionList.length; i++) {
-    const session = sessionList[i]
+    const session = sessionList[i]!
     const shapeId = randomUUID()
     shapes.push({
       id: shapeId,
@@ -259,7 +269,7 @@ export function generateSessionTimeline(
     })
 
     if (i > 0) {
-      bindings.push(makeArrowBinding(shapes[i - 1].id, shapeId))
+      bindings.push(makeArrowBinding(shapes[i - 1]!.id, shapeId))
     }
   }
 
@@ -269,7 +279,7 @@ export function generateSessionTimeline(
 // ─── Main entry point ─────────────────────────────────────────────────────────
 
 export function generateDiagram(
-  db: BetterSQLite3Database<any>,
+  db: BetterSQLite3Database<Record<string, unknown>>,
   campaignId: string,
   type: DiagramType,
 ): GeneratedDiagram {

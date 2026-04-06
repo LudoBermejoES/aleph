@@ -47,7 +47,14 @@
     </div>
 
     <!-- Create Dialog -->
-    <Dialog v-model:open="showCreateDialog">
+    <Dialog
+      v-model:open="showCreateDialog"
+      @update:open="
+        (v) => {
+          if (!v) createError = ''
+        }
+      "
+    >
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{{ $t('diagrams.create') }}</DialogTitle>
@@ -71,12 +78,13 @@
             </select>
           </div>
         </div>
+        <p v-if="createError" class="text-sm text-destructive">{{ createError }}</p>
         <DialogFooter>
           <Button variant="outline" @click="showCreateDialog = false">{{
             $t('common.cancel')
           }}</Button>
           <Button :disabled="!newTitle.trim() || creating" @click="createDiagram">
-            {{ $t('diagrams.create') }}
+            {{ creating ? $t('common.loading') : $t('diagrams.create') }}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -152,9 +160,12 @@ async function load() {
 
 const GENERATED_TYPES = ['entity-graph', 'quest-tree', 'faction-web', 'session-timeline']
 
+const createError = ref('')
+
 async function createDiagram() {
   if (!newTitle.value.trim()) return
   creating.value = true
+  createError.value = ''
   try {
     let result: { id: string }
     if (GENERATED_TYPES.includes(newType.value)) {
@@ -172,6 +183,9 @@ async function createDiagram() {
     newTitle.value = ''
     newType.value = 'freeform'
     router.push(`/campaigns/${campaignId}/diagrams/${result.id}`)
+  } catch (e: unknown) {
+    const err = e as { data?: { message?: string }; message?: string }
+    createError.value = err.data?.message || err.message || $t('diagrams.errors.createFailed')
   } finally {
     creating.value = false
   }
