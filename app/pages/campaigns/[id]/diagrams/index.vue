@@ -69,6 +69,7 @@
             <select
               v-model="newType"
               class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              data-testid="diagram-type-select"
             >
               <option value="freeform">{{ $t('diagrams.types.freeform') }}</option>
               <option value="entity-graph">{{ $t('diagrams.types.entityGraph') }}</option>

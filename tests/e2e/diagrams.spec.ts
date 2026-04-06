@@ -1,7 +1,25 @@
-import { test, expect } from '@playwright/test'
+import { test, expect, type Page } from '@playwright/test'
 import { registerAndLogin, createCampaign, apiFetch } from './helpers'
 
 const uid = () => Date.now().toString(36).slice(-4)
+
+async function openNewDiagramDialog(page: Page, campaignId: string) {
+  await page.goto(`http://localhost:3333/campaigns/${campaignId}/diagrams`, {
+    waitUntil: 'domcontentloaded',
+  })
+  await page.waitForLoadState('networkidle')
+  await page.locator('[data-testid="new-diagram-btn"]').click()
+  await expect(page.locator('[data-testid="diagram-title-input"]')).toBeVisible({ timeout: 5000 })
+}
+
+async function submitDiagramForm(page: Page, title: string, typeValue: string) {
+  await page.locator('[data-testid="diagram-title-input"]').fill(title)
+  await page.locator('[data-testid="diagram-type-select"]').selectOption(typeValue)
+  await page
+    .locator('[role="dialog"]')
+    .getByRole('button', { name: /new diagram/i })
+    .click()
+}
 
 test.describe('Diagram List Page', () => {
   test('DM can create a diagram and navigate to it', async ({ page }) => {
@@ -147,5 +165,98 @@ test.describe('Diagram Editor', () => {
       (e) => e.includes('React') || e.includes('Minified React error'),
     )
     expect(reactErrors).toHaveLength(0)
+  })
+})
+
+test.describe('Diagram Generation', () => {
+  test('entity-graph: generates diagram with entity cards when campaign has entities', async ({
+    page,
+  }) => {
+    await registerAndLogin(page, `Gen DM ${uid()}`)
+    await createCampaign(page, `Gen Camp ${uid()}`)
+    const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0] as string
+
+    // Seed an entity
+    await apiFetch(page, `/api/campaigns/${campaignId}/entities`, {
+      method: 'POST',
+      body: { name: 'Hero', type: 'character', visibility: 'members' },
+    })
+
+    await openNewDiagramDialog(page, campaignId)
+    await submitDiagramForm(page, 'My Entity Graph', 'entity-graph')
+
+    // Should navigate to the new diagram
+    await expect(page).toHaveURL(/\/campaigns\/.+\/diagrams\/.+/, { timeout: 15000 })
+
+    // Canvas should mount
+    await page.waitForSelector('.tl-container', { timeout: 20000 })
+
+    // At least one entity card shape should be in the DOM
+    await expect(page.locator('.tl-container')).toBeVisible()
+  })
+
+  test('session-timeline: generates diagram with session cards when campaign has sessions', async ({
+    page,
+  }) => {
+    await registerAndLogin(page, `Sess DM ${uid()}`)
+    await createCampaign(page, `Sess Camp ${uid()}`)
+    const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0] as string
+
+    // Seed a session
+    await apiFetch(page, `/api/campaigns/${campaignId}/sessions`, {
+      method: 'POST',
+      body: { title: 'Session 1', status: 'completed' },
+    })
+
+    await openNewDiagramDialog(page, campaignId)
+    await submitDiagramForm(page, 'My Session Timeline', 'session-timeline')
+
+    // Should navigate to the new diagram
+    await expect(page).toHaveURL(/\/campaigns\/.+\/diagrams\/.+/, { timeout: 15000 })
+
+    // Canvas should mount
+    await page.waitForSelector('.tl-container', { timeout: 20000 })
+    await expect(page.locator('.tl-container')).toBeVisible()
+  })
+
+  test('quest-tree: shows inline error when campaign has no quests', async ({ page }) => {
+    await registerAndLogin(page, `Quest DM ${uid()}`)
+    await createCampaign(page, `Quest Camp ${uid()}`)
+    const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0] as string
+
+    await openNewDiagramDialog(page, campaignId)
+    await submitDiagramForm(page, 'My Quest Tree', 'quest-tree')
+
+    // Should stay on diagrams page with an error message in the dialog
+    await expect(page).toHaveURL(/\/campaigns\/.+\/diagrams$/, { timeout: 5000 })
+    await expect(page.locator('[role="dialog"] .text-destructive')).toBeVisible({ timeout: 5000 })
+    await expect(page.locator('[role="dialog"] .text-destructive')).toContainText(/quest/i)
+  })
+
+  test('faction-web: shows inline error when campaign has no organizations', async ({ page }) => {
+    await registerAndLogin(page, `Fac DM ${uid()}`)
+    await createCampaign(page, `Fac Camp ${uid()}`)
+    const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0] as string
+
+    await openNewDiagramDialog(page, campaignId)
+    await submitDiagramForm(page, 'My Faction Web', 'faction-web')
+
+    // Should stay on diagrams page with an error message in the dialog
+    await expect(page).toHaveURL(/\/campaigns\/.+\/diagrams$/, { timeout: 5000 })
+    await expect(page.locator('[role="dialog"] .text-destructive')).toBeVisible({ timeout: 5000 })
+    await expect(page.locator('[role="dialog"] .text-destructive')).toContainText(/organization/i)
+  })
+
+  test('freeform: creates empty diagram and navigates to canvas', async ({ page }) => {
+    await registerAndLogin(page, `Free DM ${uid()}`)
+    await createCampaign(page, `Free Camp ${uid()}`)
+    const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0] as string
+
+    await openNewDiagramDialog(page, campaignId)
+    await submitDiagramForm(page, 'My Freeform', 'freeform')
+
+    await expect(page).toHaveURL(/\/campaigns\/.+\/diagrams\/.+/, { timeout: 15000 })
+    await page.waitForSelector('.tl-container', { timeout: 20000 })
+    await expect(page.locator('[data-testid="save-diagram-btn"]')).toBeVisible()
   })
 })
