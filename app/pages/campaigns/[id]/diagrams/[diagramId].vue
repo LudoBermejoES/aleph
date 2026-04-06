@@ -122,7 +122,7 @@ async function load() {
 function onCanvasChange(newSnapshot: Record<string, unknown>) {
   lastSnapshot = newSnapshot
   if (saveTimer) clearTimeout(saveTimer)
-  saveTimer = setTimeout(() => autoSave(newSnapshot), 5000)
+  saveTimer = setTimeout(() => autoSave(newSnapshot), 1000)
 }
 
 async function autoSave(snapshotData: Record<string, unknown>) {
