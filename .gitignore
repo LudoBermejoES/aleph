@@ -1,3 +1,7 @@
+# IDE / local tool config
+.vscode/settings.json
+.claude/settings.json
+
 # Nuxt dev/build outputs
 .output
 .data
