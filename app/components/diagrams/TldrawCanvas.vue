@@ -17,6 +17,8 @@ const emit = defineEmits<{
 const containerRef = ref<HTMLDivElement>()
 let mounted: MountedCanvas | null = null
 
+let editorInstance: unknown = null
+
 function makeProps(snapshotVal?: Record<string, unknown>, readOnlyVal?: boolean) {
   return {
     // Strip Vue reactive proxy — pass plain JS to React
@@ -24,6 +26,7 @@ function makeProps(snapshotVal?: Record<string, unknown>, readOnlyVal?: boolean)
     readOnly: readOnlyVal ?? false,
     onChange: (snapshot: unknown) => emit('save', snapshot as Record<string, unknown>),
     onEditorReady: (editor: unknown) => {
+      editorInstance = editor
       emit('editorReady', editor)
       const ed = editor as {
         store: { listen: (fn: () => void, opts: Record<string, unknown>) => void }
@@ -49,6 +52,14 @@ onMounted(async () => {
   if (!containerRef.value) return
   const { mountTldrawCanvas } = await import('./react/mount')
   mounted = mountTldrawCanvas(containerRef.value, makeProps(props.snapshot, props.readOnly))
+
+  // Use native DOM listeners to bypass React's synthetic event delegation,
+  // which does not reliably fire for drops inside tldraw's own event handlers.
+  containerRef.value.addEventListener('dragover', (e) => e.preventDefault())
+  containerRef.value.addEventListener('drop', (e: DragEvent) => {
+    e.preventDefault()
+    if (editorInstance) emit('drop', e, editorInstance)
+  })
 })
 
 watch(
