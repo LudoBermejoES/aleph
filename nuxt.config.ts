@@ -1,4 +1,5 @@
 import reactSwc from '@vitejs/plugin-react-swc'
+
 import { defineNuxtModule } from '@nuxt/kit'
 
 // Local module: removes vite:vue-jsx at configResolved time (after Nuxt's unshift)
@@ -99,7 +100,24 @@ window.__vite_plugin_react_preamble_installed__ = true;`,
   },
 
   vite: {
-    plugins: [reactSwc()],
+    plugins: [
+      ...reactSwc(),
+      // Production build: SWC plugin is serve-only; use esbuild transform for .tsx
+      {
+        name: 'react-tsx-build',
+        apply: 'build' as const,
+        async transform(code: string, id: string) {
+          if (!id.endsWith('.tsx') && !id.endsWith('.jsx')) return
+          const { transformWithEsbuild } = await import('vite')
+          return transformWithEsbuild(code, id, {
+            loader: 'tsx',
+            jsx: 'transform',
+            jsxFactory: 'React.createElement',
+            jsxFragment: 'React.Fragment',
+          })
+        },
+      },
+    ],
     optimizeDeps: {
       include: ['react', 'react-dom', 'react-dom/client'],
     },
