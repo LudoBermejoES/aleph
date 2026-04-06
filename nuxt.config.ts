@@ -6,6 +6,21 @@ import { defineNuxtModule } from '@nuxt/kit'
 // so plugin-react-swc can exclusively own .tsx files.
 const reactIntegrationModule = defineNuxtModule({
   setup(_options, nuxt) {
+    // In dev: inject React Fast Refresh preamble into HTML head.
+    // Nuxt/Nitro bypasses Vite's transformIndexHtml so plugin-react-swc
+    // can't inject it automatically. Not needed in production builds.
+    if (nuxt.options.dev) {
+      nuxt.options.app.head.script = nuxt.options.app.head.script ?? []
+      ;(nuxt.options.app.head.script as { type: string; innerHTML: string }[]).unshift({
+        type: 'module',
+        innerHTML: `import RefreshRuntime from '/_nuxt/@react-refresh';
+RefreshRuntime.injectIntoGlobalHook(window);
+window.$RefreshReg$ = () => {};
+window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;
+window.__vite_plugin_react_preamble_installed__ = true;`,
+      })
+    }
+
     nuxt.hook('vite:extendConfig', (config) => {
       if (!config.plugins) config.plugins = []
       ;(config.plugins as unknown[]).push({
@@ -44,18 +59,6 @@ export default defineNuxtConfig({
         { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
         { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
         { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
-      ],
-      // React Fast Refresh preamble — needed in dev since Nuxt/Nitro bypasses
-      // Vite's transformIndexHtml where plugin-react-swc normally injects this.
-      script: [
-        {
-          type: 'module',
-          innerHTML: `import RefreshRuntime from '/_nuxt/@react-refresh';
-RefreshRuntime.injectIntoGlobalHook(window);
-window.$RefreshReg$ = () => {};
-window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;
-window.__vite_plugin_react_preamble_installed__ = true;`,
-        },
       ],
       meta: [
         { property: 'og:title', content: 'Aleph — TTRPG Campaign Manager' },
