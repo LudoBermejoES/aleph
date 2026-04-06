@@ -30,7 +30,8 @@
     "quantity": "Cantidad",
     "campaign": "Campaña",
     "deleting": "Eliminando...",
-    "you": "tú"
+    "you": "tú",
+    "title": "Título"
   },
   "auth": {
     "signIn": "Iniciar sesión",

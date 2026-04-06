@@ -114,7 +114,13 @@ const route = useRoute()
 const router = useRouter()
 const campaignId = route.params.id as string
 
-const diagrams = ref<any[]>([])
+interface Diagram {
+  id: string
+  title: string
+  diagramType: string | null
+}
+
+const diagrams = ref<Diagram[]>([])
 const canEdit = ref(false)
 const canDelete = ref(false)
 const loading = ref(false)
@@ -125,15 +131,15 @@ const newType = ref('freeform')
 const creating = ref(false)
 
 const showDeleteDialog = ref(false)
-const deletingDiagram = ref<any>(null)
+const deletingDiagram = ref<Diagram | null>(null)
 const deleting = ref(false)
 
 async function load() {
   loading.value = true
   try {
     const [campaignData, diagramsData] = await Promise.all([
-      $fetch<any>(`/api/campaigns/${campaignId}`),
-      $fetch<any[]>(`/api/campaigns/${campaignId}/diagrams`),
+      $fetch<{ role: string }>(`/api/campaigns/${campaignId}`),
+      $fetch<Diagram[]>(`/api/campaigns/${campaignId}/diagrams`),
     ])
     const role = campaignData?.role ?? ''
     canEdit.value = ['dm', 'co_dm', 'editor'].includes(role)
@@ -144,14 +150,24 @@ async function load() {
   }
 }
 
+const GENERATED_TYPES = ['entity-graph', 'quest-tree', 'faction-web', 'session-timeline']
+
 async function createDiagram() {
   if (!newTitle.value.trim()) return
   creating.value = true
   try {
-    const result = await $fetch<any>(`/api/campaigns/${campaignId}/diagrams`, {
-      method: 'POST',
-      body: { title: newTitle.value.trim(), diagramType: newType.value },
-    })
+    let result: { id: string }
+    if (GENERATED_TYPES.includes(newType.value)) {
+      result = await $fetch<{ id: string }>(`/api/campaigns/${campaignId}/diagrams/generate`, {
+        method: 'POST',
+        body: { type: newType.value, title: newTitle.value.trim() },
+      })
+    } else {
+      result = await $fetch<{ id: string }>(`/api/campaigns/${campaignId}/diagrams`, {
+        method: 'POST',
+        body: { title: newTitle.value.trim(), diagramType: newType.value },
+      })
+    }
     showCreateDialog.value = false
     newTitle.value = ''
     newType.value = 'freeform'
@@ -161,7 +177,7 @@ async function createDiagram() {
   }
 }
 
-function confirmDelete(diagram: any) {
+function confirmDelete(diagram: Diagram) {
   deletingDiagram.value = diagram
   showDeleteDialog.value = true
 }
