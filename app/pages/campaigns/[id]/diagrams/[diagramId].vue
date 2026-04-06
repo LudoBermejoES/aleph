@@ -38,7 +38,7 @@
     <div class="flex flex-1 min-h-0">
       <!-- Entity Panel -->
       <EntityPanel
-        v-if="!readOnly"
+        v-if="!readOnly && !loading"
         :campaign-id="campaignId"
         :placed-entity-ids="placedEntityIds"
         @drag-start="onEntityDragStart"
@@ -52,34 +52,31 @@
           {{ $t('diagrams.errors.loadFailed') }}
         </div>
 
-        <ClientOnly v-else>
-          <TldrawCanvas
-            :snapshot="snapshot"
-            :read-only="readOnly"
-            @save="onCanvasChangeWithCapture"
-            @placed-entities-change="onPlacedEntitiesChange"
-            @editor-ready="onEditorReady"
-            @drop="onCanvasDrop"
-          />
-        </ClientOnly>
+        <TldrawCanvas
+          v-else
+          :snapshot="snapshot"
+          :read-only="readOnly"
+          @save="onCanvasChange"
+          @placed-entities-change="onPlacedEntitiesChange"
+          @editor-ready="onEditorReady"
+          @drop="onCanvasDrop"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent } from 'vue'
+import TldrawCanvas from '~/components/diagrams/TldrawCanvas.vue'
+import EntityPanel from '~/components/diagrams/EntityPanel.vue'
 
 definePageMeta({ layout: 'empty' })
-
-const TldrawCanvas = defineAsyncComponent(() => import('~/components/diagrams/TldrawCanvas.vue'))
-const EntityPanel = defineAsyncComponent(() => import('~/components/diagrams/EntityPanel.vue'))
 
 const route = useRoute()
 const campaignId = route.params.id as string
 const diagramId = route.params.diagramId as string
 
-const diagram = ref<any>(null)
+const diagram = ref<{ title: string } | null>(null)
 const snapshot = ref<Record<string, unknown> | undefined>(undefined)
 const readOnly = ref(false)
 const loading = ref(true)
@@ -90,28 +87,30 @@ const placedEntityIds = ref(new Map<string, number>())
 let editorInstance: unknown = null
 let pendingEntityDrop: { entityData: string; event: DragEvent } | null = null
 let saveTimer: ReturnType<typeof setTimeout> | null = null
+let lastSnapshot: Record<string, unknown> | null = null
 
 async function load() {
   loading.value = true
   error.value = false
   try {
     const [campaignData, diagramData] = await Promise.all([
-      $fetch<any>(`/api/campaigns/${campaignId}`),
-      $fetch<any>(`/api/campaigns/${campaignId}/diagrams/${diagramId}`),
+      $fetch<{ role?: string }>(`/api/campaigns/${campaignId}`),
+      $fetch<{ title: string }>(`/api/campaigns/${campaignId}/diagrams/${diagramId}`),
     ])
 
-    const role = campaignData?.role ?? ''
+    const role = (campaignData as { role?: string })?.role ?? ''
     readOnly.value = !['dm', 'co_dm', 'editor'].includes(role)
     diagram.value = diagramData
 
     try {
-      const snapshotData = await $fetch<any>(
+      const snapshotData = await $fetch<{ snapshot: Record<string, unknown> }>(
         `/api/campaigns/${campaignId}/diagrams/${diagramId}/snapshot`,
       )
       snapshot.value = snapshotData.snapshot
-    } catch (e: any) {
-      if (e?.statusCode !== 404) throw e
-      // No snapshot yet — empty canvas
+    } catch (e: unknown) {
+      if ((e as { statusCode?: number })?.statusCode !== 404) throw e
+      // No snapshot yet — start with empty canvas
+      snapshot.value = undefined
     }
   } catch {
     error.value = true
@@ -121,6 +120,7 @@ async function load() {
 }
 
 function onCanvasChange(newSnapshot: Record<string, unknown>) {
+  lastSnapshot = newSnapshot
   if (saveTimer) clearTimeout(saveTimer)
   saveTimer = setTimeout(() => autoSave(newSnapshot), 5000)
 }
@@ -142,8 +142,6 @@ async function autoSave(snapshotData: Record<string, unknown>) {
   }
 }
 
-let lastSnapshot: Record<string, unknown> | null = null
-
 async function saveNow() {
   if (!lastSnapshot) return
   if (saveTimer) {
@@ -151,11 +149,6 @@ async function saveNow() {
     saveTimer = null
   }
   await autoSave(lastSnapshot)
-}
-
-function onCanvasChangeWithCapture(newSnapshot: Record<string, unknown>) {
-  lastSnapshot = newSnapshot
-  onCanvasChange(newSnapshot)
 }
 
 function onEditorReady(editor: unknown) {
@@ -170,9 +163,7 @@ function onPlacedEntitiesChange(counts: Map<string, number>) {
   placedEntityIds.value = counts
 }
 
-function onEntityDragStart(_entityData: string) {
-  // dragstart data stored in dataTransfer on the entity card
-}
+function onEntityDragStart(_entityData: string) {}
 
 function onCanvasDrop(event: DragEvent, editor: unknown) {
   editorInstance = editor
@@ -187,14 +178,17 @@ function handleEntityDrop(entityDataStr: string, event: DragEvent) {
     return
   }
 
-  let entity: any
+  let entity: Record<string, unknown>
   try {
-    entity = JSON.parse(entityDataStr)
+    entity = JSON.parse(entityDataStr) as Record<string, unknown>
   } catch {
     return
   }
 
-  const editorAny = editorInstance as any
+  const editorAny = editorInstance as {
+    screenToPage: (p: { x: number; y: number }) => { x: number; y: number }
+    createShape: (shape: Record<string, unknown>) => void
+  }
   const pagePoint = editorAny.screenToPage({ x: event.clientX, y: event.clientY })
 
   const shapeMap: Record<string, string> = {
@@ -203,7 +197,7 @@ function handleEntityDrop(entityDataStr: string, event: DragEvent) {
     quest: 'questNode',
   }
 
-  const shapeType = shapeMap[entity.type] ?? 'entityCard'
+  const shapeType = shapeMap[entity.entityType ?? entity.type] ?? 'entityCard'
 
   const shapeProps: Record<string, unknown> = {
     entityId: entity.id,
@@ -213,7 +207,7 @@ function handleEntityDrop(entityDataStr: string, event: DragEvent) {
 
   if (shapeType === 'npcToken') {
     shapeProps.characterName = entity.name
-    shapeProps.portraitUrl = entity.portraitUrl
+    shapeProps.portraitUrl = entity.portraitUrl ?? undefined
   } else if (shapeType === 'locationPin') {
     shapeProps.locationName = entity.name
   } else if (shapeType === 'questNode') {
@@ -221,8 +215,8 @@ function handleEntityDrop(entityDataStr: string, event: DragEvent) {
     shapeProps.status = entity.status ?? 'planned'
   } else {
     shapeProps.entityName = entity.name
-    shapeProps.entityType = entity.type
-    shapeProps.portraitUrl = entity.portraitUrl
+    shapeProps.entityType = entity.entityType ?? entity.type
+    shapeProps.portraitUrl = entity.portraitUrl ?? undefined
   }
 
   editorAny.createShape({
