@@ -2,6 +2,7 @@
 .vscode/settings.json
 .vscode/settings-local.json
 .claude/settings.json
+.claude/settings.local.json
 .claude/settings-local.json
 
 # Nuxt dev/build outputs
