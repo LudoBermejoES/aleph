@@ -1,3 +1,4 @@
+import React from 'react'
 import { BaseBoxShapeUtil, type TLBaseShape, HTMLContainer, type RecordProps, T } from 'tldraw'
 
 export type QuestNodeShape = TLBaseShape<

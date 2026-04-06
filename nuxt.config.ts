@@ -65,8 +65,12 @@ export default defineNuxtConfig({
       react({
         include: /\.(tsx|jsx)$/,
         exclude: /\.vue$/,
+        jsxRuntime: 'classic',
       }),
     ],
+    optimizeDeps: {
+      include: ['react', 'react-dom', 'react-dom/client'],
+    },
   },
 
   nitro: {
