@@ -15,7 +15,7 @@
           accept=".json"
           class="hidden"
           @change="handleImportFile"
-        >
+        />
         <Dialog v-model:open="showCreateDialog">
           <DialogTrigger as-child>
             <Button>{{ $t('campaigns.new') }}</Button>
