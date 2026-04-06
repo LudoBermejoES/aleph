@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from 'vue'
+import type { MountedCanvas } from './react/mount'
 
 const props = defineProps<{
   snapshot?: Record<string, unknown>
@@ -14,78 +15,50 @@ const emit = defineEmits<{
 }>()
 
 const containerRef = ref<HTMLDivElement>()
-let reactRoot: { render: (el: unknown) => void; unmount: () => void } | null = null
+let mounted: MountedCanvas | null = null
 
-async function mountReact(snapshotVal?: Record<string, unknown>, readOnlyVal?: boolean) {
-  if (!containerRef.value) return
-
-  const [{ createRoot }, { createElement }, { TldrawWrapper }] = await Promise.all([
-    import('react-dom/client'),
-    import('react'),
-    import('./react/TldrawWrapper'),
-  ])
-
-  const handleChange = (snapshot: unknown) => {
-    emit('save', snapshot as Record<string, unknown>)
-  }
-
-  const handleEditorReady = (editor: unknown) => {
-    emit('editorReady', editor)
-    const editorAny = editor as {
-      store: { listen: (fn: () => void, opts: Record<string, unknown>) => void }
-      getCurrentPageShapes: () => { props?: { entityId?: string } }[]
-    }
-    editorAny.store.listen(
-      () => {
-        const shapes = editorAny.getCurrentPageShapes()
-        const counts = new Map<string, number>()
-        for (const shape of shapes) {
-          const entityId = shape.props?.entityId
-          if (entityId) {
-            counts.set(entityId, (counts.get(entityId) ?? 0) + 1)
-          }
-        }
-        emit('placedEntitiesChange', counts)
-      },
-      { scope: 'document', source: 'user' },
-    )
-  }
-
-  const handleDrop = (event: DragEvent, editor: unknown) => {
-    emit('drop', event, editor)
-  }
-
-  // Pass plain JS values — no Vue reactive proxies
-  const element = createElement(TldrawWrapper, {
+function makeProps(snapshotVal?: Record<string, unknown>, readOnlyVal?: boolean) {
+  return {
+    // Strip Vue reactive proxy — pass plain JS to React
     snapshot: snapshotVal ? JSON.parse(JSON.stringify(snapshotVal)) : undefined,
     readOnly: readOnlyVal ?? false,
-    onChange: handleChange,
-    onEditorReady: handleEditorReady,
-    onDrop: handleDrop,
-  })
-
-  if (!reactRoot) {
-    reactRoot = createRoot(containerRef.value)
+    onChange: (snapshot: unknown) => emit('save', snapshot as Record<string, unknown>),
+    onEditorReady: (editor: unknown) => {
+      emit('editorReady', editor)
+      const ed = editor as {
+        store: { listen: (fn: () => void, opts: Record<string, unknown>) => void }
+        getCurrentPageShapes: () => { props?: { entityId?: string } }[]
+      }
+      ed.store.listen(
+        () => {
+          const counts = new Map<string, number>()
+          for (const shape of ed.getCurrentPageShapes()) {
+            const id = shape.props?.entityId
+            if (id) counts.set(id, (counts.get(id) ?? 0) + 1)
+          }
+          emit('placedEntitiesChange', counts)
+        },
+        { scope: 'document', source: 'user' },
+      )
+    },
+    onDrop: (event: DragEvent, editor: unknown) => emit('drop', event, editor),
   }
-  reactRoot.render(element)
 }
 
-onMounted(() => {
-  mountReact(props.snapshot, props.readOnly)
+onMounted(async () => {
+  if (!containerRef.value) return
+  const { mountTldrawCanvas } = await import('./react/mount')
+  mounted = mountTldrawCanvas(containerRef.value, makeProps(props.snapshot, props.readOnly))
 })
 
-// Re-render when snapshot changes (e.g. loaded after mount)
 watch(
   () => props.snapshot,
-  (val) => {
-    mountReact(val, props.readOnly)
-  },
+  (val) => mounted?.update(makeProps(val, props.readOnly)),
 )
 
 onUnmounted(() => {
-  reactRoot?.unmount()
-  reactRoot = null
-  currentEditor = null
+  mounted?.unmount()
+  mounted = null
 })
 </script>
 

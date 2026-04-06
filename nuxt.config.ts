@@ -1,4 +1,23 @@
-import react from '@vitejs/plugin-react'
+import reactSwc from '@vitejs/plugin-react-swc'
+import { defineNuxtModule } from '@nuxt/kit'
+
+// Local module: removes vite:vue-jsx at configResolved time (after Nuxt's unshift)
+// so plugin-react-swc can exclusively own .tsx files.
+const reactIntegrationModule = defineNuxtModule({
+  setup(_options, nuxt) {
+    nuxt.hook('vite:extendConfig', (config) => {
+      if (!config.plugins) config.plugins = []
+      ;(config.plugins as unknown[]).push({
+        name: 'nuxt:remove-vue-jsx-for-tsx',
+        enforce: 'pre' as const,
+        configResolved(resolved: { plugins: { name?: string }[] }) {
+          const idx = resolved.plugins.findIndex((p) => p.name === 'vite:vue-jsx')
+          if (idx !== -1) resolved.plugins.splice(idx, 1)
+        },
+      })
+    })
+  },
+})
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -25,6 +44,18 @@ export default defineNuxtConfig({
         { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
         { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
       ],
+      // React Fast Refresh preamble — needed in dev since Nuxt/Nitro bypasses
+      // Vite's transformIndexHtml where plugin-react-swc normally injects this.
+      script: [
+        {
+          type: 'module',
+          innerHTML: `import RefreshRuntime from '/_nuxt/@react-refresh';
+RefreshRuntime.injectIntoGlobalHook(window);
+window.$RefreshReg$ = () => {};
+window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;
+window.__vite_plugin_react_preamble_installed__ = true;`,
+        },
+      ],
       meta: [
         { property: 'og:title', content: 'Aleph — TTRPG Campaign Manager' },
         {
@@ -42,7 +73,14 @@ export default defineNuxtConfig({
   ssr: false, // SPA mode -- avoids SSR crashes from client-only libs (leaflet, v-network-graph)
   pages: true,
 
-  modules: ['@nuxtjs/tailwindcss', 'shadcn-nuxt', '@nuxt/eslint', '@nuxtjs/mdc', '@nuxtjs/i18n'],
+  modules: [
+    reactIntegrationModule,
+    '@nuxtjs/tailwindcss',
+    'shadcn-nuxt',
+    '@nuxt/eslint',
+    '@nuxtjs/mdc',
+    '@nuxtjs/i18n',
+  ],
 
   i18n: {
     locales: [
@@ -61,13 +99,7 @@ export default defineNuxtConfig({
   },
 
   vite: {
-    plugins: [
-      react({
-        include: /\.(tsx|jsx)$/,
-        exclude: /\.vue$/,
-        jsxRuntime: 'classic',
-      }),
-    ],
+    plugins: [reactSwc()],
     optimizeDeps: {
       include: ['react', 'react-dom', 'react-dom/client'],
     },
