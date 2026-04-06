@@ -44,10 +44,7 @@
         class="text-sm border border-border rounded-md px-2 py-1.5 bg-background"
         data-testid="status-filter"
         :aria-label="$t('aria.filters.characterStatus')"
-        @change="
-          $emit('update:statusFilter', ($event.target as HTMLSelectElement).value)
-          $emit('filter-change')
-        "
+        @change="updateFilter('update:statusFilter', ($event.target as HTMLSelectElement).value)"
       >
         <option value="">{{ $t('characters.statusAll') }}</option>
         <option value="alive">{{ $t('characters.alive') }}</option>
@@ -61,10 +58,7 @@
         :value="raceFilter"
         class="text-sm border border-border rounded-md px-2 py-1.5 bg-background"
         data-testid="race-filter"
-        @change="
-          $emit('update:raceFilter', ($event.target as HTMLSelectElement).value)
-          $emit('filter-change')
-        "
+        @change="updateFilter('update:raceFilter', ($event.target as HTMLSelectElement).value)"
       >
         <option value="">{{ $t('characters.allRaces') }}</option>
         <option v-for="r in races" :key="r" :value="r">{{ r }}</option>
@@ -75,10 +69,7 @@
         :value="classFilter"
         class="text-sm border border-border rounded-md px-2 py-1.5 bg-background"
         data-testid="class-filter"
-        @change="
-          $emit('update:classFilter', ($event.target as HTMLSelectElement).value)
-          $emit('filter-change')
-        "
+        @change="updateFilter('update:classFilter', ($event.target as HTMLSelectElement).value)"
       >
         <option value="">{{ $t('characters.allClasses') }}</option>
         <option v-for="c in classes" :key="c" :value="c">{{ c }}</option>
@@ -88,10 +79,7 @@
         :value="alignmentFilter"
         class="text-sm border border-border rounded-md px-2 py-1.5 bg-background"
         data-testid="alignment-filter"
-        @change="
-          $emit('update:alignmentFilter', ($event.target as HTMLSelectElement).value)
-          $emit('filter-change')
-        "
+        @change="updateFilter('update:alignmentFilter', ($event.target as HTMLSelectElement).value)"
       >
         <option value="">{{ $t('characters.allAlignments') }}</option>
         <option v-for="a in ALIGNMENTS" :key="a" :value="a">{{ a }}</option>
@@ -102,10 +90,7 @@
         :value="orgFilter"
         class="text-sm border border-border rounded-md px-2 py-1.5 bg-background"
         data-testid="org-filter"
-        @change="
-          $emit('update:orgFilter', ($event.target as HTMLSelectElement).value)
-          $emit('filter-change')
-        "
+        @change="updateFilter('update:orgFilter', ($event.target as HTMLSelectElement).value)"
       >
         <option value="">{{ $t('characters.allOrgs') }}</option>
         <option v-for="o in organizations" :key="o.id" :value="o.id">{{ o.name }}</option>
@@ -116,10 +101,7 @@
         :value="locationFilter"
         class="text-sm border border-border rounded-md px-2 py-1.5 bg-background"
         data-testid="location-filter"
-        @change="
-          $emit('update:locationFilter', ($event.target as HTMLSelectElement).value)
-          $emit('filter-change')
-        "
+        @change="updateFilter('update:locationFilter', ($event.target as HTMLSelectElement).value)"
       >
         <option value="">{{ $t('characters.allLocations') }}</option>
         <option v-for="l in locationOptions" :key="l.id" :value="l.id">{{ l.name }}</option>
@@ -132,8 +114,7 @@
           class="rounded"
           data-testid="companions-toggle"
           @change="
-            $emit('update:showCompanions', ($event.target as HTMLInputElement).checked)
-            $emit('filter-change')
+            updateFilter('update:showCompanions', ($event.target as HTMLInputElement).checked)
           "
         />
         {{ $t('characters.showCompanions') }}
@@ -147,10 +128,7 @@
         :value="sortField"
         class="text-sm border border-border rounded-md px-2 py-1.5 bg-background"
         data-testid="sort-field"
-        @change="
-          $emit('update:sortField', ($event.target as HTMLSelectElement).value)
-          $emit('filter-change')
-        "
+        @change="updateFilter('update:sortField', ($event.target as HTMLSelectElement).value)"
       >
         <option value="updatedAt">{{ $t('characters.sortUpdatedAt') }}</option>
         <option value="name">{{ $t('characters.sortName') }}</option>
@@ -198,7 +176,7 @@ defineProps<{
   locationOptions: { id: string; name: string }[]
 }>()
 
-defineEmits<{
+const emit = defineEmits<{
   'set-type': [type: string]
   'update:searchInput': [value: string]
   'update:statusFilter': [value: string]
@@ -212,4 +190,9 @@ defineEmits<{
   'toggle-sort-dir': []
   'filter-change': []
 }>()
+
+function updateFilter(event: string, value: string | boolean) {
+  emit(event as any, value as any)
+  emit('filter-change')
+}
 </script>
