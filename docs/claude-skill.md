@@ -57,6 +57,7 @@ aleph campaign create --name <name> [--description <desc>] [--theme <theme>] [--
 aleph campaign show <id> [--json]
 aleph campaign delete <id> [--yes]
 aleph campaign export <id> [--format json] [--include <types>] [--output <file>]
+aleph campaign import <file> [--name <name>]
 ```
 
 Available themes: `default`, `dark-fantasy`, `cyberpunk`, `cosmic-horror`, `high-fantasy`, `western`, `steampunk`, `eldritch`, `fey-wilds`, `undead`, `superhero`

@@ -15,6 +15,9 @@ export default defineEventHandler(async (event) => {
 
   const campaignId = match[1]
 
+  // Skip top-level action endpoints that aren't campaign-scoped
+  if (campaignId === 'import') return
+
   // Verify campaign exists
   const db = useDb()
   const campaign = db.select().from(campaigns).where(eq(campaigns.id, campaignId)).get()

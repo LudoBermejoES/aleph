@@ -3,7 +3,7 @@ import { confirm } from '@inquirer/prompts'
 import { get, post, del } from '../lib/client.js'
 import { print, success } from '../lib/output.js'
 import { requireConfig } from '../lib/config.js'
-import { writeFile } from 'fs/promises'
+import { writeFile, readFile } from 'fs/promises'
 
 export function makeCampaignCommand() {
   const cmd = new Command('campaign').description('Manage campaigns')
@@ -132,6 +132,64 @@ export function makeCampaignCommand() {
       } else {
         process.stdout.write(text)
       }
+    })
+
+  cmd
+    .command('import <file>')
+    .description('Import a campaign from an exported JSON file')
+    .option('--name <name>', 'Override the campaign name')
+    .action(async (file, opts) => {
+      const config = requireConfig()
+
+      let text
+      try {
+        text = await readFile(file, 'utf8')
+      } catch {
+        process.stderr.write(`Error: File not found: ${file}\n`)
+        process.exit(2)
+      }
+
+      let payload
+      try {
+        payload = JSON.parse(text)
+      } catch {
+        process.stderr.write(`Error: Invalid JSON in file: ${file}\n`)
+        process.exit(2)
+      }
+
+      const url = new URL(`${config.url.replace(/\/$/, '')}/api/campaigns/import`)
+      if (opts.name) url.searchParams.set('name', opts.name)
+
+      let res
+      try {
+        res = await fetch(url.toString(), {
+          method: 'POST',
+          headers: { 'X-API-Key': config.apiKey, 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+      } catch (err) {
+        process.stderr.write(`Network error: ${err.message}\n`)
+        process.exit(2)
+      }
+
+      if (res.status === 401) {
+        process.stderr.write('Error: Not authenticated. Check your API key.\n')
+        process.exit(2)
+      }
+      if (!res.ok) {
+        let msg = `HTTP ${res.status}`
+        try {
+          const body = await res.json()
+          msg = body.message || body.statusMessage || msg
+        } catch {
+          /* ignore parse errors */
+        }
+        process.stderr.write(`Error: ${msg}\n`)
+        process.exit(2)
+      }
+
+      const data = await res.json()
+      success(`Campaign imported: ${data.name} (${data.id})`)
     })
 
   return cmd

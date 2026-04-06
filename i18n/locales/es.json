@@ -90,7 +90,11 @@
     "graphSubtitle": "Visualiza las conexiones entre entidades",
     "members": "Miembros",
     "membersSubtitle": "Invita jugadores, gestiona roles y permisos",
-    "settings": "Configuración de la Campaña"
+    "settings": "Configuración de la Campaña",
+    "import": "Importar campaña",
+    "importing": "Importando...",
+    "importFailed": "Error al importar",
+    "importSuccess": "Campaña importada correctamente"
   },
   "members": {
     "title": "Miembros",

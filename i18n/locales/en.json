@@ -90,7 +90,11 @@
     "graphSubtitle": "Visualize connections between entities",
     "members": "Members",
     "membersSubtitle": "Invite players, manage roles and permissions",
-    "settings": "Campaign Settings"
+    "settings": "Campaign Settings",
+    "import": "Import Campaign",
+    "importing": "Importing...",
+    "importFailed": "Import failed",
+    "importSuccess": "Campaign imported successfully"
   },
   "members": {
     "title": "Members",
