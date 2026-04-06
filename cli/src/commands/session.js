@@ -227,6 +227,43 @@ export function makeSessionCommand() {
 
   cmd.addCommand(attendance)
 
+  // ─── Summarize subcommand ──────────────────────────────────────────────────
+
+  cmd
+    .command('summarize <slug>')
+    .description('Generate AI content for a session from manual notes')
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .option('--type <type>', 'Content type: summary|ai_notes', 'summary')
+    .option('--force', 'Skip confirmation when overwriting existing content')
+    .action(async (slug, opts) => {
+      const validTypes = ['summary', 'ai_notes']
+      if (!validTypes.includes(opts.type)) {
+        process.stderr.write(`Error: --type must be one of: ${validTypes.join(', ')}\n`)
+        process.exit(1)
+      }
+
+      if (!opts.force) {
+        const existing = await get(
+          `/api/campaigns/${opts.campaign}/sessions/${slug}/content`,
+        ).catch(() => null)
+        if (existing?.[opts.type]) {
+          const confirmed = await confirm({
+            message: `This will replace the existing ${opts.type}. Continue?`,
+          })
+          if (!confirmed) {
+            process.stderr.write('Aborted.\n')
+            process.exit(0)
+          }
+        }
+      }
+
+      const result = await post(`/api/campaigns/${opts.campaign}/sessions/${slug}/generate`, {
+        target: opts.type,
+      })
+
+      process.stdout.write((result?.content ?? '') + '\n')
+    })
+
   return cmd
 }
 

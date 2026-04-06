@@ -18,7 +18,22 @@
     <div v-if="loading" class="text-sm text-muted-foreground">{{ $t('common.loading') }}</div>
     <div v-else>
       <div class="flex items-center justify-between mb-2">
-        <span />
+        <div class="flex gap-2">
+          <Button
+            v-if="canGenerate && activeContentTab !== 'manual_notes' && !aiUnavailable"
+            variant="outline"
+            size="sm"
+            :disabled="!localDraft['manual_notes'] || generating"
+            :title="!localDraft['manual_notes'] ? $t('sessions.content.noManualNotes') : undefined"
+            @click="handleGenerate"
+          >
+            <span v-if="generating">{{ $t('sessions.content.generating') }}</span>
+            <span v-else-if="activeContentTab === 'summary'">{{
+              $t('sessions.content.generateSummary')
+            }}</span>
+            <span v-else>{{ $t('sessions.content.generateAiNotes') }}</span>
+          </Button>
+        </div>
         <Button variant="outline" size="sm" @click="editingContent = !editingContent">
           {{ editingContent ? $t('sessions.previewTab') : $t('sessions.editTab') }}
         </Button>
@@ -44,15 +59,21 @@ const props = defineProps<{
   tabs: { key: string; label: string }[]
   contentDraft: Record<string, string>
   loading: boolean
+  canGenerate?: boolean
 }>()
 
 const emit = defineEmits<{
   save: [tabKey: string, content: string]
+  generate: [target: string]
 }>()
+
+const { t } = useI18n()
 
 const activeContentTab = ref(props.tabs[0]?.key ?? 'manual_notes')
 const editingContent = ref(false)
 const localDraft = ref<Record<string, string>>({ ...props.contentDraft })
+const generating = ref(false)
+const aiUnavailable = ref(false)
 
 watch(
   () => props.contentDraft,
@@ -66,4 +87,30 @@ function save() {
   emit('save', activeContentTab.value, localDraft.value[activeContentTab.value])
   editingContent.value = false
 }
+
+async function handleGenerate() {
+  const target = activeContentTab.value
+  if (localDraft.value[target] && !confirm(t('sessions.content.generateConfirm'))) return
+
+  generating.value = true
+  try {
+    emit('generate', target)
+  } finally {
+    generating.value = false
+  }
+}
+
+function setGenerating(val: boolean) {
+  generating.value = val
+}
+
+function setAiUnavailable(val: boolean) {
+  aiUnavailable.value = val
+}
+
+function updateDraft(target: string, content: string) {
+  localDraft.value[target] = content
+}
+
+defineExpose({ setGenerating, setAiUnavailable, updateDraft })
 </script>

@@ -260,7 +260,16 @@
       "manualNotes": "Notas manuales",
       "aiNotes": "Notas de IA",
       "summary": "Resumen",
-      "empty": "Sin contenido aún. Empieza a escribir..."
+      "empty": "Sin contenido aún. Empieza a escribir...",
+      "generateSummary": "Generar Resumen",
+      "generateAiNotes": "Generar Notas de IA",
+      "generating": "Generando...",
+      "generateConfirm": "¿Esto reemplazará el contenido existente. ¿Continuar?",
+      "generateSuccess": "Contenido generado correctamente.",
+      "noManualNotes": "Escribe las notas manuales primero",
+      "aiNotConfigured": "El proveedor de IA no está configurado — contacta al administrador",
+      "cooldownError": "Por favor, espera antes de generar de nuevo",
+      "generateError": "Error al generar el contenido"
     },
     "confirmDelete": "¿Eliminar esta sesión? Esta acción no se puede deshacer.",
     "noAttendance": "Sin asistencia registrada.",

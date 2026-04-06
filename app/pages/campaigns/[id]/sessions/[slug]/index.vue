@@ -96,10 +96,13 @@
       </div>
 
       <SessionContentTabs
+        ref="contentTabsRef"
         :tabs="contentTabs"
         :content-draft="contentDraft"
         :loading="contentLoading"
+        :can-generate="canGenerate"
         @save="saveContent"
+        @generate="generateContent"
       />
 
       <SessionDecisionsList
@@ -133,9 +136,11 @@ const decisions = ref<SessionDecision[]>([])
 const editing = ref(false)
 const logContent = ref('')
 const canDelete = ref(false)
+const canGenerate = ref(false)
 const myRsvp = ref('pending')
 const api = useCampaignApi(campaignId)
 const { loading, error, withLoading } = useLoadingState()
+const contentTabsRef = ref<any>(null)
 
 const contentTabs = [
   { key: 'manual_notes', label: t('sessions.content.manualNotes') },
@@ -164,7 +169,9 @@ async function load() {
     ])
     session.value = sessionData
     logContent.value = session.value?.logContent || ''
-    canDelete.value = ['dm', 'co_dm'].includes((campaignData as any)?.role ?? '')
+    const role = (campaignData as any)?.role ?? ''
+    canDelete.value = ['dm', 'co_dm'].includes(role)
+    canGenerate.value = ['dm', 'co_dm', 'editor'].includes(role)
     decisions.value = await api.getSessionDecisions(slug).catch(() => [])
     await loadContent()
   })
@@ -220,6 +227,33 @@ async function saveContent(tabKey: string, content: string) {
     await api.updateSessionContent(slug, tabKey, content)
   } catch (e: any) {
     alert(e.data?.message || t('errors.failedSave'))
+  }
+}
+
+async function generateContent(target: string) {
+  contentTabsRef.value?.setGenerating(true)
+  try {
+    const result = (await $fetch(`/api/campaigns/${campaignId}/sessions/${slug}/generate`, {
+      method: 'POST',
+      body: { target },
+    })) as { target: string; content: string }
+    contentDraft.value[result.target] = result.content
+    contentTabsRef.value?.updateDraft(result.target, result.content)
+    alert(t('sessions.content.generateSuccess'))
+  } catch (e: any) {
+    const status = e?.statusCode ?? e?.response?.status
+    if (status === 503) {
+      contentTabsRef.value?.setAiUnavailable(true)
+      alert(t('sessions.content.aiNotConfigured'))
+    } else if (status === 429) {
+      alert(t('sessions.content.cooldownError'))
+    } else if (status === 400) {
+      alert(t('sessions.content.noManualNotes'))
+    } else {
+      alert(t('sessions.content.generateError'))
+    }
+  } finally {
+    contentTabsRef.value?.setGenerating(false)
   }
 }
 

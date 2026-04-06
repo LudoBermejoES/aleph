@@ -260,7 +260,16 @@
       "manualNotes": "Manual Notes",
       "aiNotes": "AI Notes",
       "summary": "Summary",
-      "empty": "No content yet. Start writing..."
+      "empty": "No content yet. Start writing...",
+      "generateSummary": "Generate Summary",
+      "generateAiNotes": "Generate AI Notes",
+      "generating": "Generating...",
+      "generateConfirm": "This will replace the existing content. Continue?",
+      "generateSuccess": "Content generated successfully.",
+      "noManualNotes": "Write manual notes first",
+      "aiNotConfigured": "AI provider not configured — contact your admin",
+      "cooldownError": "Please wait before generating again",
+      "generateError": "Failed to generate content"
     },
     "confirmDelete": "Delete this session? This action cannot be undone.",
     "noAttendance": "No attendance recorded yet.",

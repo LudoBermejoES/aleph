@@ -112,6 +112,9 @@ aleph session content delete <slug> <contentId> --campaign <id> [--yes]  # delet
 
 # Attendance / RSVP
 aleph session attendance set <slug> --campaign <id> --status pending|accepted|declined|tentative
+
+# AI generation (requires AI_PROVIDER + AI_API_KEY configured on the server)
+aleph session summarize <slug> --campaign <id> [--type summary|ai_notes] [--force]  # --type defaults to summary; --force skips confirmation
 ```
 
 ### Session Groups

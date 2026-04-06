@@ -3,6 +3,11 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
 
   runtimeConfig: {
+    ai: {
+      provider: process.env.AI_PROVIDER || '',
+      apiKey: process.env.AI_API_KEY || '',
+      model: process.env.AI_MODEL || '',
+    },
     public: {
       hocuspocusUrl: 'ws://localhost:3334',
     },
