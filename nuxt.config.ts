@@ -114,9 +114,8 @@ export default defineNuxtConfig({
           const { transformWithEsbuild } = await import('vite')
           return transformWithEsbuild(code, id, {
             loader: 'tsx',
-            jsx: 'transform',
-            jsxFactory: 'React.createElement',
-            jsxFragment: 'React.Fragment',
+            jsx: 'automatic',
+            jsxImportSource: 'react',
           })
         },
       },
