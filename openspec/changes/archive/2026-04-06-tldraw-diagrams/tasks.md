@@ -3,8 +3,8 @@
 - [x] 1.1 Install `react`, `react-dom`, `@types/react`, `@types/react-dom` as dependencies
 - [x] 1.2 Install `tldraw` as a dependency
 - [x] 1.3 Add `@vitejs/plugin-react` as a devDependency; configure it in `nuxt.config.ts` Vite plugins to process `.tsx`/`.jsx` files only (exclude `.vue`)
-- [ ] 1.4 Verify `npm run build` succeeds with both Vue and React plugins active
-- [ ] 1.5 Verify `npm run dev` starts without errors
+- [x] 1.4 Verify `npm run build` succeeds with both Vue and React plugins active
+- [x] 1.5 Verify `npm run dev` starts without errors
 
 ## 2. Database Schema and Migrations
 
@@ -114,6 +114,6 @@
 
 - [x] 15.1 Run `npx vitest run tests/unit/` — all unit tests pass
 - [x] 15.2 Run `npx vitest run tests/integration/` — all integration tests pass
-- [ ] 15.3 Run `npx playwright test tests/e2e/diagrams.spec.ts` — all E2E tests pass
+- [x] 15.3 Run `npx playwright test tests/e2e/diagrams.spec.ts` — all E2E tests pass
 - [x] 15.4 Run `npm run build` — no build errors, verify code splitting (React/tldraw in separate chunks)
 - [x] 15.5 Run `npm run format:check` — no formatting issues
