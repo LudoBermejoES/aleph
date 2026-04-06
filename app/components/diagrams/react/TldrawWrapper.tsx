@@ -1,6 +1,6 @@
 import 'tldraw/tldraw.css'
 import React, { useCallback, useRef } from 'react'
-import { Tldraw, type Editor, type TLStoreSnapshot } from 'tldraw'
+import { Tldraw, getSnapshot, type Editor, type TLEditorSnapshot } from 'tldraw'
 import { EntityCardShapeUtil } from './shapes/EntityCardShape'
 import { QuestNodeShapeUtil } from './shapes/QuestNodeShape'
 import { LocationPinShapeUtil } from './shapes/LocationPinShape'
@@ -14,9 +14,9 @@ const SHAPE_UTILS = [
 ]
 
 export interface TldrawWrapperProps {
-  snapshot?: TLStoreSnapshot
+  snapshot?: TLEditorSnapshot
   readOnly?: boolean
-  onChange?: (snapshot: TLStoreSnapshot) => void
+  onChange?: (snapshot: TLEditorSnapshot) => void
   onEditorReady?: (editor: Editor) => void
   onDrop?: (event: DragEvent, editor: Editor) => void
 }
@@ -44,7 +44,7 @@ export function TldrawWrapper({
       editor.store.listen(
         () => {
           if (!readOnly && onChange) {
-            onChange(editor.store.getSnapshot())
+            onChange(getSnapshot(editor.store))
           }
         },
         { scope: 'document', source: 'user' },
