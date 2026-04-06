@@ -140,6 +140,7 @@ const campaignLinkGroups = computed(() => {
         },
         { to: `/campaigns/${id}/locations`, label: t('layout.locations'), icon: ICONS.locations },
         { to: `/campaigns/${id}/maps`, label: t('layout.maps'), icon: ICONS.maps },
+        { to: `/campaigns/${id}/diagrams`, label: t('layout.diagrams'), icon: ICONS.diagrams },
       ],
     },
     {

@@ -31,6 +31,7 @@ import { makeTagCommand } from './commands/tag.js'
 import { makeArcCommand } from './commands/arc.js'
 import { makeChapterCommand } from './commands/chapter.js'
 import { makeHealthCommand } from './commands/health.js'
+import { makeDiagramCommand } from './commands/diagram.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const pkg = JSON.parse(readFileSync(join(__dirname, '../package.json'), 'utf8'))
@@ -69,5 +70,6 @@ program.addCommand(makeTagCommand())
 program.addCommand(makeArcCommand())
 program.addCommand(makeChapterCommand())
 program.addCommand(makeHealthCommand())
+program.addCommand(makeDiagramCommand())
 
 program.parse(process.argv)

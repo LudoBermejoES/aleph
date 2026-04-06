@@ -337,6 +337,17 @@ aleph chapter update --campaign <id> --slug <slug> [--name <name>] [--descriptio
 aleph chapter delete --campaign <id> --slug <slug> [--yes]
 ```
 
+### Diagrams
+
+```bash
+aleph diagram list --campaign <id> [--json]                            # list all diagrams
+aleph diagram create --campaign <id> --title <title> [--type <type>] [--json]  # create diagram
+aleph diagram delete <diagramId> --campaign <id> [--yes]               # delete with confirmation
+aleph diagram generate --campaign <id> --type <type> [--title <title>] [--json]  # generate from data
+```
+
+Diagram types for `--type`: `entity-graph`, `quest-tree`, `faction-web`, `session-timeline`
+
 ### Health
 
 ```bash

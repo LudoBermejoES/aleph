@@ -639,7 +639,8 @@
       "story": "Historia",
       "economy": "Economía",
       "campaign": "Campaña"
-    }
+    },
+    "diagrams": "Diagramas"
   },
   "pagination": {
     "showing": "Mostrando {from}–{to} de {total}"
@@ -895,5 +896,42 @@
     "reconnecting": "Reconectando...",
     "disconnected": "Desconectado",
     "collaborate": "Colaborar"
+  },
+  "diagrams": {
+    "title": "Diagramas",
+    "create": "Nuevo Diagrama",
+    "delete": "Eliminar",
+    "confirmDelete": "¿Seguro que quieres eliminar \"{title}\"? Esto no se puede deshacer.",
+    "empty": "No hay diagramas aún. Crea uno para empezar.",
+    "save": "Guardar",
+    "saving": "Guardando...",
+    "saved": "Guardado",
+    "generate": "Generar",
+    "type": "Tipo",
+    "types": {
+      "freeform": "Forma libre",
+      "entityGraph": "Grafo de entidades",
+      "questTree": "Árbol de misiones",
+      "factionWeb": "Red de facciones",
+      "sessionTimeline": "Línea de tiempo de sesiones"
+    },
+    "errors": {
+      "loadFailed": "Error al cargar el diagrama",
+      "saveFailed": "Error al guardar el diagrama",
+      "generateFailed": "Error al generar el diagrama"
+    },
+    "panel": {
+      "title": "Entidades",
+      "search": "Buscar entidades...",
+      "empty": "No hay entidades en esta campaña todavía.",
+      "noResults": "Sin resultados.",
+      "characters": "Personajes",
+      "locations": "Lugares",
+      "organizations": "Organizaciones",
+      "quests": "Misiones",
+      "wiki": "Wiki",
+      "collapse": "Colapsar panel",
+      "expand": "Expandir panel"
+    }
   }
 }

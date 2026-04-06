@@ -4,7 +4,7 @@ description: Use the aleph CLI to manage campaigns, entities, characters, locati
 license: MIT
 metadata:
   author: aleph
-  version: '3.0'
+  version: '3.1'
 ---
 
 You have access to the `aleph` CLI tool at `node /Users/ludo/code/aleph/cli/bin/aleph.js` (or `npm run aleph -- <args>` from the project root). Use it to interact with the running Aleph server.
@@ -326,6 +326,17 @@ node /Users/ludo/code/aleph/cli/bin/aleph.js chapter create --campaign <id> --na
 node /Users/ludo/code/aleph/cli/bin/aleph.js chapter update --campaign <id> --slug <slug> [--name <name>] [--description <desc>]
 node /Users/ludo/code/aleph/cli/bin/aleph.js chapter delete --campaign <id> --slug <slug> [--yes]
 ```
+
+### Diagrams
+
+```bash
+node /Users/ludo/code/aleph/cli/bin/aleph.js diagram list --campaign <id> [--json]                            # list all diagrams
+node /Users/ludo/code/aleph/cli/bin/aleph.js diagram create --campaign <id> --title <title> [--type <type>] [--json]  # create diagram
+node /Users/ludo/code/aleph/cli/bin/aleph.js diagram delete <diagramId> --campaign <id> [--yes]               # delete with confirmation
+node /Users/ludo/code/aleph/cli/bin/aleph.js diagram generate --campaign <id> --type <type> [--title <title>] [--json]  # generate from data
+```
+
+Diagram types for `--type`: `entity-graph`, `quest-tree`, `faction-web`, `session-timeline`
 
 ### Health
 

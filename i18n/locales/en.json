@@ -639,7 +639,8 @@
       "story": "Story",
       "economy": "Economy",
       "campaign": "Campaign"
-    }
+    },
+    "diagrams": "Diagrams"
   },
   "pagination": {
     "showing": "Showing {from}–{to} of {total}"
@@ -895,5 +896,42 @@
     "reconnecting": "Reconnecting...",
     "disconnected": "Disconnected",
     "collaborate": "Collaborate"
+  },
+  "diagrams": {
+    "title": "Diagrams",
+    "create": "New Diagram",
+    "delete": "Delete",
+    "confirmDelete": "Are you sure you want to delete \"{title}\"? This cannot be undone.",
+    "empty": "No diagrams yet. Create one to get started.",
+    "save": "Save",
+    "saving": "Saving...",
+    "saved": "Saved",
+    "generate": "Generate",
+    "type": "Type",
+    "types": {
+      "freeform": "Freeform",
+      "entityGraph": "Entity Graph",
+      "questTree": "Quest Tree",
+      "factionWeb": "Faction Web",
+      "sessionTimeline": "Session Timeline"
+    },
+    "errors": {
+      "loadFailed": "Failed to load diagram",
+      "saveFailed": "Failed to save diagram",
+      "generateFailed": "Failed to generate diagram"
+    },
+    "panel": {
+      "title": "Entities",
+      "search": "Search entities...",
+      "empty": "No entities in this campaign yet.",
+      "noResults": "No results found.",
+      "characters": "Characters",
+      "locations": "Locations",
+      "organizations": "Organizations",
+      "quests": "Quests",
+      "wiki": "Wiki",
+      "collapse": "Collapse panel",
+      "expand": "Expand panel"
+    }
   }
 }

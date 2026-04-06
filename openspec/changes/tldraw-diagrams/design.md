@@ -80,6 +80,7 @@ Only the latest snapshot is used for loading. Old snapshots serve as version his
 Diagram generation runs server-side in `server/utils/diagram-generator.ts`. It queries campaign data (entities, relationships, quests, etc.), builds a shape array using tldraw's schema types, applies a layout algorithm, and returns the shapes as a tldraw snapshot.
 
 Layout algorithms:
+
 - **Entity graph**: Force-directed layout (reuse existing graph logic or simple spring model)
 - **Quest tree**: Top-down tree layout (parent quest → sub-quests)
 - **Faction web**: Radial layout (central faction, members radiating outward)
@@ -103,6 +104,7 @@ Each shape stores an `entityId` and `campaignId` in its props. Double-clicking o
 The diagram editor page includes a collapsible sidebar (`EntityPanel.vue`) on the left. It is a pure Vue component (not inside React/tldraw) rendered alongside the canvas.
 
 Layout:
+
 ```
 ┌──────────────┬──────────────────────────────────┐
 │ 🔍 Search    │                                  │
@@ -120,6 +122,7 @@ Layout:
 **Drag interaction**: Each entity card in the panel has `draggable="true"`. The `dragstart` event stores the entity data (id, type, name, portraitUrl, slug) in `event.dataTransfer`. The tldraw canvas wrapper listens for `drop` events on its container div, converts the drop coordinates to canvas space using tldraw's `editor.screenToPage(x, y)`, then creates the appropriate custom shape at that position.
 
 Coordinate conversion:
+
 ```typescript
 const pagePoint = editor.screenToPage({ x: dropEvent.clientX, y: dropEvent.clientY })
 editor.createShape({ type: 'entityCard', x: pagePoint.x, y: pagePoint.y, props: { ...entityData } })

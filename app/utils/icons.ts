@@ -62,6 +62,7 @@ import {
   ChevronDown,
   Image,
   Upload,
+  PenTool,
 } from 'lucide-vue-next'
 
 export const ICONS = {
@@ -85,6 +86,7 @@ export const ICONS = {
   transactions: ArrowLeftRight,
   graph: Network,
   members: UserCog,
+  diagrams: PenTool,
 
   // ─── Nav group headers ────────────────────────────────────────────────────
   groupWorld: Globe,
