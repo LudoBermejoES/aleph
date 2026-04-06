@@ -49,10 +49,7 @@
               <button
                 v-for="(recent, i) in recentSearches"
                 :key="i"
-                @click="
-                  query = recent
-                  doSearch()
-                "
+                @click="searchRecent(recent)"
                 class="block w-full text-left px-3 py-1.5 rounded text-sm hover:bg-accent transition-colors text-muted-foreground"
               >
                 {{ recent }}
@@ -138,6 +135,11 @@ function saveRecent(q: string) {
 const displayResults = computed(() => results.value)
 
 let debounceTimer: ReturnType<typeof setTimeout>
+
+function searchRecent(recent: string) {
+  query.value = recent
+  doSearch()
+}
 
 function doSearch() {
   clearTimeout(debounceTimer)

@@ -64,13 +64,13 @@
 - [x] 8.3 Integration test (`tests/integration/generate-endpoint.test.ts`): POST to generate endpoint with valid auth returns 200 (mock the AI provider response); verify content is saved to DB
 - [x] 8.4 Integration test (`tests/integration/generate-endpoint.test.ts`): test 403 for player role, 400 for empty notes, 400 for invalid target, 429 for cooldown, 503 for unconfigured provider
 - [x] 8.5 Integration test (`tests/integration/generate-endpoint.test.ts`): test unauthenticated request returns 401
-- [ ] 8.6 E2E test (`tests/e2e/session-generate.spec.ts`): DM sees generate button on Summary tab; button is disabled when no manual notes; button triggers generation and result appears in content area
-- [ ] 8.7 E2E test (`tests/e2e/session-generate.spec.ts`): confirmation dialog appears when overwriting existing content
+- [x] 8.6 E2E test (`tests/e2e/session-generate.spec.ts`): DM sees generate button on Summary tab; button is disabled when no manual notes; button triggers generation and result appears in content area
+- [x] 8.7 E2E test (`tests/e2e/session-generate.spec.ts`): confirmation dialog appears when overwriting existing content
 
 ## 9. Verification
 
 - [x] 9.1 Run `npx vitest run tests/unit/` -- all unit tests pass
 - [x] 9.2 Run `npx vitest run tests/integration/` -- all integration tests pass (with server running on port 3333)
-- [ ] 9.3 Run `npx playwright test tests/e2e/session-generate.spec.ts` -- all E2E tests pass
-- [ ] 9.4 Run `npm run build` -- no build errors
+- [x] 9.3 Run `npx playwright test tests/e2e/session-generate.spec.ts` -- all E2E tests pass
+- [x] 9.4 Run `npm run build` -- no build errors (pre-existing quests/index.vue issue fixed)
 - [x] 9.5 Run `npm run lint` -- no lint errors

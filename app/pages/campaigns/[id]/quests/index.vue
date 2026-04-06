@@ -16,31 +16,19 @@
     </div>
 
     <div class="flex gap-2 mb-6">
-      <Button
-        :variant="filter === '' ? 'default' : 'outline'"
-        size="sm"
-        @click="
-          filter = ''
-          load()
-        "
-        >{{ $t('characters.all') }}</Button
-      >
+      <Button :variant="filter === '' ? 'default' : 'outline'" size="sm" @click="setFilter('')">{{
+        $t('characters.all')
+      }}</Button>
       <Button
         :variant="filter === 'active' ? 'default' : 'outline'"
         size="sm"
-        @click="
-          filter = 'active'
-          load()
-        "
+        @click="setFilter('active')"
         >{{ $t('quests.active') }}</Button
       >
       <Button
         :variant="filter === 'completed' ? 'default' : 'outline'"
         size="sm"
-        @click="
-          filter = 'completed'
-          load()
-        "
+        @click="setFilter('completed')"
         >{{ $t('quests.completed') }}</Button
       >
     </div>
@@ -143,6 +131,11 @@ const { loading, error, withLoading, dismissError } = useLoadingState()
 const rootQuests = computed(() => questList.value.filter((q) => !q.parentQuestId))
 function childQuests(parentId: string) {
   return questList.value.filter((q) => q.parentQuestId === parentId)
+}
+
+function setFilter(value: string) {
+  filter.value = value
+  load()
 }
 
 async function load() {
