@@ -137,7 +137,6 @@
 </template>
 
 <script setup lang="ts">
-import { createShapeId } from 'tldraw'
 import TldrawCanvas from '~/components/diagrams/TldrawCanvas.vue'
 import EntityPanel from '~/components/diagrams/EntityPanel.vue'
 import EntityPopover from '~/components/diagrams/EntityPopover.vue'
@@ -407,6 +406,7 @@ async function syncRelations() {
   }
 
   // Create arrows for relations between shapes on canvas
+  let arrowsCreated = 0
   for (const edge of Object.values(graphData.edges)) {
     const fromShapeId = entityToShape.get(edge.source)
     const toShapeId = entityToShape.get(edge.target)
@@ -416,46 +416,58 @@ async function syncRelations() {
     const color = relationTypeToColor(edge.relationTypeSlug, edge.attitude)
     // tldraw v4: createShape returns `this` (editor), not the shape.
     // Pre-generate the ID so we can reference it in createBinding calls.
-    const arrowId = createShapeId()
-    ed.createShape({
-      id: arrowId,
-      type: 'arrow',
-      props: {
-        start: { x: 0, y: 0 },
-        end: { x: 100, y: 0 },
-        richText: {
-          type: 'doc',
-          content: edge.label
-            ? [{ type: 'paragraph', content: [{ type: 'text', text: edge.label }] }]
-            : [],
+    // Shape IDs follow the format "shape:<uuid>" per the tldraw schema.
+    const arrowId = `shape:${crypto.randomUUID()}` as `shape:${string}`
+    try {
+      ed.createShape({
+        id: arrowId,
+        type: 'arrow',
+        props: {
+          start: { x: 0, y: 0 },
+          end: { x: 100, y: 0 },
+          richText: {
+            type: 'doc',
+            content: edge.label
+              ? [{ type: 'paragraph', content: [{ type: 'text', text: edge.label }] }]
+              : [],
+          },
+          color,
+          size: 's',
         },
-        color,
-        size: 's',
-      },
-    })
-    ed.createBinding({
-      type: 'arrow',
-      fromId: arrowId,
-      toId: fromShapeId,
-      props: {
-        terminal: 'start',
-        normalizedAnchor: { x: 0.5, y: 0.5 },
-        isExact: false,
-        isPrecise: false,
-      },
-    })
-    ed.createBinding({
-      type: 'arrow',
-      fromId: arrowId,
-      toId: toShapeId,
-      props: {
-        terminal: 'end',
-        normalizedAnchor: { x: 0.5, y: 0.5 },
-        isExact: false,
-        isPrecise: false,
-      },
-    })
+      })
+      ed.createBinding({
+        type: 'arrow',
+        fromId: arrowId,
+        toId: fromShapeId,
+        props: {
+          terminal: 'start',
+          normalizedAnchor: { x: 0.5, y: 0.5 },
+          isExact: false,
+          isPrecise: false,
+        },
+      })
+      ed.createBinding({
+        type: 'arrow',
+        fromId: arrowId,
+        toId: toShapeId,
+        props: {
+          terminal: 'end',
+          normalizedAnchor: { x: 0.5, y: 0.5 },
+          isExact: false,
+          isPrecise: false,
+        },
+      })
+      arrowsCreated++
+    } catch (err) {
+      console.error('[syncRelations] failed to create arrow:', err, {
+        arrowId,
+        fromShapeId,
+        toShapeId,
+        edge,
+      })
+    }
   }
+  console.log(`[syncRelations] created ${arrowsCreated} arrows`)
 }
 
 // Type filter
