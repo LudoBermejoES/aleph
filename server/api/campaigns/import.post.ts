@@ -20,10 +20,10 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'Invalid JSON body' })
   }
 
-  if (body.version !== '1.0') {
+  if (!['1.0', '1.1'].includes(body.version)) {
     throw createError({
       statusCode: 422,
-      message: `Unsupported export version: "${body.version}". Only version "1.0" is supported.`,
+      message: `Unsupported export version: "${body.version}". Supported versions: "1.0", "1.1".`,
     })
   }
 

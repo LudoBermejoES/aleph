@@ -1,6 +1,7 @@
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 
-export async function apiRaw(path: string, opts?: RequestInit & { body?: unknown }) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function apiRaw(path: string, opts?: Omit<RequestInit, 'body'> & { body?: any }) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
     headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...opts?.headers },

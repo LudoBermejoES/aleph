@@ -1,7 +1,16 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { randomUUID } from 'crypto'
+import { mkdirSync, writeFileSync, rmSync } from 'fs'
+import { join } from 'path'
+import { tmpdir } from 'os'
 import { createTestDb, type TestDb } from '../../helpers/db'
-import { buildCampaignExport, VALID_RESOURCE_TYPES } from '../../../server/services/campaign-export'
+import {
+  buildCampaignExport,
+  collectImageUrls,
+  embedImages,
+  VALID_RESOURCE_TYPES,
+  type CampaignExport,
+} from '../../../server/services/campaign-export'
 import { campaigns } from '../../../server/db/schema/campaigns'
 import { entities } from '../../../server/db/schema/entities'
 import { user } from '../../../server/db/schema/auth'
@@ -55,7 +64,7 @@ afterEach(() => {
 describe('buildCampaignExport - envelope fields (task 7.1)', () => {
   it('returns correct envelope fields', async () => {
     const result = await buildCampaignExport(testDb.db, { campaignId })
-    expect(result.version).toBe('1.0')
+    expect(result.version).toBe('1.1')
     expect(result.generator).toBe('aleph')
     expect(result.exportedAt).toBeTruthy()
     expect(new Date(result.exportedAt).toISOString()).toBe(result.exportedAt)
@@ -302,5 +311,115 @@ describe('buildCampaignExport - data correctness', () => {
 
     const result = await buildCampaignExport(testDb.db, { campaignId })
     expect(result.entities).toHaveLength(0)
+  })
+})
+
+// ─── collectImageUrls ─────────────────────────────────────────────────────────
+
+describe('collectImageUrls', () => {
+  it('collects imageUrl from entities', () => {
+    const data: Partial<CampaignExport> = {
+      entities: [{ imageUrl: '/api/campaigns/c1/images/ent.png' }],
+    }
+    expect(collectImageUrls(data as CampaignExport)).toContain('/api/campaigns/c1/images/ent.png')
+  })
+
+  it('collects portraitUrl from characters', () => {
+    const data: Partial<CampaignExport> = {
+      characters: [{ portraitUrl: '/api/campaigns/c1/images/char.png' }],
+    }
+    expect(collectImageUrls(data as CampaignExport)).toContain('/api/campaigns/c1/images/char.png')
+  })
+
+  it('collects imageUrl from sessionGroups', () => {
+    const data: Partial<CampaignExport> = {
+      sessionGroups: [{ imageUrl: '/api/campaigns/c1/images/sg.png' }],
+    }
+    expect(collectImageUrls(data as CampaignExport)).toContain('/api/campaigns/c1/images/sg.png')
+  })
+
+  it('collects imagePath from maps', () => {
+    const data: Partial<CampaignExport> = {
+      maps: [{ imagePath: '/api/campaigns/c1/images/map.png' }],
+    }
+    expect(collectImageUrls(data as CampaignExport)).toContain('/api/campaigns/c1/images/map.png')
+  })
+
+  it('collects imagePath from items', () => {
+    const data: Partial<CampaignExport> = {
+      items: [{ imagePath: '/api/campaigns/c1/images/item.png' }],
+    }
+    expect(collectImageUrls(data as CampaignExport)).toContain('/api/campaigns/c1/images/item.png')
+  })
+
+  it('deduplicates URLs appearing in multiple resources', () => {
+    const url = '/api/campaigns/c1/images/shared.png'
+    const data: Partial<CampaignExport> = {
+      entities: [{ imageUrl: url }],
+      maps: [{ imagePath: url }],
+    }
+    const result = collectImageUrls(data as CampaignExport)
+    expect(result.filter((u) => u === url)).toHaveLength(1)
+  })
+
+  it('ignores null / undefined image fields', () => {
+    const data: Partial<CampaignExport> = {
+      entities: [{ imageUrl: null }, { imageUrl: undefined }],
+      characters: [{ portraitUrl: null }],
+    }
+    expect(collectImageUrls(data as CampaignExport)).toHaveLength(0)
+  })
+
+  it('returns empty array when all arrays are empty', () => {
+    const data: Partial<CampaignExport> = {
+      entities: [],
+      characters: [],
+      sessionGroups: [],
+      maps: [],
+      items: [],
+    }
+    expect(collectImageUrls(data as CampaignExport)).toHaveLength(0)
+  })
+})
+
+// ─── embedImages ──────────────────────────────────────────────────────────────
+
+describe('embedImages', () => {
+  let tmpDir: string
+
+  beforeEach(() => {
+    tmpDir = join(tmpdir(), `aleph-test-${randomUUID()}`)
+    mkdirSync(join(tmpDir, 'images'), { recursive: true })
+  })
+
+  afterEach(() => {
+    rmSync(tmpDir, { recursive: true, force: true })
+  })
+
+  it('reads a file and returns a base64 data URI', () => {
+    writeFileSync(join(tmpDir, 'images', 'hero.png'), Buffer.from([0x89, 0x50, 0x4e, 0x47]))
+    const url = '/api/campaigns/c1/images/hero.png'
+    const result = embedImages([url], tmpDir)
+    expect(result[url]).toMatch(/^data:image\/png;base64,/)
+  })
+
+  it('silently skips a missing file', () => {
+    const url = '/api/campaigns/c1/images/missing.png'
+    const result = embedImages([url], tmpDir)
+    expect(result[url]).toBeUndefined()
+  })
+
+  it('returns empty object for empty url list', () => {
+    expect(embedImages([], tmpDir)).toEqual({})
+  })
+
+  it('produces a valid base64 round-trip', () => {
+    const original = Buffer.from('hello image')
+    writeFileSync(join(tmpDir, 'images', 'test.png'), original)
+    const url = '/api/campaigns/c1/images/test.png'
+    const result = embedImages([url], tmpDir)
+    const dataUri = result[url]!
+    const b64 = dataUri.replace(/^data:[^;]+;base64,/, '')
+    expect(Buffer.from(b64, 'base64').toString()).toBe('hello image')
   })
 })

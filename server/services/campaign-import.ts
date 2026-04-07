@@ -19,8 +19,8 @@ import {
   organizationLocations,
 } from '../db/schema/organizations'
 import type { CampaignExport } from './campaign-export'
-import { join } from 'path'
-import { mkdirSync } from 'fs'
+import { join, resolve } from 'path'
+import { mkdirSync, writeFileSync } from 'fs'
 
 export interface CampaignImportOptions {
   payload: CampaignExport
@@ -32,6 +32,88 @@ export interface CampaignImportResult {
   id: string
   name: string
   slug: string
+}
+
+// ─── Image restoration helpers ────────────────────────────────────────────────
+
+const MIME_TO_EXT: Record<string, string> = {
+  'image/png': 'png',
+  'image/jpeg': 'jpg',
+  'image/webp': 'webp',
+  'image/gif': 'gif',
+}
+
+/**
+ * Decode each base64 data URI from the images map, write the file to the correct
+ * location in the new campaign's content directory, and return a map of old URL → new URL.
+ *
+ * Three URL patterns are handled:
+ *   /api/campaigns/{id}/images/{filename}         → contentDir/images/{filename}
+ *   /api/campaigns/{id}/entities/{slug}/image     → contentDir/entities/{slug}/image.{ext}
+ *   /api/campaigns/{id}/characters/{slug}/portrait → contentDir/characters/{slug}/portrait.{ext}
+ */
+export function extractAndWriteImages(
+  images: Record<string, string>,
+  newContentDir: string,
+  newCampaignId: string,
+): Map<string, string> {
+  const urlMap = new Map<string, string>()
+
+  for (const [oldUrl, dataUri] of Object.entries(images)) {
+    const match = dataUri.match(/^data:([^;]+);base64,(.+)$/)
+    if (!match) continue
+    const mime = match[1]!
+    const base64Data = match[2]!
+    const ext = MIME_TO_EXT[mime] ?? 'png'
+    const fileData = Buffer.from(base64Data, 'base64')
+
+    // Pattern: /api/campaigns/{id}/images/{filename}
+    const imagesMatch = oldUrl.match(/\/api\/campaigns\/[^/]+\/images\/([^/?]+)$/)
+    if (imagesMatch) {
+      const filename = imagesMatch[1]!
+      const dir = resolve(newContentDir, 'images')
+      mkdirSync(dir, { recursive: true })
+      writeFileSync(join(dir, filename), fileData)
+      urlMap.set(oldUrl, `/api/campaigns/${newCampaignId}/images/${filename}`)
+      continue
+    }
+
+    // Pattern: /api/campaigns/{id}/entities/{slug}/image
+    const entityMatch = oldUrl.match(/\/api\/campaigns\/[^/]+\/entities\/([^/]+)\/image$/)
+    if (entityMatch) {
+      const slug = entityMatch[1]!
+      const dir = resolve(newContentDir, 'entities', slug)
+      mkdirSync(dir, { recursive: true })
+      writeFileSync(join(dir, `image.${ext}`), fileData)
+      urlMap.set(oldUrl, `/api/campaigns/${newCampaignId}/entities/${slug}/image`)
+      continue
+    }
+
+    // Pattern: /api/campaigns/{id}/characters/{slug}/portrait
+    const portraitMatch = oldUrl.match(/\/api\/campaigns\/[^/]+\/characters\/([^/]+)\/portrait$/)
+    if (portraitMatch) {
+      const slug = portraitMatch[1]!
+      const dir = resolve(newContentDir, 'characters', slug)
+      mkdirSync(dir, { recursive: true })
+      writeFileSync(join(dir, `portrait.${ext}`), fileData)
+      urlMap.set(oldUrl, `/api/campaigns/${newCampaignId}/characters/${slug}/portrait`)
+      continue
+    }
+  }
+
+  return urlMap
+}
+
+/**
+ * Rewrite an image URL using the old→new URL map. Returns the mapped URL,
+ * or the original value if not in the map, or null if the input is nullish.
+ */
+export function rewriteImageUrl(
+  oldUrl: string | null | undefined,
+  urlMap: Map<string, string>,
+): string | null {
+  if (!oldUrl) return null
+  return urlMap.get(oldUrl) ?? oldUrl
 }
 
 function remap(idMap: Map<string, string>, oldId: string | null | undefined): string | null {
@@ -167,6 +249,12 @@ export function importCampaign(
     // 1. Create content directory
     mkdirSync(join(process.cwd(), contentDir), { recursive: true })
 
+    // 1b. Extract and write embedded images (v1.1 exports only)
+    const imageUrlMap =
+      payload.images && Object.keys(payload.images).length > 0
+        ? extractAndWriteImages(payload.images, contentDir, newCampaignId)
+        : new Map<string, string>()
+
     // 2. Campaign
     db.insert(campaigns)
       .values({
@@ -266,7 +354,7 @@ export function importCampaign(
           filePath: e.filePath as string,
           visibility: (e.visibility as string) ?? 'members',
           contentHash: (e.contentHash as string) ?? null,
-          imageUrl: (e.imageUrl as string) ?? null,
+          imageUrl: rewriteImageUrl(e.imageUrl as string, imageUrlMap),
           parentId: remap(idMap, e.parentId as string),
           templateId: remap(idMap, e.templateId as string),
           createdBy: importingUserId,
@@ -292,7 +380,7 @@ export function importCampaign(
           ownerUserId: null, // user IDs don't transfer
           isCompanionOf: remap(idMap, c.isCompanionOf as string),
           folderId: null,
-          portraitUrl: (c.portraitUrl as string) ?? null,
+          portraitUrl: rewriteImageUrl(c.portraitUrl as string, imageUrlMap),
         })
         .run()
     }
@@ -307,7 +395,7 @@ export function importCampaign(
           name: g.name as string,
           slug: g.slug as string,
           description: (g.description as string) ?? null,
-          imageUrl: (g.imageUrl as string) ?? null,
+          imageUrl: rewriteImageUrl(g.imageUrl as string, imageUrlMap),
           sortOrder: (g.sortOrder as number) ?? 0,
           createdAt: now,
           updatedAt: now,
@@ -401,7 +489,7 @@ export function importCampaign(
           name: m.name as string,
           slug: m.slug as string,
           parentMapId: remap(idMap, m.parentMapId as string),
-          imagePath: (m.imagePath as string) ?? null,
+          imagePath: rewriteImageUrl(m.imagePath as string, imageUrlMap),
           width: (m.width as number) ?? null,
           height: (m.height as number) ?? null,
           minZoom: (m.minZoom as number) ?? 0,
@@ -518,7 +606,7 @@ export function importCampaign(
           size: (it.size as string) ?? null,
           rarity: (it.rarity as string) ?? 'common',
           type: (it.type as string) ?? null,
-          imagePath: (it.imagePath as string) ?? null,
+          imagePath: rewriteImageUrl(it.imagePath as string, imageUrlMap),
           propertiesJson: (it.propertiesJson as string) ?? null,
           stackable: (it.stackable as boolean) ?? true,
           entityId: remap(idMap, it.entityId as string),

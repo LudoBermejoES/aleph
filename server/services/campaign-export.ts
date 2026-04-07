@@ -1,4 +1,6 @@
 import { eq } from 'drizzle-orm'
+import { readFileSync, existsSync } from 'fs'
+import { resolve } from 'path'
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 import { campaigns } from '../db/schema/campaigns'
 import { entities, entityTemplates, entityTemplateFields, tags } from '../db/schema/entities'
@@ -54,6 +56,7 @@ export interface CampaignExport {
   organizations?: unknown[]
   organizationMembers?: unknown[]
   organizationLocations?: unknown[]
+  images?: Record<string, string>
 }
 
 export const VALID_RESOURCE_TYPES = new Set([
@@ -85,6 +88,107 @@ export const VALID_RESOURCE_TYPES = new Set([
   'organizationLocations',
 ])
 
+// ─── Image embedding helpers ──────────────────────────────────────────────────
+
+const MIME_BY_EXT: Record<string, string> = {
+  png: 'image/png',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  webp: 'image/webp',
+  gif: 'image/gif',
+}
+
+/**
+ * Collect all unique non-null image URL strings from the known image-bearing
+ * fields across all resource types in the export.
+ */
+export function collectImageUrls(exportData: CampaignExport): string[] {
+  const seen = new Set<string>()
+  function add(url: unknown) {
+    if (typeof url === 'string' && url) seen.add(url)
+  }
+  for (const r of exportData.entities ?? []) add((r as Record<string, unknown>).imageUrl)
+  for (const r of exportData.characters ?? []) add((r as Record<string, unknown>).portraitUrl)
+  for (const r of exportData.sessionGroups ?? []) add((r as Record<string, unknown>).imageUrl)
+  for (const r of exportData.maps ?? []) add((r as Record<string, unknown>).imagePath)
+  for (const r of exportData.items ?? []) add((r as Record<string, unknown>).imagePath)
+  return Array.from(seen)
+}
+
+/**
+ * Resolve an image URL to a filesystem path inside contentDir.
+ *
+ * Three URL patterns are supported:
+ *   /api/campaigns/{id}/images/{uuid}.{ext}          → contentDir/images/{uuid}.{ext}
+ *   /api/campaigns/{id}/entities/{slug}/image        → contentDir/entities/{slug}/image.{ext} (try extensions)
+ *   /api/campaigns/{id}/characters/{slug}/portrait   → contentDir/characters/{slug}/portrait.{ext} (try extensions)
+ *
+ * Returns { filePath, mime } for the first existing file, or null if not found.
+ */
+function resolveImageFile(
+  url: string,
+  contentDir: string,
+): { filePath: string; mime: string } | null {
+  const IMAGE_EXTS = ['png', 'jpg', 'jpeg', 'webp', 'gif']
+
+  // Pattern: /api/campaigns/{id}/images/{filename}
+  const imagesMatch = url.match(/\/api\/campaigns\/[^/]+\/images\/([^/?]+)$/)
+  if (imagesMatch) {
+    const filename = imagesMatch[1]!
+    const ext = filename.split('.').pop()?.toLowerCase() ?? ''
+    const mime = MIME_BY_EXT[ext] ?? 'application/octet-stream'
+    const filePath = resolve(contentDir, 'images', filename)
+    return existsSync(filePath) ? { filePath, mime } : null
+  }
+
+  // Pattern: /api/campaigns/{id}/entities/{slug}/image
+  const entityMatch = url.match(/\/api\/campaigns\/[^/]+\/entities\/([^/]+)\/image$/)
+  if (entityMatch) {
+    const slug = entityMatch[1]!
+    for (const ext of IMAGE_EXTS) {
+      const filePath = resolve(contentDir, 'entities', slug, `image.${ext}`)
+      if (existsSync(filePath)) {
+        return { filePath, mime: MIME_BY_EXT[ext] ?? 'image/png' }
+      }
+    }
+    return null
+  }
+
+  // Pattern: /api/campaigns/{id}/characters/{slug}/portrait
+  const portraitMatch = url.match(/\/api\/campaigns\/[^/]+\/characters\/([^/]+)\/portrait$/)
+  if (portraitMatch) {
+    const slug = portraitMatch[1]!
+    for (const ext of IMAGE_EXTS) {
+      const filePath = resolve(contentDir, 'characters', slug, `portrait.${ext}`)
+      if (existsSync(filePath)) {
+        return { filePath, mime: MIME_BY_EXT[ext] ?? 'image/png' }
+      }
+    }
+    return null
+  }
+
+  return null
+}
+
+/**
+ * Given a list of image URLs and the campaign's content directory, read each
+ * file and return a map of url → base64 data URI. Missing files are silently skipped.
+ */
+export function embedImages(urls: string[], contentDir: string): Record<string, string> {
+  const result: Record<string, string> = {}
+  for (const url of urls) {
+    const resolved = resolveImageFile(url, contentDir)
+    if (!resolved) continue
+    try {
+      const data = readFileSync(resolved.filePath)
+      result[url] = `data:${resolved.mime};base64,${data.toString('base64')}`
+    } catch {
+      // silently skip unreadable files
+    }
+  }
+  return result
+}
+
 function shouldInclude(key: string, include?: string[]): boolean {
   if (!include) return true
   return include.includes(key)
@@ -100,7 +204,7 @@ export async function buildCampaignExport(
   if (!campaign) throw new Error(`Campaign not found: ${campaignId}`)
 
   const result: CampaignExport = {
-    version: '1.0',
+    version: '1.1',
     exportedAt: new Date().toISOString(),
     generator: 'aleph',
     campaign: campaign as Record<string, unknown>,
@@ -312,6 +416,11 @@ export async function buildCampaignExport(
         : []
     }
   }
+
+  // Embed images: collect all referenced URLs and read from disk
+  const contentDir = (campaign as Record<string, unknown>).contentDir as string
+  const imageUrls = collectImageUrls(result)
+  result.images = embedImages(imageUrls, contentDir)
 
   return result
 }

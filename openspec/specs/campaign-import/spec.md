@@ -47,11 +47,21 @@ The system SHALL accept a valid Aleph campaign export JSON via `POST /api/campai
 
 ### Requirement: Import Version Validation
 
-The system SHALL reject import payloads that do not conform to the supported export format version.
+The system SHALL reject import payloads that do not conform to the supported export format versions.
+
+#### Scenario: Version 1.0 is accepted
+
+- **WHEN** an authenticated user sends `POST /api/campaigns/import` with `version: "1.0"`
+- **THEN** the response status is 201
+
+#### Scenario: Version 1.1 is accepted
+
+- **WHEN** an authenticated user sends `POST /api/campaigns/import` with `version: "1.1"`
+- **THEN** the response status is 201
 
 #### Scenario: Unsupported version is rejected
 
-- **WHEN** an authenticated user sends `POST /api/campaigns/import` with a JSON body where `version` is not `"1.0"`
+- **WHEN** an authenticated user sends `POST /api/campaigns/import` with a `version` that is not `"1.0"` or `"1.1"`
 - **THEN** the response status is 422
 - **AND** the response body contains a message indicating the unsupported version
 
@@ -59,6 +69,20 @@ The system SHALL reject import payloads that do not conform to the supported exp
 
 - **WHEN** an authenticated user sends `POST /api/campaigns/import` with a JSON body that has no `version` field
 - **THEN** the response status is 422
+
+#### Scenario: Image URL fields are rewritten on import of v1.1 exports
+
+- **WHEN** a user imports a `"1.1"` export containing embedded images
+- **THEN** entity `imageUrl` fields in the imported records reference `/api/campaigns/{newId}/images/{filename}`
+- **AND** character `portraitUrl` fields are rewritten similarly
+- **AND** sessionGroup, map, mapLayer, and item image fields are rewritten similarly
+
+#### Scenario: 1.0 export imports successfully without image restoration
+
+- **WHEN** a user imports a `"1.0"` export (no `images` key)
+- **THEN** the import succeeds with status 201
+- **AND** image URL fields in the imported records retain their original values
+- **AND** no error is returned
 
 #### Scenario: Missing campaign envelope is rejected
 

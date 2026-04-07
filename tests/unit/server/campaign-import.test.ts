@@ -1,13 +1,16 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { randomUUID } from 'crypto'
-import { readFileSync } from 'fs'
-import { resolve, dirname } from 'path'
+import { readFileSync, existsSync, rmSync } from 'fs'
+import { join, resolve, dirname } from 'path'
+import { tmpdir } from 'os'
 import { fileURLToPath } from 'url'
 import { createTestDb, type TestDb } from '../../helpers/db'
 import {
   buildIdMap,
   resolveImportName,
   importCampaign,
+  extractAndWriteImages,
+  rewriteImageUrl,
 } from '../../../server/services/campaign-import'
 import type { CampaignExport } from '../../../server/services/campaign-export'
 import { campaigns } from '../../../server/db/schema/campaigns'
@@ -508,6 +511,89 @@ describe('importCampaign - organizations', () => {
     const idMap = buildIdMap(payload)
     expect(idMap.has(oldOrgId)).toBe(true)
     expect(idMap.get(oldOrgId)).not.toBe(oldOrgId)
+  })
+})
+
+// ─── extractAndWriteImages ────────────────────────────────────────────────────
+
+describe('extractAndWriteImages', () => {
+  let tmpContentDir: string
+  const newCampaignId = randomUUID()
+
+  beforeEach(() => {
+    tmpContentDir = join(tmpdir(), `aleph-test-${randomUUID()}`)
+  })
+
+  afterEach(() => {
+    rmSync(tmpContentDir, { recursive: true, force: true })
+  })
+
+  it('writes a decoded image file to the new content dir', () => {
+    const data = Buffer.from('fake-png-data')
+    const dataUri = `data:image/png;base64,${data.toString('base64')}`
+    const oldUrl = `/api/campaigns/old-id/images/hero.png`
+    const urlMap = extractAndWriteImages({ [oldUrl]: dataUri }, tmpContentDir, newCampaignId)
+
+    const writtenPath = join(tmpContentDir, 'images', 'hero.png')
+    expect(existsSync(writtenPath)).toBe(true)
+    expect(readFileSync(writtenPath).toString()).toBe('fake-png-data')
+    expect(urlMap.get(oldUrl)).toBe(`/api/campaigns/${newCampaignId}/images/hero.png`)
+  })
+
+  it('returns a map from old URL to new URL', () => {
+    const data = Buffer.from('x')
+    const dataUri = `data:image/png;base64,${data.toString('base64')}`
+    const oldUrl = `/api/campaigns/old/images/portrait.png`
+    const urlMap = extractAndWriteImages({ [oldUrl]: dataUri }, tmpContentDir, newCampaignId)
+
+    expect(urlMap.size).toBe(1)
+    expect(urlMap.get(oldUrl)).toContain(newCampaignId)
+    expect(urlMap.get(oldUrl)).toContain('portrait.png')
+  })
+
+  it('skips entries with invalid data URI format', () => {
+    const oldUrl = `/api/campaigns/old/images/bad.png`
+    const urlMap = extractAndWriteImages(
+      { [oldUrl]: 'not-a-data-uri' },
+      tmpContentDir,
+      newCampaignId,
+    )
+    expect(urlMap.size).toBe(0)
+  })
+
+  it('returns empty map for empty images object', () => {
+    const urlMap = extractAndWriteImages({}, tmpContentDir, newCampaignId)
+    expect(urlMap.size).toBe(0)
+  })
+})
+
+// ─── rewriteImageUrl ─────────────────────────────────────────────────────────
+
+describe('rewriteImageUrl', () => {
+  it('returns mapped new URL when key is in the map', () => {
+    const urlMap = new Map([['/api/campaigns/old/images/a.png', '/api/campaigns/new/images/a.png']])
+    expect(rewriteImageUrl('/api/campaigns/old/images/a.png', urlMap)).toBe(
+      '/api/campaigns/new/images/a.png',
+    )
+  })
+
+  it('passes through unknown URL unchanged', () => {
+    const urlMap = new Map<string, string>()
+    expect(rewriteImageUrl('/api/campaigns/old/images/x.png', urlMap)).toBe(
+      '/api/campaigns/old/images/x.png',
+    )
+  })
+
+  it('returns null for null input', () => {
+    expect(rewriteImageUrl(null, new Map())).toBeNull()
+  })
+
+  it('returns null for undefined input', () => {
+    expect(rewriteImageUrl(undefined, new Map())).toBeNull()
+  })
+
+  it('returns null for empty string input', () => {
+    expect(rewriteImageUrl('', new Map())).toBeNull()
   })
 })
 

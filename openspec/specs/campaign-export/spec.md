@@ -10,10 +10,11 @@ The system SHALL export all campaign data as a single JSON file via an API endpo
 - WHEN the user sends `GET /api/campaigns/:id/export`
 - THEN the response has `Content-Type: application/json`
 - AND the response has a `Content-Disposition` header with a filename containing the campaign slug and date
-- AND the JSON body contains a `version` field set to `"1.0"`
+- AND the JSON body contains a `version` field set to `"1.1"`
 - AND the JSON body contains an `exportedAt` ISO timestamp
 - AND the JSON body contains a `campaign` object with the campaign metadata
 - AND the JSON body contains arrays for all resource types (`entities`, `characters`, `sessions`, `locations`, `organizations`, etc.)
+- AND the JSON body contains a top-level `images` object (may be empty)
 
 ### Scenario: Export includes all resource types
 
