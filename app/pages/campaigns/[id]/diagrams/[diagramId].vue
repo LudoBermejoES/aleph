@@ -54,6 +54,17 @@
             {{ $t('diagrams.addRelationship') }}
           </Button>
 
+          <!-- Expand related entities button (org/location only) -->
+          <Button
+            v-if="selectedEntityType === 'organization' || selectedEntityType === 'location'"
+            size="sm"
+            variant="outline"
+            data-testid="expand-entity-btn"
+            @click="expandRelatedEntities"
+          >
+            {{ $t('diagrams.expand') }}
+          </Button>
+
           <!-- Sync Relations button -->
           <Button
             size="sm"
@@ -165,6 +176,7 @@ import EntityPanel from '~/components/diagrams/EntityPanel.vue'
 import EntityPopover from '~/components/diagrams/EntityPopover.vue'
 import MapModal from '~/components/diagrams/MapModal.vue'
 import RelationshipDialog from '~/components/diagrams/RelationshipDialog.vue'
+import { radialLayout } from '~/utils/diagram-layout'
 
 definePageMeta({ layout: 'empty' })
 
@@ -345,6 +357,137 @@ function onRelationshipCreated() {
 
 function onFocusEntity(entityId: string) {
   canvasRef.value?.focusEntity(entityId)
+}
+
+async function expandRelatedEntities() {
+  const ed = editorInstance as {
+    getCurrentPageShapes: () => { id: string; type: string; props?: Record<string, unknown> }[]
+    createShape: (shape: Record<string, unknown>) => unknown
+    getShape: (id: string) => { x: number; y: number } | undefined
+  } | null
+  if (!ed || !selectedEntityId.value) return
+
+  // Find the selected shape to get its position
+  let centerX = 400
+  let centerY = 400
+  for (const shape of ed.getCurrentPageShapes()) {
+    if (shape.props?.entityId === selectedEntityId.value) {
+      const full = ed.getShape(shape.id)
+      if (full) {
+        centerX = full.x
+        centerY = full.y
+      }
+      break
+    }
+  }
+
+  // Fetch graph data
+  let graphData: {
+    nodes: Record<string, { name: string; type: string; slug: string; image?: string | null }>
+    edges: Record<string, { source: string; target: string }>
+  }
+  try {
+    graphData = await $fetch(`/api/campaigns/${campaignId}/graph`)
+  } catch {
+    return
+  }
+
+  // Collect entity IDs already on canvas
+  const onCanvas = new Set<string>()
+  for (const shape of ed.getCurrentPageShapes()) {
+    if (shape.props?.entityId) onCanvas.add(shape.props.entityId as string)
+  }
+
+  // Find related entity IDs based on type
+  const relatedIds: string[] = []
+  const entityId = selectedEntityId.value
+  const entityType = selectedEntityType.value
+
+  for (const [key, edge] of Object.entries(graphData.edges)) {
+    if (entityType === 'organization') {
+      // org-member: org is source → target is character entity
+      // org-location: org is source → target is location entity
+      if (
+        (key.startsWith('org-member:') || key.startsWith('org-location:')) &&
+        edge.source === entityId
+      ) {
+        if (!onCanvas.has(edge.target)) relatedIds.push(edge.target)
+      }
+    } else if (entityType === 'location') {
+      // char-location: character is source → location is target
+      if (key.startsWith('char-location:') && edge.target === entityId) {
+        if (!onCanvas.has(edge.source)) relatedIds.push(edge.source)
+      }
+      // org-location: org is source → location is target
+      if (key.startsWith('org-location:') && edge.target === entityId) {
+        if (!onCanvas.has(edge.source)) relatedIds.push(edge.source)
+      }
+    }
+  }
+
+  if (relatedIds.length === 0) {
+    syncRelations()
+    return
+  }
+
+  // Compute positions
+  const positions = radialLayout(centerX, centerY, relatedIds.length, 250)
+
+  // Create shapes
+  for (let i = 0; i < relatedIds.length; i++) {
+    const id = relatedIds[i]!
+    const node = graphData.nodes[id]
+    if (!node) continue
+    const pos = positions[i]!
+
+    const nodeType = node.type
+    if (nodeType === 'character') {
+      ed.createShape({
+        type: 'npcToken',
+        x: pos.x - 70,
+        y: pos.y - 80,
+        props: {
+          w: 140,
+          h: 160,
+          entityId: id,
+          campaignId,
+          slug: node.slug,
+          characterName: node.name,
+          portraitUrl: node.image ?? undefined,
+        },
+      })
+    } else if (nodeType === 'location') {
+      ed.createShape({
+        type: 'locationPin',
+        x: pos.x - 90,
+        y: pos.y - 30,
+        props: {
+          w: 180,
+          h: 60,
+          entityId: id,
+          campaignId,
+          slug: node.slug,
+          locationName: node.name,
+        },
+      })
+    } else if (nodeType === 'organization') {
+      ed.createShape({
+        type: 'factionCard',
+        x: pos.x - 90,
+        y: pos.y - 50,
+        props: {
+          w: 180,
+          h: 100,
+          entityId: id,
+          campaignId,
+          slug: node.slug,
+          factionName: node.name,
+        },
+      })
+    }
+  }
+
+  syncRelations()
 }
 
 function onCanvasDrop(event: DragEvent, editor: unknown) {

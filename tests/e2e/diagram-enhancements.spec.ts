@@ -239,3 +239,24 @@ test.describe('Diagram enhancements — add relationship button (feat)', () => {
     await expect(addRelBtn).not.toBeVisible()
   })
 })
+
+test.describe('Diagram enhancements — expand button (feat)', () => {
+  test('expand button hidden when no entity selected', async ({ page }) => {
+    await registerAndLogin(page, `Expand ${uid()}`)
+    await createCampaign(page, `Expand Camp ${uid()}`)
+    const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
+
+    const diagram = (await apiFetch(page, `/api/campaigns/${campaignId}/diagrams`, {
+      method: 'POST',
+      body: { title: 'Expand Test', diagramType: 'freeform' },
+    })) as { id: string }
+
+    await page.goto(`/campaigns/${campaignId}/diagrams/${diagram.id}`)
+    await page.waitForLoadState('networkidle')
+    await page.waitForSelector('.tldraw-wrapper', { timeout: 10000 })
+
+    // Expand button should not be visible when nothing is selected
+    const expandBtn = page.locator('[data-testid="expand-entity-btn"]')
+    await expect(expandBtn).not.toBeVisible()
+  })
+})

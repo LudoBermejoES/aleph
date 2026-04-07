@@ -955,6 +955,7 @@
     "reflow": "Reflow",
     "syncRelations": "Sync Relations",
     "addRelationship": "Add Relationship",
+    "expand": "Expand",
     "relationship": {
       "title": "Add Relationship",
       "source": "From",
