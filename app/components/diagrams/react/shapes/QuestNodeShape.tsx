@@ -48,15 +48,17 @@ export class QuestNodeShapeUtil extends BaseBoxShapeUtil<QuestNodeShape> {
   }
 
   override onDoubleClick = (shape: QuestNodeShape) => {
-    window.dispatchEvent(new CustomEvent('aleph:entity-preview', {
-      detail: {
-        entityId: shape.props.entityId,
-        campaignId: shape.props.campaignId,
-        slug: shape.props.slug,
-        x: 200,
-        y: 200,
-      }
-    }))
+    window.dispatchEvent(
+      new CustomEvent('aleph:entity-preview', {
+        detail: {
+          entityId: shape.props.entityId,
+          campaignId: shape.props.campaignId,
+          slug: shape.props.slug,
+          x: 200,
+          y: 200,
+        },
+      }),
+    )
   }
 
   override component(shape: QuestNodeShape) {

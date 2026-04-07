@@ -38,15 +38,17 @@ export class LocationPinShapeUtil extends BaseBoxShapeUtil<LocationPinShape> {
   }
 
   override onDoubleClick = (shape: LocationPinShape) => {
-    window.dispatchEvent(new CustomEvent('aleph:entity-preview', {
-      detail: {
-        entityId: shape.props.entityId,
-        campaignId: shape.props.campaignId,
-        slug: shape.props.slug,
-        x: 200,
-        y: 200,
-      }
-    }))
+    window.dispatchEvent(
+      new CustomEvent('aleph:entity-preview', {
+        detail: {
+          entityId: shape.props.entityId,
+          campaignId: shape.props.campaignId,
+          slug: shape.props.slug,
+          x: 200,
+          y: 200,
+        },
+      }),
+    )
   }
 
   override component(shape: LocationPinShape) {

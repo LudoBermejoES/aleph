@@ -101,7 +101,7 @@
       </div>
     </div>
 
-    <slot name="extra-fields" ></slot>
+    <slot name="extra-fields"></slot>
 
     <div>
       <label class="text-sm font-medium">{{ $t('entities.content') }}</label>
@@ -119,7 +119,7 @@
     </div>
 
     <div class="flex justify-end gap-2">
-      <slot name="cancel" ></slot>
+      <slot name="cancel"></slot>
       <Button type="submit" :disabled="submitting">{{
         submitting ? $t('common.saving') : submitLabel
       }}</Button>

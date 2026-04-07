@@ -29,7 +29,7 @@ const STATUS_COLORS: Record<string, string> = {
 function hashColor(str: string): string {
   const colors = ['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#3b82f6']
   let h = 5381
-  for (const c of str) h = ((h << 5) + h) + c.charCodeAt(0)
+  for (const c of str) h = (h << 5) + h + c.charCodeAt(0)
   return colors[Math.abs(h) % colors.length]!
 }
 
@@ -82,15 +82,17 @@ export class NPCTokenShapeUtil extends BaseBoxShapeUtil<NPCTokenShape> {
   }
 
   override onDoubleClick = (shape: NPCTokenShape) => {
-    window.dispatchEvent(new CustomEvent('aleph:entity-preview', {
-      detail: {
-        entityId: shape.props.entityId,
-        campaignId: shape.props.campaignId,
-        slug: shape.props.slug,
-        x: 200,
-        y: 200,
-      }
-    }))
+    window.dispatchEvent(
+      new CustomEvent('aleph:entity-preview', {
+        detail: {
+          entityId: shape.props.entityId,
+          campaignId: shape.props.campaignId,
+          slug: shape.props.slug,
+          x: 200,
+          y: 200,
+        },
+      }),
+    )
   }
 
   override component(shape: NPCTokenShape) {
@@ -114,7 +116,9 @@ function NPCTokenComponent({ shape }: { shape: NPCTokenShape }) {
   const nameRowHeight = 18
   const imgSize = Math.min(shape.props.w, shape.props.h - nameRowHeight - tagsRowHeight - 12)
 
-  const statusColor = shape.props.statusBadge ? (STATUS_COLORS[shape.props.statusBadge] ?? '#9ca3af') : null
+  const statusColor = shape.props.statusBadge
+    ? (STATUS_COLORS[shape.props.statusBadge] ?? '#9ca3af')
+    : null
 
   return (
     <HTMLContainer>

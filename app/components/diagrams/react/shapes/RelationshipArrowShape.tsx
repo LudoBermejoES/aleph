@@ -13,14 +13,14 @@ export type RelationshipArrowShape = TLBaseShape<
 >
 
 const REL_STYLES: Record<string, { color: string; dasharray?: string; noArrow?: boolean }> = {
-  ally:    { color: '#22c55e', dasharray: '6 3' },
-  enemy:   { color: '#ef4444' },
-  family:  { color: '#3b82f6', noArrow: true },
-  serves:  { color: '#8b5cf6' },
-  hunts:   { color: '#f97316' },
-  knows:   { color: '#6b7280', dasharray: '2 3' },
-  rival:   { color: '#ef4444', dasharray: '6 3' },
-  custom:  { color: '#9ca3af' },
+  ally: { color: '#22c55e', dasharray: '6 3' },
+  enemy: { color: '#ef4444' },
+  family: { color: '#3b82f6', noArrow: true },
+  serves: { color: '#8b5cf6' },
+  hunts: { color: '#f97316' },
+  knows: { color: '#6b7280', dasharray: '2 3' },
+  rival: { color: '#ef4444', dasharray: '6 3' },
+  custom: { color: '#9ca3af' },
 }
 
 export class RelationshipArrowShapeUtil extends BaseBoxShapeUtil<RelationshipArrowShape> {
@@ -59,11 +59,7 @@ export class RelationshipArrowShapeUtil extends BaseBoxShapeUtil<RelationshipArr
 
     return (
       <HTMLContainer>
-        <svg
-          width={w}
-          height={h}
-          style={{ overflow: 'visible', pointerEvents: 'none' }}
-        >
+        <svg width={w} height={h} style={{ overflow: 'visible', pointerEvents: 'none' }}>
           <defs>
             <marker
               id={markerId}
@@ -104,7 +100,9 @@ export class RelationshipArrowShapeUtil extends BaseBoxShapeUtil<RelationshipArr
             strokeWidth={2}
             strokeDasharray={style.dasharray}
             markerEnd={style.noArrow ? undefined : `url(#${markerId})`}
-            markerStart={shape.props.bidirectional && !style.noArrow ? `url(#${markerStartId})` : undefined}
+            markerStart={
+              shape.props.bidirectional && !style.noArrow ? `url(#${markerStartId})` : undefined
+            }
           />
 
           {/* Midpoint label */}

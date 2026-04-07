@@ -18,13 +18,19 @@ export type FactionCardShape = TLBaseShape<
 >
 
 const BANNER_COLORS = [
-  '#6366f1', '#8b5cf6', '#ec4899', '#f59e0b',
-  '#10b981', '#3b82f6', '#ef4444', '#14b8a6',
+  '#6366f1',
+  '#8b5cf6',
+  '#ec4899',
+  '#f59e0b',
+  '#10b981',
+  '#3b82f6',
+  '#ef4444',
+  '#14b8a6',
 ]
 
 function hashBannerColor(str: string): string {
   let h = 5381
-  for (const c of str) h = ((h << 5) + h) + c.charCodeAt(0)
+  for (const c of str) h = (h << 5) + h + c.charCodeAt(0)
   return BANNER_COLORS[Math.abs(h) % BANNER_COLORS.length]!
 }
 
@@ -70,15 +76,17 @@ export class FactionCardShapeUtil extends BaseBoxShapeUtil<FactionCardShape> {
   }
 
   override onDoubleClick = (shape: FactionCardShape) => {
-    window.dispatchEvent(new CustomEvent('aleph:entity-preview', {
-      detail: {
-        entityId: shape.props.entityId,
-        campaignId: shape.props.campaignId,
-        slug: shape.props.slug,
-        x: 200,
-        y: 200,
-      }
-    }))
+    window.dispatchEvent(
+      new CustomEvent('aleph:entity-preview', {
+        detail: {
+          entityId: shape.props.entityId,
+          campaignId: shape.props.campaignId,
+          slug: shape.props.slug,
+          x: 200,
+          y: 200,
+        },
+      }),
+    )
   }
 
   override component(shape: FactionCardShape) {
