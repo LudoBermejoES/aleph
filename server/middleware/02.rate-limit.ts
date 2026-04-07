@@ -15,10 +15,11 @@ export default defineEventHandler((event) => {
   const ip =
     getRequestHeader(event, 'x-forwarded-for')?.split(',')[0]?.trim() ||
     getRequestHeader(event, 'x-real-ip') ||
+    event.node.req.socket?.remoteAddress ||
     'unknown'
 
   // Skip rate limiting for localhost in test/dev environments
-  if (ip === '127.0.0.1' || ip === '::1' || ip === 'localhost') return
+  if (ip === '127.0.0.1' || ip === '::1' || ip === 'localhost' || ip === '::ffff:127.0.0.1') return
 
   let result
 

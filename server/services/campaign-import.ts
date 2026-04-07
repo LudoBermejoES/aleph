@@ -1,7 +1,9 @@
 import { randomUUID } from 'crypto'
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 import { eq } from 'drizzle-orm'
-import { unzipSync } from 'fflate'
+import { unzipSync, Unzip, UnzipInflate, UnzipPassThrough } from 'fflate'
+import type { IncomingMessage } from 'http'
+import type { Readable } from 'stream'
 import { campaigns } from '../db/schema/campaigns'
 import { campaignMembers } from '../db/schema/campaign-members'
 import { entityTypes } from '../db/schema/entity-types'
@@ -21,7 +23,8 @@ import {
 } from '../db/schema/organizations'
 import type { CampaignExport } from './campaign-export'
 import { join, resolve } from 'path'
-import { mkdirSync, writeFileSync } from 'fs'
+import { mkdirSync, writeFileSync, renameSync, rmSync } from 'fs'
+import { tmpdir } from 'os'
 
 export interface CampaignImportOptions {
   payload: CampaignExport
@@ -854,6 +857,198 @@ export function importCampaignFromZip(
   if (urlMap.size === 0) return result
 
   // Update image URL fields in the DB to rewrite old campaign URLs → new campaign URLs
+  for (const [oldUrl, newUrl] of urlMap) {
+    db.update(entities).set({ imageUrl: newUrl }).where(eq(entities.imageUrl, oldUrl)).run()
+    db.update(characters)
+      .set({ portraitUrl: newUrl })
+      .where(eq(characters.portraitUrl, oldUrl))
+      .run()
+    db.update(sessionGroups)
+      .set({ imageUrl: newUrl })
+      .where(eq(sessionGroups.imageUrl, oldUrl))
+      .run()
+    db.update(maps).set({ imagePath: newUrl }).where(eq(maps.imagePath, oldUrl)).run()
+    db.update(items).set({ imagePath: newUrl }).where(eq(items.imagePath, oldUrl)).run()
+  }
+
+  return result
+}
+
+/**
+ * Import a campaign from a v1.2 ZIP delivered as a Node.js Readable stream
+ * (e.g. from busboy). Images are written to a temp directory one chunk at a
+ * time — never fully buffered — then moved to the real content dir after the
+ * base import creates the campaign record.
+ *
+ * This avoids the ~1 GB peak memory spike of loading all image bytes at once.
+ */
+export async function importCampaignFromZipStream(
+  db: BetterSQLite3Database,
+  zipStream: Readable | IncomingMessage,
+  importingUserId: string,
+  nameOverride?: string,
+): Promise<CampaignImportResult> {
+  const tmpDir = join(tmpdir(), `aleph-import-${randomUUID()}`)
+  mkdirSync(tmpDir, { recursive: true })
+
+  // Collected small files
+  let campaignJsonBuf: Buffer | null = null
+  let imageMapJsonBuf: Buffer | null = null
+
+  // Stream the ZIP through fflate's Unzip, writing image files to tmpDir
+  await new Promise<void>((resolve, reject) => {
+    const unzipper = new Unzip()
+    unzipper.register(UnzipInflate)
+    unzipper.register(UnzipPassThrough)
+
+    unzipper.onfile = (file) => {
+      const name = file.name
+
+      if (name === 'campaign.json' || name === 'image-map.json') {
+        // Small JSON file — buffer entirely
+        const chunks: Buffer[] = []
+        file.ondata = (err, chunk, final) => {
+          if (err) {
+            reject(err)
+            return
+          }
+          chunks.push(Buffer.from(chunk))
+          if (final) {
+            const buf = Buffer.concat(chunks)
+            if (name === 'campaign.json') campaignJsonBuf = buf
+            else imageMapJsonBuf = buf
+          }
+        }
+        file.start()
+        return
+      }
+
+      if (name.startsWith('images/')) {
+        // Image file — write directly to temp dir, never buffer whole file
+        const safeName = name.replace(/\//g, '__')
+        const destPath = join(tmpDir, safeName)
+        const fileChunks: Buffer[] = []
+        file.ondata = (err, chunk, final) => {
+          if (err) {
+            reject(err)
+            return
+          }
+          fileChunks.push(Buffer.from(chunk))
+          if (final) {
+            try {
+              mkdirSync(tmpDir, { recursive: true })
+              writeFileSync(destPath, Buffer.concat(fileChunks))
+            } catch (e) {
+              reject(e)
+            }
+          }
+        }
+        file.start()
+        return
+      }
+
+      // Unknown entry — skip
+      file.ondata = () => {}
+      file.start()
+    }
+
+    zipStream.on('data', (chunk: Buffer) => {
+      try {
+        unzipper.push(chunk, false)
+      } catch (e) {
+        reject(e)
+      }
+    })
+    zipStream.on('end', () => {
+      try {
+        unzipper.push(new Uint8Array(0), true)
+        resolve()
+      } catch (e) {
+        reject(e)
+      }
+    })
+    zipStream.on('error', reject)
+  })
+
+  if (!campaignJsonBuf) {
+    rmSync(tmpDir, { recursive: true, force: true })
+    const err = new Error('ZIP is missing campaign.json') as Error & { statusCode: number }
+    err.statusCode = 422
+    throw err
+  }
+
+  let payload: CampaignExport
+  try {
+    payload = JSON.parse(campaignJsonBuf.toString('utf8')) as CampaignExport
+  } catch {
+    rmSync(tmpDir, { recursive: true, force: true })
+    const err = new Error('campaign.json is not valid JSON') as Error & { statusCode: number }
+    err.statusCode = 422
+    throw err
+  }
+
+  if (payload.version !== '1.2') {
+    rmSync(tmpDir, { recursive: true, force: true })
+    const err = new Error(
+      `Unsupported version in ZIP: "${payload.version}". ZIP imports require version "1.2".`,
+    ) as Error & { statusCode: number }
+    err.statusCode = 422
+    throw err
+  }
+
+  const imageMap: Record<string, string> = imageMapJsonBuf
+    ? (JSON.parse(imageMapJsonBuf.toString('utf8')) as Record<string, string>)
+    : {}
+
+  // Run base import to get new campaign ID and slug
+  const result = importCampaign(db, { payload, importingUserId, nameOverride })
+  const newCampaignId = result.id
+  const absContentDir = join(process.cwd(), 'content', 'campaigns', result.slug)
+
+  // Move temp image files to their real locations, build URL rewrite map
+  const urlMap = new Map<string, string>()
+
+  for (const [entryName, oldUrl] of Object.entries(imageMap)) {
+    const safeName = entryName.replace(/\//g, '__')
+    const srcPath = join(tmpDir, safeName)
+
+    const imagesMatch = entryName.match(/^images\/([^/]+)$/)
+    const entityMatch = entryName.match(/^images\/entity-(.+)-image\.(\w+)$/)
+    const portraitMatch = entryName.match(/^images\/character-(.+)-portrait\.(\w+)$/)
+
+    try {
+      if (imagesMatch) {
+        const filename = imagesMatch[1]!
+        const dir = resolve(absContentDir, 'images')
+        mkdirSync(dir, { recursive: true })
+        renameSync(srcPath, join(dir, filename))
+        urlMap.set(oldUrl, `/api/campaigns/${newCampaignId}/images/${filename}`)
+      } else if (entityMatch) {
+        const slug = entityMatch[1]!
+        const ext = entityMatch[2]!
+        const dir = resolve(absContentDir, 'entities', slug)
+        mkdirSync(dir, { recursive: true })
+        renameSync(srcPath, join(dir, `image.${ext}`))
+        urlMap.set(oldUrl, `/api/campaigns/${newCampaignId}/entities/${slug}/image`)
+      } else if (portraitMatch) {
+        const slug = portraitMatch[1]!
+        const ext = portraitMatch[2]!
+        const dir = resolve(absContentDir, 'characters', slug)
+        mkdirSync(dir, { recursive: true })
+        renameSync(srcPath, join(dir, `portrait.${ext}`))
+        urlMap.set(oldUrl, `/api/campaigns/${newCampaignId}/characters/${slug}/portrait`)
+      }
+    } catch {
+      // silently skip files that couldn't be moved
+    }
+  }
+
+  // Cleanup temp dir (any leftover files)
+  rmSync(tmpDir, { recursive: true, force: true })
+
+  if (urlMap.size === 0) return result
+
+  // Update image URL fields in DB
   for (const [oldUrl, newUrl] of urlMap) {
     db.update(entities).set({ imageUrl: newUrl }).where(eq(entities.imageUrl, oldUrl)).run()
     db.update(characters)

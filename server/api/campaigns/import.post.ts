@@ -1,7 +1,43 @@
+import Busboy from 'busboy'
+import { PassThrough } from 'stream'
 import { useDb } from '../../utils/db'
-import { importCampaign, importCampaignFromZip } from '../../services/campaign-import'
+import { importCampaign, importCampaignFromZipStream } from '../../services/campaign-import'
 import type { CampaignExport } from '../../services/campaign-export'
 import { logger } from '../../utils/logger'
+
+/**
+ * Extract the `file` field from a multipart request as a Readable stream,
+ * passing it directly to the consumer callback. This avoids buffering the
+ * entire file in memory (h3's readMultipartFormData crashes on large ZIPs).
+ */
+function streamFileFieldFromMultipart(
+  req: import('http').IncomingMessage,
+  contentType: string,
+  consumer: (stream: PassThrough) => Promise<void>,
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const bb = Busboy({ headers: { 'content-type': contentType } })
+    let found = false
+
+    bb.on('file', (fieldname, stream) => {
+      if (fieldname !== 'file') {
+        stream.resume()
+        return
+      }
+      found = true
+      const pass = new PassThrough()
+      stream.pipe(pass)
+      consumer(pass).then(resolve).catch(reject)
+    })
+
+    bb.on('finish', () => {
+      if (!found) reject(new Error('Missing file field in multipart upload'))
+    })
+
+    bb.on('error', reject)
+    req.pipe(bb)
+  })
+}
 
 export default defineEventHandler(async (event) => {
   const user = event.context.user
@@ -16,21 +52,18 @@ export default defineEventHandler(async (event) => {
 
   // ── ZIP import (multipart/form-data) ──────────────────────────────────────
   if (contentType.includes('multipart/form-data')) {
-    const formData = await readMultipartFormData(event)
-    const filePart = formData?.find((p) => p.name === 'file')
-    if (!filePart?.data) {
-      throw createError({ statusCode: 400, message: 'Missing file field in multipart upload' })
-    }
-
     try {
-      const result = importCampaignFromZip(db, Buffer.from(filePart.data), user.id, nameOverride)
+      let result: Awaited<ReturnType<typeof importCampaignFromZipStream>>
+      await streamFileFieldFromMultipart(event.node.req, contentType, async (stream) => {
+        result = await importCampaignFromZipStream(db, stream, user.id, nameOverride)
+      })
       logger.info('Campaign imported from ZIP', {
-        newCampaignId: result.id,
-        name: result.name,
+        newCampaignId: result!.id,
+        name: result!.name,
         userId: user.id,
       })
       setResponseStatus(event, 201)
-      return result
+      return result!
     } catch (err) {
       const e = err as Error & { statusCode?: number }
       const status = e.statusCode === 422 ? 422 : 500
