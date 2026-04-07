@@ -17,6 +17,11 @@ import { campaignMembers } from '../../../server/db/schema/campaign-members'
 import { sessionGroups, gameSessions } from '../../../server/db/schema/sessions'
 import { entityRelations } from '../../../server/db/schema/relations'
 import { user } from '../../../server/db/schema/auth'
+import {
+  organizations,
+  organizationMembers,
+  organizationLocations,
+} from '../../../server/db/schema/organizations'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -350,6 +355,159 @@ describe('resolveImportName', () => {
 
     const name = resolveImportName(testDb.db, 'Shared Name', userId)
     expect(name).toBe('Shared Name')
+  })
+})
+
+describe('importCampaign - organizations', () => {
+  it('imports organizations with remapped IDs', () => {
+    const oldCampaignId = randomUUID()
+    const oldOrgId = randomUUID()
+
+    const payload = makeMinimalExport({
+      campaign: { id: oldCampaignId, name: 'C', slug: 'c' },
+      organizations: [
+        {
+          id: oldOrgId,
+          campaignId: oldCampaignId,
+          name: 'Thieves Guild',
+          slug: 'thieves-guild',
+          description: 'A shadowy guild',
+          type: 'guild',
+          status: 'active',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ],
+    })
+
+    importCampaign(testDb.db, { payload, importingUserId: userId })
+
+    const allOrgs = testDb.db.select().from(organizations).all()
+    expect(allOrgs).toHaveLength(1)
+    expect(allOrgs[0].name).toBe('Thieves Guild')
+    expect(allOrgs[0].id).not.toBe(oldOrgId)
+    expect(allOrgs[0].campaignId).not.toBe(oldCampaignId)
+  })
+
+  it('imports organizationMembers with remapped IDs', () => {
+    const oldCampaignId = randomUUID()
+    const oldOrgId = randomUUID()
+    const oldEntityId = randomUUID()
+    const oldCharId = randomUUID()
+
+    const payload = makeMinimalExport({
+      campaign: { id: oldCampaignId, name: 'C', slug: 'c' },
+      entities: [
+        {
+          id: oldEntityId,
+          campaignId: oldCampaignId,
+          type: 'character',
+          name: 'Rogue',
+          slug: 'rogue',
+          filePath: 'f',
+          visibility: 'members',
+          createdBy: userId,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ],
+      characters: [{ id: oldCharId, entityId: oldEntityId, characterType: 'npc', status: 'alive' }],
+      organizations: [
+        {
+          id: oldOrgId,
+          campaignId: oldCampaignId,
+          name: 'Guild',
+          slug: 'guild',
+          type: 'guild',
+          status: 'active',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ],
+      organizationMembers: [{ organizationId: oldOrgId, characterId: oldCharId, role: 'leader' }],
+    })
+
+    importCampaign(testDb.db, { payload, importingUserId: userId })
+
+    const allOrgMembers = testDb.db.select().from(organizationMembers).all()
+    expect(allOrgMembers).toHaveLength(1)
+    expect(allOrgMembers[0].role).toBe('leader')
+    // IDs should be remapped
+    expect(allOrgMembers[0].organizationId).not.toBe(oldOrgId)
+    expect(allOrgMembers[0].characterId).not.toBe(oldCharId)
+    // Should point to actual imported records
+    const allOrgs = testDb.db.select().from(organizations).all()
+    const allChars = testDb.db.select().from(characters).all()
+    expect(allOrgMembers[0].organizationId).toBe(allOrgs[0].id)
+    expect(allOrgMembers[0].characterId).toBe(allChars[0].id)
+  })
+
+  it('imports organizationLocations with remapped IDs', () => {
+    const oldCampaignId = randomUUID()
+    const oldOrgId = randomUUID()
+    const oldEntityId = randomUUID()
+
+    const payload = makeMinimalExport({
+      campaign: { id: oldCampaignId, name: 'C', slug: 'c' },
+      entities: [
+        {
+          id: oldEntityId,
+          campaignId: oldCampaignId,
+          type: 'location',
+          name: 'HQ',
+          slug: 'hq',
+          filePath: 'f',
+          visibility: 'members',
+          createdBy: userId,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ],
+      organizations: [
+        {
+          id: oldOrgId,
+          campaignId: oldCampaignId,
+          name: 'Guild',
+          slug: 'guild',
+          type: 'guild',
+          status: 'active',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ],
+      organizationLocations: [{ organizationId: oldOrgId, locationEntityId: oldEntityId }],
+    })
+
+    importCampaign(testDb.db, { payload, importingUserId: userId })
+
+    const allOrgLocs = testDb.db.select().from(organizationLocations).all()
+    expect(allOrgLocs).toHaveLength(1)
+    expect(allOrgLocs[0].organizationId).not.toBe(oldOrgId)
+    expect(allOrgLocs[0].locationEntityId).not.toBe(oldEntityId)
+    // Should point to actual imported records
+    const allOrgs = testDb.db.select().from(organizations).all()
+    const allEntities = testDb.db.select().from(entities).all()
+    expect(allOrgLocs[0].organizationId).toBe(allOrgs[0].id)
+    expect(allOrgLocs[0].locationEntityId).toBe(allEntities[0].id)
+  })
+
+  it('buildIdMap registers organization IDs', () => {
+    const oldOrgId = randomUUID()
+    const payload = makeMinimalExport({
+      organizations: [
+        {
+          id: oldOrgId,
+          campaignId: 'x',
+          name: 'Org',
+          slug: 'org',
+          type: 'faction',
+          status: 'active',
+        },
+      ],
+    })
+    const idMap = buildIdMap(payload)
+    expect(idMap.has(oldOrgId)).toBe(true)
+    expect(idMap.get(oldOrgId)).not.toBe(oldOrgId)
   })
 })
 

@@ -2,6 +2,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function api(path: string, opts?: RequestInit & { body?: any }) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
@@ -141,6 +142,55 @@ describe('Campaign Export API (integration)', () => {
       headers: { Cookie: outsiderCookie },
     })
     expect(res.status).toBe(403)
+  })
+
+  it('GET /export includes organizations in full export', async () => {
+    const dmCsrfToken = dmCookie.match(/csrf_token=([^;]+)/)?.[1] || ''
+
+    // Create a character (API creates entity + character in one call)
+    const charRes = await api(`/api/campaigns/${campaignId}/characters`, {
+      method: 'POST',
+      headers: { Cookie: dmCookie, 'X-CSRF-Token': dmCsrfToken },
+      body: { name: 'Org Test Char', characterType: 'npc' },
+    })
+    const char = await charRes.json()
+
+    // Create an organization
+    const orgRes = await api(`/api/campaigns/${campaignId}/organizations`, {
+      method: 'POST',
+      headers: { Cookie: dmCookie, 'X-CSRF-Token': dmCsrfToken },
+      body: { name: 'Test Guild', type: 'guild' },
+    })
+    const org = await orgRes.json()
+
+    // Add a member to the organization
+    await api(`/api/campaigns/${campaignId}/organizations/${org.slug}/members`, {
+      method: 'POST',
+      headers: { Cookie: dmCookie, 'X-CSRF-Token': dmCsrfToken },
+      body: { characterId: char.id, role: 'leader' },
+    })
+
+    // Export and verify
+    const exportRes = await api(`/api/campaigns/${campaignId}/export`, {
+      headers: { Cookie: dmCookie },
+    })
+    expect(exportRes.status).toBe(200)
+    const data = await exportRes.json()
+    expect(data.organizations).toBeDefined()
+    expect(data.organizations.length).toBeGreaterThanOrEqual(1)
+    const exportedOrg = data.organizations.find(
+      (o: Record<string, unknown>) => o.name === 'Test Guild',
+    )
+    expect(exportedOrg).toBeDefined()
+    expect(exportedOrg.type).toBe('guild')
+
+    expect(data.organizationMembers).toBeDefined()
+    expect(data.organizationMembers.length).toBeGreaterThanOrEqual(1)
+    const exportedMember = data.organizationMembers.find(
+      (m: Record<string, unknown>) => m.organizationId === exportedOrg.id,
+    )
+    expect(exportedMember).toBeDefined()
+    expect(exportedMember.role).toBe('leader')
   })
 
   // Extra: Invalid include keys are silently ignored

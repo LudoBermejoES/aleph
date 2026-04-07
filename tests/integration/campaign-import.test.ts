@@ -193,6 +193,83 @@ describe('Campaign Import API (integration)', () => {
     expect(res.status).toBe(201)
   })
 
+  it('imports organizations, organizationMembers and organizationLocations with remapped IDs', async () => {
+    const oldOrgId = 'old-org-' + ts
+    const oldEntityId = 'old-entity-char-' + ts
+    const oldCharId = 'old-char-' + ts
+    const oldLocId = 'old-entity-loc-' + ts
+    const payload = {
+      ...makeMinimalExport(`Org Import ${ts}`),
+      entities: [
+        {
+          id: oldEntityId,
+          campaignId: 'old-campaign-id',
+          type: 'character',
+          name: 'Org Char',
+          slug: 'org-char',
+          filePath: 'entities/org-char.md',
+          visibility: 'members',
+          createdBy: 'old-user-id',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+        {
+          id: oldLocId,
+          campaignId: 'old-campaign-id',
+          type: 'location',
+          name: 'Org HQ',
+          slug: 'org-hq',
+          filePath: 'entities/org-hq.md',
+          visibility: 'members',
+          createdBy: 'old-user-id',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+      ],
+      characters: [{ id: oldCharId, entityId: oldEntityId, characterType: 'npc', status: 'alive' }],
+      organizations: [
+        {
+          id: oldOrgId,
+          campaignId: 'old-campaign-id',
+          name: 'Imported Guild',
+          slug: 'imported-guild',
+          type: 'guild',
+          status: 'active',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+      ],
+      organizationMembers: [{ organizationId: oldOrgId, characterId: oldCharId, role: 'leader' }],
+      organizationLocations: [{ organizationId: oldOrgId, locationEntityId: oldLocId }],
+    }
+
+    const res = await api('/api/campaigns/import', {
+      method: 'POST',
+      headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
+      body: payload,
+    })
+    expect(res.status).toBe(201)
+    const data = await res.json()
+
+    // Now export the imported campaign and verify organizations came through
+    const exportRes = await api(`/api/campaigns/${data.id}/export`, {
+      headers: { Cookie: cookie },
+    })
+    expect(exportRes.status).toBe(200)
+    const exported = await exportRes.json()
+
+    expect(exported.organizations).toHaveLength(1)
+    expect(exported.organizations[0].name).toBe('Imported Guild')
+    expect(exported.organizations[0].id).not.toBe(oldOrgId)
+
+    expect(exported.organizationMembers).toHaveLength(1)
+    expect(exported.organizationMembers[0].role).toBe('leader')
+    expect(exported.organizationMembers[0].organizationId).toBe(exported.organizations[0].id)
+
+    expect(exported.organizationLocations).toHaveLength(1)
+    expect(exported.organizationLocations[0].organizationId).toBe(exported.organizations[0].id)
+  })
+
   it('imports the full real export fixture with all resource types', async () => {
     const payload = JSON.parse(
       readFileSync(resolve(__dirname, '../fixtures/campaign-export-full.json'), 'utf-8'),

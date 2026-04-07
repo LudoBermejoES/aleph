@@ -13,6 +13,11 @@ import { relationTypes, entityRelations } from '../db/schema/relations'
 import { items, inventories, currencies, shops, transactions } from '../db/schema/inventory'
 import { sessionRolls } from '../db/schema/rolls'
 import { entityMentions } from '../db/schema/mentions'
+import {
+  organizations,
+  organizationMembers,
+  organizationLocations,
+} from '../db/schema/organizations'
 import type { CampaignExport } from './campaign-export'
 import { join } from 'path'
 import { mkdirSync } from 'fs'
@@ -104,6 +109,8 @@ export function buildIdMap(payload: CampaignExport): Map<string, string> {
   for (const r of payload.rolls ?? []) register((r as Record<string, unknown>).id as string)
   // Mentions
   for (const r of payload.mentions ?? []) register((r as Record<string, unknown>).id as string)
+  // Organizations
+  for (const r of payload.organizations ?? []) register((r as Record<string, unknown>).id as string)
 
   return idMap
 }
@@ -606,6 +613,53 @@ export function importCampaign(
           targetEntityId: newTargetId,
           count: (m.count as number) ?? 1,
           createdAt: now,
+        })
+        .run()
+    }
+
+    // 26. Organizations
+    for (const r of payload.organizations ?? []) {
+      const o = r as Record<string, unknown>
+      db.insert(organizations)
+        .values({
+          id: remapRequired(idMap, o.id as string),
+          campaignId: newCampaignId,
+          name: o.name as string,
+          slug: o.slug as string,
+          description: (o.description as string) ?? null,
+          type: (o.type as string) ?? 'faction',
+          status: (o.status as string) ?? 'active',
+          createdAt: now,
+          updatedAt: now,
+        })
+        .run()
+    }
+
+    // 27. Organization Members
+    for (const r of payload.organizationMembers ?? []) {
+      const m = r as Record<string, unknown>
+      const newOrgId = remap(idMap, m.organizationId as string)
+      const newCharId = remap(idMap, m.characterId as string)
+      if (!newOrgId || !newCharId) continue
+      db.insert(organizationMembers)
+        .values({
+          organizationId: newOrgId,
+          characterId: newCharId,
+          role: (m.role as string) ?? null,
+        })
+        .run()
+    }
+
+    // 28. Organization Locations
+    for (const r of payload.organizationLocations ?? []) {
+      const l = r as Record<string, unknown>
+      const newOrgId = remap(idMap, l.organizationId as string)
+      const newLocId = remap(idMap, l.locationEntityId as string)
+      if (!newOrgId || !newLocId) continue
+      db.insert(organizationLocations)
+        .values({
+          organizationId: newOrgId,
+          locationEntityId: newLocId,
         })
         .run()
     }

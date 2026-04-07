@@ -12,6 +12,11 @@ import { sessionRolls } from '../db/schema/rolls'
 import { entityMentions } from '../db/schema/mentions'
 import { campaignMembers } from '../db/schema/campaign-members'
 import { entityTypes } from '../db/schema/entity-types'
+import {
+  organizations,
+  organizationMembers,
+  organizationLocations,
+} from '../db/schema/organizations'
 
 export interface ExportOptions {
   campaignId: string
@@ -46,6 +51,9 @@ export interface CampaignExport {
   templates?: unknown[]
   mentions?: unknown[]
   members?: unknown[]
+  organizations?: unknown[]
+  organizationMembers?: unknown[]
+  organizationLocations?: unknown[]
 }
 
 export const VALID_RESOURCE_TYPES = new Set([
@@ -72,6 +80,9 @@ export const VALID_RESOURCE_TYPES = new Set([
   'templates',
   'mentions',
   'members',
+  'organizations',
+  'organizationMembers',
+  'organizationLocations',
 ])
 
 function shouldInclude(key: string, include?: string[]): boolean {
@@ -271,6 +282,35 @@ export async function buildCampaignExport(
       .from(campaignMembers)
       .where(eq(campaignMembers.campaignId, campaignId))
       .all()
+  }
+
+  if (shouldInclude('organizations', filteredInclude)) {
+    const orgList = db
+      .select()
+      .from(organizations)
+      .where(eq(organizations.campaignId, campaignId))
+      .all()
+    result.organizations = orgList
+
+    const orgIds = orgList.map((o) => o.id)
+    if (shouldInclude('organizationMembers', filteredInclude)) {
+      result.organizationMembers = orgIds.length
+        ? db
+            .select()
+            .from(organizationMembers)
+            .all()
+            .filter((m) => orgIds.includes(m.organizationId))
+        : []
+    }
+    if (shouldInclude('organizationLocations', filteredInclude)) {
+      result.organizationLocations = orgIds.length
+        ? db
+            .select()
+            .from(organizationLocations)
+            .all()
+            .filter((l) => orgIds.includes(l.organizationId))
+        : []
+    }
   }
 
   return result

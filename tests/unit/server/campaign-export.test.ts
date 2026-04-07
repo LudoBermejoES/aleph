@@ -6,6 +6,11 @@ import { campaigns } from '../../../server/db/schema/campaigns'
 import { entities } from '../../../server/db/schema/entities'
 import { user } from '../../../server/db/schema/auth'
 import { characters } from '../../../server/db/schema/characters'
+import {
+  organizations,
+  organizationMembers,
+  organizationLocations,
+} from '../../../server/db/schema/organizations'
 
 let testDb: TestDb
 const userId = randomUUID()
@@ -63,7 +68,8 @@ describe('buildCampaignExport - full export (task 7.2)', () => {
     const result = await buildCampaignExport(testDb.db, { campaignId })
     for (const key of VALID_RESOURCE_TYPES) {
       expect(result).toHaveProperty(key)
-      expect(Array.isArray((result as any)[key])).toBe(true)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect(Array.isArray((result as Record<string, any>)[key])).toBe(true)
     }
   })
 
@@ -144,7 +150,123 @@ describe('buildCampaignExport - data correctness', () => {
 
     const result = await buildCampaignExport(testDb.db, { campaignId })
     expect(result.entities).toHaveLength(1)
-    expect((result.entities as any[])[0].name).toBe('The Tavern')
+    expect((result.entities as Record<string, unknown>[])[0].name).toBe('The Tavern')
+  })
+
+  it('exports organizations belonging to this campaign', async () => {
+    const orgId = randomUUID()
+    const now = new Date()
+    testDb.db
+      .insert(organizations)
+      .values({
+        id: orgId,
+        campaignId,
+        name: 'Thieves Guild',
+        slug: 'thieves-guild',
+        description: 'A shadowy guild',
+        type: 'guild',
+        status: 'active',
+        createdAt: now,
+        updatedAt: now,
+      })
+      .run()
+
+    const result = await buildCampaignExport(testDb.db, { campaignId })
+    expect(result.organizations).toHaveLength(1)
+    expect((result.organizations as Record<string, unknown>[])[0].name).toBe('Thieves Guild')
+  })
+
+  it('exports organizationMembers for organizations in this campaign', async () => {
+    const orgId = randomUUID()
+    const entityId = randomUUID()
+    const charId = randomUUID()
+    const now = new Date()
+
+    testDb.db
+      .insert(entities)
+      .values({
+        id: entityId,
+        campaignId,
+        type: 'character',
+        name: 'Rogue',
+        slug: 'rogue',
+        filePath: '/tmp/rogue.md',
+        visibility: 'members',
+        createdBy: userId,
+        createdAt: now,
+        updatedAt: now,
+      })
+      .run()
+    testDb.db
+      .insert(characters)
+      .values({ id: charId, entityId, characterType: 'npc', status: 'alive' })
+      .run()
+    testDb.db
+      .insert(organizations)
+      .values({
+        id: orgId,
+        campaignId,
+        name: 'Guild',
+        slug: 'guild',
+        type: 'guild',
+        status: 'active',
+        createdAt: now,
+        updatedAt: now,
+      })
+      .run()
+    testDb.db
+      .insert(organizationMembers)
+      .values({ organizationId: orgId, characterId: charId, role: 'leader' })
+      .run()
+
+    const result = await buildCampaignExport(testDb.db, { campaignId })
+    expect(result.organizationMembers).toHaveLength(1)
+    expect((result.organizationMembers as Record<string, unknown>[])[0].role).toBe('leader')
+  })
+
+  it('exports organizationLocations for organizations in this campaign', async () => {
+    const orgId = randomUUID()
+    const entityId = randomUUID()
+    const now = new Date()
+
+    testDb.db
+      .insert(entities)
+      .values({
+        id: entityId,
+        campaignId,
+        type: 'location',
+        name: 'HQ',
+        slug: 'hq',
+        filePath: '/tmp/hq.md',
+        visibility: 'members',
+        createdBy: userId,
+        createdAt: now,
+        updatedAt: now,
+      })
+      .run()
+    testDb.db
+      .insert(organizations)
+      .values({
+        id: orgId,
+        campaignId,
+        name: 'Guild',
+        slug: 'guild',
+        type: 'guild',
+        status: 'active',
+        createdAt: now,
+        updatedAt: now,
+      })
+      .run()
+    testDb.db
+      .insert(organizationLocations)
+      .values({ organizationId: orgId, locationEntityId: entityId })
+      .run()
+
+    const result = await buildCampaignExport(testDb.db, { campaignId })
+    expect(result.organizationLocations).toHaveLength(1)
+    expect((result.organizationLocations as Record<string, unknown>[])[0].locationEntityId).toBe(
+      entityId,
+    )
   })
 
   it('does not export entities from another campaign', async () => {
