@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
   // Characters (via entities join)
   const characterResults = db
     .select({
-      id: characters.id,
+      id: entities.id,
       name: entities.name,
       slug: entities.slug,
       type: entities.type,
