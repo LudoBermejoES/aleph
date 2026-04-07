@@ -49,12 +49,39 @@ export function TldrawWrapper({
     importTldrJson(json: string) {
       const editor = editorRef.current
       if (!editor) return
+
       const result = parseTldrawJsonFile({ json, schema: editor.store.schema })
-      if (!result.ok) {
+
+      if (result.ok) {
+        loadSnapshot(editor.store, getSnapshot(result.value))
+      } else if (result.error.type === 'migrationFailed') {
+        // The file was created with a newer tldraw version whose sequences
+        // can't be migrated by the installed package. Load the raw records
+        // directly — tldraw will ignore unknown shape types and fields.
+        let parsed: { schema: unknown; records: unknown[] }
+        try {
+          parsed = JSON.parse(json) as { schema: unknown; records: unknown[] }
+        } catch {
+          console.error('[TldrawWrapper] Failed to parse .tldr JSON')
+          return
+        }
+        const storeSnapshot = {
+          store: Object.fromEntries(
+            (parsed.records as Array<{ id: string }>).map((r) => [r.id, r]),
+          ),
+          schema: parsed.schema,
+        }
+        try {
+          loadSnapshot(editor.store, storeSnapshot as Parameters<typeof loadSnapshot>[1])
+        } catch (e) {
+          console.error('[TldrawWrapper] Failed to load raw snapshot:', e)
+          return
+        }
+      } else {
         console.error('[TldrawWrapper] Failed to parse .tldr file:', result.error)
         return
       }
-      loadSnapshot(editor.store, getSnapshot(result.value))
+
       if (onChange) onChange(getSnapshot(editor.store))
     },
   }))
