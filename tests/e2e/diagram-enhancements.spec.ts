@@ -218,3 +218,24 @@ test.describe('Diagram enhancements — sync relations button (feat)', () => {
     await expect(page.locator('.tldraw-wrapper')).toBeVisible()
   })
 })
+
+test.describe('Diagram enhancements — add relationship button (feat)', () => {
+  test('add relationship button hidden when no entity selected', async ({ page }) => {
+    await registerAndLogin(page, `RelBtn ${uid()}`)
+    await createCampaign(page, `RelBtn Camp ${uid()}`)
+    const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
+
+    const diagram = (await apiFetch(page, `/api/campaigns/${campaignId}/diagrams`, {
+      method: 'POST',
+      body: { title: 'RelBtn Test', diagramType: 'freeform' },
+    })) as { id: string }
+
+    await page.goto(`/campaigns/${campaignId}/diagrams/${diagram.id}`)
+    await page.waitForLoadState('networkidle')
+    await page.waitForSelector('.tldraw-wrapper', { timeout: 10000 })
+
+    // Button should not be visible when nothing is selected
+    const addRelBtn = page.locator('[data-testid="add-relationship-btn"]')
+    await expect(addRelBtn).not.toBeVisible()
+  })
+})

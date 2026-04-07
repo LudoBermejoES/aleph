@@ -954,6 +954,28 @@
     },
     "reflow": "Reflow",
     "syncRelations": "Sync Relations",
+    "addRelationship": "Add Relationship",
+    "relationship": {
+      "title": "Add Relationship",
+      "source": "From",
+      "target": "To",
+      "searchTarget": "Search entities...",
+      "relationType": "Relation Type",
+      "selectType": "Select type...",
+      "forwardLabel": "Forward Label",
+      "reverseLabel": "Reverse Label",
+      "attitude": "Attitude",
+      "memberRole": "Role in Organization",
+      "memberRolePlaceholder": "e.g. Leader, Member...",
+      "setLocationMsg": "Set {character}'s location to {location}",
+      "linkOrgLocationMsg": "Link {org} to {location}",
+      "modeEntityRelation": "Character-to-character relation",
+      "modeOrgMember": "Organization membership",
+      "modeCharLocation": "Set character location",
+      "modeOrgLocation": "Link organization to location",
+      "create": "Create",
+      "error": "Failed to create relationship"
+    },
     "popover": {
       "openFullPage": "Open",
       "openInNewTab": "New tab"

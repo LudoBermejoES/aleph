@@ -43,6 +43,17 @@
             {{ $t('diagrams.reflow') }}
           </Button>
 
+          <!-- Add Relationship button (visible when entity selected) -->
+          <Button
+            v-if="selectedEntityId"
+            size="sm"
+            variant="default"
+            data-testid="add-relationship-btn"
+            @click="relationshipDialogOpen = true"
+          >
+            {{ $t('diagrams.addRelationship') }}
+          </Button>
+
           <!-- Sync Relations button -->
           <Button
             size="sm"
@@ -133,6 +144,18 @@
       :campaign-id="campaignId"
       @close="mapModalOpen = false"
     />
+
+    <!-- Relationship Dialog -->
+    <RelationshipDialog
+      :visible="relationshipDialogOpen"
+      :campaign-id="campaignId"
+      :source-entity-id="selectedEntityId"
+      :source-entity-type="selectedEntityType"
+      :source-entity-slug="selectedEntitySlug"
+      :source-entity-name="selectedEntityName"
+      @close="relationshipDialogOpen = false"
+      @created="onRelationshipCreated"
+    />
   </div>
 </template>
 
@@ -141,6 +164,7 @@ import TldrawCanvas from '~/components/diagrams/TldrawCanvas.vue'
 import EntityPanel from '~/components/diagrams/EntityPanel.vue'
 import EntityPopover from '~/components/diagrams/EntityPopover.vue'
 import MapModal from '~/components/diagrams/MapModal.vue'
+import RelationshipDialog from '~/components/diagrams/RelationshipDialog.vue'
 
 definePageMeta({ layout: 'empty' })
 
@@ -168,6 +192,13 @@ const popoverY = ref(200)
 // Map modal state
 const mapModalOpen = ref(false)
 const mapModalId = ref('')
+
+// Selected entity state (for relationship dialog)
+const selectedEntityId = ref('')
+const selectedEntityType = ref('')
+const selectedEntitySlug = ref('')
+const selectedEntityName = ref('')
+const relationshipDialogOpen = ref(false)
 
 // Type filter
 const filterType = ref<string>('all')
@@ -248,12 +279,57 @@ async function saveNow() {
   await autoSave(lastSnapshot)
 }
 
+let selectionDebounce: ReturnType<typeof setTimeout> | null = null
+
 function onEditorReady(editor: unknown) {
   editorInstance = editor
   if (pendingEntityDrop) {
     handleEntityDrop(pendingEntityDrop.entityData, pendingEntityDrop.event)
     pendingEntityDrop = null
   }
+
+  // Track selection changes for the "Add Relationship" button
+  const ENTITY_SHAPE_TYPES = ['npcToken', 'entityCard', 'locationPin', 'questNode', 'factionCard']
+  const ed = editor as {
+    store: { listen: (fn: () => void, opts: Record<string, unknown>) => void }
+    getSelectedShapes: () => { id: string; type: string; props?: Record<string, unknown> }[]
+  }
+  ed.store.listen(
+    () => {
+      if (selectionDebounce) clearTimeout(selectionDebounce)
+      selectionDebounce = setTimeout(() => {
+        const selected = ed.getSelectedShapes()
+        if (
+          selected.length === 1 &&
+          ENTITY_SHAPE_TYPES.includes(selected[0]!.type) &&
+          selected[0]!.props?.entityId
+        ) {
+          const shape = selected[0]!
+          selectedEntityId.value = shape.props!.entityId as string
+          selectedEntityType.value =
+            shape.type === 'npcToken'
+              ? 'character'
+              : shape.type === 'factionCard'
+                ? 'organization'
+                : shape.type === 'locationPin'
+                  ? 'location'
+                  : ((shape.props!.type as string) ?? 'entity')
+          selectedEntitySlug.value = (shape.props!.slug as string) ?? ''
+          selectedEntityName.value =
+            (shape.props!.characterName as string) ??
+            (shape.props!.locationName as string) ??
+            (shape.props!.factionName as string) ??
+            ''
+        } else {
+          selectedEntityId.value = ''
+          selectedEntityType.value = ''
+          selectedEntitySlug.value = ''
+          selectedEntityName.value = ''
+        }
+      }, 50)
+    },
+    { scope: 'document', source: 'user' },
+  )
 }
 
 function onPlacedEntitiesChange(counts: Map<string, number>) {
@@ -261,6 +337,11 @@ function onPlacedEntitiesChange(counts: Map<string, number>) {
 }
 
 function onEntityDragStart(_entityData: string) {}
+
+function onRelationshipCreated() {
+  relationshipDialogOpen.value = false
+  syncRelations()
+}
 
 function onFocusEntity(entityId: string) {
   canvasRef.value?.focusEntity(entityId)

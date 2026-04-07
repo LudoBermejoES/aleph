@@ -954,6 +954,28 @@
     },
     "reflow": "Reorganizar",
     "syncRelations": "Sincronizar relaciones",
+    "addRelationship": "Añadir relación",
+    "relationship": {
+      "title": "Añadir relación",
+      "source": "Desde",
+      "target": "Hacia",
+      "searchTarget": "Buscar entidades...",
+      "relationType": "Tipo de relación",
+      "selectType": "Seleccionar tipo...",
+      "forwardLabel": "Etiqueta directa",
+      "reverseLabel": "Etiqueta inversa",
+      "attitude": "Actitud",
+      "memberRole": "Rol en la organización",
+      "memberRolePlaceholder": "ej. Líder, Miembro...",
+      "setLocationMsg": "Establecer la ubicación de {character} en {location}",
+      "linkOrgLocationMsg": "Vincular {org} a {location}",
+      "modeEntityRelation": "Relación entre personajes",
+      "modeOrgMember": "Membresía en organización",
+      "modeCharLocation": "Establecer ubicación del personaje",
+      "modeOrgLocation": "Vincular organización a ubicación",
+      "create": "Crear",
+      "error": "Error al crear la relación"
+    },
     "popover": {
       "openFullPage": "Abrir",
       "openInNewTab": "Nueva pestaña"
