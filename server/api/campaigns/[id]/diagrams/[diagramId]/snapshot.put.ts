@@ -27,6 +27,12 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, message: 'Diagram not found' })
   }
 
+  // Reject early via Content-Length before reading the body
+  const contentLength = parseInt(getRequestHeader(event, 'content-length') ?? '0', 10)
+  if (contentLength > MAX_SNAPSHOT_BYTES) {
+    throw createError({ statusCode: 413, message: 'Snapshot exceeds 5MB limit' })
+  }
+
   const body = await readBody(event)
   const snapshotStr = JSON.stringify(body)
 

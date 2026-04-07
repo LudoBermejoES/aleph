@@ -125,6 +125,36 @@ export const RELATION_TYPE_COLORS: Record<string, string> = {
   custom: '#9ca3af',
 }
 
+export interface EdgeStyle {
+  color: string
+  dasharray: string
+  markerStart: string
+  markerEnd: string
+}
+
+// Relation types that use dashed lines (temporal / loose connections)
+const DASHED_SLUGS = new Set(['occurred_at', 'created_by', 'worships'])
+// Relation types that use dotted lines (weak / indirect)
+const DOTTED_SLUGS = new Set(['rival', 'student'])
+
+/**
+ * Return visual style for an edge based on its relation type slug.
+ * color   — stroke color from RELATION_TYPE_COLORS
+ * dasharray — '' solid | '6 3' dashed | '2 3' dotted
+ * markerStart — SVG marker id or ''
+ * markerEnd   — SVG marker id (arrow for directed, '' for undirected)
+ */
+export function getEdgeStyle(slug: string): EdgeStyle {
+  const color = relationTypeColor(slug)
+  let dasharray = ''
+  if (DASHED_SLUGS.has(slug)) dasharray = '6 3'
+  else if (DOTTED_SLUGS.has(slug)) dasharray = '2 3'
+  // All edges get an arrow end; family/ally get no marker (symmetric)
+  const symmetric = new Set(['family', 'ally', 'allied_with', 'family:spouse', 'family:sibling'])
+  const markerEnd = symmetric.has(slug) ? '' : 'url(#arrow)'
+  return { color, dasharray, markerStart: '', markerEnd }
+}
+
 /**
  * Map a relation type slug to its display color.
  * Falls back to gray for unknown slugs.
@@ -159,6 +189,15 @@ export interface SimLink {
 }
 
 /**
+ * Bounding-circle radius for card layout mode.
+ * Cards are 160px wide × ~80px tall; use the half-diagonal as collision radius.
+ * Multiply by 1.1 for a small gap between cards.
+ */
+export function cardCollisionRadius(): number {
+  return Math.sqrt(80 * 80 + 40 * 40) * 1.1 // ≈ 98px
+}
+
+/**
  * Create a tuned d3-force simulation for the campaign-wide graph.
  * Parameters are optimized for 20-100 nodes.
  *
@@ -170,6 +209,7 @@ export function createGraphSimulation(
   nodes: SimNode[],
   links: SimLink[],
   degreeMap: Record<string, number>,
+  cardLayout = false,
 ) {
   // Seed random initial positions so nodes don't all start at (0,0),
   // which causes the simulation to collapse into a line.
@@ -192,7 +232,9 @@ export function createGraphSimulation(
     .force(
       'collide',
       forceCollide<SimNode>()
-        .radius((d: SimNode) => computeNodeRadius(degreeMap[d.id] ?? 0) + 12)
+        .radius((d: SimNode) =>
+          cardLayout ? cardCollisionRadius() : computeNodeRadius(degreeMap[d.id] ?? 0) + 12,
+        )
         .iterations(3),
     )
     .force('center', forceCenter(0, 0).strength(0.08))

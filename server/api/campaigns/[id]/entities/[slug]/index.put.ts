@@ -19,6 +19,7 @@ const entityUpdateSchema = z.object({
   aliases: z.array(z.string()).optional(),
   tags: z.array(z.string()).optional(),
   fields: z.record(z.string(), z.unknown()).optional(),
+  boardSummary: z.string().max(120).nullable().optional(),
 })
 
 export default defineEventHandler(async (event) => {
@@ -71,6 +72,7 @@ export default defineEventHandler(async (event) => {
       visibility: updatedFrontmatter.visibility,
       contentHash: hash,
       updatedAt: now,
+      ...(body.boardSummary !== undefined ? { boardSummary: body.boardSummary } : {}),
     })
     .where(eq(entities.id, entity.id))
     .run()

@@ -229,7 +229,10 @@
     "tagsPlaceholder": "pnj, barovia, no-muerto",
     "content": "Contenido",
     "contentPlaceholder": "Escribe el contenido de la entidad... (escribe {'@'} para enlazar entidades)",
-    "failedSave": "Error al guardar la entidad"
+    "failedSave": "Error al guardar la entidad",
+    "boardSummary": "Etiqueta del grafo",
+    "boardSummaryPlaceholder": "Etiqueta corta mostrada en la tarjeta del grafo de relaciones",
+    "boardSummaryHint": "Se muestra en lugar del resumen en la vista de tarjetas del grafo"
   },
   "sessions": {
     "title": "Sesiones",
@@ -484,6 +487,11 @@
     "entityTypes": "Tipos de entidad",
     "empty": "Aún no hay relaciones. Haz clic en \"Nueva relación\" para conectar entidades.",
     "stats": "{nodes} nodos, {edges} aristas",
+    "chipAll": "Todo",
+    "cardLayout": "Vista de tarjetas",
+    "cardLayoutDisabled": "La vista de tarjetas no está disponible para grafos grandes (>500 nodos)",
+    "connectedOnly": "Solo conectados",
+    "miniMap": "Mapa",
     "legend": {
       "title": "Tipos de relación"
     },

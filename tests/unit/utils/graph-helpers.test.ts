@@ -7,6 +7,7 @@ import {
   nodeOpacity,
   edgeLabelFontSize,
   relationTypeColor,
+  getEdgeStyle,
   RELATION_TYPE_COLORS,
 } from '../../../app/utils/graph-helpers'
 
@@ -298,6 +299,66 @@ describe('relationTypeColor', () => {
 
   it('student → amber #f59e0b', () => {
     expect(relationTypeColor('student')).toBe('#f59e0b')
+  })
+
+  // ─── getEdgeStyle ─────────────────────────────────────────────────────────────
+
+  describe('getEdgeStyle', () => {
+    it('ally → solid, no marker-end (symmetric)', () => {
+      const s = getEdgeStyle('ally')
+      expect(s.dasharray).toBe('')
+      expect(s.markerEnd).toBe('')
+      expect(s.color).toBe('#22c55e')
+    })
+
+    it('enemy → solid with arrow marker', () => {
+      const s = getEdgeStyle('enemy')
+      expect(s.dasharray).toBe('')
+      expect(s.markerEnd).toBe('url(#arrow)')
+    })
+
+    it('occurred_at → dashed (6 3)', () => {
+      expect(getEdgeStyle('occurred_at').dasharray).toBe('6 3')
+    })
+
+    it('created_by → dashed (6 3)', () => {
+      expect(getEdgeStyle('created_by').dasharray).toBe('6 3')
+    })
+
+    it('worships → dashed (6 3)', () => {
+      expect(getEdgeStyle('worships').dasharray).toBe('6 3')
+    })
+
+    it('rival → dotted (2 3)', () => {
+      expect(getEdgeStyle('rival').dasharray).toBe('2 3')
+    })
+
+    it('student → dotted (2 3)', () => {
+      expect(getEdgeStyle('student').dasharray).toBe('2 3')
+    })
+
+    it('member_of → solid with arrow', () => {
+      const s = getEdgeStyle('member_of')
+      expect(s.dasharray).toBe('')
+      expect(s.markerEnd).toBe('url(#arrow)')
+    })
+
+    it('unknown slug → solid, arrow, gray color', () => {
+      const s = getEdgeStyle('totally_unknown')
+      expect(s.dasharray).toBe('')
+      expect(s.markerEnd).toBe('url(#arrow)')
+      expect(s.color).toBe('#9ca3af')
+    })
+
+    it('custom → gray color', () => {
+      expect(getEdgeStyle('custom').color).toBe('#9ca3af')
+    })
+
+    it('markerStart is always empty string', () => {
+      for (const slug of ['ally', 'enemy', 'member_of', 'occurred_at', 'rival']) {
+        expect(getEdgeStyle(slug).markerStart).toBe('')
+      }
+    })
   })
 
   it('RELATION_TYPE_COLORS has expected keys', () => {

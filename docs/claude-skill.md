@@ -68,7 +68,7 @@ Available themes: `default`, `dark-fantasy`, `cyberpunk`, `cosmic-horror`, `high
 aleph entity list --campaign <id> [--type <type>] [--search <q>] [--json]
 aleph entity create --campaign <id> --name <name> --type <type> [--content <markdown>] [--json]
 aleph entity show --campaign <id> <slug> [--json]
-aleph entity edit --campaign <id> <slug> [--name <name>] [--content <markdown>] [--stdin] [--json]
+aleph entity edit --campaign <id> <slug> [--name <name>] [--content <markdown>] [--stdin] [--board-summary <text>] [--json]
 aleph entity delete --campaign <id> <slug> [--yes]
 aleph entity upload-image --campaign <id> --slug <slug> --file <path> [--json]
 aleph entity type-update <typeId> --campaign <id> [--name <name>]
@@ -77,6 +77,7 @@ aleph entity type-delete <typeId> --campaign <id> [--yes]
 
 Entity types: `location`, `faction`, `npc`, `creature`, `item`, `lore`, `event`, or any custom string.
 Pipe content from a file: `cat notes.md | aleph entity edit --campaign <id> <slug> --stdin`
+`--board-summary` sets a short graph card label (max 120 chars, separate from the main summary). Pass an empty string to clear it.
 `upload-image` accepts PNG, JPEG, or WebP files up to 10 MB. The image is shown on the entity detail page in the web UI.
 
 ### Characters

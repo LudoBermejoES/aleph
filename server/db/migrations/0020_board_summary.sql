@@ -1,0 +1,1 @@
+ALTER TABLE `entities` ADD `board_summary` text;

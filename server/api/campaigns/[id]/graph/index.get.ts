@@ -48,10 +48,19 @@ export default defineEventHandler(async (event) => {
   })
 
   // Fetch entity data for nodes
-  const nodes: Record<string, { name: string; type: string; id: string; slug: string }> = {}
+  const nodes: Record<
+    string,
+    { name: string; type: string; id: string; slug: string; boardSummary: string | null }
+  > = {}
   for (const eid of entityIds) {
     const ent = db
-      .select({ id: entities.id, name: entities.name, type: entities.type, slug: entities.slug })
+      .select({
+        id: entities.id,
+        name: entities.name,
+        type: entities.type,
+        slug: entities.slug,
+        boardSummary: entities.boardSummary,
+      })
       .from(entities)
       .where(eq(entities.id, eid))
       .get()
@@ -80,7 +89,6 @@ export default defineEventHandler(async (event) => {
           .where(inArray(characters.entityId, entityIdList))
           .all()
       : []
-  const entityToCharId = Object.fromEntries(charIdRows.map((c) => [c.entityId, c.id]))
   const charIds = charIdRows.map((c) => c.id)
 
   const orgMemberRows =
@@ -116,6 +124,7 @@ export default defineEventHandler(async (event) => {
         name: n.name,
         type: n.type,
         slug: n.slug,
+        boardSummary: n.boardSummary ?? null,
         image: portraitMap[id] ?? null,
         organizations: orgsByEntityId[id] ?? [],
       },
@@ -131,7 +140,7 @@ export default defineEventHandler(async (event) => {
         label: r.forwardLabel,
         color: computeAttitudeColor(r.attitude),
         attitude: r.attitude,
-        relationTypeSlug: (r as any).relationTypeSlug ?? 'custom',
+        relationTypeSlug: (r as { relationTypeSlug?: string }).relationTypeSlug ?? 'custom',
       },
     ]),
   )

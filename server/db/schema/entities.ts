@@ -18,6 +18,7 @@ export const entities = sqliteTable(
     imageUrl: text('image_url'),
     parentId: text('parent_id'),
     templateId: text('template_id'),
+    boardSummary: text('board_summary'),
     createdBy: text('created_by')
       .notNull()
       .references(() => user.id),

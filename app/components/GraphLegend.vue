@@ -5,14 +5,25 @@
       :key="entry.slug"
       class="flex items-center gap-1.5 text-xs text-muted-foreground"
     >
-      <span class="w-3 h-3 rounded-full flex-shrink-0" :style="{ backgroundColor: entry.color }" />
+      <!-- Line style sample -->
+      <svg width="24" height="10" class="flex-shrink-0" aria-hidden="true">
+        <line
+          x1="2"
+          y1="5"
+          x2="22"
+          y2="5"
+          :stroke="entry.color"
+          stroke-width="2"
+          :stroke-dasharray="entry.dasharray || undefined"
+        />
+      </svg>
       <span>{{ entry.label }}</span>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { relationTypeColor } from '~/utils/graph-helpers'
+import { getEdgeStyle } from '~/utils/graph-helpers'
 
 const props = defineProps<{
   edges: Record<string, { relationTypeSlug?: string; label?: string }>
@@ -26,10 +37,9 @@ const entries = computed(() => {
       seen.set(slug, edge.label ?? slug)
     }
   }
-  return Array.from(seen.entries()).map(([slug, label]) => ({
-    slug,
-    label,
-    color: relationTypeColor(slug),
-  }))
+  return Array.from(seen.entries()).map(([slug, label]) => {
+    const style = getEdgeStyle(slug)
+    return { slug, label, color: style.color, dasharray: style.dasharray }
+  })
 })
 </script>

@@ -66,14 +66,16 @@ export function makeEntityCommand() {
       if (opts.json) {
         print(data, { json: true })
       } else {
-        print({
+        const row = {
           name: data.name,
           type: data.type,
           slug: data.slug,
           visibility: data.visibility,
           tags: (data.tags || []).join(', '),
           content: (data.content || '').slice(0, 200),
-        })
+        }
+        if (data.boardSummary) row['graph label'] = data.boardSummary
+        print(row)
       }
     })
 
@@ -84,6 +86,7 @@ export function makeEntityCommand() {
     .option('--name <name>', 'New name')
     .option('--content <markdown>', 'New content (Markdown)')
     .option('--stdin', 'Read content from stdin')
+    .option('--board-summary <text>', 'Short label shown on the graph card (max 120 chars)')
     .option('--json', 'Output as JSON')
     .action(async (slug, opts) => {
       const body = {}
@@ -93,6 +96,7 @@ export function makeEntityCommand() {
       } else if (opts.content) {
         body.content = opts.content
       }
+      if (opts.boardSummary !== undefined) body.boardSummary = opts.boardSummary || null
       const data = await put(`/api/campaigns/${opts.campaign}/entities/${slug}`, body)
       if (opts.json) {
         print(data, { json: true })

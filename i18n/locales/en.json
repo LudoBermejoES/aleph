@@ -229,7 +229,10 @@
     "tagsPlaceholder": "npc, barovia, undead",
     "content": "Content",
     "contentPlaceholder": "Write entity content... (type {'@'} to link entities)",
-    "failedSave": "Failed to save entity"
+    "failedSave": "Failed to save entity",
+    "boardSummary": "Graph label",
+    "boardSummaryPlaceholder": "Short label shown on the relationship graph card",
+    "boardSummaryHint": "Shown instead of the summary on the graph card view"
   },
   "sessions": {
     "title": "Sessions",
@@ -484,6 +487,11 @@
     "entityTypes": "Entity Types",
     "empty": "No relationships yet. Click \"New Relation\" to connect entities.",
     "stats": "{nodes} nodes, {edges} edges",
+    "chipAll": "All",
+    "cardLayout": "Card view",
+    "cardLayoutDisabled": "Card view is not available for large graphs (>500 nodes)",
+    "connectedOnly": "Connected only",
+    "miniMap": "Map",
     "legend": {
       "title": "Relation Types"
     },

@@ -27,8 +27,8 @@
       />
     </div>
     <EntityForm
-      ref="entityForm"
       v-if="loaded"
+      ref="entityForm"
       v-model="form"
       :campaign-id="campaignId"
       :entity-slug="slug"
@@ -40,6 +40,20 @@
       :user-color="userColor"
       @submit="save"
     >
+      <template #extra-fields>
+        <div>
+          <label class="text-sm font-medium">{{ $t('entities.boardSummary') }}</label>
+          <input
+            v-model="boardSummary"
+            maxlength="120"
+            class="w-full mt-1 px-3 py-2 rounded border border-input bg-background text-sm"
+            :placeholder="$t('entities.boardSummaryPlaceholder')"
+          />
+          <p class="text-xs text-muted-foreground mt-1">
+            {{ boardSummary.length }}/120 — {{ $t('entities.boardSummaryHint') }}
+          </p>
+        </div>
+      </template>
       <template #cancel>
         <NuxtLink :to="`/campaigns/${campaignId}/entities/${slug}`"
           ><Button variant="outline">{{ $t('common.cancel') }}</Button></NuxtLink
@@ -58,6 +72,7 @@ const submitting = ref(false)
 const loaded = ref(false)
 const { t } = useI18n()
 const form = ref({ name: '', type: 'note', visibility: 'members', tagsRaw: '', content: '' })
+const boardSummary = ref('')
 const entityImageUrl = ref<string | null>(null)
 
 const isCollaborative = computed(() => route.query.collab === 'true')
@@ -67,12 +82,13 @@ const documentName = computed(() =>
 const { userName, userColor } = useCollaborationUser()
 
 const api = useCampaignApi(campaignId)
-const entityForm = ref<any>(null)
+const entityForm = ref<{ clearDraft: () => void } | null>(null)
 
 onMounted(async () => {
   try {
     const entity = await api.getEntity(slug)
     entityImageUrl.value = entity.imageUrl ?? null
+    boardSummary.value = entity.boardSummary ?? ''
     form.value = {
       name: entity.name || '',
       type: entity.type || 'note',
@@ -94,11 +110,16 @@ async function save() {
       .split(',')
       .map((t: string) => t.trim())
       .filter(Boolean)
-    await api.updateEntity(slug, { ...form.value, tags })
+    await api.updateEntity(slug, {
+      ...form.value,
+      tags,
+      boardSummary: boardSummary.value || null,
+    })
     entityForm.value?.clearDraft()
     await router.push(`/campaigns/${campaignId}/entities/${slug}`)
-  } catch (e: any) {
-    alert(e.data?.message || t('entities.failedSave'))
+  } catch (e: unknown) {
+    const err = e as { data?: { message?: string } }
+    alert(err.data?.message || t('entities.failedSave'))
   } finally {
     submitting.value = false
   }

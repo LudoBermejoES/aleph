@@ -54,6 +54,8 @@ export interface Entity {
   createdBy: string
   createdAt: Date
   updatedAt: Date
+  boardSummary?: string | null
+  imageUrl?: string | null
   // Detail view only (entity GET by slug)
   content?: string
   frontmatter?: Record<string, unknown>
@@ -431,6 +433,7 @@ export interface GraphNode {
   type: string
   slug?: string
   image?: string | null
+  boardSummary?: string | null
   organizations?: Array<{ slug: string; name: string }>
 }
 

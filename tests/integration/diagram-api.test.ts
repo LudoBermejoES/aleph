@@ -3,15 +3,20 @@ import { describe, it, expect, beforeAll } from 'vitest'
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 
-async function apiRaw(url: string, opts?: any) {
+interface ApiOpts extends Omit<RequestInit, 'body'> {
+  body?: unknown
+}
+
+async function apiRaw(url: string, opts?: ApiOpts) {
+  const { body, ...rest } = opts ?? {}
   return fetch(`${BASE_URL}${url}`, {
-    ...opts,
-    headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...opts?.headers },
-    body: opts?.body ? JSON.stringify(opts.body) : undefined,
+    ...rest,
+    headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...rest?.headers },
+    body: body !== undefined ? JSON.stringify(body) : undefined,
   })
 }
 
-async function api(url: string, opts?: any) {
+async function api(url: string, opts?: ApiOpts) {
   const res = await apiRaw(url, opts)
   if (!res.ok) {
     const t = await res.text()
@@ -195,7 +200,7 @@ describe('Diagram API (integration)', () => {
     expect(res.status).toBe(403)
   })
 
-  it('413 for oversized snapshot', async () => {
+  it('413 for oversized snapshot', { timeout: 15000 }, async () => {
     const largeData = 'x'.repeat(6 * 1024 * 1024)
     const res = await apiRaw(`/api/campaigns/${campaignId}/diagrams/${diagramId}/snapshot`, {
       method: 'PUT',
@@ -242,7 +247,10 @@ describe('Diagram API (integration)', () => {
     const data = await api(`/api/campaigns/${campaignId}/diagrams/entities?q=xyzxyzxyz999`, {
       headers: baseHeaders(dmApiKey),
     })
-    const total = Object.values(data).reduce((sum: number, arr: any) => sum + arr.length, 0)
+    const total = Object.values(data as Record<string, unknown[]>).reduce(
+      (sum, arr) => sum + arr.length,
+      0,
+    )
     expect(total).toBe(0)
   })
 

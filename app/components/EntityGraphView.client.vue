@@ -6,6 +6,23 @@
   >
     <ClientOnly>
       <div v-if="hasData" class="w-full h-full relative">
+        <!-- SVG defs for edge markers (rendered once, referenced by id) -->
+        <svg style="position: absolute; width: 0; height: 0; overflow: hidden">
+          <defs>
+            <marker
+              id="arrow"
+              markerWidth="8"
+              markerHeight="8"
+              refX="6"
+              refY="3"
+              orient="auto"
+              markerUnits="strokeWidth"
+            >
+              <path d="M0,0 L0,6 L8,3 z" fill="#9ca3af" />
+            </marker>
+          </defs>
+        </svg>
+
         <!-- Convex hull overlay: rendered as a positioned SVG behind the graph -->
         <svg
           v-if="hullPolygons.length"
@@ -33,6 +50,61 @@
           :layout-handler="props.centerNodeId ? undefined : forceLayout"
           :event-handlers="eventHandlers"
         >
+          <!-- Card node layout: foreignObject card with name, type badge, summary -->
+          <template v-if="props.cardLayout" #override-node-label="{ nodeId }">
+            <foreignObject
+              x="-80"
+              y="-30"
+              width="160"
+              height="80"
+              :style="{ opacity: getNodeOpacity(nodeId), transition: 'opacity 300ms ease' }"
+            >
+              <div
+                xmlns="http://www.w3.org/1999/xhtml"
+                class="graph-card"
+                style="
+                  background: var(--color-background, #fff);
+                  border: 1px solid var(--color-border, #e5e7eb);
+                  border-radius: 6px;
+                  padding: 4px 6px;
+                  font-size: 11px;
+                  line-height: 1.3;
+                  pointer-events: none;
+                  overflow: hidden;
+                  max-height: 80px;
+                "
+              >
+                <div
+                  style="
+                    font-weight: 600;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                  "
+                >
+                  {{ props.nodes[nodeId]?.name }}
+                </div>
+                <div style="color: #6b7280; font-size: 9px; margin-top: 1px">
+                  {{ props.nodes[nodeId]?.type }}
+                </div>
+                <div
+                  v-if="props.nodes[nodeId]?.boardSummary"
+                  style="
+                    color: #374151;
+                    font-size: 10px;
+                    margin-top: 2px;
+                    overflow: hidden;
+                    display: -webkit-box;
+                    -webkit-line-clamp: 2;
+                    -webkit-box-orient: vertical;
+                  "
+                >
+                  {{ props.nodes[nodeId]?.boardSummary }}
+                </div>
+              </div>
+            </foreignObject>
+          </template>
+
           <!-- Node override: portrait images + opacity for focus/context -->
           <template #override-node="{ nodeId, scale }">
             <g
@@ -76,6 +148,16 @@
             </g>
           </template>
         </v-network-graph>
+
+        <!-- Mini-map -->
+        <GraphMiniMap
+          v-if="props.campaignId"
+          :node-positions="currentLayouts.nodes"
+          :nodes="props.nodes"
+          :edges="props.edges"
+          :graph-ref="graphRef as any"
+          :campaign-id="props.campaignId"
+        />
 
         <!-- Hover tooltip -->
         <div
@@ -123,6 +205,7 @@ import {
   computeActiveHighlightSet,
   nodeOpacity,
   edgeLabelFontSize,
+  getEdgeStyle,
   createGraphSimulation,
   type SimNode,
   type SimLink,
@@ -136,6 +219,7 @@ const props = defineProps<{
       type: string
       slug?: string
       image?: string | null
+      boardSummary?: string | null
       organizations?: Array<{ slug: string; name: string }>
     }
   >
@@ -153,6 +237,7 @@ const props = defineProps<{
   height?: number
   campaignId?: string
   centerNodeId?: string
+  cardLayout?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -357,7 +442,7 @@ const forceLayout = new ForceLayout({
       target: e.target,
     }))
     const dm = computeDegreeMap(props.edges ?? {})
-    return createGraphSimulation(simNodes, simLinks, dm) as unknown
+    return createGraphSimulation(simNodes, simLinks, dm, props.cardLayout ?? false) as unknown
   },
 })
 
@@ -464,9 +549,17 @@ const configs = computed(() =>
           if (activeMode.value && !activeHighlightSet.value.edgeIds.has(edge.id)) {
             return activeMode.value === 'focus' ? 'rgba(156,163,175,0.1)' : 'rgba(156,163,175,0.3)'
           }
-          return e.color || '#9ca3af'
+          return getEdgeStyle(e.relationTypeSlug ?? 'custom').color
         },
         width: 2,
+        dasharray: (edge: VngConfigEdge) => {
+          const e = props.edges?.[edge.id]
+          return e ? getEdgeStyle(e.relationTypeSlug ?? 'custom').dasharray : ''
+        },
+        markerEnd: (edge: VngConfigEdge) => {
+          const e = props.edges?.[edge.id]
+          return e ? getEdgeStyle(e.relationTypeSlug ?? 'custom').markerEnd : ''
+        },
       },
       label: {
         fontSize: (edge: VngConfigEdge) =>

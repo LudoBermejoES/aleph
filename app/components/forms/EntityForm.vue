@@ -1,5 +1,5 @@
 <template>
-  <form @submit.prevent="$emit('submit')" class="space-y-6">
+  <form class="space-y-6" @submit.prevent="$emit('submit')">
     <div class="grid grid-cols-2 gap-4">
       <div class="col-span-2">
         <label class="text-sm font-medium">{{ $t('characters.name') }}</label>
@@ -72,7 +72,7 @@
           v-model="templateFieldValues[field.key]"
           rows="3"
           class="w-full px-3 py-2 rounded border border-input bg-background text-sm"
-        />
+        ></textarea>
         <input
           v-else-if="field.fieldType === 'number'"
           v-model="templateFieldValues[field.key]"
@@ -101,6 +101,8 @@
       </div>
     </div>
 
+    <slot name="extra-fields" ></slot>
+
     <div>
       <label class="text-sm font-medium">{{ $t('entities.content') }}</label>
       <MarkdownEditor
@@ -117,7 +119,7 @@
     </div>
 
     <div class="flex justify-end gap-2">
-      <slot name="cancel" />
+      <slot name="cancel" ></slot>
       <Button type="submit" :disabled="submitting">{{
         submitting ? $t('common.saving') : submitLabel
       }}</Button>
@@ -151,11 +153,30 @@ const emit = defineEmits<{
   submit: []
 }>()
 
+interface EntityType {
+  slug: string
+  name: string
+}
+interface Template {
+  id: string
+  name: string
+  entityTypeSlug: string
+  fields?: TemplateField[]
+}
+interface TemplateField {
+  id: string
+  key: string
+  label: string
+  fieldType: string
+  optionsJson?: string | string[]
+  required?: boolean
+}
+
 const api = useCampaignApi(props.campaignId)
-const entityTypes = ref<any[]>([])
-const allTemplates = ref<any[]>([])
-const activeTemplate = ref<any>(null)
-const activeTemplateFields = ref<any[]>([])
+const entityTypes = ref<EntityType[]>([])
+const allTemplates = ref<Template[]>([])
+const activeTemplate = ref<Template | null>(null)
+const activeTemplateFields = ref<TemplateField[]>([])
 const templateFieldValues = ref<Record<string, unknown>>({})
 
 const form = computed({
@@ -193,14 +214,18 @@ async function onTemplateChange() {
     templateFieldValues.value = {}
     // Emit templateFields as part of form
     emit('update:modelValue', { ...props.modelValue, templateId: tid, templateFields: {} })
-  } catch {}
+  } catch {
+    // ignore
+  }
 }
 
-function fieldOptions(field: any): string[] {
+function fieldOptions(field: TemplateField): string[] {
   try {
-    if (Array.isArray(field.optionsJson)) return field.optionsJson
-    if (typeof field.optionsJson === 'string') return JSON.parse(field.optionsJson)
-  } catch {}
+    if (Array.isArray(field.optionsJson)) return field.optionsJson as string[]
+    if (typeof field.optionsJson === 'string') return JSON.parse(field.optionsJson) as string[]
+  } catch {
+    // ignore
+  }
   return []
 }
 
