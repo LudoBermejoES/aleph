@@ -16,39 +16,38 @@ The improvements are grouped into five areas:
 
 ## Requirement: Node card layout option
 
-The system SHALL offer a "card" display mode for graph nodes that shows the entity name and a one-line summary directly on the node, in addition to the current compact circle/avatar layout.
+The system SHALL offer a "card" display mode for graph nodes that shows the entity name, type badge, and a one-line summary directly on the node, in addition to the current compact circle/avatar layout.
 
 **Rationale:** Alkemion's Content Card layout lets GMs see node content without clicking. For Aleph's graph, showing names and a brief summary on the node itself lets DMs orient quickly in a large campaign graph without relying only on hover tooltips.
 
 ### Scenario: Toggle between compact and card layouts
 
 - **GIVEN** the campaign graph page is open
-- **WHEN** the user clicks a "Card view / Compact view" toggle button in the graph toolbar
-- **THEN** all nodes switch between:
-  - **Compact**: current circle with portrait/icon (radius formula unchanged)
-  - **Card**: rectangular card showing entity name (bold), entity type badge, and `summary` field (first 80 chars, truncated with ellipsis)
-- AND the toggle state is persisted in `localStorage` per campaign
+- **WHEN** the user clicks the "Card view / Compact view" toggle button in the graph toolbar
+- **THEN** all nodes switch between compact (circle with portrait/icon) and card (rectangular card with name, type badge, and summary)
+- AND the toggle state is persisted in `localStorage` keyed by campaign ID
 
-### Scenario: Card nodes size consistently
+### Scenario: Card nodes render at fixed width
 
 - **GIVEN** card layout is active
 - **WHEN** nodes are rendered
 - **THEN** all card nodes have a fixed width of 160px and auto-height based on content
-- AND the force simulation uses a rectangular collision box matching card dimensions (with 8px padding)
+- AND the force simulation uses a bounding-circle collision radius of `max(80, height/2) * 1.1`
 - AND cards with portraits show a 32×32px thumbnail left of the name
 
 ### Scenario: Card layout falls back gracefully when no summary exists
 
-- **GIVEN** card layout is active
-- **WHEN** a node has no `summary` field set
+- **GIVEN** card layout is active and a node has no `summary` and no `boardSummary`
+- **WHEN** the node is rendered
 - **THEN** the card shows only the entity name and type badge
-- AND the card height adjusts to fit without the summary row
+- AND the card height adjusts to fit without a summary row
 
-### Scenario: Card layout is disabled in Cytoscape fallback mode
+### Scenario: Card layout is disabled in Cytoscape mode
 
-- **GIVEN** a campaign with more than 500 nodes (Cytoscape mode)
-- **WHEN** the card layout toggle is displayed
-- **THEN** the toggle is disabled with a tooltip: "Card layout unavailable for large graphs"
+- **GIVEN** a campaign graph with more than 500 nodes (Cytoscape fallback mode)
+- **WHEN** the card layout toggle is visible
+- **THEN** the toggle is disabled
+- AND a tooltip reads "Card layout unavailable for large graphs"
 
 ---
 
@@ -62,35 +61,34 @@ The system SHALL apply distinct line styles to edges based on their relation typ
 
 - **GIVEN** edges rendered in the campaign graph
 - **WHEN** the graph loads
-- **THEN** edges receive line styles based on their relation type category:
-  | Category | Line style | Head shape |
-  |---|---|---|
-  | Ally / Allied_with | Solid | Arrow (both ends) |
-  | Enemy / At_war_with | Solid | Arrow (both ends) |
-  | Rival | Dashed | Arrow (both ends) |
-  | Mentor / Student | Solid | Arrow (one end, toward student) |
-  | Family (all subtypes) | Solid | None (undirected) |
-  | Located_in / Occurred_at | Dotted | Arrow (one end, toward location) |
-  | Owns / Created_by | Dashed | Arrow (one end, toward owner) |
-  | Custom | Solid | Arrow (both ends) |
-- AND color coding from the existing `RELATION_TYPE_COLORS` palette is preserved alongside the style
+- **THEN** edges receive line styles according to this mapping:
 
-### Scenario: Line style legend updated
+| Category                 | stroke-dasharray | Markers                  |
+| ------------------------ | ---------------- | ------------------------ |
+| ally / allied_with       | none             | arrow both ends          |
+| enemy / at_war_with      | none             | arrow both ends          |
+| rival                    | 8,4              | arrow both ends          |
+| mentor / student         | none             | arrow toward student end |
+| family (all subtypes)    | none             | none                     |
+| located_in / occurred_at | 2,4              | arrow toward location    |
+| owns / created_by        | 8,4              | arrow toward owner       |
+| custom                   | none             | arrow both ends          |
+
+- AND existing `RELATION_TYPE_COLORS` color coding is preserved alongside the line style
+
+### Scenario: SVG markers defined in defs
+
+- **GIVEN** the `EntityGraphView` component mounts
+- **WHEN** the SVG is initialised
+- **THEN** arrow, diamond, and circle marker definitions are added to the SVG `<defs>` block
+- AND each edge references the correct marker via `marker-end` and/or `marker-start` attributes
+
+### Scenario: Line style legend entries updated
 
 - **GIVEN** the GraphLegend component renders
 - **WHEN** the graph contains edges with varied line styles
-- **THEN** the legend shows a short line sample (solid/dashed/dotted) next to each relation type entry
-- AND the legend entry combines the color swatch with the line sample
-
-### Scenario: Line styles respected in v-network-graph config
-
-- **GIVEN** the `EntityGraphView` component renders edges
-- **WHEN** edge configs are built
-- **THEN** each edge's `stroke-dasharray` is set appropriately:
-  - Solid: `"none"`
-  - Dashed: `"8,4"`
-  - Dotted: `"2,4"`
-- AND `marker-end` / `marker-start` SVG markers are applied per direction setting
+- **THEN** each legend entry shows a short line sample (solid, dashed, or dotted) next to the color swatch
+- AND the line sample matches the actual style applied to edges of that type
 
 ---
 
