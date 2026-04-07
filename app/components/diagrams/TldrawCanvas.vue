@@ -14,6 +14,10 @@ const emit = defineEmits<{
   placedEntitiesChange: [counts: Map<string, number>]
 }>()
 
+defineExpose({
+  importTldrJson: (json: string) => mounted?.importTldrJson(json),
+})
+
 const containerRef = ref<HTMLDivElement>()
 let mounted: MountedCanvas | null = null
 
@@ -44,7 +48,7 @@ function makeProps(snapshotVal?: Record<string, unknown>, readOnlyVal?: boolean)
         { scope: 'document', source: 'user' },
       )
     },
-    onDrop: (event: DragEvent, editor: unknown) => emit('drop', event, editor),
+    onNativeDrop: (event: DragEvent, editor: unknown) => emit('drop', event, editor),
   }
 }
 

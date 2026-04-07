@@ -1,6 +1,15 @@
+/** @jsxImportSource react */
 import 'tldraw/tldraw.css'
-import React, { useCallback, useRef } from 'react'
-import { Tldraw, getSnapshot, type Editor, type TLEditorSnapshot } from 'tldraw'
+import './TldrawWrapper.css'
+import React, { useCallback, useImperativeHandle, useRef } from 'react'
+import {
+  Tldraw,
+  getSnapshot,
+  loadSnapshot,
+  parseTldrawJsonFile,
+  type Editor,
+  type TLEditorSnapshot,
+} from 'tldraw'
 import { EntityCardShapeUtil } from './shapes/EntityCardShape'
 import { QuestNodeShapeUtil } from './shapes/QuestNodeShape'
 import { LocationPinShapeUtil } from './shapes/LocationPinShape'
@@ -13,12 +22,17 @@ const SHAPE_UTILS = [
   NPCTokenShapeUtil,
 ]
 
+export interface TldrawWrapperHandle {
+  importTldrJson: (json: string) => void
+}
+
 export interface TldrawWrapperProps {
   snapshot?: TLEditorSnapshot
   readOnly?: boolean
   onChange?: (snapshot: TLEditorSnapshot) => void
   onEditorReady?: (editor: Editor) => void
-  onDrop?: (event: DragEvent, editor: Editor) => void
+  onNativeDrop?: (event: DragEvent, editor: Editor) => void
+  handleRef?: React.Ref<TldrawWrapperHandle>
 }
 
 export function TldrawWrapper({
@@ -26,9 +40,24 @@ export function TldrawWrapper({
   readOnly,
   onChange,
   onEditorReady,
-  onDrop,
+  onNativeDrop,
+  handleRef,
 }: TldrawWrapperProps) {
   const editorRef = useRef<Editor | null>(null)
+
+  useImperativeHandle(handleRef, () => ({
+    importTldrJson(json: string) {
+      const editor = editorRef.current
+      if (!editor) return
+      const result = parseTldrawJsonFile({ json, schema: editor.store.schema })
+      if (!result.ok) {
+        console.error('[TldrawWrapper] Failed to parse .tldr file:', result.error)
+        return
+      }
+      loadSnapshot(editor.store, getSnapshot(result.value))
+      if (onChange) onChange(getSnapshot(editor.store))
+    },
+  }))
 
   const handleMount = useCallback(
     (editor: Editor) => {
@@ -53,21 +82,17 @@ export function TldrawWrapper({
     [readOnly, onChange, onEditorReady],
   )
 
-  const handleDrop = useCallback(
-    (event: React.DragEvent<HTMLDivElement>) => {
-      if (editorRef.current && onDrop) {
-        onDrop(event.nativeEvent, editorRef.current)
-      }
-    },
-    [onDrop],
-  )
-
   const handleDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault()
   }, [])
 
+  // Native drop is handled by TldrawCanvas.vue via DOM listeners to avoid
+  // conflicts with React's synthetic event system. onNativeDrop is wired
+  // there via the onEditorReady callback.
+  void onNativeDrop
+
   return (
-    <div style={{ width: '100%', height: '100%' }} onDrop={handleDrop} onDragOver={handleDragOver}>
+    <div className="tldraw-wrapper" onDragOver={handleDragOver}>
       <Tldraw
         snapshot={snapshot}
         shapeUtils={SHAPE_UTILS}

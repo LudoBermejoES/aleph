@@ -23,6 +23,22 @@
         <span v-else-if="saveStatus === 'saved'" class="text-xs text-green-600">
           {{ $t('diagrams.saved') }}
         </span>
+        <input
+          ref="tldrFileInputRef"
+          type="file"
+          accept=".tldr"
+          class="hidden"
+          data-testid="tldr-file-input"
+          @change="onTldrFileSelected"
+        >
+        <Button
+          size="sm"
+          variant="outline"
+          data-testid="import-tldr-btn"
+          @click="tldrFileInputRef?.click()"
+        >
+          {{ $t('diagrams.importTldr') }}
+        </Button>
         <Button
           size="sm"
           :disabled="saveStatus === 'saving'"
@@ -54,6 +70,7 @@
 
         <TldrawCanvas
           v-else
+          ref="canvasRef"
           :snapshot="snapshot"
           :read-only="readOnly"
           @save="onCanvasChange"
@@ -83,6 +100,8 @@ const loading = ref(true)
 const error = ref(false)
 const saveStatus = ref<'idle' | 'saving' | 'saved'>('idle')
 const placedEntityIds = ref(new Map<string, number>())
+const canvasRef = ref<InstanceType<typeof TldrawCanvas> | null>(null)
+const tldrFileInputRef = ref<HTMLInputElement | null>(null)
 
 let editorInstance: unknown = null
 let pendingEntityDrop: { entityData: string; event: DragEvent } | null = null
@@ -225,6 +244,19 @@ function handleEntityDrop(entityDataStr: string, event: DragEvent) {
     y: pagePoint.y - 40,
     props: shapeProps,
   })
+}
+
+function onTldrFileSelected(event: Event) {
+  const file = (event.target as HTMLInputElement).files?.[0]
+  if (!file) return
+  const reader = new FileReader()
+  reader.onload = () => {
+    const json = reader.result as string
+    canvasRef.value?.importTldrJson(json)
+    // Reset input so the same file can be re-selected
+    if (tldrFileInputRef.value) tldrFileInputRef.value.value = ''
+  }
+  reader.readAsText(file)
 }
 
 onMounted(load)

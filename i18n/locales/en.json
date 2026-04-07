@@ -911,6 +911,7 @@
     "save": "Save",
     "saving": "Saving...",
     "saved": "Saved",
+    "importTldr": "Import .tldr",
     "generate": "Generate",
     "type": "Type",
     "types": {
