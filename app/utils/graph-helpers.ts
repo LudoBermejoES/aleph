@@ -96,14 +96,32 @@ export function edgeLabelFontSize(
 // ─── Relation Type Color Palette ─────────────────────────────────────────────
 
 export const RELATION_TYPE_COLORS: Record<string, string> = {
+  // Alliance / conflict
   ally: '#22c55e',
   allied_with: '#22c55e',
   enemy: '#ef4444',
   at_war_with: '#ef4444',
   rival: '#f97316',
+  // Mentorship
   mentor: '#f59e0b',
+  student: '#f59e0b',
+  // Family
+  family: '#a855f7',
   'family:spouse': '#ec4899',
-  family: '#3b82f6',
+  'family:parent': '#a855f7',
+  'family:sibling': '#a855f7',
+  // Membership / leadership
+  member_of: '#3b82f6',
+  leader_of: '#60a5fa',
+  // Location / event
+  located_in: '#06b6d4',
+  occurred_at: '#06b6d4',
+  // Ownership / creation
+  owns: '#eab308',
+  created_by: '#eab308',
+  // Religion
+  worships: '#ec4899',
+  // Default
   custom: '#9ca3af',
 }
 

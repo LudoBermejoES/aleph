@@ -248,12 +248,12 @@ describe('relationTypeColor', () => {
     expect(relationTypeColor('family:spouse')).toBe('#ec4899')
   })
 
-  it('family:sibling → blue #3b82f6 (family:* prefix)', () => {
-    expect(relationTypeColor('family:sibling')).toBe('#3b82f6')
+  it('family:sibling → purple #a855f7 (family:* prefix)', () => {
+    expect(relationTypeColor('family:sibling')).toBe('#a855f7')
   })
 
-  it('family:parent → blue #3b82f6 (family:* prefix)', () => {
-    expect(relationTypeColor('family:parent')).toBe('#3b82f6')
+  it('family:parent → purple #a855f7 (family:* prefix)', () => {
+    expect(relationTypeColor('family:parent')).toBe('#a855f7')
   })
 
   it('unknown slug → gray #9ca3af', () => {
@@ -268,12 +268,48 @@ describe('relationTypeColor', () => {
     expect(relationTypeColor('custom')).toBe('#9ca3af')
   })
 
+  it('member_of → blue #3b82f6', () => {
+    expect(relationTypeColor('member_of')).toBe('#3b82f6')
+  })
+
+  it('leader_of → light blue #60a5fa', () => {
+    expect(relationTypeColor('leader_of')).toBe('#60a5fa')
+  })
+
+  it('located_in → cyan #06b6d4', () => {
+    expect(relationTypeColor('located_in')).toBe('#06b6d4')
+  })
+
+  it('occurred_at → cyan #06b6d4', () => {
+    expect(relationTypeColor('occurred_at')).toBe('#06b6d4')
+  })
+
+  it('owns → yellow #eab308', () => {
+    expect(relationTypeColor('owns')).toBe('#eab308')
+  })
+
+  it('created_by → yellow #eab308', () => {
+    expect(relationTypeColor('created_by')).toBe('#eab308')
+  })
+
+  it('worships → pink #ec4899', () => {
+    expect(relationTypeColor('worships')).toBe('#ec4899')
+  })
+
+  it('student → amber #f59e0b', () => {
+    expect(relationTypeColor('student')).toBe('#f59e0b')
+  })
+
   it('RELATION_TYPE_COLORS has expected keys', () => {
     expect(RELATION_TYPE_COLORS).toHaveProperty('ally')
     expect(RELATION_TYPE_COLORS).toHaveProperty('enemy')
     expect(RELATION_TYPE_COLORS).toHaveProperty('rival')
     expect(RELATION_TYPE_COLORS).toHaveProperty('mentor')
     expect(RELATION_TYPE_COLORS).toHaveProperty('family:spouse')
+    expect(RELATION_TYPE_COLORS).toHaveProperty('member_of')
+    expect(RELATION_TYPE_COLORS).toHaveProperty('located_in')
+    expect(RELATION_TYPE_COLORS).toHaveProperty('owns')
+    expect(RELATION_TYPE_COLORS).toHaveProperty('worships')
     expect(RELATION_TYPE_COLORS).toHaveProperty('custom')
   })
 })

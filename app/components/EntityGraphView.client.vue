@@ -34,7 +34,7 @@
           :event-handlers="eventHandlers"
         >
           <!-- Node override: portrait images + opacity for focus/context -->
-          <template #override-node="{ nodeId, scale, config }">
+          <template #override-node="{ nodeId, scale }">
             <g
               :style="{
                 opacity: getNodeOpacity(nodeId),
@@ -93,7 +93,7 @@
               v-if="tooltip.image"
               :src="tooltip.image"
               class="w-8 h-8 rounded-full object-cover flex-shrink-0"
-            />
+            >
             <div>
               <p class="font-semibold text-sm leading-tight">{{ tooltip.name }}</p>
               <span class="text-xs text-muted-foreground px-1 py-0.5 rounded bg-muted">{{
@@ -323,10 +323,25 @@ const graphEdges = computed(() => {
 
 // ─── Force Layout (campaign graph) ───────────────────────────────────────────
 
+interface VngNode {
+  id: string
+  x?: number
+  y?: number
+  vx?: number
+  vy?: number
+  fx?: number | null
+  fy?: number | null
+}
+interface VngEdge {
+  id: string
+  source: string
+  target: string
+}
+
 const forceLayout = new ForceLayout({
   positionFixedByDrag: true,
-  createSimulation: (_d3: any, nodes: any[], edges: any[]) => {
-    const simNodes: SimNode[] = nodes.map((n: any) => ({
+  createSimulation: (_d3: unknown, nodes: VngNode[], edges: VngEdge[]) => {
+    const simNodes: SimNode[] = nodes.map((n) => ({
       id: n.id,
       x: n.x,
       y: n.y,
@@ -336,13 +351,13 @@ const forceLayout = new ForceLayout({
       fy: n.fy,
       organizations: props.nodes[n.id]?.organizations ?? [],
     }))
-    const simLinks: SimLink[] = edges.map((e: any) => ({
+    const simLinks: SimLink[] = edges.map((e) => ({
       id: e.id,
       source: e.source,
       target: e.target,
     }))
     const dm = computeDegreeMap(props.edges ?? {})
-    return createGraphSimulation(simNodes, simLinks, dm) as any
+    return createGraphSimulation(simNodes, simLinks, dm) as unknown
   },
 })
 
@@ -417,41 +432,50 @@ function handleNodeDblClick(nodeId: string) {
 
 // ─── Configs ──────────────────────────────────────────────────────────────────
 
-const configs = defineConfigs({
-  view: {
-    autoPanAndZoomOnLoad: 'fit-content',
-    scalingObjects: true,
-  },
-  node: {
-    normal: {
-      radius: (node: any) => nodeRadius(node.id),
-      color: (node: any) => nodeTypeColor(node.id),
+interface VngConfigNode {
+  id: string
+}
+interface VngConfigEdge {
+  id: string
+}
+
+const configs = computed(() =>
+  defineConfigs({
+    view: {
+      autoPanAndZoomOnLoad: 'fit-content',
+      scalingObjects: true,
     },
-    label: {
-      fontSize: 11,
-      direction: 'south',
-      color: '#374151',
-    },
-  },
-  edge: {
-    normal: {
-      color: (edge: any) => {
-        const e = props.edges?.[edge.id]
-        if (!e) return '#9ca3af'
-        if (activeMode.value && !activeHighlightSet.value.edgeIds.has(edge.id)) {
-          return activeMode.value === 'focus' ? 'rgba(156,163,175,0.1)' : 'rgba(156,163,175,0.3)'
-        }
-        return e.color || '#9ca3af'
+    node: {
+      normal: {
+        radius: (node: VngConfigNode) => nodeRadius(node.id),
+        color: (node: VngConfigNode) => nodeTypeColor(node.id),
       },
-      width: 2,
+      label: {
+        fontSize: 11,
+        direction: 'south',
+        color: '#374151',
+      },
     },
-    label: {
-      fontSize: (edge: any) =>
-        edgeLabelFontSize(edge.id, activeHighlightSet.value, activeMode.value),
-      color: '#6b7280',
+    edge: {
+      normal: {
+        color: (edge: VngConfigEdge) => {
+          const e = props.edges?.[edge.id]
+          if (!e) return '#9ca3af'
+          if (activeMode.value && !activeHighlightSet.value.edgeIds.has(edge.id)) {
+            return activeMode.value === 'focus' ? 'rgba(156,163,175,0.1)' : 'rgba(156,163,175,0.3)'
+          }
+          return e.color || '#9ca3af'
+        },
+        width: 2,
+      },
+      label: {
+        fontSize: (edge: VngConfigEdge) =>
+          edgeLabelFontSize(edge.id, activeHighlightSet.value, activeMode.value),
+        color: '#6b7280',
+      },
     },
-  },
-})
+  }),
+)
 
 // ─── Event Handlers ───────────────────────────────────────────────────────────
 
@@ -466,7 +490,7 @@ const eventHandlers = {
       tooltipTimer = null
     }
     tooltipTimer = setTimeout(() => {
-      const el = (graphRef.value as any)?.$el as HTMLElement | undefined
+      const el = (graphRef.value as { $el?: HTMLElement } | null)?.$el
       if (!el) return
       const rect = el.getBoundingClientRect()
       const x = Math.max(70, Math.min(event.clientX - rect.left, rect.width - 70))
