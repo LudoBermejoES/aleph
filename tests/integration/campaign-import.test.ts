@@ -3,6 +3,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 import { readFileSync } from 'fs'
 import { fileURLToPath } from 'url'
 import { dirname, resolve } from 'path'
+import { unzipSync } from 'fflate'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -256,7 +257,9 @@ describe('Campaign Import API (integration)', () => {
       headers: { Cookie: cookie },
     })
     expect(exportRes.status).toBe(200)
-    const exported = await exportRes.json()
+    const zipBuf = Buffer.from(await exportRes.arrayBuffer())
+    const unzipped = unzipSync(new Uint8Array(zipBuf))
+    const exported = JSON.parse(Buffer.from(unzipped['campaign.json']!).toString('utf8'))
 
     expect(exported.organizations).toHaveLength(1)
     expect(exported.organizations[0].name).toBe('Imported Guild')
