@@ -55,26 +55,36 @@ export function TldrawWrapper({
       if (result.ok) {
         loadSnapshot(editor.store, getSnapshot(result.value))
       } else if (result.error.type === 'migrationFailed') {
-        // The file was created with a newer tldraw version whose sequences
-        // can't be migrated by the installed package. Load the raw records
-        // directly — tldraw will ignore unknown shape types and fields.
-        let parsed: { schema: unknown; records: unknown[] }
+        // The file was created with a newer tldraw than the installed package.
+        // Strategy: replace the file's schema with the installed schema so the
+        // migration engine only sees sequences it knows, then drop any records
+        // whose typeName is unknown to the installed store.
+        let parsed: {
+          schema: { sequences: Record<string, number> }
+          records: Array<{ id: string; typeName: string }>
+        }
         try {
-          parsed = JSON.parse(json) as { schema: unknown; records: unknown[] }
+          parsed = JSON.parse(json) as typeof parsed
         } catch {
           console.error('[TldrawWrapper] Failed to parse .tldr JSON')
           return
         }
+
+        const installedSchema = editor.store.schema.serialize()
+        const knownTypeNames = new Set(
+          Object.keys(installedSchema.sequences).map((k) => k.split('.').pop()!),
+        )
+        // Keep only records whose typeName is known to the installed schema
+        const safeRecords = parsed.records.filter((r) => knownTypeNames.has(r.typeName))
+
         const storeSnapshot = {
-          store: Object.fromEntries(
-            (parsed.records as Array<{ id: string }>).map((r) => [r.id, r]),
-          ),
-          schema: parsed.schema,
+          store: Object.fromEntries(safeRecords.map((r) => [r.id, r])),
+          schema: installedSchema,
         }
         try {
           loadSnapshot(editor.store, storeSnapshot as Parameters<typeof loadSnapshot>[1])
         } catch (e) {
-          console.error('[TldrawWrapper] Failed to load raw snapshot:', e)
+          console.error('[TldrawWrapper] Failed to load .tldr with schema substitution:', e)
           return
         }
       } else {
