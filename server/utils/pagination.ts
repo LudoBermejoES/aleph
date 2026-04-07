@@ -21,7 +21,7 @@ export function parsePagination(query: Record<string, unknown>): PaginationParam
 
   // pageSize=0 means "no pagination" (backward compat) — return everything
   if (rawPageSize === 0) {
-    return { limit: MAX_PAGE_SIZE, offset: 0, page: 1, pageSize: 0 }
+    return { limit: 999999, offset: 0, page: 1, pageSize: 0 }
   }
 
   const page = Math.max(1, Number.isFinite(rawPage) ? Math.floor(rawPage) : 1)
