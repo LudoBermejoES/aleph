@@ -43,6 +43,16 @@
             {{ $t('diagrams.reflow') }}
           </Button>
 
+          <!-- Sync Relations button -->
+          <Button
+            size="sm"
+            variant="outline"
+            data-testid="sync-relations-btn"
+            @click="syncRelations"
+          >
+            {{ $t('diagrams.syncRelations') }}
+          </Button>
+
           <input
             ref="tldrFileInputRef"
             type="file"
@@ -319,6 +329,103 @@ function handleEntityDrop(entityDataStr: string, event: DragEvent) {
     y: pagePoint.y - 40,
     props: shapeProps,
   })
+
+  // After drop, auto-sync relations after 1s so new shape is committed to the store
+  setTimeout(() => syncRelations(), 1000)
+}
+
+// Fetch graph edges and draw tldraw arrows for entity pairs present on canvas
+async function syncRelations() {
+  const ed = editorInstance as {
+    getCurrentPageShapes: () => { id: string; type: string; props?: Record<string, unknown> }[]
+    createShape: (shape: Record<string, unknown>) => { id: string }
+    createBinding: (binding: Record<string, unknown>) => void
+    getBindingsFromShape: (
+      shapeId: string,
+      type: string,
+    ) => { toId: string; props: { terminal: string } }[]
+  } | null
+  if (!ed) return
+
+  // Collect entityId → shapeId map for all entity-linked shapes on canvas
+  const ENTITY_TYPES = ['npcToken', 'entityCard', 'locationPin', 'questNode', 'factionCard']
+  const entityToShape = new Map<string, string>()
+  for (const shape of ed.getCurrentPageShapes()) {
+    if (ENTITY_TYPES.includes(shape.type) && shape.props?.entityId) {
+      const eid = shape.props.entityId as string
+      if (!entityToShape.has(eid)) entityToShape.set(eid, shape.id)
+    }
+  }
+  if (entityToShape.size < 2) return
+
+  // Fetch all relations for the campaign from the graph API
+  let graphData: { edges: Record<string, { source: string; target: string; label?: string }> }
+  try {
+    graphData = await $fetch(`/api/campaigns/${campaignId}/graph`)
+  } catch {
+    return
+  }
+
+  // Build a set of existing bound arrow pairs (fromShapeId→toShapeId) to avoid duplicates.
+  // In tldraw v4, arrow-to-shape connections use the Bindings API: each arrow shape has
+  // separate TLArrowBinding records with terminal='start'|'end' and toId pointing to the target.
+  const existingArrows = new Set<string>()
+  for (const shape of ed.getCurrentPageShapes()) {
+    if (shape.type !== 'arrow') continue
+    const bindings = ed.getBindingsFromShape(shape.id, 'arrow')
+    const startBinding = bindings.find((b) => b.props.terminal === 'start')
+    const endBinding = bindings.find((b) => b.props.terminal === 'end')
+    if (startBinding && endBinding) {
+      existingArrows.add(`${startBinding.toId}→${endBinding.toId}`)
+    }
+  }
+
+  // Create arrows for relations between shapes on canvas
+  for (const edge of Object.values(graphData.edges)) {
+    const fromShapeId = entityToShape.get(edge.source)
+    const toShapeId = entityToShape.get(edge.target)
+    if (!fromShapeId || !toShapeId) continue
+    if (existingArrows.has(`${fromShapeId}→${toShapeId}`)) continue
+
+    // tldraw v4: createShape gives plain {x,y} start/end; bindings connect arrows to shapes
+    const arrowShape = ed.createShape({
+      type: 'arrow',
+      props: {
+        start: { x: 0, y: 0 },
+        end: { x: 100, y: 0 },
+        richText: {
+          type: 'doc',
+          content: edge.label
+            ? [{ type: 'paragraph', content: [{ type: 'text', text: edge.label }] }]
+            : [],
+        },
+        color: 'grey',
+        size: 's',
+      },
+    })
+    ed.createBinding({
+      type: 'arrow',
+      fromId: arrowShape.id,
+      toId: fromShapeId,
+      props: {
+        terminal: 'start',
+        normalizedAnchor: { x: 0.5, y: 0.5 },
+        isExact: false,
+        isPrecise: false,
+      },
+    })
+    ed.createBinding({
+      type: 'arrow',
+      fromId: arrowShape.id,
+      toId: toShapeId,
+      props: {
+        terminal: 'end',
+        normalizedAnchor: { x: 0.5, y: 0.5 },
+        isExact: false,
+        isPrecise: false,
+      },
+    })
+  }
 }
 
 // Type filter

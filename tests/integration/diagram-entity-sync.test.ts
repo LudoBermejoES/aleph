@@ -1,51 +1,13 @@
 import { describe, it, expect, beforeAll } from 'vitest'
+import { apiRaw, signUpAndGetApiKey } from './helpers'
 
-const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
-
-interface ApiOpts extends Omit<RequestInit, 'body'> {
-  body?: unknown
-}
-
-async function apiRaw(url: string, opts?: ApiOpts) {
-  const { body, ...rest } = opts ?? {}
-  return fetch(`${BASE_URL}${url}`, {
-    ...rest,
-    headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...rest?.headers },
-    body: body !== undefined ? JSON.stringify(body) : undefined,
-  })
-}
-
-async function api(url: string, opts?: ApiOpts) {
+async function api(url: string, opts?: Parameters<typeof apiRaw>[1]) {
   const res = await apiRaw(url, opts)
   if (!res.ok) {
     const t = await res.text()
     throw new Error(`${opts?.method ?? 'GET'} ${url} → ${res.status}: ${t}`)
   }
   if (res.status === 204) return null
-  return res.json()
-}
-
-async function signUpAndGetCookie(email: string, password = 'password123', name = 'Test User') {
-  await apiRaw('/api/auth/sign-up/email', { method: 'POST', body: { name, email, password } })
-  const res = await apiRaw('/api/auth/sign-in/email', { method: 'POST', body: { email, password } })
-  const cookies = res.headers.get('set-cookie') || ''
-  const match = cookies.match(/better-auth\.session_token=([^;]+)/)
-  const sessionCookie = match ? `better-auth.session_token=${match[1]}` : ''
-  const getRes = await apiRaw('/api/campaigns', { headers: { Cookie: sessionCookie } })
-  const setCookie = getRes.headers.get('set-cookie') || ''
-  const csrfMatch = setCookie.match(/csrf_token=([^;]+)/)
-  const csrfToken = csrfMatch?.[1] || ''
-  return csrfToken ? `${sessionCookie}; csrf_token=${csrfToken}` : sessionCookie
-}
-
-async function createApiKey(cookie: string, name = 'test-key') {
-  const csrfMatch = cookie.match(/csrf_token=([^;]+)/)
-  const csrfToken = csrfMatch?.[1] || ''
-  const res = await apiRaw('/api/apikeys', {
-    method: 'POST',
-    headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
-    body: { name },
-  })
   return res.json()
 }
 
@@ -65,9 +27,8 @@ describe('Diagram entity sync — batch endpoint and reflow (diagram-enhancement
   let entityId2 = ''
 
   beforeAll(async () => {
-    const dmCookie = await signUpAndGetCookie(dmEmail)
-    const dmKeyData = await createApiKey(dmCookie, 'sync-dm-key')
-    dmApiKey = dmKeyData.key
+    dmApiKey = await signUpAndGetApiKey(dmEmail)
+    playerApiKey = await signUpAndGetApiKey(playerEmail)
 
     const camp = await api('/api/campaigns', {
       method: 'POST',
@@ -81,9 +42,6 @@ describe('Diagram entity sync — batch endpoint and reflow (diagram-enhancement
       headers: authH(dmApiKey),
       body: { role: 'player' },
     })
-    const playerCookie = await signUpAndGetCookie(playerEmail)
-    const playerKeyData = await createApiKey(playerCookie, 'sync-player-key')
-    playerApiKey = playerKeyData.key
     await api(`/api/campaigns/${campaignId}/join`, {
       method: 'POST',
       headers: authH(playerApiKey),
@@ -180,7 +138,7 @@ describe('Diagram entity sync — batch endpoint and reflow (diagram-enhancement
     const res = await apiRaw(`/api/campaigns/${campaignId}/diagrams/reflow`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-API-Key': playerApiKey },
-      body: JSON.stringify({ entityIds: [entityId1], diagramType: 'entity-graph' }),
+      body: { entityIds: [entityId1], diagramType: 'entity-graph' },
     })
     expect(res.status).toBe(403)
   })
@@ -192,5 +150,43 @@ describe('Diagram entity sync — batch endpoint and reflow (diagram-enhancement
       body: { entityIds: [], diagramType: 'entity-graph' },
     })
     expect(data.positions).toEqual({})
+  })
+
+  // ─── Graph endpoint (used by syncRelations) ─────────────────────────────────
+
+  it('graph endpoint returns edges structure for syncRelations', async () => {
+    // Create a relation between entityId1 and entityId2
+    await api(`/api/campaigns/${campaignId}/relations`, {
+      method: 'POST',
+      headers: authH(dmApiKey),
+      body: { sourceEntityId: entityId1, targetEntityId: entityId2, label: 'ally' },
+    })
+
+    const data = await api(`/api/campaigns/${campaignId}/graph`, {
+      headers: authH(dmApiKey),
+    })
+
+    expect(data).toHaveProperty('edges')
+    const edges = Object.values(data.edges) as { source: string; target: string; label?: string }[]
+    const edge = edges.find(
+      (e) =>
+        (e.source === entityId1 && e.target === entityId2) ||
+        (e.source === entityId2 && e.target === entityId1),
+    )
+    expect(edge).toBeDefined()
+    expect(edge).toHaveProperty('source')
+    expect(edge).toHaveProperty('target')
+  })
+
+  it('graph endpoint 401 without auth', async () => {
+    const res = await apiRaw(`/api/campaigns/${campaignId}/graph`)
+    expect(res.status).toBe(401)
+  })
+
+  it('player can access graph endpoint', async () => {
+    const data = await api(`/api/campaigns/${campaignId}/graph`, {
+      headers: authH(playerApiKey),
+    })
+    expect(data).toHaveProperty('edges')
   })
 })

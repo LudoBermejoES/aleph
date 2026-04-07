@@ -953,6 +953,7 @@
       "expand": "Expandir panel"
     },
     "reflow": "Reorganizar",
+    "syncRelations": "Sincronizar relaciones",
     "popover": {
       "openFullPage": "Abrir",
       "openInNewTab": "Nueva pestaña"

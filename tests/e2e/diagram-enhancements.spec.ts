@@ -176,3 +176,45 @@ test.describe('Diagram enhancements — focus camera (11.x)', () => {
     }
   })
 })
+
+test.describe('Diagram enhancements — sync relations button (feat)', () => {
+  test('sync relations button is visible in diagram toolbar', async ({ page }) => {
+    await registerAndLogin(page, `SyncBtn ${uid()}`)
+    await createCampaign(page, `SyncBtn Camp ${uid()}`)
+    const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
+
+    const diagram = (await apiFetch(page, `/api/campaigns/${campaignId}/diagrams`, {
+      method: 'POST',
+      body: { title: 'Sync Relations Test', diagramType: 'freeform' },
+    })) as { id: string }
+
+    await page.goto(`/campaigns/${campaignId}/diagrams/${diagram.id}`)
+    await page.waitForLoadState('networkidle')
+    await page.waitForSelector('.tldraw-wrapper', { timeout: 10000 })
+
+    const syncBtn = page.locator('[data-testid="sync-relations-btn"]')
+    await expect(syncBtn).toBeVisible()
+  })
+
+  test('clicking sync relations button does not crash when canvas is empty', async ({ page }) => {
+    await registerAndLogin(page, `SyncEmpty ${uid()}`)
+    await createCampaign(page, `SyncEmpty Camp ${uid()}`)
+    const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
+
+    const diagram = (await apiFetch(page, `/api/campaigns/${campaignId}/diagrams`, {
+      method: 'POST',
+      body: { title: 'Sync Empty Test', diagramType: 'freeform' },
+    })) as { id: string }
+
+    await page.goto(`/campaigns/${campaignId}/diagrams/${diagram.id}`)
+    await page.waitForLoadState('networkidle')
+    await page.waitForSelector('.tldraw-wrapper', { timeout: 10000 })
+
+    // Click sync — should not throw, page should remain functional
+    await page.locator('[data-testid="sync-relations-btn"]').click()
+    await page.waitForTimeout(500)
+
+    // Page should still be showing the canvas
+    await expect(page.locator('.tldraw-wrapper')).toBeVisible()
+  })
+})

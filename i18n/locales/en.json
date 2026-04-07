@@ -953,6 +953,7 @@
       "expand": "Expand panel"
     },
     "reflow": "Reflow",
+    "syncRelations": "Sync Relations",
     "popover": {
       "openFullPage": "Open",
       "openInNewTab": "New tab"
