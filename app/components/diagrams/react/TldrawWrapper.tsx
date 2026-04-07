@@ -4,18 +4,11 @@ import './TldrawWrapper.css'
 import React, { useCallback, useImperativeHandle, useRef } from 'react'
 import {
   Tldraw,
-  DefaultToolbar,
-  DefaultToolbarContent,
-  TldrawUiMenuItem,
-  useIsToolSelected,
-  useTools,
   getSnapshot,
   loadSnapshot,
   parseTldrawJsonFile,
   type Editor,
   type TLEditorSnapshot,
-  type TLComponents,
-  type TLUiOverrides,
 } from 'tldraw'
 import { EntityCardShapeUtil } from './shapes/EntityCardShape'
 import { QuestNodeShapeUtil } from './shapes/QuestNodeShape'
@@ -28,42 +21,6 @@ import { AnchorTokenShapeUtil } from './shapes/AnchorTokenShape'
 import { MapTokenShapeUtil } from './shapes/MapTokenShape'
 import { StickyNoteShapeUtil } from './shapes/StickyNoteShape'
 import { CanvasLabelShapeUtil } from './shapes/CanvasLabelShape'
-import { RelationshipArrowTool } from './tools/RelationshipArrowTool'
-
-const CUSTOM_TOOLS = [RelationshipArrowTool]
-
-function RelationshipArrowToolbarItem() {
-  const tools = useTools()
-  const isSelected = useIsToolSelected(tools['relationshipArrow']!)
-  return <TldrawUiMenuItem {...tools['relationshipArrow']!} isSelected={isSelected} />
-}
-
-function CustomToolbar() {
-  return (
-    <DefaultToolbar>
-      <DefaultToolbarContent />
-      <RelationshipArrowToolbarItem />
-    </DefaultToolbar>
-  )
-}
-
-const customComponents: TLComponents = {
-  Toolbar: CustomToolbar,
-}
-
-const customOverrides: TLUiOverrides = {
-  tools(editor, tools) {
-    tools.relationshipArrow = {
-      id: 'relationshipArrow',
-      icon: 'tool-arrow',
-      label: 'Relationship Arrow',
-      onSelect: () => {
-        editor.setCurrentTool('relationshipArrow')
-      },
-    }
-    return tools
-  },
-}
 
 const SHAPE_UTILS = [
   EntityCardShapeUtil,
@@ -201,9 +158,6 @@ export function TldrawWrapper({
       <Tldraw
         snapshot={snapshot}
         shapeUtils={SHAPE_UTILS}
-        tools={CUSTOM_TOOLS}
-        overrides={customOverrides}
-        components={customComponents}
         onMount={handleMount}
         hideUi={readOnly}
       />
