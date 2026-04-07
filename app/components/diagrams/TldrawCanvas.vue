@@ -5,6 +5,7 @@ import type { MountedCanvas } from './react/mount'
 const props = defineProps<{
   snapshot?: Record<string, unknown>
   readOnly?: boolean
+  campaignId?: string
 }>()
 
 const emit = defineEmits<{
@@ -28,6 +29,7 @@ function makeProps(snapshotVal?: Record<string, unknown>, readOnlyVal?: boolean)
     // Strip Vue reactive proxy — pass plain JS to React
     snapshot: snapshotVal ? JSON.parse(JSON.stringify(snapshotVal)) : undefined,
     readOnly: readOnlyVal ?? false,
+    campaignId: props.campaignId,
     onChange: (snapshot: unknown) => emit('save', snapshot as Record<string, unknown>),
     onEditorReady: (editor: unknown) => {
       editorInstance = editor
@@ -78,5 +80,5 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div ref="containerRef" style="width: 100%; height: 100%" />
+  <div ref="containerRef" style="width: 100%; height: 100%"></div>
 </template>

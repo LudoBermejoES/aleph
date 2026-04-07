@@ -951,6 +951,19 @@
       "wiki": "Wiki",
       "collapse": "Collapse panel",
       "expand": "Expand panel"
+    },
+    "reflow": "Reflow",
+    "popover": {
+      "openFullPage": "Open",
+      "openInNewTab": "New tab"
+    },
+    "filter": {
+      "all": "All",
+      "characters": "Characters",
+      "locations": "Locations",
+      "organizations": "Organizations",
+      "quests": "Quests",
+      "wiki": "Wiki"
     }
   }
 }

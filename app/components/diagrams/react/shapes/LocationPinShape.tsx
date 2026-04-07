@@ -1,3 +1,4 @@
+/** @jsxImportSource react */
 import React from 'react'
 import { BaseBoxShapeUtil, type TLBaseShape, HTMLContainer, type RecordProps, T } from 'tldraw'
 
@@ -37,8 +38,15 @@ export class LocationPinShapeUtil extends BaseBoxShapeUtil<LocationPinShape> {
   }
 
   override onDoubleClick = (shape: LocationPinShape) => {
-    const url = `/campaigns/${shape.props.campaignId}/maps`
-    window.open(url, '_blank')
+    window.dispatchEvent(new CustomEvent('aleph:entity-preview', {
+      detail: {
+        entityId: shape.props.entityId,
+        campaignId: shape.props.campaignId,
+        slug: shape.props.slug,
+        x: 200,
+        y: 200,
+      }
+    }))
   }
 
   override component(shape: LocationPinShape) {

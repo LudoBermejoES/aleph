@@ -14,12 +14,26 @@ import { EntityCardShapeUtil } from './shapes/EntityCardShape'
 import { QuestNodeShapeUtil } from './shapes/QuestNodeShape'
 import { LocationPinShapeUtil } from './shapes/LocationPinShape'
 import { NPCTokenShapeUtil } from './shapes/NPCTokenShape'
+import { RelationshipArrowShapeUtil } from './shapes/RelationshipArrowShape'
+import { RegionBoxShapeUtil } from './shapes/RegionBoxShape'
+import { FactionCardShapeUtil } from './shapes/FactionCardShape'
+import { AnchorTokenShapeUtil } from './shapes/AnchorTokenShape'
+import { MapTokenShapeUtil } from './shapes/MapTokenShape'
+import { StickyNoteShapeUtil } from './shapes/StickyNoteShape'
+import { CanvasLabelShapeUtil } from './shapes/CanvasLabelShape'
 
 const SHAPE_UTILS = [
   EntityCardShapeUtil,
   QuestNodeShapeUtil,
   LocationPinShapeUtil,
   NPCTokenShapeUtil,
+  RelationshipArrowShapeUtil,
+  RegionBoxShapeUtil,
+  FactionCardShapeUtil,
+  AnchorTokenShapeUtil,
+  MapTokenShapeUtil,
+  StickyNoteShapeUtil,
+  CanvasLabelShapeUtil,
 ]
 
 export interface TldrawWrapperHandle {
@@ -29,6 +43,7 @@ export interface TldrawWrapperHandle {
 export interface TldrawWrapperProps {
   snapshot?: TLEditorSnapshot
   readOnly?: boolean
+  campaignId?: string
   onChange?: (snapshot: TLEditorSnapshot) => void
   onEditorReady?: (editor: Editor) => void
   onNativeDrop?: (event: DragEvent, editor: Editor) => void
@@ -38,6 +53,7 @@ export interface TldrawWrapperProps {
 export function TldrawWrapper({
   snapshot,
   readOnly,
+  campaignId,
   onChange,
   onEditorReady,
   onNativeDrop,
@@ -107,6 +123,15 @@ export function TldrawWrapper({
 
       onEditorReady?.(editor)
 
+      // Hydrate entity shapes with fresh data after mount
+      if (campaignId) {
+        setTimeout(() => {
+          import('../../../utils/diagram-hydration').then(({ hydrateEntityShapes }) => {
+            hydrateEntityShapes(editor, campaignId).catch(console.error)
+          })
+        }, 0)
+      }
+
       editor.store.listen(
         () => {
           if (!readOnly && onChange) {
@@ -116,7 +141,7 @@ export function TldrawWrapper({
         { scope: 'document', source: 'user' },
       )
     },
-    [readOnly, onChange, onEditorReady],
+    [readOnly, campaignId, onChange, onEditorReady],
   )
 
   const handleDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {

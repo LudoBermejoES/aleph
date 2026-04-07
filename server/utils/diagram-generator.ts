@@ -67,21 +67,33 @@ export function generateEntityGraph(
 
   // Force-directed grid layout (simple approximation)
   const cols = Math.ceil(Math.sqrt(entityList.length))
-  const shapes: GeneratedShape[] = entityList.map((entity, i) => ({
-    id: randomUUID(),
-    type: 'entityCard',
-    x: (i % cols) * 240 + 50,
-    y: Math.floor(i / cols) * 120 + 50,
-    props: {
-      w: 200,
-      h: 80,
-      entityId: entity.id,
-      campaignId,
-      entityName: entity.name,
-      entityType: entity.type,
-      slug: entity.slug,
-    },
-  }))
+  const shapes: GeneratedShape[] = entityList.map((entity, i) => {
+    const isOrg = entity.type === 'organization'
+    return {
+      id: randomUUID(),
+      type: isOrg ? 'factionCard' : 'entityCard',
+      x: (i % cols) * 240 + 50,
+      y: Math.floor(i / cols) * 120 + 50,
+      props: isOrg
+        ? {
+            w: 180,
+            h: 100,
+            entityId: entity.id,
+            campaignId,
+            factionName: entity.name,
+            slug: entity.slug,
+          }
+        : {
+            w: 200,
+            h: 80,
+            entityId: entity.id,
+            campaignId,
+            entityName: entity.name,
+            entityType: entity.type,
+            slug: entity.slug,
+          },
+    }
+  })
 
   const entityIdToShapeId = new Map(entityList.map((e, i) => [e.id, shapes[i]!.id]))
 
@@ -210,16 +222,15 @@ export function generateFactionWeb(
     const angle = (i / items.length) * 2 * Math.PI - Math.PI / 2
     return {
       id: randomUUID(),
-      type: 'entityCard',
-      x: centerX + Math.cos(angle) * radius - 100,
-      y: centerY + Math.sin(angle) * radius - 30,
+      type: 'factionCard',
+      x: centerX + Math.cos(angle) * radius - 90,
+      y: centerY + Math.sin(angle) * radius - 50,
       props: {
-        w: 200,
-        h: 60,
+        w: 180,
+        h: 100,
         entityId: org.id,
         campaignId,
-        entityName: org.name,
-        entityType: 'organization',
+        factionName: org.name,
         slug: org.slug,
       },
     }

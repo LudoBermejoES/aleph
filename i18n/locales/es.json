@@ -951,6 +951,19 @@
       "wiki": "Wiki",
       "collapse": "Colapsar panel",
       "expand": "Expandir panel"
+    },
+    "reflow": "Reorganizar",
+    "popover": {
+      "openFullPage": "Abrir",
+      "openInNewTab": "Nueva pestaña"
+    },
+    "filter": {
+      "all": "Todo",
+      "characters": "Personajes",
+      "locations": "Lugares",
+      "organizations": "Organizaciones",
+      "quests": "Misiones",
+      "wiki": "Wiki"
     }
   }
 }

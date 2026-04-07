@@ -16,37 +16,58 @@
         <span class="text-foreground font-medium">{{ diagram?.title }}</span>
       </div>
 
-      <div v-if="!readOnly" class="flex items-center gap-2">
-        <span v-if="saveStatus === 'saving'" class="text-xs text-muted-foreground">
-          {{ $t('diagrams.saving') }}
-        </span>
-        <span v-else-if="saveStatus === 'saved'" class="text-xs text-green-600">
-          {{ $t('diagrams.saved') }}
-        </span>
-        <input
-          ref="tldrFileInputRef"
-          type="file"
-          accept=".tldr"
-          class="hidden"
-          data-testid="tldr-file-input"
-          @change="onTldrFileSelected"
-        />
-        <Button
-          size="sm"
-          variant="outline"
-          data-testid="import-tldr-btn"
-          @click="tldrFileInputRef?.click()"
-        >
-          {{ $t('diagrams.importTldr') }}
-        </Button>
-        <Button
-          size="sm"
-          :disabled="saveStatus === 'saving'"
-          data-testid="save-diagram-btn"
-          @click="saveNow"
-        >
-          {{ $t('diagrams.save') }}
-        </Button>
+      <div class="flex items-center gap-2">
+        <!-- Type filter buttons -->
+        <div class="flex gap-1">
+          <Button
+            v-for="f in filterOptions"
+            :key="f.value"
+            size="xs"
+            :variant="filterType === f.value ? 'default' : 'outline'"
+            @click="setFilter(f.value)"
+          >
+            {{ f.label }}
+          </Button>
+        </div>
+
+        <div v-if="!readOnly" class="flex items-center gap-2">
+          <span v-if="saveStatus === 'saving'" class="text-xs text-muted-foreground">
+            {{ $t('diagrams.saving') }}
+          </span>
+          <span v-else-if="saveStatus === 'saved'" class="text-xs text-green-600">
+            {{ $t('diagrams.saved') }}
+          </span>
+
+          <!-- Reflow button -->
+          <Button size="sm" variant="outline" data-testid="reflow-btn" @click="reflowShapes">
+            {{ $t('diagrams.reflow') }}
+          </Button>
+
+          <input
+            ref="tldrFileInputRef"
+            type="file"
+            accept=".tldr"
+            class="hidden"
+            data-testid="tldr-file-input"
+            @change="onTldrFileSelected"
+          />
+          <Button
+            size="sm"
+            variant="outline"
+            data-testid="import-tldr-btn"
+            @click="tldrFileInputRef?.click()"
+          >
+            {{ $t('diagrams.importTldr') }}
+          </Button>
+          <Button
+            size="sm"
+            :disabled="saveStatus === 'saving'"
+            data-testid="save-diagram-btn"
+            @click="saveNow"
+          >
+            {{ $t('diagrams.save') }}
+          </Button>
+        </div>
       </div>
     </div>
 
@@ -58,6 +79,7 @@
         :campaign-id="campaignId"
         :placed-entity-ids="placedEntityIds"
         @drag-start="onEntityDragStart"
+        @focus-entity="onFocusEntity"
       />
 
       <!-- Canvas Area -->
@@ -73,19 +95,42 @@
           ref="canvasRef"
           :snapshot="snapshot"
           :read-only="readOnly"
+          :campaign-id="campaignId"
           @save="onCanvasChange"
           @placed-entities-change="onPlacedEntitiesChange"
           @editor-ready="onEditorReady"
           @drop="onCanvasDrop"
         />
+
+        <!-- Entity Popover -->
+        <EntityPopover
+          v-if="popoverVisible"
+          :visible="popoverVisible"
+          :entity-id="popoverEntityId"
+          :campaign-id="campaignId"
+          :slug="popoverSlug"
+          :x="popoverX"
+          :y="popoverY"
+          @close="popoverVisible = false"
+        />
       </div>
     </div>
+
+    <!-- Map Modal -->
+    <MapModal
+      :open="mapModalOpen"
+      :map-id="mapModalId"
+      :campaign-id="campaignId"
+      @close="mapModalOpen = false"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import TldrawCanvas from '~/components/diagrams/TldrawCanvas.vue'
 import EntityPanel from '~/components/diagrams/EntityPanel.vue'
+import EntityPopover from '~/components/diagrams/EntityPopover.vue'
+import MapModal from '~/components/diagrams/MapModal.vue'
 
 definePageMeta({ layout: 'empty' })
 
@@ -102,6 +147,29 @@ const saveStatus = ref<'idle' | 'saving' | 'saved'>('idle')
 const placedEntityIds = ref(new Map<string, number>())
 const canvasRef = ref<InstanceType<typeof TldrawCanvas> | null>(null)
 const tldrFileInputRef = ref<HTMLInputElement | null>(null)
+
+// Popover state
+const popoverVisible = ref(false)
+const popoverEntityId = ref('')
+const popoverSlug = ref('')
+const popoverX = ref(200)
+const popoverY = ref(200)
+
+// Map modal state
+const mapModalOpen = ref(false)
+const mapModalId = ref('')
+
+// Type filter
+const filterType = ref<string>('all')
+const { t } = useI18n()
+const filterOptions = computed(() => [
+  { value: 'all', label: t('diagrams.filter.all') },
+  { value: 'character', label: t('diagrams.filter.characters') },
+  { value: 'location', label: t('diagrams.filter.locations') },
+  { value: 'organization', label: t('diagrams.filter.organizations') },
+  { value: 'quest', label: t('diagrams.filter.quests') },
+  { value: 'wiki', label: t('diagrams.filter.wiki') },
+])
 
 let editorInstance: unknown = null
 let pendingEntityDrop: { entityData: string; event: DragEvent } | null = null
@@ -184,6 +252,10 @@ function onPlacedEntitiesChange(counts: Map<string, number>) {
 
 function onEntityDragStart(_entityData: string) {}
 
+function onFocusEntity(entityId: string) {
+  canvasRef.value?.focusEntity(entityId)
+}
+
 function onCanvasDrop(event: DragEvent, editor: unknown) {
   editorInstance = editor
   const entityData = event.dataTransfer?.getData('application/aleph-entity')
@@ -214,6 +286,7 @@ function handleEntityDrop(entityDataStr: string, event: DragEvent) {
     character: 'npcToken',
     location: 'locationPin',
     quest: 'questNode',
+    organization: 'factionCard',
   }
 
   const shapeType = shapeMap[entity.entityType ?? entity.type] ?? 'entityCard'
@@ -232,6 +305,8 @@ function handleEntityDrop(entityDataStr: string, event: DragEvent) {
   } else if (shapeType === 'questNode') {
     shapeProps.questTitle = entity.name
     shapeProps.status = entity.status ?? 'planned'
+  } else if (shapeType === 'factionCard') {
+    shapeProps.factionName = entity.name
   } else {
     shapeProps.entityName = entity.name
     shapeProps.entityType = entity.entityType ?? entity.type
@@ -245,6 +320,119 @@ function handleEntityDrop(entityDataStr: string, event: DragEvent) {
     props: shapeProps,
   })
 }
+
+// Type filter
+function setFilter(type: string) {
+  filterType.value = type
+  canvasRef.value?.filterShapes(type)
+}
+
+// Reflow shapes
+async function reflowShapes() {
+  const ed = editorInstance as {
+    getCurrentPageShapes: () => { id: string; type: string; props?: { entityId?: string } }[]
+  } | null
+  if (!ed) return
+  const entityIds = [
+    ...new Set(
+      ed
+        .getCurrentPageShapes()
+        .filter((s) => s.props?.entityId)
+        .map((s) => s.props!.entityId!),
+    ),
+  ]
+  if (entityIds.length === 0) return
+  try {
+    const result = await $fetch<{ positions: Record<string, { x: number; y: number }> }>(
+      `/api/campaigns/${campaignId}/diagrams/reflow`,
+      {
+        method: 'POST',
+        body: { entityIds, diagramType: 'entity-graph' },
+      },
+    )
+    const shapeUpdates = ed
+      .getCurrentPageShapes()
+      .filter((s) => s.props?.entityId && result.positions[s.props.entityId])
+      .map((s) => ({
+        id: s.id,
+        x: result.positions[s.props!.entityId!]!.x,
+        y: result.positions[s.props!.entityId!]!.y,
+      }))
+    ;(editorInstance as { updateShapes: (s: object[]) => void }).updateShapes(shapeUpdates)
+  } catch (e) {
+    console.error('[reflow] failed:', e)
+  }
+}
+
+// aleph:entity-preview listener
+function onAlephEntityPreview(e: Event) {
+  if (readOnly.value) {
+    // In read-only mode, fall back to opening in new tab
+    const detail = (e as CustomEvent).detail as {
+      campaignId: string
+      slug: string
+    }
+    window.open(`/campaigns/${detail.campaignId}/entities/${detail.slug}`, '_blank')
+    return
+  }
+  const detail = (e as CustomEvent).detail as {
+    entityId: string
+    campaignId: string
+    slug: string
+    x: number
+    y: number
+  }
+  popoverEntityId.value = detail.entityId
+  popoverSlug.value = detail.slug
+  // Clamp popover within viewport
+  popoverX.value = Math.min(detail.x, window.innerWidth - 300)
+  popoverY.value = Math.min(detail.y, window.innerHeight - 400)
+  popoverVisible.value = true
+}
+
+// aleph:navigate listener (Task 7.4)
+function onAlephNavigate(e: Event) {
+  const detail = (e as CustomEvent).detail as {
+    targetType: string
+    targetDiagramId?: string
+    targetUrl?: string
+  }
+  if (detail.targetType === 'diagram' && detail.targetDiagramId) {
+    useRouter().push(`/campaigns/${campaignId}/diagrams/${detail.targetDiagramId}`)
+  } else if (detail.targetType === 'external' && detail.targetUrl) {
+    window.open(detail.targetUrl, '_blank')
+  }
+}
+
+// aleph:open-map listener (Task 8.3)
+function onAlephOpenMap(e: Event) {
+  const detail = (e as CustomEvent).detail as { mapId: string; campaignId: string }
+  mapModalId.value = detail.mapId
+  mapModalOpen.value = true
+}
+
+function onDocMouseDown(e: MouseEvent) {
+  if (!popoverVisible.value) return
+  const popoverEl = document.querySelector('[data-testid="entity-popover"]')
+  if (popoverEl && !popoverEl.contains(e.target as Node)) {
+    popoverVisible.value = false
+  }
+}
+
+onMounted(() => {
+  load()
+  window.addEventListener('aleph:entity-preview', onAlephEntityPreview)
+  window.addEventListener('aleph:navigate', onAlephNavigate)
+  window.addEventListener('aleph:open-map', onAlephOpenMap)
+  document.addEventListener('mousedown', onDocMouseDown, { capture: true })
+})
+
+onUnmounted(() => {
+  window.removeEventListener('aleph:entity-preview', onAlephEntityPreview)
+  window.removeEventListener('aleph:navigate', onAlephNavigate)
+  window.removeEventListener('aleph:open-map', onAlephOpenMap)
+  document.removeEventListener('mousedown', onDocMouseDown, { capture: true })
+})
 
 interface TldrAsset {
   id: string
@@ -342,6 +530,4 @@ function onTldrFileSelected(event: Event) {
   }
   reader.readAsText(file)
 }
-
-onMounted(load)
 </script>
