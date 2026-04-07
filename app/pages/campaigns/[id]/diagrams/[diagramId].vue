@@ -343,7 +343,9 @@ function relationTypeToColor(relationTypeSlug?: string, attitude?: number): stri
   )
     return 'red'
   if (relationTypeSlug === 'family') return 'violet'
+  if (relationTypeSlug === 'member') return 'violet'
   if (relationTypeSlug === 'mentor') return 'blue'
+  if (relationTypeSlug === 'location') return 'orange'
   if (relationTypeSlug === 'ally' || (attitude !== undefined && attitude >= 70)) return 'green'
   return 'grey'
 }

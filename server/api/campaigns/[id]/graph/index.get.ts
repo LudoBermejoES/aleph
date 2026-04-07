@@ -3,7 +3,11 @@ import { useDb } from '../../../../utils/db'
 import { entities } from '../../../../db/schema/entities'
 import { entityRelations, relationTypes } from '../../../../db/schema/relations'
 import { characters } from '../../../../db/schema/characters'
-import { organizations, organizationMembers } from '../../../../db/schema/organizations'
+import {
+  organizations,
+  organizationMembers,
+  organizationLocations,
+} from '../../../../db/schema/organizations'
 import { computeAttitudeColor } from '../../../../services/relationships'
 import { filterPinsByVisibility } from '../../../../services/maps'
 import type { CampaignRole } from '../../../../utils/permissions'
@@ -117,7 +121,17 @@ export default defineEventHandler(async (event) => {
   }
 
   // Build v-network-graph format
-  const graphNodes = Object.fromEntries(
+  const graphNodes: Record<
+    string,
+    {
+      name: string
+      type: string
+      slug: string
+      boardSummary: string | null
+      image: string | null
+      organizations: Array<{ slug: string; name: string }>
+    }
+  > = Object.fromEntries(
     Object.entries(nodes).map(([id, n]) => [
       id,
       {
@@ -131,7 +145,17 @@ export default defineEventHandler(async (event) => {
     ]),
   )
 
-  const graphEdges = Object.fromEntries(
+  const graphEdges: Record<
+    string,
+    {
+      source: string
+      target: string
+      label: string | null
+      color: string
+      attitude: number | null
+      relationTypeSlug: string
+    }
+  > = Object.fromEntries(
     relations.map((r) => [
       r.id,
       {
@@ -144,6 +168,139 @@ export default defineEventHandler(async (event) => {
       },
     ]),
   )
+
+  // Add organization nodes and org→character membership edges.
+  // Organizations use organizations.id (not entity IDs) and appear as factionCard shapes.
+  for (const row of orgMemberRows) {
+    if (!row.orgId || !row.orgName || !row.orgSlug) continue
+    const entityId = charIdToEntityId[row.characterId]
+    if (!entityId) continue
+
+    // Add org as a node if not already present
+    if (!graphNodes[row.orgId]) {
+      graphNodes[row.orgId] = {
+        name: row.orgName,
+        type: 'organization',
+        slug: row.orgSlug,
+        boardSummary: null,
+        image: null,
+        organizations: [],
+      }
+    }
+
+    // Add membership edge: org → character entity
+    const edgeKey = `org-member:${row.orgId}:${row.characterId}`
+    if (!graphEdges[edgeKey]) {
+      graphEdges[edgeKey] = {
+        source: row.orgId,
+        target: entityId,
+        label: (row as { role?: string }).role || 'miembro',
+        color: '#8b5cf6',
+        attitude: null,
+        relationTypeSlug: 'member',
+      }
+    }
+  }
+
+  // Also fetch all campaign organizations so they appear as nodes even without member edges
+  const allOrgs = db
+    .select({ id: organizations.id, name: organizations.name, slug: organizations.slug })
+    .from(organizations)
+    .where(eq(organizations.campaignId, campaignId))
+    .all()
+  for (const org of allOrgs) {
+    if (!graphNodes[org.id]) {
+      graphNodes[org.id] = {
+        name: org.name,
+        type: 'organization',
+        slug: org.slug,
+        boardSummary: null,
+        image: null,
+        organizations: [],
+      }
+    }
+  }
+
+  // Add character → location edges (characters with a home/base location)
+  for (const row of charIdRows) {
+    const char = db
+      .select({ locationEntityId: characters.locationEntityId })
+      .from(characters)
+      .where(eq(characters.id, row.id))
+      .get()
+    if (!char?.locationEntityId) continue
+    const loc = db
+      .select({ id: entities.id, name: entities.name, slug: entities.slug })
+      .from(entities)
+      .where(eq(entities.id, char.locationEntityId))
+      .get()
+    if (!loc) continue
+
+    // Add location as a node
+    if (!graphNodes[loc.id]) {
+      graphNodes[loc.id] = {
+        name: loc.name,
+        type: 'location',
+        slug: loc.slug,
+        boardSummary: null,
+        image: null,
+        organizations: [],
+      }
+    }
+
+    // Add edge: character entity → location entity
+    const edgeKey = `char-location:${row.entityId}:${loc.id}`
+    if (!graphEdges[edgeKey]) {
+      graphEdges[edgeKey] = {
+        source: row.entityId,
+        target: loc.id,
+        label: 'ubicación',
+        color: '#f59e0b',
+        attitude: null,
+        relationTypeSlug: 'location',
+      }
+    }
+  }
+
+  // Add organization → location edges
+  for (const org of allOrgs) {
+    const orgLocs = db
+      .select({ locationEntityId: organizationLocations.locationEntityId })
+      .from(organizationLocations)
+      .where(eq(organizationLocations.organizationId, org.id))
+      .all()
+    for (const ol of orgLocs) {
+      const loc = db
+        .select({ id: entities.id, name: entities.name, slug: entities.slug })
+        .from(entities)
+        .where(eq(entities.id, ol.locationEntityId))
+        .get()
+      if (!loc) continue
+
+      if (!graphNodes[loc.id]) {
+        graphNodes[loc.id] = {
+          name: loc.name,
+          type: 'location',
+          slug: loc.slug,
+          boardSummary: null,
+          image: null,
+          organizations: [],
+        }
+      }
+
+      const edgeKey = `org-location:${org.id}:${loc.id}`
+      if (!graphEdges[edgeKey]) {
+        graphEdges[edgeKey] = {
+          source: org.id,
+          target: loc.id,
+          label: 'sede',
+          color: '#f59e0b',
+          attitude: null,
+          relationTypeSlug: 'location',
+        }
+      }
+    }
+  }
 
   return { nodes: graphNodes, edges: graphEdges }
 })
