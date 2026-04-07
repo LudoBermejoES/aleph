@@ -1,6 +1,6 @@
 import { useDb } from '../../../utils/db'
 import { hasMinRole } from '../../../utils/permissions'
-import { buildCampaignExport } from '../../../services/campaign-export'
+import { buildCampaignExportZip } from '../../../services/campaign-export'
 import type { CampaignRole } from '../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
@@ -24,16 +24,16 @@ export default defineEventHandler(async (event) => {
         .filter(Boolean)
     : undefined
 
-  const exportData = await buildCampaignExport(db, {
+  const zipBuffer = await buildCampaignExportZip(db, {
     campaignId: campaign.id,
     include,
   })
 
   const date = new Date().toISOString().slice(0, 10) // YYYY-MM-DD
-  const filename = `campaign-${campaign.slug}-export-${date}.json`
+  const filename = `campaign-${campaign.slug}-export-${date}.zip`
 
-  setHeader(event, 'Content-Type', 'application/json')
+  setHeader(event, 'Content-Type', 'application/zip')
   setHeader(event, 'Content-Disposition', `attachment; filename="${filename}"`)
 
-  return exportData
+  return send(event, zipBuffer)
 })

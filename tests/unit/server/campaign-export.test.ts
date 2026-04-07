@@ -4,8 +4,10 @@ import { mkdirSync, writeFileSync, rmSync } from 'fs'
 import { join } from 'path'
 import { tmpdir } from 'os'
 import { createTestDb, type TestDb } from '../../helpers/db'
+import { unzipSync } from 'fflate'
 import {
   buildCampaignExport,
+  buildCampaignExportZip,
   collectImageUrls,
   embedImages,
   VALID_RESOURCE_TYPES,
@@ -64,7 +66,7 @@ afterEach(() => {
 describe('buildCampaignExport - envelope fields (task 7.1)', () => {
   it('returns correct envelope fields', async () => {
     const result = await buildCampaignExport(testDb.db, { campaignId })
-    expect(result.version).toBe('1.1')
+    expect(result.version).toBe('1.2')
     expect(result.generator).toBe('aleph')
     expect(result.exportedAt).toBeTruthy()
     expect(new Date(result.exportedAt).toISOString()).toBe(result.exportedAt)
@@ -421,5 +423,84 @@ describe('embedImages', () => {
     const dataUri = result[url]!
     const b64 = dataUri.replace(/^data:[^;]+;base64,/, '')
     expect(Buffer.from(b64, 'base64').toString()).toBe('hello image')
+  })
+})
+
+// ─── buildCampaignExportZip ───────────────────────────────────────────────────
+
+describe('buildCampaignExportZip', () => {
+  let tmpDir: string
+
+  beforeEach(() => {
+    tmpDir = join(tmpdir(), `aleph-zip-test-${randomUUID()}`)
+    mkdirSync(join(tmpDir, 'images'), { recursive: true })
+    testDb.sqlite
+      .prepare('UPDATE campaigns SET content_dir = ? WHERE id = ?')
+      .run(tmpDir, campaignId)
+  })
+
+  afterEach(() => {
+    rmSync(tmpDir, { recursive: true, force: true })
+  })
+
+  it('returns a Buffer', async () => {
+    const buf = await buildCampaignExportZip(testDb.db, { campaignId })
+    expect(Buffer.isBuffer(buf)).toBe(true)
+    expect(buf.length).toBeGreaterThan(0)
+  })
+
+  it('ZIP contains campaign.json with version 1.2', async () => {
+    const buf = await buildCampaignExportZip(testDb.db, { campaignId })
+    const unzipped = unzipSync(new Uint8Array(buf))
+    expect(unzipped['campaign.json']).toBeDefined()
+    const json = JSON.parse(Buffer.from(unzipped['campaign.json']!).toString('utf8'))
+    expect(json.version).toBe('1.2')
+    expect(json.generator).toBe('aleph')
+    expect(json.campaign).toMatchObject({ id: campaignId })
+  })
+
+  it('ZIP contains image-map.json', async () => {
+    const buf = await buildCampaignExportZip(testDb.db, { campaignId })
+    const unzipped = unzipSync(new Uint8Array(buf))
+    expect(unzipped['image-map.json']).toBeDefined()
+  })
+
+  it('ZIP includes image file when entity has imageUrl', async () => {
+    const imageBytes = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
+    writeFileSync(join(tmpDir, 'images', 'hero.png'), imageBytes)
+
+    testDb.sqlite
+      .prepare(
+        `INSERT INTO entities (id, campaign_id, type, name, slug, file_path, visibility, created_by, created_at, updated_at, image_url)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      )
+      .run(
+        randomUUID(),
+        campaignId,
+        'location',
+        'Hero',
+        'hero',
+        '/tmp/hero.md',
+        'members',
+        userId,
+        new Date().toISOString(),
+        new Date().toISOString(),
+        `/api/campaigns/${campaignId}/images/hero.png`,
+      )
+
+    const buf = await buildCampaignExportZip(testDb.db, { campaignId })
+    const unzipped = unzipSync(new Uint8Array(buf))
+    expect(unzipped['images/hero.png']).toBeDefined()
+    expect(Buffer.from(unzipped['images/hero.png']!)).toEqual(imageBytes)
+
+    const imageMap = JSON.parse(Buffer.from(unzipped['image-map.json']!).toString('utf8'))
+    expect(imageMap['images/hero.png']).toBe(`/api/campaigns/${campaignId}/images/hero.png`)
+  })
+
+  it('campaign.json does not contain an images key', async () => {
+    const buf = await buildCampaignExportZip(testDb.db, { campaignId })
+    const unzipped = unzipSync(new Uint8Array(buf))
+    const json = JSON.parse(Buffer.from(unzipped['campaign.json']!).toString('utf8'))
+    expect(json).not.toHaveProperty('images')
   })
 })

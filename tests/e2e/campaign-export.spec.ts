@@ -64,8 +64,8 @@ test.describe('Campaign Export', () => {
     await expect(exportBtn).not.toBeVisible({ timeout: 5000 })
   })
 
-  // Task 5.1: Export+import image round-trip — entity image is visible in new campaign
-  test('exported entity image is visible after import round-trip', async ({ page }) => {
+  // Task 10.1: Export+import ZIP round-trip — entity image is visible in new campaign
+  test('exported entity image is visible after ZIP import round-trip', async ({ page }) => {
     await registerAndLogin(page, `ExportImgDM ${uid()}`)
     await createCampaign(page, `Img Round Trip ${uid()}`)
     await page.waitForLoadState('networkidle')
@@ -83,12 +83,12 @@ test.describe('Campaign Export', () => {
 
     // Upload image to the entity via API (using page context for auth cookies)
     await page.evaluate(
-      async ([campaignId, slug, b64]: [string, string, string]) => {
+      async ([cId, slug, b64]: [string, string, string]) => {
         const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
         const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0))
         const form = new FormData()
         form.append('image', new Blob([bytes], { type: 'image/png' }), 'test.png')
-        const res = await fetch(`/api/campaigns/${campaignId}/entities/${slug}/image`, {
+        const res = await fetch(`/api/campaigns/${cId}/entities/${slug}/image`, {
           method: 'POST',
           headers: { 'X-CSRF-Token': csrf },
           body: form,
@@ -98,27 +98,36 @@ test.describe('Campaign Export', () => {
       [campaignId, entity.slug, TINY_PNG_B64] as [string, string, string],
     )
 
-    // Export the campaign (download JSON)
+    // Export the campaign (download ZIP)
     const [download] = await Promise.all([
       page.waitForEvent('download', { timeout: 15000 }),
       page.locator('[data-testid="export-campaign-btn"]').click(),
     ])
     const exportPath = await download.path()
     expect(exportPath).toBeTruthy()
+    expect(download.suggestedFilename()).toMatch(/\.zip$/)
 
-    // Read the export file and re-import via API
+    // Read the ZIP and import via multipart API
     const { readFileSync } = await import('fs')
-    const exportData = JSON.parse(readFileSync(exportPath!, 'utf8'))
+    const zipBytes = readFileSync(exportPath!)
 
-    expect(exportData.images).toBeDefined()
-    const imageUrl = `/api/campaigns/${campaignId}/entities/${entity.slug}/image`
-    expect(exportData.images[imageUrl]).toMatch(/^data:image\/png;base64,/)
+    const imported = await page.evaluate(
+      async (zipArr: number[]) => {
+        const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
+        const zipBytes = new Uint8Array(zipArr)
+        const form = new FormData()
+        form.append('file', new Blob([zipBytes], { type: 'application/zip' }), 'export.zip')
+        const res = await fetch('/api/campaigns/import', {
+          method: 'POST',
+          headers: { 'X-CSRF-Token': csrf },
+          body: form,
+        })
+        if (!res.ok) throw new Error(`Import failed: ${res.status}`)
+        return res.json()
+      },
+      Array.from(zipBytes) as number[],
+    )
 
-    // Import via API using page context
-    const imported = await apiFetch(page, '/api/campaigns/import', {
-      method: 'POST',
-      body: exportData,
-    })
     expect(imported.id).toBeTruthy()
     const newCampaignId = imported.id
 
@@ -158,6 +167,6 @@ test.describe('Campaign Export', () => {
       page.locator('[data-testid="export-campaign-btn"]').click(),
     ])
 
-    expect(download.suggestedFilename()).toMatch(/campaign-.+-export-\d{4}-\d{2}-\d{2}\.json/)
+    expect(download.suggestedFilename()).toMatch(/campaign-.+-export-\d{4}-\d{2}-\d{2}\.zip/)
   })
 })

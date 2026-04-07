@@ -170,7 +170,7 @@
       <div class="max-w-sm space-y-4">
         <ThemePicker v-model="selectedTheme" />
         <div class="flex items-center gap-2">
-          <Button size="sm" @click="saveTheme" :disabled="savingTheme">
+          <Button size="sm" :disabled="savingTheme" @click="saveTheme">
             {{ savingTheme ? $t('common.saving') : $t('common.save') }}
           </Button>
           <span v-if="themeSaved" class="text-sm text-muted-foreground">{{
@@ -220,7 +220,7 @@ async function exportCampaign() {
     const blob = await res.blob()
     const disposition = res.headers.get('content-disposition') || ''
     const filenameMatch = disposition.match(/filename="([^"]+)"/)
-    const filename = filenameMatch?.[1] || `campaign-export.json`
+    const filename = filenameMatch?.[1] || `campaign-export.zip`
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
@@ -244,8 +244,9 @@ async function saveTheme() {
     setTimeout(() => {
       themeSaved.value = false
     }, 2000)
-  } catch (e: any) {
-    alert(e.data?.message || t('errors.failedSave'))
+  } catch (e: unknown) {
+    const err = e as { data?: { message?: string } }
+    alert(err.data?.message || t('errors.failedSave'))
   } finally {
     savingTheme.value = false
   }

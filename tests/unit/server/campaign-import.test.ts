@@ -1,7 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { randomUUID } from 'crypto'
-import { readFileSync, existsSync, rmSync } from 'fs'
+import { readFileSync, existsSync, rmSync, mkdirSync } from 'fs'
 import { join, resolve, dirname } from 'path'
+import { zipSync } from 'fflate'
 import { tmpdir } from 'os'
 import { fileURLToPath } from 'url'
 import { createTestDb, type TestDb } from '../../helpers/db'
@@ -9,6 +10,7 @@ import {
   buildIdMap,
   resolveImportName,
   importCampaign,
+  importCampaignFromZip,
   extractAndWriteImages,
   rewriteImageUrl,
 } from '../../../server/services/campaign-import'
@@ -619,5 +621,136 @@ describe('importCampaign - full real export fixture', () => {
     for (const e of allEntities) {
       expect(originalEntityIds.has(e.id)).toBe(false)
     }
+  })
+})
+
+// ─── importCampaignFromZip ────────────────────────────────────────────────────
+
+function makeZip(
+  campaignJson: object,
+  imageMap: Record<string, string> = {},
+  imageFiles: Record<string, Uint8Array> = {},
+): Buffer {
+  const files: Record<string, Uint8Array> = {
+    'campaign.json': Buffer.from(JSON.stringify(campaignJson)),
+    'image-map.json': Buffer.from(JSON.stringify(imageMap)),
+    ...imageFiles,
+  }
+  return Buffer.from(zipSync(files))
+}
+
+describe('importCampaignFromZip', () => {
+  let tmpDir: string
+
+  beforeEach(() => {
+    tmpDir = join(tmpdir(), `aleph-zip-import-${randomUUID()}`)
+    mkdirSync(tmpDir, { recursive: true })
+  })
+
+  afterEach(() => {
+    rmSync(tmpDir, { recursive: true, force: true })
+  })
+
+  it('imports a valid v1.2 ZIP and returns campaign id/name/slug', () => {
+    const zip = makeZip({
+      version: '1.2',
+      exportedAt: new Date().toISOString(),
+      generator: 'aleph',
+      campaign: {
+        id: randomUUID(),
+        name: 'Zip Campaign',
+        slug: 'zip-campaign',
+        description: null,
+        isPublic: false,
+        theme: null,
+        contentDir: 'content/campaigns/zip-campaign',
+        createdBy: 'other-user',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+    })
+    const result = importCampaignFromZip(testDb.db, zip, userId)
+    expect(result.id).toBeTruthy()
+    expect(result.name).toBe('Zip Campaign')
+    expect(result.slug).toBeTruthy()
+  })
+
+  it('writes image files to the new campaign content dir', () => {
+    const oldCampaignId = randomUUID()
+    const imageBytes = Buffer.from([0x89, 0x50, 0x4e, 0x47])
+    const zip = makeZip(
+      {
+        version: '1.2',
+        exportedAt: new Date().toISOString(),
+        generator: 'aleph',
+        campaign: {
+          id: oldCampaignId,
+          name: 'Image Zip',
+          slug: 'image-zip',
+          description: null,
+          isPublic: false,
+          theme: null,
+          contentDir: 'content/campaigns/image-zip',
+          createdBy: 'other-user',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+      },
+      { 'images/hero.png': `/api/campaigns/${oldCampaignId}/images/hero.png` },
+      { 'images/hero.png': new Uint8Array(imageBytes) },
+    )
+    const result = importCampaignFromZip(testDb.db, zip, userId)
+    const writtenPath = join(
+      process.cwd(),
+      'content',
+      'campaigns',
+      result.slug,
+      'images',
+      'hero.png',
+    )
+    expect(existsSync(writtenPath)).toBe(true)
+    expect(readFileSync(writtenPath)).toEqual(imageBytes)
+    // cleanup
+    rmSync(join(process.cwd(), 'content', 'campaigns', result.slug), {
+      recursive: true,
+      force: true,
+    })
+  })
+
+  it('throws 422 for a malformed (non-ZIP) buffer', () => {
+    const bad = Buffer.from('not a zip')
+    let caught: (Error & { statusCode?: number }) | null = null
+    try {
+      importCampaignFromZip(testDb.db, bad, userId)
+    } catch (e) {
+      caught = e as Error & { statusCode?: number }
+    }
+    expect(caught).not.toBeNull()
+    expect(caught!.statusCode).toBe(422)
+  })
+
+  it('throws 422 when ZIP is missing campaign.json', () => {
+    const zip = Buffer.from(zipSync({ 'other.txt': Buffer.from('hello') }))
+    let caught: (Error & { statusCode?: number }) | null = null
+    try {
+      importCampaignFromZip(testDb.db, zip, userId)
+    } catch (e) {
+      caught = e as Error & { statusCode?: number }
+    }
+    expect(caught).not.toBeNull()
+    expect(caught!.statusCode).toBe(422)
+    expect(caught!.message).toContain('campaign.json')
+  })
+
+  it('throws 422 when campaign.json has unsupported version', () => {
+    const zip = makeZip({ version: '1.1', campaign: { id: 'x', name: 'x' } })
+    let caught: (Error & { statusCode?: number }) | null = null
+    try {
+      importCampaignFromZip(testDb.db, zip, userId)
+    } catch (e) {
+      caught = e as Error & { statusCode?: number }
+    }
+    expect(caught).not.toBeNull()
+    expect(caught!.statusCode).toBe(422)
   })
 })

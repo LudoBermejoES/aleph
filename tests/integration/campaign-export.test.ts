@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeAll } from 'vitest'
+import { unzipSync } from 'fflate'
 import { signUpAndLogin, signUpAndGetApiKey, apiRaw } from './helpers'
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
@@ -7,6 +8,18 @@ const TINY_PNG = Buffer.from(
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
   'base64',
 )
+
+// Helper: fetch export, return unzipped entries + parsed campaign.json
+async function fetchExportZip(path: string, headers: Record<string, string>) {
+  const res = await apiRaw(path, { headers })
+  const buf = Buffer.from(await res.arrayBuffer())
+  const unzipped = unzipSync(new Uint8Array(buf))
+  const campaignJson = JSON.parse(Buffer.from(unzipped['campaign.json']!).toString('utf8'))
+  const imageMap: Record<string, string> = unzipped['image-map.json']
+    ? JSON.parse(Buffer.from(unzipped['image-map.json']!).toString('utf8'))
+    : {}
+  return { res, unzipped, campaignJson, imageMap }
+}
 
 describe('Campaign Export API (integration)', () => {
   const ts = Date.now()
@@ -58,19 +71,25 @@ describe('Campaign Export API (integration)', () => {
     })
   })
 
-  it('GET /export returns 200 with valid JSON for DM', async () => {
+  it('GET /export returns 200 with Content-Type application/zip for DM', async () => {
     const res = await apiRaw(`/api/campaigns/${campaignId}/export`, {
       headers: { Cookie: dmCookie },
     })
     expect(res.status).toBe(200)
-    const data = await res.json()
-    expect(data.version).toBe('1.1')
-    expect(data.generator).toBe('aleph')
-    expect(data.exportedAt).toBeTruthy()
-    expect(data.campaign).toMatchObject({ id: campaignId })
+    expect(res.headers.get('content-type')).toContain('application/zip')
   })
 
-  it('GET /export includes Content-Disposition header with correct filename', async () => {
+  it('GET /export ZIP contains campaign.json with version 1.2', async () => {
+    const { campaignJson } = await fetchExportZip(`/api/campaigns/${campaignId}/export`, {
+      Cookie: dmCookie,
+    })
+    expect(campaignJson.version).toBe('1.2')
+    expect(campaignJson.generator).toBe('aleph')
+    expect(campaignJson.exportedAt).toBeTruthy()
+    expect(campaignJson.campaign).toMatchObject({ id: campaignId })
+  })
+
+  it('GET /export includes Content-Disposition header with .zip filename', async () => {
     const res = await apiRaw(`/api/campaigns/${campaignId}/export`, {
       headers: { Cookie: dmCookie },
     })
@@ -79,21 +98,20 @@ describe('Campaign Export API (integration)', () => {
     expect(disposition).toContain('attachment')
     expect(disposition).toContain(campaignSlug)
     expect(disposition).toMatch(/\d{4}-\d{2}-\d{2}/)
-    expect(disposition).toContain('.json')
+    expect(disposition).toContain('.zip')
   })
 
-  it('GET /export?include=entities,characters returns only those types', async () => {
-    const res = await apiRaw(`/api/campaigns/${campaignId}/export?include=entities,characters`, {
-      headers: { Cookie: dmCookie },
-    })
-    expect(res.status).toBe(200)
-    const data = await res.json()
-    expect(data).toHaveProperty('campaign')
-    expect(data).toHaveProperty('entities')
-    expect(data).toHaveProperty('characters')
-    expect(data).not.toHaveProperty('sessions')
-    expect(data).not.toHaveProperty('maps')
-    expect(data).not.toHaveProperty('rolls')
+  it('GET /export?include=entities,characters ZIP has only those types', async () => {
+    const { campaignJson } = await fetchExportZip(
+      `/api/campaigns/${campaignId}/export?include=entities,characters`,
+      { Cookie: dmCookie },
+    )
+    expect(campaignJson).toHaveProperty('campaign')
+    expect(campaignJson).toHaveProperty('entities')
+    expect(campaignJson).toHaveProperty('characters')
+    expect(campaignJson).not.toHaveProperty('sessions')
+    expect(campaignJson).not.toHaveProperty('maps')
+    expect(campaignJson).not.toHaveProperty('rolls')
   })
 
   it('GET /export returns 403 for player role', async () => {
@@ -143,21 +161,19 @@ describe('Campaign Export API (integration)', () => {
       body: { characterId: char.id, role: 'leader' },
     })
 
-    const exportRes = await apiRaw(`/api/campaigns/${campaignId}/export`, {
-      headers: { Cookie: dmCookie },
+    const { campaignJson } = await fetchExportZip(`/api/campaigns/${campaignId}/export`, {
+      Cookie: dmCookie,
     })
-    expect(exportRes.status).toBe(200)
-    const data = await exportRes.json()
-    expect(data.organizations).toBeDefined()
-    expect(data.organizations.length).toBeGreaterThanOrEqual(1)
-    const exportedOrg = data.organizations.find(
+    expect(campaignJson.organizations).toBeDefined()
+    expect(campaignJson.organizations.length).toBeGreaterThanOrEqual(1)
+    const exportedOrg = campaignJson.organizations.find(
       (o: Record<string, unknown>) => o.name === 'Test Guild',
     )
     expect(exportedOrg).toBeDefined()
     expect(exportedOrg.type).toBe('guild')
-    expect(data.organizationMembers).toBeDefined()
-    expect(data.organizationMembers.length).toBeGreaterThanOrEqual(1)
-    const exportedMember = data.organizationMembers.find(
+    expect(campaignJson.organizationMembers).toBeDefined()
+    expect(campaignJson.organizationMembers.length).toBeGreaterThanOrEqual(1)
+    const exportedMember = campaignJson.organizationMembers.find(
       (m: Record<string, unknown>) => m.organizationId === exportedOrg.id,
     )
     expect(exportedMember).toBeDefined()
@@ -165,21 +181,20 @@ describe('Campaign Export API (integration)', () => {
   })
 
   it('GET /export ignores invalid include keys', async () => {
-    const res = await apiRaw(`/api/campaigns/${campaignId}/export?include=entities,foobar`, {
-      headers: { Cookie: dmCookie },
-    })
-    expect(res.status).toBe(200)
-    const data = await res.json()
-    expect(data).toHaveProperty('entities')
-    expect(data).not.toHaveProperty('foobar')
+    const { campaignJson } = await fetchExportZip(
+      `/api/campaigns/${campaignId}/export?include=entities,foobar`,
+      { Cookie: dmCookie },
+    )
+    expect(campaignJson).toHaveProperty('entities')
+    expect(campaignJson).not.toHaveProperty('foobar')
   })
 })
 
-describe('Campaign Export Images (integration)', () => {
+describe('Campaign Export ZIP Images (integration)', () => {
   const ts = Date.now()
   let apiKey = ''
   let campaignId = ''
-  let uploadedUrl = ''
+  let entitySlug = ''
 
   beforeAll(async () => {
     apiKey = await signUpAndGetApiKey(
@@ -196,54 +211,57 @@ describe('Campaign Export Images (integration)', () => {
     const camp = await campRes.json()
     campaignId = camp.id
 
-    // Create the entity first to get its slug
+    // Create entity then upload image
     const entityRes = await apiRaw(`/api/campaigns/${campaignId}/entities`, {
       method: 'POST',
       headers: { 'X-API-Key': apiKey },
       body: { name: 'Image Entity', type: 'location', visibility: 'members' },
     })
     const entity = await entityRes.json()
+    entitySlug = entity.slug
 
-    // Upload image to the entity via the dedicated image endpoint
     const form = new FormData()
     form.append('image', new Blob([TINY_PNG], { type: 'image/png' }), 'portrait.png')
-    await fetch(`${BASE_URL}/api/campaigns/${campaignId}/entities/${entity.slug}/image`, {
+    await fetch(`${BASE_URL}/api/campaigns/${campaignId}/entities/${entitySlug}/image`, {
       method: 'POST',
       headers: { 'X-API-Key': apiKey },
       body: form,
     })
-
-    uploadedUrl = `/api/campaigns/${campaignId}/entities/${entity.slug}/image`
   })
 
-  it('export version is 1.1', async () => {
+  it('export version is 1.2', async () => {
+    const { campaignJson } = await fetchExportZip(`/api/campaigns/${campaignId}/export`, {
+      'X-API-Key': apiKey,
+    })
+    expect(campaignJson.version).toBe('1.2')
+  })
+
+  it('ZIP contains image file for entity image', async () => {
+    const { unzipped, imageMap } = await fetchExportZip(`/api/campaigns/${campaignId}/export`, {
+      'X-API-Key': apiKey,
+    })
+    const oldUrl = `/api/campaigns/${campaignId}/entities/${entitySlug}/image`
+    const entryName = Object.entries(imageMap).find(([, url]) => url === oldUrl)?.[0]
+    expect(entryName).toBeDefined()
+    expect(unzipped[entryName!]).toBeDefined()
+    // Verify bytes match the uploaded PNG
+    expect(Buffer.from(unzipped[entryName!]!).compare(TINY_PNG)).toBe(0)
+  })
+
+  it('ZIP export + import round-trip rewrites entity imageUrl to new campaign', async () => {
     const res = await apiRaw(`/api/campaigns/${campaignId}/export`, {
       headers: { 'X-API-Key': apiKey },
     })
-    const data = await res.json()
-    expect(data.version).toBe('1.1')
-  })
+    expect(res.status).toBe(200)
+    const zipBytes = Buffer.from(await res.arrayBuffer())
 
-  it('export images map contains the uploaded image as a base64 data URI', async () => {
-    const res = await apiRaw(`/api/campaigns/${campaignId}/export`, {
-      headers: { 'X-API-Key': apiKey },
-    })
-    const data = await res.json()
-    expect(data.images).toBeDefined()
-    expect(data.images[uploadedUrl]).toMatch(/^data:image\/(png|jpeg|webp|gif);base64,/)
-  })
-
-  it('export + import round-trip rewrites image URL to new campaign', async () => {
-    const exportRes = await apiRaw(`/api/campaigns/${campaignId}/export`, {
-      headers: { 'X-API-Key': apiKey },
-    })
-    const exportData = await exportRes.json()
-    expect(exportData.images[uploadedUrl]).toBeTruthy()
-
-    const importRes = await apiRaw('/api/campaigns/import', {
+    // Import via multipart
+    const form = new FormData()
+    form.append('file', new Blob([zipBytes], { type: 'application/zip' }), 'export.zip')
+    const importRes = await fetch(`${BASE_URL}/api/campaigns/import`, {
       method: 'POST',
       headers: { 'X-API-Key': apiKey },
-      body: exportData,
+      body: form,
     })
     expect(importRes.status).toBe(201)
     const imported = await importRes.json()
@@ -257,11 +275,11 @@ describe('Campaign Export Images (integration)', () => {
       (e) => e.name === 'Image Entity',
     )
     expect(imageEntity).toBeDefined()
-    expect(imageEntity.imageUrl).toContain(newCampaignId)
-    expect(imageEntity.imageUrl).not.toContain(campaignId)
+    expect(imageEntity!.imageUrl as string).toContain(newCampaignId)
+    expect(imageEntity!.imageUrl as string).not.toContain(campaignId)
   })
 
-  it('import a 1.0 export (no images key) succeeds with status 201', async () => {
+  it('JSON import with version 1.0 still succeeds (backward compat)', async () => {
     const payload = {
       version: '1.0',
       exportedAt: new Date().toISOString(),
@@ -287,24 +305,65 @@ describe('Campaign Export Images (integration)', () => {
     expect(res.status).toBe(201)
   })
 
-  it('import with version 1.1 succeeds', async () => {
-    const exportRes = await apiRaw(`/api/campaigns/${campaignId}/export`, {
-      headers: { 'X-API-Key': apiKey },
-    })
-    const exportData = await exportRes.json()
+  it('JSON import with version 1.1 still succeeds (backward compat)', async () => {
+    const payload = {
+      version: '1.1',
+      exportedAt: new Date().toISOString(),
+      generator: 'aleph',
+      campaign: {
+        id: 'old-id-11',
+        name: `Legacy 1.1 Import ${ts}`,
+        slug: `legacy-11-import-${ts}`,
+        description: null,
+        isPublic: false,
+        theme: null,
+        contentDir: 'content/campaigns/legacy11',
+        createdBy: 'someone',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+    }
     const res = await apiRaw('/api/campaigns/import', {
       method: 'POST',
       headers: { 'X-API-Key': apiKey },
-      body: exportData,
+      body: payload,
     })
     expect(res.status).toBe(201)
   })
 
-  it('import with unsupported version 2.0 returns 422', async () => {
+  it('JSON import with version 1.2 returns 422 (wrong path)', async () => {
     const res = await apiRaw('/api/campaigns/import', {
       method: 'POST',
       headers: { 'X-API-Key': apiKey },
-      body: { version: '2.0', campaign: { id: 'x', name: 'x' } },
+      body: { version: '1.2', campaign: { id: 'x', name: 'x' } },
+    })
+    expect(res.status).toBe(422)
+  })
+
+  it('malformed ZIP returns 422', async () => {
+    const form = new FormData()
+    form.append(
+      'file',
+      new Blob([Buffer.from('not a zip')], { type: 'application/zip' }),
+      'bad.zip',
+    )
+    const res = await fetch(`${BASE_URL}/api/campaigns/import`, {
+      method: 'POST',
+      headers: { 'X-API-Key': apiKey },
+      body: form,
+    })
+    expect(res.status).toBe(422)
+  })
+
+  it('ZIP missing campaign.json returns 422', async () => {
+    const { zipSync } = await import('fflate')
+    const zipBytes = Buffer.from(zipSync({ 'other.txt': Buffer.from('hello') }))
+    const form = new FormData()
+    form.append('file', new Blob([zipBytes], { type: 'application/zip' }), 'empty.zip')
+    const res = await fetch(`${BASE_URL}/api/campaigns/import`, {
+      method: 'POST',
+      headers: { 'X-API-Key': apiKey },
+      body: form,
     })
     expect(res.status).toBe(422)
   })

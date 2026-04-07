@@ -1,6 +1,7 @@
 import { randomUUID } from 'crypto'
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 import { eq } from 'drizzle-orm'
+import { unzipSync } from 'fflate'
 import { campaigns } from '../db/schema/campaigns'
 import { campaignMembers } from '../db/schema/campaign-members'
 import { entityTypes } from '../db/schema/entity-types'
@@ -754,4 +755,118 @@ export function importCampaign(
 
     return { id: newCampaignId, name: resolvedName, slug }
   })
+}
+
+/**
+ * Import a campaign from a v1.2 ZIP archive buffer.
+ *
+ * The ZIP must contain:
+ *   campaign.json   — the campaign export data (version "1.2")
+ *   image-map.json  — map of ZIP entry name → original image URL
+ *   images/*        — raw image files
+ *
+ * Throws an error with statusCode 422 for invalid ZIPs or unsupported versions.
+ */
+export function importCampaignFromZip(
+  db: BetterSQLite3Database,
+  zipBuffer: Buffer,
+  importingUserId: string,
+  nameOverride?: string,
+): CampaignImportResult {
+  let unzipped: ReturnType<typeof unzipSync>
+  try {
+    unzipped = unzipSync(new Uint8Array(zipBuffer))
+  } catch {
+    const err = new Error('Invalid ZIP archive') as Error & { statusCode: number }
+    err.statusCode = 422
+    throw err
+  }
+
+  const campaignJsonEntry = unzipped['campaign.json']
+  if (!campaignJsonEntry) {
+    const err = new Error('ZIP is missing campaign.json') as Error & { statusCode: number }
+    err.statusCode = 422
+    throw err
+  }
+
+  let payload: CampaignExport
+  try {
+    payload = JSON.parse(Buffer.from(campaignJsonEntry).toString('utf8')) as CampaignExport
+  } catch {
+    const err = new Error('campaign.json is not valid JSON') as Error & { statusCode: number }
+    err.statusCode = 422
+    throw err
+  }
+
+  if (payload.version !== '1.2') {
+    const err = new Error(
+      `Unsupported version in ZIP: "${payload.version}". ZIP imports require version "1.2".`,
+    ) as Error & { statusCode: number }
+    err.statusCode = 422
+    throw err
+  }
+
+  // Parse image-map.json (entry name → old URL)
+  const imageMapEntry = unzipped['image-map.json']
+  const imageMap: Record<string, string> = imageMapEntry
+    ? (JSON.parse(Buffer.from(imageMapEntry).toString('utf8')) as Record<string, string>)
+    : {}
+
+  // Run the base import first to get the new campaign ID and content dir
+  const result = importCampaign(db, { payload, importingUserId, nameOverride })
+  const newCampaignId = result.id
+  const absContentDir = join(process.cwd(), 'content', 'campaigns', result.slug)
+
+  // Write image files and build old URL → new URL map
+  const urlMap = new Map<string, string>()
+
+  for (const [entryName, oldUrl] of Object.entries(imageMap)) {
+    const fileData = unzipped[entryName]
+    if (!fileData) continue
+
+    const imagesMatch = entryName.match(/^images\/([^/]+)$/)
+    const entityMatch = entryName.match(/^images\/entity-(.+)-image\.(\w+)$/)
+    const portraitMatch = entryName.match(/^images\/character-(.+)-portrait\.(\w+)$/)
+
+    if (imagesMatch) {
+      const filename = imagesMatch[1]!
+      const dir = resolve(absContentDir, 'images')
+      mkdirSync(dir, { recursive: true })
+      writeFileSync(join(dir, filename), Buffer.from(fileData))
+      urlMap.set(oldUrl, `/api/campaigns/${newCampaignId}/images/${filename}`)
+    } else if (entityMatch) {
+      const slug = entityMatch[1]!
+      const ext = entityMatch[2]!
+      const dir = resolve(absContentDir, 'entities', slug)
+      mkdirSync(dir, { recursive: true })
+      writeFileSync(join(dir, `image.${ext}`), Buffer.from(fileData))
+      urlMap.set(oldUrl, `/api/campaigns/${newCampaignId}/entities/${slug}/image`)
+    } else if (portraitMatch) {
+      const slug = portraitMatch[1]!
+      const ext = portraitMatch[2]!
+      const dir = resolve(absContentDir, 'characters', slug)
+      mkdirSync(dir, { recursive: true })
+      writeFileSync(join(dir, `portrait.${ext}`), Buffer.from(fileData))
+      urlMap.set(oldUrl, `/api/campaigns/${newCampaignId}/characters/${slug}/portrait`)
+    }
+  }
+
+  if (urlMap.size === 0) return result
+
+  // Update image URL fields in the DB to rewrite old campaign URLs → new campaign URLs
+  for (const [oldUrl, newUrl] of urlMap) {
+    db.update(entities).set({ imageUrl: newUrl }).where(eq(entities.imageUrl, oldUrl)).run()
+    db.update(characters)
+      .set({ portraitUrl: newUrl })
+      .where(eq(characters.portraitUrl, oldUrl))
+      .run()
+    db.update(sessionGroups)
+      .set({ imageUrl: newUrl })
+      .where(eq(sessionGroups.imageUrl, oldUrl))
+      .run()
+    db.update(maps).set({ imagePath: newUrl }).where(eq(maps.imagePath, oldUrl)).run()
+    db.update(items).set({ imagePath: newUrl }).where(eq(items.imagePath, oldUrl)).run()
+  }
+
+  return result
 }

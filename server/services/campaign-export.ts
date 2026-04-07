@@ -2,6 +2,7 @@ import { eq } from 'drizzle-orm'
 import { readFileSync, existsSync } from 'fs'
 import { resolve } from 'path'
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
+import { zipSync } from 'fflate'
 import { campaigns } from '../db/schema/campaigns'
 import { entities, entityTemplates, entityTemplateFields, tags } from '../db/schema/entities'
 import { characters } from '../db/schema/characters'
@@ -56,7 +57,6 @@ export interface CampaignExport {
   organizations?: unknown[]
   organizationMembers?: unknown[]
   organizationLocations?: unknown[]
-  images?: Record<string, string>
 }
 
 export const VALID_RESOURCE_TYPES = new Set([
@@ -204,7 +204,7 @@ export async function buildCampaignExport(
   if (!campaign) throw new Error(`Campaign not found: ${campaignId}`)
 
   const result: CampaignExport = {
-    version: '1.1',
+    version: '1.2',
     exportedAt: new Date().toISOString(),
     generator: 'aleph',
     campaign: campaign as Record<string, unknown>,
@@ -417,10 +417,64 @@ export async function buildCampaignExport(
     }
   }
 
-  // Embed images: collect all referenced URLs and read from disk
-  const contentDir = (campaign as Record<string, unknown>).contentDir as string
-  const imageUrls = collectImageUrls(result)
-  result.images = embedImages(imageUrls, contentDir)
-
   return result
+}
+
+/**
+ * Build a ZIP archive for a campaign export.
+ * The ZIP contains:
+ *   campaign.json  — the full export data (version "1.2", no images key)
+ *   images/{file}  — raw image files for all referenced image URLs
+ */
+export async function buildCampaignExportZip(
+  db: BetterSQLite3Database,
+  options: ExportOptions,
+): Promise<Buffer> {
+  const exportData = await buildCampaignExport(db, options)
+
+  const campaign = db.select().from(campaigns).where(eq(campaigns.id, options.campaignId)).get()!
+  const contentDir = (campaign as Record<string, unknown>).contentDir as string
+
+  // Map of ZIP entry name → original image URL (used by importer to rewrite URLs)
+  const imageMap: Record<string, string> = {}
+
+  const imageUrls = collectImageUrls(exportData)
+  const imageFiles: Record<string, Uint8Array> = {}
+
+  for (const url of imageUrls) {
+    const resolved = resolveImageFile(url, contentDir)
+    if (!resolved) continue
+    try {
+      const data = readFileSync(resolved.filePath)
+      const imagesMatch = url.match(/\/images\/([^/?]+)$/)
+      const entityMatch = url.match(/\/entities\/([^/]+)\/image$/)
+      const portraitMatch = url.match(/\/characters\/([^/]+)\/portrait$/)
+
+      let entryName: string | null = null
+      if (imagesMatch) {
+        entryName = `images/${imagesMatch[1]}`
+      } else if (entityMatch) {
+        const ext = resolved.filePath.split('.').pop() ?? 'png'
+        entryName = `images/entity-${entityMatch[1]}-image.${ext}`
+      } else if (portraitMatch) {
+        const ext = resolved.filePath.split('.').pop() ?? 'png'
+        entryName = `images/character-${portraitMatch[1]}-portrait.${ext}`
+      }
+
+      if (entryName) {
+        imageFiles[entryName] = new Uint8Array(data)
+        imageMap[entryName] = url
+      }
+    } catch {
+      // silently skip unreadable files
+    }
+  }
+
+  const files: Record<string, Uint8Array> = {
+    'campaign.json': Buffer.from(JSON.stringify(exportData, null, 2)),
+    'image-map.json': Buffer.from(JSON.stringify(imageMap, null, 2)),
+    ...imageFiles,
+  }
+
+  return Buffer.from(zipSync(files))
 }

@@ -87,10 +87,9 @@ export function makeCampaignCommand() {
 
   cmd
     .command('export <id>')
-    .description('Export campaign data as JSON')
-    .option('--format <format>', 'Export format (default: json)', 'json')
+    .description('Export campaign data as a ZIP archive')
     .option('--include <types>', 'Comma-separated resource types to include (default: all)')
-    .option('--output <file>', 'Output file path (default: stdout)')
+    .requiredOption('--output <file>', 'Output file path (required, e.g. export.zip)')
     .action(async (id, opts) => {
       const config = requireConfig()
       const url = new URL(`${config.url.replace(/\/$/, '')}/api/campaigns/${id}/export`)
@@ -125,51 +124,71 @@ export function makeCampaignCommand() {
         process.exit(2)
       }
 
-      const text = await res.text()
-      if (opts.output) {
-        await writeFile(opts.output, text, 'utf8')
-        success(`Campaign exported to ${opts.output}`)
-      } else {
-        process.stdout.write(text)
-      }
+      const buffer = Buffer.from(await res.arrayBuffer())
+      await writeFile(opts.output, buffer)
+      success(`Campaign exported to ${opts.output}`)
     })
 
   cmd
     .command('import <file>')
-    .description('Import a campaign from an exported JSON file')
+    .description('Import a campaign from an exported ZIP or JSON file')
     .option('--name <name>', 'Override the campaign name')
     .action(async (file, opts) => {
       const config = requireConfig()
 
-      let text
-      try {
-        text = await readFile(file, 'utf8')
-      } catch {
-        process.stderr.write(`Error: File not found: ${file}\n`)
-        process.exit(2)
-      }
-
-      let payload
-      try {
-        payload = JSON.parse(text)
-      } catch {
-        process.stderr.write(`Error: Invalid JSON in file: ${file}\n`)
-        process.exit(2)
-      }
-
       const url = new URL(`${config.url.replace(/\/$/, '')}/api/campaigns/import`)
       if (opts.name) url.searchParams.set('name', opts.name)
 
+      const isZip = file.toLowerCase().endsWith('.zip')
+
       let res
-      try {
-        res = await fetch(url.toString(), {
-          method: 'POST',
-          headers: { 'X-API-Key': config.apiKey, 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        })
-      } catch (err) {
-        process.stderr.write(`Network error: ${err.message}\n`)
-        process.exit(2)
+      if (isZip) {
+        // Send as multipart/form-data with a `file` field
+        let fileData
+        try {
+          fileData = await readFile(file)
+        } catch {
+          process.stderr.write(`Error: File not found: ${file}\n`)
+          process.exit(2)
+        }
+        const form = new FormData()
+        form.append('file', new Blob([fileData], { type: 'application/zip' }), 'export.zip')
+        try {
+          res = await fetch(url.toString(), {
+            method: 'POST',
+            headers: { 'X-API-Key': config.apiKey },
+            body: form,
+          })
+        } catch (err) {
+          process.stderr.write(`Network error: ${err.message}\n`)
+          process.exit(2)
+        }
+      } else {
+        // Legacy JSON import
+        let text
+        try {
+          text = await readFile(file, 'utf8')
+        } catch {
+          process.stderr.write(`Error: File not found: ${file}\n`)
+          process.exit(2)
+        }
+        let payload
+        try {
+          payload = JSON.parse(text)
+        } catch {
+          process.stderr.write(`Error: Invalid JSON in file: ${file}\n`)
+          process.exit(2)
+        }
+        try {
+          res = await fetch(url.toString(), {
+            method: 'POST',
+            headers: { 'X-API-Key': config.apiKey, 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          })
+        } catch (err) {
+          process.stderr.write(`Network error: ${err.message}\n`)
+          process.exit(2)
+        }
       }
 
       if (res.status === 401) {

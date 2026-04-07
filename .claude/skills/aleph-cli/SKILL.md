@@ -52,8 +52,8 @@ aleph campaign list [--json]
 aleph campaign create --name <name> [--description <desc>] [--theme <theme>] [--json]
 aleph campaign show <id> [--json]
 aleph campaign delete <id> [--yes]   # --yes skips confirmation
-aleph campaign export <id> [--format json] [--include <types>] [--output <file>]  # export to file or stdout
-aleph campaign import <file> [--name <name>]  # import from exported JSON file
+aleph campaign export <id> --output <file.zip> [--include <types>]  # exports as ZIP archive (--output required)
+aleph campaign import <file.zip|file.json> [--name <name>]  # import from ZIP (v1.2) or legacy JSON (v1.0/v1.1)
 ```
 
 Themes: `default`, `dark-fantasy`, `cyberpunk`, `cosmic-horror`, `high-fantasy`, `western`, `steampunk`, `eldritch`, `fey-wilds`, `undead`, `superhero`
