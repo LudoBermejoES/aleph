@@ -31,7 +31,8 @@
     "campaign": "Campaign",
     "deleting": "Deleting...",
     "you": "you",
-    "title": "Title"
+    "title": "Title",
+    "dangerZone": "Danger Zone"
   },
   "auth": {
     "signIn": "Sign In",
@@ -892,7 +893,11 @@
     "export": "Export Campaign",
     "exportButton": "Export Campaign Data",
     "exportSuccess": "Campaign exported successfully",
-    "exportError": "Export failed. Please try again."
+    "exportError": "Export failed. Please try again.",
+    "delete": "Delete Campaign",
+    "deleteButton": "Delete Campaign",
+    "confirmDelete": "Are you sure you want to permanently delete \"{name}\"? All campaign data — characters, sessions, maps, and everything else — will be deleted. This cannot be undone.",
+    "deleteError": "Failed to delete campaign. Please try again."
   },
   "collaboration": {
     "editingAlone": "Editing alone",

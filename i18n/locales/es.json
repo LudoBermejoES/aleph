@@ -31,7 +31,8 @@
     "campaign": "Campaña",
     "deleting": "Eliminando...",
     "you": "tú",
-    "title": "Título"
+    "title": "Título",
+    "dangerZone": "Zona de Peligro"
   },
   "auth": {
     "signIn": "Iniciar sesión",
@@ -892,7 +893,11 @@
     "export": "Exportar Campaña",
     "exportButton": "Exportar Datos de la Campaña",
     "exportSuccess": "Campaña exportada correctamente",
-    "exportError": "Error al exportar. Por favor, inténtalo de nuevo."
+    "exportError": "Error al exportar. Por favor, inténtalo de nuevo.",
+    "delete": "Eliminar Campaña",
+    "deleteButton": "Eliminar Campaña",
+    "confirmDelete": "¿Estás seguro de que quieres eliminar permanentemente \"{name}\"? Todos los datos de la campaña — personajes, sesiones, mapas y todo lo demás — serán eliminados. Esta acción no se puede deshacer.",
+    "deleteError": "Error al eliminar la campaña. Por favor, inténtalo de nuevo."
   },
   "collaboration": {
     "editingAlone": "Editando solo",

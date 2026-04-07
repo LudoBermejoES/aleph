@@ -180,6 +180,48 @@
       </div>
     </div>
 
+    <!-- Danger Zone (DM only) -->
+    <div v-if="campaign && isDm" class="mt-8 border-t border-destructive/30 pt-8">
+      <h2 class="text-lg font-semibold mb-4 text-destructive">{{ $t('common.dangerZone') }}</h2>
+      <div class="flex items-center gap-3">
+        <Button
+          variant="destructive"
+          size="sm"
+          :disabled="deleting"
+          data-testid="delete-campaign-btn"
+          @click="showDeleteDialog = true"
+        >
+          {{ $t('campaign.deleteButton') }}
+        </Button>
+        <span v-if="deleteError" class="text-sm text-destructive">{{ deleteError }}</span>
+      </div>
+    </div>
+
+    <!-- Delete Confirmation Dialog -->
+    <Dialog v-model:open="showDeleteDialog">
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{{ $t('campaign.delete') }}</DialogTitle>
+          <DialogDescription>
+            {{ $t('campaign.confirmDelete', { name: campaign?.name }) }}
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button variant="outline" :disabled="deleting" @click="showDeleteDialog = false">
+            {{ $t('common.cancel') }}
+          </Button>
+          <Button
+            variant="destructive"
+            :disabled="deleting"
+            data-testid="confirm-delete-campaign-btn"
+            @click="deleteCampaign"
+          >
+            {{ deleting ? $t('common.loading') : $t('campaign.delete') }}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+
     <DiceRoller :campaign-id="campaignId" />
   </div>
 </template>
@@ -205,6 +247,9 @@ const savingTheme = ref(false)
 const themeSaved = ref(false)
 const exporting = ref(false)
 const exportError = ref<string | null>(null)
+const deleting = ref(false)
+const deleteError = ref<string | null>(null)
+const showDeleteDialog = ref(false)
 // Shared state with layout so the theme applies without a page reload
 const campaignTheme = useState<string | null>('campaignTheme')
 
@@ -231,6 +276,20 @@ async function exportCampaign() {
     exportError.value = t('campaign.exportError')
   } finally {
     exporting.value = false
+  }
+}
+
+async function deleteCampaign() {
+  deleting.value = true
+  deleteError.value = null
+  try {
+    await $fetch(`/api/campaigns/${campaignId}`, { method: 'DELETE' })
+    await navigateTo('/')
+  } catch {
+    deleteError.value = t('campaign.deleteError')
+    showDeleteDialog.value = false
+  } finally {
+    deleting.value = false
   }
 }
 
