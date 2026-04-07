@@ -12,10 +12,10 @@
         <input
           ref="importFileInput"
           type="file"
-          accept=".json"
+          accept=".json,.zip"
           class="hidden"
           @change="handleImportFile"
-        />
+        >
         <Dialog v-model:open="showCreateDialog">
           <DialogTrigger as-child>
             <Button>{{ $t('campaigns.new') }}</Button>
@@ -103,12 +103,22 @@ async function handleImportFile(event: Event) {
   if (!file) return
   importing.value = true
   try {
-    const text = await file.text()
-    const payload = JSON.parse(text)
-    const result = await $fetch<{ id: string; name: string; slug: string }>(
-      '/api/campaigns/import',
-      { method: 'POST', body: payload },
-    )
+    let result: { id: string; name: string; slug: string }
+    if (file.name.endsWith('.zip')) {
+      const form = new FormData()
+      form.append('file', file, file.name)
+      result = await $fetch<{ id: string; name: string; slug: string }>('/api/campaigns/import', {
+        method: 'POST',
+        body: form,
+      })
+    } else {
+      const text = await file.text()
+      const payload = JSON.parse(text)
+      result = await $fetch<{ id: string; name: string; slug: string }>('/api/campaigns/import', {
+        method: 'POST',
+        body: payload,
+      })
+    }
     await loadCampaigns()
     navigateTo(`/campaigns/${result.id}`)
   } catch (e: unknown) {
