@@ -30,7 +30,7 @@
           class="hidden"
           data-testid="tldr-file-input"
           @change="onTldrFileSelected"
-        >
+        />
         <Button
           size="sm"
           variant="outline"

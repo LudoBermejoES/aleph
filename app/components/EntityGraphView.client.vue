@@ -93,7 +93,7 @@
               v-if="tooltip.image"
               :src="tooltip.image"
               class="w-8 h-8 rounded-full object-cover flex-shrink-0"
-            >
+            />
             <div>
               <p class="font-semibold text-sm leading-tight">{{ tooltip.name }}</p>
               <span class="text-xs text-muted-foreground px-1 py-0.5 rounded bg-muted">{{
