@@ -334,6 +334,20 @@ function handleEntityDrop(entityDataStr: string, event: DragEvent) {
   setTimeout(() => syncRelations(), 1000)
 }
 
+// Map graph relationTypeSlug to tldraw named colors
+function relationTypeToColor(relationTypeSlug?: string, attitude?: number): string {
+  if (
+    relationTypeSlug === 'rival' ||
+    relationTypeSlug === 'enemy' ||
+    (attitude !== undefined && attitude < 0)
+  )
+    return 'red'
+  if (relationTypeSlug === 'family') return 'violet'
+  if (relationTypeSlug === 'mentor') return 'blue'
+  if (relationTypeSlug === 'ally' || (attitude !== undefined && attitude >= 70)) return 'green'
+  return 'grey'
+}
+
 // Fetch graph edges and draw tldraw arrows for entity pairs present on canvas
 async function syncRelations() {
   const ed = editorInstance as {
@@ -359,7 +373,18 @@ async function syncRelations() {
   if (entityToShape.size < 2) return
 
   // Fetch all relations for the campaign from the graph API
-  let graphData: { edges: Record<string, { source: string; target: string; label?: string }> }
+  let graphData: {
+    edges: Record<
+      string,
+      {
+        source: string
+        target: string
+        label?: string
+        relationTypeSlug?: string
+        attitude?: number
+      }
+    >
+  }
   try {
     graphData = await $fetch(`/api/campaigns/${campaignId}/graph`)
   } catch {
@@ -387,6 +412,7 @@ async function syncRelations() {
     if (!fromShapeId || !toShapeId) continue
     if (existingArrows.has(`${fromShapeId}→${toShapeId}`)) continue
 
+    const color = relationTypeToColor(edge.relationTypeSlug, edge.attitude)
     // tldraw v4: createShape gives plain {x,y} start/end; bindings connect arrows to shapes
     const arrowShape = ed.createShape({
       type: 'arrow',
@@ -399,7 +425,7 @@ async function syncRelations() {
             ? [{ type: 'paragraph', content: [{ type: 'text', text: edge.label }] }]
             : [],
         },
-        color: 'grey',
+        color,
         size: 's',
       },
     })
