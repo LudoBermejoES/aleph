@@ -33,7 +33,7 @@ describe('parsePagination', () => {
   it('pageSize=0 enables backward compat mode (no pagination)', () => {
     const result = parsePagination({ pageSize: '0' })
     expect(result.pageSize).toBe(0)
-    expect(result.limit).toBe(200)
+    expect(result.limit).toBe(999999)
     expect(result.offset).toBe(0)
     expect(result.page).toBe(1)
   })
