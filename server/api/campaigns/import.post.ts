@@ -1,20 +1,18 @@
 import Busboy from 'busboy'
-import { PassThrough } from 'stream'
+import { Readable } from 'stream'
 import { useDb } from '../../utils/db'
-import { importCampaign, importCampaignFromZipStream } from '../../services/campaign-import'
+import { importCampaign, importCampaignFromZip } from '../../services/campaign-import'
 import type { CampaignExport } from '../../services/campaign-export'
 import { logger } from '../../utils/logger'
 
 /**
- * Extract the `file` field from a multipart request as a Readable stream,
- * passing it directly to the consumer callback. This avoids buffering the
- * entire file in memory (h3's readMultipartFormData crashes on large ZIPs).
+ * Extract the raw bytes of the `file` field from a multipart body buffer.
+ *
+ * h3/Nitro buffers the full request body before our handler runs, so we
+ * can't pipe event.node.req directly (causes "unexpected EOF"). Instead we
+ * read the pre-buffered bytes and run busboy over them synchronously.
  */
-function streamFileFieldFromMultipart(
-  req: import('http').IncomingMessage,
-  contentType: string,
-  consumer: (stream: PassThrough) => Promise<void>,
-): Promise<void> {
+function extractFileFieldFromBuffer(bodyBuffer: Buffer, contentType: string): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const bb = Busboy({ headers: { 'content-type': contentType } })
     let found = false
@@ -25,9 +23,10 @@ function streamFileFieldFromMultipart(
         return
       }
       found = true
-      const pass = new PassThrough()
-      stream.pipe(pass)
-      consumer(pass).then(resolve).catch(reject)
+      const chunks: Buffer[] = []
+      stream.on('data', (chunk: Buffer) => chunks.push(chunk))
+      stream.on('end', () => resolve(Buffer.concat(chunks)))
+      stream.on('error', reject)
     })
 
     bb.on('finish', () => {
@@ -35,7 +34,7 @@ function streamFileFieldFromMultipart(
     })
 
     bb.on('error', reject)
-    req.pipe(bb)
+    Readable.from(bodyBuffer).pipe(bb)
   })
 }
 
@@ -53,17 +52,19 @@ export default defineEventHandler(async (event) => {
   // ── ZIP import (multipart/form-data) ──────────────────────────────────────
   if (contentType.includes('multipart/form-data')) {
     try {
-      let result: Awaited<ReturnType<typeof importCampaignFromZipStream>>
-      await streamFileFieldFromMultipart(event.node.req, contentType, async (stream) => {
-        result = await importCampaignFromZipStream(db, stream, user.id, nameOverride)
-      })
+      const rawBody = await readRawBody(event, false) // false = return Buffer, not string
+      if (!rawBody || rawBody.length === 0) {
+        throw createError({ statusCode: 400, message: 'Empty request body' })
+      }
+      const zipBuffer = await extractFileFieldFromBuffer(Buffer.from(rawBody), contentType)
+      const result = importCampaignFromZip(db, zipBuffer, user.id, nameOverride)
       logger.info('Campaign imported from ZIP', {
-        newCampaignId: result!.id,
-        name: result!.name,
+        newCampaignId: result.id,
+        name: result.name,
         userId: user.id,
       })
       setResponseStatus(event, 201)
-      return result!
+      return result
     } catch (err) {
       const e = err as Error & { statusCode?: number }
       const status = e.statusCode === 422 ? 422 : 500
