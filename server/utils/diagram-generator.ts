@@ -1,10 +1,21 @@
-import { eq, and } from 'drizzle-orm'
+import { eq, and, inArray, isNotNull } from 'drizzle-orm'
 import { randomUUID } from 'crypto'
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 import { entities } from '../db/schema/entities'
 import { entityRelations } from '../db/schema/relations'
-import { organizations } from '../db/schema/organizations'
+import {
+  organizations,
+  organizationMembers,
+  organizationLocations,
+} from '../db/schema/organizations'
+import { characters } from '../db/schema/characters'
 import { quests, gameSessions } from '../db/schema/sessions'
+import {
+  buildNpcTokenShape,
+  buildLocationPinShape,
+  buildFactionCardShape,
+  radialLayout,
+} from './diagram-helpers'
 
 export type DiagramType = 'entity-graph' | 'quest-tree' | 'faction-web' | 'session-timeline'
 
@@ -98,11 +109,116 @@ export function generateEntityGraph(
   const entityIdToShapeId = new Map(entityList.map((e, i) => [e.id, shapes[i]!.id]))
 
   const bindings: GeneratedBinding[] = []
+
+  // Entity relation arrows
   for (const rel of relations) {
     const fromId = entityIdToShapeId.get(rel.sourceEntityId)
     const toId = entityIdToShapeId.get(rel.targetEntityId)
     if (fromId && toId) {
       bindings.push(makeArrowBinding(fromId, toId))
+    }
+  }
+
+  // Org membership arrows: add factionCard shapes for orgs not already present
+  const MAX_EXPANDED_ORGS = 50
+  const entityIdSet = new Set(entityList.map((e) => e.id))
+  const charEntityIds = entityList.filter((e) => e.type === 'character').map((e) => e.id)
+
+  if (charEntityIds.length > 0) {
+    const memberRows = db
+      .select({
+        characterEntityId: characters.entityId,
+        characterId: characters.id,
+        orgId: organizationMembers.organizationId,
+      })
+      .from(organizationMembers)
+      .innerJoin(characters, eq(organizationMembers.characterId, characters.id))
+      .where(inArray(characters.entityId, charEntityIds))
+      .all()
+
+    // Collect unique org IDs that need shapes
+    const orgIdsNeeded = new Set<string>()
+    for (const row of memberRows) {
+      if (!entityIdToShapeId.has(row.orgId)) orgIdsNeeded.add(row.orgId)
+    }
+
+    // Fetch and create org shapes (capped)
+    const orgIdsToCreate = Array.from(orgIdsNeeded).slice(0, MAX_EXPANDED_ORGS)
+    if (orgIdsToCreate.length > 0) {
+      const orgRows = db
+        .select({ id: organizations.id, name: organizations.name, slug: organizations.slug })
+        .from(organizations)
+        .where(inArray(organizations.id, orgIdsToCreate))
+        .all()
+
+      // Place new org shapes after existing grid
+      const startY = (Math.floor(entityList.length / cols) + 2) * 120 + 50
+      for (let i = 0; i < orgRows.length; i++) {
+        const org = orgRows[i]!
+        const shape = buildFactionCardShape(
+          org,
+          campaignId,
+          (i % cols) * 240 + 50,
+          startY + Math.floor(i / cols) * 120,
+        )
+        shapes.push(shape)
+        entityIdToShapeId.set(org.id, shape.id)
+      }
+    }
+
+    // Create membership arrow bindings
+    for (const row of memberRows) {
+      const charShapeId = entityIdToShapeId.get(row.characterEntityId)
+      const orgShapeId = entityIdToShapeId.get(row.orgId)
+      if (charShapeId && orgShapeId) {
+        bindings.push(makeArrowBinding(orgShapeId, charShapeId))
+      }
+    }
+  }
+
+  // Character → location arrows
+  if (charEntityIds.length > 0) {
+    const charLocRows = db
+      .select({
+        entityId: characters.entityId,
+        locationEntityId: characters.locationEntityId,
+      })
+      .from(characters)
+      .where(
+        and(inArray(characters.entityId, charEntityIds), isNotNull(characters.locationEntityId)),
+      )
+      .all()
+
+    for (const row of charLocRows) {
+      if (!row.locationEntityId) continue
+      const charShapeId = entityIdToShapeId.get(row.entityId)
+      const locShapeId = entityIdToShapeId.get(row.locationEntityId)
+      if (charShapeId && locShapeId) {
+        bindings.push(makeArrowBinding(charShapeId, locShapeId))
+      }
+    }
+  }
+
+  // Org → location arrows
+  const allOrgIdsOnDiagram = Array.from(entityIdToShapeId.keys()).filter(
+    (id) => !entityIdSet.has(id) || entityList.find((e) => e.id === id)?.type === 'organization',
+  )
+  if (allOrgIdsOnDiagram.length > 0) {
+    const orgLocRows = db
+      .select({
+        organizationId: organizationLocations.organizationId,
+        locationEntityId: organizationLocations.locationEntityId,
+      })
+      .from(organizationLocations)
+      .where(inArray(organizationLocations.organizationId, allOrgIdsOnDiagram))
+      .all()
+
+    for (const row of orgLocRows) {
+      const orgShapeId = entityIdToShapeId.get(row.organizationId)
+      const locShapeId = entityIdToShapeId.get(row.locationEntityId)
+      if (orgShapeId && locShapeId) {
+        bindings.push(makeArrowBinding(orgShapeId, locShapeId))
+      }
     }
   }
 
@@ -192,6 +308,8 @@ export function generateFactionWeb(
   db: BetterSQLite3Database<Record<string, unknown>>,
   campaignId: string,
 ): GeneratedDiagram {
+  const MAX_MEMBERS_PER_ORG = 10
+
   // Try dedicated organizations table first, fall back to entities of type 'organization'
   const orgList = db
     .select()
@@ -214,29 +332,73 @@ export function generateFactionWeb(
     throw new Error('No organizations found for faction-web generation')
   }
 
-  // Radial layout
+  const shapes: GeneratedShape[] = []
+  const bindings: GeneratedBinding[] = []
+
+  // Calculate main radial layout for orgs
   const centerX = 400
   const centerY = 400
-  const radius = 300
-  const shapes: GeneratedShape[] = items.map((org, i) => {
-    const angle = (i / items.length) * 2 * Math.PI - Math.PI / 2
-    return {
-      id: randomUUID(),
-      type: 'factionCard',
-      x: centerX + Math.cos(angle) * radius - 90,
-      y: centerY + Math.sin(angle) * radius - 50,
-      props: {
-        w: 180,
-        h: 100,
-        entityId: org.id,
-        campaignId,
-        factionName: org.name,
-        slug: org.slug,
-      },
-    }
-  })
+  const mainRadius = Math.max(300, items.length * 80)
+  const orgPositions = radialLayout(centerX, centerY, items.length, mainRadius)
 
-  return { shapes, bindings: [] }
+  for (let i = 0; i < items.length; i++) {
+    const org = items[i]!
+    const pos = orgPositions[i]!
+    const orgShape = buildFactionCardShape(org, campaignId, pos.x - 90, pos.y - 50)
+    shapes.push(orgShape)
+
+    // Fetch members (character entities) for this org, capped
+    const memberRows = db
+      .select({
+        entityId: characters.entityId,
+        name: entities.name,
+        slug: entities.slug,
+        portraitUrl: characters.portraitUrl,
+      })
+      .from(organizationMembers)
+      .innerJoin(characters, eq(organizationMembers.characterId, characters.id))
+      .innerJoin(entities, eq(characters.entityId, entities.id))
+      .where(eq(organizationMembers.organizationId, org.id))
+      .limit(MAX_MEMBERS_PER_ORG)
+      .all()
+
+    // Fetch linked locations for this org
+    const locationRows = db
+      .select({
+        id: entities.id,
+        name: entities.name,
+        slug: entities.slug,
+      })
+      .from(organizationLocations)
+      .innerJoin(entities, eq(organizationLocations.locationEntityId, entities.id))
+      .where(eq(organizationLocations.organizationId, org.id))
+      .all()
+
+    // Create shapes for members + locations in a sub-cluster
+    const relatedEntities = [
+      ...memberRows.map((m) => ({
+        kind: 'character' as const,
+        data: { id: m.entityId, name: m.name, slug: m.slug, portraitUrl: m.portraitUrl },
+      })),
+      ...locationRows.map((l) => ({ kind: 'location' as const, data: l })),
+    ]
+
+    if (relatedEntities.length > 0) {
+      const subPositions = radialLayout(pos.x, pos.y, relatedEntities.length, 150)
+      for (let j = 0; j < relatedEntities.length; j++) {
+        const rel = relatedEntities[j]!
+        const sp = subPositions[j]!
+        const shape =
+          rel.kind === 'character'
+            ? buildNpcTokenShape(rel.data, campaignId, sp.x - 70, sp.y - 80)
+            : buildLocationPinShape(rel.data, campaignId, sp.x - 90, sp.y - 30)
+        shapes.push(shape)
+        bindings.push(makeArrowBinding(orgShape.id, shape.id))
+      }
+    }
+  }
+
+  return { shapes, bindings }
 }
 
 // ─── Session Timeline ─────────────────────────────────────────────────────────
