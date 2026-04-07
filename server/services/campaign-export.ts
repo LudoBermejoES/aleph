@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm'
 import { readFileSync, existsSync } from 'fs'
 import { resolve } from 'path'
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
-import { zipSync } from 'fflate'
+import { Zip, ZipDeflate } from 'fflate'
 import { campaigns } from '../db/schema/campaigns'
 import { entities, entityTemplates, entityTemplateFields, tags } from '../db/schema/entities'
 import { characters } from '../db/schema/characters'
@@ -421,10 +421,34 @@ export async function buildCampaignExport(
 }
 
 /**
+ * Add a single file to a streaming fflate Zip, returning a Promise that
+ * resolves when the file has been fully written and the deflate stream ended.
+ * Uses level 0 (store) for already-compressed formats; level 6 otherwise.
+ */
+function zipAddFile(zip: Zip, filename: string, data: Uint8Array): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const ext = filename.split('.').pop()?.toLowerCase() ?? ''
+    const level = ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext) ? 0 : 6
+    const entry = new ZipDeflate(filename, { level })
+    zip.add(entry)
+    try {
+      entry.push(data, true)
+      resolve()
+    } catch (e) {
+      reject(e)
+    }
+  })
+}
+
+/**
  * Build a ZIP archive for a campaign export.
  * The ZIP contains:
  *   campaign.json  — the full export data (version "1.2", no images key)
+ *   image-map.json — mapping from ZIP entry name → original image URL
  *   images/{file}  — raw image files for all referenced image URLs
+ *
+ * Images are processed one at a time to avoid loading all files into memory
+ * simultaneously (large campaigns can have hundreds of MB of portraits).
  */
 export async function buildCampaignExportZip(
   db: BetterSQLite3Database,
@@ -435,46 +459,69 @@ export async function buildCampaignExportZip(
   const campaign = db.select().from(campaigns).where(eq(campaigns.id, options.campaignId)).get()!
   const contentDir = (campaign as Record<string, unknown>).contentDir as string
 
-  // Map of ZIP entry name → original image URL (used by importer to rewrite URLs)
+  // Collect image URL → entry name mappings first (no file reads yet)
   const imageMap: Record<string, string> = {}
+  const imageEntries: Array<{ entryName: string; filePath: string }> = []
 
-  const imageUrls = collectImageUrls(exportData)
-  const imageFiles: Record<string, Uint8Array> = {}
-
-  for (const url of imageUrls) {
+  for (const url of collectImageUrls(exportData)) {
     const resolved = resolveImageFile(url, contentDir)
     if (!resolved) continue
-    try {
-      const data = readFileSync(resolved.filePath)
-      const imagesMatch = url.match(/\/images\/([^/?]+)$/)
-      const entityMatch = url.match(/\/entities\/([^/]+)\/image$/)
-      const portraitMatch = url.match(/\/characters\/([^/]+)\/portrait$/)
 
-      let entryName: string | null = null
-      if (imagesMatch) {
-        entryName = `images/${imagesMatch[1]}`
-      } else if (entityMatch) {
-        const ext = resolved.filePath.split('.').pop() ?? 'png'
-        entryName = `images/entity-${entityMatch[1]}-image.${ext}`
-      } else if (portraitMatch) {
-        const ext = resolved.filePath.split('.').pop() ?? 'png'
-        entryName = `images/character-${portraitMatch[1]}-portrait.${ext}`
-      }
+    const imagesMatch = url.match(/\/images\/([^/?]+)$/)
+    const entityMatch = url.match(/\/entities\/([^/]+)\/image$/)
+    const portraitMatch = url.match(/\/characters\/([^/]+)\/portrait$/)
 
-      if (entryName) {
-        imageFiles[entryName] = new Uint8Array(data)
-        imageMap[entryName] = url
-      }
-    } catch {
-      // silently skip unreadable files
+    let entryName: string | null = null
+    if (imagesMatch) {
+      entryName = `images/${imagesMatch[1]}`
+    } else if (entityMatch) {
+      const ext = resolved.filePath.split('.').pop() ?? 'png'
+      entryName = `images/entity-${entityMatch[1]}-image.${ext}`
+    } else if (portraitMatch) {
+      const ext = resolved.filePath.split('.').pop() ?? 'png'
+      entryName = `images/character-${portraitMatch[1]}-portrait.${ext}`
+    }
+
+    if (entryName) {
+      imageMap[entryName] = url
+      imageEntries.push({ entryName, filePath: resolved.filePath })
     }
   }
 
-  const files: Record<string, Uint8Array> = {
-    'campaign.json': Buffer.from(JSON.stringify(exportData, null, 2)),
-    'image-map.json': Buffer.from(JSON.stringify(imageMap, null, 2)),
-    ...imageFiles,
-  }
+  // Stream the ZIP: accumulate compressed chunks, one file at a time
+  const chunks: Uint8Array[] = []
 
-  return Buffer.from(zipSync(files))
+  await new Promise<void>((resolve, reject) => {
+    const zip = new Zip((err, chunk, final) => {
+      if (err) {
+        reject(err)
+        return
+      }
+      chunks.push(chunk)
+      if (final) resolve()
+    })
+
+    // Kick off sequential file additions via an async IIFE
+    ;(async () => {
+      try {
+        await zipAddFile(zip, 'campaign.json', Buffer.from(JSON.stringify(exportData, null, 2)))
+        await zipAddFile(zip, 'image-map.json', Buffer.from(JSON.stringify(imageMap, null, 2)))
+
+        for (const { entryName, filePath } of imageEntries) {
+          try {
+            const data = readFileSync(filePath)
+            await zipAddFile(zip, entryName, new Uint8Array(data))
+          } catch {
+            // silently skip unreadable files
+          }
+        }
+
+        zip.end()
+      } catch (e) {
+        reject(e)
+      }
+    })()
+  })
+
+  return Buffer.concat(chunks)
 }
