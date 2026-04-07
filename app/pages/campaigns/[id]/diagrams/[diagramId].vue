@@ -137,6 +137,7 @@
 </template>
 
 <script setup lang="ts">
+import { createShapeId } from 'tldraw'
 import TldrawCanvas from '~/components/diagrams/TldrawCanvas.vue'
 import EntityPanel from '~/components/diagrams/EntityPanel.vue'
 import EntityPopover from '~/components/diagrams/EntityPopover.vue'
@@ -352,7 +353,7 @@ function relationTypeToColor(relationTypeSlug?: string, attitude?: number): stri
 async function syncRelations() {
   const ed = editorInstance as {
     getCurrentPageShapes: () => { id: string; type: string; props?: Record<string, unknown> }[]
-    createShape: (shape: Record<string, unknown>) => { id: string }
+    createShape: (shape: Record<string, unknown>) => unknown
     createBinding: (binding: Record<string, unknown>) => void
     getBindingsFromShape: (
       shapeId: string,
@@ -413,8 +414,11 @@ async function syncRelations() {
     if (existingArrows.has(`${fromShapeId}→${toShapeId}`)) continue
 
     const color = relationTypeToColor(edge.relationTypeSlug, edge.attitude)
-    // tldraw v4: createShape gives plain {x,y} start/end; bindings connect arrows to shapes
-    const arrowShape = ed.createShape({
+    // tldraw v4: createShape returns `this` (editor), not the shape.
+    // Pre-generate the ID so we can reference it in createBinding calls.
+    const arrowId = createShapeId()
+    ed.createShape({
+      id: arrowId,
       type: 'arrow',
       props: {
         start: { x: 0, y: 0 },
@@ -431,7 +435,7 @@ async function syncRelations() {
     })
     ed.createBinding({
       type: 'arrow',
-      fromId: arrowShape.id,
+      fromId: arrowId,
       toId: fromShapeId,
       props: {
         terminal: 'start',
@@ -442,7 +446,7 @@ async function syncRelations() {
     })
     ed.createBinding({
       type: 'arrow',
-      fromId: arrowShape.id,
+      fromId: arrowId,
       toId: toShapeId,
       props: {
         terminal: 'end',
