@@ -2,9 +2,9 @@
   <div class="flex flex-col h-screen">
     <!-- Toolbar -->
     <div
-      class="flex items-center justify-between px-4 py-2 border-b border-border bg-background shrink-0"
+      class="flex flex-wrap items-center justify-between gap-2 px-4 py-2 border-b border-border bg-background shrink-0"
     >
-      <div class="flex items-center gap-2 text-sm text-muted-foreground">
+      <div class="flex items-center gap-2 text-sm text-muted-foreground shrink-0">
         <NuxtLink :to="`/campaigns/${campaignId}`" class="hover:text-primary">
           {{ $t('common.campaign') }}
         </NuxtLink>
@@ -13,10 +13,10 @@
           {{ $t('diagrams.title') }}
         </NuxtLink>
         <span>/</span>
-        <span class="text-foreground font-medium">{{ diagram?.title }}</span>
+        <span class="text-foreground font-medium truncate max-w-[200px]">{{ diagram?.title }}</span>
       </div>
 
-      <div class="flex items-center gap-2">
+      <div class="flex flex-wrap items-center gap-2">
         <!-- Type filter buttons -->
         <div class="flex gap-1">
           <Button
@@ -30,7 +30,7 @@
           </Button>
         </div>
 
-        <div v-if="!readOnly" class="flex items-center gap-2">
+        <div v-if="!readOnly" class="flex flex-wrap items-center gap-2">
           <span v-if="saveStatus === 'saving'" class="text-xs text-muted-foreground">
             {{ $t('diagrams.saving') }}
           </span>

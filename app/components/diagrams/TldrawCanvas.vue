@@ -17,6 +17,43 @@ const emit = defineEmits<{
 
 defineExpose({
   importTldrJson: (json: string) => mounted?.importTldrJson(json),
+  filterShapes: (type: string) => {
+    if (!editorInstance) return
+    const ed = editorInstance as {
+      getCurrentPageShapes: () => { id: string; type: string; props?: Record<string, unknown> }[]
+      updateShapes: (updates: { id: string; opacity: number }[]) => void
+    }
+    const ENTITY_TYPES = ['npcToken', 'entityCard', 'locationPin', 'questNode', 'factionCard']
+    const typeToShape: Record<string, string> = {
+      character: 'npcToken',
+      location: 'locationPin',
+      quest: 'questNode',
+      organization: 'factionCard',
+      wiki: 'entityCard',
+    }
+    const shapes = ed.getCurrentPageShapes()
+    const updates = shapes
+      .filter((s) => ENTITY_TYPES.includes(s.type))
+      .map((s) => ({
+        id: s.id,
+        type: s.type,
+        opacity: type === 'all' || s.type === typeToShape[type] ? 1 : 0.15,
+      }))
+    ed.updateShapes(updates)
+  },
+  focusEntity: (entityId: string) => {
+    if (!editorInstance) return
+    const ed = editorInstance as {
+      getCurrentPageShapes: () => { id: string; props?: Record<string, unknown> }[]
+      select: (...ids: string[]) => void
+      zoomToSelection: () => void
+    }
+    const shape = ed.getCurrentPageShapes().find((s) => s.props?.entityId === entityId)
+    if (shape) {
+      ed.select(shape.id)
+      ed.zoomToSelection()
+    }
+  },
 })
 
 const containerRef = ref<HTMLDivElement>()
