@@ -246,15 +246,99 @@ function handleEntityDrop(entityDataStr: string, event: DragEvent) {
   })
 }
 
+interface TldrAsset {
+  id: string
+  typeName: 'asset'
+  type: string
+  props?: { src?: string; mimeType?: string; name?: string }
+}
+
+interface TldrFile {
+  tldrawFileFormatVersion: number
+  schema: unknown
+  records: Array<TldrAsset | Record<string, unknown>>
+}
+
+async function uploadAssets(parsed: TldrFile): Promise<TldrFile> {
+  const assetRecords = parsed.records.filter(
+    (r): r is TldrAsset => r.typeName === 'asset' && typeof r.props?.src === 'string',
+  )
+
+  if (assetRecords.length === 0) return parsed
+
+  // Build assetId → server URL map
+  const urlMap = new Map<string, string>()
+
+  await Promise.all(
+    assetRecords.map(async (asset) => {
+      const src = asset.props!.src!
+      if (!src.startsWith('data:')) return // already a URL, skip
+
+      const mimeType = asset.props?.mimeType ?? src.split(';')[0]?.slice(5) ?? 'image/png'
+      const mimeToExt: Record<string, string> = {
+        'image/png': '.png',
+        'image/jpeg': '.jpg',
+        'image/webp': '.webp',
+        'image/gif': '.gif',
+      }
+      const ext = mimeToExt[mimeType] ?? '.png'
+      const filename = (asset.props?.name ?? asset.id) + ext
+
+      // Decode base64 → Blob
+      const base64 = src.split(',')[1] ?? ''
+      const binary = atob(base64)
+      const bytes = new Uint8Array(binary.length)
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i)
+      const blob = new Blob([bytes], { type: mimeType })
+
+      const form = new FormData()
+      form.append('file', blob, filename)
+
+      try {
+        const result = await $fetch<{ url: string }>(`/api/campaigns/${campaignId}/images`, {
+          method: 'POST',
+          body: form,
+        })
+        urlMap.set(asset.id, result.url)
+      } catch (e) {
+        console.warn(`[import] Failed to upload asset ${asset.id}:`, e)
+      }
+    }),
+  )
+
+  if (urlMap.size === 0) return parsed
+
+  // Rewrite asset src fields with server URLs
+  const rewrittenRecords = parsed.records.map((r) => {
+    if (r.typeName !== 'asset') return r
+    const asset = r as TldrAsset
+    const newUrl = urlMap.get(asset.id)
+    if (!newUrl) return r
+    return { ...asset, props: { ...asset.props, src: newUrl } }
+  })
+
+  return { ...parsed, records: rewrittenRecords }
+}
+
 function onTldrFileSelected(event: Event) {
   const file = (event.target as HTMLInputElement).files?.[0]
   if (!file) return
   const reader = new FileReader()
-  reader.onload = () => {
-    const json = reader.result as string
-    canvasRef.value?.importTldrJson(json)
+  reader.onload = async () => {
+    let json = reader.result as string
     // Reset input so the same file can be re-selected
     if (tldrFileInputRef.value) tldrFileInputRef.value.value = ''
+
+    // Upload embedded base64 images to server and rewrite asset URLs
+    try {
+      const parsed = JSON.parse(json) as TldrFile
+      const rewritten = await uploadAssets(parsed)
+      json = JSON.stringify(rewritten)
+    } catch (e) {
+      console.warn('[import] Asset upload step failed, importing as-is:', e)
+    }
+
+    canvasRef.value?.importTldrJson(json)
   }
   reader.readAsText(file)
 }
