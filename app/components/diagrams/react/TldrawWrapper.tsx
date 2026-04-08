@@ -160,6 +160,7 @@ export function TldrawWrapper({
         shapeUtils={SHAPE_UTILS}
         onMount={handleMount}
         hideUi={readOnly}
+        licenseKey={import.meta.env.VITE_TLDRAW_LICENSE_KEY}
       />
     </div>
   )

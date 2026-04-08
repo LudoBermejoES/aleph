@@ -67,6 +67,8 @@ jobs:
         run: npm ci
 
       - name: Build Nuxt app
+        env:
+          VITE_TLDRAW_LICENSE_KEY: ${{ secrets.VITE_TLDRAW_LICENSE_KEY }}
         run: npm run build
 
       - name: Create deployment archive
