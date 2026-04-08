@@ -90,6 +90,15 @@
           {{ $t('diagrams.popover.openFullPage') }}
         </Button>
         <Button
+          v-if="entity.type === 'organization' || entity.type === 'location'"
+          size="sm"
+          variant="outline"
+          data-testid="entity-popover-expand"
+          @click="$emit('expand', entity.id, entity.type)"
+        >
+          {{ $t('diagrams.expand') }}
+        </Button>
+        <Button
           size="sm"
           variant="outline"
           data-testid="entity-popover-new-tab"
@@ -116,6 +125,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   close: []
+  expand: [entityId: string, entityType: string]
 }>()
 
 const router = useRouter()

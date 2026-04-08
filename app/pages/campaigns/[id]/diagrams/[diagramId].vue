@@ -144,6 +144,7 @@
           :x="popoverX"
           :y="popoverY"
           @close="popoverVisible = false"
+          @expand="onPopoverExpand"
         />
       </div>
     </div>
@@ -355,6 +356,11 @@ function onFocusEntity(entityId: string) {
 
 function onExpandClick() {
   expandRelatedEntities(selectedEntityId.value, selectedEntityType.value)
+}
+
+function onPopoverExpand(entityId: string, entityType: string) {
+  popoverVisible.value = false
+  expandRelatedEntities(entityId, entityType)
 }
 
 function onCanvasDrop(event: DragEvent, editor: unknown) {
