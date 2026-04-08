@@ -14,7 +14,7 @@ test.describe('Edit Entity via /edit page (12.36)', () => {
       method: 'POST',
       body: { name: 'Original Entity', type: 'note', content: '# Original', visibility: 'members' },
     })
-    const slug = (entity as any).slug
+    const slug = (entity as Record<string, unknown>).slug
 
     // Navigate to edit page
     await page.goto(`${BASE}/campaigns/${campaignId}/entities/${slug}/edit`)
@@ -59,7 +59,7 @@ test.describe('Edit Character via /edit page (12.37)', () => {
         content: '# NPC',
       },
     })
-    const slug = (character as any).slug
+    const slug = (character as Record<string, unknown>).slug
 
     // Navigate to edit page
     await page.goto(`${BASE}/campaigns/${campaignId}/characters/${slug}/edit`)
@@ -107,7 +107,7 @@ test.describe('Edit Calendar via /edit page (12.38)', () => {
         currentDay: 1,
       },
     })
-    const calId = (calendar as any).id
+    const calId = (calendar as Record<string, unknown>).id
 
     // Navigate to edit page
     await page.goto(`${BASE}/campaigns/${campaignId}/calendars/${calId}/edit`)

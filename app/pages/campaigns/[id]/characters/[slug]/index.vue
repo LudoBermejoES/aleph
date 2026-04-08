@@ -272,13 +272,27 @@
 </template>
 
 <script setup lang="ts">
+import type { Character, CharacterConnection, EntityRelation } from '~/types/api'
+
+interface OrgMembership {
+  id: string
+  name: string
+  slug: string
+  role?: string | null
+}
+
 const route = useRoute()
 const campaignId = route.params.id as string
 const slug = route.params.slug as string
-import type { Character, CharacterConnection, EntityRelation } from '~/types/api'
 
 const character = ref<Character | null>(null)
-const connections = ref<CharacterConnection[]>([])
+const connections = ref<
+  (CharacterConnection & {
+    targetEntityName?: string
+    targetEntityType?: string
+    targetEntitySlug?: string
+  })[]
+>([])
 const relations = ref<
   (EntityRelation & {
     relatedEntityName?: string
@@ -287,7 +301,7 @@ const relations = ref<
   })[]
 >([])
 const companions = ref<Character[]>([])
-const characterOrgs = ref<any[]>([])
+const characterOrgs = ref<OrgMembership[]>([])
 const allChars = ref<Character[]>([])
 
 // Age calculation (7.1, 7.2)
@@ -373,8 +387,8 @@ const graphData = computed(() => {
     if (!conn.targetEntityId) continue
     if (!nodes[conn.targetEntityId]) {
       nodes[conn.targetEntityId] = {
-        name: (conn as any).targetEntityName ?? conn.targetEntityId,
-        type: (conn as any).targetEntityType ?? 'character',
+        name: conn.targetEntityName ?? conn.targetEntityId,
+        type: conn.targetEntityType ?? 'character',
         image: charPortraitMap.value[conn.targetEntityId] ?? null,
       }
     }
@@ -401,10 +415,10 @@ const nodeSlugMap = computed<Record<string, { slug: string; type: string }>>(() 
       }
   }
   for (const conn of connections.value) {
-    if (conn.targetEntityId && (conn as any).targetEntitySlug)
+    if (conn.targetEntityId && conn.targetEntitySlug)
       map[conn.targetEntityId] = {
-        slug: (conn as any).targetEntitySlug,
-        type: (conn as any).targetEntityType ?? 'character',
+        slug: conn.targetEntitySlug,
+        type: conn.targetEntityType ?? 'character',
       }
   }
   return map

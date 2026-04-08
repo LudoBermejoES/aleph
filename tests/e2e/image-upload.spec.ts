@@ -10,7 +10,7 @@ const TINY_PNG = Buffer.from(
   'base64',
 )
 
-async function uploadImageViaToolbar(page: any) {
+async function uploadImageViaToolbar(page: import('@playwright/test').Page) {
   // Set files directly on the hidden file input to reliably trigger the Vue @change handler
   const fileInput = page.locator('input[type="file"][accept*="image"]')
   await fileInput.setInputFiles({

@@ -19,7 +19,7 @@ test.describe('Character Actions', () => {
     // Duplicate
     await apiFetch(
       page,
-      `/api/campaigns/${campaignId}/characters/${(charRes as any).slug}/duplicate`,
+      `/api/campaigns/${campaignId}/characters/${(charRes as Record<string, unknown>).slug}/duplicate`,
       {
         method: 'POST',
       },

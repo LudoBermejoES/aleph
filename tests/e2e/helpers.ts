@@ -26,7 +26,7 @@ async function gotoWithRetry(page: Page, url: string, retries = 3): Promise<void
     try {
       await page.goto(url, { waitUntil: 'domcontentloaded' })
       return
-    } catch (err: any) {
+    } catch (err: unknown) {
       if (i === retries - 1) throw err
       // Back off before retrying
       await page.waitForTimeout(500 * (i + 1))
@@ -60,7 +60,7 @@ export async function apiFetch(
   page: Page,
   path: string,
   opts: { method?: string; body?: unknown } = {},
-): Promise<any> {
+): Promise<unknown> {
   return page.evaluate(
     async ([p, o]: [string, { method?: string; body?: unknown }]) => {
       const method = (o.method || 'GET').toUpperCase()

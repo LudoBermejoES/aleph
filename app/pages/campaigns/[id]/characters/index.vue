@@ -179,7 +179,7 @@ const folderSheetOpen = ref(false)
 const chars = ref<Character[]>([])
 const folders = ref<CharacterFolder[]>([])
 const meta = ref<CharacterMeta>({ races: [], classes: [], alignments: [] })
-const organizations = ref<any[]>([])
+const organizations = ref<{ id: string; name: string; slug: string }[]>([])
 
 const filters = useCharacterFilters(campaignId)
 const {
@@ -256,7 +256,9 @@ onMounted(async () => {
     api
       .getOrganizations()
       .then((o) => {
-        organizations.value = Array.isArray(o) ? o : (o as any).data
+        organizations.value = Array.isArray(o)
+          ? o
+          : (o as { data: typeof organizations.value }).data
       })
       .catch(() => {}),
   ])

@@ -3,7 +3,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 
-async function api(path: string, opts?: RequestInit & { body?: unknown }) {
+async function api(path: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
     headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...opts?.headers },
@@ -36,7 +36,7 @@ async function createApiKey(cookie: string, name = 'test-key') {
   return res.json()
 }
 
-async function apiOk(path: string, opts?: RequestInit & { body?: unknown }) {
+async function apiOk(path: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   const res = await api(path, opts)
   if (!res.ok) {
     const text = await res.text()
@@ -106,7 +106,7 @@ describe('Character Ability Delete (integration)', () => {
       },
     )
     expect(Array.isArray(abilities)).toBe(true)
-    const found = abilities.find((a: any) => a.id === abilityId)
+    const found = abilities.find((a: Record<string, unknown>) => a.id === abilityId)
     expect(found).toBeDefined()
     expect(found.name).toBe('Fireball')
     expect(found.type).toBe('spell')
@@ -133,7 +133,7 @@ describe('Character Ability Delete (integration)', () => {
       },
     )
     expect(Array.isArray(abilities)).toBe(true)
-    const found = abilities.find((a: any) => a.id === abilityId)
+    const found = abilities.find((a: Record<string, unknown>) => a.id === abilityId)
     expect(found).toBeUndefined()
   })
 

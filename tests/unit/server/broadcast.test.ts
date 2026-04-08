@@ -40,7 +40,7 @@ describe('broadcast utility', () => {
 
   it('emitCampaignNotification no-ops when no broadcast registered', () => {
     // Register null by casting (simulate no WS handler loaded)
-    registerBroadcast(null as any)
+    registerBroadcast(null as unknown as Parameters<typeof registerBroadcast>[0])
     // Should not throw
     expect(() => emitCampaignNotification('camp-1', 'Test')).not.toThrow()
   })

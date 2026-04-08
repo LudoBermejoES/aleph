@@ -1,5 +1,5 @@
 <template>
-  <form @submit.prevent="$emit('submit')" class="space-y-6">
+  <form class="space-y-6" @submit.prevent="$emit('submit')">
     <div class="grid grid-cols-2 gap-4">
       <div>
         <label class="text-sm font-medium">{{ $t('relations.sourceEntity') }}</label>
@@ -17,8 +17,8 @@
             v-for="e in search.sourceResults"
             :key="e.id"
             type="button"
-            @click="selectEntity('source', e)"
             class="block w-full text-left px-3 py-2 text-sm hover:bg-accent"
+            @click="selectEntity('source', e)"
           >
             {{ e.name }} <span class="text-xs text-muted-foreground">{{ e.type }}</span>
           </button>
@@ -43,8 +43,8 @@
             v-for="e in search.targetResults"
             :key="e.id"
             type="button"
-            @click="selectEntity('target', e)"
             class="block w-full text-left px-3 py-2 text-sm hover:bg-accent"
+            @click="selectEntity('target', e)"
           >
             {{ e.name }} <span class="text-xs text-muted-foreground">{{ e.type }}</span>
           </button>
@@ -100,10 +100,10 @@
         rows="3"
         class="w-full mt-1 px-3 py-2 rounded border border-input bg-background"
         placeholder="Optional description..."
-      />
+      ></textarea>
     </div>
     <div class="flex justify-end gap-2">
-      <slot name="cancel" />
+      <slot name="cancel"></slot>
       <Button type="submit" :disabled="submitting || !form.sourceEntityId || !form.targetEntityId">
         {{ submitting ? $t('common.saving') : submitLabel }}
       </Button>
@@ -112,6 +112,8 @@
 </template>
 
 <script setup lang="ts">
+import type { RelationType, Entity } from '~/types/api'
+
 const props = defineProps<{
   modelValue: {
     sourceEntityId: string
@@ -134,12 +136,12 @@ const emit = defineEmits<{
   submit: []
 }>()
 
-const relationTypes = ref<any[]>([])
+const relationTypes = ref<RelationType[]>([])
 const search = ref({
   source: '',
-  sourceResults: [] as any[],
+  sourceResults: [] as Entity[],
   target: '',
-  targetResults: [] as any[],
+  targetResults: [] as Entity[],
 })
 
 const form = computed({
@@ -168,7 +170,7 @@ function searchEntities(field: 'source' | 'target') {
   }, 300)
 }
 
-function selectEntity(field: 'source' | 'target', entity: any) {
+function selectEntity(field: 'source' | 'target', entity: Entity) {
   if (field === 'source') {
     form.value.sourceEntityId = entity.id
     form.value.sourceEntityName = entity.name

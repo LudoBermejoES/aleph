@@ -1,4 +1,4 @@
-export function useCharacterFilters(campaignId: string) {
+export function useCharacterFilters(_campaignId: string) {
   const route = useRoute()
   const router = useRouter()
 

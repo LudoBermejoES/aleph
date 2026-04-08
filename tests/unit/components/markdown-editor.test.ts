@@ -20,11 +20,11 @@ describe('MarkdownEditor — core behavior', () => {
       const json = markdownToTiptap(md)
 
       expect(json.type).toBe('doc')
-      const content = json.content as any[]
+      const content = json.content as Array<{ type: string }>
       expect(content.length).toBeGreaterThan(0)
 
       // Should have heading, paragraph, and list
-      const types = content.map((n: any) => n.type)
+      const types = content.map((n) => n.type)
       expect(types).toContain('heading')
       expect(types).toContain('paragraph')
       expect(types).toContain('bulletList')

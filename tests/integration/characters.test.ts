@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 
-async function api(path: string, opts?: any) {
+async function api(path: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
     headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...opts?.headers },
@@ -96,7 +96,7 @@ describe('Character CRUD (integration)', () => {
     const body = await res.json()
     const data = body.data ?? body
     expect(data.length).toBeGreaterThanOrEqual(1)
-    expect(data.some((a: any) => a.name === 'Fireball')).toBe(true)
+    expect(data.some((a: Record<string, unknown>) => a.name === 'Fireball')).toBe(true)
   })
 
   it('PUT updates character fields', async () => {
@@ -122,7 +122,7 @@ describe('Character CRUD (integration)', () => {
     })
     const body = await res.json()
     const data = body.data ?? body
-    expect(data.every((c: any) => c.characterType === 'npc')).toBe(true)
+    expect(data.every((c: Record<string, unknown>) => c.characterType === 'npc')).toBe(true)
   })
 
   it('POST duplicate creates copy', async () => {

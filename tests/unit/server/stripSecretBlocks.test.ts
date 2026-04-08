@@ -11,7 +11,7 @@ Revealable DM content.
 :::
 `
 
-const PLAYER_BLOCK = `:::secret{.player}
+const _PLAYER_BLOCK = `:::secret{.player}
 Player content.
 :::
 `

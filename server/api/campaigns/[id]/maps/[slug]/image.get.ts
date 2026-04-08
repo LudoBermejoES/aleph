@@ -3,7 +3,6 @@ import { useDb } from '../../../../../utils/db'
 import { maps } from '../../../../../db/schema/maps'
 import { readFile, stat } from 'fs/promises'
 import { join } from 'path'
-import { createReadStream } from 'fs'
 
 export default defineEventHandler(async (event) => {
   const campaignId = getRouterParam(event, 'id')!

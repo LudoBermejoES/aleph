@@ -28,28 +28,27 @@
       <!-- Undo/Redo -->
       <button
         type="button"
-        @mousedown.prevent="undo"
         class="p-1.5 rounded text-xs hover:bg-accent"
         :title="$t('editor.toolbar.undo')"
         :aria-label="$t('aria.markdownEditor.undo')"
+        @mousedown.prevent="undo"
       >
         ↩
       </button>
       <button
         type="button"
-        @mousedown.prevent="redo"
         class="p-1.5 rounded text-xs hover:bg-accent"
         :title="$t('editor.toolbar.redo')"
         :aria-label="$t('aria.markdownEditor.redo')"
+        @mousedown.prevent="redo"
       >
         ↪
       </button>
-      <div class="w-px h-4 bg-border mx-1" />
+      <div class="w-px h-4 bg-border mx-1"></div>
 
       <!-- Text formatting -->
       <button
         type="button"
-        @mousedown.prevent="toggleBold"
         :class="[
           'p-1.5 rounded text-xs font-bold',
           editorState?.isBold ? 'bg-accent' : 'hover:bg-accent',
@@ -57,12 +56,12 @@
         :title="$t('editor.toolbar.bold')"
         :aria-label="$t('aria.markdownEditor.bold')"
         :aria-pressed="editorState?.isBold"
+        @mousedown.prevent="toggleBold"
       >
         B
       </button>
       <button
         type="button"
-        @mousedown.prevent="toggleItalic"
         :class="[
           'p-1.5 rounded text-xs italic',
           editorState?.isItalic ? 'bg-accent' : 'hover:bg-accent',
@@ -70,12 +69,12 @@
         :title="$t('editor.toolbar.italic')"
         :aria-label="$t('aria.markdownEditor.italic')"
         :aria-pressed="editorState?.isItalic"
+        @mousedown.prevent="toggleItalic"
       >
         I
       </button>
       <button
         type="button"
-        @mousedown.prevent="toggleStrike"
         :class="[
           'p-1.5 rounded text-xs line-through',
           editorState?.isStrike ? 'bg-accent' : 'hover:bg-accent',
@@ -83,12 +82,12 @@
         :title="$t('editor.toolbar.strikethrough')"
         :aria-label="$t('aria.markdownEditor.strikethrough')"
         :aria-pressed="editorState?.isStrike"
+        @mousedown.prevent="toggleStrike"
       >
         S
       </button>
       <button
         type="button"
-        @mousedown.prevent="toggleCode"
         :class="[
           'p-1.5 rounded text-xs font-mono',
           editorState?.isCode ? 'bg-accent' : 'hover:bg-accent',
@@ -96,48 +95,48 @@
         :title="$t('editor.toolbar.inlineCode')"
         :aria-label="$t('aria.markdownEditor.inlineCode')"
         :aria-pressed="editorState?.isCode"
+        @mousedown.prevent="toggleCode"
       >
         &lt;/&gt;
       </button>
-      <div class="w-px h-4 bg-border mx-1" />
+      <div class="w-px h-4 bg-border mx-1"></div>
 
       <!-- Headings -->
       <button
         type="button"
-        @mousedown.prevent="setHeading(1)"
         :class="['p-1.5 rounded text-xs', editorState?.isH1 ? 'bg-accent' : 'hover:bg-accent']"
         :title="$t('editor.toolbar.heading1')"
         :aria-label="$t('aria.markdownEditor.heading1')"
         :aria-pressed="editorState?.isH1"
+        @mousedown.prevent="setHeading(1)"
       >
         H1
       </button>
       <button
         type="button"
-        @mousedown.prevent="setHeading(2)"
         :class="['p-1.5 rounded text-xs', editorState?.isH2 ? 'bg-accent' : 'hover:bg-accent']"
         :title="$t('editor.toolbar.heading2')"
         :aria-label="$t('aria.markdownEditor.heading2')"
         :aria-pressed="editorState?.isH2"
+        @mousedown.prevent="setHeading(2)"
       >
         H2
       </button>
       <button
         type="button"
-        @mousedown.prevent="setHeading(3)"
         :class="['p-1.5 rounded text-xs', editorState?.isH3 ? 'bg-accent' : 'hover:bg-accent']"
         :title="$t('editor.toolbar.heading3')"
         :aria-label="$t('aria.markdownEditor.heading3')"
         :aria-pressed="editorState?.isH3"
+        @mousedown.prevent="setHeading(3)"
       >
         H3
       </button>
-      <div class="w-px h-4 bg-border mx-1" />
+      <div class="w-px h-4 bg-border mx-1"></div>
 
       <!-- Lists -->
       <button
         type="button"
-        @mousedown.prevent="toggleBulletList"
         :class="[
           'p-1.5 rounded text-xs',
           editorState?.isBulletList ? 'bg-accent' : 'hover:bg-accent',
@@ -145,12 +144,12 @@
         :title="$t('editor.toolbar.bulletList')"
         :aria-label="$t('aria.markdownEditor.bulletList')"
         :aria-pressed="editorState?.isBulletList"
+        @mousedown.prevent="toggleBulletList"
       >
         • List
       </button>
       <button
         type="button"
-        @mousedown.prevent="toggleOrderedList"
         :class="[
           'p-1.5 rounded text-xs',
           editorState?.isOrderedList ? 'bg-accent' : 'hover:bg-accent',
@@ -158,12 +157,12 @@
         :title="$t('editor.toolbar.orderedList')"
         :aria-label="$t('aria.markdownEditor.orderedList')"
         :aria-pressed="editorState?.isOrderedList"
+        @mousedown.prevent="toggleOrderedList"
       >
         1. List
       </button>
       <button
         type="button"
-        @mousedown.prevent="toggleTaskList"
         :class="[
           'p-1.5 rounded text-xs',
           editorState?.isTaskList ? 'bg-accent' : 'hover:bg-accent',
@@ -171,15 +170,15 @@
         :title="$t('editor.toolbar.taskList')"
         :aria-label="$t('aria.markdownEditor.taskList')"
         :aria-pressed="editorState?.isTaskList"
+        @mousedown.prevent="toggleTaskList"
       >
         ☑ Tasks
       </button>
-      <div class="w-px h-4 bg-border mx-1" />
+      <div class="w-px h-4 bg-border mx-1"></div>
 
       <!-- Blocks -->
       <button
         type="button"
-        @mousedown.prevent="toggleBlockquote"
         :class="[
           'p-1.5 rounded text-xs',
           editorState?.isBlockquote ? 'bg-accent' : 'hover:bg-accent',
@@ -187,12 +186,12 @@
         :title="$t('editor.toolbar.blockquote')"
         :aria-label="$t('aria.markdownEditor.blockquote')"
         :aria-pressed="editorState?.isBlockquote"
+        @mousedown.prevent="toggleBlockquote"
       >
         ❝ Quote
       </button>
       <button
         type="button"
-        @mousedown.prevent="toggleCodeBlock"
         :class="[
           'p-1.5 rounded text-xs font-mono',
           editorState?.isCodeBlock ? 'bg-accent' : 'hover:bg-accent',
@@ -200,27 +199,28 @@
         :title="$t('editor.toolbar.codeBlock')"
         :aria-label="$t('aria.markdownEditor.codeBlock')"
         :aria-pressed="editorState?.isCodeBlock"
+        @mousedown.prevent="toggleCodeBlock"
       >
         {} Block
       </button>
       <button
         type="button"
-        @mousedown.prevent="insertHorizontalRule"
         class="p-1.5 rounded text-xs hover:bg-accent"
         :title="$t('editor.toolbar.horizontalRule')"
         :aria-label="$t('aria.markdownEditor.horizontalRule')"
+        @mousedown.prevent="insertHorizontalRule"
       >
         — HR
       </button>
-      <div class="w-px h-4 bg-border mx-1" />
+      <div class="w-px h-4 bg-border mx-1"></div>
 
       <!-- Link -->
       <button
         type="button"
-        @mousedown.prevent="insertLink($event)"
         :class="['p-1.5 rounded text-xs', editorState?.isLink ? 'bg-accent' : 'hover:bg-accent']"
         :title="$t('editor.toolbar.insertLink')"
         :aria-label="$t('aria.markdownEditor.insertLink')"
+        @mousedown.prevent="insertLink($event)"
       >
         🔗 Link
       </button>
@@ -228,23 +228,23 @@
       <!-- Table -->
       <button
         type="button"
-        @mousedown.prevent="insertTable"
         class="p-1.5 rounded text-xs hover:bg-accent"
         :title="$t('editor.toolbar.insertTable')"
         :aria-label="$t('aria.markdownEditor.insertTable')"
+        @mousedown.prevent="insertTable"
       >
         ⊞ Table
       </button>
 
       <!-- Image (only shown when campaignId provided) -->
       <template v-if="campaignId">
-        <div class="w-px h-4 bg-border mx-1" />
+        <div class="w-px h-4 bg-border mx-1"></div>
         <button
           type="button"
-          @mousedown.prevent="triggerImagePicker"
           class="p-1.5 rounded text-xs hover:bg-accent"
           :title="$t('editor.toolbar.insertImage')"
           :aria-label="$t('aria.markdownEditor.insertImage')"
+          @mousedown.prevent="triggerImagePicker"
         >
           🖼 Image
         </button>
@@ -265,7 +265,7 @@
     <div
       ref="editorEl"
       class="prose dark:prose-invert max-w-none p-4 min-h-[200px] focus:outline-none"
-    />
+    ></div>
   </div>
 
   <!-- Link insert dialog -->
@@ -305,7 +305,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from '~/components/ui/dialog'
-import { Editor } from '@tiptap/core'
+import { Editor, type Extension } from '@tiptap/core'
 import StarterKit from '@tiptap/starter-kit'
 import { Markdown } from '@tiptap/markdown'
 import Placeholder from '@tiptap/extension-placeholder'
@@ -412,7 +412,7 @@ function updateEditorState() {
 async function initEditor() {
   if (!editorEl.value || editor) return
 
-  const extensions: any[] = [
+  const extensions: Extension[] = [
     Markdown,
     EntityLink,
     SecretBlock,
@@ -480,7 +480,15 @@ async function initEditor() {
                 return []
               }
             },
-            command: ({ editor: ed, range, props: item }: any) => {
+            command: ({
+              editor: ed,
+              range,
+              props: item,
+            }: {
+              editor: Editor
+              range: { from: number; to: number }
+              props: { slug: string; name: string; id: string; type: string }
+            }) => {
               ed.chain()
                 .focus()
                 .deleteRange(range)
@@ -491,14 +499,16 @@ async function initEditor() {
                 .run()
             },
             render: () => {
+              type SuggestionItem = { id: string; name: string; slug: string; type: string }
+              type SuggestionCommand = (item: SuggestionItem) => void
               let dropdown: HTMLElement | null = null
               let selectedIndex = 0
-              let currentItems: any[] = []
-              let currentCommand: any = null
+              let currentItems: SuggestionItem[] = []
+              let currentCommand: SuggestionCommand | null = null
 
               function updateDropdown(
-                items: any[],
-                command: any,
+                items: SuggestionItem[],
+                command: SuggestionCommand,
                 clientRect: (() => DOMRect) | null,
               ) {
                 currentItems = items
@@ -549,14 +559,21 @@ async function initEditor() {
                 currentItems = []
               }
 
+              type RenderProps = {
+                items: SuggestionItem[]
+                command: SuggestionCommand
+                clientRect: (() => DOMRect) | null
+                event: KeyboardEvent
+              }
+
               return {
-                onStart: (renderProps: any) => {
+                onStart: (renderProps: RenderProps) => {
                   updateDropdown(renderProps.items, renderProps.command, renderProps.clientRect)
                 },
-                onUpdate: (renderProps: any) => {
+                onUpdate: (renderProps: RenderProps) => {
                   updateDropdown(renderProps.items, renderProps.command, renderProps.clientRect)
                 },
-                onKeyDown: (renderProps: any) => {
+                onKeyDown: (renderProps: RenderProps) => {
                   if (!currentItems.length) return false
                   if (renderProps.event.key === 'Escape') {
                     removeDropdown()

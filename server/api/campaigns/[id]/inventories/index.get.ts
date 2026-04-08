@@ -1,4 +1,4 @@
-import { eq, and } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import { useDb } from '../../../../utils/db'
 import { inventories, inventoryItems, items } from '../../../../db/schema/inventory'
 

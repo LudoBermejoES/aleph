@@ -12,13 +12,13 @@
       <span class="text-sm text-muted-foreground">{{ entry.permission }}</span>
       <select
         :value="entry.effect"
-        @change="updateEffect(entry, ($event.target as HTMLSelectElement).value)"
         class="rounded border border-input bg-background px-2 py-1 text-sm"
+        @change="updateEffect(entry, ($event.target as HTMLSelectElement).value)"
       >
         <option value="allow">Allow</option>
         <option value="deny">Deny</option>
       </select>
-      <button @click="$emit('remove', entry.id)" class="text-destructive text-sm">Remove</button>
+      <button class="text-destructive text-sm" @click="$emit('remove', entry.id)">Remove</button>
     </div>
     <p v-if="!permissions.length" class="text-sm text-muted-foreground">
       No overrides set. Using campaign role defaults.
@@ -36,7 +36,7 @@ interface PermissionEntry {
   effect: string
 }
 
-const props = defineProps<{
+defineProps<{
   permissions: PermissionEntry[]
 }>()
 

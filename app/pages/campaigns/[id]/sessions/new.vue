@@ -45,7 +45,7 @@ const form = ref({
 })
 
 const api = useCampaignApi(campaignId)
-const sessionForm = ref<any>(null)
+const sessionForm = ref<{ clearDraft: () => void } | null>(null)
 
 async function create() {
   submitting.value = true
@@ -53,8 +53,8 @@ async function create() {
     const res = await api.createSession(form.value)
     sessionForm.value?.clearDraft()
     await router.push(`/campaigns/${campaignId}/sessions/${res.slug}`)
-  } catch (e: any) {
-    alert(e.data?.message || t('sessions.failedSave'))
+  } catch (e: unknown) {
+    alert((e as { data?: { message?: string } })?.data?.message || t('sessions.failedSave'))
   } finally {
     submitting.value = false
   }

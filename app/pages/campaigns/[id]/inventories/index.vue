@@ -11,9 +11,9 @@
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-2xl font-bold">{{ $t('inventories.title') }}</h1>
       <button
-        @click="showForm = !showForm"
         class="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm"
         data-testid="new-inventory-btn"
+        @click="showForm = !showForm"
       >
         {{ showForm ? $t('common.cancel') : $t('inventories.new') }}
       </button>
@@ -52,19 +52,19 @@
         <div class="col-span-2">
           <label class="text-sm font-medium block mb-1">{{ $t('inventories.ownerId') }}</label>
           <OwnerPicker
+            v-model="form.ownerId"
             :campaign-id="campaignId"
             :owner-type="form.ownerType"
-            v-model="form.ownerId"
             data-testid="inv-owner-id"
           />
         </div>
       </div>
       <p v-if="formError" class="text-sm text-destructive">{{ formError }}</p>
       <button
-        @click="create"
         :disabled="!form.name.trim() || !form.ownerId.trim() || saving"
         class="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm disabled:opacity-50"
         data-testid="inv-save"
+        @click="create"
       >
         {{ saving ? $t('common.saving') : $t('common.save') }}
       </button>
@@ -74,10 +74,10 @@
     <div class="flex gap-3 mb-4">
       <select
         v-model="ownerTypeFilter"
-        @change="load"
         class="rounded-md border border-input bg-background px-3 py-2 text-sm"
         data-testid="inv-type-filter"
         :aria-label="$t('aria.filters.inventoryOwnerType')"
+        @change="load"
       >
         <option value="">{{ $t('inventories.allTypes') }}</option>
         <option value="character">{{ $t('inventories.typeCharacter') }}</option>
@@ -125,7 +125,7 @@ const route = useRoute()
 const campaignId = route.params.id as string
 const api = useCampaignApi(campaignId)
 const { t } = useI18n()
-const inventoryList = ref<any[]>([])
+const inventoryList = ref<{ id: string; name: string; ownerType: string; items?: unknown[] }[]>([])
 const loading = ref(true)
 const error = ref('')
 const ownerTypeFilter = ref('')
@@ -156,8 +156,9 @@ async function create() {
     form.value = { name: '', ownerType: 'party', ownerId: '' }
     showForm.value = false
     await load()
-  } catch (e: any) {
-    formError.value = e.data?.message || t('inventories.failedSave')
+  } catch (e: unknown) {
+    formError.value =
+      (e as { data?: { message?: string } })?.data?.message || t('inventories.failedSave')
   } finally {
     saving.value = false
   }

@@ -39,8 +39,8 @@ async function create() {
   try {
     const res = await api.createShop(form.value)
     await navigateTo(`/campaigns/${campaignId}/shops/${res.slug}`)
-  } catch (e: any) {
-    alert(e.data?.message || t('shops.failedSave'))
+  } catch (e: unknown) {
+    alert((e as { data?: { message?: string } })?.data?.message || t('shops.failedSave'))
   } finally {
     submitting.value = false
   }

@@ -1,17 +1,8 @@
 import { describe, it, expect, beforeAll } from 'vitest'
-import { ofetch } from 'ofetch'
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 
-function api(path: string, opts?: any) {
-  return ofetch(`${BASE_URL}${path}`, {
-    ...opts,
-    ignoreResponseError: true,
-    // Return full response to inspect status + headers
-  })
-}
-
-async function apiRaw(path: string, opts?: any) {
+async function apiRaw(path: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   const res = await fetch(`${BASE_URL}${path}`, {
     ...opts,
     headers: {
@@ -19,7 +10,7 @@ async function apiRaw(path: string, opts?: any) {
       Origin: BASE_URL,
       ...opts?.headers,
     },
-    body: opts?.body ? JSON.stringify(opts.body) : undefined,
+    body: opts?.body != null ? JSON.stringify(opts.body) : undefined,
   })
   return res
 }
@@ -198,7 +189,7 @@ describe('Campaign RBAC (integration)', () => {
       headers: { Cookie: dmCookie },
     })
     const members = await res.json()
-    const player = members.find((m: any) => m.email === playerEmail)
+    const player = members.find((m: Record<string, unknown>) => m.email === playerEmail)
     expect(player).toBeDefined()
     expect(player.role).toBe('player')
   })

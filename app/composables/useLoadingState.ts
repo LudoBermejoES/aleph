@@ -11,8 +11,9 @@ export function useLoadingState() {
     try {
       const result = await fn()
       return result
-    } catch (e: any) {
-      error.value = e.data?.message || e.message || 'Something went wrong'
+    } catch (e: unknown) {
+      const err = e as { data?: { message?: string }; message?: string }
+      error.value = err.data?.message || err.message || 'Something went wrong'
       return null
     } finally {
       loading.value = false

@@ -3,7 +3,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 
-async function api(path: string, opts?: RequestInit & { body?: unknown }) {
+async function api(path: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
     headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...opts?.headers },
@@ -36,7 +36,7 @@ async function createApiKey(cookie: string, name = 'test-key') {
   return res.json()
 }
 
-async function apiOk(path: string, opts?: RequestInit & { body?: unknown }) {
+async function apiOk(path: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   const res = await api(path, opts)
   if (!res.ok) {
     const text = await res.text()
@@ -85,7 +85,7 @@ describe('Entity Type CRUD (integration)', () => {
       headers: { 'X-API-Key': apiKey },
     })
     expect(Array.isArray(types)).toBe(true)
-    const found = types.find((t: any) => t.id === typeId)
+    const found = types.find((t: Record<string, unknown>) => t.id === typeId)
     expect(found).toBeDefined()
     expect(found.name).toBe('Faction')
   })
@@ -104,7 +104,7 @@ describe('Entity Type CRUD (integration)', () => {
     const types = await apiOk(`/api/campaigns/${campaignId}/entity-types`, {
       headers: { 'X-API-Key': apiKey },
     })
-    const found = types.find((t: any) => t.id === typeId)
+    const found = types.find((t: Record<string, unknown>) => t.id === typeId)
     expect(found?.name).toBe('Faction Updated')
   })
 
@@ -121,7 +121,7 @@ describe('Entity Type CRUD (integration)', () => {
     const types = await apiOk(`/api/campaigns/${campaignId}/entity-types`, {
       headers: { 'X-API-Key': apiKey },
     })
-    const found = types.find((t: any) => t.id === typeId)
+    const found = types.find((t: Record<string, unknown>) => t.id === typeId)
     expect(found).toBeUndefined()
   })
 
@@ -155,7 +155,9 @@ describe('Entity Type CRUD (integration)', () => {
     const types = await apiOk(`/api/campaigns/${campaignId}/entity-types`, {
       headers: { 'X-API-Key': apiKey },
     })
-    const builtin = types.find((t: any) => t.isBuiltin === true || t.is_builtin === true)
+    const builtin = types.find(
+      (t: Record<string, unknown>) => t.isBuiltin === true || t.is_builtin === true,
+    )
     expect(builtin).toBeDefined()
 
     const res = await api(`/api/campaigns/${campaignId}/entity-types/${builtin.id}`, {

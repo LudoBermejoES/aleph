@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 
-async function api(path: string, opts?: any) {
+async function api(path: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
     headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...opts?.headers },
@@ -147,7 +147,7 @@ describe('Secrets API (integration)', () => {
     })
     expect(res.status).toBe(200)
     const data = await res.json()
-    const found = data.find((r: any) => r.blockId === 'test-block-1')
+    const found = data.find((r: Record<string, unknown>) => r.blockId === 'test-block-1')
     expect(found).toBeDefined()
     expect(found.revealedBy).toBeDefined()
     expect(found.revealedAt).toBeDefined()

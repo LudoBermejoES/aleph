@@ -1,5 +1,5 @@
 <template>
-  <form @submit.prevent="$emit('submit')" class="space-y-6">
+  <form class="space-y-6" @submit.prevent="$emit('submit')">
     <div class="grid grid-cols-2 gap-4">
       <div class="col-span-2">
         <label class="text-sm font-medium">{{ $t('locations.name') }}</label>
@@ -60,7 +60,7 @@
     </div>
 
     <div class="flex justify-end gap-2">
-      <slot name="cancel" />
+      <slot name="cancel"></slot>
       <Button type="submit" :disabled="submitting">{{
         submitting ? $t('common.saving') : submitLabel
       }}</Button>
@@ -103,7 +103,7 @@ const emit = defineEmits<{
 }>()
 
 const subtypes = SUBTYPES
-const availableParents = ref<any[]>([])
+const availableParents = ref<Record<string, unknown>[]>([])
 
 const form = computed({
   get: () => props.modelValue,
@@ -128,7 +128,7 @@ onMounted(async () => {
   try {
     const locs = await useCampaignApi(props.campaignId).getLocations()
     // Exclude self from parent options when editing
-    availableParents.value = locs.filter((l: any) => l.slug !== props.locationSlug)
+    availableParents.value = locs.filter((l) => l.slug !== props.locationSlug)
   } catch {
     availableParents.value = []
   }

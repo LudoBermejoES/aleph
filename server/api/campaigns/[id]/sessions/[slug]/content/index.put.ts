@@ -7,8 +7,6 @@ import { gameSessions, sessionContents } from '../../../../../../db/schema/sessi
 import { hasMinRole } from '../../../../../../utils/permissions'
 import type { CampaignRole } from '../../../../../../utils/permissions'
 
-const VALID_TYPES = ['manual_notes', 'ai_notes', 'summary']
-
 export default defineEventHandler(async (event) => {
   const role = event.context.campaignRole as CampaignRole
   if (!hasMinRole(role, 'editor')) {

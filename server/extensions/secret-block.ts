@@ -1,4 +1,4 @@
-import { Node } from '@tiptap/core'
+import { Node, type MarkdownLexerConfiguration, type MarkdownToken } from '@tiptap/core'
 
 /**
  * Custom Tiptap block node for secret/conditional content blocks.
@@ -46,7 +46,7 @@ export const SecretBlock = Node.create({
     return [{ tag: 'div[data-secret]' }]
   },
 
-  renderHTML({ node, HTMLAttributes }) {
+  renderHTML({ node: _node, HTMLAttributes }) {
     return [
       'div',
       {
@@ -68,7 +68,7 @@ export const SecretBlock = Node.create({
       return src.indexOf(':::secret{')
     },
 
-    tokenize(src: string, _tokens: any, lexer: any) {
+    tokenize(src: string, _tokens: MarkdownToken[], lexer: MarkdownLexerConfiguration) {
       // Match :::secret{.role} or :::secret{.role #id}\ncontent\n:::
       const match = /^:::secret\{\.([^}#\s]+)(?:\s+#([^}]+))?\}\n([\s\S]*?)\n:::\n?/.exec(src)
       if (!match) return undefined
@@ -94,6 +94,7 @@ export const SecretBlock = Node.create({
     },
   },
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   parseMarkdown(token: any, helpers: any) {
     return {
       type: 'secret-block',
@@ -102,6 +103,7 @@ export const SecretBlock = Node.create({
     }
   },
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   renderMarkdown(node: any, helpers: any) {
     const role = node.attrs?.role || 'dm'
     const id = node.attrs?.id

@@ -154,6 +154,8 @@
 </template>
 
 <script setup lang="ts">
+import type { Entity, Mention } from '~/types/api'
+
 const route = useRoute()
 const campaignId = route.params.id as string
 const slug = route.params.slug as string
@@ -163,11 +165,12 @@ const previewContent = ref<string | null>(null)
 const contentRef = ref<HTMLElement>()
 const revealedBlocks = ref<Set<string>>(new Set())
 
-import type { Entity, Mention } from '~/types/api'
-
 const entity = ref<Entity | null>(null)
 const children = ref<Entity[]>([])
-const graphData = ref<any>(null)
+const graphData = ref<{
+  nodes: Record<string, { name: string; type: string }>
+  edges: Record<string, { source: string; target: string; label: string; color: string }>
+} | null>(null)
 const mentions = ref<Mention[]>([])
 const canEdit = ref(false)
 const api = useCampaignApi(campaignId)
@@ -238,7 +241,7 @@ async function onPreviewRoleChange(role: string | null) {
   }
 }
 
-function onGraphNodeClick(nodeId: string) {
+function onGraphNodeClick(_nodeId: string) {
   // Navigate to the related entity -- nodeId is the entity ID
   // For now, we don't have slug lookup, so navigate to graph page
   navigateTo(`/campaigns/${campaignId}/graph`)
@@ -253,7 +256,7 @@ async function loadRevealedBlocks() {
     })
     if (res.ok) {
       const data = await res.json()
-      revealedBlocks.value = new Set(data.map((r: any) => r.blockId))
+      revealedBlocks.value = new Set((data as { blockId: string }[]).map((r) => r.blockId))
     }
   } catch {
     /* silently ignore */

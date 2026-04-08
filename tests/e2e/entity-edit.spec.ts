@@ -14,7 +14,7 @@ test.describe('Entity Editing', () => {
       method: 'POST',
       body: { name: entityName, type: 'note', content: '# Original\n\nOriginal content.' },
     })
-    const slug = (editableEntity as any).slug
+    const slug = (editableEntity as Record<string, unknown>).slug
 
     // Navigate directly to entity detail page
     await page.goto(`http://localhost:3333/campaigns/${campaignId}/entities/${slug}`)

@@ -69,8 +69,8 @@ test.beforeAll(async ({ browser }) => {
     const ares = await aresRes.json()
 
     const types = await fetch(`/api/campaigns/${id}/relation-types`).then((r: Response) => r.json())
-    const ally = types.find((t: any) => t.slug === 'ally') ?? types[0]
-    const enemy = types.find((t: any) => t.slug === 'enemy') ?? ally
+    const ally = types.find((t: Record<string, unknown>) => t.slug === 'ally') ?? types[0]
+    const enemy = types.find((t: Record<string, unknown>) => t.slug === 'enemy') ?? ally
 
     const r1 = await fetch(`/api/campaigns/${id}/relations`, {
       method: 'POST',
@@ -105,7 +105,7 @@ test.beforeAll(async ({ browser }) => {
       hera: { status: heraRes.status, id: hera.id, name: hera.name },
       zeus: { status: zeusRes.status, id: zeus.id, name: zeus.name },
       ares: { status: aresRes.status, id: ares.id, name: ares.name },
-      types: types.map((t: any) => t.slug),
+      types: types.map((t: Record<string, unknown>) => t.slug),
       rel1: { status: r1.status, body: r1Body },
       rel2: { status: r2.status, body: r2Body },
     }
@@ -131,10 +131,10 @@ test.beforeAll(async ({ browser }) => {
 
     const entities = await fetch(`/api/campaigns/${id}/entities`).then((r: Response) => r.json())
     const entityList = entities.entities ?? entities
-    const e1 = entityList.find((e: any) => e.slug === c1.slug)
-    const e2 = entityList.find((e: any) => e.slug === c2.slug)
+    const e1 = entityList.find((e: Record<string, unknown>) => e.slug === c1.slug)
+    const e2 = entityList.find((e: Record<string, unknown>) => e.slug === c2.slug)
     const types = await fetch(`/api/campaigns/${id}/relation-types`).then((r: Response) => r.json())
-    const allyType = types.find((t: any) => t.slug === 'ally')
+    const allyType = types.find((t: Record<string, unknown>) => t.slug === 'ally')
 
     await fetch(`/api/campaigns/${id}/relations`, {
       method: 'POST',
@@ -159,11 +159,11 @@ test.afterAll(async () => {
 async function goToGraphPage(page: Page) {
   // Intercept graph API to debug node count
   let graphApiNodes = 0
-  const handler = (response: any) => {
+  const handler = (response: import('@playwright/test').Response) => {
     if (response.url().includes('/graph') && response.status() === 200) {
       response
         .json()
-        .then((data: any) => {
+        .then((data: Record<string, unknown>) => {
           graphApiNodes = Object.keys(data.nodes || {}).length
           console.log(
             `Graph API returned ${graphApiNodes} nodes, ${Object.keys(data.edges || {}).length} edges`,
@@ -252,7 +252,9 @@ test('12.13 clicking a node dims non-neighbor nodes', async () => {
     }
   })
   console.log('Debug graph elements:', JSON.stringify(debugInfo))
-  const hasDimmedNode = debugInfo.overrideOpacities.some((o: any) => parseFloat(o.opacity) < 0.5)
+  const hasDimmedNode = debugInfo.overrideOpacities.some(
+    (o: Record<string, string>) => parseFloat(o.opacity) < 0.5,
+  )
   expect(hasDimmedNode).toBe(true)
 })
 

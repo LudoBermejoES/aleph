@@ -62,27 +62,36 @@ const api = useCampaignApi(campaignId)
 const loading = ref(true)
 const saving = ref(false)
 const error = ref<string | null>(null)
-const template = ref<any>(null)
+const template = ref<Record<string, unknown> | null>(null)
+
+interface TemplateField {
+  _key: string
+  key: string
+  label: string
+  fieldType: string
+  required: boolean
+  optionsRaw: string
+}
 
 const form = reactive({ name: '', isDefault: false })
-const fields = ref<any[]>([])
+const fields = ref<TemplateField[]>([])
 
 onMounted(async () => {
   try {
     const tpl = await api.getTemplate(templateId)
     template.value = tpl
-    form.name = tpl.name
-    form.isDefault = tpl.isDefault
-    fields.value = (tpl.fields ?? []).map((f: any) => ({
-      _key: f.id,
-      key: f.key,
-      label: f.label,
-      fieldType: f.fieldType,
-      required: f.required,
+    form.name = tpl.name as string
+    form.isDefault = tpl.isDefault as boolean
+    fields.value = ((tpl.fields as Record<string, unknown>[]) ?? []).map((f) => ({
+      _key: f.id as string,
+      key: f.key as string,
+      label: f.label as string,
+      fieldType: f.fieldType as string,
+      required: f.required as boolean,
       optionsRaw: Array.isArray(f.optionsJson)
-        ? f.optionsJson.join(', ')
+        ? (f.optionsJson as string[]).join(', ')
         : typeof f.optionsJson === 'string'
-          ? JSON.parse(f.optionsJson ?? '[]').join(', ')
+          ? JSON.parse(f.optionsJson || '[]').join(', ')
           : '',
     }))
   } catch {
@@ -115,8 +124,9 @@ async function submit() {
     }
     await api.updateTemplate(templateId, payload)
     await router.push(`/campaigns/${campaignId}/templates`)
-  } catch (e: any) {
-    error.value = e?.data?.message ?? e?.message ?? 'Error'
+  } catch (e: unknown) {
+    const err = e as { data?: { message?: string }; message?: string }
+    error.value = err?.data?.message ?? err?.message ?? 'Error'
   } finally {
     saving.value = false
   }

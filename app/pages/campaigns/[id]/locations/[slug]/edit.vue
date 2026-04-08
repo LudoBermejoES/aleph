@@ -44,7 +44,7 @@ const slug = route.params.slug as string
 const api = useCampaignApi(campaignId)
 const submitting = ref(false)
 const loading = ref(true)
-const locationForm = ref<any>(null)
+const locationForm = ref<{ clearDraft: () => void } | null>(null)
 const form = ref({ name: '', subtype: 'other', parentId: '', visibility: 'members', content: '' })
 
 onMounted(async () => {
@@ -73,8 +73,8 @@ async function save() {
     })
     locationForm.value?.clearDraft()
     await router.push(`/campaigns/${campaignId}/locations/${res.slug}`)
-  } catch (e: any) {
-    alert(e.data?.message || t('locations.failedSave'))
+  } catch (e: unknown) {
+    alert((e as { data?: { message?: string } })?.data?.message || t('locations.failedSave'))
   } finally {
     submitting.value = false
   }

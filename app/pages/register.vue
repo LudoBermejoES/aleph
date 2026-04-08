@@ -5,7 +5,7 @@
       <CardDescription>{{ $t('auth.createAccountDescription') }}</CardDescription>
     </CardHeader>
     <CardContent>
-      <form @submit.prevent="handleRegister" class="space-y-4">
+      <form class="space-y-4" @submit.prevent="handleRegister">
         <div class="space-y-2">
           <label for="name" class="text-sm font-medium">{{ $t('auth.name') }}</label>
           <Input id="name" v-model="form.name" type="text" placeholder="Your name" required />

@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 
-async function api(path: string, opts?: any) {
+async function api(path: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   const isFormData = opts?.body instanceof FormData
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
@@ -80,7 +80,7 @@ describe('Character Portrait (integration)', () => {
     })
     const charsBody = await list.json()
     const chars = charsBody.data ?? charsBody
-    const found = chars.find((c: any) => c.slug === characterSlug)
+    const found = chars.find((c: Record<string, unknown>) => c.slug === characterSlug)
     expect(found).toBeDefined()
     expect('portraitUrl' in found).toBe(true)
   })

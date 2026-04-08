@@ -3,7 +3,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 
-async function api(path: string, opts?: RequestInit & { body?: unknown }) {
+async function api(path: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
     headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...opts?.headers },
@@ -36,7 +36,7 @@ async function createApiKey(cookie: string, name = 'test-key') {
   return res.json()
 }
 
-async function apiOk(path: string, opts?: RequestInit & { body?: unknown }) {
+async function apiOk(path: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   const res = await api(path, opts)
   if (!res.ok) {
     const text = await res.text()
@@ -106,7 +106,7 @@ describe('Inventory Delete (integration)', () => {
     const inventories = await apiOk(`/api/campaigns/${campaignId}/inventories`, {
       headers: { 'X-API-Key': apiKey },
     })
-    const inv = inventories.find((i: any) => i.id === inventoryId)
+    const inv = inventories.find((i: Record<string, unknown>) => i.id === inventoryId)
     expect(inv).toBeDefined()
     expect(Array.isArray(inv.items)).toBe(true)
     expect(inv.items.length).toBeGreaterThan(0)
@@ -115,7 +115,7 @@ describe('Inventory Delete (integration)', () => {
 
   it('DELETE inventory item returns 200 and item is gone', async () => {
     // Add a fresh item so we have a known invItemId
-    const addRes = await apiOk(`/api/campaigns/${campaignId}/inventories/${inventoryId}/items`, {
+    const _addRes = await apiOk(`/api/campaigns/${campaignId}/inventories/${inventoryId}/items`, {
       method: 'POST',
       headers: { 'X-API-Key': apiKey },
       body: { itemId, quantity: 1 },
@@ -124,7 +124,7 @@ describe('Inventory Delete (integration)', () => {
     const inventories = await apiOk(`/api/campaigns/${campaignId}/inventories`, {
       headers: { 'X-API-Key': apiKey },
     })
-    const inv = inventories.find((i: any) => i.id === inventoryId)
+    const inv = inventories.find((i: Record<string, unknown>) => i.id === inventoryId)
     const invItemId = inv.items[0].id
 
     const delRes = await api(
@@ -139,8 +139,8 @@ describe('Inventory Delete (integration)', () => {
     const afterInventories = await apiOk(`/api/campaigns/${campaignId}/inventories`, {
       headers: { 'X-API-Key': apiKey },
     })
-    const afterInv = afterInventories.find((i: any) => i.id === inventoryId)
-    const stillThere = afterInv.items.find((it: any) => it.id === invItemId)
+    const afterInv = afterInventories.find((i: Record<string, unknown>) => i.id === inventoryId)
+    const stillThere = afterInv.items.find((it: Record<string, unknown>) => it.id === invItemId)
     expect(stillThere).toBeUndefined()
   })
 
@@ -175,7 +175,7 @@ describe('Inventory Delete (integration)', () => {
     const invs = await apiOk(`/api/campaigns/${campaignId}/inventories`, {
       headers: { 'X-API-Key': apiKey },
     })
-    const found = invs.find((i: any) => i.id === freshInv.id)
+    const found = invs.find((i: Record<string, unknown>) => i.id === freshInv.id)
     expect(found).toBeUndefined()
   })
 
@@ -186,15 +186,18 @@ describe('Inventory Delete (integration)', () => {
     const playerApiKey = playerKeyData.key
 
     // Add an item to get a valid invItemId
-    const addedItem = await apiOk(`/api/campaigns/${campaignId}/inventories/${inventoryId}/items`, {
-      method: 'POST',
-      headers: { 'X-API-Key': apiKey },
-      body: { itemId, quantity: 1 },
-    })
+    const _addedItem = await apiOk(
+      `/api/campaigns/${campaignId}/inventories/${inventoryId}/items`,
+      {
+        method: 'POST',
+        headers: { 'X-API-Key': apiKey },
+        body: { itemId, quantity: 1 },
+      },
+    )
     const inventories = await apiOk(`/api/campaigns/${campaignId}/inventories`, {
       headers: { 'X-API-Key': apiKey },
     })
-    const inv = inventories.find((i: any) => i.id === inventoryId)
+    const inv = inventories.find((i: Record<string, unknown>) => i.id === inventoryId)
     const invItemId = inv.items[0].id
 
     const invite = await apiOk(`/api/campaigns/${campaignId}/invite`, {

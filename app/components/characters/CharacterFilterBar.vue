@@ -192,7 +192,8 @@ const emit = defineEmits<{
 }>()
 
 function updateFilter(event: string, value: string | boolean) {
-  emit(event as any, value as any)
+  // Dynamic emit for update:* events — cast is safe because callers only pass known event names
+  ;(emit as (e: string, v: string | boolean) => void)(event, value)
   emit('filter-change')
 }
 </script>

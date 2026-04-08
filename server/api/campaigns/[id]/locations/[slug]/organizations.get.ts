@@ -1,4 +1,4 @@
-import { eq, and, inArray } from 'drizzle-orm'
+import { eq, and, inArray, sql } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
 import { entities } from '../../../../../db/schema/entities'
 import {
@@ -6,7 +6,6 @@ import {
   organizationMembers,
   organizationLocations,
 } from '../../../../../db/schema/organizations'
-import { sql } from 'drizzle-orm'
 
 export default defineEventHandler(async (event) => {
   const campaignId = getRouterParam(event, 'id')!

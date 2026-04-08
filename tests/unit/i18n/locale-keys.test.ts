@@ -33,7 +33,7 @@ const newKeys = [
   ['editor', 'toolbar', 'insertImage'],
 ]
 
-function getKey(obj: Record<string, any>, path: string[]): string | undefined {
+function getKey(obj: Record<string, unknown>, path: string[]): string | undefined {
   return path.reduce((acc, k) => acc?.[k], obj)
 }
 

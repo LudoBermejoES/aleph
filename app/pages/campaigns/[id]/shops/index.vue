@@ -32,10 +32,12 @@
 </template>
 
 <script setup lang="ts">
+import type { Shop } from '~/types/api'
+
 const route = useRoute()
 const campaignId = route.params.id as string
 const api = useCampaignApi(campaignId)
-const shopList = ref<any[]>([])
+const shopList = ref<Shop[]>([])
 const { loading, error, withLoading, dismissError } = useLoadingState()
 
 async function load() {

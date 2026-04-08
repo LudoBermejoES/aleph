@@ -3,9 +3,8 @@ import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
 import { validateBody } from '../../../../../utils/validate'
 import { campaignMembers } from '../../../../../db/schema/campaign-members'
-import { hasMinRole } from '../../../../../utils/permissions'
+import { hasMinRole, invalidatePermissionCache } from '../../../../../utils/permissions'
 import { auditLogFromEvent } from '../../../../../utils/audit'
-import { invalidatePermissionCache } from '../../../../../utils/permissions'
 import type { CampaignRole } from '../../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {

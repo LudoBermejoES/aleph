@@ -54,10 +54,6 @@ export function useEditorDraft(draftKey: Ref<string | null>, serverContent: Ref<
     if (debounceTimer !== null) clearTimeout(debounceTimer)
   })
 
-  function restoreDraft() {
-    // Caller sets editor content to draftContent.value
-  }
-
   function discardDraft() {
     if (!draftKey.value) return
     try {

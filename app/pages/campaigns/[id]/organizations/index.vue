@@ -95,7 +95,17 @@ const route = useRoute()
 const campaignId = route.params.id as string
 const api = useCampaignApi(campaignId)
 
-const orgs = ref<any[]>([])
+const orgs = ref<
+  {
+    id: string
+    name: string
+    slug: string
+    type: string
+    status: string
+    memberCount?: number
+    description?: string | null
+  }[]
+>([])
 const { loading, error, withLoading } = useLoadingState()
 const pagination = usePagination()
 
@@ -105,8 +115,12 @@ async function load() {
     if (Array.isArray(res)) {
       orgs.value = res
     } else {
-      orgs.value = (res as any).data
-      pagination.updateMeta((res as any).meta)
+      const paged = res as {
+        data: typeof orgs.value
+        meta: Parameters<typeof pagination.updateMeta>[0]
+      }
+      orgs.value = paged.data
+      pagination.updateMeta(paged.meta)
     }
   })
 }

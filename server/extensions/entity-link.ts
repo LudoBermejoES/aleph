@@ -81,7 +81,7 @@ export const EntityLink = Node.create({
     },
   },
 
-  parseMarkdown(token: any) {
+  parseMarkdown(token: Record<string, unknown>) {
     return {
       type: 'entity-link',
       attrs: {
@@ -91,7 +91,7 @@ export const EntityLink = Node.create({
     }
   },
 
-  renderMarkdown(node: any) {
+  renderMarkdown(node: { attrs?: Record<string, unknown> }) {
     const slug = node.attrs?.slug || 'unknown'
     const label = node.attrs?.label
     if (label) {

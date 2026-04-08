@@ -3,15 +3,20 @@ import { registerAndLogin, createCampaign } from './helpers'
 
 const uid = () => Date.now().toString(36).slice(-4)
 
-async function setup(page: any, label: string) {
+async function setup(page: import('@playwright/test').Page, label: string) {
   await registerAndLogin(page, label)
   await createCampaign(page, `Subtype E2E ${uid()}`)
   return page.url().split('/campaigns/')[1]?.split('/')[0] ?? ''
 }
 
-async function createLocationViaApi(page: any, campaignId: string, body: Record<string, unknown>) {
+async function createLocationViaApi(
+  page: import('@playwright/test').Page,
+  campaignId: string,
+  body: Record<string, unknown>,
+) {
   return page.evaluate(
-    async ([id, data]: [string, Record<string, unknown>]) => {
+    async (args: [string, Record<string, unknown>]) => {
+      const [id, data] = args
       const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
       const res = await fetch(`/api/campaigns/${id}/locations`, {
         method: 'POST',
@@ -20,14 +25,14 @@ async function createLocationViaApi(page: any, campaignId: string, body: Record<
       })
       return res.json()
     },
-    [campaignId, body],
+    [campaignId, body] as [string, Record<string, unknown>],
   )
 }
 
 test('detail page shows correct subtype, not "Other"', async ({ page }) => {
   const campaignId = await setup(page, 'Subtype Detail User')
 
-  const loc: any = await createLocationViaApi(page, campaignId, {
+  const loc: Record<string, unknown> = await createLocationViaApi(page, campaignId, {
     name: 'Barovia',
     subtype: 'region',
     visibility: 'members',
@@ -73,7 +78,7 @@ test('list page shows correct subtype badge, not "Other"', async ({ page }) => {
 test('subtype is preserved after editing a location', async ({ page }) => {
   const campaignId = await setup(page, 'Subtype Edit User')
 
-  const loc: any = await createLocationViaApi(page, campaignId, {
+  const loc: Record<string, unknown> = await createLocationViaApi(page, campaignId, {
     name: 'The City',
     subtype: 'city',
     visibility: 'members',

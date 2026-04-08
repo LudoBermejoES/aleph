@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 
-async function api(path: string, opts?: any) {
+async function api(path: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
     headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...opts?.headers },
@@ -76,7 +76,7 @@ describe('Inventory & Economy (integration)', () => {
       headers: { Cookie: cookie },
     })
     const data = await res.json()
-    expect(data.every((i: any) => i.rarity === 'legendary')).toBe(true)
+    expect(data.every((i: Record<string, unknown>) => i.rarity === 'legendary')).toBe(true)
   })
 
   it('POST currency creates with conversion rate', async () => {
@@ -120,7 +120,7 @@ describe('Inventory & Economy (integration)', () => {
       headers: { Cookie: cookie },
     })
     const data = await res.json()
-    expect(data.find((s: any) => s.id === shopId)).toBeDefined()
+    expect(data.find((s: Record<string, unknown>) => s.id === shopId)).toBeDefined()
   })
 
   it('POST transaction logs trade', async () => {
@@ -187,10 +187,10 @@ describe('Inventory & Economy (integration)', () => {
       headers: { Cookie: cookie },
     })
     const data = await invList.json()
-    const a = data.find((i: any) => i.id === inv1Id)
-    const b = data.find((i: any) => i.id === inv2Id)
-    expect(a.items.find((i: any) => i.itemId === itemId)?.quantity).toBe(2)
-    expect(b.items.find((i: any) => i.itemId === itemId)?.quantity).toBe(3)
+    const a = data.find((i: Record<string, unknown>) => i.id === inv1Id)
+    const b = data.find((i: Record<string, unknown>) => i.id === inv2Id)
+    expect(a.items.find((i: Record<string, unknown>) => i.itemId === itemId)?.quantity).toBe(2)
+    expect(b.items.find((i: Record<string, unknown>) => i.itemId === itemId)?.quantity).toBe(3)
   })
 
   it('transfer with insufficient quantity returns 400 (9.10)', async () => {
@@ -390,7 +390,7 @@ describe('Inventory & Economy (integration)', () => {
     expect(res.status).toBe(200)
     const data = await res.json()
     expect(Array.isArray(data)).toBe(true)
-    const entry = data.find((b: any) => b.currencyId === currencyId)
+    const entry = data.find((b: Record<string, unknown>) => b.currencyId === currencyId)
     expect(entry).toBeDefined()
     expect(entry.amount).toBe(50)
   })
@@ -474,7 +474,7 @@ describe('Inventory & Economy (integration)', () => {
       },
     )
     const wealthData = await wealthRes.json()
-    const entry = wealthData.find((b: any) => b.currencyId === currencyId)
+    const entry = wealthData.find((b: Record<string, unknown>) => b.currencyId === currencyId)
     expect(entry?.amount).toBeGreaterThanOrEqual(10)
 
     // Verify inventory quantity decreased
@@ -483,8 +483,8 @@ describe('Inventory & Economy (integration)', () => {
       headers: { Cookie: cookie },
     })
     const invData = await invList.json()
-    const inv = invData.find((i: any) => i.id === sellerInvId)
-    const remaining = inv?.items?.find((i: any) => i.itemId === itemId)
+    const inv = invData.find((i: Record<string, unknown>) => i.id === sellerInvId)
+    const remaining = inv?.items?.find((i: Record<string, unknown>) => i.itemId === itemId)
     expect(remaining?.quantity ?? 0).toBe(2)
   })
 
@@ -562,8 +562,8 @@ describe('Inventory & Economy (integration)', () => {
       headers: { Cookie: cookie },
     })
     const currencies = await curRes.json()
-    const gold = currencies.find((c: any) => c.name === 'Gold')
-    const silver = currencies.find((c: any) => c.name === 'Silver')
+    const gold = currencies.find((c: Record<string, unknown>) => c.name === 'Gold')
+    const silver = currencies.find((c: Record<string, unknown>) => c.name === 'Silver')
     if (!gold || !silver) return
 
     const res = await api(
@@ -631,8 +631,8 @@ describe('Inventory & Economy (integration)', () => {
       headers: { Cookie: cookie },
     })
     const data = await invList.json()
-    const inv = data.find((i: any) => i.id === invId)
-    const entries = inv?.items?.filter((i: any) => i.itemId === itemId)
+    const inv = data.find((i: Record<string, unknown>) => i.id === invId)
+    const entries = inv?.items?.filter((i: Record<string, unknown>) => i.itemId === itemId)
     expect(entries).toHaveLength(1)
     expect(entries[0].quantity).toBe(5)
   })
@@ -657,8 +657,10 @@ describe('Inventory & Economy (integration)', () => {
       headers: { Cookie: cookie },
     })
     const invData = await invList.json()
-    const inv = invData.find((i: any) => i.id === invId)
-    expect(inv?.items?.find((i: any) => i.position === 'equipped')).toBeDefined()
+    const inv = invData.find((i: Record<string, unknown>) => i.id === invId)
+    expect(
+      inv?.items?.find((i: Record<string, unknown>) => i.position === 'equipped'),
+    ).toBeDefined()
   })
 
   // --- 9.21: Transaction wealth modification ---
@@ -681,7 +683,8 @@ describe('Inventory & Economy (integration)', () => {
       },
     )
     const beforeData = await before.json()
-    const initialAmount = beforeData.find((b: any) => b.currencyId === currencyId)?.amount ?? 0
+    const initialAmount =
+      beforeData.find((b: Record<string, unknown>) => b.currencyId === currencyId)?.amount ?? 0
 
     await api(`/api/campaigns/${campaignId}/transactions`, {
       method: 'POST',
@@ -702,7 +705,8 @@ describe('Inventory & Economy (integration)', () => {
       },
     )
     const afterData = await after.json()
-    const finalAmount = afterData.find((b: any) => b.currencyId === currencyId)?.amount ?? 0
+    const finalAmount =
+      afterData.find((b: Record<string, unknown>) => b.currencyId === currencyId)?.amount ?? 0
     expect(finalAmount).toBe(initialAmount + 25)
   })
 
@@ -723,7 +727,8 @@ describe('Inventory & Economy (integration)', () => {
       },
     )
     const beforeData = await before.json()
-    const initialAmount = beforeData.find((b: any) => b.currencyId === currencyId)?.amount ?? 0
+    const initialAmount =
+      beforeData.find((b: Record<string, unknown>) => b.currencyId === currencyId)?.amount ?? 0
 
     await api(`/api/campaigns/${campaignId}/transactions`, {
       method: 'POST',
@@ -744,7 +749,8 @@ describe('Inventory & Economy (integration)', () => {
       },
     )
     const afterData = await after.json()
-    const finalAmount = afterData.find((b: any) => b.currencyId === currencyId)?.amount ?? 0
+    const finalAmount =
+      afterData.find((b: Record<string, unknown>) => b.currencyId === currencyId)?.amount ?? 0
     expect(finalAmount).toBe(initialAmount) // unchanged
   })
 

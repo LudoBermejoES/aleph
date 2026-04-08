@@ -3,12 +3,14 @@ import { describe, it, expect } from 'vitest'
 // Unit test for the peer rendering logic extracted from CollaborationIndicator
 // The component itself depends on HocuspocusProvider awareness, tested via E2E.
 
+type PeerState = { user?: { name?: string; color?: string } }
+
 function buildPeerList(
-  states: Map<number, any>,
+  states: Map<number, PeerState>,
   myClientId: number,
 ): Array<{ clientId: number; name: string; color: string }> {
   const list: Array<{ clientId: number; name: string; color: string }> = []
-  states.forEach((state: any, clientId: number) => {
+  states.forEach((state: PeerState, clientId: number) => {
     if (clientId === myClientId) return
     if (state?.user?.name) {
       list.push({ clientId, name: state.user.name, color: state.user.color || '#9ca3af' })

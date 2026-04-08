@@ -87,7 +87,7 @@ test.describe('Location detail page', () => {
     const campaignId = await createCampaignAndGetId(page, `Loc Detail Camp ${uid()}`)
 
     const locName = `Castle Ravenloft ${uid()}`
-    const locData: any = await page.evaluate(
+    const locData: Record<string, unknown> = await page.evaluate(
       async ([id, name]) => {
         const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
         const res = await fetch(`/api/campaigns/${id}/locations`, {
@@ -118,7 +118,7 @@ test.describe('Location detail page', () => {
     await registerAndLogin(page, 'Loc Ancestor User')
     const campaignId = await createCampaignAndGetId(page, `Loc Ancestor Camp ${uid()}`)
 
-    const parent: any = await page.evaluate(async (id) => {
+    const parent: Record<string, unknown> = await page.evaluate(async (id) => {
       const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
       const res = await fetch(`/api/campaigns/${id}/locations`, {
         method: 'POST',
@@ -128,7 +128,7 @@ test.describe('Location detail page', () => {
       return res.json()
     }, campaignId)
 
-    const child: any = await page.evaluate(
+    const child: Record<string, unknown> = await page.evaluate(
       async ([id, parentId]) => {
         const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
         const res = await fetch(`/api/campaigns/${id}/locations`, {
@@ -162,7 +162,7 @@ test.describe('Location edit page', () => {
     await registerAndLogin(page, 'Loc Edit User')
     const campaignId = await createCampaignAndGetId(page, `Loc Edit Camp ${uid()}`)
 
-    const loc: any = await page.evaluate(async (id) => {
+    const loc: Record<string, unknown> = await page.evaluate(async (id) => {
       const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
       const res = await fetch(`/api/campaigns/${id}/locations`, {
         method: 'POST',
@@ -185,7 +185,10 @@ test.describe('Location edit page', () => {
 
 // ─── Helper ───────────────────────────────────────────────────────────────────
 
-async function createCampaignAndGetId(page: any, name: string): Promise<string> {
+async function createCampaignAndGetId(
+  page: import('@playwright/test').Page,
+  name: string,
+): Promise<string> {
   await createCampaign(page, name)
   return page.url().split('/campaigns/')[1]?.split('/')[0] ?? ''
 }

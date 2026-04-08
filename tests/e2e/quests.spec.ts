@@ -31,7 +31,7 @@ test.describe('Quests', () => {
     })
     await apiFetch(page, `/api/campaigns/${campaignId}/quests`, {
       method: 'POST',
-      body: { name: 'Sub Quest Step', parentQuestId: (parent as any).id },
+      body: { name: 'Sub Quest Step', parentQuestId: (parent as Record<string, unknown>).id },
     })
 
     await page.click('aside >> text=Quests')
@@ -53,10 +53,14 @@ test.describe('Quests', () => {
       method: 'POST',
       body: { name: 'Done Quest' },
     })
-    await apiFetch(page, `/api/campaigns/${campaignId}/quests/${(doneQuest as any).slug}`, {
-      method: 'PUT',
-      body: { status: 'completed' },
-    })
+    await apiFetch(
+      page,
+      `/api/campaigns/${campaignId}/quests/${(doneQuest as Record<string, unknown>).slug}`,
+      {
+        method: 'PUT',
+        body: { status: 'completed' },
+      },
+    )
 
     await page.click('aside >> text=Quests')
     await page.waitForLoadState('networkidle')

@@ -1,9 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import {
-  stripSecretStats,
-  stripSecretAbilities,
-  canEditCharacter,
-} from '../../../server/services/characters'
+import { stripSecretStats, canEditCharacter } from '../../../server/services/characters'
 
 /**
  * Component logic tests for character management (8.18, 8.19)

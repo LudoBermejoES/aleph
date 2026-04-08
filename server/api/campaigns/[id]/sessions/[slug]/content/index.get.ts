@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
     summary: null,
   }
   for (const row of rows) {
-    if (CONTENT_TYPES.includes(row.type as any)) {
+    if (CONTENT_TYPES.includes(row.type as (typeof CONTENT_TYPES)[number])) {
       result[row.type] = { id: row.id, content: row.content ?? null }
     }
   }

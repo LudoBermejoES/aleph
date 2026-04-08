@@ -84,8 +84,8 @@ async function save() {
       description: form.value.description || undefined,
     })
     await router.push(`/campaigns/${campaignId}/graph`)
-  } catch (e: any) {
-    error.value = e.data?.message || t('relations.failedSave')
+  } catch (e: unknown) {
+    error.value = (e as { data?: { message?: string } })?.data?.message || t('relations.failedSave')
   } finally {
     submitting.value = false
   }

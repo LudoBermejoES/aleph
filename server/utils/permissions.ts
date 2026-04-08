@@ -1,8 +1,8 @@
 import { eq, and, or, inArray } from 'drizzle-orm'
 import type { Column, SQL } from 'drizzle-orm'
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
-import { campaignMembers, campaignMemberPermissions } from '../db/schema/campaign-members'
-import { entityPermissions, entitySpecificViewers } from '../db/schema/permissions'
+import { campaignMemberPermissions } from '../db/schema/campaign-members'
+import { entityPermissions } from '../db/schema/permissions'
 
 export type SystemRole = 'admin' | 'user'
 export type CampaignRole = 'dm' | 'co_dm' | 'editor' | 'player' | 'visitor'

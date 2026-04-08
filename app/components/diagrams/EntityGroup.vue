@@ -37,7 +37,7 @@
 <script setup lang="ts">
 const props = defineProps<{
   label: string
-  entities: any[]
+  entities: { id: string; name: string; type: string; slug?: string; [key: string]: unknown }[]
   placedEntityIds?: Map<string, number>
 }>()
 
@@ -57,7 +57,10 @@ function badgeCount(id: string): number {
   return props.placedEntityIds?.get(id) ?? 0
 }
 
-function onDragStart(event: DragEvent, entity: any) {
+function onDragStart(
+  event: DragEvent,
+  entity: { id: string; name: string; type: string; slug?: string; [key: string]: unknown },
+) {
   event.dataTransfer?.setData('application/aleph-entity', JSON.stringify(entity))
 }
 </script>

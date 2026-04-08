@@ -16,7 +16,7 @@ test.describe('Economy Workflow', () => {
       method: 'POST',
       body: { name: 'OldName', symbol: 'on', valueInBase: 10, sortOrder: 0 },
     })
-    const currencyId = (currency1 as any).id
+    const currencyId = (currency1 as Record<string, unknown>).id
 
     await page.goto(`/campaigns/${campaignId}/currencies`)
     await page.waitForLoadState('networkidle')
@@ -45,7 +45,7 @@ test.describe('Economy Workflow', () => {
       method: 'POST',
       body: { name: 'DeleteMe', symbol: 'dm', valueInBase: 1, sortOrder: 0 },
     })
-    const currencyId = (currency2 as any).id
+    const currencyId = (currency2 as Record<string, unknown>).id
 
     await page.goto(`/campaigns/${campaignId}/currencies`)
     await page.waitForLoadState('networkidle')
@@ -76,7 +76,11 @@ test.describe('Economy Workflow', () => {
     })
     await apiFetch(page, `/api/campaigns/${campaignId}/items`, {
       method: 'POST',
-      body: { name: 'Magic Wand', rarity: 'rare', price: { [(gold as any).id]: 50 } },
+      body: {
+        name: 'Magic Wand',
+        rarity: 'rare',
+        price: { [(gold as Record<string, unknown>).id]: 50 },
+      },
     })
 
     await page.goto(`/campaigns/${campaignId}/items`)
@@ -134,7 +138,7 @@ test.describe('Economy Workflow', () => {
       method: 'POST',
       body: { name: 'E2E Armory' },
     })
-    const shopSlug = (armory as any).slug
+    const shopSlug = (armory as Record<string, unknown>).slug
 
     await page.goto(`/campaigns/${campaignId}/shops/${shopSlug}`)
     await page.waitForLoadState('networkidle')
@@ -178,14 +182,14 @@ test.describe('Economy Workflow', () => {
     })
     const removeStock = await apiFetch(
       page,
-      `/api/campaigns/${campaignId}/shops/${(removeStockShop as any).slug}/stock`,
+      `/api/campaigns/${campaignId}/shops/${(removeStockShop as Record<string, unknown>).slug}/stock`,
       {
         method: 'POST',
-        body: { itemId: (removableSword as any).id, quantity: 3 },
+        body: { itemId: (removableSword as Record<string, unknown>).id, quantity: 3 },
       },
     )
-    const shopSlug = (removeStockShop as any).slug
-    const stockId = (removeStock as any).id
+    const shopSlug = (removeStockShop as Record<string, unknown>).slug
+    const stockId = (removeStock as Record<string, unknown>).id
 
     await page.goto(`/campaigns/${campaignId}/shops/${shopSlug}`)
     await page.waitForLoadState('networkidle')
@@ -216,14 +220,14 @@ test.describe('Economy Workflow', () => {
     })
     const editStock = await apiFetch(
       page,
-      `/api/campaigns/${campaignId}/shops/${(editStockShop as any).slug}/stock`,
+      `/api/campaigns/${campaignId}/shops/${(editStockShop as Record<string, unknown>).slug}/stock`,
       {
         method: 'POST',
-        body: { itemId: (editablePotion as any).id, quantity: 5 },
+        body: { itemId: (editablePotion as Record<string, unknown>).id, quantity: 5 },
       },
     )
-    const shopSlug = (editStockShop as any).slug
-    const stockId = (editStock as any).id
+    const shopSlug = (editStockShop as Record<string, unknown>).slug
+    const stockId = (editStock as Record<string, unknown>).id
 
     await page.goto(`/campaigns/${campaignId}/shops/${shopSlug}`)
     await page.waitForLoadState('networkidle')

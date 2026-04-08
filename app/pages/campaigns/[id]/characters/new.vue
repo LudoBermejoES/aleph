@@ -48,7 +48,10 @@ const form = ref({
 })
 
 const api = useCampaignApi(campaignId)
-const charForm = ref<any>(null)
+const charForm = ref<{
+  saveMemberships: (slug: string) => Promise<void>
+  clearDraft: () => void
+} | null>(null)
 
 async function create() {
   submitting.value = true
@@ -58,8 +61,8 @@ async function create() {
     await charForm.value?.saveMemberships(res.slug)
     charForm.value?.clearDraft()
     await router.push(`/campaigns/${campaignId}/characters/${res.slug}`)
-  } catch (e: any) {
-    alert(e.data?.message || t('characters.failedSave'))
+  } catch (e: unknown) {
+    alert((e as { data?: { message?: string } })?.data?.message || t('characters.failedSave'))
   } finally {
     submitting.value = false
   }

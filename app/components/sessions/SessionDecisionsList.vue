@@ -58,7 +58,7 @@
       <div v-for="d in decisions" :key="d.id" class="relative">
         <div
           class="absolute -left-[31px] w-4 h-4 rounded-full border-2 border-border bg-background"
-        />
+        ></div>
         <div class="p-3 rounded border border-border">
           <div class="flex items-center gap-2 mb-1">
             <span class="font-medium text-sm">{{ d.title }}</span>

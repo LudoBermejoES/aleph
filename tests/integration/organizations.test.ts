@@ -3,7 +3,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 
-async function apiRaw(path: string, opts?: any) {
+async function apiRaw(path: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   const res = await fetch(`${BASE_URL}${path}`, {
     ...opts,
     headers: {
@@ -125,7 +125,7 @@ describe('Organization CRUD (integration)', () => {
     expect(res.status).toBe(200)
     const body = await res.json()
     const data = body.data ?? body
-    const org = data.find((o: any) => o.slug === orgSlug)
+    const org = data.find((o: Record<string, unknown>) => o.slug === orgSlug)
     expect(org).toBeDefined()
     expect(org.memberCount).toBeDefined()
   })
@@ -256,7 +256,7 @@ describe('Organization member management (integration)', () => {
       headers: { 'X-API-Key': apiKey },
     })
     const data = await res.json()
-    const member = data.members.find((m: any) => m.characterId === characterId)
+    const member = data.members.find((m: Record<string, unknown>) => m.characterId === characterId)
     expect(member).toBeDefined()
     expect(member.role).toBe('Ring-bearer')
     expect(member.characterName).toBe('Frodo Baggins')
@@ -285,7 +285,9 @@ describe('Organization member management (integration)', () => {
       headers: { 'X-API-Key': apiKey },
     })
     const data = await getRes.json()
-    expect(data.members.find((m: any) => m.characterId === characterId)).toBeUndefined()
+    expect(
+      data.members.find((m: Record<string, unknown>) => m.characterId === characterId),
+    ).toBeUndefined()
   })
 
   it('DELETE /members/:characterId returns 404 for non-member', async () => {

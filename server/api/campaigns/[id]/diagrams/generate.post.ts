@@ -8,8 +8,6 @@ import { generateDiagram, toTldrawSnapshot } from '../../../../utils/diagram-gen
 import type { CampaignRole } from '../../../../utils/permissions'
 import type { DiagramType } from '../../../../utils/diagram-generator'
 
-const VALID_TYPES: DiagramType[] = ['entity-graph', 'quest-tree', 'faction-web', 'session-timeline']
-
 export default defineEventHandler(async (event) => {
   const role = event.context.campaignRole as CampaignRole
   if (!hasMinRole(role, 'editor')) {
@@ -29,8 +27,8 @@ export default defineEventHandler(async (event) => {
   let generated: ReturnType<typeof generateDiagram>
   try {
     generated = generateDiagram(db, campaignId, body.type as DiagramType)
-  } catch (e: any) {
-    throw createError({ statusCode: 422, message: e.message ?? 'Generation failed' })
+  } catch (e: unknown) {
+    throw createError({ statusCode: 422, message: (e as Error).message ?? 'Generation failed' })
   }
 
   const snapshot = toTldrawSnapshot(generated)

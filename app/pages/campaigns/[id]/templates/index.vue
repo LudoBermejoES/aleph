@@ -72,18 +72,20 @@ const campaignId = route.params.id as string
 const api = useCampaignApi(campaignId)
 const { loading, error, withLoading, dismissError } = useLoadingState()
 
-const templateList = ref<any[]>([])
+const templateList = ref<Record<string, unknown>[]>([])
 const canManage = ref(false)
 
 async function load() {
   await withLoading(async () => {
     const [templates, campaign] = await Promise.all([api.getTemplates(), api.getCampaign()])
     templateList.value = templates
-    canManage.value = ['dm', 'co_dm'].includes((campaign as any).role ?? '')
+    canManage.value = ['dm', 'co_dm'].includes(
+      ((campaign as Record<string, unknown>).role as string) ?? '',
+    )
   })
 }
 
-async function confirmDelete(tpl: any) {
+async function confirmDelete(tpl: Record<string, unknown>) {
   if (!confirm(t('templates.confirmDelete', { name: tpl.name }))) return
   await api.deleteTemplate(tpl.id)
   await load()

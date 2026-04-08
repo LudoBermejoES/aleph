@@ -1,5 +1,5 @@
 <template>
-  <form @submit.prevent="$emit('submit')" class="space-y-6">
+  <form class="space-y-6" @submit.prevent="$emit('submit')">
     <div class="grid grid-cols-2 gap-4">
       <div class="col-span-2">
         <label class="text-sm font-medium">{{ $t('sessions.titleLabel') }}</label>
@@ -52,8 +52,8 @@
         </div>
         <select
           v-model="form.arcId"
-          @change="onArcChange"
           class="w-full mt-1 px-3 py-2 rounded border border-input bg-background"
+          @change="onArcChange"
         >
           <option value="">{{ $t('sessions.noArc') }}</option>
           <option v-for="a in arcs" :key="a.id" :value="a.id">{{ a.name }}</option>
@@ -85,7 +85,7 @@
       />
     </div>
     <div class="flex justify-end gap-2">
-      <slot name="cancel" />
+      <slot name="cancel"></slot>
       <Button type="submit" :disabled="submitting">{{
         submitting ? $t('common.saving') : submitLabel
       }}</Button>
@@ -119,15 +119,17 @@ defineEmits<{ 'update:modelValue': [value: typeof props.modelValue]; submit: [] 
 
 const form = computed({
   get: () => props.modelValue,
-  set: (val) => {},
+  set: (_val) => {},
 })
 
 const draftKey = computed(() =>
   props.campaignId ? `aleph:draft:${props.campaignId}:session:${props.sessionSlug ?? 'new'}` : null,
 )
 
-const groups = ref<any[]>([])
-const arcs = ref<any[]>([])
+const groups = ref<{ id: string; name: string; [key: string]: unknown }[]>([])
+const arcs = ref<
+  { id: string; name: string; chapters?: { id: string; name: string }[]; [key: string]: unknown }[]
+>([])
 const loadError = ref<string | null>(null)
 
 const currentArcChapters = computed(() => {
@@ -143,13 +145,14 @@ onMounted(async () => {
   if (props.campaignId) {
     try {
       const [groupsData, arcsData] = await Promise.all([
-        $fetch<any[]>(`/api/campaigns/${props.campaignId}/session-groups`),
-        $fetch<any[]>(`/api/campaigns/${props.campaignId}/arcs`),
+        $fetch<typeof groups.value>(`/api/campaigns/${props.campaignId}/session-groups`),
+        $fetch<typeof arcs.value>(`/api/campaigns/${props.campaignId}/arcs`),
       ])
       groups.value = groupsData
       arcs.value = arcsData
-    } catch (e: any) {
-      loadError.value = e.data?.message || e.message || 'Failed to load form data'
+    } catch (e: unknown) {
+      const err = e as { data?: { message?: string }; message?: string }
+      loadError.value = err.data?.message || err.message || 'Failed to load form data'
     }
   }
 })

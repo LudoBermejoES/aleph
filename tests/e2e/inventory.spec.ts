@@ -71,7 +71,7 @@ test.describe('Items & Shops', () => {
       }).then((r) => r.json())
 
       const shops = await fetch(`/api/campaigns/${id}/shops`).then((r) => r.json())
-      const shopSlug = shops.find((s: any) => s.id === shop.id)?.slug
+      const shopSlug = shops.find((s: Record<string, unknown>) => s.id === shop.id)?.slug
 
       const stock = await fetch(`/api/campaigns/${id}/shops/${shopSlug}/stock`, {
         method: 'POST',
@@ -113,7 +113,9 @@ test.describe('Items & Shops', () => {
       const inventories = await fetch(
         `/api/campaigns/${id}/inventories?owner_id=e2e-buyer-1&owner_type=character`,
       ).then((r) => r.json())
-      const hasItem = inventories[0]?.items?.some((i: any) => i.itemId === item.id)
+      const hasItem = inventories[0]?.items?.some(
+        (i: Record<string, unknown>) => i.itemId === item.id,
+      )
 
       return { buySuccess: buyRes.success, hasItem }
     }, campaignId)

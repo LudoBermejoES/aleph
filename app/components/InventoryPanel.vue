@@ -8,9 +8,9 @@
         <h3 class="font-semibold text-sm">{{ inventory.name }}</h3>
         <button
           v-if="inventory.items?.length"
-          @click="showTransfer = true"
           class="text-xs text-primary hover:underline"
           data-testid="transfer-item-btn"
+          @click="showTransfer = true"
         >
           {{ $t('inventoryPanel.transferItem') }}
         </button>
@@ -70,7 +70,20 @@ const props = defineProps<{
   ownerType: 'character' | 'party' | 'faction' | 'shop'
 }>()
 
-const inventory = ref<any>(null)
+interface InventoryItem {
+  id: string
+  itemId: string
+  itemName: string
+  itemRarity: string
+  position: string
+  quantity: number
+}
+interface Inventory {
+  id: string
+  name: string
+  items: InventoryItem[]
+}
+const inventory = ref<Inventory | null>(null)
 const loading = ref(true)
 const showTransfer = ref(false)
 
@@ -84,8 +97,8 @@ const positions = computed(() => [
 
 const itemsByPosition = computed(() => {
   const items = inventory.value?.items || []
-  return positions.value.reduce((acc: Record<string, any[]>, pos) => {
-    acc[pos.key] = items.filter((i: any) => i.position === pos.key)
+  return positions.value.reduce((acc: Record<string, InventoryItem[]>, pos) => {
+    acc[pos.key] = items.filter((i) => i.position === pos.key)
     return acc
   }, {})
 })

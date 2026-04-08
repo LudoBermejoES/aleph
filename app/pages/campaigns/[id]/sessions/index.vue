@@ -23,26 +23,26 @@
     <!-- Group tabs -->
     <div v-if="groups.length" class="flex gap-2 mb-6 flex-wrap">
       <button
-        @click="activeGroupSlug = null"
         :class="[
           'flex items-center gap-2 px-3 py-1.5 rounded-full text-sm border transition-colors',
           activeGroupSlug === null
             ? 'bg-primary text-primary-foreground border-primary'
             : 'border-border hover:border-primary/50',
         ]"
+        @click="activeGroupSlug = null"
       >
         {{ $t('sessions.allGroups') }}
       </button>
       <button
         v-for="group in groups"
         :key="group.id"
-        @click="activeGroupSlug = group.slug"
         :class="[
           'flex items-center gap-2 px-3 py-1.5 rounded-full text-sm border transition-colors',
           activeGroupSlug === group.slug
             ? 'bg-primary text-primary-foreground border-primary'
             : 'border-border hover:border-primary/50',
         ]"
+        @click="activeGroupSlug = group.slug"
       >
         <img
           v-if="group.imageUrl"
@@ -135,12 +135,12 @@
 
 <script setup lang="ts">
 import { ICONS } from '~/utils/icons'
+import type { GameSession } from '~/types/api'
 const route = useRoute()
 const campaignId = route.params.id as string
-import type { GameSession } from '~/types/api'
 
 const sessions = ref<GameSession[]>([])
-const groups = ref<any[]>([])
+const groups = ref<Record<string, unknown>[]>([])
 const activeGroupSlug = ref<string | null>(null)
 const canEdit = ref(false)
 const { loading, error, withLoading, dismissError } = useLoadingState()
@@ -157,13 +157,13 @@ async function loadSessions() {
   const params: Record<string, string> = { pageSize: '0' }
   if (activeGroupSlug.value) params.groupSlug = activeGroupSlug.value
   const res = await api.getSessions(params)
-  sessions.value = Array.isArray(res) ? res : (res as any).data
+  sessions.value = Array.isArray(res) ? res : (res as { data: GameSession[] }).data
 }
 
 async function load() {
   await withLoading(async () => {
     const [campaignData, groupsData] = await Promise.all([
-      $fetch<any>(`/api/campaigns/${campaignId}`),
+      $fetch<{ role?: string }>(`/api/campaigns/${campaignId}`),
       api.getSessionGroups(),
     ])
     canEdit.value = ['dm', 'co_dm', 'editor'].includes(campaignData?.role ?? '')

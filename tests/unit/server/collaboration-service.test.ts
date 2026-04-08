@@ -59,7 +59,7 @@ describe('markdownToTiptap', () => {
     const json = markdownToTiptap('# Hello World')
     expect(json).toBeDefined()
     expect(json.type).toBe('doc')
-    const heading = json.content?.find((n: any) => n.type === 'heading')
+    const heading = (json.content as Array<{ type: string }>)?.find((n) => n.type === 'heading')
     expect(heading).toBeDefined()
   })
 
@@ -72,7 +72,7 @@ describe('markdownToTiptap', () => {
   it('converts bullet list', () => {
     const json = markdownToTiptap('- Item 1\n- Item 2')
     expect(json).toBeDefined()
-    const list = json.content?.find((n: any) => n.type === 'bulletList')
+    const list = (json.content as Array<{ type: string }>)?.find((n) => n.type === 'bulletList')
     expect(list).toBeDefined()
   })
 })
@@ -82,20 +82,22 @@ describe('markdownToTiptap — entity-link MDC', () => {
     const md = 'The vampire :entity-link{slug="strahd"} rules Barovia.'
     const json = markdownToTiptap(md)
     // Should produce a dedicated entity-link node, not plain text
-    const nodes = (json.content as any[]).flatMap((n: any) => n.content || [])
-    const entityNode = nodes.find((n: any) => n.type === 'entity-link')
+    type TiptapNode = { type: string; content?: TiptapNode[]; attrs?: Record<string, unknown> }
+    const nodes = (json.content as TiptapNode[]).flatMap((n) => n.content || [])
+    const entityNode = nodes.find((n) => n.type === 'entity-link')
     expect(entityNode).toBeDefined()
-    expect(entityNode.attrs.slug).toBe('strahd')
+    expect(entityNode!.attrs!.slug).toBe('strahd')
   })
 
   it('converts :entity-link{slug="barovia" label="Village of Barovia"} with label', () => {
     const md = 'They arrived at :entity-link{slug="barovia" label="Village of Barovia"}.'
     const json = markdownToTiptap(md)
-    const nodes = (json.content as any[]).flatMap((n: any) => n.content || [])
-    const entityNode = nodes.find((n: any) => n.type === 'entity-link')
+    type TiptapNode = { type: string; content?: TiptapNode[]; attrs?: Record<string, unknown> }
+    const nodes = (json.content as TiptapNode[]).flatMap((n) => n.content || [])
+    const entityNode = nodes.find((n) => n.type === 'entity-link')
     expect(entityNode).toBeDefined()
-    expect(entityNode.attrs.slug).toBe('barovia')
-    expect(entityNode.attrs.label).toBe('Village of Barovia')
+    expect(entityNode!.attrs!.slug).toBe('barovia')
+    expect(entityNode!.attrs!.label).toBe('Village of Barovia')
   })
 })
 

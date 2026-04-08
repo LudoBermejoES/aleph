@@ -22,9 +22,9 @@
         <h2 class="text-lg font-semibold">{{ $t('shops.stock') }}</h2>
         <button
           v-if="canEdit"
-          @click="showAddForm = !showAddForm"
           class="px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-sm"
           data-testid="add-stock-btn"
+          @click="showAddForm = !showAddForm"
         >
           {{ showAddForm ? $t('common.cancel') : $t('shops.addStock') }}
         </button>
@@ -64,8 +64,8 @@
                 <input
                   type="checkbox"
                   :checked="addForm.quantity === -1"
-                  @change="addForm.quantity = ($event.target as HTMLInputElement).checked ? -1 : 1"
                   data-testid="stock-unlimited"
+                  @change="addForm.quantity = ($event.target as HTMLInputElement).checked ? -1 : 1"
                 />
                 {{ $t('shops.unlimitedLabel') }}
               </label>
@@ -74,17 +74,17 @@
           <div class="col-span-2">
             <label class="text-sm font-medium block mb-1">{{ $t('shops.availability') }}</label>
             <label class="flex items-center gap-2 text-sm cursor-pointer">
-              <input type="checkbox" v-model="addForm.isAvailable" data-testid="stock-available" />
+              <input v-model="addForm.isAvailable" type="checkbox" data-testid="stock-available" />
               {{ addForm.isAvailable ? $t('shops.available') : $t('shops.unavailable') }}
             </label>
           </div>
         </div>
         <p v-if="stockError" class="text-sm text-destructive">{{ stockError }}</p>
         <button
-          @click="addStock"
           :disabled="!addForm.itemId || saving"
           class="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm disabled:opacity-50"
           data-testid="stock-add-save"
+          @click="addStock"
         >
           {{ saving ? $t('common.saving') : $t('common.save') }}
         </button>
@@ -124,16 +124,16 @@
               }}</span>
               <div v-if="canEdit" class="flex gap-2">
                 <button
-                  @click="startEditStock(item)"
                   class="text-sm text-muted-foreground hover:text-primary"
                   :data-testid="`stock-edit-${item.id}`"
+                  @click="startEditStock(item)"
                 >
                   {{ $t('common.edit') }}
                 </button>
                 <button
-                  @click="confirmRemoveStock(item)"
                   class="text-sm text-muted-foreground hover:text-destructive"
                   :data-testid="`stock-remove-${item.id}`"
+                  @click="confirmRemoveStock(item)"
                 >
                   {{ $t('shops.removeStock') }}
                 </button>
@@ -171,8 +171,8 @@
                 <label class="text-sm font-medium block mb-1">{{ $t('shops.availability') }}</label>
                 <label class="flex items-center gap-2 text-sm cursor-pointer mt-2">
                   <input
-                    type="checkbox"
                     v-model="editStockForm.isAvailable"
+                    type="checkbox"
                     :data-testid="`stock-edit-avail-${item.id}`"
                   />
                   {{ editStockForm.isAvailable ? $t('shops.available') : $t('shops.unavailable') }}
@@ -181,17 +181,17 @@
             </div>
             <div class="flex gap-2">
               <button
-                @click="saveStock(item.id)"
                 :disabled="saving"
                 class="px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-sm disabled:opacity-50"
                 :data-testid="`stock-edit-save-${item.id}`"
+                @click="saveStock(item.id)"
               >
                 {{ saving ? $t('common.saving') : $t('common.save') }}
               </button>
               <button
-                @click="editingStockId = null"
                 class="px-3 py-1.5 rounded-md border border-border text-sm"
                 :data-testid="`stock-edit-cancel-${item.id}`"
+                @click="editingStockId = null"
               >
                 {{ $t('common.cancel') }}
               </button>
@@ -211,17 +211,17 @@
         <p class="text-sm text-muted-foreground py-2">{{ $t('shops.confirmRemoveStock') }}</p>
         <DialogFooter>
           <button
-            @click="showRemoveDialog = false"
             class="px-3 py-1.5 rounded-md border border-border text-sm"
             data-testid="stock-remove-cancel"
+            @click="showRemoveDialog = false"
           >
             {{ $t('common.cancel') }}
           </button>
           <button
-            @click="removeStock"
             :disabled="saving"
             class="px-3 py-1.5 rounded-md bg-destructive text-destructive-foreground text-sm disabled:opacity-50"
             data-testid="stock-remove-confirm"
+            @click="removeStock"
           >
             {{ saving ? $t('common.deleting') : $t('shops.removeStock') }}
           </button>
@@ -240,15 +240,20 @@ import {
   DialogFooter,
 } from '~/components/ui/dialog'
 import { formatPrice } from '~/composables/useFormatPrice'
+import type { Shop, ShopStockItem, Item, Currency, Campaign } from '~/types/api'
+
+interface ShopWithStock extends Shop {
+  stock?: (ShopStockItem & Record<string, unknown>)[]
+}
 
 const route = useRoute()
 const campaignId = route.params.id as string
 const slug = route.params.slug as string
 const api = useCampaignApi(campaignId)
-const shop = ref<any>(null)
-const itemList = ref<any[]>([])
-const currencyList = ref<any[]>([])
-const campaign = ref<any>(null)
+const shop = ref<ShopWithStock | null>(null)
+const itemList = ref<Item[]>([])
+const currencyList = ref<Currency[]>([])
+const campaign = ref<(Campaign & { role?: string }) | null>(null)
 const { loading, error, withLoading } = useLoadingState()
 
 const canEdit = computed(() => {
@@ -265,7 +270,7 @@ const editingStockId = ref<string | null>(null)
 const editStockForm = ref({ quantity: 1, isAvailable: true, priceOverrideJson: '' })
 
 const showRemoveDialog = ref(false)
-const removingStock = ref<any>(null)
+const removingStock = ref<ShopStockItem | null>(null)
 
 async function load() {
   await withLoading(async () => {
@@ -286,14 +291,15 @@ async function addStock() {
     addForm.value = { itemId: '', quantity: 1, isAvailable: true }
     showAddForm.value = false
     await load()
-  } catch (e: any) {
-    stockError.value = e.data?.message || 'Failed to add stock'
+  } catch (e: unknown) {
+    stockError.value =
+      (e as { data?: { message?: string } })?.data?.message || 'Failed to add stock'
   } finally {
     saving.value = false
   }
 }
 
-function startEditStock(item: any) {
+function startEditStock(item: ShopStockItem) {
   editingStockId.value = item.id
   editStockForm.value = {
     quantity: item.quantity,
@@ -319,7 +325,7 @@ async function saveStock(stockId: string) {
   }
 }
 
-function confirmRemoveStock(item: any) {
+function confirmRemoveStock(item: ShopStockItem) {
   removingStock.value = item
   showRemoveDialog.value = true
 }

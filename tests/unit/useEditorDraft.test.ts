@@ -11,7 +11,8 @@ const localStorageMock = (() => {
       store[key] = val
     },
     removeItem: (key: string) => {
-      delete store[key]
+      const { [key]: _removed, ...rest } = store
+      store = rest
     },
     clear: () => {
       store = {}
@@ -108,8 +109,9 @@ describe('useEditorDraft', () => {
     }).not.toThrow()
 
     localStorageMock.setItem = (k, v) => {
-      ;(localStorageMock as any)._store = (localStorageMock as any)._store || {}
-      ;(localStorageMock as any)._store[k] = v
+      const mock = localStorageMock as unknown as Record<string, unknown>
+      mock['_store'] = (mock['_store'] as Record<string, unknown>) || {}
+      ;(mock['_store'] as Record<string, unknown>)[k] = v
     }
   })
 })

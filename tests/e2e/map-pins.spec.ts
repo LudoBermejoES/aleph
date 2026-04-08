@@ -21,7 +21,7 @@ test.describe('Map Pins', () => {
       return r.json()
     }, campaignId)
 
-    const mapSlug = (mapRes as any).slug
+    const mapSlug = (mapRes as Record<string, unknown>).slug
 
     // Add pins via API
     await page.evaluate(
@@ -82,7 +82,7 @@ test.describe('Map Pins', () => {
           body: JSON.stringify({ name: 'Political Borders', type: 'overlay', opacity: 0.5 }),
         })
       },
-      [campaignId, (mapRes as any).slug],
+      [campaignId, (mapRes as Record<string, unknown>).slug],
     )
 
     await page.click('aside >> text=Maps')

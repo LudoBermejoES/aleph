@@ -6,7 +6,7 @@
     <!-- Header -->
     <div class="flex items-center justify-between p-3 border-b border-border cursor-move">
       <h3 class="text-sm font-semibold">{{ $t('dice.title') }}</h3>
-      <button @click="visible = false" class="text-muted-foreground hover:text-foreground text-xs">
+      <button class="text-muted-foreground hover:text-foreground text-xs" @click="visible = false">
         {{ $t('dice.close') }}
       </button>
     </div>
@@ -16,9 +16,9 @@
       <button
         v-for="d in quickDice"
         :key="d"
-        @click="quickRoll(d)"
         class="px-1 py-2 text-xs rounded border border-border hover:bg-accent transition-colors text-center"
         :aria-label="$t(`aria.diceRoller.rollD${d}`, `Roll d${d}`)"
+        @click="quickRoll(d)"
       >
         d{{ d }}
       </button>
@@ -28,15 +28,15 @@
     <div class="px-3 pb-2 flex gap-2">
       <input
         v-model="formula"
-        @keydown.enter="rollFormula"
         :placeholder="$t('dice.expressionPlaceholder')"
         class="flex-1 rounded-md border border-input bg-background px-2 py-1 text-sm"
         data-testid="formula-input"
+        @keydown.enter="rollFormula"
       />
       <button
-        @click="rollFormula"
         class="px-3 py-1 rounded-md bg-primary text-primary-foreground text-sm"
         data-testid="roll-btn"
+        @click="rollFormula"
       >
         {{ $t('dice.roll') }}
       </button>
@@ -46,9 +46,9 @@
     <div class="px-3 pb-2 flex items-center gap-2">
       <span class="text-xs text-muted-foreground">{{ $t('dice.modifier') }}</span>
       <button
-        @click="modifier--"
         class="w-6 h-6 rounded border border-border text-xs hover:bg-accent"
         data-testid="mod-dec"
+        @click="modifier--"
       >
         −
       </button>
@@ -56,16 +56,16 @@
         modifier >= 0 ? '+' + modifier : modifier
       }}</span>
       <button
-        @click="modifier++"
         class="w-6 h-6 rounded border border-border text-xs hover:bg-accent"
         data-testid="mod-inc"
+        @click="modifier++"
       >
         +
       </button>
       <button
         v-if="modifier !== 0"
-        @click="modifier = 0"
         class="text-xs text-muted-foreground hover:text-foreground"
+        @click="modifier = 0"
       >
         {{ $t('dice.reset') }}
       </button>
@@ -122,9 +122,9 @@
   <!-- Toggle Button -->
   <button
     v-if="!visible"
-    @click="visible = true"
     class="fixed bottom-4 right-4 w-12 h-12 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center text-lg z-40 hover:scale-105 transition-transform"
     :title="$t('dice.title')"
+    @click="visible = true"
   >
     🎲
   </button>
@@ -140,8 +140,8 @@ const visible = ref(false)
 const formula = ref('')
 const modifier = ref(0)
 const error = ref('')
-const lastResult = ref<any>(null)
-const rollLog = ref<any[]>([])
+const lastResult = ref<{ total: number; [key: string]: unknown } | null>(null)
+const rollLog = ref<{ formula: string; total: number }[]>([])
 const logToSession = ref(false)
 const quickDice = [4, 6, 8, 10, 12, 20, 100]
 
@@ -160,8 +160,9 @@ async function roll(f: string) {
     lastResult.value = result
     rollLog.value.unshift({ formula: fullFormula, total: result.total })
     if (rollLog.value.length > 50) rollLog.value.pop()
-  } catch (e: any) {
-    error.value = e.data?.message || 'Roll failed'
+  } catch (e: unknown) {
+    const err = e as { data?: { message?: string } }
+    error.value = err.data?.message || 'Roll failed'
   }
 }
 

@@ -1,4 +1,4 @@
-import { eq, and, inArray } from 'drizzle-orm'
+import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../utils/db'
 import { entities } from '../../../../db/schema/entities'
 import { stripSecretBlocks } from '../../../../services/content'

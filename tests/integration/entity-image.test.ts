@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 
-async function api(path: string, opts?: any) {
+async function api(path: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   const isFormData = opts?.body instanceof FormData
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
@@ -79,7 +79,7 @@ describe('Entity Image (integration)', () => {
   it('entity list includes imageUrl field', async () => {
     const res = await api(`/api/campaigns/${campaignId}/entities`, { headers: { Cookie: cookie } })
     const data = await res.json()
-    const found = data.entities.find((e: any) => e.slug === entitySlug)
+    const found = data.entities.find((e: Record<string, unknown>) => e.slug === entitySlug)
     expect(found).toBeDefined()
     expect('imageUrl' in found).toBe(true)
   })

@@ -1,7 +1,7 @@
 import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../../utils/db'
 import { entities } from '../../../../../../db/schema/entities'
-import { organizations, organizationLocations } from '../../../../../../db/schema/organizations'
+import { organizationLocations } from '../../../../../../db/schema/organizations'
 import { hasMinRole } from '../../../../../../utils/permissions'
 import type { CampaignRole } from '../../../../../../utils/permissions'
 

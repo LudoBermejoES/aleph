@@ -1,5 +1,5 @@
 <template>
   <div class="overflow-x-auto w-full">
-    <slot />
+    <slot></slot>
   </div>
 </template>

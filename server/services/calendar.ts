@@ -38,7 +38,7 @@ interface RecurringEvent {
 export function calculateAge(
   birth: CalendarDate,
   current: CalendarDate,
-  config: CalendarConfig,
+  _config: CalendarConfig,
 ): number {
   let age = current.year - birth.year
 
@@ -105,7 +105,7 @@ export function getNextOccurrence(
 export function isDateInSeason(
   date: CalendarDate,
   season: SeasonRange,
-  config: CalendarConfig,
+  _config: CalendarConfig,
 ): boolean {
   const dateVal = date.month * 100 + date.day
   const startVal = season.startMonth * 100 + season.startDay

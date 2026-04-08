@@ -5,7 +5,7 @@
       <CardDescription>{{ $t('auth.signInDescription') }}</CardDescription>
     </CardHeader>
     <CardContent>
-      <form @submit.prevent="handleLogin" class="space-y-4">
+      <form class="space-y-4" @submit.prevent="handleLogin">
         <div class="space-y-2">
           <label for="email" class="text-sm font-medium">{{ $t('auth.email') }}</label>
           <Input

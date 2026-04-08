@@ -57,7 +57,7 @@
           rows="4"
           class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
           :placeholder="$t('organizations.descriptionPlaceholder')"
-        />
+        ></textarea>
       </div>
 
       <div class="flex gap-2">
@@ -94,8 +94,8 @@ async function create() {
   try {
     const res = await api.createOrganization(form.value)
     await router.push(`/campaigns/${campaignId}/organizations/${res.slug}`)
-  } catch (e: any) {
-    alert(e.data?.message || 'Failed to create organization')
+  } catch (e: unknown) {
+    alert((e as { data?: { message?: string } })?.data?.message || 'Failed to create organization')
   } finally {
     submitting.value = false
   }

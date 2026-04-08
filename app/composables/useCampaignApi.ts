@@ -135,7 +135,7 @@ export function useCampaignApi(campaignId: string) {
   }
 
   function getCharacterOrganizations(slug: string) {
-    return $fetch<any[]>(`${base}/characters/${slug}/organizations`)
+    return $fetch<Record<string, unknown>[]>(`${base}/characters/${slug}/organizations`)
   }
 
   function getCharacterConnections(slug: string) {
@@ -187,15 +187,18 @@ export function useCampaignApi(campaignId: string) {
   // ─── Session Groups ──────────────────────────────────────────────────────────
 
   function getSessionGroups() {
-    return $fetch<any[]>(`${base}/session-groups`)
+    return $fetch<Record<string, unknown>[]>(`${base}/session-groups`)
   }
 
   function createSessionGroup(body: Record<string, unknown>) {
-    return $fetch<any>(`${base}/session-groups`, { method: 'POST', body })
+    return $fetch<Record<string, unknown>>(`${base}/session-groups`, { method: 'POST', body })
   }
 
   function updateSessionGroup(slug: string, body: Record<string, unknown>) {
-    return $fetch<any>(`${base}/session-groups/${slug}`, { method: 'PUT', body })
+    return $fetch<Record<string, unknown>>(`${base}/session-groups/${slug}`, {
+      method: 'PUT',
+      body,
+    })
   }
 
   function deleteSessionGroup(slug: string) {
@@ -244,11 +247,11 @@ export function useCampaignApi(campaignId: string) {
   }
 
   function getSessionRolls(slug: string) {
-    return $fetch<any[]>(`${base}/sessions/${slug}/rolls`)
+    return $fetch<Record<string, unknown>[]>(`${base}/sessions/${slug}/rolls`)
   }
 
   function getCampaignArcs() {
-    return $fetch<any[]>(`${base}/arcs`)
+    return $fetch<Record<string, unknown>[]>(`${base}/arcs`)
   }
 
   function getArcs() {
@@ -256,19 +259,19 @@ export function useCampaignApi(campaignId: string) {
   }
 
   function getArc(slug: string) {
-    return $fetch<any>(`${base}/arcs/${slug}`)
+    return $fetch<Record<string, unknown>>(`${base}/arcs/${slug}`)
   }
 
   function createArc(body: Record<string, unknown>) {
-    return $fetch<any>(`${base}/arcs`, { method: 'POST', body })
+    return $fetch<Record<string, unknown>>(`${base}/arcs`, { method: 'POST', body })
   }
 
   function getChapters(arcId: string) {
-    return $fetch<any[]>(`${base}/chapters`, { params: { arc_id: arcId } })
+    return $fetch<Record<string, unknown>[]>(`${base}/chapters`, { params: { arc_id: arcId } })
   }
 
   function createChapter(body: Record<string, unknown>) {
-    return $fetch<any>(`${base}/chapters`, { method: 'POST', body })
+    return $fetch<Record<string, unknown>>(`${base}/chapters`, { method: 'POST', body })
   }
 
   function updateArc(slug: string, body: Record<string, unknown>) {
@@ -575,19 +578,22 @@ export function useCampaignApi(campaignId: string) {
   // ─── Templates ──────────────────────────────────────────────────────────────
 
   function getTemplates() {
-    return $fetch<any[]>(`${base}/templates`)
+    return $fetch<Record<string, unknown>[]>(`${base}/templates`)
   }
 
   function getTemplate(templateId: string) {
-    return $fetch<any>(`${base}/templates/${templateId}`)
+    return $fetch<Record<string, unknown>>(`${base}/templates/${templateId}`)
   }
 
   function createTemplate(body: Record<string, unknown>) {
-    return $fetch<any>(`${base}/templates`, { method: 'POST', body })
+    return $fetch<Record<string, unknown>>(`${base}/templates`, { method: 'POST', body })
   }
 
   function updateTemplate(templateId: string, body: Record<string, unknown>) {
-    return $fetch<any>(`${base}/templates/${templateId}`, { method: 'PUT', body })
+    return $fetch<Record<string, unknown>>(`${base}/templates/${templateId}`, {
+      method: 'PUT',
+      body,
+    })
   }
 
   function deleteTemplate(templateId: string) {
@@ -599,11 +605,11 @@ export function useCampaignApi(campaignId: string) {
   // ─── Organizations ──────────────────────────────────────────────────────────
 
   function getOrganizations() {
-    return $fetch<any[]>(`${base}/organizations`, { params: { pageSize: '0' } })
+    return $fetch<Record<string, unknown>[]>(`${base}/organizations`, { params: { pageSize: '0' } })
   }
 
   function getOrganization(slug: string) {
-    return $fetch<any>(`${base}/organizations/${slug}`)
+    return $fetch<Record<string, unknown>>(`${base}/organizations/${slug}`)
   }
 
   function createOrganization(body: {
@@ -612,14 +618,14 @@ export function useCampaignApi(campaignId: string) {
     type?: string
     status?: string
   }) {
-    return $fetch<any>(`${base}/organizations`, { method: 'POST', body })
+    return $fetch<Record<string, unknown>>(`${base}/organizations`, { method: 'POST', body })
   }
 
   function updateOrganization(
     slug: string,
     body: { name?: string; description?: string; type?: string; status?: string },
   ) {
-    return $fetch<any>(`${base}/organizations/${slug}`, { method: 'PUT', body })
+    return $fetch<Record<string, unknown>>(`${base}/organizations/${slug}`, { method: 'PUT', body })
   }
 
   function deleteOrganization(slug: string) {
@@ -627,7 +633,10 @@ export function useCampaignApi(campaignId: string) {
   }
 
   function addOrganizationMember(slug: string, body: { characterId: string; role?: string }) {
-    return $fetch<any>(`${base}/organizations/${slug}/members`, { method: 'POST', body })
+    return $fetch<Record<string, unknown>>(`${base}/organizations/${slug}/members`, {
+      method: 'POST',
+      body,
+    })
   }
 
   function removeOrganizationMember(slug: string, characterId: string) {
@@ -642,11 +651,13 @@ export function useCampaignApi(campaignId: string) {
     search?: string
     pageSize?: string
   }) {
-    return $fetch<any[]>(`${base}/locations`, { params: { pageSize: '0', ...params } })
+    return $fetch<Record<string, unknown>[]>(`${base}/locations`, {
+      params: { pageSize: '0', ...params },
+    })
   }
 
   function getLocation(slug: string) {
-    return $fetch<any>(`${base}/locations/${slug}`)
+    return $fetch<Record<string, unknown>>(`${base}/locations/${slug}`)
   }
 
   function createLocation(body: {
@@ -656,7 +667,7 @@ export function useCampaignApi(campaignId: string) {
     visibility?: string
     content?: string
   }) {
-    return $fetch<any>(`${base}/locations`, { method: 'POST', body })
+    return $fetch<Record<string, unknown>>(`${base}/locations`, { method: 'POST', body })
   }
 
   function updateLocation(
@@ -669,7 +680,7 @@ export function useCampaignApi(campaignId: string) {
       content?: string
     },
   ) {
-    return $fetch<any>(`${base}/locations/${slug}`, { method: 'PUT', body })
+    return $fetch<Record<string, unknown>>(`${base}/locations/${slug}`, { method: 'PUT', body })
   }
 
   function deleteLocation(slug: string) {
@@ -677,11 +688,11 @@ export function useCampaignApi(campaignId: string) {
   }
 
   function getSubLocations(slug: string) {
-    return $fetch<any[]>(`${base}/locations/${slug}/sub-locations`)
+    return $fetch<Record<string, unknown>[]>(`${base}/locations/${slug}/sub-locations`)
   }
 
   function getLocationInhabitants(slug: string) {
-    return $fetch<any[]>(`${base}/locations/${slug}/inhabitants`)
+    return $fetch<Record<string, unknown>[]>(`${base}/locations/${slug}/inhabitants`)
   }
 
   function addLocationInhabitant(slug: string, characterId: string) {
@@ -696,7 +707,7 @@ export function useCampaignApi(campaignId: string) {
   }
 
   function getLocationOrganizations(slug: string) {
-    return $fetch<any[]>(`${base}/locations/${slug}/organizations`)
+    return $fetch<Record<string, unknown>[]>(`${base}/locations/${slug}/organizations`)
   }
 
   function addLocationOrganization(slug: string, organizationId: string) {
@@ -711,7 +722,7 @@ export function useCampaignApi(campaignId: string) {
   }
 
   function getOrganizationLocations(orgSlug: string) {
-    return $fetch<any[]>(`${base}/organizations/${orgSlug}/locations`)
+    return $fetch<Record<string, unknown>[]>(`${base}/organizations/${orgSlug}/locations`)
   }
 
   function getGraph() {

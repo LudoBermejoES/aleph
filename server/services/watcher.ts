@@ -1,9 +1,8 @@
 import chokidar, { type FSWatcher } from 'chokidar'
-import { readEntityFile, contentHash as computeHash } from './content'
-import { indexEntity, removeEntityFromIndex } from './search'
+import { readEntityFile } from './content'
+import { indexEntity } from './search'
 import { logger } from '../utils/logger'
 import type Database from 'better-sqlite3'
-import { readFileSync } from 'fs'
 
 interface WatcherOptions {
   contentDir: string
@@ -84,15 +83,13 @@ async function handleAddOrChange(
   onEntityChange?: (entityId: string, action: 'add' | 'change' | 'delete') => void,
 ) {
   const entityFile = await readEntityFile(filePath)
-  const { frontmatter, content, contentHash: hash } = entityFile
+  const { frontmatter, content } = entityFile
 
-  // Check if content actually changed
+  // Check if content actually changed (hash tracking not yet implemented -- re-index always)
   if (action === 'change') {
-    const existing = sqlite
+    sqlite
       .prepare('SELECT content_hash FROM entities_fts_content WHERE entity_id = ?')
-      .get(frontmatter.id) as { content_hash: string } | undefined
-
-    // We store hash in a separate tracking -- for now just re-index
+      .get(frontmatter.id)
   }
 
   if (frontmatter.id) {
@@ -117,9 +114,9 @@ async function handleAddOrChange(
 }
 
 function handleDelete(
-  sqlite: Database.Database,
+  _sqlite: Database.Database,
   filePath: string,
-  onEntityChange?: (entityId: string, action: 'add' | 'change' | 'delete') => void,
+  _onEntityChange?: (entityId: string, action: 'add' | 'change' | 'delete') => void,
 ) {
   // We don't have the entity ID from a deleted file, so we look it up by path
   // For now, the entity metadata should be cleaned up by the caller

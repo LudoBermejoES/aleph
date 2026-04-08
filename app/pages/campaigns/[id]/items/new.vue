@@ -40,8 +40,8 @@ async function create() {
   try {
     await api.createItem(form.value)
     await router.push(`/campaigns/${campaignId}/items`)
-  } catch (e: any) {
-    alert(e.data?.message || t('items.failedSave'))
+  } catch (e: unknown) {
+    alert((e as { data?: { message?: string } })?.data?.message || t('items.failedSave'))
   } finally {
     submitting.value = false
   }

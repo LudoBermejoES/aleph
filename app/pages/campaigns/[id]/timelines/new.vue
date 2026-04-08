@@ -41,8 +41,8 @@ async function create() {
   try {
     const res = await api.createTimeline(form.value)
     await router.push(`/campaigns/${campaignId}/timelines/${res.slug}`)
-  } catch (e: any) {
-    alert(e.data?.message || t('timelines.failedSave'))
+  } catch (e: unknown) {
+    alert((e as { data?: { message?: string } })?.data?.message || t('timelines.failedSave'))
   } finally {
     submitting.value = false
   }

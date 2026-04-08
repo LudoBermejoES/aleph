@@ -3,8 +3,8 @@
     <label v-if="label" class="text-sm font-medium">{{ label }}</label>
     <select
       :value="modelValue"
-      @change="$emit('update:modelValue', ($event.target as HTMLSelectElement).value)"
       class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+      @change="$emit('update:modelValue', ($event.target as HTMLSelectElement).value)"
     >
       <option value="public">Public</option>
       <option value="members">Members</option>

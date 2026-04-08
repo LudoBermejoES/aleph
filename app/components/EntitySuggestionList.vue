@@ -29,7 +29,7 @@
 <script setup lang="ts">
 const props = defineProps<{
   items: Array<{ id: string; name: string; slug: string; type: string }>
-  command: (item: any) => void
+  command: (item: { id: string; name: string; slug: string; type: string }) => void
   query: string
 }>()
 

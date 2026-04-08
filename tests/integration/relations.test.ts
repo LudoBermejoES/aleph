@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 
-async function api(path: string, opts?: any) {
+async function api(path: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
     headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...opts?.headers },
@@ -71,7 +71,7 @@ describe('Relationship Graph (integration)', () => {
       headers: { Cookie: cookie },
     })
     const typeList = await types.json()
-    relationTypeId = typeList.find((t: any) => t.slug === 'enemy')?.id
+    relationTypeId = typeList.find((t: Record<string, unknown>) => t.slug === 'enemy')?.id
   })
 
   it('GET relation-types returns 17 built-in types', async () => {
@@ -81,7 +81,7 @@ describe('Relationship Graph (integration)', () => {
     })
     const data = await res.json()
     expect(data).toHaveLength(17)
-    expect(data.every((t: any) => t.isBuiltin || t.is_builtin)).toBe(true)
+    expect(data.every((t: Record<string, unknown>) => t.isBuiltin || t.is_builtin)).toBe(true)
   })
 
   it('POST creates relation between entities', async () => {
@@ -110,7 +110,7 @@ describe('Relationship Graph (integration)', () => {
     })
     const data = await res.json()
     expect(data.length).toBeGreaterThanOrEqual(1)
-    const rel = data.find((r: any) => r.id === relationId)
+    const rel = data.find((r: Record<string, unknown>) => r.id === relationId)
     expect(rel.label).toBe('enemy of')
     expect(rel.relatedEntityId).toBe(entity2Id)
   })
@@ -121,7 +121,7 @@ describe('Relationship Graph (integration)', () => {
       headers: { Cookie: cookie },
     })
     const data = await res.json()
-    const rel = data.find((r: any) => r.id === relationId)
+    const rel = data.find((r: Record<string, unknown>) => r.id === relationId)
     expect(rel.label).toBe('enemy of') // symmetric
     expect(rel.relatedEntityId).toBe(entity1Id)
   })
@@ -144,7 +144,7 @@ describe('Relationship Graph (integration)', () => {
     const data = await res.json()
     expect(Object.keys(data.nodes).length).toBeGreaterThanOrEqual(2)
     expect(Object.keys(data.edges).length).toBeGreaterThanOrEqual(1)
-    const edge = Object.values(data.edges)[0] as any
+    const edge = Object.values(data.edges)[0] as Record<string, unknown>
     expect(edge.color).toBeDefined()
     expect(edge.attitude).toBeDefined()
   })
@@ -178,7 +178,7 @@ describe('Relationship Graph (integration)', () => {
       method: 'GET',
       headers: { Cookie: cookie },
     })
-    const builtinType = (await types.json()).find((t: any) => t.slug === 'ally')
+    const builtinType = (await types.json()).find((t: Record<string, unknown>) => t.slug === 'ally')
 
     const res = await api(`/api/campaigns/${campaignId}/relation-types/${builtinType.id}`, {
       method: 'PUT',

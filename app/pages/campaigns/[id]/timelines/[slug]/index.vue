@@ -114,8 +114,8 @@
         <div v-for="(ev, i) in timeline.events" :key="ev.id" class="flex gap-4">
           <!-- Timeline line -->
           <div class="flex flex-col items-center">
-            <div class="w-3 h-3 rounded-full bg-primary shrink-0" />
-            <div v-if="i < timeline.events.length - 1" class="w-0.5 flex-1 bg-border" />
+            <div class="w-3 h-3 rounded-full bg-primary shrink-0"></div>
+            <div v-if="i < timeline.events.length - 1" class="w-0.5 flex-1 bg-border"></div>
           </div>
           <!-- Event content -->
           <div class="pb-6">
@@ -187,7 +187,7 @@
                 v-for="_ in calStartOffset"
                 :key="'o' + _"
                 class="min-h-[70px] border-r border-b border-border bg-muted/20"
-              />
+              ></div>
               <div
                 v-for="day in calDaysInMonth"
                 :key="day"
@@ -213,11 +213,11 @@
 </template>
 
 <script setup lang="ts">
+import type { Timeline, Calendar } from '~/types/api'
 const route = useRoute()
 const campaignId = route.params.id as string
 const slug = route.params.slug as string
 const { t } = useI18n()
-import type { Timeline } from '~/types/api'
 
 const timeline = ref<Timeline | null>(null)
 const api = useCampaignApi(campaignId)
@@ -240,15 +240,15 @@ async function addEvent() {
     showAddEvent.value = false
     newEvent.value = { name: '', description: '', year: 1, month: 1, day: 1 }
     await load()
-  } catch (e: any) {
-    alert(e.data?.message || t('timelines.failedSave'))
+  } catch (e: unknown) {
+    alert((e as { data?: { message?: string } })?.data?.message || t('timelines.failedSave'))
   } finally {
     addingEvent.value = false
   }
 }
 
 // Calendar overlay state
-const calendar = ref<any>(null)
+const calendar = ref<Calendar | null>(null)
 const calViewMonth = ref(1)
 const calViewYear = ref(1)
 
@@ -280,8 +280,9 @@ function calMonthName(m: number) {
 }
 
 function calEventsOnDay(day: number) {
-  return (timeline.value?.events || []).filter((ev: any) => {
-    const d = ev.date || {}
+  return (timeline.value?.events || []).filter((ev) => {
+    const event = ev as { date?: { year?: number; month?: number; day?: number } }
+    const d = event.date || {}
     return d.year === calViewYear.value && d.month === calViewMonth.value && d.day === day
   })
 }

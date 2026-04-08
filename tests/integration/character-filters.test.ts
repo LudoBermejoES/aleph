@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 
-async function api(path: string, opts?: any) {
+async function api(path: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
     headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...opts?.headers },
@@ -16,7 +16,7 @@ describe('Character list filters and meta (integration)', () => {
   let csrfToken = ''
   let campaignId = ''
   let elfSlug = ''
-  let humanSlug = ''
+  let _humanSlug = ''
   let orgId = ''
 
   beforeAll(async () => {
@@ -72,7 +72,7 @@ describe('Character list filters and meta (integration)', () => {
         status: 'dead',
       },
     })
-    humanSlug = (await human.json()).slug
+    _humanSlug = (await human.json()).slug
 
     await api(`/api/campaigns/${campaignId}/characters`, {
       method: 'POST',
@@ -127,7 +127,7 @@ describe('Character list filters and meta (integration)', () => {
     const body = await res.json()
     const data = body.data ?? body
     expect(data.length).toBeGreaterThan(0)
-    expect(data.every((c: any) => c.race === 'Elf')).toBe(true)
+    expect(data.every((c: Record<string, unknown>) => c.race === 'Elf')).toBe(true)
   })
 
   // 8.2 class filter
@@ -139,7 +139,7 @@ describe('Character list filters and meta (integration)', () => {
     const body = await res.json()
     const data = body.data ?? body
     expect(data.length).toBeGreaterThan(0)
-    expect(data.every((c: any) => c.class === 'Wizard')).toBe(true)
+    expect(data.every((c: Record<string, unknown>) => c.class === 'Wizard')).toBe(true)
   })
 
   // 8.3 alignment filter
@@ -151,7 +151,7 @@ describe('Character list filters and meta (integration)', () => {
     const body = await res.json()
     const data = body.data ?? body
     expect(data.length).toBeGreaterThan(0)
-    expect(data.every((c: any) => c.alignment === 'Neutral Good')).toBe(true)
+    expect(data.every((c: Record<string, unknown>) => c.alignment === 'Neutral Good')).toBe(true)
   })
 
   // 8.4 status filter
@@ -163,7 +163,7 @@ describe('Character list filters and meta (integration)', () => {
     const body = await res.json()
     const data = body.data ?? body
     expect(data.length).toBeGreaterThan(0)
-    expect(data.every((c: any) => c.status === 'dead')).toBe(true)
+    expect(data.every((c: Record<string, unknown>) => c.status === 'dead')).toBe(true)
   })
 
   // 8.5 organizationId filter
@@ -176,8 +176,8 @@ describe('Character list filters and meta (integration)', () => {
     const data = body.data ?? body
     expect(data.length).toBeGreaterThan(0)
     // Only Legolas is in the org
-    expect(data.some((c: any) => c.name === 'Legolas')).toBe(true)
-    expect(data.every((c: any) => c.name !== 'Boromir')).toBe(true)
+    expect(data.some((c: Record<string, unknown>) => c.name === 'Legolas')).toBe(true)
+    expect(data.every((c: Record<string, unknown>) => c.name !== 'Boromir')).toBe(true)
   })
 
   // 8.6 sort by name asc
@@ -188,7 +188,7 @@ describe('Character list filters and meta (integration)', () => {
     expect(res.status).toBe(200)
     const body = await res.json()
     const data = body.data ?? body
-    const names = data.map((c: any) => c.name)
+    const names = data.map((c: Record<string, unknown>) => c.name)
     const sorted = [...names].sort((a, b) => a.localeCompare(b))
     expect(names).toEqual(sorted)
   })
@@ -219,7 +219,7 @@ describe('Character list filters and meta (integration)', () => {
       expect(Object.prototype.hasOwnProperty.call(c, 'primaryOrg')).toBe(true)
     }
     // Legolas should have a primaryOrg
-    const legolas = data.find((c: any) => c.name === 'Legolas')
+    const legolas = data.find((c: Record<string, unknown>) => c.name === 'Legolas')
     expect(legolas).toBeDefined()
     expect(legolas.primaryOrg).not.toBeNull()
     expect(legolas.primaryOrg.name).toBe('The Fellowship')
@@ -256,6 +256,6 @@ describe('Character list filters and meta (integration)', () => {
     expect(res.status).toBe(200)
     const body = await res.json()
     const data = body.data ?? body
-    expect(data.every((c: any) => c.isCompanionOf === null)).toBe(true)
+    expect(data.every((c: Record<string, unknown>) => c.isCompanionOf === null)).toBe(true)
   })
 })

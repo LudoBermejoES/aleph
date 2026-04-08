@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 
-async function api(path: string, opts?: any) {
+async function api(path: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
     headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...opts?.headers },
@@ -104,7 +104,7 @@ describe('Session Groups + Content (integration)', () => {
     })
     const body = await res.json()
     const data = body.data ?? body
-    const grouped = data.find((s: any) => s.slug === sessionSlug)
+    const grouped = data.find((s: Record<string, unknown>) => s.slug === sessionSlug)
     expect(grouped?.groupName).toBeTruthy()
   })
 

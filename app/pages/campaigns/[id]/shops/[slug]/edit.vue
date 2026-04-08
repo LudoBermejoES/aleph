@@ -58,8 +58,8 @@ async function save() {
   try {
     await api.updateShop(slug, form.value)
     await router.push(`/campaigns/${campaignId}/shops/${slug}`)
-  } catch (e: any) {
-    alert(e.data?.message || t('shops.failedSave'))
+  } catch (e: unknown) {
+    alert((e as { data?: { message?: string } })?.data?.message || t('shops.failedSave'))
   } finally {
     submitting.value = false
   }

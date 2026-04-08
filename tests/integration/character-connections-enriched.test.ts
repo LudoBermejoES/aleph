@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 
-async function api(path: string, opts?: RequestInit & { body?: any }) {
+async function api(path: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
     headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...opts?.headers },
@@ -64,7 +64,9 @@ describe('Character connections — enriched response (integration)', () => {
       headers: { Cookie: cookie },
     })
     const entList = await entities.json()
-    char2EntityId = (entList.entities ?? entList).find((e: any) => e.slug === char2Slug)?.id
+    char2EntityId = (entList.entities ?? entList).find(
+      (e: Record<string, unknown>) => e.slug === char2Slug,
+    )?.id
   })
 
   it('empty connection list before any connections added', async () => {
@@ -124,7 +126,7 @@ describe('Character connections — enriched response (integration)', () => {
         headers: { Cookie: cookie },
       })
       const data = await conns.json()
-      const dangling = data.find((c: any) => c.label === 'mystery')
+      const dangling = data.find((c: Record<string, unknown>) => c.label === 'mystery')
       if (dangling) {
         expect(dangling.targetEntityName).toBeNull()
         expect(dangling.targetEntitySlug).toBeNull()

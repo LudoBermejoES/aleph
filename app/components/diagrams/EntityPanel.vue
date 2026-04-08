@@ -97,7 +97,12 @@ const STORAGE_KEY = `aleph-entity-panel-collapsed-${props.campaignId}`
 const collapsed = ref(false)
 const searchQuery = ref('')
 const loading = ref(false)
-const results = ref<Record<string, any[]>>({})
+const results = ref<
+  Record<
+    string,
+    { id: string; name: string; type: string; slug?: string; [key: string]: unknown }[]
+  >
+>({})
 
 onMounted(() => {
   const stored = localStorage.getItem(STORAGE_KEY)

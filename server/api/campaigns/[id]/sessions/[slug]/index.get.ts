@@ -64,7 +64,9 @@ export default defineEventHandler(async (event) => {
   if (session.logFilePath) {
     try {
       log = await readEntityFile(session.logFilePath)
-    } catch {}
+    } catch {
+      /* log file may not exist yet */
+    }
   }
 
   return { ...session, groupName, attendance, hasContent, logContent: log.content }

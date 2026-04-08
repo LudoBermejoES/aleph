@@ -4,7 +4,7 @@ import { registerAndLogin, createCampaign, apiFetch } from './helpers'
 const uid = () => Date.now().toString(36).slice(-4)
 
 async function createEntityAndNavigate(
-  page: any,
+  page: import('@playwright/test').Page,
   campaignId: string,
   name: string,
   content: string,
@@ -13,7 +13,7 @@ async function createEntityAndNavigate(
     method: 'POST',
     body: { name, type: 'note', content },
   })
-  const slug = (data as any).slug
+  const slug = (data as Record<string, unknown>).slug
 
   await page.goto(`http://localhost:3333/campaigns/${campaignId}/entities/${slug}`)
   await page.waitForLoadState('domcontentloaded')
@@ -95,23 +95,23 @@ test.describe('Multi-User Collaboration', () => {
     // --- User 1 setup ---
     const ctx1 = await browser.newContext()
     const page1 = await ctx1.newPage()
-    const email1 = await registerAndLogin(page1, 'CollabUser1')
+    await registerAndLogin(page1, 'CollabUser1')
     await createCampaign(page1, `Collab Camp ${uid()}`)
-    const campaignId = page1.url().split('/campaigns/')[1]?.split('/')[0]!
+    const campaignId = page1.url().split('/campaigns/')[1]?.split('/')[0] ?? ''
 
     // Create entity
     const entityData = await apiFetch(page1, `/api/campaigns/${campaignId}/entities`, {
       method: 'POST',
       body: { name: 'Collab Entity', type: 'note', content: '# Shared Doc\n\nInitial content.' },
     })
-    const slug = (entityData as any).slug
+    const slug = (entityData as Record<string, unknown>).slug
 
     // Invite User 2
     const inviteData = await apiFetch(page1, `/api/campaigns/${campaignId}/invite`, {
       method: 'POST',
       body: { role: 'editor' },
     })
-    const inviteToken = (inviteData as any).token
+    const inviteToken = (inviteData as Record<string, unknown>).token
 
     // --- User 2 setup ---
     const ctx2 = await browser.newContext()
@@ -157,7 +157,7 @@ test.describe('Multi-User Collaboration', () => {
     const cursor2 = page2.locator('.collaboration-carets__label')
 
     // At least one page should see the other user's cursor
-    const hasCursors = await Promise.race([
+    await Promise.race([
       cursor1
         .first()
         .isVisible()

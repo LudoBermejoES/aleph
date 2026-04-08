@@ -45,10 +45,10 @@ describe('Map Schema Tests', () => {
 
     const pins = testDb.sqlite
       .prepare("SELECT * FROM map_pins WHERE map_id = 'map-1'")
-      .all() as any[]
+      .all() as Record<string, unknown>[]
     expect(pins).toHaveLength(2)
-    expect(pins.find((p: any) => p.entity_id === 'ent-1')).toBeDefined()
-    expect(pins.find((p: any) => p.child_map_id === 'map-2')).toBeDefined()
+    expect(pins.find((p: Record<string, unknown>) => p.entity_id === 'ent-1')).toBeDefined()
+    expect(pins.find((p: Record<string, unknown>) => p.child_map_id === 'map-2')).toBeDefined()
   })
 
   it('map_layers sort order', () => {
@@ -66,7 +66,7 @@ describe('Map Schema Tests', () => {
 
     const layers = testDb.sqlite
       .prepare("SELECT * FROM map_layers WHERE map_id = 'map-1' ORDER BY sort_order")
-      .all() as any[]
+      .all() as Record<string, unknown>[]
     expect(layers).toHaveLength(3)
     expect(layers[0].name).toBe('Base')
     expect(layers[1].name).toBe('Political')
@@ -102,7 +102,7 @@ describe('Map Schema Tests', () => {
 
     const region = testDb.sqlite
       .prepare("SELECT * FROM map_regions WHERE id = 'reg-1'")
-      .get() as any
+      .get() as Record<string, unknown>
     expect(region).toBeDefined()
     const parsed = JSON.parse(region.geojson)
     expect(parsed.type).toBe('Polygon')

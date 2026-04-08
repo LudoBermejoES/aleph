@@ -68,7 +68,7 @@
               v-if="pin.color"
               :style="{ backgroundColor: pin.color }"
               class="w-3 h-3 rounded-full"
-            />
+            ></span>
             <span class="text-sm">{{ pin.label || $t('maps.unnamedPin') }}</span>
             <span class="text-xs text-muted-foreground"
               >({{ pin.lat.toFixed(1) }}, {{ pin.lng.toFixed(1) }})</span
@@ -98,11 +98,11 @@
 </template>
 
 <script setup lang="ts">
+import type { CampaignMap } from '~/types/api'
 const route = useRoute()
 const campaignId = route.params.id as string
 const slug = route.params.slug as string
 const { t } = useI18n()
-import type { CampaignMap } from '~/types/api'
 
 const mapData = ref<CampaignMap | null>(null)
 const api = useCampaignApi(campaignId)
@@ -114,11 +114,11 @@ async function load() {
   })
 }
 
-function onPinClick(pin: any) {
+function onPinClick(_pin: { id: string; childMapId?: string | null }) {
   // Pin click opens popup (handled by Leaflet)
 }
 
-function onPinShiftClick(pin: any) {
+function onPinShiftClick(pin: { id: string; childMapId?: string | null }) {
   if (pin.childMapId) {
     navigateTo(`/campaigns/${campaignId}/maps/${pin.childMapId}`)
   }

@@ -14,7 +14,7 @@
         v-model="localContent"
         class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[120px] resize-y"
         :placeholder="$t('secrets.secretNotesPlaceholder')"
-      />
+      ></textarea>
       <div class="flex items-center gap-3">
         <Button size="sm" :disabled="saving" @click="save">
           {{ saving ? '...' : $t('secrets.saveNotes') }}

@@ -3,7 +3,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 
-async function apiRaw(path: string, opts?: any) {
+async function apiRaw(path: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   const res = await fetch(`${BASE_URL}${path}`, {
     ...opts,
     headers: {
@@ -74,7 +74,7 @@ describe('API key endpoint (integration)', () => {
     })
     expect(res.status).toBe(200)
     const keys = await res.json()
-    const found = keys.find((k: any) => k.id === createdKeyId)
+    const found = keys.find((k: Record<string, unknown>) => k.id === createdKeyId)
     expect(found).toBeDefined()
     expect(found.key).toBeUndefined() // raw key not returned in list
     expect(found.keyPrefix).toBeDefined()
@@ -199,10 +199,10 @@ describe('API key isolation (integration)', () => {
     const resB = await apiRaw('/api/apikeys', { method: 'GET', headers: { Cookie: cookieB } })
     const keysB = await resB.json()
 
-    expect(keysA.find((k: any) => k.id === keyA.id)).toBeDefined()
-    expect(keysA.find((k: any) => k.id === keyB.id)).toBeUndefined()
-    expect(keysB.find((k: any) => k.id === keyB.id)).toBeDefined()
-    expect(keysB.find((k: any) => k.id === keyA.id)).toBeUndefined()
+    expect(keysA.find((k: Record<string, unknown>) => k.id === keyA.id)).toBeDefined()
+    expect(keysA.find((k: Record<string, unknown>) => k.id === keyB.id)).toBeUndefined()
+    expect(keysB.find((k: Record<string, unknown>) => k.id === keyB.id)).toBeDefined()
+    expect(keysB.find((k: Record<string, unknown>) => k.id === keyA.id)).toBeUndefined()
   })
 })
 

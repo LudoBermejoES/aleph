@@ -16,8 +16,8 @@
     </div>
     <h1 class="text-2xl font-bold mb-6">{{ $t('characters.edit') }}</h1>
     <CharacterForm
-      ref="charForm"
       v-if="loaded"
+      ref="charForm"
       v-model="form"
       :campaign-id="campaignId"
       :character-slug="slug"
@@ -56,7 +56,10 @@ const form = ref({
 })
 
 const api = useCampaignApi(campaignId)
-const charForm = ref<any>(null)
+const charForm = ref<{
+  saveMemberships: (slug: string) => Promise<void>
+  clearDraft: () => void
+} | null>(null)
 
 onMounted(async () => {
   try {
@@ -91,8 +94,8 @@ async function save() {
     await charForm.value?.saveMemberships(slug)
     charForm.value?.clearDraft()
     await router.push(`/campaigns/${campaignId}/characters/${slug}`)
-  } catch (e: any) {
-    alert(e.data?.message || t('characters.failedSave'))
+  } catch (e: unknown) {
+    alert((e as { data?: { message?: string } })?.data?.message || t('characters.failedSave'))
   } finally {
     submitting.value = false
   }

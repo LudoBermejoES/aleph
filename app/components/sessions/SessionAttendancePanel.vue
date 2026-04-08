@@ -12,7 +12,7 @@
                 ? 'bg-red-500'
                 : 'bg-yellow-500',
           ]"
-        />
+        ></span>
         <span class="text-sm flex-1">{{ a.userName }}</span>
         <span v-if="a.characterId" class="text-xs text-muted-foreground">{{ a.characterId }}</span>
         <label
@@ -53,8 +53,17 @@
 </template>
 
 <script setup lang="ts">
+interface AttendanceEntry {
+  id: string
+  userId: string
+  userName: string
+  characterId: string | null
+  rsvpStatus: string
+  attended: boolean
+}
+
 defineProps<{
-  attendance: any[]
+  attendance: AttendanceEntry[]
   canManage: boolean
   myRsvp: string
   rsvpStatuses: { value: string; label: string }[]

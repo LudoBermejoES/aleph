@@ -92,7 +92,7 @@ describe('Character Folder CRUD (integration)', () => {
     })
     const folders = foldersBody.data ?? foldersBody
     expect(Array.isArray(folders)).toBe(true)
-    const found = folders.find((f: any) => f.id === folderId)
+    const found = folders.find((f: Record<string, unknown>) => f.id === folderId)
     expect(found).toBeDefined()
     expect(found.name).toBe('Villains')
   })
@@ -112,7 +112,7 @@ describe('Character Folder CRUD (integration)', () => {
       headers: { 'X-API-Key': apiKey },
     })
     const folders = foldersBody.data ?? foldersBody
-    const found = folders.find((f: any) => f.id === folderId)
+    const found = folders.find((f: Record<string, unknown>) => f.id === folderId)
     expect(found?.name).toBe('Villains Updated')
   })
 
@@ -137,7 +137,7 @@ describe('Character Folder CRUD (integration)', () => {
       headers: { 'X-API-Key': apiKey },
     })
     const characters = charactersBody.data ?? charactersBody
-    const found = characters.find((c: any) => c.slug === characterSlug)
+    const found = characters.find((c: Record<string, unknown>) => c.slug === characterSlug)
     expect(found).toBeDefined()
     expect(found.folderId).toBe(folderId)
   })
@@ -156,7 +156,7 @@ describe('Character Folder CRUD (integration)', () => {
       headers: { 'X-API-Key': apiKey },
     })
     const folders = foldersBody.data ?? foldersBody
-    const found = folders.find((f: any) => f.id === folderId)
+    const found = folders.find((f: Record<string, unknown>) => f.id === folderId)
     expect(found).toBeUndefined()
 
     // Character folderId should now be null
@@ -164,7 +164,7 @@ describe('Character Folder CRUD (integration)', () => {
       headers: { 'X-API-Key': apiKey },
     })
     const characters = charactersBody.data ?? charactersBody
-    const char = characters.find((c: any) => c.slug === characterSlug)
+    const char = characters.find((c: Record<string, unknown>) => c.slug === characterSlug)
     expect(char).toBeDefined()
     expect(char.folderId).toBeNull()
   })

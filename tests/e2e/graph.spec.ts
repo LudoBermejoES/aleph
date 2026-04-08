@@ -29,13 +29,13 @@ test.describe('Relationship Graph', () => {
     })
     const types = await apiFetch(page, `/api/campaigns/${campaignId}/relation-types`)
 
-    const enemyType = (types as any[]).find((t: any) => t.slug === 'enemy')
+    const enemyType = (types as Record<string, unknown>[]).find((t) => t.slug === 'enemy')
 
     await apiFetch(page, `/api/campaigns/${campaignId}/relations`, {
       method: 'POST',
       body: {
-        sourceEntityId: (e1 as any).id,
-        targetEntityId: (e2 as any).id,
+        sourceEntityId: (e1 as Record<string, unknown>).id,
+        targetEntityId: (e2 as Record<string, unknown>).id,
         relationTypeId: enemyType?.id,
         forwardLabel: 'enemy of',
         reverseLabel: 'enemy of',

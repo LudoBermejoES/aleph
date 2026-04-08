@@ -1,20 +1,20 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-// Mock createError (Nuxt auto-import used in server/utils/ai.ts)
-vi.stubGlobal('createError', ({ statusCode, message }: { statusCode: number; message: string }) => {
-  const err = new Error(message) as any
-  err.statusCode = statusCode
-  return err
-})
-// Stub useRuntimeConfig so the module can be imported without Nuxt instance
-vi.stubGlobal('useRuntimeConfig', () => ({ ai: { provider: '', apiKey: '', model: '' } }))
-
 import {
   generateText,
   isAiConfigured,
   SUMMARY_SYSTEM_PROMPT,
   AI_NOTES_SYSTEM_PROMPT,
 } from '../../server/utils/ai'
+
+// Mock createError (Nuxt auto-import used in server/utils/ai.ts)
+vi.stubGlobal('createError', ({ statusCode, message }: { statusCode: number; message: string }) => {
+  const err = new Error(message) as Error & { statusCode: number }
+  err.statusCode = statusCode
+  return err
+})
+// Stub useRuntimeConfig so the module can be imported without Nuxt instance
+vi.stubGlobal('useRuntimeConfig', () => ({ ai: { provider: '', apiKey: '', model: '' } }))
 
 describe('isAiConfigured', () => {
   it('returns false when provider and apiKey are missing', () => {

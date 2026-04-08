@@ -1,7 +1,6 @@
 import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
-import { sessionGroups } from '../../../../../db/schema/sessions'
-import { gameSessions } from '../../../../../db/schema/sessions'
+import { sessionGroups, gameSessions } from '../../../../../db/schema/sessions'
 import { hasMinRole } from '../../../../../utils/permissions'
 import type { CampaignRole } from '../../../../../utils/permissions'
 

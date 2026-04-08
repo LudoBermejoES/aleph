@@ -16,8 +16,8 @@
     </div>
     <h1 class="text-2xl font-bold mb-6">{{ $t('sessions.edit') }}</h1>
     <SessionForm
-      ref="sessionForm"
       v-if="loaded"
+      ref="sessionForm"
       v-model="form"
       :campaign-id="campaignId"
       :session-slug="slug"
@@ -63,7 +63,7 @@ const documentName = computed(() =>
 const { userName, userColor } = useCollaborationUser()
 
 const api = useCampaignApi(campaignId)
-const sessionForm = ref<any>(null)
+const sessionForm = ref<{ clearDraft: () => void } | null>(null)
 
 onMounted(async () => {
   try {
@@ -75,7 +75,7 @@ onMounted(async () => {
         : '',
       status: session.status || 'planned',
       content: session.logContent || '',
-      groupSlug: (session as any).groupSlug || '',
+      groupSlug: ((session as Record<string, unknown>).groupSlug as string) || '',
       arcId: session.arcId || '',
       chapterId: session.chapterId || '',
     }
@@ -92,8 +92,8 @@ async function save() {
     await api.updateSession(slug, form.value)
     sessionForm.value?.clearDraft()
     await router.push(`/campaigns/${campaignId}/sessions/${slug}`)
-  } catch (e: any) {
-    alert(e.data?.message || t('sessions.failedSave'))
+  } catch (e: unknown) {
+    alert((e as { data?: { message?: string } })?.data?.message || t('sessions.failedSave'))
   } finally {
     submitting.value = false
   }

@@ -42,7 +42,7 @@ export default defineEventHandler(async (event) => {
   }
 
   if (remove?.length) {
-    for (const tagId of remove) {
+    for (const _tagId of remove) {
       db.delete(entityTags).where(eq(entityTags.entityId, entity.id)).run()
     }
   }

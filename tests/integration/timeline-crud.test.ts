@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 
-async function api(path: string, opts?: RequestInit & { body?: unknown }) {
+async function api(path: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
     headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...opts?.headers },
@@ -142,7 +142,7 @@ describe('Timeline CRUD (integration)', () => {
       headers: { 'X-API-Key': apiKey },
     })
     const tlData = await getRes.json()
-    expect(tlData.events.find((e: any) => e.id === eventId)).toBeUndefined()
+    expect(tlData.events.find((e: Record<string, unknown>) => e.id === eventId)).toBeUndefined()
   })
 
   it('DELETE timeline removes it', async () => {

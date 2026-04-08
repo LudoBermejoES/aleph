@@ -1,5 +1,5 @@
 <template>
-  <form @submit.prevent="$emit('submit')" class="space-y-6">
+  <form class="space-y-6" @submit.prevent="$emit('submit')">
     <div>
       <label class="text-sm font-medium">{{ $t('timelines.name') }}</label>
       <input
@@ -16,10 +16,10 @@
         rows="4"
         class="w-full mt-1 px-3 py-2 rounded border border-input bg-background"
         placeholder="Optional description..."
-      />
+      ></textarea>
     </div>
     <div class="flex justify-end gap-2">
-      <slot name="cancel" />
+      <slot name="cancel"></slot>
       <Button type="submit" :disabled="submitting">{{
         submitting ? $t('common.saving') : submitLabel
       }}</Button>
@@ -38,6 +38,6 @@ defineEmits<{ 'update:modelValue': [value: typeof props.modelValue]; submit: [] 
 
 const form = computed({
   get: () => props.modelValue,
-  set: (val) => {},
+  set: (_val) => {},
 })
 </script>

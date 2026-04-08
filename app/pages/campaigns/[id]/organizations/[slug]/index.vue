@@ -125,16 +125,31 @@ const campaignId = route.params.id as string
 const slug = route.params.slug as string
 const api = useCampaignApi(campaignId)
 
-const org = ref<any>(null)
+interface OrgData {
+  members?: { characterId: string; role?: string | null }[]
+  [key: string]: unknown
+}
+interface CharEntry {
+  id: string
+  name: string
+  slug: string
+}
+interface LocEntry {
+  id: string
+  name: string
+  slug: string
+}
+
+const org = ref<OrgData | null>(null)
 const { loading, error, withLoading } = useLoadingState()
-const allCharacters = ref<any[]>([])
-const orgLocations = ref<any[]>([])
+const allCharacters = ref<CharEntry[]>([])
+const orgLocations = ref<LocEntry[]>([])
 const newMemberId = ref('')
 const newMemberRole = ref('')
 const addingMember = ref(false)
 
 const availableCharacters = computed(() => {
-  const memberIds = new Set(org.value?.members?.map((m: any) => m.characterId) ?? [])
+  const memberIds = new Set(org.value?.members?.map((m) => m.characterId) ?? [])
   return allCharacters.value.filter((c) => !memberIds.has(c.id))
 })
 
@@ -162,8 +177,8 @@ async function addMember() {
     newMemberId.value = ''
     newMemberRole.value = ''
     await load()
-  } catch (e: any) {
-    alert(e.data?.message || 'Failed to add member')
+  } catch (e: unknown) {
+    alert((e as { data?: { message?: string } })?.data?.message || 'Failed to add member')
   } finally {
     addingMember.value = false
   }
@@ -173,8 +188,8 @@ async function removeMember(characterId: string) {
   try {
     await api.removeOrganizationMember(slug, characterId)
     await load()
-  } catch (e: any) {
-    alert(e.data?.message || 'Failed to remove member')
+  } catch (e: unknown) {
+    alert((e as { data?: { message?: string } })?.data?.message || 'Failed to remove member')
   }
 }
 

@@ -8,7 +8,7 @@ import * as fs from 'fs'
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 const CLI = `node ${path.resolve(__dirname, '../../cli/bin/aleph.js')}`
 
-async function apiRaw(url: string, opts?: any) {
+async function apiRaw(url: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   return fetch(`${BASE_URL}${url}`, {
     ...opts,
     headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...opts?.headers },
@@ -16,7 +16,7 @@ async function apiRaw(url: string, opts?: any) {
   })
 }
 
-async function api(url: string, opts?: any) {
+async function api(url: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   const res = await apiRaw(url, opts)
   if (!res.ok) {
     const t = await res.text()
@@ -93,7 +93,7 @@ describe('Session Content CLI (integration)', () => {
         env: { ...process.env, ALEPH_URL: BASE_URL, ALEPH_TOKEN: apiKey },
         stdio: ['pipe', 'pipe', 'pipe'],
       })
-    } catch (e: any) {
+    } catch (e: unknown) {
       threw = true
       expect(e.status).toBe(1)
       expect(e.stderr).toContain('at least one field')

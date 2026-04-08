@@ -4,7 +4,6 @@ import {
   evaluateDiceRoll,
   formatRollResult,
   isValidFormula,
-  type DiceExpression,
   type RollResult,
 } from '../../../server/services/dice'
 
@@ -101,7 +100,7 @@ describe('evaluateDiceRoll', () => {
   // Mock RNG that returns predetermined values
   function mockRng(values: number[]) {
     let i = 0
-    return (min: number, max: number) => {
+    return (_min: number, _max: number) => {
       const v = values[i % values.length]
       i++
       return v

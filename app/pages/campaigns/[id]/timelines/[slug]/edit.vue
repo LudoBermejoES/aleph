@@ -59,8 +59,8 @@ async function save() {
   try {
     await api.updateTimeline(slug, form.value)
     await router.push(`/campaigns/${campaignId}/timelines/${slug}`)
-  } catch (e: any) {
-    alert(e.data?.message || t('timelines.failedSave'))
+  } catch (e: unknown) {
+    alert((e as { data?: { message?: string } })?.data?.message || t('timelines.failedSave'))
   } finally {
     submitting.value = false
   }

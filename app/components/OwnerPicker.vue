@@ -82,17 +82,17 @@ async function loadOptions() {
     search.value = 'Party'
   } else if (props.ownerType === 'character') {
     const chars = await api.getCharacters().catch(() => [])
-    options.value = chars.map((c: any) => ({ id: c.id, name: c.name, type: c.characterType }))
+    options.value = chars.map((c) => ({ id: c.id, name: c.name, type: c.characterType }))
   } else if (props.ownerType === 'faction') {
     const result = await api.getEntities({ type: 'faction' }).catch(() => ({ entities: [] }))
-    options.value = (result.entities || []).map((e: any) => ({
+    options.value = (result.entities || []).map((e) => ({
       id: e.id,
       name: e.name,
       type: 'faction',
     }))
   } else if (props.ownerType === 'shop') {
     const shops = await api.getShops().catch(() => [])
-    options.value = shops.map((s: any) => ({ id: s.id, name: s.name, type: 'shop' }))
+    options.value = shops.map((s) => ({ id: s.id, name: s.name, type: 'shop' }))
   }
   // Restore selected label
   if (props.modelValue) {

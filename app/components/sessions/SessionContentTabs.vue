@@ -44,7 +44,7 @@
         rows="12"
         :placeholder="$t('sessions.content.empty')"
         class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono"
-      />
+      ></textarea>
       <div v-else class="prose dark:prose-invert max-w-none text-foreground">
         <MDC v-if="localDraft[activeContentTab]" :value="localDraft[activeContentTab]" />
         <p v-else class="text-muted-foreground italic">{{ $t('sessions.content.empty') }}</p>

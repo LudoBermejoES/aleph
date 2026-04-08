@@ -1,5 +1,5 @@
 <template>
-  <form @submit.prevent="$emit('submit')" class="space-y-6">
+  <form class="space-y-6" @submit.prevent="$emit('submit')">
     <div class="grid grid-cols-2 gap-4">
       <div class="col-span-2">
         <label class="text-sm font-medium">{{ $t('quests.name') }}</label>
@@ -54,7 +54,7 @@
       />
     </div>
     <div class="flex justify-end gap-2">
-      <slot name="cancel" />
+      <slot name="cancel"></slot>
       <Button type="submit" :disabled="submitting">{{
         submitting ? $t('common.saving') : submitLabel
       }}</Button>
@@ -63,6 +63,8 @@
 </template>
 
 <script setup lang="ts">
+import type { Quest } from '~/types/api'
+
 const props = defineProps<{
   modelValue: {
     name: string
@@ -83,7 +85,7 @@ const props = defineProps<{
 
 defineEmits<{ 'update:modelValue': [value: typeof props.modelValue]; submit: [] }>()
 
-const quests = ref<any[]>([])
+const quests = ref<Quest[]>([])
 
 const form = computed({
   get: () => props.modelValue,

@@ -3,7 +3,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 
-async function apiRaw(path: string, opts?: any) {
+async function apiRaw(path: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
     headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...opts?.headers },
@@ -11,7 +11,7 @@ async function apiRaw(path: string, opts?: any) {
   })
 }
 
-async function api(path: string, opts?: any) {
+async function api(path: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   const res = await apiRaw(path, opts)
   if (!res.ok) {
     const text = await res.text()
@@ -95,7 +95,7 @@ describe('Item CRUD (integration)', () => {
     const items = await api(`/api/campaigns/${campaignId}/items`, {
       headers: { 'X-API-Key': apiKey },
     })
-    const updated = items.find((i: any) => i.id === itemId)
+    const updated = items.find((i: Record<string, unknown>) => i.id === itemId)
     expect(updated).toBeDefined()
     expect(updated.name).toBe('Updated Sword')
     expect(updated.rarity).toBe('rare')
@@ -121,7 +121,7 @@ describe('Item CRUD (integration)', () => {
     const items = await api(`/api/campaigns/${campaignId}/items`, {
       headers: { 'X-API-Key': apiKey },
     })
-    expect(items.find((i: any) => i.id === itemId)).toBeUndefined()
+    expect(items.find((i: Record<string, unknown>) => i.id === itemId)).toBeUndefined()
   })
 
   it('DELETE non-existent item returns 404', async () => {

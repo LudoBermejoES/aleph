@@ -119,9 +119,9 @@
 
 <script setup lang="ts">
 import { ICONS } from '~/utils/icons'
+import type { Quest } from '~/types/api'
 const route = useRoute()
 const campaignId = route.params.id as string
-import type { Quest } from '~/types/api'
 
 const questList = ref<Quest[]>([])
 const filter = ref('')

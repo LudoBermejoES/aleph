@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 
-async function api(path: string, opts?: RequestInit & { body?: unknown }) {
+async function api(path: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
     headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...opts?.headers },
@@ -89,7 +89,7 @@ describe('Currency CRUD (integration)', () => {
       headers: { 'X-API-Key': apiKey },
     })
     const currencies = await listRes.json()
-    const updated = currencies.find((c: any) => c.id === currencyId)
+    const updated = currencies.find((c: Record<string, unknown>) => c.id === currencyId)
     expect(updated?.symbol).toBe('SP')
   })
 
@@ -114,7 +114,7 @@ describe('Currency CRUD (integration)', () => {
       headers: { 'X-API-Key': apiKey },
     })
     const currencies = await listRes.json()
-    expect(currencies.find((c: any) => c.id === currencyId)).toBeUndefined()
+    expect(currencies.find((c: Record<string, unknown>) => c.id === currencyId)).toBeUndefined()
   })
 
   it('DELETE non-existent currency returns 404', async () => {

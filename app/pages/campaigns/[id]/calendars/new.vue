@@ -60,8 +60,8 @@ async function create() {
       currentDay: form.value.currentDay,
     })
     await router.push(`/campaigns/${campaignId}/calendars/${res.id}`)
-  } catch (e: any) {
-    alert(e.data?.message || t('calendars.failedSave'))
+  } catch (e: unknown) {
+    alert((e as { data?: { message?: string } })?.data?.message || t('calendars.failedSave'))
   } finally {
     submitting.value = false
   }

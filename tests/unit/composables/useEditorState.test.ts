@@ -1,13 +1,14 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
+import type { Editor } from '@tiptap/core'
 import { useEditorState } from '../../../app/composables/useEditorState'
 
 function makeMockEditor(activeMap: Record<string, boolean>) {
   return {
-    isActive: (name: string, opts?: any) => {
+    isActive: (name: string, opts?: Record<string, unknown>) => {
       if (name === 'heading' && opts?.level) return activeMap[`heading${opts.level}`] ?? false
       return activeMap[name] ?? false
     },
-  } as any
+  } as unknown as Editor
 }
 
 describe('useEditorState', () => {

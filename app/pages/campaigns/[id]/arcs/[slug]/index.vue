@@ -48,7 +48,7 @@
             v-model="editArcForm.description"
             rows="3"
             class="w-full mt-1 px-3 py-1.5 rounded border border-input bg-background text-sm"
-          />
+          ></textarea>
         </div>
         <div>
           <label class="text-sm font-medium">{{ $t('arcs.status') }}</label>
@@ -120,7 +120,7 @@
             :placeholder="$t('arcs.descriptionPlaceholder')"
             rows="2"
             class="w-full px-3 py-1.5 rounded border border-input bg-background text-sm"
-          />
+          ></textarea>
           <Button size="sm" :disabled="!newChapterName.trim()" @click="addChapter">{{
             $t('common.add')
           }}</Button>
@@ -147,7 +147,7 @@
                   v-model="editChapterForm.description"
                   rows="2"
                   class="w-full px-3 py-1.5 rounded border border-input bg-background text-sm"
-                />
+                ></textarea>
                 <div class="flex gap-2">
                   <Button size="sm" @click="saveChapter(chapter)">{{ $t('common.save') }}</Button>
                   <Button size="sm" variant="outline" @click="editingChapterId = null">{{
@@ -206,6 +206,25 @@
 </template>
 
 <script setup lang="ts">
+import type { GameSession } from '~/types/api'
+
+interface Chapter {
+  id: string
+  slug: string
+  name: string
+  description: string | null
+  sortOrder: number
+}
+
+interface Arc {
+  id: string
+  slug: string
+  name: string
+  description: string | null
+  status: string
+  chapters?: Chapter[]
+}
+
 const route = useRoute()
 const router = useRouter()
 const { t } = useI18n()
@@ -214,8 +233,8 @@ const slug = route.params.slug as string
 const api = useCampaignApi(campaignId)
 const { loading, error, withLoading, dismissError } = useLoadingState()
 
-const arc = ref<any>(null)
-const linkedSessions = ref<any[]>([])
+const arc = ref<Arc | null>(null)
+const linkedSessions = ref<GameSession[]>([])
 const canEdit = ref(false)
 
 // Arc editing
@@ -249,14 +268,14 @@ async function load() {
       api.getCampaign(),
       api.getSessions({}),
     ])
-    const found = arcs.find((a: any) => a.slug === slug)
+    const found = arcs.find((a: Arc) => a.slug === slug)
     if (!found) {
       await router.push(`/campaigns/${campaignId}/arcs`)
       return
     }
     arc.value = found
-    canEdit.value = ['dm', 'co_dm'].includes((campaign as any).role ?? '')
-    linkedSessions.value = sessions.filter((s: any) => s.arcId === found.id)
+    canEdit.value = ['dm', 'co_dm'].includes((campaign as { role?: string }).role ?? '')
+    linkedSessions.value = sessions.filter((s: GameSession) => s.arcId === found.id)
   })
 }
 
@@ -298,13 +317,13 @@ async function addChapter() {
   await load()
 }
 
-function startEditChapter(chapter: any) {
+function startEditChapter(chapter: Chapter) {
   editChapterForm.name = chapter.name
   editChapterForm.description = chapter.description ?? ''
   editingChapterId.value = chapter.id
 }
 
-async function saveChapter(chapter: any) {
+async function saveChapter(chapter: Chapter) {
   await api.updateChapter(chapter.slug, {
     name: editChapterForm.name,
     description: editChapterForm.description,
@@ -313,15 +332,15 @@ async function saveChapter(chapter: any) {
   await load()
 }
 
-async function confirmDeleteChapter(chapter: any) {
+async function confirmDeleteChapter(chapter: Chapter) {
   if (!confirm(t('arcs.confirmDeleteChapter'))) return
   await api.deleteChapter(chapter.slug)
   await load()
 }
 
-async function moveChapter(chapter: any, direction: number) {
-  const chapters = arc.value.chapters as any[]
-  const idx = chapters.findIndex((c: any) => c.id === chapter.id)
+async function moveChapter(chapter: Chapter, direction: number) {
+  const chapters = arc.value?.chapters ?? []
+  const idx = chapters.findIndex((c: Chapter) => c.id === chapter.id)
   const swapIdx = idx + direction
   if (swapIdx < 0 || swapIdx >= chapters.length) return
 

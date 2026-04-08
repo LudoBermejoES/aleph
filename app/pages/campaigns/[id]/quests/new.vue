@@ -37,7 +37,7 @@ const { t } = useI18n()
 const form = ref({ name: '', status: 'active', parentQuestId: '', isSecret: false, content: '' })
 
 const api = useCampaignApi(campaignId)
-const questForm = ref<any>(null)
+const questForm = ref<{ clearDraft: () => void } | null>(null)
 
 async function create() {
   submitting.value = true
@@ -45,8 +45,8 @@ async function create() {
     await api.createQuest(form.value)
     questForm.value?.clearDraft()
     await router.push(`/campaigns/${campaignId}/quests`)
-  } catch (e: any) {
-    alert(e.data?.message || t('quests.failedSave'))
+  } catch (e: unknown) {
+    alert((e as { data?: { message?: string } })?.data?.message || t('quests.failedSave'))
   } finally {
     submitting.value = false
   }

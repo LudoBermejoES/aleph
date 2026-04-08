@@ -3,15 +3,20 @@ import { registerAndLogin, createCampaign } from './helpers'
 
 const uid = () => Date.now().toString(36).slice(-4)
 
-async function setup(page: any, label: string) {
+async function setup(page: import('@playwright/test').Page, label: string) {
   await registerAndLogin(page, label)
   await createCampaign(page, `SubLoc E2E ${uid()}`)
   return page.url().split('/campaigns/')[1]?.split('/')[0] ?? ''
 }
 
-async function createLocationViaApi(page: any, campaignId: string, body: Record<string, unknown>) {
+async function createLocationViaApi(
+  page: import('@playwright/test').Page,
+  campaignId: string,
+  body: Record<string, unknown>,
+) {
   return page.evaluate(
-    async ([id, data]: [string, Record<string, unknown>]) => {
+    async (args: [string, Record<string, unknown>]) => {
+      const [id, data] = args
       const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
       const res = await fetch(`/api/campaigns/${id}/locations`, {
         method: 'POST',
@@ -20,7 +25,7 @@ async function createLocationViaApi(page: any, campaignId: string, body: Record<
       })
       return res.json()
     },
-    [campaignId, body],
+    [campaignId, body] as [string, Record<string, unknown>],
   )
 }
 
@@ -29,7 +34,7 @@ async function createLocationViaApi(page: any, campaignId: string, body: Record<
 test('detail page "+ Sub-location" link pre-fills parent in new form', async ({ page }) => {
   const campaignId = await setup(page, 'SubLoc Link User')
 
-  const parent: any = await createLocationViaApi(page, campaignId, {
+  const parent: Record<string, unknown> = await createLocationViaApi(page, campaignId, {
     name: 'Barovia',
     subtype: 'region',
     visibility: 'members',
@@ -49,7 +54,7 @@ test('detail page "+ Sub-location" link pre-fills parent in new form', async ({ 
 
   // Wait for locations to load and the parent select to be pre-populated
   await page.waitForFunction(
-    (parentId: string) => {
+    (parentId: unknown) => {
       const selects = document.querySelectorAll('select')
       for (const sel of selects) {
         if (sel.value === parentId) return true
@@ -66,7 +71,7 @@ test('creating a sub-location via the form creates it under the correct parent',
 }) => {
   const campaignId = await setup(page, 'SubLoc Create User')
 
-  const parent: any = await createLocationViaApi(page, campaignId, {
+  const parent: Record<string, unknown> = await createLocationViaApi(page, campaignId, {
     name: 'The Kingdom',
     subtype: 'country',
     visibility: 'members',
@@ -92,7 +97,7 @@ test('creating a sub-location via the form creates it under the correct parent',
 test('child location appears in parent sub-locations section', async ({ page }) => {
   const campaignId = await setup(page, 'SubLoc Panel User')
 
-  const parent: any = await createLocationViaApi(page, campaignId, {
+  const parent: Record<string, unknown> = await createLocationViaApi(page, campaignId, {
     name: 'Dark Forest',
     subtype: 'wilderness',
     visibility: 'members',
@@ -120,12 +125,12 @@ test('child location appears in parent sub-locations section', async ({ page }) 
 test('child detail page breadcrumb links back to parent', async ({ page }) => {
   const campaignId = await setup(page, 'SubLoc Breadcrumb User')
 
-  const parent: any = await createLocationViaApi(page, campaignId, {
+  const parent: Record<string, unknown> = await createLocationViaApi(page, campaignId, {
     name: 'Ravenloft Castle',
     subtype: 'dungeon',
     visibility: 'members',
   })
-  const child: any = await createLocationViaApi(page, campaignId, {
+  const child: Record<string, unknown> = await createLocationViaApi(page, campaignId, {
     name: 'Throne Room',
     subtype: 'room',
     parentId: parent.id,
@@ -147,18 +152,18 @@ test('child detail page breadcrumb links back to parent', async ({ page }) => {
 test('3-level nesting: grandchild breadcrumb shows full ancestor chain', async ({ page }) => {
   const campaignId = await setup(page, 'SubLoc Deep User')
 
-  const grandparent: any = await createLocationViaApi(page, campaignId, {
+  const grandparent: Record<string, unknown> = await createLocationViaApi(page, campaignId, {
     name: 'The Empire',
     subtype: 'country',
     visibility: 'members',
   })
-  const parent2: any = await createLocationViaApi(page, campaignId, {
+  const parent2: Record<string, unknown> = await createLocationViaApi(page, campaignId, {
     name: 'Northern Province',
     subtype: 'region',
     parentId: grandparent.id,
     visibility: 'members',
   })
-  const grandchild: any = await createLocationViaApi(page, campaignId, {
+  const grandchild: Record<string, unknown> = await createLocationViaApi(page, campaignId, {
     name: 'Border Town',
     subtype: 'town',
     parentId: parent2.id,

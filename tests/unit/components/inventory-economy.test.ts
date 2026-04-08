@@ -64,7 +64,7 @@ describe('WealthDisplay component logic (9.14)', () => {
   })
 
   it('shows empty state when balances array is empty', () => {
-    const balances: any[] = []
+    const balances: unknown[] = []
     expect(balances.length).toBe(0)
   })
 

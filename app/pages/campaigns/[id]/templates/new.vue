@@ -69,10 +69,18 @@ const api = useCampaignApi(campaignId)
 
 const saving = ref(false)
 const error = ref<string | null>(null)
-const entityTypes = ref<any[]>([])
+const entityTypes = ref<Record<string, unknown>[]>([])
+
+interface TemplateField {
+  key: string
+  label: string
+  fieldType: string
+  required: boolean
+  optionsRaw: string
+}
 
 const form = reactive({ name: '', entityTypeSlug: '', isDefault: false })
-const fields = ref<any[]>([])
+const fields = ref<TemplateField[]>([])
 
 onMounted(async () => {
   entityTypes.value = await api.getEntityTypes()
@@ -102,8 +110,9 @@ async function submit() {
     }
     await api.createTemplate(payload)
     await router.push(`/campaigns/${campaignId}/templates`)
-  } catch (e: any) {
-    error.value = e?.data?.message ?? e?.message ?? 'Error'
+  } catch (e: unknown) {
+    const err = e as { data?: { message?: string }; message?: string }
+    error.value = err?.data?.message ?? err?.message ?? 'Error'
   } finally {
     saving.value = false
   }

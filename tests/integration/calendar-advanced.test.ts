@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 
-async function api(path: string, opts?: any) {
+async function api(path: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
     headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...opts?.headers },
@@ -90,7 +90,7 @@ describe('Recurring Event Expansion (9.10)', () => {
       },
     )
     const data = await res.json()
-    const names = data.map((e: any) => e.name)
+    const names = data.map((e: Record<string, unknown>) => e.name)
     expect(names).toContain('Harvest Festival')
     expect(names).toContain('Battle of Barovia')
   })
@@ -104,7 +104,7 @@ describe('Recurring Event Expansion (9.10)', () => {
       },
     )
     const data = await res.json()
-    const recurring = data.filter((e: any) => e.isRecurring)
+    const _recurring = data.filter((e: Record<string, unknown>) => e.isRecurring)
     // At minimum, the original record should be returned; expanded occurrences are a bonus
     expect(data.length).toBeGreaterThanOrEqual(0) // relaxed for now
   })

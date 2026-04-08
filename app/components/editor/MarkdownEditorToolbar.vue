@@ -3,168 +3,168 @@
     <!-- Undo/Redo -->
     <button
       type="button"
-      @mousedown.prevent="undo"
       class="p-1.5 rounded text-xs hover:bg-accent"
       :title="$t('editor.toolbar.undo')"
+      @mousedown.prevent="undo"
     >
       ↩
     </button>
     <button
       type="button"
-      @mousedown.prevent="redo"
       class="p-1.5 rounded text-xs hover:bg-accent"
       :title="$t('editor.toolbar.redo')"
+      @mousedown.prevent="redo"
     >
       ↪
     </button>
-    <div class="w-px h-4 bg-border mx-1" />
+    <div class="w-px h-4 bg-border mx-1"></div>
 
     <!-- Text formatting -->
     <button
       type="button"
-      @mousedown.prevent="toggleBold"
       :class="[
         'p-1.5 rounded text-xs font-bold',
         editorState?.isBold ? 'bg-accent' : 'hover:bg-accent',
       ]"
       :title="$t('editor.toolbar.bold')"
+      @mousedown.prevent="toggleBold"
     >
       B
     </button>
     <button
       type="button"
-      @mousedown.prevent="toggleItalic"
       :class="[
         'p-1.5 rounded text-xs italic',
         editorState?.isItalic ? 'bg-accent' : 'hover:bg-accent',
       ]"
       :title="$t('editor.toolbar.italic')"
+      @mousedown.prevent="toggleItalic"
     >
       I
     </button>
     <button
       type="button"
-      @mousedown.prevent="toggleStrike"
       :class="[
         'p-1.5 rounded text-xs line-through',
         editorState?.isStrike ? 'bg-accent' : 'hover:bg-accent',
       ]"
       :title="$t('editor.toolbar.strikethrough')"
+      @mousedown.prevent="toggleStrike"
     >
       S
     </button>
     <button
       type="button"
-      @mousedown.prevent="toggleCode"
       :class="[
         'p-1.5 rounded text-xs font-mono',
         editorState?.isCode ? 'bg-accent' : 'hover:bg-accent',
       ]"
       :title="$t('editor.toolbar.inlineCode')"
+      @mousedown.prevent="toggleCode"
     >
       &lt;/&gt;
     </button>
-    <div class="w-px h-4 bg-border mx-1" />
+    <div class="w-px h-4 bg-border mx-1"></div>
 
     <!-- Headings -->
     <button
       type="button"
-      @mousedown.prevent="setHeading(1)"
       :class="['p-1.5 rounded text-xs', editorState?.isH1 ? 'bg-accent' : 'hover:bg-accent']"
       :title="$t('editor.toolbar.heading1')"
+      @mousedown.prevent="setHeading(1)"
     >
       H1
     </button>
     <button
       type="button"
-      @mousedown.prevent="setHeading(2)"
       :class="['p-1.5 rounded text-xs', editorState?.isH2 ? 'bg-accent' : 'hover:bg-accent']"
       :title="$t('editor.toolbar.heading2')"
+      @mousedown.prevent="setHeading(2)"
     >
       H2
     </button>
     <button
       type="button"
-      @mousedown.prevent="setHeading(3)"
       :class="['p-1.5 rounded text-xs', editorState?.isH3 ? 'bg-accent' : 'hover:bg-accent']"
       :title="$t('editor.toolbar.heading3')"
+      @mousedown.prevent="setHeading(3)"
     >
       H3
     </button>
-    <div class="w-px h-4 bg-border mx-1" />
+    <div class="w-px h-4 bg-border mx-1"></div>
 
     <!-- Lists -->
     <button
       type="button"
-      @mousedown.prevent="toggleBulletList"
       :class="[
         'p-1.5 rounded text-xs',
         editorState?.isBulletList ? 'bg-accent' : 'hover:bg-accent',
       ]"
       :title="$t('editor.toolbar.bulletList')"
+      @mousedown.prevent="toggleBulletList"
     >
       • List
     </button>
     <button
       type="button"
-      @mousedown.prevent="toggleOrderedList"
       :class="[
         'p-1.5 rounded text-xs',
         editorState?.isOrderedList ? 'bg-accent' : 'hover:bg-accent',
       ]"
       :title="$t('editor.toolbar.orderedList')"
+      @mousedown.prevent="toggleOrderedList"
     >
       1. List
     </button>
     <button
       type="button"
-      @mousedown.prevent="toggleTaskList"
       :class="['p-1.5 rounded text-xs', editorState?.isTaskList ? 'bg-accent' : 'hover:bg-accent']"
       :title="$t('editor.toolbar.taskList')"
+      @mousedown.prevent="toggleTaskList"
     >
       ☑ Tasks
     </button>
-    <div class="w-px h-4 bg-border mx-1" />
+    <div class="w-px h-4 bg-border mx-1"></div>
 
     <!-- Blocks -->
     <button
       type="button"
-      @mousedown.prevent="toggleBlockquote"
       :class="[
         'p-1.5 rounded text-xs',
         editorState?.isBlockquote ? 'bg-accent' : 'hover:bg-accent',
       ]"
       :title="$t('editor.toolbar.blockquote')"
+      @mousedown.prevent="toggleBlockquote"
     >
       ❝ Quote
     </button>
     <button
       type="button"
-      @mousedown.prevent="toggleCodeBlock"
       :class="[
         'p-1.5 rounded text-xs font-mono',
         editorState?.isCodeBlock ? 'bg-accent' : 'hover:bg-accent',
       ]"
       :title="$t('editor.toolbar.codeBlock')"
+      @mousedown.prevent="toggleCodeBlock"
     >
       {} Block
     </button>
     <button
       type="button"
-      @mousedown.prevent="insertHorizontalRule"
       class="p-1.5 rounded text-xs hover:bg-accent"
       :title="$t('editor.toolbar.horizontalRule')"
+      @mousedown.prevent="insertHorizontalRule"
     >
       — HR
     </button>
-    <div class="w-px h-4 bg-border mx-1" />
+    <div class="w-px h-4 bg-border mx-1"></div>
 
     <!-- Link -->
     <button
       type="button"
-      @mousedown.prevent="insertLink"
       :class="['p-1.5 rounded text-xs', editorState?.isLink ? 'bg-accent' : 'hover:bg-accent']"
       :title="$t('editor.toolbar.insertLink')"
+      @mousedown.prevent="insertLink"
     >
       🔗 Link
     </button>
@@ -172,21 +172,21 @@
     <!-- Table -->
     <button
       type="button"
-      @mousedown.prevent="insertTable"
       class="p-1.5 rounded text-xs hover:bg-accent"
       :title="$t('editor.toolbar.insertTable')"
+      @mousedown.prevent="insertTable"
     >
       ⊞ Table
     </button>
 
     <!-- Image (only shown when campaignId provided) -->
     <template v-if="campaignId">
-      <div class="w-px h-4 bg-border mx-1" />
+      <div class="w-px h-4 bg-border mx-1"></div>
       <button
         type="button"
-        @mousedown.prevent="triggerImagePicker"
         class="p-1.5 rounded text-xs hover:bg-accent"
         :title="$t('editor.toolbar.insertImage')"
+        @mousedown.prevent="triggerImagePicker"
       >
         🖼 Image
       </button>

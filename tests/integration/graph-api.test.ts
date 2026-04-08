@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 
-async function api(path: string, opts?: any) {
+async function api(path: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
     headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...opts?.headers },
@@ -70,7 +70,7 @@ describe('Graph API — relationTypeSlug and organizations (12.8-12.10)', () => 
       headers: { Cookie: cookie },
     })
     const typeList = await types.json()
-    relationTypeId = typeList.find((t: any) => t.slug === 'ally')?.id
+    relationTypeId = typeList.find((t: Record<string, unknown>) => t.slug === 'ally')?.id
 
     // Create a relation
     await api(`/api/campaigns/${campaignId}/relations`, {
@@ -95,14 +95,14 @@ describe('Graph API — relationTypeSlug and organizations (12.8-12.10)', () => 
     })
     expect(res.status).toBe(200)
     const data = await res.json()
-    const edges = Object.values(data.edges) as any[]
+    const edges = Object.values(data.edges) as Record<string, unknown>[]
     expect(edges.length).toBeGreaterThanOrEqual(1)
     for (const edge of edges) {
       expect(typeof edge.relationTypeSlug).toBe('string')
       expect(edge.relationTypeSlug.length).toBeGreaterThan(0)
     }
     // The ally relation type slug should be returned
-    const allyEdge = edges.find((e: any) => e.relationTypeSlug === 'ally')
+    const allyEdge = edges.find((e: Record<string, unknown>) => e.relationTypeSlug === 'ally')
     expect(allyEdge).toBeDefined()
   })
 
@@ -114,7 +114,7 @@ describe('Graph API — relationTypeSlug and organizations (12.8-12.10)', () => 
     })
     expect(res.status).toBe(200)
     const data = await res.json()
-    const nodes = Object.values(data.nodes) as any[]
+    const nodes = Object.values(data.nodes) as Record<string, unknown>[]
     expect(nodes.length).toBeGreaterThanOrEqual(2)
     for (const node of nodes) {
       expect(Array.isArray(node.organizations)).toBe(true)

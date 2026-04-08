@@ -7,9 +7,7 @@ import {
   setCachedPermission,
   invalidatePermissionCache,
   hasNamedPermission,
-  ROLE_HIERARCHY,
 } from '../../../server/utils/permissions'
-import { randomUUID } from 'crypto'
 
 describe('Role Hierarchy', () => {
   it('DM outranks all other roles', () => {
@@ -355,7 +353,7 @@ describe('Invitation Token', () => {
       .prepare(
         "SELECT * FROM campaign_invitations WHERE token = 'valid-token-abc' AND used_at IS NULL",
       )
-      .get() as any
+      .get() as Record<string, unknown>
 
     expect(result).toBeDefined()
     expect(result.role).toBe('player')
@@ -373,7 +371,7 @@ describe('Invitation Token', () => {
       .prepare(
         "SELECT * FROM campaign_invitations WHERE token = 'expired-token' AND used_at IS NULL",
       )
-      .get() as any
+      .get() as Record<string, unknown>
 
     expect(result).toBeDefined()
     expect(result.expires_at).toBeLessThan(Date.now()) // expired

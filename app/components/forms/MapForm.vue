@@ -1,5 +1,5 @@
 <template>
-  <form @submit.prevent="$emit('submit')" class="space-y-6">
+  <form class="space-y-6" @submit.prevent="$emit('submit')">
     <div>
       <label class="text-sm font-medium">{{ $t('maps.name') }}</label>
       <input
@@ -31,7 +31,7 @@
       <p class="text-xs text-muted-foreground mt-1">{{ $t('maps.imageHint') }}</p>
     </div>
     <div class="flex justify-end gap-2">
-      <slot name="cancel" />
+      <slot name="cancel"></slot>
       <Button type="submit" :disabled="submitting">{{
         submitting ? $t('common.saving') : submitLabel
       }}</Button>
@@ -52,7 +52,7 @@ const fileInput = ref<HTMLInputElement>()
 
 const form = computed({
   get: () => props.modelValue,
-  set: (val) => {},
+  set: (_val) => {},
 })
 
 defineExpose({ fileInput })

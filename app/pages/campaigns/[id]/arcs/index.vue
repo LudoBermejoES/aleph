@@ -72,7 +72,14 @@ const campaignId = route.params.id as string
 const api = useCampaignApi(campaignId)
 const { loading, error, withLoading, dismissError } = useLoadingState()
 
-const arcList = ref<any[]>([])
+interface Arc {
+  id: string
+  slug: string
+  name: string
+  status: string
+}
+
+const arcList = ref<Arc[]>([])
 const newName = ref('')
 const creating = ref(false)
 const canCreate = ref(false)
@@ -94,7 +101,7 @@ async function load() {
   await withLoading(async () => {
     const [arcs, campaign] = await Promise.all([api.getArcs(), api.getCampaign()])
     arcList.value = arcs
-    canCreate.value = ['dm', 'co_dm'].includes((campaign as any).role ?? '')
+    canCreate.value = ['dm', 'co_dm'].includes((campaign as { role?: string }).role ?? '')
   })
 }
 

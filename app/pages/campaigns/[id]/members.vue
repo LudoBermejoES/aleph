@@ -31,7 +31,7 @@
                 <option value="co_dm">{{ $t('members.coDm') }}</option>
               </select>
             </div>
-            <Button @click="generateInvite" :disabled="inviting">
+            <Button :disabled="inviting" @click="generateInvite">
               {{ inviting ? $t('members.generating') : $t('members.generateLink') }}
             </Button>
             <div v-if="inviteUrl" class="p-3 bg-muted rounded text-sm">
@@ -39,8 +39,8 @@
               <div class="flex items-center gap-2">
                 <code class="flex-1 break-all text-xs">{{ inviteUrl }}</code>
                 <button
-                  @click="copyInviteUrl"
                   class="flex-shrink-0 text-xs px-2 py-1 rounded border border-border hover:border-primary/50 transition-colors"
+                  @click="copyInviteUrl"
                 >
                   {{ copyFeedback ? $t('members.copied') : $t('members.copy') }}
                 </button>
@@ -64,10 +64,10 @@
         <div class="flex items-center gap-3">
           <select
             :value="member.role"
-            @change="changeRole(member.userId, ($event.target as HTMLSelectElement).value)"
             class="rounded-md border border-input bg-background px-2 py-1 text-sm"
             :disabled="member.role === 'dm'"
             :aria-label="$t('aria.filters.memberRole')"
+            @change="changeRole(member.userId, ($event.target as HTMLSelectElement).value)"
           >
             <option value="dm" disabled>{{ $t('members.dm') }}</option>
             <option value="co_dm">{{ $t('members.coDm') }}</option>
@@ -77,8 +77,8 @@
           </select>
           <button
             v-if="member.role !== 'dm'"
-            @click="removeMember(member.userId)"
             class="text-xs text-destructive hover:underline"
+            @click="removeMember(member.userId)"
           >
             {{ $t('members.remove') }}
           </button>
@@ -94,7 +94,7 @@ const campaignId = route.params.id as string
 const api = useCampaignApi(campaignId)
 const { t } = useI18n()
 
-const members = ref<any[]>([])
+const members = ref<{ userId: string; name: string; email: string; role: string }[]>([])
 const showInviteDialog = ref(false)
 const inviteRole = ref('player')
 const inviting = ref(false)
@@ -117,8 +117,8 @@ async function generateInvite() {
     const result = await api.createInvite({ role: inviteRole.value })
     inviteToken.value = result.token
     inviteUrl.value = `${window.location.origin}/join?token=${result.token}&campaign=${campaignId}`
-  } catch (e: any) {
-    alert(e.data?.message || t('members.failedInvite'))
+  } catch (e: unknown) {
+    alert((e as { data?: { message?: string } })?.data?.message || t('members.failedInvite'))
   } finally {
     inviting.value = false
   }
@@ -140,8 +140,8 @@ async function changeRole(userId: string, newRole: string) {
   try {
     await api.updateMember(userId, { role: newRole })
     await loadMembers()
-  } catch (e: any) {
-    alert(e.data?.message || t('errors.failedSave'))
+  } catch (e: unknown) {
+    alert((e as { data?: { message?: string } })?.data?.message || t('errors.failedSave'))
   }
 }
 
@@ -150,8 +150,8 @@ async function removeMember(userId: string) {
   try {
     await api.removeMember(userId)
     await loadMembers()
-  } catch (e: any) {
-    alert(e.data?.message || t('common.remove'))
+  } catch (e: unknown) {
+    alert((e as { data?: { message?: string } })?.data?.message || t('common.remove'))
   }
 }
 

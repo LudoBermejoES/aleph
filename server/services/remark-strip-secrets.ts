@@ -1,6 +1,7 @@
 import { visit, SKIP } from 'unist-util-visit'
 import type { Plugin } from 'unified'
 import type { Root } from 'mdast'
+import type { Node } from 'unist'
 
 interface StripSecretsOptions {
   userRole: string // 'dm', 'co_dm', 'editor', 'player', 'visitor'
@@ -27,7 +28,7 @@ export const remarkStripSecrets: Plugin<[StripSecretsOptions], Root> = (options)
   const { userRole, userId } = options
 
   return (tree) => {
-    visit(tree, (node: any, index, parent) => {
+    visit(tree, (node: Node & Record<string, unknown>, index, parent) => {
       if (node.type !== 'containerDirective' || node.name !== 'secret') return
 
       const attrs = node.attributes || {}

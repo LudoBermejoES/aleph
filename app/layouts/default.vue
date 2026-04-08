@@ -59,7 +59,7 @@
 
     <!-- Main content -->
     <main class="flex-1 overflow-auto pt-14 md:pt-0">
-      <slot />
+      <slot></slot>
     </main>
 
     <!-- Global search — available on all campaign pages via Ctrl+K -->

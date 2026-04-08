@@ -1,5 +1,5 @@
 import matter from 'gray-matter'
-import { readFile, writeFile, unlink, readdir, stat, mkdir } from 'fs/promises'
+import { readFile, writeFile, unlink, readdir, mkdir } from 'fs/promises'
 import { existsSync } from 'fs'
 import { join, extname, dirname } from 'path'
 import { createHash } from 'crypto'
@@ -158,7 +158,10 @@ export async function writeEntityFile(
 
   // Strip undefined values (gray-matter/js-yaml cannot serialize them)
   for (const key of Object.keys(fm)) {
-    if (fm[key] === undefined) delete fm[key]
+    if (fm[key] === undefined) {
+      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+      delete fm[key]
+    }
   }
 
   const markdown = matter.stringify(content, fm)

@@ -61,7 +61,7 @@
           rows="4"
           class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
           :placeholder="$t('organizations.descriptionPlaceholder')"
-        />
+        ></textarea>
       </div>
 
       <div class="flex gap-2">
@@ -79,7 +79,7 @@ const route = useRoute()
 const router = useRouter()
 const campaignId = route.params.id as string
 const slug = route.params.slug as string
-const { t } = useI18n()
+useI18n()
 const api = useCampaignApi(campaignId)
 
 const types = ['faction', 'guild', 'army', 'cult', 'government', 'other']
@@ -96,10 +96,10 @@ async function load() {
     return
   }
   form.value = {
-    name: org.name,
-    type: org.type,
-    status: org.status,
-    description: org.description || '',
+    name: org.name as string,
+    type: org.type as string,
+    status: org.status as string,
+    description: (org.description as string) || '',
   }
   loading.value = false
 }
@@ -109,8 +109,8 @@ async function save() {
   try {
     const res = await api.updateOrganization(slug, form.value)
     await router.push(`/campaigns/${campaignId}/organizations/${res.slug}`)
-  } catch (e: any) {
-    alert(e.data?.message || 'Failed to save organization')
+  } catch (e: unknown) {
+    alert((e as { data?: { message?: string } })?.data?.message || 'Failed to save organization')
   } finally {
     submitting.value = false
   }

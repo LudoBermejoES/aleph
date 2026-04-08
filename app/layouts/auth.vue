@@ -5,7 +5,7 @@
         <img src="~/assets/logo/aleph.png" alt="Aleph" class="w-20 h-20 mx-auto mb-3" />
         <p class="text-muted-foreground">{{ $t('auth.tagline') }}</p>
       </div>
-      <slot />
+      <slot></slot>
     </div>
   </div>
 </template>

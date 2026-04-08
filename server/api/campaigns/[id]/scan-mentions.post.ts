@@ -29,8 +29,9 @@ export default defineEventHandler(async (event) => {
 
   // Don't await — return immediately
   // Store the promise to prevent garbage collection
-  ;(globalThis as any).__pendingScans ??= []
-  ;(globalThis as any).__pendingScans.push(scanPromise)
+  const g = globalThis as unknown as Record<string, unknown[]>
+  if (!g.__pendingScans) g.__pendingScans = []
+  g.__pendingScans.push(scanPromise)
 
   return { status: 'scanning', message: 'Mention scan started in background' }
 })

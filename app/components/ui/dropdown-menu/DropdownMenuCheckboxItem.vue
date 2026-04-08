@@ -29,6 +29,6 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
         <Check class="w-4 h-4" />
       </DropdownMenuItemIndicator>
     </span>
-    <slot />
+    <slot></slot>
   </DropdownMenuCheckboxItem>
 </template>

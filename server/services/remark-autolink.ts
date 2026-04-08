@@ -1,14 +1,7 @@
 import { visit } from 'unist-util-visit'
 import type { Plugin } from 'unified'
 import type { Root, Text, PhrasingContent } from 'mdast'
-import {
-  buildAutomaton,
-  findMatches,
-  computeExclusionZones,
-  filterMatchesByExclusions,
-  resolveOverlaps,
-  getCachedAutomaton,
-} from './autolink'
+import { buildAutomaton, findMatches, resolveOverlaps, getCachedAutomaton } from './autolink'
 
 interface AutoLinkOptions {
   campaignId: string
@@ -58,10 +51,12 @@ export const remarkAutoLink: Plugin<[AutoLinkOptions], Root> = (options) => {
 
         // Entity link (MDC inline component syntax)
         children.push({
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           type: 'textDirective' as any,
           name: 'entity-link',
           attributes: { slug: match.entityId },
           children: [{ type: 'text', value: match.matchedText }],
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any)
 
         lastEnd = match.end

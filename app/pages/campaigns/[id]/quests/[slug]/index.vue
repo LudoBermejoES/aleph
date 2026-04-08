@@ -135,8 +135,8 @@ const api = useCampaignApi(campaignId)
 const loading = ref(true)
 const quest = ref<Quest | null>(null)
 const allQuests = ref<Quest[]>([])
-const allCharacters = ref<any[]>([])
-const linkedEntity = ref<any>(null)
+const allCharacters = ref<{ id: string; name: string; slug: string }[]>([])
+const linkedEntity = ref<{ id: string; name: string; slug: string } | null>(null)
 
 const parentQuest = computed(() =>
   quest.value?.parentQuestId
@@ -182,7 +182,9 @@ onMounted(async () => {
     if (q.entityId) {
       try {
         linkedEntity.value = await api.getEntity(q.entityId)
-      } catch {}
+      } catch {
+        // entity not found, skip
+      }
     }
   } catch {
     await router.push(`/campaigns/${campaignId}/quests`)

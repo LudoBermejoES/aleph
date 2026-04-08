@@ -1,7 +1,6 @@
 import { eq, and, sql, desc } from 'drizzle-orm'
 import { useDb } from '../../../../utils/db'
 import { entities } from '../../../../db/schema/entities'
-import { entityTags } from '../../../../db/schema/entities'
 import { buildVisibilityFilter } from '../../../../utils/permissions'
 import { escapeLike } from '../../../../utils/sanitize'
 import type { CampaignRole } from '../../../../utils/permissions'
@@ -14,7 +13,6 @@ export default defineEventHandler(async (event) => {
   const userId = event.context.user?.id || ''
 
   const type = query.type as string | undefined
-  const tag = query.tag as string | undefined
   const visibility = query.visibility as string | undefined
   const parentId = query.parent_id as string | undefined
   const search = query.search as string | undefined

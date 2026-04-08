@@ -60,16 +60,16 @@
 
       <div class="flex justify-end gap-2 mt-6">
         <button
-          @click="$emit('close')"
           class="px-4 py-2 rounded-md border border-border text-sm hover:bg-accent"
+          @click="$emit('close')"
         >
           {{ $t('common.cancel') }}
         </button>
         <button
-          @click="submit"
           :disabled="!canSubmit || loading"
           class="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm disabled:opacity-50"
           data-testid="transfer-submit"
+          @click="submit"
         >
           {{ loading ? $t('itemTransfer.transferring') : $t('common.transfer') }}
         </button>
@@ -96,7 +96,7 @@ const emit = defineEmits<{ close: []; transferred: [] }>()
 const selectedItemId = ref('')
 const quantity = ref(1)
 const targetInventoryId = ref('')
-const targetInventories = ref<any[]>([])
+const targetInventories = ref<{ id: string; name: string }[]>([])
 const loading = ref(false)
 const error = ref('')
 
@@ -130,8 +130,9 @@ async function submit() {
       quantity: quantity.value,
     })
     emit('transferred')
-  } catch (e: any) {
-    error.value = e.data?.message || 'Transfer failed'
+  } catch (e: unknown) {
+    const err = e as { data?: { message?: string } }
+    error.value = err.data?.message || 'Transfer failed'
   } finally {
     loading.value = false
   }

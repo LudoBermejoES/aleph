@@ -37,7 +37,7 @@ const { t } = useI18n()
 const form = ref({ name: '', type: 'note', visibility: 'members', tagsRaw: '', content: '' })
 
 const api = useCampaignApi(campaignId)
-const entityForm = ref<any>(null)
+const entityForm = ref<{ clearDraft: () => void } | null>(null)
 
 async function create() {
   submitting.value = true
@@ -49,8 +49,8 @@ async function create() {
     const res = await api.createEntity({ ...form.value, tags })
     entityForm.value?.clearDraft()
     await router.push(`/campaigns/${campaignId}/entities/${res.slug}`)
-  } catch (e: any) {
-    alert(e.data?.message || t('entities.failedSave'))
+  } catch (e: unknown) {
+    alert((e as { data?: { message?: string } })?.data?.message || t('entities.failedSave'))
   } finally {
     submitting.value = false
   }

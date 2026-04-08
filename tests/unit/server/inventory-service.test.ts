@@ -22,7 +22,7 @@ describe('validateCurrencyAmount', () => {
   })
 
   it('rejects non-numeric values', () => {
-    const result = validateCurrencyAmount({ gold: 'abc' as any })
+    const result = validateCurrencyAmount({ gold: 'abc' as unknown as number })
     expect(result.valid).toBe(false)
   })
 

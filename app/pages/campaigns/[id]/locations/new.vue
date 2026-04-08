@@ -34,7 +34,7 @@ const router = useRouter()
 const campaignId = route.params.id as string
 const { t } = useI18n()
 const submitting = ref(false)
-const locationForm = ref<any>(null)
+const locationForm = ref<{ clearDraft: () => void } | null>(null)
 const form = ref({
   name: '',
   subtype: 'other',
@@ -53,8 +53,8 @@ async function create() {
     })
     locationForm.value?.clearDraft()
     await router.push(`/campaigns/${campaignId}/locations/${res.slug}`)
-  } catch (e: any) {
-    alert(e.data?.message || t('locations.failedSave'))
+  } catch (e: unknown) {
+    alert((e as { data?: { message?: string } })?.data?.message || t('locations.failedSave'))
   } finally {
     submitting.value = false
   }

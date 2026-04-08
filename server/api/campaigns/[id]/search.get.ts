@@ -1,4 +1,4 @@
-import { eq, and, inArray } from 'drizzle-orm'
+import { eq, and, inArray, type SQL } from 'drizzle-orm'
 import { useDb, useSqlite } from '../../../utils/db'
 import { searchEntities } from '../../../services/search'
 import { entities } from '../../../db/schema/entities'
@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
   const entityIds = rawResults.map((r) => r.entityId)
 
   // Single batch query — replaces per-result DB lookups
-  const conditions: any[] = [eq(entities.campaignId, campaignId), inArray(entities.id, entityIds)]
+  const conditions: SQL[] = [eq(entities.campaignId, campaignId), inArray(entities.id, entityIds)]
   if (typeFilter) conditions.push(eq(entities.type, typeFilter))
 
   const entityRows = db

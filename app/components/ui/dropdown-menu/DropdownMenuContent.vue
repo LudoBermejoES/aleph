@@ -9,6 +9,7 @@ const props = withDefaults(
   defineProps<DropdownMenuContentProps & { class?: HTMLAttributes['class'] }>(),
   {
     sideOffset: 4,
+    class: undefined,
   },
 )
 const emits = defineEmits<DropdownMenuContentEmits>()
@@ -29,7 +30,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
         )
       "
     >
-      <slot />
+      <slot></slot>
     </DropdownMenuContent>
   </DropdownMenuPortal>
 </template>

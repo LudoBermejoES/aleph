@@ -4,7 +4,6 @@ import {
   canTransitionQuestStatus,
   filterSecretQuests,
   filterRevealedConsequences,
-  VALID_QUEST_TRANSITIONS,
 } from '../../../server/services/sessions'
 
 describe('nextSessionNumber', () => {

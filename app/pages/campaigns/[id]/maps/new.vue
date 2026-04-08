@@ -33,7 +33,7 @@ const campaignId = route.params.id as string
 const submitting = ref(false)
 const { t } = useI18n()
 const form = ref({ name: '', visibility: 'members' })
-const mapFormRef = ref<any>()
+const mapFormRef = ref<{ fileInput?: HTMLInputElement | null } | null>(null)
 
 const api = useCampaignApi(campaignId)
 
@@ -48,8 +48,8 @@ async function create() {
       await api.uploadMapImage(res.slug, formData)
     }
     await navigateTo(`/campaigns/${campaignId}/maps/${res.slug}`)
-  } catch (e: any) {
-    alert(e.data?.message || t('maps.failedSave'))
+  } catch (e: unknown) {
+    alert((e as { data?: { message?: string } })?.data?.message || t('maps.failedSave'))
   } finally {
     submitting.value = false
   }

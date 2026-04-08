@@ -3,7 +3,7 @@
     <div class="text-4xl mb-3">{{ icon }}</div>
     <h3 class="text-lg font-medium text-foreground mb-1">{{ title }}</h3>
     <p class="text-sm text-muted-foreground mb-4">{{ description }}</p>
-    <slot />
+    <slot></slot>
   </div>
 </template>
 

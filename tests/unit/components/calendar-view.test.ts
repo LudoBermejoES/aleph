@@ -1,11 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import {
-  calculateAge,
-  getMoonPhase,
-  advanceDate,
-  isDateInSeason,
-  getNextOccurrence,
-} from '../../../server/services/calendar'
+import { calculateAge, getMoonPhase, isDateInSeason } from '../../../server/services/calendar'
 import type { CalendarDate, CalendarConfig } from '../../../server/services/calendar'
 
 /**

@@ -3,7 +3,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const BASE_URL = (globalThis as any).process?.env?.TEST_BASE_URL ?? 'http://localhost:3333'
 
-async function api(path: string, opts?: any) {
+async function api(path: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
     headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...opts?.headers },
@@ -11,7 +11,7 @@ async function api(path: string, opts?: any) {
   })
 }
 
-async function apiRaw(path: string, opts?: any) {
+async function apiRaw(path: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
     headers: { Origin: BASE_URL, ...opts?.headers },

@@ -154,7 +154,7 @@ test.describe('Organization detail page', () => {
       method: 'POST',
       body: { name: orgName, type: 'army', status: 'active', description: 'Standing army.' },
     })
-    const slug = (detailOrg as any).slug
+    const slug = (detailOrg as Record<string, unknown>).slug
 
     await page.goto(
       `${page.url().split('/campaigns/')[0]}/campaigns/${campaignId}/organizations/${slug}`,
@@ -176,7 +176,7 @@ test.describe('Organization detail page', () => {
       method: 'POST',
       body: { name: 'Editable Org' },
     })
-    const slug = (editableOrg as any).slug
+    const slug = (editableOrg as Record<string, unknown>).slug
 
     await page.goto(
       `${page.url().split('/campaigns/')[0]}/campaigns/${campaignId}/organizations/${slug}`,
@@ -201,7 +201,7 @@ test.describe('Organization edit flow', () => {
       method: 'POST',
       body: { name: originalName, type: 'cult', status: 'active' },
     })
-    const slug = (cultOrg as any).slug
+    const slug = (cultOrg as Record<string, unknown>).slug
 
     const base = page.url().split('/campaigns/')[0]
     await page.goto(`${base}/campaigns/${campaignId}/organizations/${slug}`)
@@ -233,7 +233,7 @@ test.describe('Organization edit flow', () => {
       method: 'POST',
       body: { name: 'Cancel Org' },
     })
-    const slug = (cancelOrg as any).slug
+    const slug = (cancelOrg as Record<string, unknown>).slug
 
     const base = page.url().split('/campaigns/')[0]
     await page.goto(`${base}/campaigns/${campaignId}/organizations/${slug}/edit`)
@@ -265,7 +265,7 @@ test.describe('Organization member management', () => {
       method: 'POST',
       body: { name: 'Frodo Baggins', characterType: 'pc' },
     })
-    const { slug } = memberTestOrg as any
+    const { slug } = memberTestOrg as Record<string, unknown>
 
     const base = page.url().split('/campaigns/')[0]
     await page.goto(`${base}/campaigns/${campaignId}/organizations/${slug}`)
@@ -305,13 +305,13 @@ test.describe('Organization member management', () => {
     })
     await apiFetch(
       page,
-      `/api/campaigns/${campaignId}/organizations/${(removeTestOrg as any).slug}/members`,
+      `/api/campaigns/${campaignId}/organizations/${(removeTestOrg as Record<string, unknown>).slug}/members`,
       {
         method: 'POST',
-        body: { characterId: (removableHero as any).id, role: 'Scout' },
+        body: { characterId: (removableHero as Record<string, unknown>).id, role: 'Scout' },
       },
     )
-    const { slug } = removeTestOrg as any
+    const { slug } = removeTestOrg as Record<string, unknown>
 
     const base = page.url().split('/campaigns/')[0]
     await page.goto(`${base}/campaigns/${campaignId}/organizations/${slug}`)
@@ -344,10 +344,10 @@ test.describe('Organization member management', () => {
     })
     await apiFetch(
       page,
-      `/api/campaigns/${campaignId}/organizations/${(countTestOrg as any).slug}/members`,
+      `/api/campaigns/${campaignId}/organizations/${(countTestOrg as Record<string, unknown>).slug}/members`,
       {
         method: 'POST',
-        body: { characterId: (counterNpc as any).id },
+        body: { characterId: (counterNpc as Record<string, unknown>).id },
       },
     )
 
@@ -377,13 +377,13 @@ test.describe('Character detail — Organizations section', () => {
     })
     await apiFetch(
       page,
-      `/api/campaigns/${campaignId}/organizations/${(fellowship as any).slug}/members`,
+      `/api/campaigns/${campaignId}/organizations/${(fellowship as Record<string, unknown>).slug}/members`,
       {
         method: 'POST',
-        body: { characterId: (samwise as any).id, role: 'Gardener' },
+        body: { characterId: (samwise as Record<string, unknown>).id, role: 'Gardener' },
       },
     )
-    const charSlug = (samwise as any).slug
+    const charSlug = (samwise as Record<string, unknown>).slug
 
     const base = page.url().split('/campaigns/')[0]
     await page.goto(`${base}/campaigns/${campaignId}/characters/${charSlug}`)
@@ -418,14 +418,14 @@ test.describe('Character detail — Organizations section', () => {
     })
     await apiFetch(
       page,
-      `/api/campaigns/${campaignId}/organizations/${(citadel as any).slug}/members`,
+      `/api/campaigns/${campaignId}/organizations/${(citadel as Record<string, unknown>).slug}/members`,
       {
         method: 'POST',
-        body: { characterId: (pippin as any).id, role: 'Guard' },
+        body: { characterId: (pippin as Record<string, unknown>).id, role: 'Guard' },
       },
     )
-    const charSlug = (pippin as any).slug
-    const orgSlug = (citadel as any).slug
+    const charSlug = (pippin as Record<string, unknown>).slug
+    const orgSlug = (citadel as Record<string, unknown>).slug
 
     const base = page.url().split('/campaigns/')[0]
     await page.goto(`${base}/campaigns/${campaignId}/characters/${charSlug}`)
@@ -452,7 +452,7 @@ test.describe('Organization delete', () => {
       method: 'POST',
       body: { name: orgName },
     })
-    const slug = (deleteOrg as any).slug
+    const slug = (deleteOrg as Record<string, unknown>).slug
 
     // Delete via API
     await apiFetch(page, `/api/campaigns/${campaignId}/organizations/${slug}`, { method: 'DELETE' })

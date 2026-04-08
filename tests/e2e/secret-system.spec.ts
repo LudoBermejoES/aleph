@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { BASE, registerAndLogin, createCampaign, apiFetch } from './helpers'
+import { registerAndLogin, createCampaign, apiFetch } from './helpers'
 
 const uid = () => Date.now().toString(36).slice(-4)
 
@@ -29,7 +29,7 @@ test.describe('Secrets System - Preview as Player (task 9.11)', () => {
         visibility: 'members',
       },
     })
-    const entitySlug = (entityRes as any).slug
+    const entitySlug = (entityRes as Record<string, unknown>).slug
 
     // DM renders without preview — should see dm secret block
     const dmRender = await dmPage.evaluate(
@@ -41,8 +41,8 @@ test.describe('Secrets System - Preview as Player (task 9.11)', () => {
       },
       [campaignId, entitySlug],
     )
-    expect((dmRender as any).previewMode).toBe(false)
-    expect((dmRender as any).content).toContain('DM only secret')
+    expect((dmRender as Record<string, unknown>).previewMode).toBe(false)
+    expect((dmRender as Record<string, unknown>).content).toContain('DM only secret')
 
     // DM renders with preview_as=player — secret stripped
     const previewRender = await dmPage.evaluate(
@@ -54,10 +54,10 @@ test.describe('Secrets System - Preview as Player (task 9.11)', () => {
       },
       [campaignId, entitySlug],
     )
-    expect((previewRender as any).previewMode).toBe(true)
-    expect((previewRender as any).effectiveRole).toBe('player')
-    expect((previewRender as any).content).not.toContain('DM only secret')
-    expect((previewRender as any).content).toContain('Public content')
+    expect((previewRender as Record<string, unknown>).previewMode).toBe(true)
+    expect((previewRender as Record<string, unknown>).effectiveRole).toBe('player')
+    expect((previewRender as Record<string, unknown>).content).not.toContain('DM only secret')
+    expect((previewRender as Record<string, unknown>).content).toContain('Public content')
 
     await dmContext.close()
   })
@@ -84,7 +84,7 @@ test.describe('Secrets System - Reveal API (task 9.12)', () => {
         visibility: 'members',
       },
     })
-    const entitySlug = (entityRes as any).slug
+    const entitySlug = (entityRes as Record<string, unknown>).slug
 
     // Invite a player
     const inviteRes = await apiFetch(dmPage, `/api/campaigns/${campaignId}/invite`, {
@@ -98,7 +98,7 @@ test.describe('Secrets System - Reveal API (task 9.12)', () => {
     await registerAndLogin(playerPage, 'Reveal Player')
     await apiFetch(playerPage, `/api/campaigns/${campaignId}/join`, {
       method: 'POST',
-      body: { token: (inviteRes as any).token },
+      body: { token: (inviteRes as Record<string, unknown>).token },
     })
 
     // Before reveal: DM previews as player — block hidden
@@ -111,7 +111,7 @@ test.describe('Secrets System - Reveal API (task 9.12)', () => {
       },
       [campaignId, entitySlug],
     )
-    expect((beforeReveal as any).content).not.toContain('butler')
+    expect((beforeReveal as Record<string, unknown>).content).not.toContain('butler')
 
     // DM reveals block clue-1
     const revealRes = await apiFetch(
@@ -122,7 +122,7 @@ test.describe('Secrets System - Reveal API (task 9.12)', () => {
         body: { blockId: 'clue-1' },
       },
     )
-    expect((revealRes as any).revealed).toBe(true)
+    expect((revealRes as Record<string, unknown>).revealed).toBe(true)
 
     // After reveal: DM previews as player — block now shown
     const afterReveal = await dmPage.evaluate(
@@ -134,7 +134,7 @@ test.describe('Secrets System - Reveal API (task 9.12)', () => {
       },
       [campaignId, entitySlug],
     )
-    expect((afterReveal as any).content).toContain('butler')
+    expect((afterReveal as Record<string, unknown>).content).toContain('butler')
 
     // GET /secrets returns the revealed block
     const secretsList = await dmPage.evaluate(
@@ -147,7 +147,7 @@ test.describe('Secrets System - Reveal API (task 9.12)', () => {
       [campaignId, entitySlug],
     )
     expect(Array.isArray(secretsList)).toBe(true)
-    const found = (secretsList as any[]).find((s) => s.blockId === 'clue-1')
+    const found = (secretsList as Record<string, unknown>[]).find((s) => s.blockId === 'clue-1')
     expect(found).toBeDefined()
 
     await dmContext.close()
@@ -169,7 +169,7 @@ test.describe('Secrets System - Secret Notes (task 9.13)', () => {
       method: 'POST',
       body: { name: 'Notes Entity', type: 'note', visibility: 'members' },
     })
-    const entitySlug = (entityRes as any).slug
+    const entitySlug = (entityRes as Record<string, unknown>).slug
 
     // DM writes secret notes
     const putRes = await apiFetch(
@@ -180,7 +180,9 @@ test.describe('Secrets System - Secret Notes (task 9.13)', () => {
         body: { content: 'The villain is hiding at the old mill.' },
       },
     )
-    expect((putRes as any).content).toBe('The villain is hiding at the old mill.')
+    expect((putRes as Record<string, unknown>).content).toBe(
+      'The villain is hiding at the old mill.',
+    )
 
     // DM reads them back
     const getRes = await dmPage.evaluate(
@@ -192,7 +194,9 @@ test.describe('Secrets System - Secret Notes (task 9.13)', () => {
       },
       [campaignId, entitySlug],
     )
-    expect((getRes as any).content).toBe('The villain is hiding at the old mill.')
+    expect((getRes as Record<string, unknown>).content).toBe(
+      'The villain is hiding at the old mill.',
+    )
 
     // Player cannot access them
     const inviteRes = await apiFetch(dmPage, `/api/campaigns/${campaignId}/invite`, {
@@ -205,7 +209,7 @@ test.describe('Secrets System - Secret Notes (task 9.13)', () => {
     await registerAndLogin(playerPage, 'Notes Player')
     await apiFetch(playerPage, `/api/campaigns/${campaignId}/join`, {
       method: 'POST',
-      body: { token: (inviteRes as any).token },
+      body: { token: (inviteRes as Record<string, unknown>).token },
     })
 
     // Player tries to read secret notes — should get 403
@@ -218,7 +222,7 @@ test.describe('Secrets System - Secret Notes (task 9.13)', () => {
       },
       [campaignId, entitySlug],
     )
-    expect((playerRes as any).status).toBe(403)
+    expect((playerRes as Record<string, unknown>).status).toBe(403)
 
     await dmContext.close()
     await playerContext.close()

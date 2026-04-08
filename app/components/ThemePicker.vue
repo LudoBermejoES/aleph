@@ -4,8 +4,8 @@
     <div class="relative">
       <select
         :value="modelValue"
-        @change="$emit('update:modelValue', ($event.target as HTMLSelectElement).value)"
         class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm appearance-none pr-8"
+        @change="$emit('update:modelValue', ($event.target as HTMLSelectElement).value)"
       >
         <option v-for="theme in CAMPAIGN_THEMES" :key="theme.id" :value="theme.id">
           {{ theme.name }}
@@ -29,17 +29,17 @@
           class="inline-block w-4 h-4 rounded-full border border-border"
           :style="{ background: selectedTheme?.colors.background }"
           title="Background"
-        />
+        ></span>
         <span
           class="inline-block w-4 h-4 rounded-full border border-border"
           :style="{ background: selectedTheme?.colors.primary }"
           title="Primary"
-        />
+        ></span>
         <span
           class="inline-block w-4 h-4 rounded-full border border-border"
           :style="{ background: selectedTheme?.colors.accent }"
           title="Accent"
-        />
+        ></span>
       </div>
       <span class="text-xs text-muted-foreground">{{ selectedTheme?.name }}</span>
     </div>

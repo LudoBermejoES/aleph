@@ -12,9 +12,9 @@
       <h1 class="text-2xl font-bold">{{ $t('transactions.title') }}</h1>
       <button
         v-if="canEdit"
-        @click="showForm = !showForm"
         class="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm"
         data-testid="new-transaction-btn"
+        @click="showForm = !showForm"
       >
         {{ showForm ? $t('common.cancel') : $t('transactions.new') }}
       </button>
@@ -55,9 +55,9 @@
         <div>
           <label class="text-sm font-medium block mb-1">{{ $t('transactions.fromEntity') }}</label>
           <OwnerPicker
+            v-model="txForm.fromId"
             :campaign-id="campaignId"
             :owner-type="txForm.fromType"
-            v-model="txForm.fromId"
             data-testid="tx-from"
           />
           <select
@@ -74,9 +74,9 @@
         <div>
           <label class="text-sm font-medium block mb-1">{{ $t('transactions.toEntity') }}</label>
           <OwnerPicker
+            v-model="txForm.toId"
             :campaign-id="campaignId"
             :owner-type="txForm.toType"
-            v-model="txForm.toId"
             data-testid="tx-to"
           />
           <select
@@ -138,10 +138,10 @@
 
       <p v-if="formError" class="text-sm text-destructive">{{ formError }}</p>
       <button
-        @click="createTx"
         :disabled="saving"
         class="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm disabled:opacity-50"
         data-testid="tx-save"
+        @click="createTx"
       >
         {{ saving ? $t('common.saving') : $t('transactions.create') }}
       </button>
@@ -151,9 +151,9 @@
     <div class="flex gap-3 mb-4">
       <select
         v-model="typeFilter"
-        @change="load"
         class="rounded-md border border-input bg-background px-3 py-2 text-sm"
         data-testid="tx-type-filter"
+        @change="load"
       >
         <option value="">{{ $t('transactions.allTypes') }}</option>
         <option value="purchase">{{ $t('transactions.typePurchase') }}</option>
@@ -234,20 +234,22 @@
 </template>
 
 <script setup lang="ts">
+import type { Transaction, Item, Currency, Campaign } from '~/types/api'
+
 const route = useRoute()
 const campaignId = route.params.id as string
 const api = useCampaignApi(campaignId)
 const { t } = useI18n()
-const txList = ref<any[]>([])
+const txList = ref<Transaction[]>([])
 const loading = ref(true)
 const error = ref('')
 const typeFilter = ref('')
 const showForm = ref(false)
 const saving = ref(false)
 const formError = ref('')
-const itemList = ref<any[]>([])
-const currencyList = ref<any[]>([])
-const campaign = ref<any>(null)
+const itemList = ref<Item[]>([])
+const currencyList = ref<Currency[]>([])
+const campaign = ref<(Campaign & { role?: string }) | null>(null)
 
 const canEdit = computed(() => {
   const role = campaign.value?.role
@@ -344,8 +346,9 @@ async function createTx() {
     }
     showForm.value = false
     await load()
-  } catch (e: any) {
-    formError.value = e.data?.message || t('errors.failedLoad')
+  } catch (e: unknown) {
+    formError.value =
+      (e as { data?: { message?: string } })?.data?.message || t('errors.failedLoad')
   } finally {
     saving.value = false
   }

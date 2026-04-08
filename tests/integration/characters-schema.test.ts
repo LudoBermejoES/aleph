@@ -31,7 +31,9 @@ describe('Character Schema', () => {
       INSERT INTO characters (id, entity_id, character_type, race, class, status)
       VALUES ('char-1', 'ent-1', 'npc', 'Vampire', 'Noble', 'alive')
     `)
-    const char = testDb.sqlite.prepare("SELECT * FROM characters WHERE id = 'char-1'").get() as any
+    const char = testDb.sqlite
+      .prepare("SELECT * FROM characters WHERE id = 'char-1'")
+      .get() as Record<string, unknown>
     expect(char.entity_id).toBe('ent-1')
     expect(char.character_type).toBe('npc')
     expect(char.race).toBe('Vampire')
@@ -76,7 +78,7 @@ describe('Character Schema', () => {
       WHERE cs.character_id = 'char-1'
     `,
       )
-      .all() as any[]
+      .all() as Record<string, unknown>[]
 
     expect(allStats).toHaveLength(2)
 
@@ -102,10 +104,10 @@ describe('Character Schema', () => {
 
     const all = testDb.sqlite
       .prepare("SELECT * FROM abilities WHERE character_id = 'char-1'")
-      .all() as any[]
+      .all() as Record<string, unknown>[]
     expect(all).toHaveLength(2)
 
-    const visible = all.filter((a: any) => !a.is_secret)
+    const visible = all.filter((a: Record<string, unknown>) => !a.is_secret)
     expect(visible).toHaveLength(1)
     expect(visible[0].name).toBe('Charm')
   })
@@ -119,10 +121,10 @@ describe('Character Schema', () => {
 
     const editable = testDb.sqlite
       .prepare('SELECT * FROM stat_groups WHERE player_editable = 1')
-      .get() as any
+      .get() as Record<string, unknown>
     const locked = testDb.sqlite
       .prepare("SELECT * FROM stat_groups WHERE player_editable = 0 AND id LIKE 'sg-%'")
-      .get() as any
+      .get() as Record<string, unknown>
 
     expect(editable.name).toBe('Player Stats')
     expect(locked.name).toBe('DM Stats')

@@ -16,12 +16,12 @@ export default defineEventHandler(async (event) => {
   const originalEnd = res.end.bind(res)
 
   // Buffer all response writes
-  res.write = (chunk: any, ...args: any[]) => {
-    if (chunk) chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk))
+  res.write = (chunk: unknown) => {
+    if (chunk) chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk as string))
     return true
   }
 
-  res.end = (chunk?: any, ...args: any[]) => {
+  res.end = (chunk?: unknown) => {
     if (chunk) chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk))
 
     const contentType = (res.getHeader('content-type') as string) ?? ''

@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 
-async function api(path: string, opts?: any) {
+async function api(path: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
     headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...opts?.headers },
@@ -94,7 +94,7 @@ describe('Map CRUD (integration)', () => {
     })
     const data = await res.json()
     expect(data.length).toBeGreaterThanOrEqual(1)
-    expect(data.find((p: any) => p.label === 'Castle Ravenloft')).toBeDefined()
+    expect(data.find((p: Record<string, unknown>) => p.label === 'Castle Ravenloft')).toBeDefined()
   })
 
   it('POST layer with sort order', async () => {

@@ -8,13 +8,13 @@ test.describe('Role-Based Visibility', () => {
     // Setup: DM creates campaign + DM-only entity
     const dmContext = await browser.newContext()
     const dmPage = await dmContext.newPage()
-    const dmEmail = await registerAndLogin(dmPage, 'DM Boss')
+    await registerAndLogin(dmPage, 'DM Boss')
     await createCampaign(dmPage, `RBAC Camp ${uid()}`)
 
     const campaignId = dmPage.url().split('/campaigns/')[1]?.split('/')[0]
 
     // Create DM-only entity
-    const entityRes = await dmPage.evaluate(async (id) => {
+    await dmPage.evaluate(async (id) => {
       const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
       const r = await fetch(`/api/campaigns/${id}/entities`, {
         method: 'POST',
@@ -58,7 +58,7 @@ test.describe('Role-Based Visibility', () => {
     // Setup: Player registers and joins
     const playerContext = await browser.newContext()
     const playerPage = await playerContext.newPage()
-    const playerEmail = await registerAndLogin(playerPage, 'Player One')
+    await registerAndLogin(playerPage, 'Player One')
 
     // Join campaign via API
     await playerPage.evaluate(
@@ -70,7 +70,7 @@ test.describe('Role-Based Visibility', () => {
           body: JSON.stringify({ token }),
         })
       },
-      [campaignId, (inviteRes as any).token],
+      [campaignId, (inviteRes as Record<string, unknown>).token],
     )
 
     // Player navigates to wiki
@@ -132,7 +132,7 @@ test.describe('Role-Based Visibility', () => {
           body: JSON.stringify({ token }),
         })
       },
-      [campaignId, (inviteRes as any).token],
+      [campaignId, (inviteRes as Record<string, unknown>).token],
     )
 
     // Player tries to delete entity via API
@@ -145,7 +145,7 @@ test.describe('Role-Based Visibility', () => {
         })
         return { status: r.status }
       },
-      [campaignId, (entityRes as any).slug],
+      [campaignId, (entityRes as Record<string, unknown>).slug],
     )
 
     expect(deleteResult.status).toBe(403)

@@ -72,8 +72,8 @@
           <Button
             variant="outline"
             size="sm"
-            @click="confirmDelete(group)"
             class="text-destructive hover:text-destructive"
+            @click="confirmDelete(group)"
             >{{ $t('common.delete') }}</Button
           >
         </div>
@@ -112,12 +112,12 @@
               rows="3"
               :placeholder="$t('sessionGroups.descriptionPlaceholder')"
               class="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-            />
+            ></textarea>
           </div>
         </div>
         <DialogFooter>
           <Button variant="outline" @click="showForm = false">{{ $t('common.cancel') }}</Button>
-          <Button @click="saveGroup" :disabled="!formData.name.trim() || saving">
+          <Button :disabled="!formData.name.trim() || saving" @click="saveGroup">
             {{ saving ? $t('common.saving') : $t('common.save') }}
           </Button>
         </DialogFooter>
@@ -144,10 +144,18 @@ const { t } = useI18n()
 const { loading, error, withLoading, dismissError } = useLoadingState()
 const api = useCampaignApi(campaignId)
 
-const groups = ref<any[]>([])
+interface SessionGroup {
+  id: string
+  slug: string
+  name: string
+  description?: string | null
+  imageUrl?: string | null
+}
+
+const groups = ref<SessionGroup[]>([])
 const showForm = ref(false)
 const saving = ref(false)
-const editingGroup = ref<any>(null)
+const editingGroup = ref<SessionGroup | null>(null)
 const formData = ref({ name: '', description: '' })
 const imageInputRefs = ref<HTMLInputElement[]>([])
 
@@ -163,7 +171,7 @@ function openCreate() {
   showForm.value = true
 }
 
-function openEdit(group: any) {
+function openEdit(group: SessionGroup) {
   editingGroup.value = group
   formData.value = { name: group.name, description: group.description || '' }
   showForm.value = true
@@ -180,31 +188,33 @@ async function saveGroup() {
     }
     showForm.value = false
     await load()
-  } catch (e: any) {
-    error.value = e.data?.message || t('sessionGroups.failedSave')
+  } catch (e: unknown) {
+    error.value =
+      (e as { data?: { message?: string } })?.data?.message || t('sessionGroups.failedSave')
   } finally {
     saving.value = false
   }
 }
 
-async function confirmDelete(group: any) {
+async function confirmDelete(group: SessionGroup) {
   if (!confirm(t('sessionGroups.confirmDelete'))) return
   try {
     await api.deleteSessionGroup(group.slug)
     await load()
-  } catch (e: any) {
-    error.value = e.data?.message || t('sessionGroups.failedDelete')
+  } catch (e: unknown) {
+    error.value =
+      (e as { data?: { message?: string } })?.data?.message || t('sessionGroups.failedDelete')
   }
 }
 
-function triggerImageUpload(group: any) {
+function triggerImageUpload(group: SessionGroup) {
   const idx = groups.value.findIndex((g) => g.id === group.id)
   if (idx !== -1 && imageInputRefs.value[idx]) {
     imageInputRefs.value[idx].click()
   }
 }
 
-async function handleImageUpload(event: Event, group: any) {
+async function handleImageUpload(event: Event, group: SessionGroup) {
   const file = (event.target as HTMLInputElement).files?.[0]
   if (!file) return
   const formPayload = new FormData()
@@ -215,8 +225,9 @@ async function handleImageUpload(event: Event, group: any) {
       body: formPayload,
     })
     await load()
-  } catch (e: any) {
-    error.value = e.data?.message || t('sessionGroups.failedSave')
+  } catch (e: unknown) {
+    error.value =
+      (e as { data?: { message?: string } })?.data?.message || t('sessionGroups.failedSave')
   }
   // reset input
   const idx = groups.value.findIndex((g) => g.id === group.id)

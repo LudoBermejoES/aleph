@@ -7,7 +7,7 @@ const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 const WS_BASE = BASE_URL.replace('http', 'ws')
 const WS_URL = process.env.TEST_WS_URL || 'ws://localhost:3334'
 
-async function api(path: string, opts?: any) {
+async function api(path: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
     headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...opts?.headers },
@@ -346,10 +346,10 @@ async function getWsToken(sessionCookie: string): Promise<string> {
 function connectCampaignWs(
   token: string,
   campaignId: string,
-): Promise<{ ws: WebSocket; messages: any[]; connected: boolean }> {
+): Promise<{ ws: WebSocket; messages: Record<string, unknown>[]; connected: boolean }> {
   return new Promise((resolve) => {
     let resolved = false
-    const messages: any[] = []
+    const messages: Record<string, unknown>[] = []
     const ws = new WebSocket(
       `${WS_BASE}/api/ws?token=${encodeURIComponent(token)}&campaignId=${encodeURIComponent(campaignId)}`,
     )
@@ -388,7 +388,7 @@ function connectCampaignWs(
       }
     })
 
-    ws.on('close', (code: number) => {
+    ws.on('close', (_code: number) => {
       if (!resolved) {
         resolved = true
         clearTimeout(timeout)
@@ -431,9 +431,9 @@ describe('CrossWS /api/ws Authentication (integration)', () => {
     const wsToken = await getWsToken(dmToken)
     const { ws, messages, connected } = await connectCampaignWs(wsToken, campaignId)
     expect(connected).toBe(true)
-    const presenceMsg = messages.find((m: any) => m.type === 'presence:list')
+    const presenceMsg = messages.find((m) => m.type === 'presence:list')
     expect(presenceMsg).toBeDefined()
-    expect(presenceMsg.users).toBeInstanceOf(Array)
+    expect((presenceMsg as Record<string, unknown>).users).toBeInstanceOf(Array)
     ws.close()
   })
 
@@ -548,9 +548,10 @@ describe('CrossWS Presence (integration)', () => {
     conn2.ws.send(JSON.stringify({ type: 'presence:list' }))
     await new Promise((resolve) => setTimeout(resolve, 300))
 
-    const presenceMsg = conn2.messages.filter((m: any) => m.type === 'presence:list').pop()
+    const presenceMsg = conn2.messages.filter((m) => m.type === 'presence:list').pop()
     expect(presenceMsg).toBeDefined()
-    expect(presenceMsg.users.length).toBeGreaterThanOrEqual(2)
+    const presenceUsers = (presenceMsg as Record<string, unknown>).users as unknown[]
+    expect(presenceUsers.length).toBeGreaterThanOrEqual(2)
 
     conn1.ws.close()
     conn2.ws.close()

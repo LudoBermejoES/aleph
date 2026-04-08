@@ -51,9 +51,9 @@
 </template>
 
 <script setup lang="ts">
+import type { CampaignMap } from '~/types/api'
 const route = useRoute()
 const campaignId = route.params.id as string
-import type { CampaignMap } from '~/types/api'
 
 const mapList = ref<CampaignMap[]>([])
 const { loading, error, withLoading, dismissError } = useLoadingState()
@@ -66,8 +66,12 @@ async function load() {
     if (Array.isArray(res)) {
       mapList.value = res as CampaignMap[]
     } else {
-      mapList.value = (res as any).data as CampaignMap[]
-      pagination.updateMeta((res as any).meta)
+      const paged = res as {
+        data: CampaignMap[]
+        meta: Parameters<typeof pagination.updateMeta>[0]
+      }
+      mapList.value = paged.data
+      pagination.updateMeta(paged.meta)
     }
   })
 }

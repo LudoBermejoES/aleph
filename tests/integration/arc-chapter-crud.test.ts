@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 
-async function api(path: string, opts?: RequestInit & { body?: unknown }) {
+async function api(path: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
     headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...opts?.headers },
@@ -81,7 +81,7 @@ describe('Arc and Chapter CRUD (integration)', () => {
       headers: { 'X-API-Key': apiKey },
     })
     const arcs = await listRes.json()
-    const arc = arcs.find((a: any) => a.id === arcId)
+    const arc = arcs.find((a: Record<string, unknown>) => a.id === arcId)
     expect(arc).toBeDefined()
     const slug = arc.slug
 
@@ -98,7 +98,7 @@ describe('Arc and Chapter CRUD (integration)', () => {
       headers: { 'X-API-Key': apiKey },
     })
     const arcs2 = await listRes2.json()
-    const updated = arcs2.find((a: any) => a.id === arcId)
+    const updated = arcs2.find((a: Record<string, unknown>) => a.id === arcId)
     expect(updated?.name).toBe('Updated Act One')
   })
 
@@ -133,8 +133,8 @@ describe('Arc and Chapter CRUD (integration)', () => {
       headers: { 'X-API-Key': apiKey },
     })
     const arcList = await arcListRes.json()
-    const arcFull = arcList.find((a: any) => a.id === arc.id)
-    const arcSlug = arcFull.slug
+    const arcFull = arcList.find((a: Record<string, unknown>) => a.id === arc.id)
+    const _arcSlug = arcFull.slug
 
     const chapterRes = await api(`/api/campaigns/${campaignId}/chapters`, {
       method: 'POST',
@@ -149,8 +149,10 @@ describe('Arc and Chapter CRUD (integration)', () => {
       headers: { 'X-API-Key': apiKey },
     })
     const arcList2 = await arcListRes2.json()
-    const arcWithChapters = arcList2.find((a: any) => a.id === arc.id)
-    const chapterFull = arcWithChapters.chapters.find((c: any) => c.id === chapterId)
+    const arcWithChapters = arcList2.find((a: Record<string, unknown>) => a.id === arc.id)
+    const chapterFull = arcWithChapters.chapters.find(
+      (c: Record<string, unknown>) => c.id === chapterId,
+    )
     const chapterSlug = chapterFull.slug
 
     const putRes = await api(`/api/campaigns/${campaignId}/chapters/${chapterSlug}`, {
@@ -166,8 +168,10 @@ describe('Arc and Chapter CRUD (integration)', () => {
       headers: { 'X-API-Key': apiKey },
     })
     const arcList3 = await arcListRes3.json()
-    const arcWithUpdated = arcList3.find((a: any) => a.id === arc.id)
-    const updatedChapter = arcWithUpdated.chapters.find((c: any) => c.id === chapterId)
+    const arcWithUpdated = arcList3.find((a: Record<string, unknown>) => a.id === arc.id)
+    const updatedChapter = arcWithUpdated.chapters.find(
+      (c: Record<string, unknown>) => c.id === chapterId,
+    )
     expect(updatedChapter?.name).toBe('Updated Chapter')
   })
 
@@ -183,7 +187,7 @@ describe('Arc and Chapter CRUD (integration)', () => {
       headers: { 'X-API-Key': apiKey },
     })
     const arcList = await arcListRes.json()
-    const arcFull = arcList.find((a: any) => a.id === arc.id)
+    const arcFull = arcList.find((a: Record<string, unknown>) => a.id === arc.id)
     const arcSlug = arcFull.slug
 
     const sessionRes = await api(`/api/campaigns/${campaignId}/sessions`, {
@@ -209,7 +213,7 @@ describe('Arc and Chapter CRUD (integration)', () => {
     })
     const sessionsBody = await sessionsRes.json()
     const sessionsList = sessionsBody.data ?? sessionsBody
-    const updatedSession = sessionsList.find((s: any) => s.id === session.id)
+    const updatedSession = sessionsList.find((s: Record<string, unknown>) => s.id === session.id)
     expect(updatedSession?.arcId).toBeNull()
   })
 
@@ -232,8 +236,10 @@ describe('Arc and Chapter CRUD (integration)', () => {
       headers: { 'X-API-Key': apiKey },
     })
     const arcList = await arcListRes.json()
-    const arcWithChapters = arcList.find((a: any) => a.id === arc.id)
-    const chapterFull = arcWithChapters.chapters.find((c: any) => c.id === chapter.id)
+    const arcWithChapters = arcList.find((a: Record<string, unknown>) => a.id === arc.id)
+    const chapterFull = arcWithChapters.chapters.find(
+      (c: Record<string, unknown>) => c.id === chapter.id,
+    )
     const chapterSlug = chapterFull.slug
 
     const sessionRes = await api(`/api/campaigns/${campaignId}/sessions`, {
@@ -260,7 +266,7 @@ describe('Arc and Chapter CRUD (integration)', () => {
     })
     const sessionsBody = await sessionsRes.json()
     const sessionsList = sessionsBody.data ?? sessionsBody
-    const updatedSession = sessionsList.find((s: any) => s.id === session.id)
+    const updatedSession = sessionsList.find((s: Record<string, unknown>) => s.id === session.id)
     expect(updatedSession?.chapterId).toBeNull()
   })
 
@@ -276,7 +282,7 @@ describe('Arc and Chapter CRUD (integration)', () => {
       headers: { 'X-API-Key': apiKey },
     })
     const arcList = await arcListRes.json()
-    const arcFull = arcList.find((a: any) => a.id === arc.id)
+    const arcFull = arcList.find((a: Record<string, unknown>) => a.id === arc.id)
     const arcSlug = arcFull.slug
 
     const playerEmail = `arc-player-put-${ts}@example.com`
@@ -316,7 +322,7 @@ describe('Arc and Chapter CRUD (integration)', () => {
       headers: { 'X-API-Key': apiKey },
     })
     const arcList = await arcListRes.json()
-    const arcFull = arcList.find((a: any) => a.id === arc.id)
+    const arcFull = arcList.find((a: Record<string, unknown>) => a.id === arc.id)
     const arcSlug = arcFull.slug
 
     const playerEmail = `arc-player-del-${ts}@example.com`
@@ -362,8 +368,10 @@ describe('Arc and Chapter CRUD (integration)', () => {
       headers: { 'X-API-Key': apiKey },
     })
     const arcList = await arcListRes.json()
-    const arcWithChapters = arcList.find((a: any) => a.id === arc.id)
-    const chapterFull = arcWithChapters.chapters.find((c: any) => c.id === chapter.id)
+    const arcWithChapters = arcList.find((a: Record<string, unknown>) => a.id === arc.id)
+    const chapterFull = arcWithChapters.chapters.find(
+      (c: Record<string, unknown>) => c.id === chapter.id,
+    )
     const chapterSlug = chapterFull.slug
 
     const playerEmail = `chapter-player-put-${ts}@example.com`
@@ -410,8 +418,10 @@ describe('Arc and Chapter CRUD (integration)', () => {
       headers: { 'X-API-Key': apiKey },
     })
     const arcList = await arcListRes.json()
-    const arcWithChapters = arcList.find((a: any) => a.id === arc.id)
-    const chapterFull = arcWithChapters.chapters.find((c: any) => c.id === chapter.id)
+    const arcWithChapters = arcList.find((a: Record<string, unknown>) => a.id === arc.id)
+    const chapterFull = arcWithChapters.chapters.find(
+      (c: Record<string, unknown>) => c.id === chapter.id,
+    )
     const chapterSlug = chapterFull.slug
 
     const playerEmail = `chapter-player-del-${ts}@example.com`

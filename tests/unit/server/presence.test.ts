@@ -6,7 +6,6 @@ import {
   scheduleRemoval,
   cancelRemoval,
   clearAllPresence,
-  getCampaignPresence,
 } from '../../../server/services/presence'
 
 describe('presence service', () => {

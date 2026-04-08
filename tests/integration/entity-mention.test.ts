@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 
-async function api(path: string, opts?: any) {
+async function api(path: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
     headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...opts?.headers },
@@ -69,7 +69,7 @@ describe('Entity search for @mention autocomplete', () => {
       headers: { Cookie: cookie },
     })
     const data = await res.json()
-    const names = (data.entities || []).map((e: any) => e.name)
+    const names = (data.entities || []).map((e: Record<string, unknown>) => e.name)
     expect(names).toContain('Strahd von Zarovich')
     expect(names).not.toContain('Barovia')
   })

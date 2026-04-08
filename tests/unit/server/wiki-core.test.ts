@@ -2,7 +2,6 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { createTestDb, type TestDb } from '../../helpers/db'
 import { slugify } from '../../../server/services/content'
 import { seedEntityTypes } from '../../../server/services/entity-types'
-import { randomUUID } from 'crypto'
 
 describe('Slug Uniqueness', () => {
   it('generates basic slug', () => {
@@ -44,7 +43,7 @@ describe('Entity Type Seeding', () => {
 
     const types = testDb.sqlite
       .prepare("SELECT * FROM entity_types WHERE campaign_id = 'camp-1' ORDER BY sort_order")
-      .all() as any[]
+      .all() as Record<string, unknown>[]
 
     expect(types).toHaveLength(9)
     expect(types[0].slug).toBe('character')

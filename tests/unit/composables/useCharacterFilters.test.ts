@@ -1,13 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 
+import { useCharacterFilters } from '../../../app/composables/useCharacterFilters'
+
 const mockQuery = ref<Record<string, string>>({})
 const mockReplace = vi.fn()
 
 mockNuxtImport('useRoute', () => () => ({ query: mockQuery.value }))
 mockNuxtImport('useRouter', () => () => ({ replace: mockReplace }))
-
-import { useCharacterFilters } from '../../../app/composables/useCharacterFilters'
 
 describe('useCharacterFilters', () => {
   beforeEach(() => {

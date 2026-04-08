@@ -8,8 +8,8 @@
       >
         <span class="text-sm flex-1">{{ message }}</span>
         <button
-          @click="dismiss"
           class="text-destructive-foreground/70 hover:text-destructive-foreground text-lg leading-none"
+          @click="dismiss"
         >
           &times;
         </button>

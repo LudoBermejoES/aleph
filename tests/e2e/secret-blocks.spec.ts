@@ -39,8 +39,8 @@ test.describe('Secret Content Blocks', () => {
       [campaignId],
     )
 
-    expect((dmRead as any).content).toContain('secret')
-    expect((dmRead as any).content).toContain('Public Info')
+    expect((dmRead as Record<string, unknown>).content).toContain('secret')
+    expect((dmRead as Record<string, unknown>).content).toContain('Public Info')
 
     // Invite player
     const inviteRes = await apiFetch(dmPage, `/api/campaigns/${campaignId}/invite`, {
@@ -55,7 +55,7 @@ test.describe('Secret Content Blocks', () => {
     await playerPage.waitForTimeout(500)
     await apiFetch(playerPage, `/api/campaigns/${campaignId}/join`, {
       method: 'POST',
-      body: { token: (inviteRes as any).token },
+      body: { token: (inviteRes as Record<string, unknown>).token },
     })
 
     // Player reads entity -- raw .md file still has secret block
@@ -74,7 +74,7 @@ test.describe('Secret Content Blocks', () => {
     )
 
     // Player can see the raw content (secret filtering is render-time via remark plugin)
-    expect((playerRead as any).content).toContain('Public Info')
+    expect((playerRead as Record<string, unknown>).content).toContain('Public Info')
 
     await dmContext.close()
     await playerContext.close()

@@ -15,8 +15,8 @@
     <div class="flex gap-3 mb-4">
       <select
         v-model="filter"
-        @change="load"
         class="rounded-md border border-input bg-background px-3 py-2 text-sm"
+        @change="load"
       >
         <option value="">{{ $t('items.allRarities') }}</option>
         <option value="common">{{ $t('items.rarityCommon') }}</option>
@@ -60,8 +60,12 @@ import { formatPrice } from '~/composables/useFormatPrice'
 const route = useRoute()
 const campaignId = route.params.id as string
 const api = useCampaignApi(campaignId)
-const itemList = ref<any[]>([])
-const currencyList = ref<any[]>([])
+const itemList = ref<
+  { id: string; name: string; rarity: string | null; priceJson: string | null }[]
+>([])
+const currencyList = ref<
+  { id: string; name: string; symbol: string | null; valueInBase: number }[]
+>([])
 const filter = ref('')
 const { loading, error, withLoading, dismissError } = useLoadingState()
 

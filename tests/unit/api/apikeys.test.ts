@@ -4,9 +4,10 @@ import { createTestDb, type TestDb } from '../../helpers/db'
 import { generateApiKey, hashApiKey } from '../../../server/utils/apiKey'
 import { apiKey as apiKeyTable, user as userTable } from '../../../server/db/schema/auth'
 import { and, eq, isNull } from 'drizzle-orm'
+import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 
 // Helpers to simulate what the endpoint handlers do directly against the DB
-async function createUser(db: any, email: string) {
+async function createUser(db: BetterSQLite3Database, email: string) {
   const id = randomUUID()
   db.insert(userTable)
     .values({
@@ -21,7 +22,7 @@ async function createUser(db: any, email: string) {
   return id
 }
 
-async function createApiKeyForUser(db: any, userId: string, name: string) {
+async function createApiKeyForUser(db: BetterSQLite3Database, userId: string, name: string) {
   const { raw, hash, prefix } = generateApiKey()
   const id = randomUUID()
   db.insert(apiKeyTable)

@@ -12,9 +12,9 @@
       <h1 class="text-2xl font-bold">{{ $t('currencies.title') }}</h1>
       <button
         v-if="canEdit"
-        @click="showForm = !showForm"
         class="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm"
         data-testid="new-currency-btn"
+        @click="showForm = !showForm"
       >
         {{ showForm ? $t('common.cancel') : $t('currencies.new') }}
       </button>
@@ -72,10 +72,10 @@
       </div>
       <p v-if="formError" class="text-sm text-destructive">{{ formError }}</p>
       <button
-        @click="create"
         :disabled="!form.name.trim() || saving"
         class="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm disabled:opacity-50"
         data-testid="currency-save"
+        @click="create"
       >
         {{ saving ? $t('common.saving') : $t('common.save') }}
       </button>
@@ -105,16 +105,16 @@
             }}</span>
             <div v-if="canEdit" class="flex gap-2">
               <button
-                @click="startEdit(c)"
                 class="text-sm text-muted-foreground hover:text-primary"
                 :data-testid="`currency-edit-${c.id}`"
+                @click="startEdit(c)"
               >
                 {{ $t('common.edit') }}
               </button>
               <button
-                @click="confirmDelete(c)"
                 class="text-sm text-muted-foreground hover:text-destructive"
                 :data-testid="`currency-delete-${c.id}`"
+                @click="confirmDelete(c)"
               >
                 {{ $t('common.delete') }}
               </button>
@@ -167,17 +167,17 @@
           <p v-if="editError" class="text-sm text-destructive">{{ editError }}</p>
           <div class="flex gap-2">
             <button
-              @click="saveEdit(c.id)"
               :disabled="!editForm.name.trim() || saving"
               class="px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-sm disabled:opacity-50"
               :data-testid="`currency-edit-save-${c.id}`"
+              @click="saveEdit(c.id)"
             >
               {{ saving ? $t('common.saving') : $t('common.save') }}
             </button>
             <button
-              @click="cancelEdit"
               class="px-3 py-1.5 rounded-md border border-border text-sm"
               :data-testid="`currency-edit-cancel-${c.id}`"
+              @click="cancelEdit"
             >
               {{ $t('common.cancel') }}
             </button>
@@ -205,17 +205,17 @@
         </p>
         <DialogFooter>
           <button
-            @click="showDeleteDialog = false"
             class="px-3 py-1.5 rounded-md border border-border text-sm"
             data-testid="currency-delete-cancel"
+            @click="showDeleteDialog = false"
           >
             {{ $t('common.cancel') }}
           </button>
           <button
-            @click="deleteCurrency"
             :disabled="saving"
             class="px-3 py-1.5 rounded-md bg-destructive text-destructive-foreground text-sm disabled:opacity-50"
             data-testid="currency-delete-confirm"
+            @click="deleteCurrency"
           >
             {{ saving ? $t('common.deleting') : $t('common.delete') }}
           </button>
@@ -238,7 +238,9 @@ const route = useRoute()
 const campaignId = route.params.id as string
 const api = useCampaignApi(campaignId)
 const { t } = useI18n()
-const currencyList = ref<any[]>([])
+const currencyList = ref<
+  { id: string; name: string; symbol: string | null; valueInBase: number; sortOrder: number }[]
+>([])
 const loading = ref(true)
 const error = ref('')
 const showForm = ref(false)
@@ -251,9 +253,9 @@ const editForm = ref({ name: '', symbol: '', valueInBase: 1, sortOrder: 0 })
 const editError = ref('')
 
 const showDeleteDialog = ref(false)
-const deletingCurrency = ref<any>(null)
+const deletingCurrency = ref<{ id: string; name: string } | null>(null)
 
-const campaign = ref<any>(null)
+const campaign = ref<{ role?: string } | null>(null)
 const canEdit = computed(() => {
   const role = campaign.value?.role
   return role === 'dm' || role === 'co_dm' || role === 'editor'
@@ -281,14 +283,21 @@ async function create() {
     form.value = { name: '', symbol: '', valueInBase: 1, sortOrder: 0 }
     showForm.value = false
     await load()
-  } catch (e: any) {
-    formError.value = e.data?.message || t('currencies.failedSave')
+  } catch (e: unknown) {
+    formError.value =
+      (e as { data?: { message?: string } })?.data?.message || t('currencies.failedSave')
   } finally {
     saving.value = false
   }
 }
 
-function startEdit(c: any) {
+function startEdit(c: {
+  id: string
+  name: string
+  symbol: string | null
+  valueInBase: number
+  sortOrder?: number
+}) {
   editingId.value = c.id
   editForm.value = {
     name: c.name,
@@ -312,14 +321,15 @@ async function saveEdit(currencyId: string) {
     await api.updateCurrency(currencyId, editForm.value)
     editingId.value = null
     await load()
-  } catch (e: any) {
-    editError.value = e.data?.message || t('currencies.failedSave')
+  } catch (e: unknown) {
+    editError.value =
+      (e as { data?: { message?: string } })?.data?.message || t('currencies.failedSave')
   } finally {
     saving.value = false
   }
 }
 
-function confirmDelete(c: any) {
+function confirmDelete(c: { id: string; name: string }) {
   deletingCurrency.value = c
   showDeleteDialog.value = true
 }

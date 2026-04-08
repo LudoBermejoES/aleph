@@ -3,13 +3,7 @@ import { randomUUID } from 'crypto'
 import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
 import { validateBody } from '../../../../../utils/validate'
-import {
-  shops,
-  shopStock,
-  inventoryItems,
-  wealth,
-  transactions,
-} from '../../../../../db/schema/inventory'
+import { shops, inventoryItems, wealth, transactions } from '../../../../../db/schema/inventory'
 import { hasMinRole } from '../../../../../utils/permissions'
 import type { CampaignRole } from '../../../../../utils/permissions'
 

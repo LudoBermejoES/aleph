@@ -60,7 +60,7 @@ test.describe('Calendar & Timeline E2E', () => {
         currentMonth: 1,
         currentDay: 15,
       },
-    })) as any
+    })) as Record<string, unknown>
 
     await apiFetch(page, `/api/campaigns/${campaignId}/calendars/${calRes.id}/events`, {
       method: 'POST',
@@ -86,7 +86,7 @@ test.describe('Calendar & Timeline E2E', () => {
     const tlRes = (await apiFetch(page, `/api/campaigns/${campaignId}/timelines`, {
       method: 'POST',
       body: { name: 'Campaign Arc 1' },
-    })) as any
+    })) as Record<string, unknown>
 
     await apiFetch(page, `/api/campaigns/${campaignId}/timelines/${tlRes.slug}/events`, {
       method: 'POST',
@@ -115,7 +115,7 @@ test.describe('Calendar & Timeline E2E', () => {
     const tlRes = (await apiFetch(page, `/api/campaigns/${campaignId}/timelines`, {
       method: 'POST',
       body: { name: 'Test Timeline' },
-    })) as any
+    })) as Record<string, unknown>
 
     // Navigate to timeline detail
     await page.goto(`${BASE}/campaigns/${campaignId}/timelines/${tlRes.slug}`)
@@ -176,7 +176,7 @@ test.describe('Calendar & Timeline E2E', () => {
         currentMonth: 1,
         currentDay: 1,
       },
-    })) as any
+    })) as Record<string, unknown>
 
     // Navigate to calendar detail
     await page.goto(`${BASE}/campaigns/${campaignId}/calendars/${calRes.id}`)

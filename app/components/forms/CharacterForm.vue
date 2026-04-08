@@ -1,5 +1,5 @@
 <template>
-  <form @submit.prevent="$emit('submit')" class="space-y-6">
+  <form class="space-y-6" @submit.prevent="$emit('submit')">
     <div class="grid grid-cols-2 gap-4">
       <div class="col-span-2">
         <label class="text-sm font-medium">{{ $t('characters.name') }}</label>
@@ -142,7 +142,7 @@
     </div>
 
     <div class="flex justify-end gap-2">
-      <slot name="cancel" />
+      <slot name="cancel"></slot>
       <Button type="submit" :disabled="submitting">{{
         submitting ? $t('common.saving') : submitLabel
       }}</Button>
@@ -181,9 +181,9 @@ const emit = defineEmits<{
 }>()
 
 const api = useCampaignApi(props.campaignId)
-const members = ref<any[]>([])
-const organizations = ref<any[]>([])
-const locations = ref<any[]>([])
+const members = ref<{ id: string; name: string; [key: string]: unknown }[]>([])
+const organizations = ref<{ id: string; slug: string; name: string; [key: string]: unknown }[]>([])
+const locations = ref<{ id: string; name: string; [key: string]: unknown }[]>([])
 const pendingMemberships = ref<{ organizationId: string; role: string }[]>([])
 const loadError = ref<string | null>(null)
 
@@ -206,13 +206,15 @@ onMounted(async () => {
     // Load existing memberships when editing
     if (props.characterSlug) {
       const existing = await api.getCharacterOrganizations(props.characterSlug).catch(() => [])
-      pendingMemberships.value = existing.map((m: any) => ({
+      const existing = existing as { organizationId: string; role?: string }[]
+      pendingMemberships.value = existing.map((m) => ({
         organizationId: m.organizationId,
         role: m.role || '',
       }))
     }
-  } catch (e: any) {
-    loadError.value = e.data?.message || e.message || 'Failed to load form data'
+  } catch (e: unknown) {
+    const err = e as { data?: { message?: string }; message?: string }
+    loadError.value = err.data?.message || err.message || 'Failed to load form data'
   }
 })
 
@@ -221,8 +223,11 @@ onMounted(async () => {
  * Diffs against current server state and applies adds/removes.
  */
 async function saveMemberships(characterSlug: string) {
-  const current = await api.getCharacterOrganizations(characterSlug).catch(() => [])
-  const currentIds = new Set(current.map((m: any) => m.organizationId))
+  type Membership = { organizationId: string; characterId: string; role?: string }
+  const current = (await api
+    .getCharacterOrganizations(characterSlug)
+    .catch(() => [])) as Membership[]
+  const currentIds = new Set(current.map((m) => m.organizationId))
 
   const desired = pendingMemberships.value.filter((m) => m.organizationId)
   const desiredMap = new Map(desired.map((m) => [m.organizationId, m.role]))
@@ -240,8 +245,11 @@ async function saveMemberships(characterSlug: string) {
     if (!currentIds.has(orgId)) {
       const org = organizations.value.find((o) => o.id === orgId)
       if (org) {
-        const chars = await api.getCharacters({}).catch(() => [])
-        const char = chars.find((c: any) => c.slug === characterSlug)
+        const chars = (await api.getCharacters({}).catch(() => [])) as {
+          id: string
+          slug: string
+        }[]
+        const char = chars.find((c) => c.slug === characterSlug)
         if (char)
           await api
             .addOrganizationMember(org.slug, { characterId: char.id, role: role || undefined })

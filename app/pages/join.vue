@@ -24,31 +24,31 @@
       <div v-else>
         <div class="flex gap-1 mb-6 border-b border-border">
           <button
-            @click="activeTab = 'login'"
             :class="[
               'px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors',
               activeTab === 'login'
                 ? 'border-primary text-primary'
                 : 'border-transparent text-muted-foreground hover:text-foreground',
             ]"
+            @click="activeTab = 'login'"
           >
             {{ $t('join.loginTab') }}
           </button>
           <button
-            @click="activeTab = 'register'"
             :class="[
               'px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors',
               activeTab === 'register'
                 ? 'border-primary text-primary'
                 : 'border-transparent text-muted-foreground hover:text-foreground',
             ]"
+            @click="activeTab = 'register'"
           >
             {{ $t('join.registerTab') }}
           </button>
         </div>
 
         <!-- Login tab -->
-        <form v-if="activeTab === 'login'" @submit.prevent="handleLogin" class="space-y-4">
+        <form v-if="activeTab === 'login'" class="space-y-4" @submit.prevent="handleLogin">
           <div class="space-y-2">
             <label for="login-email" class="text-sm font-medium">{{ $t('auth.email') }}</label>
             <Input
@@ -78,7 +78,7 @@
         </form>
 
         <!-- Register tab -->
-        <form v-else @submit.prevent="handleRegister" class="space-y-4">
+        <form v-else class="space-y-4" @submit.prevent="handleRegister">
           <div class="space-y-2">
             <label for="reg-name" class="text-sm font-medium">{{ $t('auth.name') }}</label>
             <Input
@@ -151,8 +151,9 @@ async function joinCampaign() {
       credentials: 'include',
     })
     navigateTo(`/campaigns/${campaignId}`)
-  } catch (e: any) {
-    const status = e?.response?.status ?? e?.statusCode
+  } catch (e: unknown) {
+    const err = e as { response?: { status?: number }; statusCode?: number }
+    const status = err?.response?.status ?? err?.statusCode
     if (status === 409) {
       // Already a member — redirect anyway
       navigateTo(`/campaigns/${campaignId}`)
@@ -176,8 +177,9 @@ async function handleLogin() {
     // Trigger an authenticated GET so the server sets the csrf_token cookie before we POST
     await fetch('/api/campaigns', { credentials: 'include' })
     await joinCampaign()
-  } catch (e: any) {
-    authError.value = e?.data?.message || t('auth.invalidCredentials')
+  } catch (e: unknown) {
+    authError.value =
+      (e as { data?: { message?: string } })?.data?.message || t('auth.invalidCredentials')
   } finally {
     loading.value = false
   }
@@ -191,8 +193,9 @@ async function handleRegister() {
     // Trigger an authenticated GET so the server sets the csrf_token cookie before we POST
     await fetch('/api/campaigns', { credentials: 'include' })
     await joinCampaign()
-  } catch (e: any) {
-    authError.value = e?.data?.message || t('auth.registrationFailed')
+  } catch (e: unknown) {
+    authError.value =
+      (e as { data?: { message?: string } })?.data?.message || t('auth.registrationFailed')
   } finally {
     loading.value = false
   }

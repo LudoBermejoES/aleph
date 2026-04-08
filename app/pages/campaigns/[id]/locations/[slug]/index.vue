@@ -46,7 +46,7 @@
         v-if="location.content"
         class="prose dark:prose-invert max-w-none mb-8"
         v-html="renderedContent"
-      />
+      ></div>
 
       <!-- Sub-locations -->
       <section class="mb-6">
@@ -173,12 +173,33 @@ const slug = route.params.slug as string
 const api = useCampaignApi(campaignId)
 
 const { loading, error, withLoading } = useLoadingState()
-const location = ref<any>(null)
-const subLocations = ref<any[]>([])
-const inhabitants = ref<any[]>([])
-const orgs = ref<any[]>([])
-const allCharacters = ref<any[]>([])
-const allOrgs = ref<any[]>([])
+interface LocationData {
+  id: string
+  name: string
+  slug: string
+  subtype?: string
+  content?: string
+  parentId?: string | null
+}
+interface CharacterEntry {
+  id: string
+  name: string
+  slug: string
+  characterType: string
+}
+interface OrgEntry {
+  id: string
+  name: string
+  slug: string
+  memberCount?: number
+}
+
+const location = ref<LocationData | null>(null)
+const subLocations = ref<LocationData[]>([])
+const inhabitants = ref<CharacterEntry[]>([])
+const orgs = ref<OrgEntry[]>([])
+const allCharacters = ref<CharacterEntry[]>([])
+const allOrgs = ref<OrgEntry[]>([])
 const selectedCharacter = ref('')
 const selectedOrg = ref('')
 
@@ -188,11 +209,11 @@ const renderedContent = computed(() => {
 })
 
 const availableCharacters = computed(() =>
-  allCharacters.value.filter((c: any) => !inhabitants.value.some((i: any) => i.id === c.id)),
+  allCharacters.value.filter((c) => !inhabitants.value.some((i) => i.id === c.id)),
 )
 
 const availableOrgs = computed(() =>
-  allOrgs.value.filter((o: any) => !orgs.value.some((linked: any) => linked.id === o.id)),
+  allOrgs.value.filter((o) => !orgs.value.some((linked) => linked.id === o.id)),
 )
 
 async function load() {

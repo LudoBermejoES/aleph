@@ -3,6 +3,10 @@
 /**
  * Merge updated frontmatter into existing, preserving created_at/created.
  */
+// --- Custom Extensions ---
+import { EntityLink } from '../extensions/entity-link'
+import { SecretBlock } from '../extensions/secret-block'
+
 export function mergeFrontmatter(
   existing: Record<string, unknown>,
   updated: Record<string, unknown>,
@@ -19,10 +23,6 @@ export function mergeFrontmatter(
   return result
 }
 
-// --- Custom Extensions ---
-import { EntityLink } from '../extensions/entity-link'
-import { SecretBlock } from '../extensions/secret-block'
-
 // --- Tiptap Markdown Conversion (server-side with jsdom) ---
 
 let _domInitialized = false
@@ -30,13 +30,14 @@ let _domInitialized = false
 function ensureDom() {
   if (_domInitialized) return
   try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { JSDOM } = require('jsdom')
     const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>')
-    ;(global as any).window = dom.window
-    ;(global as any).document = dom.window.document
-    ;(global as any).navigator = dom.window.navigator
-    ;(global as any).Node = dom.window.Node
-    ;(global as any).HTMLElement = dom.window.HTMLElement
+    ;(global as unknown as Record<string, unknown>).window = dom.window
+    ;(global as unknown as Record<string, unknown>).document = dom.window.document
+    ;(global as unknown as Record<string, unknown>).navigator = dom.window.navigator
+    ;(global as unknown as Record<string, unknown>).Node = dom.window.Node
+    ;(global as unknown as Record<string, unknown>).HTMLElement = dom.window.HTMLElement
     _domInitialized = true
   } catch {
     // jsdom not available -- functions will throw
@@ -48,8 +49,11 @@ function ensureDom() {
  */
 export function markdownToTiptap(md: string): Record<string, unknown> {
   ensureDom()
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { Editor } = require('@tiptap/core')
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const StarterKit = require('@tiptap/starter-kit').default
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { Markdown } = require('@tiptap/markdown')
 
   const editor = new Editor({
@@ -68,8 +72,11 @@ export function markdownToTiptap(md: string): Record<string, unknown> {
  */
 export function tiptapToMarkdown(json: Record<string, unknown>): string {
   ensureDom()
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { Editor } = require('@tiptap/core')
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const StarterKit = require('@tiptap/starter-kit').default
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { Markdown } = require('@tiptap/markdown')
 
   const editor = new Editor({

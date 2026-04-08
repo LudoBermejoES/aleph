@@ -3,7 +3,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 
-async function apiRaw(path: string, opts?: any) {
+async function apiRaw(path: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
     headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...opts?.headers },
@@ -11,7 +11,7 @@ async function apiRaw(path: string, opts?: any) {
   })
 }
 
-async function api(path: string, opts?: any) {
+async function api(path: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   const res = await apiRaw(path, opts)
   if (!res.ok) {
     const text = await res.text()
@@ -119,7 +119,7 @@ describe('Calendar Delete (integration)', () => {
     const events = await api(`/api/campaigns/${campaignId}/calendars/${calendarId}/events`, {
       headers: { 'X-API-Key': apiKey },
     })
-    expect(events.find((e: any) => e.id === eventId)).toBeUndefined()
+    expect(events.find((e: Record<string, unknown>) => e.id === eventId)).toBeUndefined()
   })
 
   it('DELETE non-existent calendar event returns 404', async () => {
@@ -156,7 +156,7 @@ describe('Calendar Delete (integration)', () => {
     const calendars = await api(`/api/campaigns/${campaignId}/calendars`, {
       headers: { 'X-API-Key': apiKey },
     })
-    expect(calendars.find((c: any) => c.id === calendarId)).toBeUndefined()
+    expect(calendars.find((c: Record<string, unknown>) => c.id === calendarId)).toBeUndefined()
   })
 
   it('DELETE non-existent calendar returns 404', async () => {

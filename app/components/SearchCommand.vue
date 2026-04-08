@@ -2,8 +2,8 @@
   <div>
     <!-- Trigger -->
     <button
-      @click="open = true"
       class="flex items-center gap-2 px-3 py-1.5 text-sm text-muted-foreground border border-border rounded-md hover:bg-accent transition-colors w-full"
+      @click="open = true"
     >
       <span>{{ $t('search.placeholder') }}</span>
       <kbd class="ml-auto text-xs bg-muted px-1.5 py-0.5 rounded">{{ $t('search.shortcut') }}</kbd>
@@ -12,7 +12,7 @@
     <!-- Overlay -->
     <Teleport to="body">
       <div v-if="open" class="fixed inset-0 z-50" @click.self="open = false">
-        <div class="fixed inset-0 bg-black/50" @click="open = false" />
+        <div class="fixed inset-0 bg-black/50" @click="open = false"></div>
         <div
           class="fixed top-[20vh] left-1/2 -translate-x-1/2 z-[51] bg-background border border-border rounded-lg shadow-xl w-full max-w-lg"
         >
@@ -29,17 +29,17 @@
             <input
               ref="searchInput"
               v-model="query"
-              @input="doSearch"
-              @keydown.esc="open = false"
-              @keydown.arrow-down.prevent="moveSelection(1)"
-              @keydown.arrow-up.prevent="moveSelection(-1)"
-              @keydown.enter.prevent="selectCurrent"
               :placeholder="$t('search.placeholder')"
               :aria-label="$t('search.placeholder')"
               class="flex-1 px-3 py-3 bg-transparent text-sm outline-none"
               role="combobox"
               aria-autocomplete="list"
               :aria-expanded="displayResults.length > 0"
+              @input="doSearch"
+              @keydown.esc="open = false"
+              @keydown.arrow-down.prevent="moveSelection(1)"
+              @keydown.arrow-up.prevent="moveSelection(-1)"
+              @keydown.enter.prevent="selectCurrent"
             />
           </div>
           <div class="max-h-64 overflow-auto p-2">
@@ -49,8 +49,8 @@
               <button
                 v-for="(recent, i) in recentSearches"
                 :key="i"
-                @click="searchRecent(recent)"
                 class="block w-full text-left px-3 py-1.5 rounded text-sm hover:bg-accent transition-colors text-muted-foreground"
+                @click="searchRecent(recent)"
               >
                 {{ recent }}
               </button>
@@ -66,19 +66,22 @@
                   }
                 "
                 :to="`/campaigns/${campaignId}/entities/${result.slug || result.entityId}`"
-                @click="selectResult(result)"
                 :class="[
                   'block px-3 py-2 rounded text-sm transition-colors',
                   i === selectedIndex ? 'bg-accent' : 'hover:bg-accent/50',
                 ]"
                 role="option"
                 :aria-selected="i === selectedIndex"
+                @click="selectResult(result)"
               >
                 <span class="font-medium">{{ result.name }}</span>
                 <span v-if="result.type" class="text-xs text-muted-foreground ml-2">{{
                   result.type
                 }}</span>
-                <span v-html="result.snippet" class="block text-xs text-muted-foreground mt-0.5" />
+                <span
+                  class="block text-xs text-muted-foreground mt-0.5"
+                  v-html="result.snippet"
+                ></span>
               </NuxtLink>
             </div>
             <p
@@ -106,7 +109,16 @@ const router = useRouter()
 
 const open = ref(false)
 const query = ref('')
-const results = ref<any[]>([])
+const results = ref<
+  {
+    id: string
+    name: string
+    slug?: string
+    entityId?: string
+    type?: string
+    [key: string]: unknown
+  }[]
+>([])
 const searching = ref(false)
 const searchInput = ref<HTMLInputElement>()
 const selectedIndex = ref(-1)
@@ -181,7 +193,7 @@ function selectCurrent() {
   }
 }
 
-function selectResult(result: any) {
+function selectResult(_result: (typeof results.value)[number]) {
   saveRecent(query.value)
   open.value = false
 }

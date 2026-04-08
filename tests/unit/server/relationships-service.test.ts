@@ -116,9 +116,9 @@ describe('Relation Type Seeding', () => {
 
     const types = testDb.sqlite
       .prepare("SELECT * FROM relation_types WHERE campaign_id = 'camp-1'")
-      .all() as any[]
+      .all() as Record<string, unknown>[]
     expect(types).toHaveLength(17)
-    expect(types.every((t: any) => t.is_builtin === 1)).toBe(true)
+    expect(types.every((t: Record<string, unknown>) => t.is_builtin === 1)).toBe(true)
   })
 
   it('each type has forward and reverse labels', async () => {
@@ -127,7 +127,9 @@ describe('Relation Type Seeding', () => {
 
     const types = testDb.sqlite
       .prepare("SELECT * FROM relation_types WHERE campaign_id = 'camp-1'")
-      .all() as any[]
-    expect(types.every((t: any) => t.forward_label && t.reverse_label)).toBe(true)
+      .all() as Record<string, unknown>[]
+    expect(types.every((t: Record<string, unknown>) => t.forward_label && t.reverse_label)).toBe(
+      true,
+    )
   })
 })

@@ -3,7 +3,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 
-async function apiRaw(path: string, opts?: any) {
+async function apiRaw(path: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   const res = await fetch(`${BASE_URL}${path}`, {
     ...opts,
     headers: {
@@ -16,7 +16,7 @@ async function apiRaw(path: string, opts?: any) {
   return res
 }
 
-async function api(path: string, opts?: any) {
+async function api(path: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   const res = await apiRaw(path, opts)
   if (!res.ok) {
     const text = await res.text()
@@ -116,7 +116,7 @@ describe('Sub-location creation (integration)', () => {
     )
     const subs = subsBody.data ?? subsBody
     expect(subs.length).toBeGreaterThanOrEqual(2)
-    const names = subs.map((s: any) => s.name)
+    const names = subs.map((s: Record<string, unknown>) => s.name)
     expect(names).toContain('Village of Barovia')
     expect(names).toContain('Castle Ravenloft')
   })
@@ -194,7 +194,7 @@ describe('Sub-location creation (integration)', () => {
 
     const listBody = await api(`/api/campaigns/${campaignId}/locations`, { headers: auth(apiKey) })
     const list = listBody.data ?? listBody
-    const parent = list.find((l: any) => l.id === freshParent.id)
+    const parent = list.find((l: Record<string, unknown>) => l.id === freshParent.id)
     expect(parent?.childCount).toBe(2)
   })
 

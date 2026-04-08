@@ -3,7 +3,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 
-async function apiRaw(path: string, opts?: any) {
+async function apiRaw(path: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
     headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...opts?.headers },
@@ -11,7 +11,7 @@ async function apiRaw(path: string, opts?: any) {
   })
 }
 
-async function api(path: string, opts?: any) {
+async function api(path: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   const res = await apiRaw(path, opts)
   if (!res.ok) {
     const text = await res.text()
@@ -95,7 +95,7 @@ describe('Quest Delete (integration)', () => {
     const quests = await api(`/api/campaigns/${campaignId}/quests`, {
       headers: { 'X-API-Key': apiKey },
     })
-    expect(quests.find((q: any) => q.slug === slug)).toBeUndefined()
+    expect(quests.find((q: Record<string, unknown>) => q.slug === slug)).toBeUndefined()
   })
 
   it('DELETE parent quest unlinks child quest (parentQuestId set to null)', async () => {
@@ -122,7 +122,7 @@ describe('Quest Delete (integration)', () => {
     const quests = await api(`/api/campaigns/${campaignId}/quests`, {
       headers: { 'X-API-Key': apiKey },
     })
-    const childAfter = quests.find((q: any) => q.slug === child.slug)
+    const childAfter = quests.find((q: Record<string, unknown>) => q.slug === child.slug)
     expect(childAfter).toBeDefined()
     expect(childAfter.parentQuestId).toBeNull()
   })

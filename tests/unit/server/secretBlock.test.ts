@@ -8,10 +8,10 @@ describe('SecretBlock extension', () => {
 
   it('markdownTokenizer tokenizes basic secret block', () => {
     const src = ':::secret{.dm}\nSome secret.\n:::\n'
-    const tokenizer = SecretBlock.config?.markdownTokenizer as any
+    const tokenizer = SecretBlock.config?.markdownTokenizer as unknown
     if (!tokenizer) throw new Error('No markdownTokenizer')
 
-    const fakeTokens: any[] = []
+    const fakeTokens: unknown[] = []
     const fakeLexer = {
       blockTokens: (text: string) => [{ type: 'paragraph', text, tokens: [] }],
       inlineTokens: (text: string) => [{ type: 'text', text }],
@@ -26,7 +26,7 @@ describe('SecretBlock extension', () => {
 
   it('markdownTokenizer captures #id attribute', () => {
     const src = ':::secret{.dm #my-secret-id}\nContent.\n:::\n'
-    const tokenizer = SecretBlock.config?.markdownTokenizer as any
+    const tokenizer = SecretBlock.config?.markdownTokenizer as unknown
     const fakeLexer = {
       blockTokens: () => [],
       inlineTokens: () => [],
@@ -37,14 +37,14 @@ describe('SecretBlock extension', () => {
   })
 
   it('markdownTokenizer returns undefined for non-matching input', () => {
-    const tokenizer = SecretBlock.config?.markdownTokenizer as any
+    const tokenizer = SecretBlock.config?.markdownTokenizer as unknown
     const fakeLexer = { blockTokens: () => [], inlineTokens: () => [] }
     const result = tokenizer.tokenize('regular paragraph\n', [], fakeLexer)
     expect(result).toBeUndefined()
   })
 
   it('renderMarkdown round-trips without id', () => {
-    const renderMarkdown = SecretBlock.config?.renderMarkdown as any
+    const renderMarkdown = SecretBlock.config?.renderMarkdown as unknown
     const fakeHelpers = { renderChildren: () => 'Inner content.\n' }
     const node = { attrs: { role: 'dm', id: null }, content: [] }
     const result = renderMarkdown(node, fakeHelpers)
@@ -52,7 +52,7 @@ describe('SecretBlock extension', () => {
   })
 
   it('renderMarkdown round-trips with id', () => {
-    const renderMarkdown = SecretBlock.config?.renderMarkdown as any
+    const renderMarkdown = SecretBlock.config?.renderMarkdown as unknown
     const fakeHelpers = { renderChildren: () => 'Secret.\n' }
     const node = { attrs: { role: 'player', id: 'my-id' }, content: [] }
     const result = renderMarkdown(node, fakeHelpers)
@@ -60,7 +60,7 @@ describe('SecretBlock extension', () => {
   })
 
   it('parseMarkdown maps token fields to node attrs', () => {
-    const parseMarkdown = SecretBlock.config?.parseMarkdown as any
+    const parseMarkdown = SecretBlock.config?.parseMarkdown as unknown
     const fakeHelpers = { parseChildren: () => [] }
     const token = { role: 'co_dm', secretId: 'abc', tokens: [] }
     const node = parseMarkdown(token, fakeHelpers)

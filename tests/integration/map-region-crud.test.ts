@@ -3,7 +3,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 
-async function api(path: string, opts?: RequestInit & { body?: unknown }) {
+async function api(path: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
     headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...opts?.headers },
@@ -36,7 +36,7 @@ async function createApiKey(cookie: string, name = 'test-key') {
   return res.json()
 }
 
-async function apiOk(path: string, opts?: RequestInit & { body?: unknown }) {
+async function apiOk(path: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   const res = await api(path, opts)
   if (!res.ok) {
     const text = await res.text()
@@ -92,7 +92,7 @@ describe('Map Region CRUD (integration)', () => {
       headers: { 'X-API-Key': apiKey },
     })
     expect(Array.isArray(regions)).toBe(true)
-    const found = regions.find((r: any) => r.id === regionId)
+    const found = regions.find((r: Record<string, unknown>) => r.id === regionId)
     expect(found).toBeDefined()
     expect(found.name).toBe('Forest Region')
   })
@@ -111,7 +111,7 @@ describe('Map Region CRUD (integration)', () => {
     const regions = await apiOk(`/api/campaigns/${campaignId}/maps/${mapSlug}/regions`, {
       headers: { 'X-API-Key': apiKey },
     })
-    const found = regions.find((r: any) => r.id === regionId)
+    const found = regions.find((r: Record<string, unknown>) => r.id === regionId)
     expect(found?.name).toBe('Updated Region')
   })
 
@@ -128,7 +128,7 @@ describe('Map Region CRUD (integration)', () => {
     const regions = await apiOk(`/api/campaigns/${campaignId}/maps/${mapSlug}/regions`, {
       headers: { 'X-API-Key': apiKey },
     })
-    const found = regions.find((r: any) => r.id === regionId)
+    const found = regions.find((r: Record<string, unknown>) => r.id === regionId)
     expect(found).toBeUndefined()
   })
 

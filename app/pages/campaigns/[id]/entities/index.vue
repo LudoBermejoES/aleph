@@ -23,9 +23,9 @@
     <div class="flex gap-3 mb-6">
       <select
         v-model="filters.type"
-        @change="loadEntities"
         class="rounded-md border border-input bg-background px-3 py-2 text-sm"
         :aria-label="$t('aria.filters.entityType')"
+        @change="loadEntities"
       >
         <option value="">{{ $t('entities.allTypes') }}</option>
         <option v-for="t in entityTypes" :key="t.slug" :value="t.slug">{{ t.name }}</option>
@@ -94,10 +94,10 @@
 </template>
 
 <script setup lang="ts">
+import type { Entity, EntityType } from '~/types/api'
+
 const route = useRoute()
 const campaignId = route.params.id as string
-
-import type { Entity, EntityType } from '~/types/api'
 
 const entities = ref<Entity[]>([])
 const entityTypes = ref<EntityType[]>([])

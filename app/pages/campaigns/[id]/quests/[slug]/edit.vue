@@ -14,8 +14,8 @@
     </div>
     <h1 class="text-2xl font-bold mb-6">{{ $t('quests.edit') }}</h1>
     <QuestForm
-      ref="questForm"
       v-if="loaded"
+      ref="questForm"
       v-model="form"
       :campaign-id="campaignId"
       :quest-slug="slug"
@@ -55,11 +55,11 @@ const documentName = computed(() =>
 const { userName, userColor } = useCollaborationUser()
 
 const api = useCampaignApi(campaignId)
-const questForm = ref<any>(null)
+const questForm = ref<{ clearDraft: () => void } | null>(null)
 
 onMounted(async () => {
   try {
-    const q = (await api.getQuest(slug)) as any
+    const q = await api.getQuest(slug)
     form.value = {
       name: q.name || '',
       status: q.status || 'active',
@@ -80,8 +80,8 @@ async function save() {
     await api.updateQuest(slug, form.value)
     questForm.value?.clearDraft()
     await router.push(`/campaigns/${campaignId}/quests`)
-  } catch (e: any) {
-    error.value = e.data?.message || t('quests.failedSave')
+  } catch (e: unknown) {
+    error.value = (e as { data?: { message?: string } })?.data?.message || t('quests.failedSave')
   } finally {
     submitting.value = false
   }

@@ -1,6 +1,6 @@
 <template>
   <div class="border border-border rounded-lg overflow-hidden" :style="{ height: height + 'px' }">
-    <div v-if="hasData" ref="containerRef" class="w-full h-full" />
+    <div v-if="hasData" ref="containerRef" class="w-full h-full"></div>
     <div v-else class="flex items-center justify-center h-full text-muted-foreground">
       <p>No relationships to display.</p>
     </div>
@@ -71,7 +71,7 @@ onMounted(async () => {
       nodeRepulsion: 4500,
       gravity: 0.25,
       numIter: 2500,
-    } as any,
+    } as Record<string, unknown>,
     style: [
       {
         selector: 'node',

@@ -3,7 +3,6 @@ import { useDb } from '../../../utils/db'
 import { wealth, currencies } from '../../../db/schema/inventory'
 
 export default defineEventHandler(async (event) => {
-  const campaignId = getRouterParam(event, 'id')!
   const query = getQuery(event)
   const db = useDb()
 

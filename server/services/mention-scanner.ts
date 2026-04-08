@@ -1,7 +1,6 @@
 import { randomUUID } from 'crypto'
 import { eq, and } from 'drizzle-orm'
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
-import type Database from 'better-sqlite3'
 import { entities } from '../db/schema/entities'
 import { entityMentions } from '../db/schema/mentions'
 import {

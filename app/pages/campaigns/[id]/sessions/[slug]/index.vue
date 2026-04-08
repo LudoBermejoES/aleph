@@ -87,7 +87,7 @@
           v-model="logContent"
           rows="15"
           class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono"
-        />
+        ></textarea>
         <div v-else class="prose dark:prose-invert max-w-none text-foreground">
           <MDC v-if="session.logContent" :value="session.logContent" />
           <p v-else class="text-muted-foreground italic">{{ $t('sessions.noLog') }}</p>
@@ -140,7 +140,11 @@ const canGenerate = ref(false)
 const myRsvp = ref('pending')
 const api = useCampaignApi(campaignId)
 const { loading, error, withLoading } = useLoadingState()
-const contentTabsRef = ref<any>(null)
+const contentTabsRef = ref<{
+  setGenerating: (v: boolean) => void
+  setAiUnavailable: (v: boolean) => void
+  updateDraft: (target: string, content: string) => void
+} | null>(null)
 
 const contentTabs = [
   { key: 'manual_notes', label: t('sessions.content.manualNotes') },
@@ -152,7 +156,7 @@ const contentDraft = ref<Record<string, string>>({ manual_notes: '', ai_notes: '
 
 const rollsOpen = ref(false)
 const rollsLoading = ref(false)
-const rolls = ref<any[]>([])
+const rolls = ref<Record<string, unknown>[]>([])
 
 const rsvpStatuses = [
   { value: 'pending', label: t('sessions.rsvpPending') },
@@ -169,7 +173,7 @@ async function load() {
     ])
     session.value = sessionData
     logContent.value = session.value?.logContent || ''
-    const role = (campaignData as any)?.role ?? ''
+    const role = ((campaignData as Record<string, unknown>)?.role as string) ?? ''
     canDelete.value = ['dm', 'co_dm'].includes(role)
     canGenerate.value = ['dm', 'co_dm', 'editor'].includes(role)
     decisions.value = await api.getSessionDecisions(slug).catch(() => [])
@@ -198,8 +202,8 @@ async function deleteSession() {
   try {
     await api.deleteSession(slug)
     navigateTo(`/campaigns/${campaignId}/sessions`)
-  } catch (e: any) {
-    alert(e.data?.message || t('errors.failedSave'))
+  } catch (e: unknown) {
+    alert((e as { data?: { message?: string } })?.data?.message || t('errors.failedSave'))
   }
 }
 
@@ -207,8 +211,8 @@ async function updateStatus(status: string) {
   try {
     await api.updateSession(slug, { status })
     await load()
-  } catch (e: any) {
-    alert(e.data?.message || t('errors.failedSave'))
+  } catch (e: unknown) {
+    alert((e as { data?: { message?: string } })?.data?.message || t('errors.failedSave'))
   }
 }
 
@@ -217,16 +221,16 @@ async function saveLog() {
     await api.updateSession(slug, { content: logContent.value })
     await load()
     editing.value = false
-  } catch (e: any) {
-    alert(e.data?.message || t('errors.failedSave'))
+  } catch (e: unknown) {
+    alert((e as { data?: { message?: string } })?.data?.message || t('errors.failedSave'))
   }
 }
 
 async function saveContent(tabKey: string, content: string) {
   try {
     await api.updateSessionContent(slug, tabKey, content)
-  } catch (e: any) {
-    alert(e.data?.message || t('errors.failedSave'))
+  } catch (e: unknown) {
+    alert((e as { data?: { message?: string } })?.data?.message || t('errors.failedSave'))
   }
 }
 
@@ -240,8 +244,9 @@ async function generateContent(target: string) {
     contentDraft.value[result.target] = result.content
     contentTabsRef.value?.updateDraft(result.target, result.content)
     alert(t('sessions.content.generateSuccess'))
-  } catch (e: any) {
-    const status = e?.statusCode ?? e?.response?.status
+  } catch (e: unknown) {
+    const err = e as { statusCode?: number; response?: { status?: number } }
+    const status = err?.statusCode ?? err?.response?.status
     if (status === 503) {
       contentTabsRef.value?.setAiUnavailable(true)
       alert(t('sessions.content.aiNotConfigured'))
@@ -262,8 +267,8 @@ async function setRsvp(status: string) {
     await api.patchAttendance(slug, { rsvpStatus: status })
     myRsvp.value = status
     await load()
-  } catch (e: any) {
-    alert(e.data?.message || t('errors.failedSave'))
+  } catch (e: unknown) {
+    alert((e as { data?: { message?: string } })?.data?.message || t('errors.failedSave'))
   }
 }
 
@@ -271,8 +276,8 @@ async function setAttended(userId: string, attended: boolean) {
   try {
     await api.patchAttendance(slug, { userId, attended })
     await load()
-  } catch (e: any) {
-    alert(e.data?.message || t('errors.failedSave'))
+  } catch (e: unknown) {
+    alert((e as { data?: { message?: string } })?.data?.message || t('errors.failedSave'))
   }
 }
 
@@ -280,8 +285,8 @@ async function submitDecision(data: { title: string; type: string; description?:
   try {
     await api.createDecision(slug, data)
     decisions.value = await api.getSessionDecisions(slug)
-  } catch (e: any) {
-    alert(e.data?.message || t('errors.failedSave'))
+  } catch (e: unknown) {
+    alert((e as { data?: { message?: string } })?.data?.message || t('errors.failedSave'))
   }
 }
 
@@ -292,8 +297,8 @@ async function submitConsequence(
   try {
     await api.createConsequence(slug, decisionId, data)
     decisions.value = await api.getSessionDecisions(slug)
-  } catch (e: any) {
-    alert(e.data?.message || t('errors.failedSave'))
+  } catch (e: unknown) {
+    alert((e as { data?: { message?: string } })?.data?.message || t('errors.failedSave'))
   }
 }
 
@@ -301,8 +306,8 @@ async function toggleConsequence(decisionId: string, consequenceId: string, reve
   try {
     await api.revealConsequence(slug, decisionId, consequenceId, revealed)
     decisions.value = await api.getSessionDecisions(slug)
-  } catch (e: any) {
-    alert(e.data?.message || t('errors.failedSave'))
+  } catch (e: unknown) {
+    alert((e as { data?: { message?: string } })?.data?.message || t('errors.failedSave'))
   }
 }
 

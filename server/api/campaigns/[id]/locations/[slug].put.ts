@@ -6,7 +6,7 @@ import { entities } from '../../../../db/schema/entities'
 import { hasMinRole } from '../../../../utils/permissions'
 import { writeEntityFile, readEntityFile } from '../../../../services/content'
 import { indexEntity } from '../../../../services/search'
-import type { CampaignRole } from '../../../../utils/permissions'
+import type { CampaignRole, Visibility } from '../../../../utils/permissions'
 
 const VALID_SUBTYPES = [
   'country',
@@ -90,14 +90,17 @@ export default defineEventHandler(async (event) => {
   const resolvedSubtype =
     body.subtype && VALID_SUBTYPES.includes(body.subtype)
       ? body.subtype
-      : ((existing.frontmatter?.fields as any)?.subtype ?? 'other')
+      : ((existing.frontmatter?.fields as Record<string, unknown>)?.subtype ?? 'other')
 
   const updatedFm = {
     ...existing.frontmatter,
     name: body.name ?? existing.frontmatter.name,
-    visibility: body.visibility ?? existing.frontmatter.visibility,
-    parent: body.parentId !== undefined ? body.parentId || null : existing.frontmatter.parent,
-    fields: { ...((existing.frontmatter.fields as any) ?? {}), subtype: resolvedSubtype },
+    visibility: (body.visibility ?? existing.frontmatter.visibility) as Visibility,
+    parent: body.parentId !== undefined ? body.parentId || undefined : existing.frontmatter.parent,
+    fields: {
+      ...((existing.frontmatter.fields as Record<string, unknown>) ?? {}),
+      subtype: resolvedSubtype,
+    },
   }
   const updatedContent = body.content ?? existing.content
   const hash = await writeEntityFile(entity.filePath, updatedFm, updatedContent)

@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
   if (!session) throw createError({ statusCode: 404, message: 'Session not found' })
 
   // Find or create attendance record
-  let record = db
+  const record = db
     .select()
     .from(sessionAttendance)
     .where(and(eq(sessionAttendance.sessionId, session.id), eq(sessionAttendance.userId, userId)))

@@ -29,7 +29,7 @@ test.describe('Character Relationship Graph', () => {
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
 
     // Create two characters and a relation between them
-    const [c1Slug, c2Slug] = await page.evaluate(async (id) => {
+    const [c1Slug] = await page.evaluate(async (id) => {
       const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
       const mutatingHeaders = { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf }
 
@@ -48,12 +48,12 @@ test.describe('Character Relationship Graph', () => {
       // Get entity IDs from entity list
       const entities = await fetch(`/api/campaigns/${id}/entities`).then((r) => r.json())
       const entityList = entities.entities ?? entities
-      const e1 = entityList.find((e: any) => e.slug === c1.slug)
-      const e2 = entityList.find((e: any) => e.slug === c2.slug)
+      const e1 = entityList.find((e: Record<string, unknown>) => e.slug === c1.slug)
+      const e2 = entityList.find((e: Record<string, unknown>) => e.slug === c2.slug)
 
       // Get a relation type (use first available)
       const types = await fetch(`/api/campaigns/${id}/relation-types`).then((r) => r.json())
-      const customType = types.find((t: any) => t.slug === 'ally') ?? types[0]
+      const customType = types.find((t: Record<string, unknown>) => t.slug === 'ally') ?? types[0]
       if (!customType) throw new Error('No relation types found')
 
       const relRes = await fetch(`/api/campaigns/${id}/relations`, {
@@ -107,7 +107,7 @@ test.describe('Character Relationship Graph', () => {
 
       const entities = await fetch(`/api/campaigns/${id}/entities`).then((r) => r.json())
       const entityList = entities.entities ?? entities
-      const e2 = entityList.find((e: any) => e.slug === c2.slug)
+      const e2 = entityList.find((e: Record<string, unknown>) => e.slug === c2.slug)
 
       await fetch(`/api/campaigns/${id}/characters/${c1.slug}/connections`, {
         method: 'POST',

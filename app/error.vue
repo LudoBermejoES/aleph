@@ -6,13 +6,13 @@
         {{ error?.statusMessage || 'Something went wrong' }}
       </p>
       <p v-if="error?.message" class="text-sm text-muted-foreground mb-6">{{ error.message }}</p>
-      <button @click="handleError" class="text-primary underline">Back to home</button>
+      <button class="text-primary underline" @click="handleError">Back to home</button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-const props = defineProps<{
+defineProps<{
   error: { statusCode: number; statusMessage: string; message?: string }
 }>()
 

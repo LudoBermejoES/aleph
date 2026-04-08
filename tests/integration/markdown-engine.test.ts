@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 
-async function api(path: string, opts?: any) {
+async function api(path: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
     headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...opts?.headers },
@@ -104,7 +104,7 @@ describe('Search Permission Filtering (6.11)', () => {
       headers: { Cookie: dmCookie },
     })
     const data = await res.json()
-    const names = data.results?.map((r: any) => r.name) || []
+    const names = data.results?.map((r: Record<string, unknown>) => r.name) || []
     expect(names).toContain('Public Entity')
     expect(names).toContain('DM Only Entity')
   })
@@ -115,7 +115,7 @@ describe('Search Permission Filtering (6.11)', () => {
       headers: { Cookie: playerCookie },
     })
     const data = await res.json()
-    const names = data.results?.map((r: any) => r.name) || []
+    const names = data.results?.map((r: Record<string, unknown>) => r.name) || []
     expect(names).toContain('Public Entity')
     expect(names).not.toContain('DM Only Entity')
   })

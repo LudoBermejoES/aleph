@@ -34,8 +34,8 @@
         <template v-for="group in campaignLinkGroups" :key="group.id">
           <div :data-testid="`nav-group-${group.id}`">
             <button
-              @click="toggleGroup(group.id)"
               class="w-full flex items-center justify-between px-3 py-1 text-xs font-semibold text-sidebar-foreground/60 uppercase tracking-wider hover:text-sidebar-foreground transition-colors"
+              @click="toggleGroup(group.id)"
             >
               <span class="flex items-center gap-1.5">
                 <component :is="group.icon" class="w-3.5 h-3.5 shrink-0" />
@@ -61,7 +61,7 @@
             </template>
           </div>
         </template>
-        <div class="border-t border-sidebar-border my-2" />
+        <div class="border-t border-sidebar-border my-2"></div>
       </template>
 
       <NuxtLink
@@ -79,8 +79,8 @@
       <div class="flex items-center justify-between mt-1">
         <div class="flex items-center gap-3">
           <button
-            @click="$emit('logout')"
             class="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            @click="$emit('logout')"
           >
             <component :is="ICONS.signOut" class="w-3.5 h-3.5" />
             {{ $t('auth.signOut') }}
@@ -106,8 +106,13 @@ const props = defineProps<{
   campaignId?: string
   campaignName?: string
   userName?: string
-  presenceUsers?: any[]
-  campaignLinkGroups: any[]
+  presenceUsers?: { userId: string; name: string; role: string }[]
+  campaignLinkGroups: {
+    id: string
+    label: string
+    icon: unknown
+    links: { to: string; label: string; icon: unknown }[]
+  }[]
   collapsedGroups: Set<string>
 }>()
 
@@ -123,8 +128,8 @@ function toggleGroup(id: string) {
 }
 
 function isGroupOpen(groupId: string): boolean {
-  const group = props.campaignLinkGroups.find((g: any) => g.id === groupId)
-  if (group?.links.some((l: any) => route.path.startsWith(l.to))) return true
+  const group = props.campaignLinkGroups.find((g) => g.id === groupId)
+  if (group?.links.some((l) => route.path.startsWith(l.to))) return true
   return !props.collapsedGroups.has(groupId)
 }
 

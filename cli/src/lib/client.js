@@ -32,7 +32,9 @@ export async function request(method, path, body) {
     try {
       const data = await res.json()
       message = data.message || data.error || message
-    } catch {}
+    } catch {
+      /* ignore parse errors, use default message */
+    }
     process.stderr.write(`Error: ${message}\n`)
     process.exit(2)
   }
@@ -81,7 +83,9 @@ export async function postMultipart(path, filePath, fieldName = 'file') {
     try {
       const data = await res.json()
       message = data.message || data.error || message
-    } catch {}
+    } catch {
+      /* ignore parse errors, use default message */
+    }
     process.stderr.write(`Error: ${message}\n`)
     process.exit(2)
   }
@@ -124,7 +128,9 @@ export async function postUnauthenticated(baseUrl, path, body) {
     try {
       const data = await res.json()
       message = data.message || data.error || message
-    } catch {}
+    } catch {
+      /* ignore parse errors, use default message */
+    }
     process.stderr.write(`Error: ${message}\n`)
     process.exit(2)
   }

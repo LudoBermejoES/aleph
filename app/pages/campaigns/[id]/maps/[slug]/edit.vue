@@ -41,7 +41,7 @@ const submitting = ref(false)
 const loaded = ref(false)
 const { t } = useI18n()
 const form = ref({ name: '', visibility: 'members' })
-const mapFormRef = ref<any>()
+const mapFormRef = ref<{ fileInput?: HTMLInputElement | null } | null>(null)
 
 const api = useCampaignApi(campaignId)
 
@@ -67,8 +67,8 @@ async function save() {
       await api.uploadMapImage(slug, formData)
     }
     await router.push(`/campaigns/${campaignId}/maps/${slug}`)
-  } catch (e: any) {
-    alert(e.data?.message || t('maps.failedSave'))
+  } catch (e: unknown) {
+    alert((e as { data?: { message?: string } })?.data?.message || t('maps.failedSave'))
   } finally {
     submitting.value = false
   }

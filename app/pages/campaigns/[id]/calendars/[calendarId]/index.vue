@@ -84,7 +84,7 @@
             v-for="_ in startOffset"
             :key="'off' + _"
             class="min-h-[80px] border-r border-b border-border bg-muted/30"
-          />
+          ></div>
           <div
             v-for="day in daysInMonth"
             :key="day"
@@ -123,12 +123,18 @@
 </template>
 
 <script setup lang="ts">
+import type { Calendar, CalendarEvent } from '~/types/api'
+
+interface Moon {
+  name: string
+  phaseOffset?: number
+  cycleDays?: number
+}
+
 const route = useRoute()
 const campaignId = route.params.id as string
 const calendarId = route.params.calendarId as string
 const { t } = useI18n()
-
-import type { Calendar, CalendarEvent } from '~/types/api'
 
 const calendar = ref<Calendar | null>(null)
 const events = ref<CalendarEvent[]>([])
@@ -212,7 +218,7 @@ function seasonColor(day: number) {
 }
 
 function moonPhases(day: number) {
-  return moons.value.map((m: any) => {
+  return (moons.value as Moon[]).map((m) => {
     const totalDays =
       viewYear.value * (config.value?.yearLength || 360) + dayOfYear(viewMonth.value, day)
     const phase = ((totalDays + (m.phaseOffset || 0)) % (m.cycleDays || 28)) / (m.cycleDays || 28)
@@ -274,8 +280,8 @@ async function advanceDate() {
     }
     showAdvance.value = false
     await load()
-  } catch (e: any) {
-    alert(e.data?.message || t('calendars.failedSave'))
+  } catch (e: unknown) {
+    alert((e as { data?: { message?: string } })?.data?.message || t('calendars.failedSave'))
   }
 }
 

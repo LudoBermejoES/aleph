@@ -32,7 +32,7 @@ describe('Session Schema', () => {
 
     const max = testDb.sqlite
       .prepare("SELECT MAX(session_number) as max FROM game_sessions WHERE campaign_id = 'camp-1'")
-      .get() as any
+      .get() as Record<string, unknown>
     expect(max.max).toBe(2)
 
     // Next session number should be 3
@@ -52,7 +52,7 @@ describe('Session Schema', () => {
 
     const attendance = testDb.sqlite
       .prepare("SELECT * FROM session_attendance WHERE session_id = 's1'")
-      .all() as any[]
+      .all() as Record<string, unknown>[]
     expect(attendance).toHaveLength(1)
     expect(attendance[0].rsvp_status).toBe('accepted')
     expect(attendance[0].attended).toBe(0)
@@ -69,10 +69,13 @@ describe('Session Schema', () => {
       VALUES ('q2', 'camp-1', 'Visit the Smith', 'visit-smith', 'active', 'q1', 0, ${now}, ${now})
     `)
 
-    const parent = testDb.sqlite.prepare("SELECT * FROM quests WHERE id = 'q1'").get() as any
+    const parent = testDb.sqlite.prepare("SELECT * FROM quests WHERE id = 'q1'").get() as Record<
+      string,
+      unknown
+    >
     const child = testDb.sqlite
       .prepare("SELECT * FROM quests WHERE parent_quest_id = 'q1'")
-      .get() as any
+      .get() as Record<string, unknown>
 
     expect(parent.name).toBe('Find the Sword')
     expect(child.name).toBe('Visit the Smith')
@@ -103,8 +106,8 @@ describe('Session Schema', () => {
 
     const all = testDb.sqlite
       .prepare("SELECT * FROM quests WHERE campaign_id = 'camp-1'")
-      .all() as any[]
-    const visible = all.filter((q: any) => !q.is_secret)
+      .all() as Record<string, unknown>[]
+    const visible = all.filter((q: Record<string, unknown>) => !q.is_secret)
 
     expect(all).toHaveLength(2)
     expect(visible).toHaveLength(1)
@@ -129,11 +132,11 @@ describe('Session Schema', () => {
 
     const cons = testDb.sqlite
       .prepare("SELECT * FROM consequences WHERE decision_id = 'd1'")
-      .all() as any[]
+      .all() as Record<string, unknown>[]
     expect(cons).toHaveLength(2)
 
     // Player sees only revealed
-    const revealed = cons.filter((c: any) => c.revealed)
+    const revealed = cons.filter((c: Record<string, unknown>) => c.revealed)
     expect(revealed).toHaveLength(1)
     expect(revealed[0].description).toContain('village was saved')
   })
@@ -151,7 +154,7 @@ describe('Session Schema', () => {
 
     const chaps = testDb.sqlite
       .prepare("SELECT * FROM chapters WHERE arc_id = 'arc-1' ORDER BY sort_order")
-      .all() as any[]
+      .all() as Record<string, unknown>[]
     expect(chaps).toHaveLength(2)
     expect(chaps[0].name).toBe('Chapter 1')
     expect(chaps[1].name).toBe('Chapter 2')

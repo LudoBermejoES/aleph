@@ -23,7 +23,15 @@ const props = defineProps<{
   ownerType: 'character' | 'party' | 'faction' | 'shop'
 }>()
 
-const balances = ref<any[]>([])
+const balances = ref<
+  {
+    currencyId: string
+    currencyName: string
+    symbol: string
+    amount: number
+    [key: string]: unknown
+  }[]
+>([])
 const loading = ref(true)
 
 async function load() {

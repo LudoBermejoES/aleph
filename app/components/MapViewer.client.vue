@@ -1,6 +1,6 @@
 <template>
   <div class="relative" :style="{ height: height + 'px' }">
-    <div ref="mapContainer" class="w-full h-full rounded-lg border border-border" />
+    <div ref="mapContainer" class="w-full h-full rounded-lg border border-border"></div>
 
     <!-- Layer Toggle Panel -->
     <div
@@ -42,7 +42,7 @@
           v-if="group.color"
           :style="{ backgroundColor: group.color }"
           class="w-2 h-2 rounded-full inline-block"
-        />
+        ></span>
         {{ group.name }}
       </label>
     </div>
@@ -94,10 +94,12 @@ const props = defineProps<{
   campaignId?: string
 }>()
 
+type MapPin = NonNullable<typeof props.pins>[number]
+
 const emit = defineEmits<{
-  pinClick: [pin: any]
-  regionCreated: [geojson: any]
-  pinShiftClick: [pin: any]
+  pinClick: [pin: MapPin]
+  regionCreated: [geojson: Record<string, unknown>]
+  pinShiftClick: [pin: MapPin]
 }>()
 
 const mapContainer = ref<HTMLDivElement>()
@@ -176,7 +178,7 @@ onMounted(async () => {
       removalMode: true,
     })
 
-    map.on('pm:create', (e: any) => {
+    map.on('pm:create', (e: { layer: { toGeoJSON: () => Record<string, unknown> } }) => {
       const geojson = e.layer.toGeoJSON()
       emit('regionCreated', geojson)
     })

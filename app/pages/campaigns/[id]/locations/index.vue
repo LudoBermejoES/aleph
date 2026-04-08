@@ -94,7 +94,7 @@ const subtypes = SUBTYPES
 const search = ref('')
 const subtypeFilter = ref('')
 const loading = ref(true)
-const locations = ref<any[]>([])
+const locations = ref<{ id: string; name: string; slug: string; subtype?: string }[]>([])
 const pagination = usePagination()
 
 async function load() {
@@ -103,12 +103,16 @@ async function load() {
     const params: Record<string, string> = { ...pagination.queryParams() }
     if (search.value) params.search = search.value
     if (subtypeFilter.value) params.subtype = subtypeFilter.value
-    const res = await api.getLocations(params as any)
+    const res = await api.getLocations(params as Record<string, string>)
     if (Array.isArray(res)) {
       locations.value = res
     } else {
-      locations.value = (res as any).data
-      pagination.updateMeta((res as any).meta)
+      const paged = res as {
+        data: typeof locations.value
+        meta: Parameters<typeof pagination.updateMeta>[0]
+      }
+      locations.value = paged.data
+      pagination.updateMeta(paged.meta)
     }
   } catch {
     /* empty */

@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 
-async function api(path: string, opts?: RequestInit & { body?: unknown }) {
+async function api(path: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
     headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...opts?.headers },
@@ -90,7 +90,7 @@ describe('Shop CRUD (integration)', () => {
       headers: { 'X-API-Key': apiKey },
     })
     const shops = await listRes.json()
-    const updated = shops.find((s: any) => s.id === shop.id)
+    const updated = shops.find((s: Record<string, unknown>) => s.id === shop.id)
     expect(updated?.name).toBe('Fancy Blacksmith')
   })
 
@@ -133,7 +133,7 @@ describe('Shop CRUD (integration)', () => {
       headers: { 'X-API-Key': apiKey },
     })
     const shops = await listRes.json()
-    expect(shops.find((s: any) => s.id === shop.id)).toBeUndefined()
+    expect(shops.find((s: Record<string, unknown>) => s.id === shop.id)).toBeUndefined()
   })
 
   it('PUT shop by player returns 403', async () => {

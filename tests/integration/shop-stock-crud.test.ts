@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 
-async function api(path: string, opts?: RequestInit & { body?: unknown }) {
+async function api(path: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   return fetch(`${BASE_URL}${path}`, {
     ...opts,
     headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...opts?.headers },
@@ -133,7 +133,7 @@ describe('Shop Stock CRUD (integration)', () => {
       headers: { 'X-API-Key': apiKey },
     })
     const shopData = await shopRes.json()
-    const found = shopData.stock?.find((s: any) => s.id === stockId)
+    const found = shopData.stock?.find((s: Record<string, unknown>) => s.id === stockId)
     expect(found).toBeUndefined()
   })
 

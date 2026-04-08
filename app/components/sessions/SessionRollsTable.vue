@@ -39,8 +39,16 @@
 <script setup lang="ts">
 import { ICONS } from '~/utils/icons'
 
+interface DiceRoll {
+  id: string
+  userName: string
+  formula: string
+  total: number
+  createdAt: string | Date
+}
+
 defineProps<{
-  rolls: any[]
+  rolls: DiceRoll[]
   loading: boolean
   open: boolean
 }>()

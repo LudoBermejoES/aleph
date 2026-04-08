@@ -112,13 +112,13 @@ test.describe('Character edit — organization picker', () => {
     })
     await apiFetch(
       page,
-      `/api/campaigns/${campaignId}/organizations/${(org as any).slug}/members`,
+      `/api/campaigns/${campaignId}/organizations/${(org as Record<string, unknown>).slug}/members`,
       {
         method: 'POST',
-        body: { characterId: (char as any).id, role: 'Lord' },
+        body: { characterId: (char as Record<string, unknown>).id, role: 'Lord' },
       },
     )
-    const charSlug = (char as any).slug
+    const charSlug = (char as Record<string, unknown>).slug
 
     const base = page.url().split('/campaigns/')[0]
     await page.goto(`${base}/campaigns/${campaignId}/characters/${charSlug}/edit`)
@@ -151,7 +151,7 @@ test.describe('Character edit — organization picker', () => {
       method: 'POST',
       body: { name: 'Cirdan', characterType: 'npc' },
     })
-    const charSlug = (cirdan as any).slug
+    const charSlug = (cirdan as Record<string, unknown>).slug
 
     const base = page.url().split('/campaigns/')[0]
     await page.goto(`${base}/campaigns/${campaignId}/characters/${charSlug}/edit`)
@@ -200,13 +200,13 @@ test.describe('Character edit — organization picker', () => {
     })
     await apiFetch(
       page,
-      `/api/campaigns/${campaignId}/organizations/${(shireWatch as any).slug}/members`,
+      `/api/campaigns/${campaignId}/organizations/${(shireWatch as Record<string, unknown>).slug}/members`,
       {
         method: 'POST',
-        body: { characterId: (bilbo as any).id, role: 'Burglar' },
+        body: { characterId: (bilbo as Record<string, unknown>).id, role: 'Burglar' },
       },
     )
-    const charSlug = (bilbo as any).slug
+    const charSlug = (bilbo as Record<string, unknown>).slug
 
     const base = page.url().split('/campaigns/')[0]
     await page.goto(`${base}/campaigns/${campaignId}/characters/${charSlug}/edit`)

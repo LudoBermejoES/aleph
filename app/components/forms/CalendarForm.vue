@@ -1,5 +1,5 @@
 <template>
-  <form @submit.prevent="$emit('submit')" class="space-y-6">
+  <form class="space-y-6" @submit.prevent="$emit('submit')">
     <div>
       <label class="text-sm font-medium">{{ $t('calendars.name') }}</label>
       <input
@@ -65,8 +65,8 @@
           type="button"
           variant="ghost"
           size="sm"
-          @click="form.months.splice(i, 1)"
           class="text-red-500"
+          @click="form.months.splice(i, 1)"
           >Remove</Button
         >
       </div>
@@ -84,7 +84,7 @@
       <p class="text-xs text-muted-foreground mt-1">{{ $t('calendars.weekdaysHint') }}</p>
     </div>
     <div class="flex justify-end gap-2">
-      <slot name="cancel" />
+      <slot name="cancel"></slot>
       <Button type="submit" :disabled="submitting">{{
         submitting ? $t('common.saving') : submitLabel
       }}</Button>
@@ -110,7 +110,7 @@ defineEmits<{ 'update:modelValue': [value: typeof props.modelValue]; submit: [] 
 
 const form = computed({
   get: () => props.modelValue,
-  set: (val) => {
+  set: (_val) => {
     /* parent handles via v-model */
   },
 })

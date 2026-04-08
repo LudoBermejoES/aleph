@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
   const campaignId = getRouterParam(event, 'id')!
   const now = new Date()
 
-  let slug = slugify(name)
+  const slug = slugify(name)
   const existing = db
     .select({ id: organizations.id })
     .from(organizations)

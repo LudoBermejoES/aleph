@@ -22,9 +22,9 @@
         </div>
         <button
           v-if="inventory.items?.length"
-          @click="showTransfer = true"
           class="px-3 py-1.5 rounded-md border border-border text-sm hover:bg-accent"
           data-testid="transfer-btn"
+          @click="showTransfer = true"
         >
           {{ $t('inventories.transferItem') }}
         </button>
@@ -87,7 +87,13 @@ const campaignId = route.params.id as string
 const invId = route.params.invId as string
 const api = useCampaignApi(campaignId)
 const { t } = useI18n()
-const inventory = ref<any>(null)
+interface InventoryWithItems {
+  id: string
+  name: string
+  ownerType: string
+  items?: { id: string; itemName: string; itemRarity: string; position: string }[]
+}
+const inventory = ref<InventoryWithItems | null>(null)
 const loading = ref(true)
 const error = ref('')
 const showTransfer = ref(false)
@@ -102,8 +108,9 @@ const positions = [
 
 const itemsByPosition = computed(() => {
   const itms = inventory.value?.items || []
-  return positions.reduce((acc: Record<string, any[]>, pos) => {
-    acc[pos.key] = itms.filter((i: any) => i.position === pos.key)
+  type InventoryItemEntry = { id: string; itemName: string; itemRarity: string; position: string }
+  return positions.reduce((acc: Record<string, InventoryItemEntry[]>, pos) => {
+    acc[pos.key] = itms.filter((i: InventoryItemEntry) => i.position === pos.key)
     return acc
   }, {})
 })

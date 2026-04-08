@@ -78,9 +78,9 @@
 </template>
 
 <script setup lang="ts">
+import type { Calendar, Timeline } from '~/types/api'
 const route = useRoute()
 const campaignId = route.params.id as string
-import type { Calendar, Timeline } from '~/types/api'
 
 const calendarList = ref<Calendar[]>([])
 const timelineList = ref<Timeline[]>([])

@@ -3,7 +3,7 @@ import { BASE, registerAndLogin, createCampaign, apiFetch } from './helpers'
 
 const uid = () => Date.now().toString(36).slice(-4)
 
-async function setupChars(page: any, campaignId: string) {
+async function setupChars(page: import('@playwright/test').Page, campaignId: string) {
   await apiFetch(page, `/api/campaigns/${campaignId}/characters`, {
     method: 'POST',
     body: { name: 'Aragorn', characterType: 'pc', race: 'Human', status: 'alive' },
