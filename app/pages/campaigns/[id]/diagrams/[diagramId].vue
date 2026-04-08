@@ -312,8 +312,11 @@ function onEditorReady(editor: unknown) {
     ) => { toId: string; props: { terminal: string } }[]
     updateShapes: (updates: { id: string; type: string; opacity: number }[]) => void
   }
+  // Listen with scope 'all' to catch selection changes (which are session-scoped, not document)
+  let isUpdatingOpacity = false
   ed.store.listen(
     () => {
+      if (isUpdatingOpacity) return
       if (selectionDebounce) clearTimeout(selectionDebounce)
       selectionDebounce = setTimeout(() => {
         const selected = ed.getSelectedShapes()
@@ -339,8 +342,10 @@ function onEditorReady(editor: unknown) {
             (shape.props!.factionName as string) ??
             ''
 
-          // Dim unrelated arrows: find arrows bound to the selected shape, dim the rest
+          // Dim unrelated arrows
+          isUpdatingOpacity = true
           highlightRelatedArrows(ed, shape.id)
+          isUpdatingOpacity = false
         } else {
           selectedEntityId.value = ''
           selectedEntityType.value = ''
@@ -348,11 +353,13 @@ function onEditorReady(editor: unknown) {
           selectedEntityName.value = ''
 
           // Restore all arrow opacities
+          isUpdatingOpacity = true
           restoreArrowOpacities(ed)
+          isUpdatingOpacity = false
         }
       }, 50)
     },
-    { scope: 'document', source: 'user' },
+    { scope: 'all', source: 'all' },
   )
 }
 
