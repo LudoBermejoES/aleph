@@ -300,11 +300,17 @@ function onEditorReady(editor: unknown) {
     pendingEntityDrop = null
   }
 
-  // Track selection changes for the "Add Relationship" button
+  // Track selection changes for the "Add Relationship" button + arrow dimming
   const ENTITY_SHAPE_TYPES = ['npcToken', 'entityCard', 'locationPin', 'questNode', 'factionCard']
   const ed = editor as {
     store: { listen: (fn: () => void, opts: Record<string, unknown>) => void }
     getSelectedShapes: () => { id: string; type: string; props?: Record<string, unknown> }[]
+    getCurrentPageShapes: () => { id: string; type: string; props?: Record<string, unknown> }[]
+    getBindingsFromShape: (
+      shapeId: string,
+      type: string,
+    ) => { toId: string; props: { terminal: string } }[]
+    updateShapes: (updates: { id: string; type: string; opacity: number }[]) => void
   }
   ed.store.listen(
     () => {
@@ -332,11 +338,17 @@ function onEditorReady(editor: unknown) {
             (shape.props!.locationName as string) ??
             (shape.props!.factionName as string) ??
             ''
+
+          // Dim unrelated arrows: find arrows bound to the selected shape, dim the rest
+          highlightRelatedArrows(ed, shape.id)
         } else {
           selectedEntityId.value = ''
           selectedEntityType.value = ''
           selectedEntitySlug.value = ''
           selectedEntityName.value = ''
+
+          // Restore all arrow opacities
+          restoreArrowOpacities(ed)
         }
       }, 50)
     },
@@ -556,6 +568,52 @@ function handleEntityDrop(entityDataStr: string, event: DragEvent) {
 
   // After drop, auto-sync relations after 1s so new shape is committed to the store
   setTimeout(() => syncRelations(), 1000)
+}
+
+// Highlight arrows connected to the selected shape, dim the rest
+type EditorWithBindings = {
+  getCurrentPageShapes: () => { id: string; type: string; props?: Record<string, unknown> }[]
+  getBindingsFromShape: (
+    shapeId: string,
+    type: string,
+  ) => { toId: string; props: { terminal: string } }[]
+  updateShapes: (updates: { id: string; type: string; opacity: number }[]) => void
+}
+
+function highlightRelatedArrows(ed: EditorWithBindings, selectedShapeId: string) {
+  const allShapes = ed.getCurrentPageShapes()
+  const arrows = allShapes.filter((s) => s.type === 'arrow')
+  if (arrows.length === 0) return
+
+  // Find which arrows are bound to the selected shape
+  const connectedArrowIds = new Set<string>()
+  for (const arrow of arrows) {
+    const bindings = ed.getBindingsFromShape(arrow.id, 'arrow')
+    for (const b of bindings) {
+      if (b.toId === selectedShapeId) {
+        connectedArrowIds.add(arrow.id)
+        break
+      }
+    }
+  }
+
+  const updates: { id: string; type: string; opacity: number }[] = []
+  for (const arrow of arrows) {
+    const opacity = connectedArrowIds.has(arrow.id) ? 1 : 0.15
+    updates.push({ id: arrow.id, type: 'arrow', opacity })
+  }
+  if (updates.length > 0) ed.updateShapes(updates)
+}
+
+function restoreArrowOpacities(ed: EditorWithBindings) {
+  const allShapes = ed.getCurrentPageShapes()
+  const updates: { id: string; type: string; opacity: number }[] = []
+  for (const shape of allShapes) {
+    if (shape.type === 'arrow') {
+      updates.push({ id: shape.id, type: 'arrow', opacity: 1 })
+    }
+  }
+  if (updates.length > 0) ed.updateShapes(updates)
 }
 
 // Map graph relationTypeSlug to tldraw named colors
