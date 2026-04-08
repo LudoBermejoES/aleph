@@ -42,11 +42,13 @@
       </div>
 
       <!-- Description -->
+      <!-- eslint-disable vue/no-v-html -->
       <div
         v-if="location.content"
         class="prose dark:prose-invert max-w-none mb-8"
         v-html="renderedContent"
       ></div>
+      <!-- eslint-enable vue/no-v-html -->
 
       <!-- Sub-locations -->
       <section class="mb-6">

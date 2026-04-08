@@ -32,6 +32,7 @@
           v-model="form.type"
           class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
         >
+          <!-- eslint-disable-next-line vue/no-template-shadow -->
           <option v-for="t in types" :key="t" :value="t">
             {{ $t(`organizations.types.${t}`) }}
           </option>

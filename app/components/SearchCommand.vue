@@ -78,10 +78,12 @@
                 <span v-if="result.type" class="text-xs text-muted-foreground ml-2">{{
                   result.type
                 }}</span>
+                <!-- eslint-disable vue/no-v-html -->
                 <span
                   class="block text-xs text-muted-foreground mt-0.5"
                   v-html="result.snippet"
                 ></span>
+                <!-- eslint-enable vue/no-v-html -->
               </NuxtLink>
             </div>
             <p
