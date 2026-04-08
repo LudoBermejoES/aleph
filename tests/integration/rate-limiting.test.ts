@@ -68,7 +68,7 @@ describe('Rate Limiting (integration)', () => {
     let got429 = false
     let retryAfter: string | null = null
 
-    for (let i = 0; i < 110; i++) {
+    for (let i = 0; i < 310; i++) {
       const res = await api(`/api/campaigns/${campaignId}`, {
         headers: {
           'X-API-Key': apiKey,
@@ -87,11 +87,11 @@ describe('Rate Limiting (integration)', () => {
     expect(Number(retryAfter)).toBeGreaterThan(0)
   }, 30_000)
 
-  it('auth endpoints have a stricter limit (10/60s)', async () => {
+  it('auth endpoints have a stricter limit (30/60s)', async () => {
     const fakeIp = `10.1.${(Date.now() >> 4) % 255}.${((Date.now() >> 2) % 254) + 1}`
     let got429 = false
 
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 35; i++) {
       const res = await api('/api/auth/sign-in/email', {
         method: 'POST',
         headers: { 'X-Forwarded-For': fakeIp },
