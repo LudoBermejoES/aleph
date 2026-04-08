@@ -1,8 +1,8 @@
 import { createRateLimiter } from '../utils/rate-limit'
 
-const authLimiter = createRateLimiter({ windowMs: 60_000, maxRequests: 10 })
-const uploadLimiter = createRateLimiter({ windowMs: 60_000, maxRequests: 20 })
-const generalLimiter = createRateLimiter({ windowMs: 60_000, maxRequests: 100 })
+const authLimiter = createRateLimiter({ windowMs: 60_000, maxRequests: 30 })
+const uploadLimiter = createRateLimiter({ windowMs: 60_000, maxRequests: 50 })
+const generalLimiter = createRateLimiter({ windowMs: 60_000, maxRequests: 300 })
 
 const UPLOAD_SUFFIXES = ['/upload', '/image', '/portrait']
 
