@@ -487,6 +487,66 @@ export function toTldrawSnapshot(generated: GeneratedDiagram): object {
     props: s.props,
   }))
 
+  // Convert bindings to tldraw arrow shapes + binding records.
+  // Each GeneratedBinding becomes: 1 arrow shape + 2 binding records (start/end terminals).
+  // This matches how syncRelations creates arrows client-side.
+  const arrowRecords: Record<string, object> = {}
+  for (const b of generated.bindings) {
+    const arrowShapeId = `shape:${b.id}`
+    // Arrow shape with placeholder positions (tldraw recalculates from bindings)
+    arrowRecords[arrowShapeId] = {
+      id: arrowShapeId,
+      typeName: 'shape',
+      type: 'arrow',
+      x: 0,
+      y: 0,
+      rotation: 0,
+      isLocked: false,
+      opacity: 1,
+      meta: {},
+      parentId: 'page:page',
+      index: 'a1',
+      props: {
+        start: { x: 0, y: 0 },
+        end: { x: 100, y: 0 },
+        color: 'grey',
+        size: 's',
+      },
+    }
+    // Start binding: arrow → source shape
+    const startBindingId = `binding:${b.id}-start`
+    arrowRecords[startBindingId] = {
+      id: startBindingId,
+      typeName: 'binding',
+      type: 'arrow',
+      fromId: arrowShapeId,
+      toId: `shape:${b.fromId}`,
+      meta: {},
+      props: {
+        terminal: 'start',
+        normalizedAnchor: { x: 0.5, y: 0.5 },
+        isExact: false,
+        isPrecise: false,
+      },
+    }
+    // End binding: arrow → target shape
+    const endBindingId = `binding:${b.id}-end`
+    arrowRecords[endBindingId] = {
+      id: endBindingId,
+      typeName: 'binding',
+      type: 'arrow',
+      fromId: arrowShapeId,
+      toId: `shape:${b.toId}`,
+      meta: {},
+      props: {
+        terminal: 'end',
+        normalizedAnchor: { x: 0.5, y: 0.5 },
+        isExact: false,
+        isPrecise: false,
+      },
+    }
+  }
+
   return {
     schema: {
       schemaVersion: 2,
@@ -508,6 +568,7 @@ export function toTldrawSnapshot(generated: GeneratedDiagram): object {
         meta: {},
       },
       ...Object.fromEntries(shapeRecords.map((r) => [r.id, r])),
+      ...arrowRecords,
     },
   }
 }
