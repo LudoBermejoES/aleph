@@ -205,8 +205,9 @@ onMounted(async () => {
 
     // Load existing memberships when editing
     if (props.characterSlug) {
-      const existing = await api.getCharacterOrganizations(props.characterSlug).catch(() => [])
-      const existing = existing as { organizationId: string; role?: string }[]
+      const existing = (await api
+        .getCharacterOrganizations(props.characterSlug)
+        .catch(() => [])) as { organizationId: string; role?: string }[]
       pendingMemberships.value = existing.map((m) => ({
         organizationId: m.organizationId,
         role: m.role || '',
