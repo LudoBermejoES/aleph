@@ -507,10 +507,22 @@ export function toTldrawSnapshot(generated: GeneratedDiagram): object {
       parentId: 'page:page',
       index: 'a1',
       props: {
+        kind: 'arc',
         start: { x: 0, y: 0 },
         end: { x: 100, y: 0 },
+        bend: 0,
         color: 'grey',
+        labelColor: 'black',
+        fill: 'none',
+        dash: 'draw',
         size: 's',
+        arrowheadStart: 'none',
+        arrowheadEnd: 'arrow',
+        font: 'draw',
+        richText: { type: 'doc', content: [] },
+        labelPosition: 0.5,
+        scale: 1,
+        elbowMidPoint: 0.5,
       },
     }
     // Start binding: arrow → source shape
