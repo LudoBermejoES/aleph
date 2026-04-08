@@ -60,7 +60,7 @@
             size="sm"
             variant="outline"
             data-testid="expand-entity-btn"
-            @click="expandRelatedEntities"
+            @click="onExpandClick"
           >
             {{ $t('diagrams.expand') }}
           </Button>
@@ -176,7 +176,11 @@ import EntityPanel from '~/components/diagrams/EntityPanel.vue'
 import EntityPopover from '~/components/diagrams/EntityPopover.vue'
 import MapModal from '~/components/diagrams/MapModal.vue'
 import RelationshipDialog from '~/components/diagrams/RelationshipDialog.vue'
-import { radialLayout } from '~/utils/diagram-layout'
+import { useEditorSelection } from '~/composables/useEditorSelection'
+import { useArrowDimming } from '~/composables/useArrowDimming'
+import { useSyncRelations } from '~/composables/useSyncRelations'
+import { useEntityExpansion } from '~/composables/useEntityExpansion'
+import { buildShapeCreateArgs } from '~/utils/diagram-shapes'
 
 definePageMeta({ layout: 'empty' })
 
@@ -205,11 +209,7 @@ const popoverY = ref(200)
 const mapModalOpen = ref(false)
 const mapModalId = ref('')
 
-// Selected entity state (for relationship dialog)
-const selectedEntityId = ref('')
-const selectedEntityType = ref('')
-const selectedEntitySlug = ref('')
-const selectedEntityName = ref('')
+// Relationship dialog
 const relationshipDialogOpen = ref(false)
 
 // Type filter
@@ -224,10 +224,29 @@ const filterOptions = computed(() => [
   { value: 'wiki', label: t('diagrams.filter.wiki') },
 ])
 
+// Editor instance + composable refs (initialized on editor ready)
 let editorInstance: unknown = null
 let pendingEntityDrop: { entityData: string; event: DragEvent } | null = null
 let saveTimer: ReturnType<typeof setTimeout> | null = null
 let lastSnapshot: Record<string, unknown> | null = null
+
+// Composable refs — populated in onEditorReady
+const selectedEntityId = ref('')
+const selectedEntityType = ref('')
+const selectedEntitySlug = ref('')
+const selectedEntityName = ref('')
+
+// i18n edge label translator
+function translateEdgeLabel(label: string | undefined | null): string {
+  if (!label) return ''
+  const key = `diagrams.edgeLabels.${label}`
+  const translated = t(key)
+  return translated === key ? label : translated
+}
+
+// Composable functions — assigned in onEditorReady
+let syncRelations: () => Promise<void> = async () => {}
+let expandRelatedEntities: (entityId: string, entityType: string) => Promise<void> = async () => {}
 
 async function load() {
   loading.value = true
@@ -249,7 +268,6 @@ async function load() {
       snapshot.value = snapshotData.snapshot
     } catch (e: unknown) {
       if ((e as { statusCode?: number })?.statusCode !== 404) throw e
-      // No snapshot yet — start with empty canvas
       snapshot.value = undefined
     }
   } catch {
@@ -291,8 +309,6 @@ async function saveNow() {
   await autoSave(lastSnapshot)
 }
 
-let selectionDebounce: ReturnType<typeof setTimeout> | null = null
-
 function onEditorReady(editor: unknown) {
   editorInstance = editor
   if (pendingEntityDrop) {
@@ -300,67 +316,26 @@ function onEditorReady(editor: unknown) {
     pendingEntityDrop = null
   }
 
-  // Track selection changes for the "Add Relationship" button + arrow dimming
-  const ENTITY_SHAPE_TYPES = ['npcToken', 'entityCard', 'locationPin', 'questNode', 'factionCard']
-  const ed = editor as {
-    store: { listen: (fn: () => void, opts: Record<string, unknown>) => void }
-    getSelectedShapes: () => { id: string; type: string; props?: Record<string, unknown> }[]
-    getCurrentPageShapes: () => { id: string; type: string; props?: Record<string, unknown> }[]
-    getBindingsFromShape: (
-      shapeId: string,
-      type: string,
-    ) => { toId: string; props: { terminal: string } }[]
-    updateShapes: (updates: { id: string; type: string; opacity: number }[]) => void
-  }
-  // Listen with scope 'all' to catch selection changes (which are session-scoped, not document)
-  let isUpdatingOpacity = false
-  ed.store.listen(
-    () => {
-      if (isUpdatingOpacity) return
-      if (selectionDebounce) clearTimeout(selectionDebounce)
-      selectionDebounce = setTimeout(() => {
-        const selected = ed.getSelectedShapes()
-        if (
-          selected.length === 1 &&
-          ENTITY_SHAPE_TYPES.includes(selected[0]!.type) &&
-          selected[0]!.props?.entityId
-        ) {
-          const shape = selected[0]!
-          selectedEntityId.value = shape.props!.entityId as string
-          selectedEntityType.value =
-            shape.type === 'npcToken'
-              ? 'character'
-              : shape.type === 'factionCard'
-                ? 'organization'
-                : shape.type === 'locationPin'
-                  ? 'location'
-                  : ((shape.props!.type as string) ?? 'entity')
-          selectedEntitySlug.value = (shape.props!.slug as string) ?? ''
-          selectedEntityName.value =
-            (shape.props!.characterName as string) ??
-            (shape.props!.locationName as string) ??
-            (shape.props!.factionName as string) ??
-            ''
+  // Wire composables to the editor
+  const ed = editor as Parameters<typeof useEditorSelection>[0] &
+    Parameters<typeof useArrowDimming>[0]
 
-          // Dim unrelated arrows
-          isUpdatingOpacity = true
-          highlightRelatedArrows(ed, shape.id)
-          isUpdatingOpacity = false
-        } else {
-          selectedEntityId.value = ''
-          selectedEntityType.value = ''
-          selectedEntitySlug.value = ''
-          selectedEntityName.value = ''
+  const selection = useEditorSelection(ed)
+  // Bind composable refs to page-level refs for template access
+  watch(selection.selectedEntityId, (v) => (selectedEntityId.value = v))
+  watch(selection.selectedEntityType, (v) => (selectedEntityType.value = v))
+  watch(selection.selectedEntitySlug, (v) => (selectedEntitySlug.value = v))
+  watch(selection.selectedEntityName, (v) => (selectedEntityName.value = v))
 
-          // Restore all arrow opacities
-          isUpdatingOpacity = true
-          restoreArrowOpacities(ed)
-          isUpdatingOpacity = false
-        }
-      }, 50)
-    },
-    { scope: 'all', source: 'all' },
-  )
+  useArrowDimming(ed, selection.selectedShapeId)
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const getEd = () => editorInstance as any
+  const syncComposable = useSyncRelations(getEd, campaignId, translateEdgeLabel)
+  syncRelations = syncComposable.syncRelations
+
+  const expandComposable = useEntityExpansion(getEd, campaignId, () => syncRelations())
+  expandRelatedEntities = expandComposable.expandRelatedEntities
 }
 
 function onPlacedEntitiesChange(counts: Map<string, number>) {
@@ -378,135 +353,8 @@ function onFocusEntity(entityId: string) {
   canvasRef.value?.focusEntity(entityId)
 }
 
-async function expandRelatedEntities() {
-  const ed = editorInstance as {
-    getCurrentPageShapes: () => { id: string; type: string; props?: Record<string, unknown> }[]
-    createShape: (shape: Record<string, unknown>) => unknown
-    getShape: (id: string) => { x: number; y: number } | undefined
-  } | null
-  if (!ed || !selectedEntityId.value) return
-
-  // Find the selected shape to get its position
-  let centerX = 400
-  let centerY = 400
-  for (const shape of ed.getCurrentPageShapes()) {
-    if (shape.props?.entityId === selectedEntityId.value) {
-      const full = ed.getShape(shape.id)
-      if (full) {
-        centerX = full.x
-        centerY = full.y
-      }
-      break
-    }
-  }
-
-  // Fetch graph data
-  let graphData: {
-    nodes: Record<string, { name: string; type: string; slug: string; image?: string | null }>
-    edges: Record<string, { source: string; target: string }>
-  }
-  try {
-    graphData = await $fetch(`/api/campaigns/${campaignId}/graph`)
-  } catch {
-    return
-  }
-
-  // Collect entity IDs already on canvas
-  const onCanvas = new Set<string>()
-  for (const shape of ed.getCurrentPageShapes()) {
-    if (shape.props?.entityId) onCanvas.add(shape.props.entityId as string)
-  }
-
-  // Find related entity IDs based on type
-  const relatedIds: string[] = []
-  const entityId = selectedEntityId.value
-  const entityType = selectedEntityType.value
-
-  for (const [key, edge] of Object.entries(graphData.edges)) {
-    if (entityType === 'organization') {
-      // org-member: org is source → target is character entity
-      // org-location: org is source → target is location entity
-      if (
-        (key.startsWith('org-member:') || key.startsWith('org-location:')) &&
-        edge.source === entityId
-      ) {
-        if (!onCanvas.has(edge.target)) relatedIds.push(edge.target)
-      }
-    } else if (entityType === 'location') {
-      // char-location: character is source → location is target
-      if (key.startsWith('char-location:') && edge.target === entityId) {
-        if (!onCanvas.has(edge.source)) relatedIds.push(edge.source)
-      }
-      // org-location: org is source → location is target
-      if (key.startsWith('org-location:') && edge.target === entityId) {
-        if (!onCanvas.has(edge.source)) relatedIds.push(edge.source)
-      }
-    }
-  }
-
-  if (relatedIds.length === 0) {
-    syncRelations()
-    return
-  }
-
-  // Compute positions
-  const positions = radialLayout(centerX, centerY, relatedIds.length, 250)
-
-  // Create shapes
-  for (let i = 0; i < relatedIds.length; i++) {
-    const id = relatedIds[i]!
-    const node = graphData.nodes[id]
-    if (!node) continue
-    const pos = positions[i]!
-
-    const nodeType = node.type
-    if (nodeType === 'character') {
-      ed.createShape({
-        type: 'npcToken',
-        x: pos.x - 70,
-        y: pos.y - 80,
-        props: {
-          w: 140,
-          h: 160,
-          entityId: id,
-          campaignId,
-          slug: node.slug,
-          characterName: node.name,
-          portraitUrl: node.image ?? undefined,
-        },
-      })
-    } else if (nodeType === 'location') {
-      ed.createShape({
-        type: 'locationPin',
-        x: pos.x - 90,
-        y: pos.y - 30,
-        props: {
-          w: 180,
-          h: 60,
-          entityId: id,
-          campaignId,
-          slug: node.slug,
-          locationName: node.name,
-        },
-      })
-    } else if (nodeType === 'organization') {
-      ed.createShape({
-        type: 'factionCard',
-        x: pos.x - 90,
-        y: pos.y - 50,
-        props: {
-          w: 180,
-          h: 100,
-          entityId: id,
-          campaignId,
-          slug: node.slug,
-          factionName: node.name,
-        },
-      })
-    }
-  }
-
-  syncRelations()
+function onExpandClick() {
+  expandRelatedEntities(selectedEntityId.value, selectedEntityType.value)
 }
 
 function onCanvasDrop(event: DragEvent, editor: unknown) {
@@ -535,36 +383,18 @@ function handleEntityDrop(entityDataStr: string, event: DragEvent) {
   }
   const pagePoint = editorAny.screenToPage({ x: event.clientX, y: event.clientY })
 
-  const shapeMap: Record<string, string> = {
-    character: 'npcToken',
-    location: 'locationPin',
-    quest: 'questNode',
-    organization: 'factionCard',
-  }
-
-  const shapeType = shapeMap[entity.entityType ?? entity.type] ?? 'entityCard'
-
-  const shapeProps: Record<string, unknown> = {
-    entityId: entity.id,
+  const entityType = (entity.entityType ?? entity.type) as string
+  const { type: shapeType, props: shapeProps } = buildShapeCreateArgs(
+    entityType,
+    entity as {
+      id: string
+      name: string
+      slug: string
+      portraitUrl?: string | null
+      status?: string | null
+    },
     campaignId,
-    slug: entity.slug ?? '',
-  }
-
-  if (shapeType === 'npcToken') {
-    shapeProps.characterName = entity.name
-    shapeProps.portraitUrl = entity.portraitUrl ?? undefined
-  } else if (shapeType === 'locationPin') {
-    shapeProps.locationName = entity.name
-  } else if (shapeType === 'questNode') {
-    shapeProps.questTitle = entity.name
-    shapeProps.status = entity.status ?? 'planned'
-  } else if (shapeType === 'factionCard') {
-    shapeProps.factionName = entity.name
-  } else {
-    shapeProps.entityName = entity.name
-    shapeProps.entityType = entity.entityType ?? entity.type
-    shapeProps.portraitUrl = entity.portraitUrl ?? undefined
-  }
+  )
 
   editorAny.createShape({
     type: shapeType,
@@ -575,200 +405,6 @@ function handleEntityDrop(entityDataStr: string, event: DragEvent) {
 
   // After drop, auto-sync relations after 1s so new shape is committed to the store
   setTimeout(() => syncRelations(), 1000)
-}
-
-// Highlight arrows connected to the selected shape, dim the rest
-type EditorWithBindings = {
-  getCurrentPageShapes: () => { id: string; type: string; props?: Record<string, unknown> }[]
-  getBindingsFromShape: (
-    shapeId: string,
-    type: string,
-  ) => { toId: string; props: { terminal: string } }[]
-  updateShapes: (updates: { id: string; type: string; opacity: number }[]) => void
-}
-
-function highlightRelatedArrows(ed: EditorWithBindings, selectedShapeId: string) {
-  const allShapes = ed.getCurrentPageShapes()
-  const arrows = allShapes.filter((s) => s.type === 'arrow')
-  if (arrows.length === 0) return
-
-  // Find which arrows are bound to the selected shape
-  const connectedArrowIds = new Set<string>()
-  for (const arrow of arrows) {
-    const bindings = ed.getBindingsFromShape(arrow.id, 'arrow')
-    for (const b of bindings) {
-      if (b.toId === selectedShapeId) {
-        connectedArrowIds.add(arrow.id)
-        break
-      }
-    }
-  }
-
-  const updates: { id: string; type: string; opacity: number }[] = []
-  for (const arrow of arrows) {
-    const opacity = connectedArrowIds.has(arrow.id) ? 1 : 0.15
-    updates.push({ id: arrow.id, type: 'arrow', opacity })
-  }
-  if (updates.length > 0) ed.updateShapes(updates)
-}
-
-function restoreArrowOpacities(ed: EditorWithBindings) {
-  const allShapes = ed.getCurrentPageShapes()
-  const updates: { id: string; type: string; opacity: number }[] = []
-  for (const shape of allShapes) {
-    if (shape.type === 'arrow') {
-      updates.push({ id: shape.id, type: 'arrow', opacity: 1 })
-    }
-  }
-  if (updates.length > 0) ed.updateShapes(updates)
-}
-
-// Map graph relationTypeSlug to tldraw named colors
-function relationTypeToColor(relationTypeSlug?: string, attitude?: number): string {
-  if (
-    relationTypeSlug === 'rival' ||
-    relationTypeSlug === 'enemy' ||
-    (attitude !== undefined && attitude < 0)
-  )
-    return 'red'
-  if (relationTypeSlug === 'family') return 'violet'
-  if (relationTypeSlug === 'member') return 'violet'
-  if (relationTypeSlug === 'mentor') return 'blue'
-  if (relationTypeSlug === 'location') return 'orange'
-  if (relationTypeSlug === 'ally' || (attitude !== undefined && attitude >= 70)) return 'green'
-  return 'grey'
-}
-
-// Translate generic graph edge labels to the user's locale
-function translateEdgeLabel(label: string | undefined | null): string {
-  if (!label) return ''
-  const key = `diagrams.edgeLabels.${label}`
-  const translated = t(key)
-  // If i18n returns the key itself, the label is custom (e.g. a role name) — use as-is
-  return translated === key ? label : translated
-}
-
-// Fetch graph edges and draw tldraw arrows for entity pairs present on canvas
-async function syncRelations() {
-  const ed = editorInstance as {
-    getCurrentPageShapes: () => { id: string; type: string; props?: Record<string, unknown> }[]
-    createShape: (shape: Record<string, unknown>) => unknown
-    createBinding: (binding: Record<string, unknown>) => void
-    getBindingsFromShape: (
-      shapeId: string,
-      type: string,
-    ) => { toId: string; props: { terminal: string } }[]
-  } | null
-  if (!ed) return
-
-  // Collect entityId → shapeId map for all entity-linked shapes on canvas
-  const ENTITY_TYPES = ['npcToken', 'entityCard', 'locationPin', 'questNode', 'factionCard']
-  const entityToShape = new Map<string, string>()
-  for (const shape of ed.getCurrentPageShapes()) {
-    if (ENTITY_TYPES.includes(shape.type) && shape.props?.entityId) {
-      const eid = shape.props.entityId as string
-      if (!entityToShape.has(eid)) entityToShape.set(eid, shape.id)
-    }
-  }
-  if (entityToShape.size < 2) return
-
-  // Fetch all relations for the campaign from the graph API
-  let graphData: {
-    edges: Record<
-      string,
-      {
-        source: string
-        target: string
-        label?: string
-        relationTypeSlug?: string
-        attitude?: number
-      }
-    >
-  }
-  try {
-    graphData = await $fetch(`/api/campaigns/${campaignId}/graph`)
-  } catch {
-    return
-  }
-
-  // Build a set of existing bound arrow pairs (fromShapeId→toShapeId) to avoid duplicates.
-  // In tldraw v4, arrow-to-shape connections use the Bindings API: each arrow shape has
-  // separate TLArrowBinding records with terminal='start'|'end' and toId pointing to the target.
-  const existingArrows = new Set<string>()
-  for (const shape of ed.getCurrentPageShapes()) {
-    if (shape.type !== 'arrow') continue
-    const bindings = ed.getBindingsFromShape(shape.id, 'arrow')
-    const startBinding = bindings.find((b) => b.props.terminal === 'start')
-    const endBinding = bindings.find((b) => b.props.terminal === 'end')
-    if (startBinding && endBinding) {
-      existingArrows.add(`${startBinding.toId}→${endBinding.toId}`)
-    }
-  }
-
-  // Create arrows for relations between shapes on canvas
-  let arrowsCreated = 0
-  for (const edge of Object.values(graphData.edges)) {
-    const fromShapeId = entityToShape.get(edge.source)
-    const toShapeId = entityToShape.get(edge.target)
-    if (!fromShapeId || !toShapeId) continue
-    if (existingArrows.has(`${fromShapeId}→${toShapeId}`)) continue
-
-    const color = relationTypeToColor(edge.relationTypeSlug, edge.attitude)
-    // tldraw v4: createShape returns `this` (editor), not the shape.
-    // Pre-generate the ID so we can reference it in createBinding calls.
-    // Shape IDs follow the format "shape:<uuid>" per the tldraw schema.
-    const arrowId = `shape:${crypto.randomUUID()}` as `shape:${string}`
-    try {
-      ed.createShape({
-        id: arrowId,
-        type: 'arrow',
-        props: {
-          start: { x: 0, y: 0 },
-          end: { x: 100, y: 0 },
-          richText: {
-            type: 'doc',
-            content: (() => {
-              const label = translateEdgeLabel(edge.label)
-              return label ? [{ type: 'paragraph', content: [{ type: 'text', text: label }] }] : []
-            })(),
-          },
-          color,
-          size: 's',
-        },
-      })
-      ed.createBinding({
-        type: 'arrow',
-        fromId: arrowId,
-        toId: fromShapeId,
-        props: {
-          terminal: 'start',
-          normalizedAnchor: { x: 0.5, y: 0.5 },
-          isExact: false,
-          isPrecise: false,
-        },
-      })
-      ed.createBinding({
-        type: 'arrow',
-        fromId: arrowId,
-        toId: toShapeId,
-        props: {
-          terminal: 'end',
-          normalizedAnchor: { x: 0.5, y: 0.5 },
-          isExact: false,
-          isPrecise: false,
-        },
-      })
-      arrowsCreated++
-    } catch (err) {
-      console.error('[syncRelations] failed to create arrow:', err, {
-        arrowId,
-        fromShapeId,
-        toShapeId,
-        edge,
-      })
-    }
-  }
-  console.log(`[syncRelations] created ${arrowsCreated} arrows`)
 }
 
 // Type filter
