@@ -6,6 +6,7 @@ const props = defineProps<{
   snapshot?: Record<string, unknown>
   readOnly?: boolean
   campaignId?: string
+  darkMode?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -67,6 +68,7 @@ function makeProps(snapshotVal?: Record<string, unknown>, readOnlyVal?: boolean)
     snapshot: snapshotVal ? JSON.parse(JSON.stringify(snapshotVal)) : undefined,
     readOnly: readOnlyVal ?? false,
     campaignId: props.campaignId,
+    darkMode: props.darkMode ?? false,
     onChange: (snapshot: unknown) => emit('save', snapshot as Record<string, unknown>),
     onEditorReady: (editor: unknown) => {
       editorInstance = editor

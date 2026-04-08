@@ -44,6 +44,7 @@ export interface TldrawWrapperProps {
   snapshot?: TLEditorSnapshot
   readOnly?: boolean
   campaignId?: string
+  darkMode?: boolean
   onChange?: (snapshot: TLEditorSnapshot) => void
   onEditorReady?: (editor: Editor) => void
   onNativeDrop?: (event: DragEvent, editor: Editor) => void
@@ -54,6 +55,7 @@ export function TldrawWrapper({
   snapshot,
   readOnly,
   campaignId,
+  darkMode,
   onChange,
   onEditorReady,
   onNativeDrop,
@@ -121,6 +123,10 @@ export function TldrawWrapper({
         editor.updateInstanceState({ isReadonly: true })
       }
 
+      if (darkMode) {
+        editor.user.updateUserPreferences({ colorScheme: 'dark' })
+      }
+
       onEditorReady?.(editor)
 
       // Hydrate entity shapes with fresh data after mount
@@ -141,7 +147,7 @@ export function TldrawWrapper({
         { scope: 'document', source: 'user' },
       )
     },
-    [readOnly, campaignId, onChange, onEditorReady],
+    [readOnly, darkMode, campaignId, onChange, onEditorReady],
   )
 
   const handleDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {

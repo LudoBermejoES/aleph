@@ -128,6 +128,7 @@
           :snapshot="snapshot"
           :read-only="readOnly"
           :campaign-id="campaignId"
+          :dark-mode="isDarkMode"
           @save="onCanvasChange"
           @placed-entities-change="onPlacedEntitiesChange"
           @editor-ready="onEditorReady"
@@ -188,6 +189,10 @@ definePageMeta({ layout: 'empty' })
 const route = useRoute()
 const campaignId = route.params.id as string
 const diagramId = route.params.diagramId as string
+
+// Detect dark mode from campaign theme (all named themes are dark)
+const campaignTheme = useState<string | null>('campaignTheme', () => null)
+const isDarkMode = computed(() => !!campaignTheme.value)
 
 const diagram = ref<{ title: string } | null>(null)
 const snapshot = ref<Record<string, unknown> | undefined>(undefined)
