@@ -12,6 +12,9 @@ export default defineEventHandler((event) => {
   if (!path.startsWith('/api/')) return
   if (path === '/api/health') return
 
+  // Exempt image serving — static file reads that shouldn't count against rate limits
+  if (path.includes('/images/') && event.node.req.method === 'GET') return
+
   const ip =
     getRequestHeader(event, 'x-forwarded-for')?.split(',')[0]?.trim() ||
     getRequestHeader(event, 'x-real-ip') ||
