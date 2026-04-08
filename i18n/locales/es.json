@@ -956,6 +956,11 @@
     "syncRelations": "Sincronizar relaciones",
     "addRelationship": "Añadir relación",
     "expand": "Expandir",
+    "edgeLabels": {
+      "member": "miembro",
+      "location": "ubicación",
+      "headquarters": "sede"
+    },
     "relationship": {
       "title": "Añadir relación",
       "source": "Desde",

@@ -639,6 +639,15 @@ function relationTypeToColor(relationTypeSlug?: string, attitude?: number): stri
   return 'grey'
 }
 
+// Translate generic graph edge labels to the user's locale
+function translateEdgeLabel(label: string | undefined | null): string {
+  if (!label) return ''
+  const key = `diagrams.edgeLabels.${label}`
+  const translated = t(key)
+  // If i18n returns the key itself, the label is custom (e.g. a role name) — use as-is
+  return translated === key ? label : translated
+}
+
 // Fetch graph edges and draw tldraw arrows for entity pairs present on canvas
 async function syncRelations() {
   const ed = editorInstance as {
@@ -718,9 +727,10 @@ async function syncRelations() {
           end: { x: 100, y: 0 },
           richText: {
             type: 'doc',
-            content: edge.label
-              ? [{ type: 'paragraph', content: [{ type: 'text', text: edge.label }] }]
-              : [],
+            content: (() => {
+              const label = translateEdgeLabel(edge.label)
+              return label ? [{ type: 'paragraph', content: [{ type: 'text', text: label }] }] : []
+            })(),
           },
           color,
           size: 's',

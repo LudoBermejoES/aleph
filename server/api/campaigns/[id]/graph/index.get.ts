@@ -194,7 +194,7 @@ export default defineEventHandler(async (event) => {
       graphEdges[edgeKey] = {
         source: row.orgId,
         target: entityId,
-        label: (row as { role?: string }).role || 'miembro',
+        label: (row as { role?: string }).role || 'member',
         color: '#8b5cf6',
         attitude: null,
         relationTypeSlug: 'member',
@@ -254,7 +254,7 @@ export default defineEventHandler(async (event) => {
       graphEdges[edgeKey] = {
         source: row.entityId,
         target: loc.id,
-        label: 'ubicación',
+        label: 'location',
         color: '#f59e0b',
         attitude: null,
         relationTypeSlug: 'location',
@@ -293,7 +293,7 @@ export default defineEventHandler(async (event) => {
         graphEdges[edgeKey] = {
           source: org.id,
           target: loc.id,
-          label: 'sede',
+          label: 'headquarters',
           color: '#f59e0b',
           attitude: null,
           relationTypeSlug: 'location',

@@ -32,6 +32,7 @@ export interface GeneratedBinding {
   type: 'arrow'
   fromId: string
   toId: string
+  label?: string
 }
 
 export interface GeneratedDiagram {
@@ -39,8 +40,8 @@ export interface GeneratedDiagram {
   bindings: GeneratedBinding[]
 }
 
-function makeArrowBinding(fromId: string, toId: string): GeneratedBinding {
-  return { id: randomUUID(), type: 'arrow', fromId, toId }
+function makeArrowBinding(fromId: string, toId: string, label?: string): GeneratedBinding {
+  return { id: randomUUID(), type: 'arrow', fromId, toId, label }
 }
 
 // ─── Entity Graph ─────────────────────────────────────────────────────────────
@@ -354,6 +355,7 @@ export function generateFactionWeb(
         name: entities.name,
         slug: entities.slug,
         portraitUrl: characters.portraitUrl,
+        role: organizationMembers.role,
       })
       .from(organizationMembers)
       .innerJoin(characters, eq(organizationMembers.characterId, characters.id))
@@ -378,9 +380,14 @@ export function generateFactionWeb(
     const relatedEntities = [
       ...memberRows.map((m) => ({
         kind: 'character' as const,
+        label: m.role || 'member',
         data: { id: m.entityId, name: m.name, slug: m.slug, portraitUrl: m.portraitUrl },
       })),
-      ...locationRows.map((l) => ({ kind: 'location' as const, data: l })),
+      ...locationRows.map((l) => ({
+        kind: 'location' as const,
+        label: 'location',
+        data: l,
+      })),
     ]
 
     if (relatedEntities.length > 0) {
@@ -393,7 +400,7 @@ export function generateFactionWeb(
             ? buildNpcTokenShape(rel.data, campaignId, sp.x - 70, sp.y - 80)
             : buildLocationPinShape(rel.data, campaignId, sp.x - 90, sp.y - 30)
         shapes.push(shape)
-        bindings.push(makeArrowBinding(orgShape.id, shape.id))
+        bindings.push(makeArrowBinding(orgShape.id, shape.id, rel.label))
       }
     }
   }
@@ -519,7 +526,12 @@ export function toTldrawSnapshot(generated: GeneratedDiagram): object {
         arrowheadStart: 'none',
         arrowheadEnd: 'arrow',
         font: 'draw',
-        richText: { type: 'doc', content: [] },
+        richText: b.label
+          ? {
+              type: 'doc',
+              content: [{ type: 'paragraph', content: [{ type: 'text', text: b.label }] }],
+            }
+          : { type: 'doc', content: [] },
         labelPosition: 0.5,
         scale: 1,
         elbowMidPoint: 0.5,
