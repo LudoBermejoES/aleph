@@ -153,7 +153,21 @@ async function fetchEntity(slug: string) {
   try {
     entity.value = await $fetch<EntityDetail>(`/api/campaigns/${props.campaignId}/entities/${slug}`)
   } catch {
-    error.value = true
+    // Entity not found — may be an organization (not in entities table)
+    try {
+      const org = await $fetch<{ id: string; name: string; slug: string; description?: string }>(
+        `/api/campaigns/${props.campaignId}/organizations/${slug}`,
+      )
+      entity.value = {
+        id: org.id,
+        name: org.name,
+        type: 'organization',
+        slug: org.slug,
+        boardSummary: org.description ?? undefined,
+      }
+    } catch {
+      error.value = true
+    }
   } finally {
     loading.value = false
   }
