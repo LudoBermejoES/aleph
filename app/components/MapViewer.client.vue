@@ -139,6 +139,7 @@ onMounted(async () => {
       maxZoom,
       noWrap: true,
       bounds,
+      tms: true,
     }).addTo(map)
   } else {
     map.setView([imgHeight / 2, imgWidth / 2], 0)
