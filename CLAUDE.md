@@ -57,3 +57,8 @@ Use `/opsx:apply` to implement tasks.
 Use `/opsx:archive` when all tasks are done.
 
 Config at `openspec/config.yaml` — rules there govern artifact generation.
+
+## Tools
+
+- Use `rg` (ripgrep) for searching code — it's installed and faster than grep.
+- The built-in Grep tool is backed by ripgrep already, prefer it over shell `grep`.
