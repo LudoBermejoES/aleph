@@ -22,7 +22,7 @@
           <polyline points="9 18 15 12 9 6" />
         </svg>
       </button>
-      <div v-else class="w-5 shrink-0" ></div>
+      <div v-else class="w-5 shrink-0"></div>
 
       <!-- Icon by subtype -->
       <span class="text-sm shrink-0">{{ subtypeIcon }}</span>
