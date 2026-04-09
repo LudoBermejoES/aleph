@@ -119,14 +119,23 @@ onMounted(async () => {
   const imgHeight = props.height || 768
   const maxDim = Math.max(imgWidth, imgHeight)
   const maxZoom = Math.ceil(Math.log2(maxDim / 256))
-  // Use negative Y for southWest so that tile Y=0 is at top (matching generator)
-  const bounds = L.latLngBounds([-imgHeight, 0], [0, imgWidth])
+
+  // The tile generator creates a pyramid where at zoom z=0, the entire image
+  // fits in one 256px tile. At z=maxZoom-1, the image is at near-original size.
+  // Leaflet Simple CRS: 1 CRS unit = 1 pixel at zoom 0.
+  // At z=0, one tile covers 256 CRS units. The full image at z=0 is 256px wide.
+  // Scale bounds so the image spans 256 units (one tile) at z=0.
+  const scale = 256 / maxDim
+  const boundsHeight = imgHeight * scale
+  const boundsWidth = imgWidth * scale
+  // Negative lat so Y=0 tile maps to the top of the image (Leaflet Y increases upward)
+  const bounds = L.latLngBounds([-boundsHeight, 0], [0, boundsWidth])
 
   map = L.map(mapContainer.value, {
     crs: L.CRS.Simple,
     minZoom: 0,
     maxZoom,
-    maxBounds: bounds.pad(0.25),
+    maxBounds: bounds.pad(0.5),
     zoomSnap: 0.5,
   })
 
@@ -139,10 +148,9 @@ onMounted(async () => {
       minZoom: 0,
       maxZoom,
       noWrap: true,
-      bounds,
     }).addTo(map)
   } else {
-    map.setView([-imgHeight / 2, imgWidth / 2], 0)
+    map.setView([-boundsHeight / 2, boundsWidth / 2], 0)
   }
 
   // Add pins
@@ -213,7 +221,9 @@ function renderPins(L: typeof import('leaflet')) {
       iconAnchor: [8, 8],
     })
 
-    const marker = L.marker([pin.lat, pin.lng], { icon: divIcon }).addTo(map)
+    // Scale pin coordinates from image pixels to CRS units (negative lat = top-down Y)
+    const pinScale = 256 / Math.max(props.width || 1024, props.height || 768)
+    const marker = L.marker([-pin.lat * pinScale, pin.lng * pinScale], { icon: divIcon }).addTo(map)
 
     const popupContent = `
       <div style="min-width:120px;">
