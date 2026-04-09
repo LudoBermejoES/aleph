@@ -342,13 +342,29 @@ export function generateFactionWeb(
   const mainRadius = Math.max(600, items.length * 160)
   const orgPositions = radialLayout(centerX, centerY, items.length, mainRadius)
 
+  // ── Pass 1: Create org shapes and collect all relationships ──────────────
+  interface RelatedEntity {
+    kind: 'character' | 'location'
+    label: string
+    data: { id: string; name: string; slug: string; portraitUrl?: string | null }
+  }
+
+  const orgShapeIds = new Map<string, string>() // orgId → shapeId
+  const orgPositionMap = new Map<string, { x: number; y: number }>() // orgId → position
+  // entityId → { entity data, orgIds that reference it, labels per org }
+  const entityRelations = new Map<
+    string,
+    { entity: RelatedEntity; orgIds: string[]; labels: string[] }
+  >()
+
   for (let i = 0; i < items.length; i++) {
     const org = items[i]!
     const pos = orgPositions[i]!
     const orgShape = buildFactionCardShape(org, campaignId, pos.x - 90, pos.y - 50)
     shapes.push(orgShape)
+    orgShapeIds.set(org.id, orgShape.id)
+    orgPositionMap.set(org.id, pos)
 
-    // Fetch members (character entities) for this org, capped
     const memberRows = db
       .select({
         entityId: characters.entityId,
@@ -364,7 +380,6 @@ export function generateFactionWeb(
       .limit(MAX_MEMBERS_PER_ORG)
       .all()
 
-    // Fetch linked locations for this org
     const locationRows = db
       .select({
         id: entities.id,
@@ -376,8 +391,7 @@ export function generateFactionWeb(
       .where(eq(organizationLocations.organizationId, org.id))
       .all()
 
-    // Create shapes for members + locations in a sub-cluster
-    const relatedEntities = [
+    const related: RelatedEntity[] = [
       ...memberRows.map((m) => ({
         kind: 'character' as const,
         label: m.role || 'member',
@@ -390,18 +404,60 @@ export function generateFactionWeb(
       })),
     ]
 
-    if (relatedEntities.length > 0) {
-      const subPositions = radialLayout(pos.x, pos.y, relatedEntities.length, 300)
-      for (let j = 0; j < relatedEntities.length; j++) {
-        const rel = relatedEntities[j]!
-        const sp = subPositions[j]!
-        const shape =
-          rel.kind === 'character'
-            ? buildNpcTokenShape(rel.data, campaignId, sp.x - 70, sp.y - 80)
-            : buildLocationPinShape(rel.data, campaignId, sp.x - 90, sp.y - 30)
-        shapes.push(shape)
-        bindings.push(makeArrowBinding(orgShape.id, shape.id, rel.label))
+    for (const rel of related) {
+      const existing = entityRelations.get(rel.data.id)
+      if (existing) {
+        existing.orgIds.push(org.id)
+        existing.labels.push(rel.label)
+      } else {
+        entityRelations.set(rel.data.id, {
+          entity: rel,
+          orgIds: [org.id],
+          labels: [rel.label],
+        })
       }
+    }
+  }
+
+  // ── Pass 2: Create entity shapes at optimal positions ────────────────────
+  const entityIdToShapeId = new Map<string, string>()
+
+  for (const [entityId, info] of entityRelations) {
+    const { entity, orgIds, labels } = info
+
+    // Compute position: midpoint of all referencing orgs
+    let x = 0
+    let y = 0
+    for (const orgId of orgIds) {
+      const orgPos = orgPositionMap.get(orgId)!
+      x += orgPos.x
+      y += orgPos.y
+    }
+    x /= orgIds.length
+    y /= orgIds.length
+
+    // For single-org entities, offset from the org center to avoid overlap
+    if (orgIds.length === 1) {
+      const orgPos = orgPositionMap.get(orgIds[0]!)!
+      const dx = orgPos.x - centerX
+      const dy = orgPos.y - centerY
+      const dist = Math.sqrt(dx * dx + dy * dy) || 1
+      // Place 300px outward from the org (away from center)
+      x = orgPos.x + (dx / dist) * 300
+      y = orgPos.y + (dy / dist) * 300
+    }
+
+    const shape =
+      entity.kind === 'character'
+        ? buildNpcTokenShape(entity.data, campaignId, x - 70, y - 80)
+        : buildLocationPinShape(entity.data, campaignId, x - 90, y - 30)
+    shapes.push(shape)
+    entityIdToShapeId.set(entityId, shape.id)
+
+    // Create bindings from each referencing org
+    for (let k = 0; k < orgIds.length; k++) {
+      const orgShapeId = orgShapeIds.get(orgIds[k]!)!
+      bindings.push(makeArrowBinding(orgShapeId, shape.id, labels[k]))
     }
   }
 

@@ -58,25 +58,26 @@ export function useEntityExpansion(
       if (shape.props?.entityId) onCanvas.add(shape.props.entityId as string)
     }
 
-    // Find related entity IDs based on type
-    const relatedIds: string[] = []
+    // Find related entity IDs based on type (deduplicated)
+    const relatedIdSet = new Set<string>()
     for (const [key, edge] of Object.entries(graphData.edges)) {
       if (entityType === 'organization') {
         if (
           (key.startsWith('org-member:') || key.startsWith('org-location:')) &&
           edge.source === entityId
         ) {
-          if (!onCanvas.has(edge.target)) relatedIds.push(edge.target)
+          if (!onCanvas.has(edge.target)) relatedIdSet.add(edge.target)
         }
       } else if (entityType === 'location') {
         if (key.startsWith('char-location:') && edge.target === entityId) {
-          if (!onCanvas.has(edge.source)) relatedIds.push(edge.source)
+          if (!onCanvas.has(edge.source)) relatedIdSet.add(edge.source)
         }
         if (key.startsWith('org-location:') && edge.target === entityId) {
-          if (!onCanvas.has(edge.source)) relatedIds.push(edge.source)
+          if (!onCanvas.has(edge.source)) relatedIdSet.add(edge.source)
         }
       }
     }
+    const relatedIds = Array.from(relatedIdSet)
 
     if (relatedIds.length === 0) {
       onComplete()
