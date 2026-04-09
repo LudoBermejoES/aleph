@@ -5,7 +5,7 @@ import { diagrams, diagramSnapshots } from '../../../../../db/schema/diagrams'
 import { hasMinRole } from '../../../../../utils/permissions'
 import type { CampaignRole } from '../../../../../utils/permissions'
 
-const MAX_SNAPSHOT_BYTES = 5 * 1024 * 1024 // 5MB
+const MAX_SNAPSHOT_BYTES = 10 * 1024 * 1024 // 10MB
 
 export default defineEventHandler(async (event) => {
   const role = event.context.campaignRole as CampaignRole
@@ -30,14 +30,14 @@ export default defineEventHandler(async (event) => {
   // Reject early via Content-Length before reading the body
   const contentLength = parseInt(getRequestHeader(event, 'content-length') ?? '0', 10)
   if (contentLength > MAX_SNAPSHOT_BYTES) {
-    throw createError({ statusCode: 413, message: 'Snapshot exceeds 5MB limit' })
+    throw createError({ statusCode: 413, message: 'Snapshot exceeds 10MB limit' })
   }
 
   const body = await readBody(event)
   const snapshotStr = JSON.stringify(body)
 
   if (Buffer.byteLength(snapshotStr, 'utf8') > MAX_SNAPSHOT_BYTES) {
-    throw createError({ statusCode: 413, message: 'Snapshot exceeds 5MB limit' })
+    throw createError({ statusCode: 413, message: 'Snapshot exceeds 10MB limit' })
   }
 
   const latest = db
