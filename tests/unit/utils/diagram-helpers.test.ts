@@ -77,8 +77,8 @@ function buildFactionCardShape(
       slug: org.slug,
       factionName: org.name,
       crestUrl: org.imageUrl ?? undefined,
-      w: 180,
-      h: 100,
+      w: 140,
+      h: 160,
     },
   }
 }
@@ -181,8 +181,8 @@ describe('buildFactionCardShape', () => {
     expect(shape.props.entityId).toBe('org-1')
     expect(shape.props.factionName).toBe('La Fuerza')
     expect(shape.props.slug).toBe('la-fuerza')
-    expect(shape.props.w).toBe(180)
-    expect(shape.props.h).toBe(100)
+    expect(shape.props.w).toBe(140)
+    expect(shape.props.h).toBe(160)
   })
 
   it('sets crestUrl when imageUrl is provided', () => {

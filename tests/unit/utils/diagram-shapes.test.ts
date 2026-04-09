@@ -94,8 +94,8 @@ describe('buildShapeCreateArgs', () => {
     )
     expect(result.type).toBe('factionCard')
     expect(result.props.factionName).toBe('La Fuerza')
-    expect(result.props.w).toBe(180)
-    expect(result.props.h).toBe(100)
+    expect(result.props.w).toBe(140)
+    expect(result.props.h).toBe(160)
   })
 
   it('builds factionCard with crestUrl from image', () => {
