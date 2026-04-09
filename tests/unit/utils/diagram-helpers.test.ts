@@ -62,7 +62,7 @@ function buildLocationPinShape(
 }
 
 function buildFactionCardShape(
-  org: { id: string; name: string; slug: string },
+  org: { id: string; name: string; slug: string; imageUrl?: string | null },
   campaignId: string,
   x: number,
   y: number,
@@ -76,6 +76,7 @@ function buildFactionCardShape(
       campaignId,
       slug: org.slug,
       factionName: org.name,
+      crestUrl: org.imageUrl ?? undefined,
       w: 180,
       h: 100,
     },
@@ -182,5 +183,25 @@ describe('buildFactionCardShape', () => {
     expect(shape.props.slug).toBe('la-fuerza')
     expect(shape.props.w).toBe(180)
     expect(shape.props.h).toBe(100)
+  })
+
+  it('sets crestUrl when imageUrl is provided', () => {
+    const shape = buildFactionCardShape(
+      { id: 'org-1', name: 'La Fuerza', slug: 'la-fuerza', imageUrl: '/img/fuerza.png' },
+      'camp-1',
+      0,
+      0,
+    )
+    expect(shape.props.crestUrl).toBe('/img/fuerza.png')
+  })
+
+  it('crestUrl is undefined when imageUrl is null', () => {
+    const shape = buildFactionCardShape(
+      { id: 'org-1', name: 'La Fuerza', slug: 'la-fuerza', imageUrl: null },
+      'camp-1',
+      0,
+      0,
+    )
+    expect(shape.props.crestUrl).toBeUndefined()
   })
 })

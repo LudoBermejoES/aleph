@@ -145,6 +145,7 @@ node /Users/ludo/code/aleph/cli/bin/aleph.js organization edit <slug> --campaign
 node /Users/ludo/code/aleph/cli/bin/aleph.js organization delete <slug> --campaign <id> [--yes]
 node /Users/ludo/code/aleph/cli/bin/aleph.js organization member-add <slug> --campaign <id> --character <characterId> [--role <role>] [--json]
 node /Users/ludo/code/aleph/cli/bin/aleph.js organization member-remove <slug> --campaign <id> --character <characterId>
+node /Users/ludo/code/aleph/cli/bin/aleph.js organization upload-image <slug> --campaign <id> --file <path> [--json]
 ```
 
 Types: `faction`, `guild`, `army`, `cult`, `government`, `other`

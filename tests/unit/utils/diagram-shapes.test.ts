@@ -98,6 +98,15 @@ describe('buildShapeCreateArgs', () => {
     expect(result.props.h).toBe(100)
   })
 
+  it('builds factionCard with crestUrl from image', () => {
+    const result = buildShapeCreateArgs(
+      'organization',
+      { id: 'org1', name: 'La Fuerza', slug: 'la-fuerza', image: '/img/fuerza.png' },
+      campaignId,
+    )
+    expect(result.props.crestUrl).toBe('/img/fuerza.png')
+  })
+
   it('builds questNode for quest', () => {
     const result = buildShapeCreateArgs(
       'quest',

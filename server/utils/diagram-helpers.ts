@@ -76,7 +76,7 @@ export function buildLocationPinShape(
  * Build a factionCard shape descriptor for an organization.
  */
 export function buildFactionCardShape(
-  org: { id: string; name: string; slug: string },
+  org: { id: string; name: string; slug: string; imageUrl?: string | null },
   campaignId: string,
   x: number,
   y: number,
@@ -93,6 +93,7 @@ export function buildFactionCardShape(
       campaignId,
       slug: org.slug,
       factionName: org.name,
+      crestUrl: org.imageUrl ?? undefined,
     },
   }
 }

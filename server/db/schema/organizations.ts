@@ -15,6 +15,7 @@ export const organizations = sqliteTable(
     description: text('description'),
     type: text('type').notNull().default('faction'), // faction, guild, army, cult, government, other
     status: text('status').notNull().default('active'), // active, inactive, secret, dissolved
+    imageUrl: text('image_url'),
     createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
     updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
   },

@@ -64,12 +64,18 @@ export default defineEventHandler(async (event) => {
       id: organizations.id,
       name: organizations.name,
       slug: organizations.slug,
+      imageUrl: organizations.imageUrl,
     })
     .from(organizations)
     .where(and(eq(organizations.campaignId, campaignId), like(organizations.name, likeQ)))
     .limit(MAX_PER_TYPE)
     .all()
-    .map((r) => ({ ...r, entityType: 'organization', portraitUrl: null, type: 'organization' }))
+    .map((r) => ({
+      ...r,
+      entityType: 'organization',
+      portraitUrl: r.imageUrl ?? null,
+      type: 'organization',
+    }))
 
   // Quests
   const questResults = db

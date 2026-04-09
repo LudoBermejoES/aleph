@@ -105,6 +105,7 @@ export function buildShapeCreateArgs(
           w: 180,
           h: 100,
           factionName: entity.name,
+          crestUrl: entity.portraitUrl ?? entity.image ?? undefined,
         },
       }
     default:

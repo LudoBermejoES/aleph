@@ -319,7 +319,7 @@ export function generateFactionWeb(
     .limit(20)
     .all()
 
-  const items: { id: string; name: string; slug: string }[] =
+  const items: { id: string; name: string; slug: string; imageUrl?: string | null }[] =
     orgList.length > 0
       ? orgList
       : db

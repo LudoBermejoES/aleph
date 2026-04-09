@@ -1,6 +1,7 @@
 import { Command } from 'commander'
-import { get, post, put, del } from '../lib/client.js'
+import { get, post, put, del, postMultipart } from '../lib/client.js'
 import { print, success } from '../lib/output.js'
+import { existsSync } from 'fs'
 
 export function makeOrganizationCommand() {
   const cmd = new Command('organization').description('Manage organizations')
@@ -154,6 +155,29 @@ export function makeOrganizationCommand() {
     .action(async (slug, opts) => {
       await del(`/api/campaigns/${opts.campaign}/organizations/${slug}/members/${opts.character}`)
       success(`Member removed from "${slug}".`)
+    })
+
+  cmd
+    .command('upload-image <slug>')
+    .description('Upload an image for an organization')
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .requiredOption('--file <path>', 'Path to image file (png, jpg, webp)')
+    .option('--json', 'Output as JSON')
+    .action(async (slug, opts) => {
+      if (!existsSync(opts.file)) {
+        process.stderr.write(`Error: File not found: ${opts.file}\n`)
+        process.exit(1)
+      }
+      const data = await postMultipart(
+        `/api/campaigns/${opts.campaign}/organizations/${slug}/image`,
+        opts.file,
+        'image',
+      )
+      if (opts.json) {
+        print(data, { json: true })
+      } else {
+        success(`Image uploaded: ${data.imageUrl}`)
+      }
     })
 
   return cmd

@@ -210,10 +210,23 @@ export function buildGraphForCampaign(
 
   // ── 7. All campaign orgs (even without members) ────────────────────────────
   const allOrgs = db
-    .select({ id: organizations.id, name: organizations.name, slug: organizations.slug })
+    .select({
+      id: organizations.id,
+      name: organizations.name,
+      slug: organizations.slug,
+      imageUrl: organizations.imageUrl,
+    })
     .from(organizations)
     .where(eq(organizations.campaignId, campaignId))
     .all()
+
+  // Build imageUrl map and backfill org nodes created from membership rows
+  const orgImageMap = Object.fromEntries(allOrgs.map((o) => [o.id, o.imageUrl]))
+  for (const [orgId, node] of Object.entries(graphNodes)) {
+    if (node.type === 'organization' && !node.image && orgImageMap[orgId]) {
+      node.image = orgImageMap[orgId]!
+    }
+  }
 
   for (const org of allOrgs) {
     if (!graphNodes[org.id]) {
@@ -222,7 +235,7 @@ export function buildGraphForCampaign(
         type: 'organization',
         slug: org.slug,
         boardSummary: null,
-        image: null,
+        image: org.imageUrl ?? null,
         organizations: [],
       }
     }

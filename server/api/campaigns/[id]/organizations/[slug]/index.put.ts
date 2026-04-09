@@ -32,9 +32,10 @@ export default defineEventHandler(async (event) => {
     description: z.string().optional(),
     type: z.string().optional(),
     status: z.string().optional(),
+    imageUrl: z.string().nullable().optional(),
   })
   const body = await validateBody(event, orgPutSchema)
-  const { name, description, type, status } = body
+  const { name, description, type, status, imageUrl } = body
 
   let newSlug = org.slug
   if (name && name.trim() !== org.name) {
@@ -65,6 +66,7 @@ export default defineEventHandler(async (event) => {
       description: description !== undefined ? description : org.description,
       type: type ?? org.type,
       status: status ?? org.status,
+      imageUrl: imageUrl !== undefined ? imageUrl : org.imageUrl,
       updatedAt: new Date(),
     })
     .where(eq(organizations.id, org.id))
