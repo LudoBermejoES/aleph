@@ -22,7 +22,7 @@
           <Button
             v-for="f in filterOptions"
             :key="f.value"
-            size="xs"
+            size="sm"
             :variant="filterType === f.value ? 'default' : 'outline'"
             @click="setFilter(f.value)"
           >
