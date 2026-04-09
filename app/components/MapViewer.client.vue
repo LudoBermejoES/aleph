@@ -119,7 +119,8 @@ onMounted(async () => {
   const imgHeight = props.height || 768
   const maxDim = Math.max(imgWidth, imgHeight)
   const maxZoom = Math.ceil(Math.log2(maxDim / 256))
-  const bounds = L.latLngBounds([0, 0], [imgHeight, imgWidth])
+  // Use negative Y for southWest so that tile Y=0 is at top (matching generator)
+  const bounds = L.latLngBounds([-imgHeight, 0], [0, imgWidth])
 
   map = L.map(mapContainer.value, {
     crs: L.CRS.Simple,
@@ -139,10 +140,9 @@ onMounted(async () => {
       maxZoom,
       noWrap: true,
       bounds,
-      tms: true,
     }).addTo(map)
   } else {
-    map.setView([imgHeight / 2, imgWidth / 2], 0)
+    map.setView([-imgHeight / 2, imgWidth / 2], 0)
   }
 
   // Add pins
