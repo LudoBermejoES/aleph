@@ -1,0 +1,2 @@
+npm run format:check
+npx eslint . --ext .ts,.vue,.tsx --quiet
