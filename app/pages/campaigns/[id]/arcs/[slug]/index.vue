@@ -70,10 +70,30 @@
         </div>
       </div>
 
+      <!-- Preview Role Switcher (DM only) -->
+      <EntityPreviewRoleSwitcher
+        v-if="isDm"
+        :campaign-role="campaignRole"
+        :campaign-id="campaignId"
+        :entity-slug="slug"
+        class="mb-4"
+      />
+
       <!-- Description -->
-      <p v-if="arc.description && !editingArc" class="text-muted-foreground mb-6">
-        {{ arc.description }}
-      </p>
+      <div ref="contentRef" class="prose dark:prose-invert max-w-none text-foreground mb-6">
+        <p v-if="arc.description && !editingArc" class="text-muted-foreground">
+          {{ arc.description }}
+        </p>
+      </div>
+
+      <!-- Secret Notes (DM only) -->
+      <EntitySecretNotes
+        v-if="isDm"
+        :campaign-id="campaignId"
+        :entity-slug="slug"
+        :campaign-role="campaignRole"
+        class="mb-6"
+      />
 
       <!-- Linked sessions -->
       <section v-if="linkedSessions.length" class="mb-6">
@@ -236,6 +256,9 @@ const { loading, error, withLoading, dismissError } = useLoadingState()
 const arc = ref<Arc | null>(null)
 const linkedSessions = ref<GameSession[]>([])
 const canEdit = ref(false)
+const campaignRole = ref<string>('')
+const isDm = computed(() => ['dm', 'co_dm'].includes(campaignRole.value))
+const contentRef = ref<HTMLElement>()
 
 // Arc editing
 const editingArc = ref(false)
@@ -274,7 +297,8 @@ async function load() {
       return
     }
     arc.value = found
-    canEdit.value = ['dm', 'co_dm'].includes((campaign as { role?: string }).role ?? '')
+    campaignRole.value = (campaign as { role?: string }).role ?? ''
+    canEdit.value = ['dm', 'co_dm'].includes(campaignRole.value)
     linkedSessions.value = sessions.filter((s: GameSession) => s.arcId === found.id)
   })
 }
@@ -354,5 +378,19 @@ async function moveChapter(chapter: Chapter, direction: number) {
   await load()
 }
 
-onMounted(load)
+// Secret block reveal composable
+const { loadRevealedBlocks, injectRevealButtons } = useSecretReveals(
+  contentRef,
+  campaignId,
+  slug,
+  isDm,
+  t,
+)
+
+onMounted(async () => {
+  await load()
+  await loadRevealedBlocks()
+  await nextTick()
+  injectRevealButtons()
+})
 </script>

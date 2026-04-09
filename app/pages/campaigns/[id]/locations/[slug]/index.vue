@@ -41,14 +41,33 @@
         </div>
       </div>
 
+      <!-- Preview Role Switcher (DM only) -->
+      <EntityPreviewRoleSwitcher
+        v-if="isDm"
+        :campaign-role="campaignRole"
+        :campaign-id="campaignId"
+        :entity-slug="slug"
+        class="mb-4"
+      />
+
       <!-- Description -->
       <!-- eslint-disable vue/no-v-html -->
       <div
         v-if="location.content"
+        ref="contentRef"
         class="prose dark:prose-invert max-w-none mb-8"
         v-html="renderedContent"
       ></div>
       <!-- eslint-enable vue/no-v-html -->
+
+      <!-- Secret Notes (DM only) -->
+      <EntitySecretNotes
+        v-if="isDm"
+        :campaign-id="campaignId"
+        :entity-slug="slug"
+        :campaign-role="campaignRole"
+        class="mt-6 mb-6"
+      />
 
       <!-- Sub-locations -->
       <section class="mb-6">
@@ -204,6 +223,16 @@ const allCharacters = ref<CharacterEntry[]>([])
 const allOrgs = ref<OrgEntry[]>([])
 const selectedCharacter = ref('')
 const selectedOrg = ref('')
+const campaignRole = ref('')
+const isDm = computed(() => ['dm', 'co_dm'].includes(campaignRole.value))
+const contentRef = ref<HTMLElement>()
+const { loadRevealedBlocks, injectRevealButtons } = useSecretReveals(
+  contentRef,
+  campaignId,
+  slug,
+  isDm,
+  t,
+)
 
 const renderedContent = computed(() => {
   // Simple markdown rendering via existing prose classes; content already processed server-side
@@ -220,13 +249,14 @@ const availableOrgs = computed(() =>
 
 async function load() {
   await withLoading(async () => {
-    const [loc, subs, inh, linkedOrgs, chars, allOrgsList] = await Promise.all([
+    const [loc, subs, inh, linkedOrgs, chars, allOrgsList, campaign] = await Promise.all([
       api.getLocation(slug),
       api.getSubLocations(slug),
       api.getLocationInhabitants(slug),
       api.getLocationOrganizations(slug),
       api.getCharacters({}),
       api.getOrganizations(),
+      api.getCampaign().catch(() => null),
     ])
     location.value = loc
     subLocations.value = subs
@@ -234,10 +264,16 @@ async function load() {
     orgs.value = linkedOrgs
     allCharacters.value = chars
     allOrgs.value = allOrgsList
+    campaignRole.value = campaign?.role ?? ''
   })
 }
 
-onMounted(load)
+onMounted(async () => {
+  await load()
+  await loadRevealedBlocks()
+  await nextTick()
+  injectRevealButtons()
+})
 
 async function addInhabitant() {
   if (!selectedCharacter.value) return

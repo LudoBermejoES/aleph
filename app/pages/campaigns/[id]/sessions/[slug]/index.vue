@@ -74,6 +74,13 @@
         @set-attended="setAttended"
       />
 
+      <!-- Preview role switcher (DM only) -->
+      <EntityPreviewRoleSwitcher
+        v-if="isDm"
+        :campaign-role="campaignRole"
+        @change="onPreviewRoleChange"
+      />
+
       <!-- Session Log -->
       <div class="mb-6">
         <div class="flex items-center justify-between mb-3">
@@ -88,8 +95,9 @@
           rows="15"
           class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono"
         ></textarea>
-        <div v-else class="prose dark:prose-invert max-w-none text-foreground">
-          <MDC v-if="session.logContent" :value="session.logContent" />
+        <div v-else ref="contentRef" class="prose dark:prose-invert max-w-none text-foreground">
+          <MDC v-if="previewContent !== null" :value="previewContent" />
+          <MDC v-else-if="session.logContent" :value="session.logContent" />
           <p v-else class="text-muted-foreground italic">{{ $t('sessions.noLog') }}</p>
         </div>
         <Button v-if="editing" class="mt-2" @click="saveLog">{{ $t('sessions.saveLog') }}</Button>
@@ -119,6 +127,14 @@
         :open="rollsOpen"
         @toggle="toggleRolls"
       />
+
+      <!-- Secret Notes (DM only) -->
+      <EntitySecretNotes
+        v-if="isDm"
+        :campaign-id="campaignId"
+        :entity-slug="slug"
+        :campaign-role="campaignRole"
+      />
     </div>
   </div>
 </template>
@@ -138,6 +154,9 @@ const logContent = ref('')
 const canDelete = ref(false)
 const canGenerate = ref(false)
 const myRsvp = ref('pending')
+const campaignRole = ref<string>('')
+const previewContent = ref<string | null>(null)
+const contentRef = ref<HTMLElement>()
 const api = useCampaignApi(campaignId)
 const { loading, error, withLoading } = useLoadingState()
 const contentTabsRef = ref<{
@@ -174,6 +193,7 @@ async function load() {
     session.value = sessionData
     logContent.value = session.value?.logContent || ''
     const role = ((campaignData as Record<string, unknown>)?.role as string) ?? ''
+    campaignRole.value = role
     canDelete.value = ['dm', 'co_dm'].includes(role)
     canGenerate.value = ['dm', 'co_dm', 'editor'].includes(role)
     decisions.value = await api.getSessionDecisions(slug).catch(() => [])
@@ -325,5 +345,41 @@ async function toggleRolls() {
   }
 }
 
-onMounted(load)
+async function onPreviewRoleChange(role: string | null) {
+  if (!role) {
+    previewContent.value = null
+    return
+  }
+  try {
+    const res = await fetch(
+      `/api/campaigns/${campaignId}/sessions/${slug}/render?preview_as=${role}`,
+      {
+        credentials: 'include',
+      },
+    )
+    if (res.ok) {
+      const data = await res.json()
+      previewContent.value = data.content
+    }
+  } catch {
+    /* silently ignore */
+  }
+}
+
+// Secret block reveal composable
+const isDm = computed(() => ['dm', 'co_dm'].includes(campaignRole.value))
+const { loadRevealedBlocks, injectRevealButtons } = useSecretReveals(
+  contentRef,
+  campaignId,
+  slug,
+  isDm,
+  t,
+)
+
+onMounted(async () => {
+  await load()
+  await loadRevealedBlocks()
+  await nextTick()
+  injectRevealButtons()
+})
 </script>

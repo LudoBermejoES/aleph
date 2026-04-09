@@ -163,7 +163,6 @@ const { t } = useI18n()
 const campaignRole = ref<string>('')
 const previewContent = ref<string | null>(null)
 const contentRef = ref<HTMLElement>()
-const revealedBlocks = ref<Set<string>>(new Set())
 
 const entity = ref<Entity | null>(null)
 const children = ref<Entity[]>([])
@@ -247,70 +246,20 @@ function onGraphNodeClick(_nodeId: string) {
   navigateTo(`/campaigns/${campaignId}/graph`)
 }
 
-// Load revealed secret block IDs for DM view
-async function loadRevealedBlocks() {
-  if (!['dm', 'co_dm'].includes(campaignRole.value)) return
-  try {
-    const res = await fetch(`/api/campaigns/${campaignId}/entities/${slug}/secrets`, {
-      credentials: 'include',
-    })
-    if (res.ok) {
-      const data = await res.json()
-      revealedBlocks.value = new Set((data as { blockId: string }[]).map((r) => r.blockId))
-    }
-  } catch {
-    /* silently ignore */
-  }
-}
-
-// Inject reveal buttons into secret blocks after render
-function injectRevealButtons() {
-  if (!contentRef.value || !['dm', 'co_dm'].includes(campaignRole.value)) return
-  const blocks = contentRef.value.querySelectorAll('[data-secret][data-secret-id]')
-  for (const block of blocks) {
-    const blockId = block.getAttribute('data-secret-id')!
-    if (block.querySelector('[data-reveal-btn]')) continue // already injected
-    const btn = document.createElement('button')
-    btn.setAttribute('data-reveal-btn', blockId)
-    const isRevealed = revealedBlocks.value.has(blockId)
-    btn.className = `text-xs px-2 py-0.5 rounded font-medium transition-colors ml-2 ${isRevealed ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-amber-100 text-amber-700 hover:bg-amber-200'}`
-    btn.textContent = isRevealed ? t('secrets.unreveal') : t('secrets.reveal')
-    btn.addEventListener('click', async () => {
-      const revealed = revealedBlocks.value.has(blockId)
-      if (revealed) {
-        await fetch(`/api/campaigns/${campaignId}/entities/${slug}/secrets/${blockId}`, {
-          method: 'DELETE',
-          credentials: 'include',
-        })
-        revealedBlocks.value = new Set([...revealedBlocks.value].filter((id) => id !== blockId))
-      } else {
-        await fetch(`/api/campaigns/${campaignId}/entities/${slug}/secrets`, {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ blockId }),
-        })
-        revealedBlocks.value = new Set([...revealedBlocks.value, blockId])
-      }
-      // Re-inject after state change
-      block.querySelector('[data-reveal-btn]')?.remove()
-      injectRevealButtons()
-    })
-    block.prepend(btn)
-  }
-}
+// Secret block reveal composable
+const isDm = computed(() => ['dm', 'co_dm'].includes(campaignRole.value))
+const { loadRevealedBlocks, injectRevealButtons } = useSecretReveals(
+  contentRef,
+  campaignId,
+  slug,
+  isDm,
+  t,
+)
 
 onMounted(async () => {
   await loadEntity()
   await loadRevealedBlocks()
   await nextTick()
-  injectRevealButtons()
-})
-
-watch(revealedBlocks, async () => {
-  await nextTick()
-  // Remove all existing buttons and re-inject with updated state
-  contentRef.value?.querySelectorAll('[data-reveal-btn]').forEach((b) => b.remove())
   injectRevealButtons()
 })
 </script>

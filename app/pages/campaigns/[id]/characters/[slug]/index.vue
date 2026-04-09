@@ -263,10 +263,28 @@
         <p v-else class="text-sm text-muted-foreground">{{ $t('organizations.noMembers') }}</p>
       </div>
 
+      <!-- Preview Role Switcher (DM only) -->
+      <EntityPreviewRoleSwitcher
+        v-if="isDm"
+        :campaign-role="campaignRole"
+        :campaign-id="campaignId"
+        :entity-slug="slug"
+        class="mb-4"
+      />
+
       <!-- Markdown Content -->
-      <div class="prose dark:prose-invert max-w-none text-foreground">
+      <div ref="contentRef" class="prose dark:prose-invert max-w-none text-foreground">
         <MDC v-if="character.content" :value="character.content" />
       </div>
+
+      <!-- Secret Notes (DM only) -->
+      <EntitySecretNotes
+        v-if="isDm"
+        :campaign-id="campaignId"
+        :entity-slug="slug"
+        :campaign-role="campaignRole"
+        class="mt-6"
+      />
     </div>
   </div>
 </template>
@@ -436,6 +454,17 @@ function onGraphNodeClick(nodeId: string) {
 
 const api = useCampaignApi(campaignId)
 const canEdit = ref(false)
+const campaignRole = ref('')
+const isDm = computed(() => ['dm', 'co_dm'].includes(campaignRole.value))
+const contentRef = ref<HTMLElement>()
+const { t } = useI18n()
+const { loadRevealedBlocks, injectRevealButtons } = useSecretReveals(
+  contentRef,
+  campaignId,
+  slug,
+  isDm,
+  t,
+)
 const { loading, error, withLoading } = useLoadingState()
 
 async function load() {
@@ -445,7 +474,8 @@ async function load() {
       api.getCampaign().catch(() => null),
     ])
     character.value = char
-    canEdit.value = ['dm', 'co_dm', 'editor'].includes(campaign?.role ?? '')
+    campaignRole.value = campaign?.role ?? ''
+    canEdit.value = ['dm', 'co_dm', 'editor'].includes(campaignRole.value)
 
     // Load connections
     connections.value = await api
@@ -483,5 +513,10 @@ async function load() {
   })
 }
 
-onMounted(load)
+onMounted(async () => {
+  await load()
+  await loadRevealedBlocks()
+  await nextTick()
+  injectRevealButtons()
+})
 </script>

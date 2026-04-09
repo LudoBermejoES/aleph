@@ -44,8 +44,28 @@
         </div>
       </div>
 
+      <!-- Preview Role Switcher (DM only) -->
+      <EntityPreviewRoleSwitcher
+        v-if="isDm"
+        :campaign-role="campaignRole"
+        :campaign-id="campaignId"
+        :entity-slug="slug"
+        class="mb-4"
+      />
+
       <!-- Description -->
-      <p v-if="quest.description" class="text-muted-foreground mb-6">{{ quest.description }}</p>
+      <div ref="contentRef" class="prose dark:prose-invert max-w-none text-foreground mb-6">
+        <p v-if="quest.description" class="text-muted-foreground">{{ quest.description }}</p>
+      </div>
+
+      <!-- Secret Notes (DM only) -->
+      <EntitySecretNotes
+        v-if="isDm"
+        :campaign-id="campaignId"
+        :entity-slug="slug"
+        :campaign-role="campaignRole"
+        class="mb-6"
+      />
 
       <!-- Meta -->
       <div class="space-y-4 mb-6">
@@ -128,6 +148,7 @@ import type { Quest } from '~/types/api'
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 const campaignId = route.params.id as string
 const slug = route.params.slug as string
 const api = useCampaignApi(campaignId)
@@ -137,6 +158,9 @@ const quest = ref<Quest | null>(null)
 const allQuests = ref<Quest[]>([])
 const allCharacters = ref<{ id: string; name: string; slug: string }[]>([])
 const linkedEntity = ref<{ id: string; name: string; slug: string } | null>(null)
+const campaignRole = ref<string>('')
+const isDm = computed(() => ['dm', 'co_dm'].includes(campaignRole.value))
+const contentRef = ref<HTMLElement>()
 
 const parentQuest = computed(() =>
   quest.value?.parentQuestId
@@ -169,16 +193,27 @@ const statusClass = computed(() => {
   }
 })
 
+// Secret block reveal composable
+const { loadRevealedBlocks, injectRevealButtons } = useSecretReveals(
+  contentRef,
+  campaignId,
+  slug,
+  isDm,
+  t,
+)
+
 onMounted(async () => {
   try {
-    const [q, quests, chars] = await Promise.all([
+    const [q, quests, chars, campaign] = await Promise.all([
       api.getQuest(slug),
       api.getQuests({}),
       api.getCharacters({}),
+      api.getCampaign().catch(() => null),
     ])
     quest.value = q
     allQuests.value = quests
     allCharacters.value = chars
+    campaignRole.value = ((campaign as Record<string, unknown>)?.role as string) ?? ''
     if (q.entityId) {
       try {
         linkedEntity.value = await api.getEntity(q.entityId)
@@ -191,5 +226,8 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
+  await loadRevealedBlocks()
+  await nextTick()
+  injectRevealButtons()
 })
 </script>
