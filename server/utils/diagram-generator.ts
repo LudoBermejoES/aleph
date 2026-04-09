@@ -422,10 +422,48 @@ export function generateFactionWeb(
   // ── Pass 2: Create entity shapes at optimal positions ────────────────────
   const entityIdToShapeId = new Map<string, string>()
 
+  // Group single-org entities by org for radial sub-cluster layout
+  const singleOrgEntities = new Map<string, string[]>() // orgId → entityIds
+  const sharedEntities: string[] = [] // entityIds shared by 2+ orgs
+
   for (const [entityId, info] of entityRelations) {
+    if (info.orgIds.length === 1) {
+      const orgId = info.orgIds[0]!
+      const list = singleOrgEntities.get(orgId) ?? []
+      list.push(entityId)
+      singleOrgEntities.set(orgId, list)
+    } else {
+      sharedEntities.push(entityId)
+    }
+  }
+
+  // Place single-org entities in radial sub-clusters around their org
+  for (const [orgId, entityIds] of singleOrgEntities) {
+    const orgPos = orgPositionMap.get(orgId)!
+    const subPositions = radialLayout(orgPos.x, orgPos.y, entityIds.length, 300)
+
+    for (let j = 0; j < entityIds.length; j++) {
+      const entityId = entityIds[j]!
+      const info = entityRelations.get(entityId)!
+      const sp = subPositions[j]!
+
+      const shape =
+        info.entity.kind === 'character'
+          ? buildNpcTokenShape(info.entity.data, campaignId, sp.x - 70, sp.y - 80)
+          : buildLocationPinShape(info.entity.data, campaignId, sp.x - 90, sp.y - 30)
+      shapes.push(shape)
+      entityIdToShapeId.set(entityId, shape.id)
+
+      const orgShapeId = orgShapeIds.get(orgId)!
+      bindings.push(makeArrowBinding(orgShapeId, shape.id, info.labels[0]))
+    }
+  }
+
+  // Place shared entities at the midpoint of their referencing orgs
+  for (const entityId of sharedEntities) {
+    const info = entityRelations.get(entityId)!
     const { entity, orgIds, labels } = info
 
-    // Compute position: midpoint of all referencing orgs
     let x = 0
     let y = 0
     for (const orgId of orgIds) {
@@ -436,17 +474,6 @@ export function generateFactionWeb(
     x /= orgIds.length
     y /= orgIds.length
 
-    // For single-org entities, offset from the org center to avoid overlap
-    if (orgIds.length === 1) {
-      const orgPos = orgPositionMap.get(orgIds[0]!)!
-      const dx = orgPos.x - centerX
-      const dy = orgPos.y - centerY
-      const dist = Math.sqrt(dx * dx + dy * dy) || 1
-      // Place 300px outward from the org (away from center)
-      x = orgPos.x + (dx / dist) * 300
-      y = orgPos.y + (dy / dist) * 300
-    }
-
     const shape =
       entity.kind === 'character'
         ? buildNpcTokenShape(entity.data, campaignId, x - 70, y - 80)
@@ -454,7 +481,6 @@ export function generateFactionWeb(
     shapes.push(shape)
     entityIdToShapeId.set(entityId, shape.id)
 
-    // Create bindings from each referencing org
     for (let k = 0; k < orgIds.length; k++) {
       const orgShapeId = orgShapeIds.get(orgIds[k]!)!
       bindings.push(makeArrowBinding(orgShapeId, shape.id, labels[k]))
