@@ -55,8 +55,8 @@ import type { Map as LeafletMap, Marker } from 'leaflet'
 
 const props = defineProps<{
   imagePath?: string
-  width?: number
-  height?: number
+  imageWidth?: number
+  imageHeight?: number
   pins?: Array<{
     id: string
     label?: string
@@ -115,8 +115,8 @@ onMounted(async () => {
   const L = await import('leaflet')
   await import('leaflet/dist/leaflet.css')
 
-  const imgWidth = props.width || 1024
-  const imgHeight = props.height || 768
+  const imgWidth = props.imageWidth || 1024
+  const imgHeight = props.imageHeight || 768
   const maxDim = Math.max(imgWidth, imgHeight)
   const maxZoom = Math.ceil(Math.log2(maxDim / 256))
 
@@ -222,7 +222,7 @@ function renderPins(L: typeof import('leaflet')) {
     })
 
     // Scale pin coordinates from image pixels to CRS units (negative lat = top-down Y)
-    const pinScale = 256 / Math.max(props.width || 1024, props.height || 768)
+    const pinScale = 256 / Math.max(props.imageWidth || 1024, props.imageHeight || 768)
     const marker = L.marker([-pin.lat * pinScale, pin.lng * pinScale], { icon: divIcon }).addTo(map)
 
     const popupContent = `

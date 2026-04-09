@@ -40,7 +40,8 @@
       <ClientOnly>
         <MapViewer
           :image-path="mapData.imagePath"
-          :width="mapData.width || 1024"
+          :image-width="mapData.width || 1024"
+          :image-height="mapData.height || 768"
           :pins="mapData.pins"
           :layers="mapData.layers"
           :groups="mapData.groups"
