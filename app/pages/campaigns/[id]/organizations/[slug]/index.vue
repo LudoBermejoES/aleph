@@ -15,24 +15,40 @@
     <LoadingSkeleton v-if="loading" :rows="4" />
     <ErrorToast v-if="error" :message="error" @dismiss="error = null" />
     <div v-else-if="org">
-      <div class="flex items-start justify-between mb-6">
-        <div>
-          <h1 class="text-2xl font-bold">{{ org.name }}</h1>
-          <div class="flex gap-2 mt-2">
-            <span class="text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground">{{
-              $t(`organizations.types.${org.type}`)
-            }}</span>
-            <span class="text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground">{{
-              $t(`organizations.statuses.${org.status}`)
-            }}</span>
+      <div class="flex items-start gap-6 mb-6">
+        <EntityImage
+          :image-url="org.imageUrl ?? null"
+          :name="org.name"
+          :editable="true"
+          :campaign-id="campaignId"
+          :upload-url="`/api/campaigns/${campaignId}/organizations/${slug}/image`"
+          size="lg"
+          @uploaded="
+            (url: string) => {
+              if (org) org.imageUrl = url
+            }
+          "
+        />
+        <div class="flex-1">
+          <div class="flex items-start justify-between">
+            <div>
+              <h1 class="text-2xl font-bold">{{ org.name }}</h1>
+              <div class="flex gap-2 mt-2">
+                <span class="text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground">{{
+                  $t(`organizations.types.${org.type}`)
+                }}</span>
+                <span class="text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground">{{
+                  $t(`organizations.statuses.${org.status}`)
+                }}</span>
+              </div>
+            </div>
+            <NuxtLink :to="`/campaigns/${campaignId}/organizations/${slug}/edit`">
+              <Button variant="outline" size="sm">{{ $t('common.edit') }}</Button>
+            </NuxtLink>
           </div>
+          <p v-if="org.description" class="text-muted-foreground mt-4">{{ org.description }}</p>
         </div>
-        <NuxtLink :to="`/campaigns/${campaignId}/organizations/${slug}/edit`">
-          <Button variant="outline" size="sm">{{ $t('common.edit') }}</Button>
-        </NuxtLink>
       </div>
-
-      <p v-if="org.description" class="text-muted-foreground mb-6">{{ org.description }}</p>
 
       <!-- Members section -->
       <div>

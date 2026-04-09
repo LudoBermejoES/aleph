@@ -69,6 +69,7 @@ const props = defineProps<{
   editable?: boolean
   campaignId?: string
   entitySlug?: string
+  uploadUrl?: string
   size?: 'sm' | 'md' | 'lg'
 }>()
 
@@ -102,19 +103,23 @@ function triggerUpload() {
 async function handleFileChange(event: Event) {
   const input = event.target as HTMLInputElement
   const file = input.files?.[0]
-  if (!file || !props.campaignId || !props.entitySlug) return
+  if (!file || !props.campaignId) return
+
+  const url =
+    props.uploadUrl ??
+    (props.entitySlug
+      ? `/api/campaigns/${props.campaignId}/entities/${props.entitySlug}/image`
+      : null)
+  if (!url) return
 
   uploading.value = true
   try {
     const form = new FormData()
     form.append('image', file)
-    const res = await fetch(
-      `/api/campaigns/${props.campaignId}/entities/${props.entitySlug}/image`,
-      {
-        method: 'POST',
-        body: form,
-      },
-    )
+    const res = await fetch(url, {
+      method: 'POST',
+      body: form,
+    })
     if (!res.ok) {
       const err = await res.json().catch(() => ({}))
       throw new Error(err.message || `Upload failed (${res.status})`)
