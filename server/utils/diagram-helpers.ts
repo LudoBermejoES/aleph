@@ -87,8 +87,8 @@ export function buildFactionCardShape(
     x,
     y,
     props: {
-      w: 180,
-      h: 100,
+      w: 140,
+      h: 160,
       entityId: org.id,
       campaignId,
       slug: org.slug,

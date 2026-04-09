@@ -63,8 +63,8 @@ export class FactionCardShapeUtil extends BaseBoxShapeUtil<FactionCardShape> {
 
   override getDefaultProps() {
     return {
-      w: 180,
-      h: 100,
+      w: 140,
+      h: 160,
       entityId: '',
       campaignId: '',
       slug: '',
@@ -125,35 +125,36 @@ function FactionCardComponent({ shape }: { shape: FactionCardShape }) {
           cursor: 'default',
         }}
       >
-        {/* Banner area */}
+        {/* Image area */}
         <div
           style={{
-            height: 40,
+            flex: 1,
             background: bannerColor,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            flexShrink: 0,
+            overflow: 'hidden',
+            minHeight: 0,
           }}
         >
           {showCrest ? (
             <img
               src={shape.props.crestUrl}
               alt={shape.props.factionName}
-              style={{ height: 32, width: 32, objectFit: 'contain' }}
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               onError={() => setImgError(true)}
             />
           ) : (
             <div
               style={{
-                width: 32,
-                height: 32,
+                width: 48,
+                height: 48,
                 borderRadius: '50%',
                 background: 'rgba(255,255,255,0.25)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: 18,
+                fontSize: 24,
                 fontWeight: 700,
                 color: 'white',
               }}
@@ -163,24 +164,25 @@ function FactionCardComponent({ shape }: { shape: FactionCardShape }) {
           )}
         </div>
 
-        {/* Body */}
+        {/* Name bar */}
         <div
           style={{
-            flex: 1,
-            padding: '4px 8px',
+            padding: '4px 6px',
             display: 'flex',
             flexDirection: 'column',
             gap: 2,
             overflow: 'hidden',
+            flexShrink: 0,
           }}
         >
           <div
             style={{
               fontWeight: 700,
-              fontSize: 13,
+              fontSize: 11,
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               whiteSpace: 'nowrap',
+              textAlign: 'center',
             }}
           >
             {shape.props.factionName}

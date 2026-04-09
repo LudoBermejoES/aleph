@@ -102,8 +102,8 @@ export function buildShapeCreateArgs(
         type: 'factionCard',
         props: {
           ...baseProps,
-          w: 180,
-          h: 100,
+          w: 140,
+          h: 160,
           factionName: entity.name,
           crestUrl: entity.portraitUrl ?? entity.image ?? undefined,
         },
