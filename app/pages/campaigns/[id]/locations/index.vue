@@ -25,53 +25,40 @@
     </div>
 
     <div v-if="loading" class="text-muted-foreground">{{ $t('common.loading') }}</div>
-    <div v-else-if="locations.length === 0" class="text-center py-12 text-muted-foreground">
+    <div v-else-if="allLocations.length === 0" class="text-center py-12 text-muted-foreground">
       <p class="text-lg font-medium">{{ $t('locations.empty') }}</p>
       <p class="text-sm mt-1">{{ $t('locations.emptyDescription') }}</p>
     </div>
-    <div v-else class="space-y-2">
-      <div
-        v-for="loc in locations"
-        :key="loc.id"
-        class="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-accent/30 transition-colors"
-      >
-        <div class="flex-1 min-w-0">
-          <NuxtLink
-            :to="`/campaigns/${campaignId}/locations/${loc.slug}`"
-            class="font-medium hover:text-primary"
-          >
-            {{ loc.name }}
-          </NuxtLink>
-          <div class="flex items-center gap-2 mt-0.5 text-xs text-muted-foreground">
-            <span v-if="loc.parentName">{{ loc.parentName }} /</span>
-            <span class="capitalize">{{ loc.subtype || $t('locations.subtypes.other') }}</span>
-            <span v-if="loc.inhabitantCount > 0"
-              >· {{ loc.inhabitantCount }} {{ $t('characters.title').toLowerCase() }}</span
-            >
-            <span v-if="loc.childCount > 0">· {{ loc.childCount }} sub-locations</span>
-          </div>
-        </div>
-        <span class="text-xs px-2 py-0.5 rounded bg-muted text-muted-foreground capitalize">{{
-          $t(`locations.subtypes.${loc.subtype || 'other'}`)
-        }}</span>
-      </div>
-      <PaginationControls
-        :page="pagination.page.value"
-        :page-size="pagination.pageSize.value"
-        :total="pagination.total.value"
-        :total-pages="pagination.totalPages.value"
-        @change="
-          (p) => {
-            pagination.setPage(p)
-            load()
-          }
-        "
+    <div v-else class="space-y-0.5">
+      <LocationTreeNode
+        v-for="node in treeRoots"
+        :key="node.id"
+        :node="node"
+        :campaign-id="campaignId"
+        :depth="0"
+        :expanded-ids="expandedIds"
+        @toggle="toggleExpand"
       />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+interface LocationItem {
+  id: string
+  name: string
+  slug: string
+  subtype?: string
+  parentId?: string | null
+  parentName?: string | null
+  childCount?: number
+  inhabitantCount?: number
+}
+
+interface TreeNode extends LocationItem {
+  children: TreeNode[]
+}
+
 const route = useRoute()
 const campaignId = route.params.id as string
 const api = useCampaignApi(campaignId)
@@ -94,25 +81,83 @@ const subtypes = SUBTYPES
 const search = ref('')
 const subtypeFilter = ref('')
 const loading = ref(true)
-const locations = ref<{ id: string; name: string; slug: string; subtype?: string }[]>([])
-const pagination = usePagination()
+const allLocations = ref<LocationItem[]>([])
+const expandedIds = reactive(new Set<string>())
+
+// Build tree from flat list
+const treeRoots = computed<TreeNode[]>(() => {
+  const byId = new Map<string, TreeNode>()
+  const roots: TreeNode[] = []
+
+  // Create nodes
+  for (const loc of allLocations.value) {
+    byId.set(loc.id, { ...loc, children: [] })
+  }
+
+  // Build parent→children relationships
+  for (const loc of allLocations.value) {
+    const node = byId.get(loc.id)!
+    if (loc.parentId && byId.has(loc.parentId)) {
+      byId.get(loc.parentId)!.children.push(node)
+    } else {
+      roots.push(node)
+    }
+  }
+
+  // Sort: regions/villages first, then by name
+  const subtypeOrder: Record<string, number> = {
+    country: 0,
+    region: 1,
+    city: 2,
+    town: 3,
+    village: 4,
+    dungeon: 5,
+    wilderness: 6,
+    building: 7,
+    lair: 8,
+    room: 9,
+    other: 10,
+  }
+  function sortNodes(nodes: TreeNode[]) {
+    nodes.sort((a, b) => {
+      const ao = subtypeOrder[a.subtype ?? 'other'] ?? 10
+      const bo = subtypeOrder[b.subtype ?? 'other'] ?? 10
+      if (ao !== bo) return ao - bo
+      return a.name.localeCompare(b.name)
+    })
+    for (const n of nodes) sortNodes(n.children)
+  }
+  sortNodes(roots)
+
+  return roots
+})
+
+function toggleExpand(id: string) {
+  if (expandedIds.has(id)) {
+    expandedIds.delete(id)
+  } else {
+    expandedIds.add(id)
+  }
+}
 
 async function load() {
   loading.value = true
   try {
-    const params: Record<string, string> = { ...pagination.queryParams() }
+    const params: Record<string, string> = { pageSize: '0' }
     if (search.value) params.search = search.value
     if (subtypeFilter.value) params.subtype = subtypeFilter.value
-    const res = await api.getLocations(params as Record<string, string>)
+    const res = await api.getLocations(params)
     if (Array.isArray(res)) {
-      locations.value = res
+      allLocations.value = res
     } else {
-      const paged = res as {
-        data: typeof locations.value
-        meta: Parameters<typeof pagination.updateMeta>[0]
+      const paged = res as { data: LocationItem[] }
+      allLocations.value = paged.data
+    }
+    // Auto-expand roots that have children
+    for (const loc of allLocations.value) {
+      if (!loc.parentId && (loc.childCount ?? 0) > 0) {
+        expandedIds.add(loc.id)
       }
-      locations.value = paged.data
-      pagination.updateMeta(paged.meta)
     }
   } catch {
     /* empty */
@@ -124,10 +169,7 @@ async function load() {
 let searchTimer: ReturnType<typeof setTimeout>
 watch([search, subtypeFilter], () => {
   clearTimeout(searchTimer)
-  searchTimer = setTimeout(() => {
-    pagination.setPage(1)
-    load()
-  }, 300)
+  searchTimer = setTimeout(() => load(), 300)
 })
 
 onMounted(load)
