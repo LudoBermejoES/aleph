@@ -84,7 +84,7 @@ export function useEntityExpansion(
     }
 
     // Compute positions and create shapes
-    const positions = radialLayout(centerX, centerY, relatedIds.length, 250)
+    const positions = radialLayout(centerX, centerY, relatedIds.length, 500)
     for (let i = 0; i < relatedIds.length; i++) {
       const id = relatedIds[i]!
       const node = graphData.nodes[id]

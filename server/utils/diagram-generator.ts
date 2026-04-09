@@ -339,7 +339,7 @@ export function generateFactionWeb(
   // Calculate main radial layout for orgs
   const centerX = 400
   const centerY = 400
-  const mainRadius = Math.max(300, items.length * 80)
+  const mainRadius = Math.max(600, items.length * 160)
   const orgPositions = radialLayout(centerX, centerY, items.length, mainRadius)
 
   for (let i = 0; i < items.length; i++) {
@@ -391,7 +391,7 @@ export function generateFactionWeb(
     ]
 
     if (relatedEntities.length > 0) {
-      const subPositions = radialLayout(pos.x, pos.y, relatedEntities.length, 150)
+      const subPositions = radialLayout(pos.x, pos.y, relatedEntities.length, 300)
       for (let j = 0; j < relatedEntities.length; j++) {
         const rel = relatedEntities[j]!
         const sp = subPositions[j]!
