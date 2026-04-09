@@ -993,6 +993,13 @@
       "organizations": "Organizations",
       "quests": "Quests",
       "wiki": "Wiki"
+    },
+    "multiplayer": {
+      "connected": "Connected",
+      "reconnecting": "Reconnecting...",
+      "disconnected": "Disconnected",
+      "connecting": "Connecting...",
+      "usersEditing": "{count} editing"
     }
   }
 }

@@ -6,3 +6,4 @@ dist
 data
 server/db/migrations
 logs
+vendor

@@ -47,6 +47,7 @@ export default defineNuxtConfig({
     },
     public: {
       hocuspocusUrl: 'ws://localhost:3334',
+      diagramMultiplayer: false,
     },
   },
 

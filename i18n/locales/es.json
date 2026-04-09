@@ -993,6 +993,13 @@
       "organizations": "Organizaciones",
       "quests": "Misiones",
       "wiki": "Wiki"
+    },
+    "multiplayer": {
+      "connected": "Conectado",
+      "reconnecting": "Reconectando...",
+      "disconnected": "Desconectado",
+      "connecting": "Conectando...",
+      "usersEditing": "{count} editando"
     }
   }
 }

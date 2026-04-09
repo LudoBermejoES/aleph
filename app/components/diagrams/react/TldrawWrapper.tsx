@@ -1,15 +1,18 @@
 /** @jsxImportSource react */
 import 'tldraw/tldraw.css'
 import './TldrawWrapper.css'
-import React, { useCallback, useImperativeHandle, useRef } from 'react'
+import React, { useCallback, useEffect, useImperativeHandle, useRef } from 'react'
 import {
   Tldraw,
   getSnapshot,
   loadSnapshot,
   parseTldrawJsonFile,
+  inlineBase64AssetStore,
   type Editor,
   type TLEditorSnapshot,
 } from 'tldraw'
+import { useSync } from '@tldraw/sync'
+import type { RemoteTLStoreWithStatus } from '@tldraw/sync'
 import { EntityCardShapeUtil } from './shapes/EntityCardShape'
 import { QuestNodeShapeUtil } from './shapes/QuestNodeShape'
 import { LocationPinShapeUtil } from './shapes/LocationPinShape'
@@ -40,13 +43,22 @@ export interface TldrawWrapperHandle {
   importTldrJson: (json: string) => void
 }
 
+export interface TldrawWrapperUserInfo {
+  id: string
+  name: string
+  color: string
+}
+
 export interface TldrawWrapperProps {
   snapshot?: TLEditorSnapshot
   readOnly?: boolean
   campaignId?: string
   darkMode?: boolean
+  syncUri?: string
+  userInfo?: TldrawWrapperUserInfo
   onChange?: (snapshot: TLEditorSnapshot) => void
   onEditorReady?: (editor: Editor) => void
+  onSyncStatusChange?: (status: RemoteTLStoreWithStatus['status']) => void
   onNativeDrop?: (event: DragEvent, editor: Editor) => void
   handleRef?: React.Ref<TldrawWrapperHandle>
 }
@@ -56,8 +68,11 @@ export function TldrawWrapper({
   readOnly,
   campaignId,
   darkMode,
+  syncUri,
+  userInfo,
   onChange,
   onEditorReady,
+  onSyncStatusChange,
   onNativeDrop,
   handleRef,
 }: TldrawWrapperProps) {
@@ -114,11 +129,31 @@ export function TldrawWrapper({
     },
   }))
 
+  // Multiplayer sync store (always called for hook rules; result only used when syncUri is set)
+  const syncStore = useSync({
+    uri: syncUri || 'ws://unused',
+    assets: inlineBase64AssetStore,
+    userInfo: syncUri && userInfo ? userInfo : undefined,
+    shapeUtils: SHAPE_UTILS,
+  })
+  const isSyncMode = !!(syncUri && userInfo)
+
+  // Notify parent of sync status changes
+  const lastSyncStatus = useRef<RemoteTLStoreWithStatus['status'] | null>(null)
+  useEffect(() => {
+    if (!isSyncMode || !onSyncStatusChange) return
+    const status = syncStore.status
+    if (status !== lastSyncStatus.current) {
+      lastSyncStatus.current = status
+      onSyncStatusChange(status)
+    }
+  }, [isSyncMode, syncStore.status, onSyncStatusChange])
+
   const handleMount = useCallback(
     (editor: Editor) => {
       editorRef.current = editor
 
-      if (readOnly) {
+      if (readOnly && !isSyncMode) {
         editor.setCurrentTool('hand')
         editor.updateInstanceState({ isReadonly: true })
       }
@@ -138,16 +173,19 @@ export function TldrawWrapper({
         }, 0)
       }
 
-      editor.store.listen(
-        () => {
-          if (!readOnly && onChange) {
-            onChange(getSnapshot(editor.store))
-          }
-        },
-        { scope: 'document', source: 'user' },
-      )
+      // Only listen for snapshot changes in non-sync mode (REST save)
+      if (!isSyncMode) {
+        editor.store.listen(
+          () => {
+            if (!readOnly && onChange) {
+              onChange(getSnapshot(editor.store))
+            }
+          },
+          { scope: 'document', source: 'user' },
+        )
+      }
     },
-    [readOnly, darkMode, campaignId, onChange, onEditorReady],
+    [readOnly, darkMode, campaignId, onChange, onEditorReady, isSyncMode],
   )
 
   const handleDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
@@ -159,6 +197,28 @@ export function TldrawWrapper({
   // there via the onEditorReady callback.
   void onNativeDrop
 
+  // Sync mode: use synced store
+  if (isSyncMode) {
+    if (syncStore.status === 'loading') {
+      return <div className="tldraw-wrapper flex items-center justify-center">Connecting...</div>
+    }
+    if (syncStore.status === 'error') {
+      return null // parent will handle fallback
+    }
+    return (
+      <div className="tldraw-wrapper" onDragOver={handleDragOver}>
+        <Tldraw
+          store={syncStore}
+          shapeUtils={SHAPE_UTILS}
+          onMount={handleMount}
+          hideUi={readOnly}
+          licenseKey={import.meta.env.VITE_TLDRAW_LICENSE_KEY}
+        />
+      </div>
+    )
+  }
+
+  // Snapshot mode (current behavior)
   return (
     <div className="tldraw-wrapper" onDragOver={handleDragOver}>
       <Tldraw

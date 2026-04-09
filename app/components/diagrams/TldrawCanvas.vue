@@ -7,6 +7,8 @@ const props = defineProps<{
   readOnly?: boolean
   campaignId?: string
   darkMode?: boolean
+  syncUri?: string
+  userInfo?: { id: string; name: string; color: string }
 }>()
 
 const emit = defineEmits<{
@@ -14,6 +16,7 @@ const emit = defineEmits<{
   editorReady: [editor: unknown]
   drop: [event: DragEvent, editor: unknown]
   placedEntitiesChange: [counts: Map<string, number>]
+  syncStatusChange: [status: string]
 }>()
 
 defineExpose({
@@ -69,7 +72,10 @@ function makeProps(snapshotVal?: Record<string, unknown>, readOnlyVal?: boolean)
     readOnly: readOnlyVal ?? false,
     campaignId: props.campaignId,
     darkMode: props.darkMode ?? false,
+    syncUri: props.syncUri,
+    userInfo: props.userInfo ? JSON.parse(JSON.stringify(props.userInfo)) : undefined,
     onChange: (snapshot: unknown) => emit('save', snapshot as Record<string, unknown>),
+    onSyncStatusChange: (status: string) => emit('syncStatusChange', status),
     onEditorReady: (editor: unknown) => {
       editorInstance = editor
       emit('editorReady', editor)

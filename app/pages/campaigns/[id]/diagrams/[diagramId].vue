@@ -30,11 +30,21 @@
           </Button>
         </div>
 
+        <!-- Multiplayer presence -->
+        <DiagramPresenceBar v-if="multiplayerActive" :users="presenceUsers" />
+        <DiagramConnectionStatus v-if="multiplayerEnabled" :status="syncStatus" />
+
         <div v-if="!readOnly" class="flex flex-wrap items-center gap-2">
-          <span v-if="saveStatus === 'saving'" class="text-xs text-muted-foreground">
+          <span
+            v-if="!multiplayerActive && saveStatus === 'saving'"
+            class="text-xs text-muted-foreground"
+          >
             {{ $t('diagrams.saving') }}
           </span>
-          <span v-else-if="saveStatus === 'saved'" class="text-xs text-green-600">
+          <span
+            v-else-if="!multiplayerActive && saveStatus === 'saved'"
+            class="text-xs text-green-600"
+          >
             {{ $t('diagrams.saved') }}
           </span>
 
@@ -125,14 +135,17 @@
         <TldrawCanvas
           v-else
           ref="canvasRef"
-          :snapshot="snapshot"
+          :snapshot="multiplayerEnabled ? undefined : snapshot"
           :read-only="readOnly"
           :campaign-id="campaignId"
           :dark-mode="isDarkMode"
+          :sync-uri="syncUri"
+          :user-info="userInfo"
           @save="onCanvasChange"
           @placed-entities-change="onPlacedEntitiesChange"
           @editor-ready="onEditorReady"
           @drop="onCanvasDrop"
+          @sync-status-change="onSyncStatusChange"
         />
 
         <!-- Entity Popover -->
@@ -178,6 +191,8 @@ import EntityPanel from '~/components/diagrams/EntityPanel.vue'
 import EntityPopover from '~/components/diagrams/EntityPopover.vue'
 import MapModal from '~/components/diagrams/MapModal.vue'
 import RelationshipDialog from '~/components/diagrams/RelationshipDialog.vue'
+import DiagramPresenceBar from '~/components/diagrams/DiagramPresenceBar.vue'
+import DiagramConnectionStatus from '~/components/diagrams/DiagramConnectionStatus.vue'
 import { useEditorSelection } from '~/composables/useEditorSelection'
 import { useArrowDimming } from '~/composables/useArrowDimming'
 import { useSyncRelations } from '~/composables/useSyncRelations'
@@ -203,6 +218,80 @@ const saveStatus = ref<'idle' | 'saving' | 'saved'>('idle')
 const placedEntityIds = ref(new Map<string, number>())
 const canvasRef = ref<InstanceType<typeof TldrawCanvas> | null>(null)
 const tldrFileInputRef = ref<HTMLInputElement | null>(null)
+
+// Multiplayer sync
+const runtimeConfig = useRuntimeConfig()
+const multiplayerEnabled = computed(() => !!runtimeConfig.public.diagramMultiplayer)
+const multiplayerActive = ref(false)
+const syncStatus = ref<string>('loading')
+
+const syncUri = computed(() => {
+  if (!multiplayerEnabled.value) return undefined
+  const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+  return `${proto}//${window.location.host}/api/tldraw-sync/${diagramId}`
+})
+
+// User info for presence (deterministic color from user ID hash)
+const { data: sessionData } = useAsyncData('session', () => $fetch('/api/auth/get-session'))
+const userInfo = computed(() => {
+  const session = sessionData.value as { user?: { id: string; name: string } } | null
+  if (!session?.user) return undefined
+  const hash = session.user.id.split('').reduce((h, c) => ((h << 5) - h + c.charCodeAt(0)) | 0, 0)
+  const hue = Math.abs(hash) % 360
+  return {
+    id: session.user.id,
+    name: session.user.name,
+    color: `hsl(${hue}, 70%, 50%)`,
+  }
+})
+
+const presenceUsers = ref<Array<{ id: string; name: string; color: string }>>([])
+let presenceInterval: ReturnType<typeof setInterval> | null = null
+
+function onSyncStatusChange(status: string) {
+  syncStatus.value = status
+  if (status === 'synced-remote') {
+    multiplayerActive.value = true
+    // Start polling presence
+    if (!presenceInterval) {
+      presenceInterval = setInterval(fetchPresence, 5000)
+      fetchPresence()
+    }
+  } else if (status === 'error') {
+    // Fallback to REST mode
+    multiplayerActive.value = false
+    if (presenceInterval) {
+      clearInterval(presenceInterval)
+      presenceInterval = null
+    }
+    presenceUsers.value = []
+  }
+}
+
+async function fetchPresence() {
+  try {
+    const data = await $fetch<{ count: number }>(
+      `/api/campaigns/${campaignId}/diagrams/${diagramId}/presence`,
+    )
+    // We only get count from server; the current user is always present
+    const ui = userInfo.value
+    if (ui && data.count > 0) {
+      // Show current user as the known presence; others are anonymous for now
+      presenceUsers.value = [ui]
+      if (data.count > 1) {
+        for (let i = 1; i < data.count; i++) {
+          presenceUsers.value.push({
+            id: `other-${i}`,
+            name: `User ${i + 1}`,
+            color: `hsl(${(i * 137) % 360}, 70%, 50%)`,
+          })
+        }
+      }
+    }
+  } catch {
+    /* ignore polling errors */
+  }
+}
 
 // Popover state
 const popoverVisible = ref(false)
@@ -284,6 +373,7 @@ async function load() {
 }
 
 function onCanvasChange(newSnapshot: Record<string, unknown>) {
+  if (multiplayerActive.value) return // server handles persistence in sync mode
   lastSnapshot = newSnapshot
   if (saveTimer) clearTimeout(saveTimer)
   saveTimer = setTimeout(() => autoSave(newSnapshot), 1000)
@@ -529,6 +619,10 @@ onUnmounted(() => {
   window.removeEventListener('aleph:navigate', onAlephNavigate)
   window.removeEventListener('aleph:open-map', onAlephOpenMap)
   document.removeEventListener('mousedown', onDocMouseDown, { capture: true })
+  if (presenceInterval) {
+    clearInterval(presenceInterval)
+    presenceInterval = null
+  }
 })
 
 interface TldrAsset {
