@@ -36,4 +36,4 @@
 
 ## 6. Upload existing Arcadia org images
 
-- [ ] 6.1 Create script to upload the 14 org images from `/Users/ludo/code/arcadia/docs/assets/img/characters/` to aleph.ludobermejo.es using the new endpoint
+- [x] 6.1 Create script to upload the 14 org images from `/Users/ludo/code/arcadia/docs/assets/img/characters/` to aleph.ludobermejo.es using the new endpoint
