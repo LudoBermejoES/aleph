@@ -23,6 +23,7 @@
       <span class="text-xs text-muted-foreground">{{ $t('secrets.previewAs') }}:</span>
       <select
         :value="previewRole || ''"
+        data-testid="preview-role-select"
         class="text-xs rounded border border-input bg-background px-2 py-1"
         @change="onRoleChange"
       >

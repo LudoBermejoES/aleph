@@ -50,12 +50,11 @@
     </div>
     <div>
       <label class="text-sm font-medium">{{ $t('items.description') }}</label>
-      <textarea
+      <MarkdownEditor
         v-model="form.description"
-        rows="5"
-        class="w-full mt-1 px-3 py-2 rounded border border-input bg-background"
         :placeholder="$t('items.descriptionPlaceholder')"
-      ></textarea>
+        class="mt-1"
+      />
     </div>
     <div class="flex justify-end gap-2">
       <slot name="cancel"></slot>

@@ -46,7 +46,12 @@
               <Button variant="outline" size="sm">{{ $t('common.edit') }}</Button>
             </NuxtLink>
           </div>
-          <p v-if="org.description" class="text-muted-foreground mt-4">{{ org.description }}</p>
+          <div
+            v-if="org.description"
+            class="prose dark:prose-invert max-w-none text-muted-foreground mt-4"
+          >
+            <MDC :value="org.description as string" />
+          </div>
         </div>
       </div>
 

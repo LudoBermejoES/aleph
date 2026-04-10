@@ -258,12 +258,13 @@ export function useCampaignApi(campaignId: string) {
     return $fetch<Record<string, unknown>[]>(`${base}/sessions/${slug}/rolls`)
   }
 
-  function getCampaignArcs() {
-    return $fetch<Record<string, unknown>[]>(`${base}/arcs`)
+  function getCampaignArcs(params?: Record<string, string>) {
+    const query = params ? '?' + new URLSearchParams(params).toString() : ''
+    return $fetch<Record<string, unknown>[]>(`${base}/arcs${query}`)
   }
 
-  function getArcs() {
-    return getCampaignArcs()
+  function getArcs(params?: Record<string, string>) {
+    return getCampaignArcs(params)
   }
 
   function getArc(slug: string) {
@@ -308,8 +309,8 @@ export function useCampaignApi(campaignId: string) {
     return $fetch<Quest[]>(`${base}/quests`, { params })
   }
 
-  function getQuest(slug: string) {
-    return $fetch<Quest>(`${base}/quests/${slug}`)
+  function getQuest(slug: string, params?: Record<string, string>) {
+    return $fetch<Quest>(`${base}/quests/${slug}`, { params })
   }
 
   function createQuest(body: Record<string, unknown>) {
@@ -664,8 +665,8 @@ export function useCampaignApi(campaignId: string) {
     })
   }
 
-  function getLocation(slug: string) {
-    return $fetch<Record<string, unknown>>(`${base}/locations/${slug}`)
+  function getLocation(slug: string, params?: Record<string, string>) {
+    return $fetch<Record<string, unknown>>(`${base}/locations/${slug}`, { params })
   }
 
   function createLocation(body: {

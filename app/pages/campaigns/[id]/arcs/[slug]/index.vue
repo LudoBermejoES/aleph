@@ -44,11 +44,7 @@
         </div>
         <div>
           <label class="text-sm font-medium">{{ $t('arcs.description') }}</label>
-          <textarea
-            v-model="editArcForm.description"
-            rows="3"
-            class="w-full mt-1 px-3 py-1.5 rounded border border-input bg-background text-sm"
-          ></textarea>
+          <MarkdownEditor v-model="editArcForm.description" class="mt-1" />
         </div>
         <div>
           <label class="text-sm font-medium">{{ $t('arcs.status') }}</label>
@@ -80,10 +76,12 @@
       />
 
       <!-- Description -->
-      <div ref="contentRef" class="prose dark:prose-invert max-w-none text-foreground mb-6">
-        <p v-if="arc.description && !editingArc" class="text-muted-foreground">
-          {{ arc.description }}
-        </p>
+      <div
+        v-if="arc.description && !editingArc"
+        ref="contentRef"
+        class="prose dark:prose-invert max-w-none text-foreground mb-6"
+      >
+        <MDC :value="arc.description" />
       </div>
 
       <!-- Secret Notes (DM only) -->
@@ -135,12 +133,10 @@
             :placeholder="$t('arcs.chapterNamePlaceholder')"
             class="w-full px-3 py-1.5 rounded border border-input bg-background text-sm"
           />
-          <textarea
+          <MarkdownEditor
             v-model="newChapterDescription"
             :placeholder="$t('arcs.descriptionPlaceholder')"
-            rows="2"
-            class="w-full px-3 py-1.5 rounded border border-input bg-background text-sm"
-          ></textarea>
+          />
           <Button size="sm" :disabled="!newChapterName.trim()" @click="addChapter">{{
             $t('common.add')
           }}</Button>
@@ -163,11 +159,7 @@
                   type="text"
                   class="w-full px-3 py-1.5 rounded border border-input bg-background text-sm"
                 />
-                <textarea
-                  v-model="editChapterForm.description"
-                  rows="2"
-                  class="w-full px-3 py-1.5 rounded border border-input bg-background text-sm"
-                ></textarea>
+                <MarkdownEditor v-model="editChapterForm.description" />
                 <div class="flex gap-2">
                   <Button size="sm" @click="saveChapter(chapter)">{{ $t('common.save') }}</Button>
                   <Button size="sm" variant="outline" @click="editingChapterId = null">{{
@@ -180,9 +172,12 @@
               <div class="flex items-start justify-between gap-2">
                 <div class="flex-1 min-w-0">
                   <span class="font-medium text-sm">{{ chapter.name }}</span>
-                  <p v-if="chapter.description" class="text-xs text-muted-foreground mt-0.5">
-                    {{ chapter.description }}
-                  </p>
+                  <div
+                    v-if="chapter.description"
+                    class="prose dark:prose-invert prose-sm max-w-none text-muted-foreground mt-0.5"
+                  >
+                    <MDC :value="chapter.description" />
+                  </div>
                 </div>
                 <div v-if="canEdit" class="flex items-center gap-1 shrink-0">
                   <!-- Reorder buttons -->
@@ -286,8 +281,10 @@ function arcStatusClass(status: string) {
 
 async function load() {
   await withLoading(async () => {
+    const previewAs = route.query.preview_as as string | undefined
+    const arcParams = previewAs ? { preview_as: previewAs } : undefined
     const [arcs, campaign, sessions] = await Promise.all([
-      api.getArcs(),
+      api.getArcs(arcParams),
       api.getCampaign(),
       api.getSessions({}),
     ])
@@ -385,6 +382,15 @@ const { loadRevealedBlocks, injectRevealButtons } = useSecretReveals(
   slug,
   isDm,
   t,
+)
+
+watch(
+  () => route.query.preview_as,
+  async () => {
+    await load()
+    await nextTick()
+    injectRevealButtons()
+  },
 )
 
 onMounted(async () => {

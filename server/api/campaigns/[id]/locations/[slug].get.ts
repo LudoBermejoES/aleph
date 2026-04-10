@@ -4,6 +4,7 @@ import { entities } from '../../../../db/schema/entities'
 import { stripSecretBlocks } from '../../../../services/content'
 import { safeReadEntityFile } from '../../../../utils/content-helpers'
 import {
+  hasMinRole,
   canUserAccessEntity,
   getCachedPermission,
   setCachedPermission,
@@ -13,9 +14,18 @@ import type { CampaignRole } from '../../../../utils/permissions'
 export default defineEventHandler(async (event) => {
   const campaignId = getRouterParam(event, 'id')!
   const slug = getRouterParam(event, 'slug')!
-  const role = (event.context.campaignRole || 'visitor') as CampaignRole
+  const actualRole = (event.context.campaignRole || 'visitor') as CampaignRole
   const userId = event.context.user?.id || ''
   const db = useDb()
+
+  const previewAs = getQuery(event).preview_as as string | undefined
+  let role = actualRole
+  if (previewAs && hasMinRole(actualRole, 'co_dm')) {
+    const validRoles: CampaignRole[] = ['dm', 'co_dm', 'editor', 'player', 'visitor']
+    if (validRoles.includes(previewAs as CampaignRole)) {
+      role = previewAs as CampaignRole
+    }
+  }
 
   const entity = db
     .select()
@@ -39,7 +49,7 @@ export default defineEventHandler(async (event) => {
           db,
           userId,
           'user',
-          role,
+          actualRole,
           entity.id,
           entity.visibility,
           entity.createdBy,

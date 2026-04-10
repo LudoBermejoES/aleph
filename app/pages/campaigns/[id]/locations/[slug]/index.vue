@@ -51,14 +51,9 @@
       />
 
       <!-- Description -->
-      <!-- eslint-disable vue/no-v-html -->
-      <div
-        v-if="location.content"
-        ref="contentRef"
-        class="prose dark:prose-invert max-w-none mb-8"
-        v-html="renderedContent"
-      ></div>
-      <!-- eslint-enable vue/no-v-html -->
+      <div v-if="location.content" ref="contentRef" class="prose dark:prose-invert max-w-none mb-8">
+        <MDC :value="location.content as string" />
+      </div>
 
       <!-- Secret Notes (DM only) -->
       <SecretNotes
@@ -234,11 +229,6 @@ const { loadRevealedBlocks, injectRevealButtons } = useSecretReveals(
   t,
 )
 
-const renderedContent = computed(() => {
-  // Simple markdown rendering via existing prose classes; content already processed server-side
-  return location.value?.content?.replace(/\n/g, '<br>') ?? ''
-})
-
 const availableCharacters = computed(() =>
   allCharacters.value.filter((c) => !inhabitants.value.some((i) => i.id === c.id)),
 )
@@ -249,8 +239,10 @@ const availableOrgs = computed(() =>
 
 async function load() {
   await withLoading(async () => {
+    const previewAs = route.query.preview_as as string | undefined
+    const locationParams = previewAs ? { preview_as: previewAs } : undefined
     const [loc, subs, inh, linkedOrgs, chars, allOrgsList, campaign] = await Promise.all([
-      api.getLocation(slug),
+      api.getLocation(slug, locationParams),
       api.getSubLocations(slug),
       api.getLocationInhabitants(slug),
       api.getLocationOrganizations(slug),
@@ -267,6 +259,15 @@ async function load() {
     campaignRole.value = campaign?.role ?? ''
   })
 }
+
+watch(
+  () => route.query.preview_as,
+  async () => {
+    await load()
+    await nextTick()
+    injectRevealButtons()
+  },
+)
 
 onMounted(async () => {
   await load()

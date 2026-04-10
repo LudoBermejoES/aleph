@@ -54,8 +54,12 @@
       />
 
       <!-- Description -->
-      <div ref="contentRef" class="prose dark:prose-invert max-w-none text-foreground mb-6">
-        <p v-if="quest.description" class="text-muted-foreground">{{ quest.description }}</p>
+      <div
+        v-if="quest.description"
+        ref="contentRef"
+        class="prose dark:prose-invert max-w-none text-foreground mb-6"
+      >
+        <MDC :value="quest.description" />
       </div>
 
       <!-- Secret Notes (DM only) -->
@@ -202,10 +206,12 @@ const { loadRevealedBlocks, injectRevealButtons } = useSecretReveals(
   t,
 )
 
-onMounted(async () => {
+async function load() {
   try {
+    const previewAs = route.query.preview_as as string | undefined
+    const questParams = previewAs ? { preview_as: previewAs } : undefined
     const [q, quests, chars, campaign] = await Promise.all([
-      api.getQuest(slug),
+      api.getQuest(slug, questParams),
       api.getQuests({}),
       api.getCharacters({}),
       api.getCampaign().catch(() => null),
@@ -226,6 +232,19 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
+}
+
+watch(
+  () => route.query.preview_as,
+  async () => {
+    await load()
+    await nextTick()
+    injectRevealButtons()
+  },
+)
+
+onMounted(async () => {
+  await load()
   await loadRevealedBlocks()
   await nextTick()
   injectRevealButtons()
