@@ -1,5 +1,5 @@
 import { join } from 'path'
-import { rm, stat  } from 'fs/promises'
+import { rm, stat } from 'fs/promises'
 import {
   createBackupArchive,
   uploadArchive,
