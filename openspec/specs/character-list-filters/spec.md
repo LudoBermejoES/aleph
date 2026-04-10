@@ -1,6 +1,6 @@
 ## Purpose
 
-Provides filtering, sorting, and enriched display for the character list page. Characters can be searched by name and filtered by status, race, class, alignment, organization, and location. Filters and sort state are synced to URL query parameters for deep-linking and navigation.
+Provides filtering, sorting, and enriched display for the character list page. Characters can be searched by name and filtered by status, organization, and location. Filters and sort state are synced to URL query parameters for deep-linking and navigation.
 
 ## Requirements
 
@@ -40,35 +40,6 @@ The system SHALL provide a status filter (All / Alive / Dead / Missing / Unknown
 
 - **WHEN** the user selects "All" in the status filter
 - **THEN** characters of all statuses are shown
-
----
-
-### Requirement: Character list race, class, and alignment filters
-
-The system SHALL provide race, class, and alignment filter dropdowns on the character list page. Options are populated from `GET /api/campaigns/:id/characters/meta`.
-
-#### Scenario: Race filter shows only characters of that race
-
-- **GIVEN** characters with races "Elf", "Human", and "Dwarf"
-- **WHEN** the user selects "Elf" from the race filter
-- **THEN** only Elf characters are shown
-
-#### Scenario: Class filter narrows results
-
-- **GIVEN** characters with classes "Wizard" and "Ranger"
-- **WHEN** the user selects "Wizard" from the class filter
-- **THEN** only Wizard characters are shown
-
-#### Scenario: Alignment filter narrows results
-
-- **WHEN** the user selects "Neutral Good" from the alignment filter
-- **THEN** only characters with that alignment are shown
-
-#### Scenario: Empty race dropdown when no races set
-
-- **GIVEN** no characters have a race set
-- **WHEN** the character list page loads
-- **THEN** the race filter dropdown shows only "All Races"
 
 ---
 
@@ -134,7 +105,7 @@ The system SHALL sync all filter and sort state to URL query parameters so that 
 
 #### Scenario: Filter state survives page reload
 
-- **WHEN** the user sets race="Elf" and status="Alive" then reloads the page
+- **WHEN** the user sets status="Alive" then reloads the page
 - **THEN** the filters are restored and the filtered list is shown
 
 #### Scenario: Back navigation restores previous filters
@@ -146,7 +117,7 @@ The system SHALL sync all filter and sort state to URL query parameters so that 
 
 ### Requirement: Enriched character list rows
 
-The system SHALL display status badge, alignment, current location name, and primary organization on each character list row in addition to the existing name, type, race, and class.
+The system SHALL display status badge, current location name, and primary organization on each character list row in addition to the existing name, type, and character type.
 
 #### Scenario: Status badge visible in list
 
@@ -174,31 +145,9 @@ The system SHALL display status badge, alignment, current location name, and pri
 
 ---
 
-### Requirement: Characters meta endpoint
-
-The system SHALL expose `GET /api/campaigns/:id/characters/meta` returning distinct non-null values for race, class, and alignment across all characters in the campaign.
-
-#### Scenario: Meta returns distinct values
-
-- **GIVEN** characters with races "Elf", "Elf", "Human"
-- **WHEN** `GET /api/campaigns/:id/characters/meta` is called
-- **THEN** the response contains `{ races: ["Elf", "Human"], classes: [...], alignments: [...] }`
-
-#### Scenario: Meta requires authentication
-
-- **WHEN** `GET /api/campaigns/:id/characters/meta` is called without a session
-- **THEN** the response is 403
-
----
-
 ### Requirement: Character list API extended filters and sort
 
-The system SHALL accept `race`, `class`, `alignment`, `organizationId`, `locationEntityId`, `sort`, and `sortDir` as query parameters on `GET /api/campaigns/:id/characters`, applied server-side.
-
-#### Scenario: race param filters by race
-
-- **WHEN** `GET /api/campaigns/:id/characters?race=Elf` is called
-- **THEN** only characters with race "Elf" are returned
+The system SHALL accept `organizationId`, `locationEntityId`, `sort`, and `sortDir` as query parameters on `GET /api/campaigns/:id/characters`, applied server-side.
 
 #### Scenario: organizationId param filters by membership
 
