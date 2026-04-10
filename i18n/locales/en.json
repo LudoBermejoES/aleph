@@ -719,6 +719,7 @@
       "blockquote": "Blockquote",
       "codeBlock": "Code Block",
       "horizontalRule": "Horizontal Rule",
+      "secretBlock": "Insert Secret Block (DM only)",
       "insertLink": "Insert Link",
       "insertTable": "Insert Table",
       "insertImage": "Insert Image"

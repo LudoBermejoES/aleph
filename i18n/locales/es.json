@@ -719,6 +719,7 @@
       "blockquote": "Cita",
       "codeBlock": "Bloque de código",
       "horizontalRule": "Línea horizontal",
+      "secretBlock": "Insertar bloque secreto (solo DM)",
       "insertLink": "Insertar enlace",
       "insertTable": "Insertar tabla",
       "insertImage": "Insertar imagen"
