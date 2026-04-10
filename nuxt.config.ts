@@ -54,6 +54,7 @@ export default defineNuxtConfig({
     public: {
       hocuspocusUrl: 'ws://localhost:3334',
       diagramMultiplayer: false,
+      sentryDsn: '',
     },
   },
 
@@ -86,12 +87,22 @@ export default defineNuxtConfig({
 
   modules: [
     reactIntegrationModule,
+    '@sentry/nuxt/module',
     '@nuxtjs/tailwindcss',
     'shadcn-nuxt',
     '@nuxt/eslint',
     '@nuxtjs/mdc',
     '@nuxtjs/i18n',
   ],
+
+  // @ts-expect-error -- sentry key is augmented by @sentry/nuxt/module at build time
+  sentry: {
+    org: 'lb-0j',
+    project: 'aleph-qg',
+    authToken: process.env.SENTRY_AUTH_TOKEN,
+  },
+
+  sourcemap: { client: 'hidden' },
 
   i18n: {
     locales: [

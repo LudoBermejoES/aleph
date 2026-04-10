@@ -69,6 +69,7 @@ jobs:
       - name: Build Nuxt app
         env:
           VITE_TLDRAW_LICENSE_KEY: ${{ secrets.VITE_TLDRAW_LICENSE_KEY }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: npm run build
 
       - name: Create deployment archive
@@ -106,12 +107,13 @@ jobs:
           BACKUP_R2_ACCESS_KEY_ID: ${{ secrets.BACKUP_R2_ACCESS_KEY_ID }}
           BACKUP_R2_SECRET_ACCESS_KEY: ${{ secrets.BACKUP_R2_SECRET_ACCESS_KEY }}
           BACKUP_R2_BUCKET: ${{ secrets.BACKUP_R2_BUCKET }}
+          SENTRY_DSN: ${{ secrets.NUXT_PUBLIC_SENTRY_DSN }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          envs: BACKUP_R2_ENDPOINT,BACKUP_R2_ACCESS_KEY_ID,BACKUP_R2_SECRET_ACCESS_KEY,BACKUP_R2_BUCKET
+          envs: BACKUP_R2_ENDPOINT,BACKUP_R2_ACCESS_KEY_ID,BACKUP_R2_SECRET_ACCESS_KEY,BACKUP_R2_BUCKET,SENTRY_DSN
           script: |
             set -e
 
@@ -192,6 +194,13 @@ jobs:
               echo "NUXT_BACKUP_R2_ACCESS_KEY_ID=${BACKUP_R2_ACCESS_KEY_ID}" >> "$DEPLOY_PATH/.env"
               echo "NUXT_BACKUP_R2_SECRET_ACCESS_KEY=${BACKUP_R2_SECRET_ACCESS_KEY}" >> "$DEPLOY_PATH/.env"
               echo "NUXT_BACKUP_R2_BUCKET=${BACKUP_R2_BUCKET}" >> "$DEPLOY_PATH/.env"
+            fi
+
+            # Inject Sentry DSN into .env
+            if [ -n "$SENTRY_DSN" ]; then
+              echo "Configuring Sentry DSN..."
+              sed -i '/^NUXT_PUBLIC_SENTRY_DSN=/d' "$DEPLOY_PATH/.env"
+              echo "NUXT_PUBLIC_SENTRY_DSN=${SENTRY_DSN}" >> "$DEPLOY_PATH/.env"
             fi
 
             # Set permissions

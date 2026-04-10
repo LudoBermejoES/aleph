@@ -3,7 +3,7 @@ module.exports = {
     {
       name: 'aleph',
       script: '.output/server/index.mjs',
-      node_args: '--env-file=.env',
+      node_args: '--env-file=.env --import ./.output/server/sentry.server.config.mjs',
       instances: 1,
       exec_mode: 'fork',
       env_production: {
