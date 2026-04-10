@@ -54,3 +54,4 @@ var/
 # Large fixture files
 tests/fixtures/*.tldr
 tests/fixtures/*.zip
+.playwright-cli
