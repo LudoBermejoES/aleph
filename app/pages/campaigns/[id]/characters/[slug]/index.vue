@@ -521,4 +521,13 @@ onMounted(async () => {
   await nextTick()
   injectRevealButtons()
 })
+
+watch(
+  () => route.query.preview_as,
+  async () => {
+    await load()
+    await nextTick()
+    injectRevealButtons()
+  },
+)
 </script>
