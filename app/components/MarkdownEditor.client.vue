@@ -212,6 +212,14 @@
       >
         — HR
       </button>
+      <button
+        type="button"
+        class="p-1.5 rounded text-xs hover:bg-accent"
+        :title="$t('editor.toolbar.secretBlock')"
+        @mousedown.prevent="insertSecretBlock"
+      >
+        🔒 Secret
+      </button>
       <div class="w-px h-4 bg-border mx-1"></div>
 
       <!-- Link -->
@@ -736,6 +744,9 @@ function toggleCodeBlock() {
 }
 function insertHorizontalRule() {
   editor?.chain().focus().setHorizontalRule().run()
+}
+function insertSecretBlock() {
+  editor?.chain().focus().insertContent(':::secret{.dm}\n\n:::').run()
 }
 function undo() {
   editor?.chain().focus().undo().run()
