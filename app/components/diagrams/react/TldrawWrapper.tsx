@@ -1,16 +1,19 @@
 /** @jsxImportSource react */
 import 'tldraw/tldraw.css'
 import './TldrawWrapper.css'
-import React, { useCallback, useEffect, useImperativeHandle, useRef } from 'react'
+import React, { useCallback, useEffect, useImperativeHandle, useMemo, useRef } from 'react'
 import {
   Tldraw,
   getSnapshot,
   loadSnapshot,
   parseTldrawJsonFile,
   inlineBase64AssetStore,
+  defaultShapeUtils,
+  defaultBindingUtils,
   type Editor,
   type TLEditorSnapshot,
 } from 'tldraw'
+import { createAlephAssetStore } from '../../../utils/aleph-asset-store'
 import { useSync } from '@tldraw/sync'
 import type { RemoteTLStoreWithStatus } from '@tldraw/sync'
 import { EntityCardShapeUtil } from './shapes/EntityCardShape'
@@ -129,12 +132,23 @@ export function TldrawWrapper({
     },
   }))
 
+  // Asset store: upload to server with WebP conversion, fall back to inline base64
+  const assetStore = useMemo(
+    () => (campaignId ? createAlephAssetStore(campaignId) : inlineBase64AssetStore),
+    [campaignId],
+  )
+
+  // Memoize combined shape/binding utils to avoid new array refs each render
+  const allShapeUtils = useMemo(() => [...defaultShapeUtils, ...SHAPE_UTILS], [])
+  const allBindingUtils = useMemo(() => [...defaultBindingUtils], [])
+
   // Multiplayer sync store (always called for hook rules; result only used when syncUri is set)
   const syncStore = useSync({
     uri: syncUri || 'ws://unused',
-    assets: inlineBase64AssetStore,
+    assets: assetStore,
     userInfo: syncUri && userInfo ? userInfo : undefined,
-    shapeUtils: SHAPE_UTILS,
+    shapeUtils: allShapeUtils,
+    bindingUtils: allBindingUtils,
   })
   const isSyncMode = !!(syncUri && userInfo)
 
@@ -224,6 +238,7 @@ export function TldrawWrapper({
       <Tldraw
         snapshot={snapshot}
         shapeUtils={SHAPE_UTILS}
+        assets={assetStore}
         onMount={handleMount}
         hideUi={readOnly}
         licenseKey={import.meta.env.VITE_TLDRAW_LICENSE_KEY}

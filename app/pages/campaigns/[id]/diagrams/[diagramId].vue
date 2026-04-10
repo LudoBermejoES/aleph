@@ -198,6 +198,7 @@ import { useArrowDimming } from '~/composables/useArrowDimming'
 import { useSyncRelations } from '~/composables/useSyncRelations'
 import { useEntityExpansion } from '~/composables/useEntityExpansion'
 import { buildShapeCreateArgs } from '~/utils/diagram-shapes'
+import { convertToWebP } from '~/utils/convert-to-webp'
 
 definePageMeta({ layout: 'empty' })
 
@@ -661,17 +662,20 @@ async function uploadAssets(parsed: TldrFile): Promise<TldrFile> {
         'image/gif': '.gif',
       }
       const ext = mimeToExt[mimeType] ?? '.png'
-      const filename = (asset.props?.name ?? asset.id) + ext
 
-      // Decode base64 → Blob
+      // Decode base64 → Blob, then convert to WebP
       const base64 = src.split(',')[1] ?? ''
       const binary = atob(base64)
       const bytes = new Uint8Array(binary.length)
       for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i)
       const blob = new Blob([bytes], { type: mimeType })
+      const converted = await convertToWebP(blob)
+      const isConverted = converted !== blob
+      const uploadExt = isConverted ? '.webp' : ext
+      const uploadFilename = (asset.props?.name ?? asset.id) + uploadExt
 
       const form = new FormData()
-      form.append('file', blob, filename)
+      form.append('file', converted, uploadFilename)
 
       try {
         const result = await $fetch<{ url: string }>(`/api/campaigns/${campaignId}/images`, {
