@@ -1,10 +1,10 @@
 import { test, expect } from '@playwright/test'
-import { registerAndLogin, createCampaign, apiFetch } from './helpers'
+import { BASE, registerAndLogin, createCampaign, apiFetch } from './helpers'
 
 const uid = () => Date.now().toString(36).slice(-4)
 
-test.describe('Character secret blocks - preview_as filtering', () => {
-  test('DM sees secret content; preview_as=player hides it', async ({ browser }) => {
+test.describe('Character secret blocks - page rendering', () => {
+  test('DM preview_as=player hides secret block on the character page', async ({ browser }) => {
     const dmContext = await browser.newContext()
     const dmPage = await dmContext.newPage()
     await registerAndLogin(dmPage, 'Secret DM')
@@ -16,42 +16,28 @@ test.describe('Character secret blocks - preview_as filtering', () => {
       method: 'POST',
       body: {
         name: 'Secretive Hero',
-        content:
-          '# Background\n\nPublic backstory.\n\n:::secret{.dm}\nThis is DM-only information.\n:::\n',
+        content: 'Public backstory.\n\n:::secret{.dm}\nThis is DM-only information.\n:::\n',
+        visibility: 'members',
       },
     })
     const charSlug = (charRes as Record<string, unknown>).slug as string
 
-    // DM fetches without preview — secret block content is visible
-    const dmRead = await dmPage.evaluate(
-      async ([id, slug]) => {
-        const r = await fetch(`/api/campaigns/${id}/characters/${slug}`, {
-          credentials: 'include',
-        })
-        return r.json()
-      },
-      [campaignId, charSlug],
-    )
-    expect((dmRead as Record<string, unknown>).content).toContain('DM-only information')
-    expect((dmRead as Record<string, unknown>).content).toContain('Public backstory')
+    // DM views the page normally — secret block IS visible
+    await dmPage.goto(`${BASE}/campaigns/${campaignId}/characters/${charSlug}`)
+    await dmPage.waitForLoadState('networkidle')
+    await expect(dmPage.locator('main')).toContainText('DM-only information', { timeout: 10000 })
+    await expect(dmPage.locator('main')).toContainText('Public backstory')
 
-    // DM fetches with preview_as=player — secret block stripped
-    const previewRead = await dmPage.evaluate(
-      async ([id, slug]) => {
-        const r = await fetch(`/api/campaigns/${id}/characters/${slug}?preview_as=player`, {
-          credentials: 'include',
-        })
-        return r.json()
-      },
-      [campaignId, charSlug],
-    )
-    expect((previewRead as Record<string, unknown>).content).not.toContain('DM-only information')
-    expect((previewRead as Record<string, unknown>).content).toContain('Public backstory')
+    // DM views with preview_as=player — secret block is NOT visible in the page
+    await dmPage.goto(`${BASE}/campaigns/${campaignId}/characters/${charSlug}?preview_as=player`)
+    await dmPage.waitForLoadState('networkidle')
+    await expect(dmPage.locator('main')).toContainText('Public backstory', { timeout: 10000 })
+    await expect(dmPage.locator('main')).not.toContainText('DM-only information')
 
     await dmContext.close()
   })
 
-  test('actual player never sees secret block content', async ({ browser }) => {
+  test('player cannot see secret block content on the character page', async ({ browser }) => {
     const dmContext = await browser.newContext()
     const dmPage = await dmContext.newPage()
     await registerAndLogin(dmPage, 'Secret DM2')
@@ -64,6 +50,7 @@ test.describe('Character secret blocks - preview_as filtering', () => {
       body: {
         name: 'Hidden Hero',
         content: 'Public text.\n\n:::secret{.dm}\nPlayer must not see this.\n:::\n',
+        visibility: 'members',
       },
     })
     const charSlug = (charRes as Record<string, unknown>).slug as string
@@ -82,30 +69,16 @@ test.describe('Character secret blocks - preview_as filtering', () => {
       body: { token: (inviteRes as Record<string, unknown>).token },
     })
 
-    // Player reads character — secret block must be stripped
-    const playerRead = await playerPage.evaluate(
-      async ([id, slug]) => {
-        const r = await fetch(`/api/campaigns/${id}/characters/${slug}`, {
-          credentials: 'include',
-        })
-        return r.json()
-      },
-      [campaignId, charSlug],
-    )
-    expect((playerRead as Record<string, unknown>).content).not.toContain('Player must not see')
-    expect((playerRead as Record<string, unknown>).content).toContain('Public text')
+    // Player navigates to the character page — secret must NOT appear
+    await playerPage.goto(`${BASE}/campaigns/${campaignId}/characters/${charSlug}`)
+    await playerPage.waitForLoadState('networkidle')
+    await expect(playerPage.locator('main')).toContainText('Public text', { timeout: 10000 })
+    await expect(playerPage.locator('main')).not.toContainText('Player must not see this')
 
-    // Player cannot abuse preview_as to see secrets
-    const abusedPreview = await playerPage.evaluate(
-      async ([id, slug]) => {
-        const r = await fetch(`/api/campaigns/${id}/characters/${slug}?preview_as=dm`, {
-          credentials: 'include',
-        })
-        return r.json()
-      },
-      [campaignId, charSlug],
-    )
-    expect((abusedPreview as Record<string, unknown>).content).not.toContain('Player must not see')
+    // Player cannot abuse preview_as=dm in the URL to see secrets
+    await playerPage.goto(`${BASE}/campaigns/${campaignId}/characters/${charSlug}?preview_as=dm`)
+    await playerPage.waitForLoadState('networkidle')
+    await expect(playerPage.locator('main')).not.toContainText('Player must not see this')
 
     await dmContext.close()
     await playerContext.close()
