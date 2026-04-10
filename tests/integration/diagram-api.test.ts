@@ -201,7 +201,7 @@ describe('Diagram API (integration)', () => {
   })
 
   it('413 for oversized snapshot', { timeout: 15000 }, async () => {
-    const largeData = 'x'.repeat(6 * 1024 * 1024)
+    const largeData = 'x'.repeat(11 * 1024 * 1024)
     const res = await apiRaw(`/api/campaigns/${campaignId}/diagrams/${diagramId}/snapshot`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', 'X-API-Key': dmApiKey },
