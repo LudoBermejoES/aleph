@@ -32,7 +32,9 @@
     "deleting": "Deleting...",
     "you": "you",
     "title": "Title",
-    "dangerZone": "Danger Zone"
+    "dangerZone": "Danger Zone",
+    "yes": "Yes",
+    "no": "No"
   },
   "auth": {
     "signIn": "Sign In",
@@ -395,7 +397,8 @@
     "default": "Default",
     "setAsDefault": "Set as default for this entity type",
     "confirmDelete": "Delete template \"{name}\"?",
-    "templateFields": "Template"
+    "templateFields": "Template",
+    "properties": "Properties"
   },
   "maps": {
     "title": "Maps",

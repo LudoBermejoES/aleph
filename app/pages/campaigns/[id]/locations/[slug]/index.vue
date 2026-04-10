@@ -50,6 +50,13 @@
         class="mb-4"
       />
 
+      <!-- Template Fields -->
+      <TemplateFieldsDisplay
+        :campaign-id="campaignId"
+        :template-id="location.templateId"
+        :field-values="location.fields || {}"
+      />
+
       <!-- Description -->
       <div v-if="location.content" ref="contentRef" class="prose dark:prose-invert max-w-none mb-8">
         <MDC :value="location.content as string" />
@@ -196,6 +203,8 @@ interface LocationData {
   subtype?: string
   content?: string
   parentId?: string | null
+  templateId?: string | null
+  fields?: Record<string, unknown>
 }
 interface CharacterEntry {
   id: string

@@ -33,9 +33,11 @@ export default defineEventHandler(async (event) => {
     type: z.string().optional(),
     status: z.string().optional(),
     imageUrl: z.string().nullable().optional(),
+    templateId: z.string().nullable().optional(),
+    fields: z.record(z.string(), z.unknown()).optional(),
   })
   const body = await validateBody(event, orgPutSchema)
-  const { name, description, type, status, imageUrl } = body
+  const { name, description, type, status, imageUrl, templateId, fields } = body
 
   let newSlug = org.slug
   if (name && name.trim() !== org.name) {
@@ -67,10 +69,16 @@ export default defineEventHandler(async (event) => {
       type: type ?? org.type,
       status: status ?? org.status,
       imageUrl: imageUrl !== undefined ? imageUrl : org.imageUrl,
+      templateId: templateId !== undefined ? templateId : org.templateId,
+      fieldsJson: fields !== undefined ? JSON.stringify(fields) : org.fieldsJson,
       updatedAt: new Date(),
     })
     .where(eq(organizations.id, org.id))
     .run()
 
-  return db.select().from(organizations).where(eq(organizations.id, org.id)).get()
+  const updated = db.select().from(organizations).where(eq(organizations.id, org.id)).get()!
+  const parsedFields = updated.fieldsJson
+    ? (JSON.parse(updated.fieldsJson) as Record<string, unknown>)
+    : {}
+  return { ...updated, fields: parsedFields }
 })

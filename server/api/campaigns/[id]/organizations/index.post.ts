@@ -19,9 +19,11 @@ export default defineEventHandler(async (event) => {
     description: z.string().optional(),
     type: z.string().optional(),
     status: z.string().optional(),
+    templateId: z.string().optional(),
+    fields: z.record(z.string(), z.unknown()).optional(),
   })
   const body = await validateBody(event, orgSchema)
-  const { name, description, type, status } = body
+  const { name, description, type, status, templateId, fields } = body
 
   const db = useDb()
   const campaignId = getRouterParam(event, 'id')!
@@ -50,10 +52,14 @@ export default defineEventHandler(async (event) => {
       description: description || null,
       type: type || 'faction',
       status: status || 'active',
+      templateId: templateId || null,
+      fieldsJson: fields ? JSON.stringify(fields) : null,
       createdAt: now,
       updatedAt: now,
     })
     .run()
 
-  return db.select().from(organizations).where(eq(organizations.id, id)).get()
+  const org = db.select().from(organizations).where(eq(organizations.id, id)).get()!
+  const parsedFields = org.fieldsJson ? (JSON.parse(org.fieldsJson) as Record<string, unknown>) : {}
+  return { ...org, fields: parsedFields }
 })

@@ -55,6 +55,13 @@
         </div>
       </div>
 
+      <!-- Template Fields -->
+      <TemplateFieldsDisplay
+        :campaign-id="campaignId"
+        :template-id="org.templateId"
+        :field-values="org.fields || {}"
+      />
+
       <!-- Members section -->
       <div>
         <div class="flex items-center justify-between mb-3">

@@ -82,6 +82,13 @@
         </span>
       </div>
 
+      <!-- Template Fields -->
+      <TemplateFieldsDisplay
+        :campaign-id="campaignId"
+        :template-id="entity.templateId"
+        :field-values="entity.fields || {}"
+      />
+
       <!-- Markdown Content -->
       <div ref="contentRef" class="prose dark:prose-invert max-w-none text-foreground">
         <MDC v-if="previewContent !== null" :value="previewContent" />

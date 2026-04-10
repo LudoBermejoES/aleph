@@ -105,6 +105,9 @@ export interface Character {
   updatedAt: Date
   // Detail view only
   content?: string
+  templateId?: string | null
+  fields?: Record<string, unknown>
+  frontmatter?: Record<string, unknown>
 }
 
 export interface CharacterFolder {

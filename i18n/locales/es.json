@@ -32,7 +32,9 @@
     "deleting": "Eliminando...",
     "you": "tú",
     "title": "Título",
-    "dangerZone": "Zona de Peligro"
+    "dangerZone": "Zona de Peligro",
+    "yes": "Sí",
+    "no": "No"
   },
   "auth": {
     "signIn": "Iniciar sesión",
@@ -395,7 +397,8 @@
     "default": "Por defecto",
     "setAsDefault": "Establecer como predeterminado para este tipo de entidad",
     "confirmDelete": "¿Eliminar la plantilla \"{name}\"?",
-    "templateFields": "Plantilla"
+    "templateFields": "Plantilla",
+    "properties": "Propiedades"
   },
   "maps": {
     "title": "Mapas",

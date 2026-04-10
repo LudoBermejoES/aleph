@@ -123,6 +123,7 @@ export default defineEventHandler(async (event) => {
     locationSlug,
     portraitUrl: character.portraitUrl ?? null,
     frontmatter: file.frontmatter,
+    fields: (file.frontmatter as Record<string, unknown>).fields || {},
     content: stripSecretBlocks(file.content, role),
     stats: filteredStats,
     abilities: charAbilities,

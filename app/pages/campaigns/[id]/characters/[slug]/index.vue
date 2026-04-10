@@ -98,6 +98,13 @@
         </div>
       </div>
 
+      <!-- Template Fields -->
+      <TemplateFieldsDisplay
+        :campaign-id="campaignId"
+        :template-id="character.templateId"
+        :field-values="character.fields || {}"
+      />
+
       <!-- Abilities -->
       <div v-if="character.abilities?.length" class="mb-6" data-testid="character-abilities">
         <h2 class="text-lg font-semibold mb-3">{{ $t('characters.abilities') }}</h2>

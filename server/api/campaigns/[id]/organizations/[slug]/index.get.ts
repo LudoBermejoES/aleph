@@ -32,5 +32,7 @@ export default defineEventHandler(async (event) => {
     .where(eq(organizationMembers.organizationId, org.id))
     .all()
 
-  return { ...org, members }
+  const fields = org.fieldsJson ? (JSON.parse(org.fieldsJson) as Record<string, unknown>) : {}
+
+  return { ...org, fields, members }
 })

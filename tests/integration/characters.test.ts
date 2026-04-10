@@ -73,6 +73,17 @@ describe('Character CRUD (integration)', () => {
     expect(data.abilities).toBeDefined()
   })
 
+  it('GET returns top-level fields object (empty when no template fields)', async () => {
+    const res = await api(`/api/campaigns/${campaignId}/characters/${characterSlug}`, {
+      method: 'GET',
+      headers: { Cookie: cookie },
+    })
+    expect(res.status).toBe(200)
+    const data = await res.json()
+    expect(data).toHaveProperty('fields')
+    expect(typeof data.fields).toBe('object')
+  })
+
   it('POST ability adds to character', async () => {
     const res = await api(`/api/campaigns/${campaignId}/characters/${characterSlug}/abilities`, {
       method: 'POST',

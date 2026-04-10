@@ -90,6 +90,7 @@ export default defineEventHandler(async (event) => {
     subtype,
     ancestors,
     frontmatter: file.frontmatter,
+    fields: (file.frontmatter as Record<string, unknown>).fields || {},
     content: stripSecretBlocks(file.content, role),
   }
 })
