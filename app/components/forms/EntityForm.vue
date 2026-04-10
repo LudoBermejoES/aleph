@@ -58,48 +58,13 @@
     </div>
 
     <!-- Dynamic template fields -->
-    <div v-if="activeTemplate" class="space-y-4 p-4 rounded border border-border bg-accent/10">
-      <p class="text-xs text-muted-foreground">
-        {{ $t('templates.templateFields') }}: {{ activeTemplate.name }}
-      </p>
-      <div v-for="field in activeTemplateFields" :key="field.id" class="space-y-1">
-        <label class="text-sm font-medium"
-          >{{ field.label
-          }}<span v-if="field.required" class="text-destructive ml-0.5">*</span></label
-        >
-        <textarea
-          v-if="field.fieldType === 'textarea'"
-          v-model="templateFieldValues[field.key]"
-          rows="3"
-          class="w-full px-3 py-2 rounded border border-input bg-background text-sm"
-        ></textarea>
-        <input
-          v-else-if="field.fieldType === 'number'"
-          v-model="templateFieldValues[field.key]"
-          type="number"
-          class="w-full px-3 py-2 rounded border border-input bg-background text-sm"
-        />
-        <select
-          v-else-if="field.fieldType === 'select'"
-          v-model="templateFieldValues[field.key]"
-          class="w-full px-3 py-2 rounded border border-input bg-background text-sm"
-        >
-          <option v-for="opt in fieldOptions(field)" :key="opt" :value="opt">{{ opt }}</option>
-        </select>
-        <input
-          v-else-if="field.fieldType === 'checkbox'"
-          v-model="templateFieldValues[field.key]"
-          type="checkbox"
-          class="rounded"
-        />
-        <input
-          v-else
-          v-model="templateFieldValues[field.key]"
-          type="text"
-          class="w-full px-3 py-2 rounded border border-input bg-background text-sm"
-        />
-      </div>
-    </div>
+    <TemplateFieldsForm
+      v-if="form.templateId"
+      :campaign-id="campaignId"
+      :template-id="form.templateId"
+      :model-value="templateFieldValues"
+      @update:model-value="onTemplateFieldsUpdate"
+    />
 
     <slot name="extra-fields"></slot>
 
@@ -161,22 +126,11 @@ interface Template {
   id: string
   name: string
   entityTypeSlug: string
-  fields?: TemplateField[]
-}
-interface TemplateField {
-  id: string
-  key: string
-  label: string
-  fieldType: string
-  optionsJson?: string | string[]
-  required?: boolean
 }
 
 const api = useCampaignApi(props.campaignId)
 const entityTypes = ref<EntityType[]>([])
 const allTemplates = ref<Template[]>([])
-const activeTemplate = ref<Template | null>(null)
-const activeTemplateFields = ref<TemplateField[]>([])
 const templateFieldValues = ref<Record<string, unknown>>({})
 
 const form = computed({
@@ -194,49 +148,28 @@ const draftKey = computed(
 
 function onTypeChange() {
   form.value.templateId = ''
-  activeTemplate.value = null
-  activeTemplateFields.value = []
   templateFieldValues.value = {}
 }
 
-async function onTemplateChange() {
+function onTemplateChange() {
   const tid = form.value.templateId
   if (!tid) {
-    activeTemplate.value = null
-    activeTemplateFields.value = []
     templateFieldValues.value = {}
     return
   }
-  try {
-    const tpl = await api.getTemplate(tid)
-    activeTemplate.value = tpl
-    activeTemplateFields.value = tpl.fields ?? []
-    templateFieldValues.value = {}
-    // Emit templateFields as part of form
-    emit('update:modelValue', { ...props.modelValue, templateId: tid, templateFields: {} })
-  } catch {
-    // ignore
-  }
+  // Pre-populate from existing stored values when editing; reset to {} only on new template
+  templateFieldValues.value = { ...(props.modelValue.templateFields ?? {}) }
+  emit('update:modelValue', {
+    ...props.modelValue,
+    templateId: tid,
+    templateFields: templateFieldValues.value,
+  })
 }
 
-function fieldOptions(field: TemplateField): string[] {
-  try {
-    if (Array.isArray(field.optionsJson)) return field.optionsJson as string[]
-    if (typeof field.optionsJson === 'string') return JSON.parse(field.optionsJson) as string[]
-  } catch {
-    // ignore
-  }
-  return []
+function onTemplateFieldsUpdate(vals: Record<string, unknown>) {
+  templateFieldValues.value = vals
+  emit('update:modelValue', { ...props.modelValue, templateFields: vals })
 }
-
-// Sync templateFieldValues back to form
-watch(
-  templateFieldValues,
-  (vals) => {
-    emit('update:modelValue', { ...props.modelValue, templateFields: { ...vals } })
-  },
-  { deep: true },
-)
 
 function clearDraft() {
   try {

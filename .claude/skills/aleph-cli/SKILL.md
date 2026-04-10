@@ -94,6 +94,8 @@ node /Users/ludo/code/aleph/cli/bin/aleph.js character folder-delete <folderId> 
 
 `upload-portrait` accepts PNG, JPEG, or WebP files up to 10 MB.
 
+The `character create` and `character update` API endpoints accept optional `templateId` (string) and `fields` (object) parameters for storing template field values. These are not exposed as CLI flags but can be passed directly via the API using `X-API-Key` authentication.
+
 ### Sessions
 
 ```bash

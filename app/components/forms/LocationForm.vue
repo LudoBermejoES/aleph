@@ -59,6 +59,32 @@
       />
     </div>
 
+    <!-- Template selector -->
+    <div v-if="locationTemplates.length">
+      <label class="text-sm font-medium">{{ $t('templates.noTemplate') }}</label>
+      <select
+        v-model="form.templateId"
+        class="w-full mt-1 px-3 py-2 rounded border border-input bg-background"
+      >
+        <option value="">{{ $t('templates.noTemplate') }}</option>
+        <option v-for="tpl in locationTemplates" :key="tpl.id" :value="tpl.id">
+          {{ tpl.name }}
+        </option>
+      </select>
+    </div>
+
+    <!-- Template fields -->
+    <TemplateFieldsForm
+      v-if="form.templateId"
+      :campaign-id="campaignId"
+      :template-id="form.templateId"
+      :model-value="form.templateFields ?? {}"
+      @update:model-value="
+        (vals: Record<string, unknown>) =>
+          emit('update:modelValue', { ...form, templateFields: vals })
+      "
+    />
+
     <div class="flex justify-end gap-2">
       <slot name="cancel"></slot>
       <Button type="submit" :disabled="submitting">{{
@@ -83,6 +109,13 @@ const SUBTYPES = [
   'other',
 ]
 
+interface LocationTemplate {
+  id: string
+  name: string
+  entityTypeSlug: string
+  isDefault: boolean
+}
+
 const props = defineProps<{
   modelValue: {
     name: string
@@ -90,6 +123,8 @@ const props = defineProps<{
     parentId: string
     visibility: string
     content: string
+    templateId?: string
+    templateFields?: Record<string, unknown>
   }
   campaignId: string
   locationSlug?: string
@@ -103,7 +138,8 @@ const emit = defineEmits<{
 }>()
 
 const subtypes = SUBTYPES
-const availableParents = ref<Record<string, unknown>[]>([])
+const availableParents = ref<{ id: string; name: string; slug: string }[]>([])
+const locationTemplates = ref<LocationTemplate[]>([])
 
 const form = computed({
   get: () => props.modelValue,
@@ -125,10 +161,22 @@ function clearDraft() {
 defineExpose({ clearDraft })
 
 onMounted(async () => {
+  const api = useCampaignApi(props.campaignId)
   try {
-    const locs = await useCampaignApi(props.campaignId).getLocations()
-    // Exclude self from parent options when editing
-    availableParents.value = locs.filter((l) => l.slug !== props.locationSlug)
+    const [locs, templates] = await Promise.all([api.getLocations(), api.getTemplates()])
+    availableParents.value = (locs as typeof availableParents.value).filter(
+      (l) => l.slug !== props.locationSlug,
+    )
+    locationTemplates.value = (templates as LocationTemplate[]).filter(
+      (t) => t.entityTypeSlug === 'location',
+    )
+    // Auto-select default template on create
+    if (!props.locationSlug && !form.value.templateId) {
+      const defaultTpl = locationTemplates.value.find((t) => t.isDefault)
+      if (defaultTpl) {
+        emit('update:modelValue', { ...form.value, templateId: defaultTpl.id })
+      }
+    }
   } catch {
     availableParents.value = []
   }

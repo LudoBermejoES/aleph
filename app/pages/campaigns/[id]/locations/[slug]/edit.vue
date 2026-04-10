@@ -45,17 +45,27 @@ const api = useCampaignApi(campaignId)
 const submitting = ref(false)
 const loading = ref(true)
 const locationForm = ref<{ clearDraft: () => void } | null>(null)
-const form = ref({ name: '', subtype: 'other', parentId: '', visibility: 'members', content: '' })
+const form = ref({
+  name: '',
+  subtype: 'other',
+  parentId: '',
+  visibility: 'members',
+  content: '',
+  templateId: '',
+  templateFields: {} as Record<string, unknown>,
+})
 
 onMounted(async () => {
   try {
     const loc = await api.getLocation(slug)
     form.value = {
-      name: loc.name,
-      subtype: loc.subtype || 'other',
-      parentId: loc.parentId || '',
-      visibility: loc.visibility || 'members',
-      content: loc.content || '',
+      name: loc.name as string,
+      subtype: (loc.subtype as string) || 'other',
+      parentId: (loc.parentId as string) || '',
+      visibility: (loc.visibility as string) || 'members',
+      content: (loc.content as string) || '',
+      templateId: (loc.templateId as string) || '',
+      templateFields: (loc.fields as Record<string, unknown>) || {},
     }
   } catch {
     await router.push(`/campaigns/${campaignId}/locations`)
@@ -67,9 +77,11 @@ onMounted(async () => {
 async function save() {
   submitting.value = true
   try {
+    const { templateFields, ...rest } = form.value
     const res = await api.updateLocation(slug, {
-      ...form.value,
+      ...rest,
       parentId: form.value.parentId || undefined,
+      fields: templateFields,
     })
     locationForm.value?.clearDraft()
     await router.push(`/campaigns/${campaignId}/locations/${res.slug}`)

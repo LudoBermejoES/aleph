@@ -98,6 +98,8 @@ aleph character folder-delete <folderId> --campaign <id> [--yes]
 
 `upload-portrait` accepts PNG, JPEG, or WebP files up to 10 MB. The portrait is shown on the character detail page in the web UI.
 
+The `character create` and `character update` API endpoints accept optional `templateId` (string) and `fields` (object) parameters for storing template field values. These are not exposed as CLI flags but can be passed directly via the API using `X-API-Key` authentication.
+
 ### Sessions
 
 ```bash

@@ -144,6 +144,55 @@ describe('Character CRUD (integration)', () => {
     expect(data.slug).not.toBe(characterSlug)
   })
 
+  it('POST with templateId and fields stores them on the character', async () => {
+    const res = await api(`/api/campaigns/${campaignId}/characters`, {
+      method: 'POST',
+      headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
+      body: {
+        name: 'Gandalf With Template',
+        characterType: 'npc',
+        templateId: 'tmpl-test-123',
+        fields: { background: 'Wizard', level: 20 },
+      },
+    })
+    expect(res.status).toBe(200)
+    const created = await res.json()
+    expect(created.slug).toBeTruthy()
+
+    const get = await api(`/api/campaigns/${campaignId}/characters/${created.slug}`, {
+      method: 'GET',
+      headers: { Cookie: cookie },
+    })
+    expect(get.status).toBe(200)
+    const data = await get.json()
+    expect(data.templateId).toBe('tmpl-test-123')
+    expect(data.fields.background).toBe('Wizard')
+    expect(data.fields.level).toBe(20)
+  })
+
+  it('PUT with fields updates stored field values', async () => {
+    const createRes = await api(`/api/campaigns/${campaignId}/characters`, {
+      method: 'POST',
+      headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
+      body: { name: 'Fields Update Test', characterType: 'npc', fields: { background: 'Farmer' } },
+    })
+    const { slug: testSlug } = await createRes.json()
+
+    const putRes = await api(`/api/campaigns/${campaignId}/characters/${testSlug}`, {
+      method: 'PUT',
+      headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
+      body: { fields: { background: 'Merchant' } },
+    })
+    expect(putRes.status).toBe(200)
+
+    const get = await api(`/api/campaigns/${campaignId}/characters/${testSlug}`, {
+      method: 'GET',
+      headers: { Cookie: cookie },
+    })
+    const data = await get.json()
+    expect(data.fields.background).toBe('Merchant')
+  })
+
   it('DELETE removes character', async () => {
     const res = await api(`/api/campaigns/${campaignId}/characters/${characterSlug}`, {
       method: 'DELETE',

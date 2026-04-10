@@ -71,7 +71,15 @@ const slug = route.params.slug as string
 const submitting = ref(false)
 const loaded = ref(false)
 const { t } = useI18n()
-const form = ref({ name: '', type: 'note', visibility: 'members', tagsRaw: '', content: '' })
+const form = ref({
+  name: '',
+  type: 'note',
+  visibility: 'members',
+  tagsRaw: '',
+  content: '',
+  templateId: '',
+  templateFields: {} as Record<string, unknown>,
+})
 const boardSummary = ref('')
 const entityImageUrl = ref<string | null>(null)
 
@@ -95,6 +103,8 @@ onMounted(async () => {
       visibility: entity.visibility || 'members',
       tagsRaw: (entity.frontmatter?.tags || []).join(', '),
       content: entity.content || '',
+      templateId: entity.templateId || '',
+      templateFields: (entity.fields as Record<string, unknown>) || {},
     }
     loaded.value = true
   } catch {
@@ -114,6 +124,8 @@ async function save() {
       ...form.value,
       tags,
       boardSummary: boardSummary.value || null,
+      templateId: form.value.templateId || undefined,
+      fields: form.value.templateFields,
     })
     entityForm.value?.clearDraft()
     await router.push(`/campaigns/${campaignId}/entities/${slug}`)

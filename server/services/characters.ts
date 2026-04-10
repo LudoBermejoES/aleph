@@ -56,9 +56,11 @@ export function buildCharacterFrontmatter(opts: {
   aliases?: string[]
   tags?: string[]
   visibility?: string
-}): EntityFrontmatter & { fields: Record<string, string> } {
-  const fields: Record<string, string> = {
+  fields?: Record<string, unknown>
+}): EntityFrontmatter & { fields: Record<string, unknown> } {
+  const fields: Record<string, unknown> = {
     characterType: opts.characterType,
+    ...(opts.fields ?? {}),
   }
   if (opts.status) fields.status = opts.status
 

@@ -41,15 +41,19 @@ const form = ref({
   parentId: (route.query.parentId as string) || '',
   visibility: 'members',
   content: '',
+  templateId: '',
+  templateFields: {} as Record<string, unknown>,
 })
 const api = useCampaignApi(campaignId)
 
 async function create() {
   submitting.value = true
   try {
+    const { templateFields, ...rest } = form.value
     const res = await api.createLocation({
-      ...form.value,
+      ...rest,
       parentId: form.value.parentId || undefined,
+      fields: Object.keys(templateFields).length ? templateFields : undefined,
     })
     locationForm.value?.clearDraft()
     await router.push(`/campaigns/${campaignId}/locations/${res.slug}`)

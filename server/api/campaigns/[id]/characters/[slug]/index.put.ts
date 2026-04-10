@@ -26,6 +26,8 @@ export default defineEventHandler(async (event) => {
     status: z.string().optional(),
     locationEntityId: z.string().nullable().optional(),
     folderId: z.string().optional(),
+    templateId: z.string().optional(),
+    fields: z.record(z.string(), z.unknown()).optional(),
   })
   const body = await validateBody(event, characterPutSchema)
   const db = useDb()
@@ -75,26 +77,27 @@ export default defineEventHandler(async (event) => {
     }
   }
 
+  const existingFields = (existing.frontmatter.fields as Record<string, unknown>) ?? {}
   const updatedFm = {
     ...existing.frontmatter,
     name: body.name ?? existing.frontmatter.name,
     aliases: body.aliases ?? existing.frontmatter.aliases,
     tags: body.tags ?? existing.frontmatter.tags,
     visibility: body.visibility ?? existing.frontmatter.visibility,
+    fields: body.fields !== undefined ? { ...existingFields, ...body.fields } : existingFields,
   }
   const updatedContent = body.content ?? existing.content
   const hash = await writeEntityFile(entity.filePath, updatedFm, updatedContent)
 
   const now = new Date()
-  db.update(entities)
-    .set({
-      name: updatedFm.name,
-      visibility: updatedFm.visibility,
-      contentHash: hash,
-      updatedAt: now,
-    })
-    .where(eq(entities.id, entity.id))
-    .run()
+  const entityUpdates: Record<string, unknown> = {
+    name: updatedFm.name,
+    visibility: updatedFm.visibility,
+    contentHash: hash,
+    updatedAt: now,
+  }
+  if (body.templateId !== undefined) entityUpdates.templateId = body.templateId
+  db.update(entities).set(entityUpdates).where(eq(entities.id, entity.id)).run()
 
   indexEntity(
     sqlite,

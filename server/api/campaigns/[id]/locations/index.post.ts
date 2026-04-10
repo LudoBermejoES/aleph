@@ -38,9 +38,11 @@ export default defineEventHandler(async (event) => {
     parentId: z.string().optional(),
     visibility: z.string().optional(),
     content: z.string().optional(),
+    templateId: z.string().optional(),
+    fields: z.record(z.string(), z.unknown()).optional(),
   })
   const body = await validateBody(event, locationSchema)
-  const { name, subtype, parentId, visibility, content } = body
+  const { name, subtype, parentId, visibility, content, templateId, fields } = body
 
   const resolvedSubtype = VALID_SUBTYPES.includes(subtype) ? subtype : 'other'
 
@@ -84,7 +86,7 @@ export default defineEventHandler(async (event) => {
     tags: [],
     visibility: visibility || 'members',
     parent: parentId || null,
-    fields: { subtype: resolvedSubtype },
+    fields: { ...(fields ?? {}), subtype: resolvedSubtype },
   }
 
   const hash = await writeEntityFile(filePath, frontmatter, content || '')
@@ -100,6 +102,7 @@ export default defineEventHandler(async (event) => {
       visibility: visibility || 'members',
       contentHash: hash,
       parentId: parentId || null,
+      templateId: templateId || null,
       createdBy: event.context.user.id,
       createdAt: now,
       updatedAt: now,

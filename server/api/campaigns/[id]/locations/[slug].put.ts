@@ -36,6 +36,8 @@ export default defineEventHandler(async (event) => {
     parentId: z.string().nullable().optional(),
     visibility: z.string().optional(),
     content: z.string().optional(),
+    templateId: z.string().optional(),
+    fields: z.record(z.string(), z.unknown()).optional(),
   })
   const body = await validateBody(event, locationPutSchema)
   const db = useDb()
@@ -92,13 +94,15 @@ export default defineEventHandler(async (event) => {
       ? body.subtype
       : ((existing.frontmatter?.fields as Record<string, unknown>)?.subtype ?? 'other')
 
+  const existingFields = (existing.frontmatter.fields as Record<string, unknown>) ?? {}
   const updatedFm = {
     ...existing.frontmatter,
     name: body.name ?? existing.frontmatter.name,
     visibility: (body.visibility ?? existing.frontmatter.visibility) as Visibility,
     parent: body.parentId !== undefined ? body.parentId || undefined : existing.frontmatter.parent,
     fields: {
-      ...((existing.frontmatter.fields as Record<string, unknown>) ?? {}),
+      ...existingFields,
+      ...(body.fields ?? {}),
       subtype: resolvedSubtype,
     },
   }
@@ -106,16 +110,15 @@ export default defineEventHandler(async (event) => {
   const hash = await writeEntityFile(entity.filePath, updatedFm, updatedContent)
 
   const now = new Date()
-  db.update(entities)
-    .set({
-      name: updatedFm.name,
-      visibility: updatedFm.visibility,
-      parentId: body.parentId !== undefined ? body.parentId || null : entity.parentId,
-      contentHash: hash,
-      updatedAt: now,
-    })
-    .where(eq(entities.id, entity.id))
-    .run()
+  const entityUpdates: Record<string, unknown> = {
+    name: updatedFm.name,
+    visibility: updatedFm.visibility,
+    parentId: body.parentId !== undefined ? body.parentId || null : entity.parentId,
+    contentHash: hash,
+    updatedAt: now,
+  }
+  if (body.templateId !== undefined) entityUpdates.templateId = body.templateId
+  db.update(entities).set(entityUpdates).where(eq(entities.id, entity.id)).run()
 
   indexEntity(sqlite, entity.id, campaignId, updatedFm.name, [], [], updatedContent)
 

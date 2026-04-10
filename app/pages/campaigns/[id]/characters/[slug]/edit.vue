@@ -50,6 +50,8 @@ const form = ref({
   content: '',
   ownerUserId: '',
   locationId: '',
+  templateId: '',
+  templateFields: {} as Record<string, unknown>,
 })
 
 const api = useCampaignApi(campaignId)
@@ -69,6 +71,8 @@ onMounted(async () => {
       content: char.content || '',
       ownerUserId: char.ownerUserId || '',
       locationId: char.locationEntityId || '',
+      templateId: char.templateId || '',
+      templateFields: (char.fields as Record<string, unknown>) || {},
     }
     loaded.value = true
   } catch {
@@ -80,10 +84,11 @@ onMounted(async () => {
 async function save() {
   submitting.value = true
   try {
-    const { locationId, ...rest } = form.value
+    const { locationId, templateFields, ...rest } = form.value
     await api.updateCharacter(slug, {
       ...rest,
       ...(locationId ? { locationEntityId: locationId } : {}),
+      fields: templateFields,
     })
     await charForm.value?.saveMemberships(slug)
     charForm.value?.clearDraft()

@@ -117,6 +117,32 @@
       </button>
     </div>
 
+    <!-- Template selector -->
+    <div v-if="characterTemplates.length">
+      <label class="text-sm font-medium">{{ $t('templates.noTemplate') }}</label>
+      <select
+        v-model="form.templateId"
+        class="w-full mt-1 px-3 py-2 rounded border border-input bg-background"
+      >
+        <option value="">{{ $t('templates.noTemplate') }}</option>
+        <option v-for="tpl in characterTemplates" :key="tpl.id" :value="tpl.id">
+          {{ tpl.name }}
+        </option>
+      </select>
+    </div>
+
+    <!-- Template fields -->
+    <TemplateFieldsForm
+      v-if="form.templateId"
+      :campaign-id="campaignId"
+      :template-id="form.templateId"
+      :model-value="form.templateFields ?? {}"
+      @update:model-value="
+        (vals: Record<string, unknown>) =>
+          emit('update:modelValue', { ...form, templateFields: vals })
+      "
+    />
+
     <div class="flex justify-end gap-2">
       <slot name="cancel"></slot>
       <Button type="submit" :disabled="submitting">{{
@@ -137,6 +163,8 @@ const props = defineProps<{
     content: string
     ownerUserId: string
     locationId: string
+    templateId?: string
+    templateFields?: Record<string, unknown>
   }
   campaignId: string
   characterSlug?: string // present on edit, absent on create
@@ -153,12 +181,20 @@ const emit = defineEmits<{
   submit: []
 }>()
 
+interface CharacterTemplate {
+  id: string
+  name: string
+  entityTypeSlug: string
+  isDefault: boolean
+}
+
 const api = useCampaignApi(props.campaignId)
-const members = ref<{ id: string; name: string; [key: string]: unknown }[]>([])
-const organizations = ref<{ id: string; slug: string; name: string; [key: string]: unknown }[]>([])
-const locations = ref<{ id: string; name: string; [key: string]: unknown }[]>([])
+const members = ref<{ id: string; userId: string; name: string; role: string }[]>([])
+const organizations = ref<{ id: string; slug: string; name: string }[]>([])
+const locations = ref<{ id: string; name: string }[]>([])
 const pendingMemberships = ref<{ organizationId: string; role: string }[]>([])
 const loadError = ref<string | null>(null)
+const characterTemplates = ref<CharacterTemplate[]>([])
 
 const form = computed({
   get: () => props.modelValue,
@@ -167,14 +203,26 @@ const form = computed({
 
 onMounted(async () => {
   try {
-    const [ms, orgs, locs] = await Promise.all([
+    const [ms, orgs, locs, templates] = await Promise.all([
       api.getMembers(),
       api.getOrganizations(),
       api.getLocations(),
+      api.getTemplates(),
     ])
-    members.value = ms
-    organizations.value = orgs
-    locations.value = locs
+    members.value = ms as typeof members.value
+    organizations.value = orgs as unknown as typeof organizations.value
+    locations.value = locs as unknown as typeof locations.value
+    characterTemplates.value = (templates as CharacterTemplate[]).filter(
+      (t) => t.entityTypeSlug === 'character',
+    )
+
+    // Auto-select default template on create (no characterSlug = new)
+    if (!props.characterSlug && !form.value.templateId) {
+      const defaultTpl = characterTemplates.value.find((t) => t.isDefault)
+      if (defaultTpl) {
+        emit('update:modelValue', { ...form.value, templateId: defaultTpl.id })
+      }
+    }
 
     // Load existing memberships when editing
     if (props.characterSlug) {

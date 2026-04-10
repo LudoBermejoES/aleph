@@ -29,6 +29,8 @@ export default defineEventHandler(async (event) => {
     status: z.string().optional(),
     ownerUserId: z.string().optional(),
     isCompanionOf: z.string().optional(),
+    templateId: z.string().optional(),
+    fields: z.record(z.string(), z.unknown()).optional(),
   })
   const body = await validateBody(event, characterSchema)
   const {
@@ -41,6 +43,8 @@ export default defineEventHandler(async (event) => {
     status,
     ownerUserId,
     isCompanionOf,
+    templateId,
+    fields,
   } = body
 
   const db = useDb()
@@ -65,6 +69,7 @@ export default defineEventHandler(async (event) => {
     aliases,
     tags,
     visibility,
+    fields,
   })
   const hash = await writeEntityFile(filePath, frontmatter, content || '')
 
@@ -79,6 +84,7 @@ export default defineEventHandler(async (event) => {
       filePath,
       visibility: visibility || 'members',
       contentHash: hash,
+      templateId: templateId || null,
       createdBy: event.context.user.id,
       createdAt: now,
       updatedAt: now,

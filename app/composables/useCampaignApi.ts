@@ -621,13 +621,22 @@ export function useCampaignApi(campaignId: string) {
     description?: string
     type?: string
     status?: string
+    templateId?: string
+    fields?: Record<string, unknown>
   }) {
     return $fetch<Record<string, unknown>>(`${base}/organizations`, { method: 'POST', body })
   }
 
   function updateOrganization(
     slug: string,
-    body: { name?: string; description?: string; type?: string; status?: string },
+    body: {
+      name?: string
+      description?: string
+      type?: string
+      status?: string
+      templateId?: string
+      fields?: Record<string, unknown>
+    },
   ) {
     return $fetch<Record<string, unknown>>(`${base}/organizations/${slug}`, { method: 'PUT', body })
   }
@@ -670,6 +679,8 @@ export function useCampaignApi(campaignId: string) {
     parentId?: string
     visibility?: string
     content?: string
+    templateId?: string
+    fields?: Record<string, unknown>
   }) {
     return $fetch<Record<string, unknown>>(`${base}/locations`, { method: 'POST', body })
   }
@@ -682,6 +693,8 @@ export function useCampaignApi(campaignId: string) {
       parentId?: string | null
       visibility?: string
       content?: string
+      templateId?: string
+      fields?: Record<string, unknown>
     },
   ) {
     return $fetch<Record<string, unknown>>(`${base}/locations/${slug}`, { method: 'PUT', body })

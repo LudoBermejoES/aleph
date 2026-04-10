@@ -42,6 +42,8 @@ const form = ref({
   content: '',
   ownerUserId: '',
   locationId: '',
+  templateId: '',
+  templateFields: {} as Record<string, unknown>,
 })
 
 const api = useCampaignApi(campaignId)
@@ -53,8 +55,12 @@ const charForm = ref<{
 async function create() {
   submitting.value = true
   try {
-    const { locationId, ...rest } = form.value
-    const res = await api.createCharacter({ ...rest, locationEntityId: locationId || undefined })
+    const { locationId, templateFields, ...rest } = form.value
+    const res = await api.createCharacter({
+      ...rest,
+      locationEntityId: locationId || undefined,
+      fields: Object.keys(templateFields).length ? templateFields : undefined,
+    })
     await charForm.value?.saveMemberships(res.slug)
     charForm.value?.clearDraft()
     await router.push(`/campaigns/${campaignId}/characters/${res.slug}`)
