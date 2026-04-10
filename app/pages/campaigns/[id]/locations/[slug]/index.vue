@@ -42,7 +42,7 @@
       </div>
 
       <!-- Preview Role Switcher (DM only) -->
-      <EntityPreviewRoleSwitcher
+      <PreviewRoleSwitcher
         v-if="isDm"
         :campaign-role="campaignRole"
         :campaign-id="campaignId"
@@ -61,7 +61,7 @@
       <!-- eslint-enable vue/no-v-html -->
 
       <!-- Secret Notes (DM only) -->
-      <EntitySecretNotes
+      <SecretNotes
         v-if="isDm"
         :campaign-id="campaignId"
         :entity-slug="slug"

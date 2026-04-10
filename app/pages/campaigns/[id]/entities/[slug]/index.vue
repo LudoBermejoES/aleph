@@ -16,7 +16,7 @@
       </div>
 
       <!-- Preview role switcher (DM only) -->
-      <EntityPreviewRoleSwitcher
+      <PreviewRoleSwitcher
         v-if="campaignRole"
         :campaign-role="campaignRole"
         @change="onPreviewRoleChange"
@@ -139,7 +139,7 @@
       </div>
 
       <!-- Secret Notes (DM only) -->
-      <EntitySecretNotes
+      <SecretNotes
         v-if="campaignRole"
         :campaign-id="campaignId"
         :entity-slug="slug"

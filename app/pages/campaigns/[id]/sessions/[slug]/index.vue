@@ -75,7 +75,7 @@
       />
 
       <!-- Preview role switcher (DM only) -->
-      <EntityPreviewRoleSwitcher
+      <PreviewRoleSwitcher
         v-if="isDm"
         :campaign-role="campaignRole"
         @change="onPreviewRoleChange"
@@ -129,7 +129,7 @@
       />
 
       <!-- Secret Notes (DM only) -->
-      <EntitySecretNotes
+      <SecretNotes
         v-if="isDm"
         :campaign-id="campaignId"
         :entity-slug="slug"
