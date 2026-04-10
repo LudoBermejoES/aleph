@@ -12,6 +12,7 @@ import { readEntityFile, stripSecretBlocks } from '../../../../../services/conte
 import { stripSecretStats, stripSecretAbilities } from '../../../../../services/characters'
 import type { CampaignRole } from '../../../../../utils/permissions'
 import {
+  hasMinRole,
   canUserAccessEntity,
   getCachedPermission,
   setCachedPermission,
@@ -20,9 +21,19 @@ import {
 export default defineEventHandler(async (event) => {
   const campaignId = getRouterParam(event, 'id')!
   const slug = getRouterParam(event, 'slug')!
-  const role = event.context.campaignRole as CampaignRole
+  const actualRole = event.context.campaignRole as CampaignRole
   const userId = event.context.user?.id || ''
   const db = useDb()
+
+  // Support preview_as for DM/Co-DM only
+  const previewAs = getQuery(event).preview_as as string | undefined
+  let role = actualRole
+  if (previewAs && hasMinRole(actualRole, 'co_dm')) {
+    const validRoles: CampaignRole[] = ['dm', 'co_dm', 'editor', 'player', 'visitor']
+    if (validRoles.includes(previewAs as CampaignRole)) {
+      role = previewAs as CampaignRole
+    }
+  }
 
   const entity = db
     .select()
@@ -40,7 +51,7 @@ export default defineEventHandler(async (event) => {
           db,
           userId,
           'user',
-          role,
+          actualRole,
           entity.id,
           entity.visibility,
           entity.createdBy,
