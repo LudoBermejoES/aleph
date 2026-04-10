@@ -224,6 +224,7 @@ export function TldrawWrapper({
         <Tldraw
           store={syncStore}
           shapeUtils={SHAPE_UTILS}
+          assets={assetStore}
           onMount={handleMount}
           hideUi={readOnly}
           licenseKey={import.meta.env.VITE_TLDRAW_LICENSE_KEY}
