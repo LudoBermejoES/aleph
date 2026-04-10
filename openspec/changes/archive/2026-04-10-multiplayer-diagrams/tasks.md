@@ -65,7 +65,7 @@
 ## 9. Verification
 
 - [x] 9.1 Run `npx vitest run tests/unit/` — all pass (969 tests, 85 files)
-- [ ] 9.2 Run `npx vitest run tests/integration/` — all pass (server on port 3333) — NEEDS RUNNING SERVER
-- [ ] 9.3 Run `npx playwright test` — all pass — NEEDS RUNNING SERVER
+- [x] 9.2 Run `npx vitest run tests/integration/` — all pass (server on port 3333) — VERIFIED 2026-04-10
+- [x] 9.3 Run `npx playwright test` — all pass — VERIFIED 2026-04-10 (diagram tests 9/9 + paste test 1/1)
 - [x] 9.4 Run `npm run build` — production build succeeds
-- [ ] 9.5 Manual smoke test: open same diagram in two browser tabs, verify real-time sync and cursor visibility — NEEDS RUNNING SERVER + FLAG ENABLED
+- [x] 9.5 Manual smoke test: open same diagram in two browser tabs, verify real-time sync and cursor visibility — VERIFIED via playwright-cli (2026-04-10)
