@@ -28,15 +28,14 @@ describe('Character Schema', () => {
 
   it('creates character linked to entity', () => {
     testDb.sqlite.exec(`
-      INSERT INTO characters (id, entity_id, character_type, race, class, status)
-      VALUES ('char-1', 'ent-1', 'npc', 'Vampire', 'Noble', 'alive')
+      INSERT INTO characters (id, entity_id, character_type, status)
+      VALUES ('char-1', 'ent-1', 'npc', 'alive')
     `)
     const char = testDb.sqlite
       .prepare("SELECT * FROM characters WHERE id = 'char-1'")
       .get() as Record<string, unknown>
     expect(char.entity_id).toBe('ent-1')
     expect(char.character_type).toBe('npc')
-    expect(char.race).toBe('Vampire')
   })
 
   it('cascades delete from entity to character', () => {

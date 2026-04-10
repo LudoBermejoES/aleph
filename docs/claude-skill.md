@@ -83,10 +83,10 @@ Pipe content from a file: `cat notes.md | aleph entity edit --campaign <id> <slu
 ### Characters
 
 ```bash
-aleph character list --campaign <id> [--status <alive|dead|missing|unknown>] [--race <race>] [--class <class>] [--alignment <alignment>] [--sort <name|updatedAt|status|race|class>] [--sort-dir <asc|desc>] [--page <n>] [--limit <n>] [--json]
-aleph character create --campaign <id> --name <name> [--class <class>] [--json]
+aleph character list --campaign <id> [--status <alive|dead|missing|unknown>] [--sort <name|updatedAt|status>] [--sort-dir <asc|desc>] [--page <n>] [--limit <n>] [--json]
+aleph character create --campaign <id> --name <name> [--json]
 aleph character show --campaign <id> <slug> [--json]
-aleph character update --campaign <id> <slug> [--name <n>] [--race <r>] [--class <c>] [--alignment <a>] [--status <s>] [--content <md>] [--stdin]
+aleph character update --campaign <id> <slug> [--name <n>] [--status <s>] [--content <md>] [--stdin]
 aleph character upload-portrait --campaign <id> --slug <slug> --file <path>
 aleph character connect <slug> --campaign <id> --target <entity-slug> [--label <text>] [--description <text>] [--json]
 aleph character connections <slug> --campaign <id> [--json]

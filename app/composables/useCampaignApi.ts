@@ -2,7 +2,6 @@ import type {
   CampaignListItem,
   CampaignMember,
   Character,
-  CharacterMeta,
   CharacterFolder,
   CharacterConnection,
   Entity,
@@ -113,10 +112,6 @@ export function useCampaignApi(campaignId: string) {
 
   function getCharacters(params?: Record<string, string>) {
     return $fetch<Character[]>(`${base}/characters`, { params: { pageSize: '0', ...params } })
-  }
-
-  function getCharactersMeta() {
-    return $fetch<CharacterMeta>(`${base}/characters/meta`)
   }
 
   function getCharacter(slug: string, params?: Record<string, string>) {
@@ -776,7 +771,6 @@ export function useCampaignApi(campaignId: string) {
     // Characters
     getCharacters,
     getCharacter,
-    getCharactersMeta,
     createCharacter,
     updateCharacter,
     deleteCharacter,

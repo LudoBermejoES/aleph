@@ -24,8 +24,6 @@ test.describe('Characters', () => {
       body: {
         name: charName,
         characterType: 'npc',
-        race: 'Maiar',
-        class: 'Wizard',
         content: '# Gandalf\n\nA wise wizard.',
       },
     })
@@ -37,7 +35,7 @@ test.describe('Characters', () => {
     // Click to view detail
     await page.click(`main >> text=${charName}`)
     await page.waitForURL('**/characters/**', { timeout: 15000 })
-    await expect(page.locator('main h1')).toContainText(charName, { timeout: 10000 })
+    await expect(page.locator('main h1.text-3xl')).toContainText(charName, { timeout: 10000 })
   })
 
   test('character detail shows edit form and saves changes', async ({ page }) => {
@@ -50,8 +48,6 @@ test.describe('Characters', () => {
       body: {
         name: 'Editable NPC',
         characterType: 'npc',
-        race: 'Elf',
-        alignment: 'Neutral',
         content: '# Editable',
       },
     })
@@ -60,7 +56,7 @@ test.describe('Characters', () => {
     await page.waitForLoadState('networkidle')
     await page.click('main >> text=Editable NPC')
     await page.waitForURL('**/characters/**', { timeout: 15000 })
-    await expect(page.locator('main h1')).toContainText('Editable NPC', { timeout: 10000 })
+    await expect(page.locator('main h1.text-3xl')).toContainText('Editable NPC', { timeout: 10000 })
 
     // Click Edit → navigates to /edit page
     await page.click('[data-testid="edit-character"]')

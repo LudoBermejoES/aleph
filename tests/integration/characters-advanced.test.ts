@@ -103,7 +103,7 @@ describe('Player Ownership Restriction (8.14)', () => {
     const res = await api(`/api/campaigns/${campaignId}/characters/${ownedCharSlug}`, {
       method: 'PUT',
       headers: withCsrf(playerCookie, playerCsrf),
-      body: { race: 'Elf' },
+      body: { status: 'alive' },
     })
     expect(res.status).toBe(200)
   })
@@ -112,7 +112,7 @@ describe('Player Ownership Restriction (8.14)', () => {
     const res = await api(`/api/campaigns/${campaignId}/characters/${otherCharSlug}`, {
       method: 'PUT',
       headers: withCsrf(playerCookie, playerCsrf),
-      body: { race: 'Orc' },
+      body: { status: 'alive' },
     })
     expect(res.status).toBe(403)
   })
@@ -121,7 +121,7 @@ describe('Player Ownership Restriction (8.14)', () => {
     const res = await api(`/api/campaigns/${campaignId}/characters/${otherCharSlug}`, {
       method: 'PUT',
       headers: withCsrf(dmCookie, dmCsrf),
-      body: { race: 'Tiefling' },
+      body: { status: 'missing' },
     })
     expect(res.status).toBe(200)
   })

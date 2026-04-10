@@ -10,7 +10,7 @@ async function api(path: string, opts?: Omit<RequestInit, 'body'> & { body?: unk
   })
 }
 
-describe('Character list filters and meta (integration)', () => {
+describe('Character list filters (integration)', () => {
   const email = `char-filters-${Date.now()}@example.com`
   let cookie = ''
   let csrfToken = ''
@@ -52,9 +52,6 @@ describe('Character list filters and meta (integration)', () => {
       body: {
         name: 'Legolas',
         characterType: 'pc',
-        race: 'Elf',
-        class: 'Ranger',
-        alignment: 'Neutral Good',
         status: 'alive',
       },
     })
@@ -66,9 +63,6 @@ describe('Character list filters and meta (integration)', () => {
       body: {
         name: 'Boromir',
         characterType: 'pc',
-        race: 'Human',
-        class: 'Fighter',
-        alignment: 'Lawful Good',
         status: 'dead',
       },
     })
@@ -80,9 +74,6 @@ describe('Character list filters and meta (integration)', () => {
       body: {
         name: 'Gandalf',
         characterType: 'npc',
-        race: 'Maiar',
-        class: 'Wizard',
-        alignment: 'Neutral Good',
         status: 'alive',
       },
     })
@@ -96,7 +87,7 @@ describe('Character list filters and meta (integration)', () => {
     await api(`/api/campaigns/${campaignId}/characters`, {
       method: 'POST',
       headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
-      body: { name: 'Arod', characterType: 'npc', race: 'Horse', isCompanionOf: legolasData.id },
+      body: { name: 'Arod', characterType: 'npc', isCompanionOf: legolasData.id },
     })
 
     // Create organization and add Legolas
@@ -118,43 +109,6 @@ describe('Character list filters and meta (integration)', () => {
     })
   })
 
-  // 8.1 race filter
-  it('GET ?race=Elf returns only Elf characters', async () => {
-    const res = await api(`/api/campaigns/${campaignId}/characters?race=Elf`, {
-      headers: { Cookie: cookie },
-    })
-    expect(res.status).toBe(200)
-    const body = await res.json()
-    const data = body.data ?? body
-    expect(data.length).toBeGreaterThan(0)
-    expect(data.every((c: Record<string, unknown>) => c.race === 'Elf')).toBe(true)
-  })
-
-  // 8.2 class filter
-  it('GET ?class=Wizard returns only Wizard characters', async () => {
-    const res = await api(`/api/campaigns/${campaignId}/characters?class=Wizard`, {
-      headers: { Cookie: cookie },
-    })
-    expect(res.status).toBe(200)
-    const body = await res.json()
-    const data = body.data ?? body
-    expect(data.length).toBeGreaterThan(0)
-    expect(data.every((c: Record<string, unknown>) => c.class === 'Wizard')).toBe(true)
-  })
-
-  // 8.3 alignment filter
-  it('GET ?alignment=Neutral+Good returns only matching characters', async () => {
-    const res = await api(`/api/campaigns/${campaignId}/characters?alignment=Neutral+Good`, {
-      headers: { Cookie: cookie },
-    })
-    expect(res.status).toBe(200)
-    const body = await res.json()
-    const data = body.data ?? body
-    expect(data.length).toBeGreaterThan(0)
-    expect(data.every((c: Record<string, unknown>) => c.alignment === 'Neutral Good')).toBe(true)
-  })
-
-  // 8.4 status filter
   it('GET ?status=dead returns only dead characters', async () => {
     const res = await api(`/api/campaigns/${campaignId}/characters?status=dead`, {
       headers: { Cookie: cookie },
@@ -166,7 +120,6 @@ describe('Character list filters and meta (integration)', () => {
     expect(data.every((c: Record<string, unknown>) => c.status === 'dead')).toBe(true)
   })
 
-  // 8.5 organizationId filter
   it('GET ?organizationId=<id> returns only org members', async () => {
     const res = await api(`/api/campaigns/${campaignId}/characters?organizationId=${orgId}`, {
       headers: { Cookie: cookie },
@@ -180,7 +133,6 @@ describe('Character list filters and meta (integration)', () => {
     expect(data.every((c: Record<string, unknown>) => c.name !== 'Boromir')).toBe(true)
   })
 
-  // 8.6 sort by name asc
   it('GET ?sort=name&sortDir=asc returns alphabetical order', async () => {
     const res = await api(`/api/campaigns/${campaignId}/characters?sort=name&sortDir=asc`, {
       headers: { Cookie: cookie },
@@ -193,7 +145,6 @@ describe('Character list filters and meta (integration)', () => {
     expect(names).toEqual(sorted)
   })
 
-  // 8.7 unknown sort field falls back to updatedAt desc
   it('GET ?sort=invalid falls back gracefully', async () => {
     const res = await api(`/api/campaigns/${campaignId}/characters?sort=invalid`, {
       headers: { Cookie: cookie },
@@ -204,7 +155,6 @@ describe('Character list filters and meta (integration)', () => {
     expect(Array.isArray(data)).toBe(true)
   })
 
-  // 8.8 response includes locationName and primaryOrg fields
   it('GET /characters response includes locationName and primaryOrg fields', async () => {
     const res = await api(`/api/campaigns/${campaignId}/characters`, {
       headers: { Cookie: cookie },
@@ -226,29 +176,6 @@ describe('Character list filters and meta (integration)', () => {
     expect(legolas.primaryOrg.role).toBe('Scout')
   })
 
-  // 8.9 meta returns distinct values
-  it('GET /characters/meta returns distinct races, classes, alignments', async () => {
-    const res = await api(`/api/campaigns/${campaignId}/characters/meta`, {
-      headers: { Cookie: cookie },
-    })
-    expect(res.status).toBe(200)
-    const data = await res.json()
-    expect(data.races).toContain('Elf')
-    expect(data.races).toContain('Human')
-    expect(data.classes).toContain('Wizard')
-    expect(data.classes).toContain('Ranger')
-    expect(data.alignments).toContain('Neutral Good')
-    // No duplicates
-    expect(data.races.length).toBe(new Set(data.races).size)
-  })
-
-  // 8.10 meta requires auth
-  it('GET /characters/meta returns 401 without session', async () => {
-    const res = await api(`/api/campaigns/${campaignId}/characters/meta`)
-    expect(res.status).toBe(401)
-  })
-
-  // companions filter
   it('GET ?companions=false excludes companion characters', async () => {
     const res = await api(`/api/campaigns/${campaignId}/characters?companions=false`, {
       headers: { Cookie: cookie },

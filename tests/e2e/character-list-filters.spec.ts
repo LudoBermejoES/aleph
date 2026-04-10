@@ -6,15 +6,15 @@ const uid = () => Date.now().toString(36).slice(-4)
 async function setupChars(page: import('@playwright/test').Page, campaignId: string) {
   await apiFetch(page, `/api/campaigns/${campaignId}/characters`, {
     method: 'POST',
-    body: { name: 'Aragorn', characterType: 'pc', race: 'Human', status: 'alive' },
+    body: { name: 'Aragorn', characterType: 'pc', status: 'alive' },
   })
   await apiFetch(page, `/api/campaigns/${campaignId}/characters`, {
     method: 'POST',
-    body: { name: 'Boromir', characterType: 'pc', race: 'Human', status: 'dead' },
+    body: { name: 'Boromir', characterType: 'pc', status: 'dead' },
   })
   await apiFetch(page, `/api/campaigns/${campaignId}/characters`, {
     method: 'POST',
-    body: { name: 'Gandalf', characterType: 'npc', race: 'Maiar', status: 'alive' },
+    body: { name: 'Gandalf', characterType: 'npc', status: 'alive' },
   })
 }
 

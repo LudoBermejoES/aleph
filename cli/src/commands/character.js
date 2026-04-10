@@ -11,10 +11,7 @@ export function makeCharacterCommand() {
     .description('List characters in a campaign')
     .requiredOption('--campaign <id>', 'Campaign ID')
     .option('--status <status>', 'Filter by status (alive, dead, missing, unknown)')
-    .option('--race <race>', 'Filter by race')
-    .option('--class <class>', 'Filter by class')
-    .option('--alignment <alignment>', 'Filter by alignment')
-    .option('--sort <field>', 'Sort field (name, updatedAt, status, race, class)')
+    .option('--sort <field>', 'Sort field (name, updatedAt, status)')
     .option('--sort-dir <dir>', 'Sort direction (asc, desc)')
     .option('--page <n>', 'Page number', '1')
     .option('--limit <n>', 'Results per page (0 = all)', '50')
@@ -22,9 +19,6 @@ export function makeCharacterCommand() {
     .action(async (opts) => {
       const params = new URLSearchParams()
       if (opts.status) params.set('status', opts.status)
-      if (opts.race) params.set('race', opts.race)
-      if (opts.class) params.set('class', opts.class)
-      if (opts.alignment) params.set('alignment', opts.alignment)
       if (opts.sort) params.set('sort', opts.sort)
       if (opts.sortDir) params.set('sortDir', opts.sortDir)
       params.set('page', opts.page)
@@ -42,8 +36,6 @@ export function makeCharacterCommand() {
             slug: c.slug,
             type: c.characterType || '',
             status: c.status || '',
-            race: c.race || '',
-            class: c.class || '',
           })),
         )
         if (meta) console.error(`Page ${meta.page}/${meta.totalPages} (${meta.total} total)`)
@@ -55,12 +47,10 @@ export function makeCharacterCommand() {
     .description('Create a character')
     .requiredOption('--campaign <id>', 'Campaign ID')
     .requiredOption('--name <name>', 'Character name')
-    .option('--class <class>', 'Character class')
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
       const data = await post(`/api/campaigns/${opts.campaign}/characters`, {
         name: opts.name,
-        class: opts.class,
       })
       if (opts.json) {
         print(data, { json: true })
@@ -83,8 +73,6 @@ export function makeCharacterCommand() {
           name: data.name,
           slug: data.slug,
           type: data.characterType || '',
-          class: data.class || '',
-          race: data.race || '',
           portrait: data.portraitUrl || '(none)',
         })
       }
@@ -95,9 +83,6 @@ export function makeCharacterCommand() {
     .description('Update character fields and/or content')
     .requiredOption('--campaign <id>', 'Campaign ID')
     .option('--name <name>', 'Character name')
-    .option('--race <race>', 'Race')
-    .option('--class <class>', 'Class')
-    .option('--alignment <alignment>', 'Alignment')
     .option('--status <status>', 'Status (alive, dead, missing, unknown)')
     .option('--type <type>', 'Character type (pc, npc)')
     .option('--content <markdown>', 'Markdown content (biography, notes)')
@@ -110,9 +95,6 @@ export function makeCharacterCommand() {
       }
       const body = {}
       if (opts.name !== undefined) body.name = opts.name
-      if (opts.race !== undefined) body.race = opts.race
-      if (opts.class !== undefined) body.class = opts.class
-      if (opts.alignment !== undefined) body.alignment = opts.alignment
       if (opts.status !== undefined) body.status = opts.status
       if (opts.type !== undefined) body.characterType = opts.type
       if (opts.stdin) {
@@ -129,7 +111,7 @@ export function makeCharacterCommand() {
       }
       if (Object.keys(body).length === 0) {
         process.stderr.write(
-          'Error: provide at least one field to update (--name, --race, --class, --alignment, --status, --type, --content, --stdin)\n',
+          'Error: provide at least one field to update (--name, --status, --type, --content, --stdin)\n',
         )
         process.exit(1)
       }

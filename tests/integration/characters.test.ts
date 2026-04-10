@@ -49,8 +49,6 @@ describe('Character CRUD (integration)', () => {
       body: {
         name: 'Gandalf the Grey',
         characterType: 'npc',
-        race: 'Maiar',
-        class: 'Wizard',
         content: '# Gandalf\n\nA wise wizard.',
       },
     })
@@ -69,7 +67,6 @@ describe('Character CRUD (integration)', () => {
     expect(res.status).toBe(200)
     const data = await res.json()
     expect(data.name).toBe('Gandalf the Grey')
-    expect(data.race).toBe('Maiar')
     // Content comes from the .md file
     expect(data.content).toBeDefined()
     expect(data.stats).toBeDefined()
@@ -103,7 +100,7 @@ describe('Character CRUD (integration)', () => {
     const res = await api(`/api/campaigns/${campaignId}/characters/${characterSlug}`, {
       method: 'PUT',
       headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
-      body: { race: 'Istari', status: 'alive' },
+      body: { status: 'missing' },
     })
     expect(res.status).toBe(200)
 
@@ -112,7 +109,7 @@ describe('Character CRUD (integration)', () => {
       headers: { Cookie: cookie },
     })
     const data = await get.json()
-    expect(data.race).toBe('Istari')
+    expect(data.status).toBe('missing')
   })
 
   it('GET character list filters by type', async () => {

@@ -45,9 +45,6 @@ const { t } = useI18n()
 const form = ref({
   name: '',
   characterType: 'npc',
-  race: '',
-  class: '',
-  alignment: '',
   status: 'alive',
   visibility: 'members',
   content: '',
@@ -67,9 +64,6 @@ onMounted(async () => {
     form.value = {
       name: char.name || '',
       characterType: char.characterType || 'npc',
-      race: char.race || '',
-      class: char.class || '',
-      alignment: char.alignment || '',
       status: char.status || 'alive',
       visibility: char.visibility || 'members',
       content: char.content || '',

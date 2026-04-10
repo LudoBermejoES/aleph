@@ -54,38 +54,6 @@
       </select>
 
       <select
-        v-if="races.length"
-        :value="raceFilter"
-        class="text-sm border border-border rounded-md px-2 py-1.5 bg-background"
-        data-testid="race-filter"
-        @change="updateFilter('update:raceFilter', ($event.target as HTMLSelectElement).value)"
-      >
-        <option value="">{{ $t('characters.allRaces') }}</option>
-        <option v-for="r in races" :key="r" :value="r">{{ r }}</option>
-      </select>
-
-      <select
-        v-if="classes.length"
-        :value="classFilter"
-        class="text-sm border border-border rounded-md px-2 py-1.5 bg-background"
-        data-testid="class-filter"
-        @change="updateFilter('update:classFilter', ($event.target as HTMLSelectElement).value)"
-      >
-        <option value="">{{ $t('characters.allClasses') }}</option>
-        <option v-for="c in classes" :key="c" :value="c">{{ c }}</option>
-      </select>
-
-      <select
-        :value="alignmentFilter"
-        class="text-sm border border-border rounded-md px-2 py-1.5 bg-background"
-        data-testid="alignment-filter"
-        @change="updateFilter('update:alignmentFilter', ($event.target as HTMLSelectElement).value)"
-      >
-        <option value="">{{ $t('characters.allAlignments') }}</option>
-        <option v-for="a in ALIGNMENTS" :key="a" :value="a">{{ a }}</option>
-      </select>
-
-      <select
         v-if="organizations.length"
         :value="orgFilter"
         class="text-sm border border-border rounded-md px-2 py-1.5 bg-background"
@@ -133,8 +101,6 @@
         <option value="updatedAt">{{ $t('characters.sortUpdatedAt') }}</option>
         <option value="name">{{ $t('characters.sortName') }}</option>
         <option value="status">{{ $t('characters.sortStatus') }}</option>
-        <option value="race">{{ $t('characters.sortRace') }}</option>
-        <option value="class">{{ $t('characters.sortClass') }}</option>
       </select>
       <Button variant="outline" size="sm" data-testid="sort-dir" @click="$emit('toggle-sort-dir')">
         {{ sortDir === 'asc' ? $t('characters.sortAsc') : $t('characters.sortDesc') }}
@@ -146,32 +112,15 @@
 <script setup lang="ts">
 import { ICONS } from '~/utils/icons'
 
-const ALIGNMENTS = [
-  'Lawful Good',
-  'Neutral Good',
-  'Chaotic Good',
-  'Lawful Neutral',
-  'True Neutral',
-  'Chaotic Neutral',
-  'Lawful Evil',
-  'Neutral Evil',
-  'Chaotic Evil',
-]
-
 defineProps<{
   typeFilter: string
   searchInput: string
   statusFilter: string
-  raceFilter: string
-  classFilter: string
-  alignmentFilter: string
   orgFilter: string
   locationFilter: string
   showCompanions: boolean
   sortField: string
   sortDir: string
-  races: string[]
-  classes: string[]
   organizations: { id: string; name: string }[]
   locationOptions: { id: string; name: string }[]
 }>()
@@ -180,9 +129,6 @@ const emit = defineEmits<{
   'set-type': [type: string]
   'update:searchInput': [value: string]
   'update:statusFilter': [value: string]
-  'update:raceFilter': [value: string]
-  'update:classFilter': [value: string]
-  'update:alignmentFilter': [value: string]
   'update:orgFilter': [value: string]
   'update:locationFilter': [value: string]
   'update:showCompanions': [value: boolean]

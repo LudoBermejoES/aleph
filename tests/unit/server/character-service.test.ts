@@ -108,30 +108,23 @@ describe('buildCharacterFrontmatter', () => {
     expect(fm.fields.characterType).toBe('npc')
   })
 
-  it('excludes undefined optional fields', () => {
+  it('includes status when provided', () => {
     const fm = buildCharacterFrontmatter({
       id: 'ent-1',
       name: 'Strahd',
       characterType: 'npc',
-      race: undefined,
-      charClass: undefined,
+      status: 'dead',
     })
-    expect(fm.fields).not.toHaveProperty('race')
-    expect(fm.fields).not.toHaveProperty('class')
+    expect(fm.fields.status).toBe('dead')
   })
 
-  it('includes provided optional fields', () => {
+  it('excludes status when not provided', () => {
     const fm = buildCharacterFrontmatter({
       id: 'ent-1',
-      name: 'Gandalf',
+      name: 'Strahd',
       characterType: 'npc',
-      race: 'Maiar',
-      charClass: 'Wizard',
-      alignment: 'Neutral Good',
     })
-    expect(fm.fields.race).toBe('Maiar')
-    expect(fm.fields.class).toBe('Wizard')
-    expect(fm.fields.alignment).toBe('Neutral Good')
+    expect(fm.fields).not.toHaveProperty('status')
   })
 
   it('defaults visibility to members', () => {

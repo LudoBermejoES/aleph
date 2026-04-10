@@ -52,9 +52,6 @@ export function buildCharacterFrontmatter(opts: {
   id: string
   name: string
   characterType: string
-  race?: string
-  charClass?: string
-  alignment?: string
   status?: string
   aliases?: string[]
   tags?: string[]
@@ -63,9 +60,6 @@ export function buildCharacterFrontmatter(opts: {
   const fields: Record<string, string> = {
     characterType: opts.characterType,
   }
-  if (opts.race) fields.race = opts.race
-  if (opts.charClass) fields.class = opts.charClass
-  if (opts.alignment) fields.alignment = opts.alignment
   if (opts.status) fields.status = opts.status
 
   return {

@@ -53,9 +53,6 @@ describe('Character create with all fields (9.19)', () => {
       body: {
         name: 'Full Character',
         characterType: 'npc',
-        race: 'Vampire',
-        class: 'Necromancer',
-        alignment: 'Lawful Evil',
         status: 'alive',
         visibility: 'dm_only',
         content: '# Full Character\n\nWith all fields.',
@@ -72,9 +69,6 @@ describe('Character create with all fields (9.19)', () => {
       headers: { Cookie: cookie },
     })
     const char = await get.json()
-    expect(char.race).toBe('Vampire')
-    expect(char.class).toBe('Necromancer')
-    expect(char.alignment).toBe('Lawful Evil')
     expect(char.status).toBe('alive')
     expect(char.content).toContain('With all fields.')
   })

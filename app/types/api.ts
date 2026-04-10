@@ -93,9 +93,6 @@ export interface Character {
   name: string
   slug: string
   characterType: string
-  race: string | null
-  class: string | null
-  alignment: string | null
   status: string
   visibility: string
   ownerUserId: string | null
@@ -108,12 +105,6 @@ export interface Character {
   updatedAt: Date
   // Detail view only
   content?: string
-}
-
-export interface CharacterMeta {
-  races: string[]
-  classes: string[]
-  alignments: string[]
 }
 
 export interface CharacterFolder {

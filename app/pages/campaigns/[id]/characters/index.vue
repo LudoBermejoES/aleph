@@ -24,16 +24,11 @@
       :type-filter="typeFilter"
       :search-input="searchInput"
       :status-filter="statusFilter"
-      :race-filter="raceFilter"
-      :class-filter="classFilter"
-      :alignment-filter="alignmentFilter"
       :org-filter="orgFilter"
       :location-filter="locationFilter"
       :show-companions="showCompanions"
       :sort-field="sortField"
       :sort-dir="sortDir"
-      :races="meta.races"
-      :classes="meta.classes"
       :organizations="organizations"
       :location-options="locationOptions"
       @set-type="(t) => setType(t, load)"
@@ -45,21 +40,6 @@
       @update:status-filter="
         (v) => {
           filters.statusFilter.value = v
-        }
-      "
-      @update:race-filter="
-        (v) => {
-          filters.raceFilter.value = v
-        }
-      "
-      @update:class-filter="
-        (v) => {
-          filters.classFilter.value = v
-        }
-      "
-      @update:alignment-filter="
-        (v) => {
-          filters.alignmentFilter.value = v
         }
       "
       @update:org-filter="
@@ -169,7 +149,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Character, CharacterFolder, CharacterMeta } from '~/types/api'
+import type { Character, CharacterFolder } from '~/types/api'
 import { Sheet, SheetContent, SheetTrigger } from '~/components/ui/sheet'
 
 const route = useRoute()
@@ -178,7 +158,6 @@ const folderSheetOpen = ref(false)
 
 const chars = ref<Character[]>([])
 const folders = ref<CharacterFolder[]>([])
-const meta = ref<CharacterMeta>({ races: [], classes: [], alignments: [] })
 const organizations = ref<{ id: string; name: string; slug: string }[]>([])
 
 const filters = useCharacterFilters(campaignId)
@@ -187,9 +166,6 @@ const {
   selectedFolder,
   searchInput,
   statusFilter,
-  raceFilter,
-  classFilter,
-  alignmentFilter,
   orgFilter,
   locationFilter,
   showCompanions,
@@ -245,12 +221,6 @@ onMounted(async () => {
       .getCharacterFolders()
       .then((f) => {
         folders.value = f
-      })
-      .catch(() => {}),
-    api
-      .getCharactersMeta()
-      .then((m) => {
-        meta.value = m
       })
       .catch(() => {}),
     api

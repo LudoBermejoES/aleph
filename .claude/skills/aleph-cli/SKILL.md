@@ -79,10 +79,10 @@ Use `--stdin` on `entity edit` to pipe Markdown content from a file: `cat notes.
 ### Characters
 
 ```bash
-node /Users/ludo/code/aleph/cli/bin/aleph.js character list --campaign <id> [--status <alive|dead|missing|unknown>] [--race <race>] [--class <class>] [--alignment <alignment>] [--sort <name|updatedAt|status|race|class>] [--sort-dir <asc|desc>] [--page <n>] [--limit <n>] [--json]
-node /Users/ludo/code/aleph/cli/bin/aleph.js character create --campaign <id> --name <name> [--class <class>] [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js character list --campaign <id> [--status <alive|dead|missing|unknown>] [--sort <name|updatedAt|status>] [--sort-dir <asc|desc>] [--page <n>] [--limit <n>] [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js character create --campaign <id> --name <name> [--json]
 node /Users/ludo/code/aleph/cli/bin/aleph.js character show --campaign <id> <slug> [--json]
-node /Users/ludo/code/aleph/cli/bin/aleph.js character update --campaign <id> <slug> [--name <n>] [--race <r>] [--class <c>] [--alignment <a>] [--status <s>] [--content <md>] [--stdin]
+node /Users/ludo/code/aleph/cli/bin/aleph.js character update --campaign <id> <slug> [--name <n>] [--status <s>] [--content <md>] [--stdin]
 node /Users/ludo/code/aleph/cli/bin/aleph.js character upload-portrait --campaign <id> --slug <slug> --file <path>
 node /Users/ludo/code/aleph/cli/bin/aleph.js character connect <slug> --campaign <id> --target <entity-slug> [--label <text>] [--description <text>] [--json]
 node /Users/ludo/code/aleph/cli/bin/aleph.js character connections <slug> --campaign <id> [--json]

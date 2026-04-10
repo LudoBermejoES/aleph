@@ -40,19 +40,6 @@
                   character.characterType
                 }}</span>
                 <span
-                  v-if="character.race"
-                  class="text-xs px-2 py-1 rounded bg-secondary text-secondary-foreground"
-                  >{{ character.race }}</span
-                >
-                <span
-                  v-if="character.class"
-                  class="text-xs px-2 py-1 rounded bg-secondary text-secondary-foreground"
-                  >{{ character.class }}</span
-                >
-                <span v-if="character.alignment" class="text-xs text-muted-foreground">{{
-                  character.alignment
-                }}</span>
-                <span
                   :class="[
                     'text-xs px-2 py-1 rounded',
                     character.status === 'alive'
@@ -229,7 +216,6 @@
             class="block p-3 rounded border border-border hover:border-primary/50 transition-colors"
           >
             <span class="font-medium">{{ comp.name }}</span>
-            <span v-if="comp.race" class="text-xs ml-2 text-muted-foreground">{{ comp.race }}</span>
           </NuxtLink>
         </div>
       </div>

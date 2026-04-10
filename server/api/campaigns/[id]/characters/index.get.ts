@@ -20,9 +20,6 @@ export default defineEventHandler(async (event) => {
   const folderId = query.folderId as string | undefined
   const companionOf = query.companionOf as string | undefined
   const companions = query.companions as string | undefined
-  const race = query.race as string | undefined
-  const cls = query.class as string | undefined
-  const alignment = query.alignment as string | undefined
   const locationEntityId = query.locationEntityId as string | undefined
   const organizationId = query.organizationId as string | undefined
   const sortField = query.sort as string | undefined
@@ -32,8 +29,6 @@ export default defineEventHandler(async (event) => {
     name: entities.name,
     updatedAt: entities.updatedAt,
     status: characters.status,
-    race: characters.race,
-    class: characters.class,
   }
   const sortCol = sortColumns[sortField ?? ''] ?? entities.updatedAt
   const order =
@@ -54,9 +49,6 @@ export default defineEventHandler(async (event) => {
   if (companionOf) conditions.push(eq(characters.isCompanionOf, companionOf))
   if (companions === 'false')
     conditions.push(isNull(characters.isCompanionOf) as ReturnType<typeof eq>)
-  if (race) conditions.push(eq(characters.race, race))
-  if (cls) conditions.push(eq(characters.class, cls))
-  if (alignment) conditions.push(eq(characters.alignment, alignment))
   if (locationEntityId) conditions.push(eq(characters.locationEntityId, locationEntityId))
   if (organizationId) {
     conditions.push(
@@ -87,9 +79,6 @@ export default defineEventHandler(async (event) => {
       name: entities.name,
       slug: entities.slug,
       characterType: characters.characterType,
-      race: characters.race,
-      class: characters.class,
-      alignment: characters.alignment,
       status: characters.status,
       visibility: entities.visibility,
       ownerUserId: characters.ownerUserId,
@@ -122,9 +111,6 @@ export default defineEventHandler(async (event) => {
     name: r.name,
     slug: r.slug,
     characterType: r.characterType,
-    race: r.race,
-    class: r.class,
-    alignment: r.alignment,
     status: r.status,
     visibility: r.visibility,
     ownerUserId: r.ownerUserId,

@@ -37,9 +37,6 @@ const { t } = useI18n()
 const form = ref({
   name: '',
   characterType: 'npc',
-  race: '',
-  class: '',
-  alignment: '',
   status: 'alive',
   visibility: 'members',
   content: '',

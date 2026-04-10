@@ -45,30 +45,6 @@
         </select>
       </div>
       <div>
-        <label class="text-sm font-medium">{{ $t('characters.race') }}</label>
-        <input
-          v-model="form.race"
-          class="w-full mt-1 px-3 py-2 rounded border border-input bg-background"
-          :placeholder="$t('characters.racePlaceholder')"
-        />
-      </div>
-      <div>
-        <label class="text-sm font-medium">{{ $t('characters.class') }}</label>
-        <input
-          v-model="form.class"
-          class="w-full mt-1 px-3 py-2 rounded border border-input bg-background"
-          :placeholder="$t('characters.classPlaceholder')"
-        />
-      </div>
-      <div>
-        <label class="text-sm font-medium">{{ $t('characters.alignment') }}</label>
-        <input
-          v-model="form.alignment"
-          class="w-full mt-1 px-3 py-2 rounded border border-input bg-background"
-          :placeholder="$t('characters.alignmentPlaceholder')"
-        />
-      </div>
-      <div>
         <label class="text-sm font-medium">{{ $t('characters.visibility') }}</label>
         <select
           v-model="form.visibility"
@@ -156,9 +132,6 @@ const props = defineProps<{
   modelValue: {
     name: string
     characterType: string
-    race: string
-    class: string
-    alignment: string
     status: string
     visibility: string
     content: string

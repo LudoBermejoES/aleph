@@ -1,8 +1,8 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "b636e9ed-96db-48d7-9bc6-216058541810",
-  "prevId": "5173ab68-e5a3-41f5-b993-6794b6cd06d9",
+  "id": "44ac43c1-fc31-48c3-893e-8b5aa0f293f1",
+  "prevId": "b636e9ed-96db-48d7-9bc6-216058541810",
   "tables": {
     "account": {
       "name": "account",
@@ -1750,27 +1750,6 @@
           "notNull": true,
           "autoincrement": false,
           "default": "'npc'"
-        },
-        "race": {
-          "name": "race",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "class": {
-          "name": "class",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "alignment": {
-          "name": "alignment",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
         },
         "status": {
           "name": "status",
@@ -5269,6 +5248,13 @@
           "autoincrement": false,
           "default": "'active'"
         },
+        "image_url": {
+          "name": "image_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "created_at": {
           "name": "created_at",
           "type": "integer",
@@ -5281,13 +5267,6 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
-        },
-        "image_url": {
-          "name": "image_url",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
           "autoincrement": false
         }
       },

@@ -12,9 +12,6 @@ export const characters = sqliteTable(
       .unique()
       .references(() => entities.id, { onDelete: 'cascade' }),
     characterType: text('character_type').notNull().default('npc'), // pc, npc
-    race: text('race'),
-    class: text('class'),
-    alignment: text('alignment'),
     status: text('status').notNull().default('alive'), // alive, dead, missing, unknown
     locationEntityId: text('location_entity_id'),
     ownerUserId: text('owner_user_id').references(() => user.id),

@@ -53,9 +53,6 @@ test.describe('Edit Character via /edit page (12.37)', () => {
       body: {
         name: 'Original NPC',
         characterType: 'npc',
-        race: 'Human',
-        class: 'Fighter',
-        alignment: 'Neutral',
         content: '# NPC',
       },
     })
@@ -64,14 +61,6 @@ test.describe('Edit Character via /edit page (12.37)', () => {
     // Navigate to edit page
     await page.goto(`${BASE}/campaigns/${campaignId}/characters/${slug}/edit`)
     await page.waitForLoadState('networkidle')
-
-    // Change race and alignment
-    const raceInput = page.locator('input[placeholder*="Human, Elf"]')
-    await expect(raceInput).toBeVisible({ timeout: 10000 })
-    await raceInput.fill('Vampire')
-
-    const alignInput = page.locator('input[placeholder*="Lawful Good"]')
-    await alignInput.fill('Chaotic Evil')
 
     // Change status
     await page.selectOption('select:has(option[value="dead"])', 'dead')
@@ -84,9 +73,7 @@ test.describe('Edit Character via /edit page (12.37)', () => {
     }).toPass({ timeout: 15000 })
 
     // Verify changes on detail page
-    await expect(page.locator('main')).toContainText('Vampire', { timeout: 10000 })
-    await expect(page.locator('main')).toContainText('Chaotic Evil')
-    await expect(page.locator('main')).toContainText('dead')
+    await expect(page.locator('main')).toContainText('dead', { timeout: 10000 })
   })
 })
 

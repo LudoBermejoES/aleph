@@ -23,9 +23,6 @@ export default defineEventHandler(async (event) => {
     aliases: z.array(z.string()).optional(),
     tags: z.array(z.string()).optional(),
     characterType: z.string().optional(),
-    race: z.string().optional(),
-    class: z.string().optional(),
-    alignment: z.string().optional(),
     status: z.string().optional(),
     locationEntityId: z.string().nullable().optional(),
     folderId: z.string().optional(),
@@ -51,9 +48,6 @@ export default defineEventHandler(async (event) => {
 
   // Update character fields
   const charUpdates: Record<string, unknown> = {}
-  if (body.race !== undefined) charUpdates.race = body.race
-  if (body.class !== undefined) charUpdates.class = body.class
-  if (body.alignment !== undefined) charUpdates.alignment = body.alignment
   if (body.status !== undefined) charUpdates.status = body.status
   if (body.characterType !== undefined) charUpdates.characterType = body.characterType
   if (body.locationEntityId !== undefined) charUpdates.locationEntityId = body.locationEntityId

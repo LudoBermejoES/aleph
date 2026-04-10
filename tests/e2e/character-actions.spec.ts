@@ -13,7 +13,7 @@ test.describe('Character Actions', () => {
 
     const charRes = await apiFetch(page, `/api/campaigns/${campaignId}/characters`, {
       method: 'POST',
-      body: { name: charName, characterType: 'npc', race: 'Elf', content: '# Original' },
+      body: { name: charName, characterType: 'npc', content: '# Original' },
     })
 
     // Duplicate
@@ -33,7 +33,7 @@ test.describe('Character Actions', () => {
     await expect(page.locator(`main >> text="${charName} (Copy)"`)).toBeVisible({ timeout: 10000 })
   })
 
-  test('character detail shows race and class', async ({ page }) => {
+  test('character detail shows character type badge', async ({ page }) => {
     await registerAndLogin(page, 'Detail Viewer')
     await createCampaign(page, `Detail Camp ${uid()}`)
 
@@ -44,8 +44,6 @@ test.describe('Character Actions', () => {
       body: {
         name: charName,
         characterType: 'pc',
-        race: 'Elf',
-        class: 'Ranger',
         content: '# Legolas',
       },
     })
@@ -55,7 +53,6 @@ test.describe('Character Actions', () => {
     await page.click(`main >> text=${charName}`)
     await page.waitForURL('**/characters/**', { timeout: 15000 })
 
-    await expect(page.locator('main >> text=Elf').first()).toBeVisible({ timeout: 10000 })
-    await expect(page.locator('main >> text=Ranger').first()).toBeVisible()
+    await expect(page.locator('main >> text=pc').first()).toBeVisible({ timeout: 10000 })
   })
 })

@@ -6,9 +6,6 @@ export function useCharacterFilters(_campaignId: string) {
   const selectedFolder = ref('')
   const searchInput = ref('')
   const statusFilter = ref('')
-  const raceFilter = ref('')
-  const classFilter = ref('')
-  const alignmentFilter = ref('')
   const orgFilter = ref('')
   const locationFilter = ref('')
   const showCompanions = ref(true)
@@ -21,9 +18,6 @@ export function useCharacterFilters(_campaignId: string) {
     selectedFolder.value = (q.folderId as string) || ''
     searchInput.value = (q.search as string) || ''
     statusFilter.value = (q.status as string) || ''
-    raceFilter.value = (q.race as string) || ''
-    classFilter.value = (q.class as string) || ''
-    alignmentFilter.value = (q.alignment as string) || ''
     orgFilter.value = (q.org as string) || ''
     locationFilter.value = (q.location as string) || ''
     showCompanions.value = q.companions !== 'false'
@@ -37,9 +31,6 @@ export function useCharacterFilters(_campaignId: string) {
     if (selectedFolder.value) q.folderId = selectedFolder.value
     if (searchInput.value) q.search = searchInput.value
     if (statusFilter.value) q.status = statusFilter.value
-    if (raceFilter.value) q.race = raceFilter.value
-    if (classFilter.value) q.class = classFilter.value
-    if (alignmentFilter.value) q.alignment = alignmentFilter.value
     if (orgFilter.value) q.org = orgFilter.value
     if (locationFilter.value) q.location = locationFilter.value
     if (!showCompanions.value) q.companions = 'false'
@@ -54,9 +45,6 @@ export function useCharacterFilters(_campaignId: string) {
     if (selectedFolder.value) params.folderId = selectedFolder.value
     if (searchInput.value) params.search = searchInput.value
     if (statusFilter.value) params.status = statusFilter.value
-    if (raceFilter.value) params.race = raceFilter.value
-    if (classFilter.value) params.class = classFilter.value
-    if (alignmentFilter.value) params.alignment = alignmentFilter.value
     if (orgFilter.value) params.organizationId = orgFilter.value
     if (locationFilter.value) params.locationEntityId = locationFilter.value
     if (!showCompanions.value) params.companions = 'false'
@@ -86,9 +74,6 @@ export function useCharacterFilters(_campaignId: string) {
     selectedFolder,
     searchInput,
     statusFilter,
-    raceFilter,
-    classFilter,
-    alignmentFilter,
     orgFilter,
     locationFilter,
     showCompanions,
