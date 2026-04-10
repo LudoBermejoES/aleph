@@ -26,6 +26,8 @@
     "aleph": "node cli/bin/aleph.js"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1028.0",
+    "@aws-sdk/lib-storage": "^3.1028.0",
     "@geoman-io/leaflet-geoman-free": "^2.19.2",
     "@hocuspocus/provider": "^3.4.4",
     "@hocuspocus/server": "^3.4.4",
@@ -86,6 +88,7 @@
     "shadcn-nuxt": "^2.4.3",
     "sharp": "^0.34.5",
     "tailwind-merge": "^3.5.0",
+    "tar": "^7.5.13",
     "tippy.js": "^6.3.7",
     "tiptap-image-plus": "^3.0.1",
     "tldraw": "^4.5.7",

@@ -101,11 +101,17 @@ jobs:
 
       - name: Deploy to server
         uses: appleboy/ssh-action@master
+        env:
+          BACKUP_R2_ENDPOINT: ${{ secrets.BACKUP_R2_ENDPOINT }}
+          BACKUP_R2_ACCESS_KEY_ID: ${{ secrets.BACKUP_R2_ACCESS_KEY_ID }}
+          BACKUP_R2_SECRET_ACCESS_KEY: ${{ secrets.BACKUP_R2_SECRET_ACCESS_KEY }}
+          BACKUP_R2_BUCKET: ${{ secrets.BACKUP_R2_BUCKET }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
+          envs: BACKUP_R2_ENDPOINT,BACKUP_R2_ACCESS_KEY_ID,BACKUP_R2_SECRET_ACCESS_KEY,BACKUP_R2_BUCKET
           script: |
             set -e
 
@@ -176,6 +182,16 @@ jobs:
             BETTER_AUTH_SECRET=CHANGE_ME
             BETTER_AUTH_URL=https://aleph.ludobermejo.es
             ENVEOF
+            fi
+
+            # Inject R2 backup credentials into .env
+            if [ -n "$BACKUP_R2_ENDPOINT" ]; then
+              echo "Configuring R2 backup credentials..."
+              sed -i '/^NUXT_BACKUP_R2_/d' "$DEPLOY_PATH/.env"
+              echo "NUXT_BACKUP_R2_ENDPOINT=${BACKUP_R2_ENDPOINT}" >> "$DEPLOY_PATH/.env"
+              echo "NUXT_BACKUP_R2_ACCESS_KEY_ID=${BACKUP_R2_ACCESS_KEY_ID}" >> "$DEPLOY_PATH/.env"
+              echo "NUXT_BACKUP_R2_SECRET_ACCESS_KEY=${BACKUP_R2_SECRET_ACCESS_KEY}" >> "$DEPLOY_PATH/.env"
+              echo "NUXT_BACKUP_R2_BUCKET=${BACKUP_R2_BUCKET}" >> "$DEPLOY_PATH/.env"
             fi
 
             # Set permissions

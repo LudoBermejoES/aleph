@@ -45,6 +45,12 @@ export default defineNuxtConfig({
       apiKey: process.env.AI_API_KEY || '',
       model: process.env.AI_MODEL || '',
     },
+    backup: {
+      r2Endpoint: '',
+      r2AccessKeyId: '',
+      r2SecretAccessKey: '',
+      r2Bucket: '',
+    },
     public: {
       hocuspocusUrl: 'ws://localhost:3334',
       diagramMultiplayer: false,
@@ -130,6 +136,9 @@ export default defineNuxtConfig({
     experimental: {
       websocket: true,
       tasks: true,
+    },
+    scheduledTasks: {
+      '0 3 * * *': ['backup:run'],
     },
   },
 
