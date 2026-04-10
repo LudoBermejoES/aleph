@@ -119,8 +119,9 @@ export function useCampaignApi(campaignId: string) {
     return $fetch<CharacterMeta>(`${base}/characters/meta`)
   }
 
-  function getCharacter(slug: string) {
-    return $fetch<Character>(`${base}/characters/${slug}`)
+  function getCharacter(slug: string, params?: Record<string, string>) {
+    const query = params ? '?' + new URLSearchParams(params).toString() : ''
+    return $fetch<Character>(`${base}/characters/${slug}${query}`)
   }
 
   function createCharacter(body: Record<string, unknown>) {

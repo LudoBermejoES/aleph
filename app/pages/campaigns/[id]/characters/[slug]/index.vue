@@ -469,8 +469,10 @@ const { loading, error, withLoading } = useLoadingState()
 
 async function load() {
   await withLoading(async () => {
+    const previewAs = route.query.preview_as as string | undefined
+    const charParams = previewAs ? { preview_as: previewAs } : undefined
     const [char, campaign] = await Promise.all([
-      api.getCharacter(slug).catch(() => null),
+      api.getCharacter(slug, charParams).catch(() => null),
       api.getCampaign().catch(() => null),
     ])
     character.value = char
