@@ -131,6 +131,9 @@ aleph member list --campaign <id> [--json]
 aleph member invite --campaign <id> --role <role> [--expires <days>] [--json]
 # Prints: "Join URL: <server>/join?token=<token>&campaign=<id>"
 # Share this URL with the invitee — they can register or log in and join in one step
+aleph member add --campaign <id> --user <userId> --role <role> [--json]
+# Directly adds an already-registered user to a campaign (no invite link needed)
+# role: visitor | player | editor | co_dm — requires co_dm+ permission
 ```
 
 Roles: `player`, `editor`, `co_dm`

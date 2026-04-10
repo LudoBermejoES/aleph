@@ -60,6 +60,13 @@ export function useCampaignApi(campaignId: string) {
     return $fetch<{ token: string; url: string }>(`${base}/invite`, { method: 'POST', body })
   }
 
+  function addMemberDirect(body: { userId: string; role: string }) {
+    return $fetch<{ id: string; userId: string; name: string; role: string }>(
+      `${base}/members/direct`,
+      { method: 'POST', body },
+    )
+  }
+
   // ─── Entities ───────────────────────────────────────────────────────────────
 
   function getEntities(params?: Record<string, string | number>) {
@@ -752,6 +759,7 @@ export function useCampaignApi(campaignId: string) {
     updateMember,
     removeMember,
     createInvite,
+    addMemberDirect,
     // Entities
     getEntities,
     getEntity,
@@ -932,4 +940,8 @@ export function updateCampaignEntry(
   body: { name?: string; description?: string; isPublic?: boolean; theme?: string },
 ): Promise<{ success: boolean }> {
   return $fetch<{ success: boolean }>(`/api/campaigns/${id}`, { method: 'PUT', body })
+}
+
+export function searchUsers(q: string): Promise<{ id: string; name: string; email: string }[]> {
+  return $fetch('/api/users/search', { params: { q } })
 }

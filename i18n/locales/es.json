@@ -116,7 +116,11 @@
     "visitor": "Visitante",
     "remove": "Eliminar",
     "removeConfirm": "¿Eliminar a este miembro?",
-    "failedInvite": "Error al generar la invitación"
+    "failedInvite": "Error al generar la invitación",
+    "addExisting": "Añadir usuario existente",
+    "searchPlaceholder": "Buscar por nombre o email...",
+    "addUser": "Añadir",
+    "alreadyMember": "Este usuario ya es miembro de esta campaña."
   },
   "join": {
     "title": "Unirse a la campaña",

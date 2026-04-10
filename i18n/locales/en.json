@@ -116,7 +116,11 @@
     "visitor": "Visitor",
     "remove": "Remove",
     "removeConfirm": "Remove this member?",
-    "failedInvite": "Failed to generate invite"
+    "failedInvite": "Failed to generate invite",
+    "addExisting": "Add existing user",
+    "searchPlaceholder": "Search by name or email...",
+    "addUser": "Add",
+    "alreadyMember": "This user is already a member of this campaign."
   },
   "join": {
     "title": "Join Campaign",

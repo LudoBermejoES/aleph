@@ -41,5 +41,24 @@ export function makeMemberCommand() {
       }
     })
 
+  cmd
+    .command('add')
+    .description('Add an existing registered user directly to a campaign')
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .requiredOption('--user <userId>', 'User ID to add')
+    .requiredOption('--role <role>', 'Role to assign (visitor, player, editor, co_dm)')
+    .option('--json', 'Output as JSON')
+    .action(async (opts) => {
+      const data = await post(`/api/campaigns/${opts.campaign}/members/direct`, {
+        userId: opts.user,
+        role: opts.role,
+      })
+      if (opts.json) {
+        print(data, { json: true })
+      } else {
+        success(`Added ${data.name} as ${data.role}`)
+      }
+    })
+
   return cmd
 }
