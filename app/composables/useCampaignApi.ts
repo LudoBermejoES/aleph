@@ -946,7 +946,7 @@ export function createCampaignEntry(body: {
 
 export function updateCampaignEntry(
   id: string,
-  body: { name?: string; description?: string; isPublic?: boolean; theme?: string },
+  body: { name?: string; description?: string | null; isPublic?: boolean; theme?: string | null },
 ): Promise<{ success: boolean }> {
   return $fetch<{ success: boolean }>(`/api/campaigns/${id}`, { method: 'PUT', body })
 }

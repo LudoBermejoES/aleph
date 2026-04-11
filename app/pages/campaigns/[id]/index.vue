@@ -165,9 +165,40 @@
     </div>
 
     <!-- Campaign Settings (DM/Co-DM only) -->
-    <div v-if="campaign" class="mt-8 border-t border-border pt-8">
+    <div v-if="campaign && isDm" class="mt-8 border-t border-border pt-8">
       <h2 class="text-lg font-semibold mb-4">{{ $t('campaigns.settings') }}</h2>
       <div class="max-w-sm space-y-4">
+        <!-- Name & Description -->
+        <div class="space-y-2">
+          <label class="text-sm font-medium">{{ $t('campaign.editName') }}</label>
+          <input
+            v-model="editName"
+            type="text"
+            maxlength="200"
+            class="w-full px-3 py-2 rounded border border-input bg-background text-sm"
+            data-testid="campaign-name-input"
+          />
+        </div>
+        <div class="space-y-2">
+          <label class="text-sm font-medium">{{ $t('campaign.editDescription') }}</label>
+          <textarea
+            v-model="editDescription"
+            rows="3"
+            maxlength="5000"
+            class="w-full px-3 py-2 rounded border border-input bg-background text-sm"
+            data-testid="campaign-description-input"
+          ></textarea>
+        </div>
+        <div class="flex items-center gap-2">
+          <Button size="sm" :disabled="savingDetails" @click="saveDetails">
+            {{ savingDetails ? $t('common.saving') : $t('campaign.saveDetails') }}
+          </Button>
+          <span v-if="detailsSaved" class="text-sm text-muted-foreground">{{
+            $t('campaign.detailsSaved')
+          }}</span>
+          <span v-if="detailsError" class="text-sm text-destructive">{{ detailsError }}</span>
+        </div>
+        <!-- Theme -->
         <ThemePicker v-model="selectedTheme" />
         <div class="flex items-center gap-2">
           <Button size="sm" :disabled="savingTheme" @click="saveTheme">
@@ -242,6 +273,11 @@ const { data: campaign } = await useFetch<{
 }>(`/api/campaigns/${campaignId}`)
 
 const isDm = computed(() => ['dm', 'co_dm'].includes(campaign.value?.role ?? ''))
+const editName = ref(campaign.value?.name ?? '')
+const editDescription = ref(campaign.value?.description ?? '')
+const savingDetails = ref(false)
+const detailsSaved = ref(false)
+const detailsError = ref<string | null>(null)
 const selectedTheme = ref(campaign.value?.theme || 'default')
 const savingTheme = ref(false)
 const themeSaved = ref(false)
@@ -290,6 +326,32 @@ async function deleteCampaign() {
     showDeleteDialog.value = false
   } finally {
     deleting.value = false
+  }
+}
+
+async function saveDetails() {
+  if (!editName.value.trim()) return
+  savingDetails.value = true
+  detailsSaved.value = false
+  detailsError.value = null
+  try {
+    await updateCampaignEntry(campaignId, {
+      name: editName.value.trim(),
+      description: editDescription.value || null,
+    })
+    if (campaign.value) {
+      campaign.value.name = editName.value.trim()
+      campaign.value.description = editDescription.value || null
+    }
+    detailsSaved.value = true
+    setTimeout(() => {
+      detailsSaved.value = false
+    }, 2000)
+  } catch (e: unknown) {
+    const err = e as { data?: { message?: string } }
+    detailsError.value = err.data?.message || t('campaign.detailsError')
+  } finally {
+    savingDetails.value = false
   }
 }
 

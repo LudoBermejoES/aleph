@@ -916,7 +916,12 @@
     "delete": "Eliminar Campaña",
     "deleteButton": "Eliminar Campaña",
     "confirmDelete": "¿Estás seguro de que quieres eliminar permanentemente \"{name}\"? Todos los datos de la campaña — personajes, sesiones, mapas y todo lo demás — serán eliminados. Esta acción no se puede deshacer.",
-    "deleteError": "Error al eliminar la campaña. Por favor, inténtalo de nuevo."
+    "deleteError": "Error al eliminar la campaña. Por favor, inténtalo de nuevo.",
+    "editName": "Nombre de la campaña",
+    "editDescription": "Descripción",
+    "saveDetails": "Guardar detalles",
+    "detailsSaved": "Detalles guardados",
+    "detailsError": "Error al guardar los detalles. Por favor, inténtalo de nuevo."
   },
   "collaboration": {
     "editingAlone": "Editando solo",
