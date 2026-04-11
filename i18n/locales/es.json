@@ -198,6 +198,7 @@
     "inventory": "Inventario",
     "companion": "compañero",
     "failedSave": "Error al guardar el personaje",
+    "confirmDeleteMessage": "¿Estás seguro de que quieres eliminar este personaje? Esta acción no se puede deshacer.",
     "searchPlaceholder": "Buscar por nombre...",
     "statusAll": "Todos los estados",
     "allRaces": "Todas las razas",
@@ -236,6 +237,7 @@
     "content": "Contenido",
     "contentPlaceholder": "Escribe el contenido de la entidad... (escribe {'@'} para enlazar entidades)",
     "failedSave": "Error al guardar la entidad",
+    "confirmDeleteMessage": "¿Estás seguro de que quieres eliminar esta entidad? Esta acción no se puede deshacer.",
     "boardSummary": "Etiqueta del grafo",
     "boardSummaryPlaceholder": "Etiqueta corta mostrada en la tarjeta del grafo de relaciones",
     "boardSummaryHint": "Se muestra en lugar del resumen en la vista de tarjetas del grafo"
@@ -412,7 +414,8 @@
     "namePlaceholder": "Mapa regional de Barovia",
     "image": "Imagen del mapa (opcional)",
     "imageHint": "PNG, JPEG o WebP. Máx. 100MB.",
-    "failedSave": "Error al guardar el mapa"
+    "failedSave": "Error al guardar el mapa",
+    "confirmDeleteMessage": "¿Estás seguro de que quieres eliminar este mapa? Esta acción no se puede deshacer."
   },
   "timelines": {
     "title": "Cronologías",

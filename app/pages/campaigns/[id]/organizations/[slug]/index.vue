@@ -45,6 +45,9 @@
             <NuxtLink :to="`/campaigns/${campaignId}/organizations/${slug}/edit`">
               <Button variant="outline" size="sm">{{ $t('common.edit') }}</Button>
             </NuxtLink>
+            <Button v-if="isDm" variant="destructive" size="sm" @click="confirmDelete">{{
+              $t('common.delete')
+            }}</Button>
           </div>
           <div
             v-if="org.description"
@@ -149,9 +152,13 @@
 
 <script setup lang="ts">
 const route = useRoute()
+const router = useRouter()
 const campaignId = route.params.id as string
 const slug = route.params.slug as string
+const { t } = useI18n()
 const api = useCampaignApi(campaignId)
+const campaignRole = ref('')
+const isDm = computed(() => ['dm', 'co_dm'].includes(campaignRole.value))
 
 interface OrgData {
   members?: { characterId: string; role?: string | null }[]
@@ -183,14 +190,16 @@ const availableCharacters = computed(() => {
 
 async function load() {
   await withLoading(async () => {
-    const [orgData, chars, locs] = await Promise.all([
+    const [orgData, chars, locs, campaign] = await Promise.all([
       api.getOrganization(slug),
       api.getCharacters({}).catch(() => []),
       api.getOrganizationLocations(slug).catch(() => []),
+      api.getCampaign().catch(() => null),
     ])
     org.value = orgData
     allCharacters.value = chars
     orgLocations.value = locs
+    campaignRole.value = campaign?.role ?? ''
   })
 }
 
@@ -219,6 +228,12 @@ async function removeMember(characterId: string) {
   } catch (e: unknown) {
     alert((e as { data?: { message?: string } })?.data?.message || 'Failed to remove member')
   }
+}
+
+async function confirmDelete() {
+  if (!confirm(t('organizations.confirmDeleteMessage'))) return
+  await api.deleteOrganization(slug)
+  router.push(`/campaigns/${campaignId}/organizations`)
 }
 
 onMounted(load)

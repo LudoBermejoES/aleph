@@ -65,6 +65,9 @@
             >
               <Button variant="outline" size="sm">{{ $t('collaboration.collaborate') }}</Button>
             </NuxtLink>
+            <Button v-if="isDm" variant="destructive" size="sm" @click="confirmDelete">{{
+              $t('common.delete')
+            }}</Button>
           </div>
         </div>
       </div>
@@ -164,6 +167,7 @@
 import type { Entity, Mention } from '~/types/api'
 
 const route = useRoute()
+const router = useRouter()
 const campaignId = route.params.id as string
 const slug = route.params.slug as string
 const { t } = useI18n()
@@ -262,6 +266,12 @@ const { loadRevealedBlocks, injectRevealButtons } = useSecretReveals(
   isDm,
   t,
 )
+
+async function confirmDelete() {
+  if (!confirm(t('entities.confirmDeleteMessage'))) return
+  await api.deleteEntity(slug)
+  router.push(`/campaigns/${campaignId}/entities`)
+}
 
 onMounted(async () => {
   await loadEntity()

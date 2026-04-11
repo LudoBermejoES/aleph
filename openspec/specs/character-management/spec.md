@@ -97,3 +97,14 @@ The system SHALL accept `templateId` (optional string) and `fields` (optional re
 - **GIVEN** a character exists with no templateId
 - **WHEN** `PUT /api/campaigns/{id}/characters/{slug}` is called with `{ templateId: "tmpl-2" }`
 - **THEN** `GET /api/campaigns/{id}/characters/{slug}` returns `templateId: "tmpl-2"`
+
+### Requirement: Character detail page has a delete action
+
+The character detail page SHALL include a destructive Delete button, gated to `dm` and `co_dm` roles, that triggers a confirmation dialog and calls `DELETE /api/campaigns/:id/characters/:slug` on confirmation, then redirects to the character list.
+
+#### Scenario: DM can delete a character from the detail page
+
+- **WHEN** a DM views a character detail page and clicks Delete
+- **AND** confirms the dialog
+- **THEN** the character is deleted
+- **AND** the user is redirected to `/campaigns/:id/characters`

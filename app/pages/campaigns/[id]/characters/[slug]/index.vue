@@ -75,6 +75,9 @@
                 $t('common.edit')
               }}</Button>
             </NuxtLink>
+            <Button v-if="isDm" variant="destructive" size="sm" @click="confirmDelete">{{
+              $t('common.delete')
+            }}</Button>
           </div>
         </div>
         <!-- end flex-1 -->
@@ -293,6 +296,7 @@ interface OrgMembership {
 }
 
 const route = useRoute()
+const router = useRouter()
 const campaignId = route.params.id as string
 const slug = route.params.slug as string
 
@@ -506,6 +510,12 @@ async function load() {
     // Load organization memberships
     characterOrgs.value = await api.getCharacterOrganizations(slug).catch(() => [])
   })
+}
+
+async function confirmDelete() {
+  if (!confirm(t('characters.confirmDeleteMessage'))) return
+  await api.deleteCharacter(slug)
+  router.push(`/campaigns/${campaignId}/characters`)
 }
 
 onMounted(async () => {

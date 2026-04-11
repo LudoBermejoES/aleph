@@ -198,6 +198,7 @@
     "inventory": "Inventory",
     "companion": "companion",
     "failedSave": "Failed to save character",
+    "confirmDeleteMessage": "Are you sure you want to delete this character? This action cannot be undone.",
     "searchPlaceholder": "Search by name...",
     "statusAll": "All Statuses",
     "allRaces": "All Races",
@@ -236,6 +237,7 @@
     "content": "Content",
     "contentPlaceholder": "Write entity content... (type {'@'} to link entities)",
     "failedSave": "Failed to save entity",
+    "confirmDeleteMessage": "Are you sure you want to delete this entity? This action cannot be undone.",
     "boardSummary": "Graph label",
     "boardSummaryPlaceholder": "Short label shown on the relationship graph card",
     "boardSummaryHint": "Shown instead of the summary on the graph card view"
@@ -412,7 +414,8 @@
     "namePlaceholder": "Barovia Regional Map",
     "image": "Map Image (optional)",
     "imageHint": "PNG, JPEG, or WebP. Max 100MB.",
-    "failedSave": "Failed to save map"
+    "failedSave": "Failed to save map",
+    "confirmDeleteMessage": "Are you sure you want to delete this map? This action cannot be undone."
   },
   "timelines": {
     "title": "Timelines",

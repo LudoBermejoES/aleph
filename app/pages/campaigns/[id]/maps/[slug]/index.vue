@@ -30,6 +30,9 @@
           <NuxtLink :to="`/campaigns/${campaignId}/maps/${slug}/edit`">
             <Button variant="outline" size="sm">{{ $t('common.edit') }}</Button>
           </NuxtLink>
+          <Button v-if="isDm" variant="destructive" size="sm" @click="confirmDelete">{{
+            $t('common.delete')
+          }}</Button>
           <span v-if="mapData.width" class="text-sm text-muted-foreground"
             >{{ mapData.width }}x{{ mapData.height }}px</span
           >
@@ -101,17 +104,25 @@
 <script setup lang="ts">
 import type { CampaignMap } from '~/types/api'
 const route = useRoute()
+const router = useRouter()
 const campaignId = route.params.id as string
 const slug = route.params.slug as string
 const { t } = useI18n()
 
 const mapData = ref<CampaignMap | null>(null)
+const campaignRole = ref('')
+const isDm = computed(() => ['dm', 'co_dm'].includes(campaignRole.value))
 const api = useCampaignApi(campaignId)
 const { loading, error, withLoading } = useLoadingState()
 
 async function load() {
   await withLoading(async () => {
-    mapData.value = await api.getMap(slug)
+    const [map, campaign] = await Promise.all([
+      api.getMap(slug),
+      api.getCampaign().catch(() => null),
+    ])
+    mapData.value = map
+    campaignRole.value = campaign?.role ?? ''
   })
 }
 
@@ -131,6 +142,12 @@ async function onRegionCreated(geojson: Record<string, unknown>) {
   } catch (e: unknown) {
     alert((e as { data?: { message?: string } })?.data?.message || t('maps.failedSave'))
   }
+}
+
+async function confirmDelete() {
+  if (!confirm(t('maps.confirmDeleteMessage'))) return
+  await api.deleteMap(slug)
+  router.push(`/campaigns/${campaignId}/maps`)
 }
 
 onMounted(load)
