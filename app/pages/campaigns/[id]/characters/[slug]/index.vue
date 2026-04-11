@@ -70,14 +70,16 @@
                 {{ $t('characters.companionOf') }}
               </p>
             </div>
-            <NuxtLink :to="`/campaigns/${campaignId}/characters/${slug}/edit`">
-              <Button variant="outline" size="sm" data-testid="edit-character">{{
-                $t('common.edit')
+            <div class="flex gap-2">
+              <NuxtLink :to="`/campaigns/${campaignId}/characters/${slug}/edit`">
+                <Button variant="outline" size="sm" data-testid="edit-character">{{
+                  $t('common.edit')
+                }}</Button>
+              </NuxtLink>
+              <Button v-if="isDm" variant="destructive" size="sm" @click="confirmDelete">{{
+                $t('common.delete')
               }}</Button>
-            </NuxtLink>
-            <Button v-if="isDm" variant="destructive" size="sm" @click="confirmDelete">{{
-              $t('common.delete')
-            }}</Button>
+            </div>
           </div>
         </div>
         <!-- end flex-1 -->

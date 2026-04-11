@@ -42,12 +42,14 @@
                 }}</span>
               </div>
             </div>
-            <NuxtLink :to="`/campaigns/${campaignId}/organizations/${slug}/edit`">
-              <Button variant="outline" size="sm">{{ $t('common.edit') }}</Button>
-            </NuxtLink>
-            <Button v-if="isDm" variant="destructive" size="sm" @click="confirmDelete">{{
-              $t('common.delete')
-            }}</Button>
+            <div class="flex gap-2">
+              <NuxtLink :to="`/campaigns/${campaignId}/organizations/${slug}/edit`">
+                <Button variant="outline" size="sm">{{ $t('common.edit') }}</Button>
+              </NuxtLink>
+              <Button v-if="isDm" variant="destructive" size="sm" @click="confirmDelete">{{
+                $t('common.delete')
+              }}</Button>
+            </div>
           </div>
           <div
             v-if="org.description"
