@@ -1,52 +1,52 @@
 <template>
   <div v-if="templateId && template" class="mb-6" data-testid="template-fields-display">
     <h2 class="text-lg font-semibold mb-3">{{ $t('templates.properties') }}</h2>
-    <div class="rounded border border-border overflow-hidden">
-      <template v-for="field in template.fields" :key="field.id">
-        <!-- Section divider -->
-        <div
-          v-if="field.fieldType === 'section'"
-          class="px-3 py-2 bg-muted/50 border-b border-border"
-        >
-          <span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{{
-            field.name
-          }}</span>
-        </div>
-        <!-- Label + value row -->
-        <div
-          v-else
-          class="flex items-start gap-4 px-3 py-2 border-b border-border last:border-b-0 even:bg-muted/20"
-        >
-          <span class="text-sm font-medium text-muted-foreground w-1/3 shrink-0">{{
-            field.name
-          }}</span>
-          <span class="text-sm flex-1">
-            <!-- checkbox -->
-            <template v-if="field.fieldType === 'checkbox'">
-              {{ fieldValues[field.key] ? $t('common.yes') : $t('common.no') }}
-            </template>
-            <!-- entity_reference -->
-            <template v-else-if="field.fieldType === 'entity_reference'">
-              <NuxtLink
-                v-if="fieldValues[field.key]"
-                :to="`/campaigns/${campaignId}/entities/${fieldValues[field.key]}`"
-                class="text-primary hover:underline"
-              >
-                {{ fieldValues[field.key] }}
-              </NuxtLink>
-              <span v-else class="text-muted-foreground italic">—</span>
-            </template>
-            <!-- all other types: text, textarea, number, date, select -->
-            <template v-else>
-              <span v-if="fieldValues[field.key] !== undefined && fieldValues[field.key] !== ''">{{
-                fieldValues[field.key]
-              }}</span>
-              <span v-else class="text-muted-foreground italic">—</span>
-            </template>
-          </span>
-        </div>
-      </template>
-    </div>
+    <table class="w-full text-sm rounded border border-border overflow-hidden">
+      <tbody>
+        <template v-for="field in template.fields" :key="field.id">
+          <!-- Section divider -->
+          <tr v-if="field.fieldType === 'section'">
+            <td
+              colspan="2"
+              class="px-3 py-2 bg-muted/50 border-b border-border text-xs font-semibold uppercase tracking-wide text-muted-foreground"
+            >
+              {{ field.label }}
+            </td>
+          </tr>
+          <!-- Label + value row -->
+          <tr v-else class="border-b border-border last:border-b-0 even:bg-muted/20">
+            <td class="px-3 py-2 font-medium text-muted-foreground w-1/3 align-top">
+              {{ field.label }}
+            </td>
+            <td class="px-3 py-2 align-top">
+              <!-- checkbox -->
+              <template v-if="field.fieldType === 'checkbox'">
+                {{ fieldValues[field.key] ? $t('common.yes') : $t('common.no') }}
+              </template>
+              <!-- entity_reference -->
+              <template v-else-if="field.fieldType === 'entity_reference'">
+                <NuxtLink
+                  v-if="fieldValues[field.key]"
+                  :to="`/campaigns/${campaignId}/entities/${fieldValues[field.key]}`"
+                  class="text-primary hover:underline"
+                >
+                  {{ fieldValues[field.key] }}
+                </NuxtLink>
+                <span v-else class="text-muted-foreground italic">—</span>
+              </template>
+              <!-- all other types: text, textarea, number, date, select -->
+              <template v-else>
+                <span
+                  v-if="fieldValues[field.key] !== undefined && fieldValues[field.key] !== ''"
+                  >{{ fieldValues[field.key] }}</span
+                >
+                <span v-else class="text-muted-foreground italic">—</span>
+              </template>
+            </td>
+          </tr>
+        </template>
+      </tbody>
+    </table>
   </div>
 </template>
 
@@ -54,7 +54,7 @@
 interface TemplateField {
   id: string
   templateId: string
-  name: string
+  label: string
   key: string
   fieldType:
     | 'text'
