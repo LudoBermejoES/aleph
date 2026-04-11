@@ -6,6 +6,12 @@
     {
       "path": "../arcadia",
     },
+    {
+      "path": "../pf2",
+    },
+    {
+      "path": "../swade",
+    },
   ],
   "settings": {
     "typescript.tsdk": "node_modules/typescript/lib",
