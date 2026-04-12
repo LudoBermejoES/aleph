@@ -80,7 +80,7 @@ async function seedVentajas() {
     console.log(`  Creando ventaja: ${v.nombre}...`)
     await createEntity({
       name: v.nombre,
-      type: 'swade-ventaja',
+      type: 'ventaja',
       content: formatVentaja(v),
       fields: {
         requisitos: v.requisitos || '',
@@ -93,7 +93,7 @@ async function seedVentajas() {
     console.log(`  Creando ventaja: ${v.nombre}...`)
     await createEntity({
       name: v.nombre,
-      type: 'swade-ventaja',
+      type: 'ventaja',
       content: formatVentaja(v),
       tags: ['superheroes'],
       fields: {
@@ -121,7 +121,7 @@ async function seedDesventajas() {
     console.log(`  Creando desventaja: ${d.nombre}...`)
     await createEntity({
       name: d.nombre,
-      type: 'swade-desventaja',
+      type: 'desventaja',
       content: formatDesventaja(d),
       fields: {
         tipo: d.tipo || '',
@@ -134,7 +134,7 @@ async function seedDesventajas() {
     console.log(`  Creando desventaja: ${d.nombre}...`)
     await createEntity({
       name: d.nombre,
-      type: 'swade-desventaja',
+      type: 'desventaja',
       content: formatDesventaja(d),
       tags: ['superheroes'],
       fields: {
@@ -161,7 +161,7 @@ async function seedRasgos() {
     console.log(`  Creando rasgo: ${r.nombre}...`)
     await createEntity({
       name: r.nombre,
-      type: 'swade-rasgo',
+      type: 'rasgo',
       content: formatRasgo(r),
       fields: {
         atributo_vinculado: r.atributo || '',
@@ -232,7 +232,7 @@ async function seedSuperpoderes() {
 
     await createEntity({
       name,
-      type: 'swade-superpoder',
+      type: 'superpoder',
       content: formatSuperpoder(spEntry, mdContent),
       fields,
     })
@@ -256,7 +256,7 @@ async function seedArmaduras() {
     console.log(`  Creando armadura: ${item.name}...`)
     await createEntity({
       name: item.name,
-      type: 'swade-armadura',
+      type: 'armadura',
       content: formatArmadura(item, item._category),
       tags: item._category ? [item._category.toLowerCase().replace(/\s+/g, '-')] : [],
       fields: {
@@ -293,7 +293,7 @@ async function seedArmas() {
     console.log(`  Creando arma: ${item.name}...`)
     await createEntity({
       name: item.name,
-      type: 'swade-arma',
+      type: 'arma',
       content: formatArma(item, item._category),
       tags: item._category ? [item._category.toLowerCase().replace(/\s+/g, '-')] : [],
       fields: {
@@ -324,7 +324,7 @@ async function seedEscudos() {
     console.log(`  Creando escudo: ${item.name}...`)
     await createEntity({
       name: item.name,
-      type: 'swade-escudo',
+      type: 'escudo',
       content: formatEscudo(item, item._category),
       fields: {
         bonus_parada: item.parry_bonus ?? item.parry ?? null,
@@ -355,7 +355,7 @@ async function seedEquipo() {
     console.log(`  Creando equipo: ${item.name}...`)
     await createEntity({
       name: item.name,
-      type: 'swade-equipo',
+      type: 'equipo',
       content: formatEquipo(item, item._category),
       tags: item._category ? [item._category.toLowerCase().replace(/\s+/g, '-')] : [],
       fields: {
@@ -385,7 +385,7 @@ async function seedVehiculos() {
     console.log(`  Creando vehículo: ${item.name}...`)
     await createEntity({
       name: item.name,
-      type: 'swade-vehiculo',
+      type: 'vehiculo',
       content: formatVehiculo(item, item._category),
       tags: item._category ? [item._category.toLowerCase().replace(/\s+/g, '-')] : [],
       fields: {
@@ -425,7 +425,7 @@ async function seedBases() {
     console.log(`  Creando base: ${name}...`)
     await createEntity({
       name,
-      type: 'swade-base',
+      type: 'base-de-operaciones',
       content: formatBase(name, base),
       fields: {
         coste_por_nivel: base.base_cost_per_level ?? null,
