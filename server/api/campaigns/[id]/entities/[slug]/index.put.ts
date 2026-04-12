@@ -12,6 +12,7 @@ import type { CampaignRole } from '../../../../../utils/permissions'
 const entityUpdateSchema = z.object({
   name: z.string().min(1).max(200).optional(),
   type: z.string().optional(),
+  templateId: z.string().uuid().nullable().optional(),
   content: z.string().optional(),
   visibility: z
     .enum(['public', 'members', 'editors', 'dm_only', 'private', 'specific_users'])
@@ -76,6 +77,7 @@ export default defineEventHandler(async (event) => {
       visibility: updatedFrontmatter.visibility,
       contentHash: hash,
       updatedAt: now,
+      ...(body.templateId !== undefined ? { templateId: body.templateId } : {}),
       ...(body.boardSummary !== undefined ? { boardSummary: body.boardSummary } : {}),
     })
     .where(eq(entities.id, entity.id))

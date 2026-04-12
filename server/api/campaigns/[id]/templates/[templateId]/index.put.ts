@@ -16,6 +16,7 @@ export default defineEventHandler(async (event) => {
   const templateId = getRouterParam(event, 'templateId')!
   const templatePutSchema = z.object({
     name: z.string().min(1).optional(),
+    entityTypeSlug: z.string().optional(),
     isDefault: z.boolean().optional(),
     fields: z
       .array(
@@ -32,10 +33,11 @@ export default defineEventHandler(async (event) => {
   const body = await validateBody(event, templatePutSchema)
   const db = useDb()
 
-  // Update template name/default
-  if (body.name || body.isDefault !== undefined) {
+  // Update template name/entityTypeSlug/default
+  if (body.name || body.entityTypeSlug || body.isDefault !== undefined) {
     const updates: Record<string, unknown> = {}
     if (body.name) updates.name = body.name
+    if (body.entityTypeSlug) updates.entityTypeSlug = body.entityTypeSlug
     if (body.isDefault !== undefined) updates.isDefault = body.isDefault
     db.update(entityTemplates).set(updates).where(eq(entityTemplates.id, templateId)).run()
   }
