@@ -52,13 +52,16 @@ export default defineEventHandler(async (event) => {
     existing = { frontmatter: { type: entity.type, name: entity.name }, content: '' }
   }
 
+  const updatedType = body.type ?? entity.type
+
   const updatedFrontmatter = {
     ...existing.frontmatter,
+    type: updatedType,
     name: body.name ?? existing.frontmatter.name,
-    aliases: body.aliases ?? existing.frontmatter.aliases,
-    tags: body.tags ?? existing.frontmatter.tags,
-    visibility: body.visibility ?? existing.frontmatter.visibility,
-    fields: body.fields ?? existing.frontmatter.fields,
+    aliases: body.aliases ?? existing.frontmatter.aliases ?? [],
+    tags: body.tags ?? existing.frontmatter.tags ?? [],
+    visibility: body.visibility ?? existing.frontmatter.visibility ?? 'members',
+    fields: body.fields ?? existing.frontmatter.fields ?? {},
   }
 
   const updatedContent = body.content ?? existing.content
@@ -68,6 +71,7 @@ export default defineEventHandler(async (event) => {
   const now = new Date()
   db.update(entities)
     .set({
+      type: updatedType,
       name: updatedFrontmatter.name,
       visibility: updatedFrontmatter.visibility,
       contentHash: hash,
