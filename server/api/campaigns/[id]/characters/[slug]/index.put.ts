@@ -28,6 +28,9 @@ export default defineEventHandler(async (event) => {
     folderId: z.string().optional(),
     templateId: z.string().optional(),
     fields: z.record(z.string(), z.unknown()).optional(),
+    birthYear: z.number().int().nullable().optional(),
+    deathYear: z.number().int().nullable().optional(),
+    gender: z.string().max(100).nullable().optional(),
   })
   const body = await validateBody(event, characterPutSchema)
   const db = useDb()
@@ -48,12 +51,27 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 403, message: 'You can only edit your own character' })
   }
 
+  // Hard-reject invalid year range
+  const resolvedBirthYear = body.birthYear !== undefined ? body.birthYear : character.birthYear
+  const resolvedDeathYear = body.deathYear !== undefined ? body.deathYear : character.deathYear
+  if (
+    resolvedBirthYear !== null &&
+    resolvedDeathYear !== null &&
+    resolvedDeathYear < resolvedBirthYear
+  ) {
+    throw createError({ statusCode: 400, message: 'deathYear must not be less than birthYear' })
+  }
+
   // Update character fields
   const charUpdates: Record<string, unknown> = {}
   if (body.status !== undefined) charUpdates.status = body.status
   if (body.characterType !== undefined) charUpdates.characterType = body.characterType
   if (body.locationEntityId !== undefined) charUpdates.locationEntityId = body.locationEntityId
   if (body.folderId !== undefined) charUpdates.folderId = body.folderId
+  if (body.birthYear !== undefined) charUpdates.birthYear = body.birthYear
+  if (body.deathYear !== undefined) charUpdates.deathYear = body.deathYear
+  if (body.gender !== undefined)
+    charUpdates.gender = body.gender !== null ? body.gender.toLowerCase().trim() : null
 
   if (Object.keys(charUpdates).length > 0) {
     db.update(characters).set(charUpdates).where(eq(characters.id, character.id)).run()

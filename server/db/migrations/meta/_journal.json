@@ -169,6 +169,20 @@
       "when": 1775894402000,
       "tag": "0023_freezing_the_call",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "6",
+      "when": 1776445248914,
+      "tag": "0024_character_demographics",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "6",
+      "when": 1776445249000,
+      "tag": "0025_family_relation_types",
+      "breakpoints": true
     }
   ]
 }

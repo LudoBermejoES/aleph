@@ -3,6 +3,63 @@ import { get, post, put, del, postMultipart, resolveEntitySlug } from '../lib/cl
 import { print, success } from '../lib/output.js'
 import { existsSync } from 'fs'
 
+/**
+ * Render a genealogy tree as an ASCII indented list.
+ * Spouse pairs appear on the same line joined with " = ".
+ * Nodes are sorted by generation then by x coordinate.
+ */
+function renderAsciiTree(nodes, edges) {
+  if (!nodes || nodes.length === 0) {
+    process.stdout.write('(empty tree)\n')
+    return
+  }
+
+  const spouseEdges = edges.filter((e) => e.type === 'spouse_of')
+  const spouseOf = new Map()
+  for (const e of spouseEdges) {
+    spouseOf.set(e.sourceEntityId, e.targetEntityId)
+    spouseOf.set(e.targetEntityId, e.sourceEntityId)
+  }
+
+  const byGeneration = new Map()
+  for (const node of nodes) {
+    if (!byGeneration.has(node.generation)) byGeneration.set(node.generation, [])
+    byGeneration.get(node.generation).push(node)
+  }
+
+  const generations = [...byGeneration.keys()].sort((a, b) => a - b)
+  const placed = new Set()
+
+  for (const gen of generations) {
+    const indent = '  '.repeat(Math.abs(gen))
+    const genNodes = byGeneration.get(gen).sort((a, b) => a.x - b.x)
+    for (const node of genNodes) {
+      if (placed.has(node.entityId)) continue
+      placed.add(node.entityId)
+      const spouseId = spouseOf.get(node.entityId)
+      const spouse = spouseId
+        ? nodes.find((n) => n.entityId === spouseId && n.generation === gen)
+        : null
+      let line = formatNodeLabel(node)
+      if (spouse && !placed.has(spouse.entityId)) {
+        placed.add(spouse.entityId)
+        line += ` = ${formatNodeLabel(spouse)}`
+      }
+      process.stdout.write(`${indent}${line}\n`)
+    }
+  }
+}
+
+function formatNodeLabel(node) {
+  let label = node.name
+  if (node.birthYear !== null || node.deathYear !== null) {
+    const b = node.birthYear ?? '?'
+    const d = node.deathYear != null ? `–${node.deathYear}` : ''
+    label += ` (${b}${d})`
+  }
+  return label
+}
+
 export function makeCharacterCommand() {
   const cmd = new Command('character').description('Manage characters')
 
@@ -87,6 +144,9 @@ export function makeCharacterCommand() {
     .option('--type <type>', 'Character type (pc, npc)')
     .option('--content <markdown>', 'Markdown content (biography, notes)')
     .option('--stdin', 'Read markdown content from stdin')
+    .option('--birth-year <year>', 'Birth year (integer)')
+    .option('--death-year <year>', 'Death year (integer, "" to clear)')
+    .option('--gender <gender>', 'Gender (free text, "" to clear)')
     .option('--json', 'Output as JSON')
     .action(async (slug, opts) => {
       if (opts.content && opts.stdin) {
@@ -97,6 +157,15 @@ export function makeCharacterCommand() {
       if (opts.name !== undefined) body.name = opts.name
       if (opts.status !== undefined) body.status = opts.status
       if (opts.type !== undefined) body.characterType = opts.type
+      if (opts.birthYear !== undefined) {
+        body.birthYear = opts.birthYear === '' ? null : parseInt(opts.birthYear, 10)
+      }
+      if (opts.deathYear !== undefined) {
+        body.deathYear = opts.deathYear === '' ? null : parseInt(opts.deathYear, 10)
+      }
+      if (opts.gender !== undefined) {
+        body.gender = opts.gender === '' ? null : opts.gender
+      }
       if (opts.stdin) {
         body.content = await new Promise((resolve) => {
           let data = ''
@@ -111,7 +180,7 @@ export function makeCharacterCommand() {
       }
       if (Object.keys(body).length === 0) {
         process.stderr.write(
-          'Error: provide at least one field to update (--name, --status, --type, --content, --stdin)\n',
+          'Error: provide at least one field to update (--name, --status, --type, --birth-year, --death-year, --gender, --content, --stdin)\n',
         )
         process.exit(1)
       }
@@ -231,6 +300,64 @@ export function makeCharacterCommand() {
       }
       await del(`/api/campaigns/${opts.campaign}/characters/${slug}/abilities/${abilityId}`)
       success(`Ability ${abilityId} deleted.`)
+    })
+
+  cmd
+    .command('family-add <slug>')
+    .description('Add a family link to a character')
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .requiredOption('--type <type>', 'Link type: parent, child, spouse, sibling')
+    .requiredOption('--target <slug>', 'Target character slug')
+    .option('--json', 'Output as JSON')
+    .action(async (slug, opts) => {
+      const data = await post(`/api/campaigns/${opts.campaign}/characters/${slug}/family`, {
+        type: opts.type,
+        targetCharacterSlug: opts.target,
+      })
+      if (opts.json) {
+        print(data, { json: true })
+      } else {
+        success(`Family link created: ${data.id}`)
+        if (data.warnings && data.warnings.length > 0) {
+          for (const w of data.warnings) process.stderr.write(`Warning: ${w}\n`)
+        }
+      }
+    })
+
+  cmd
+    .command('family-remove <slug> <relationId>')
+    .description('Remove a family link from a character')
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .option('--yes', 'Skip confirmation')
+    .action(async (slug, relationId, opts) => {
+      if (!opts.yes) {
+        const { confirm } = await import('@inquirer/prompts')
+        const ok = await confirm({ message: `Remove family link ${relationId}?`, default: false })
+        if (!ok) {
+          process.stdout.write('Cancelled.\n')
+          return
+        }
+      }
+      await del(`/api/campaigns/${opts.campaign}/characters/${slug}/family/${relationId}`)
+      success(`Family link removed: ${relationId}`)
+    })
+
+  cmd
+    .command('genealogy <slug>')
+    .description('View genealogy tree for a character')
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .option('--depth <n>', 'Tree depth (default 3, max 10)', '3')
+    .option('--format <fmt>', 'Output format: ascii or json', 'ascii')
+    .action(async (slug, opts) => {
+      const depth = parseInt(opts.depth, 10) || 3
+      const data = await get(
+        `/api/campaigns/${opts.campaign}/characters/${slug}/genealogy?depth=${depth}`,
+      )
+      if (opts.format === 'json') {
+        print(data, { json: true })
+      } else {
+        renderAsciiTree(data.nodes, data.edges)
+      }
     })
 
   cmd

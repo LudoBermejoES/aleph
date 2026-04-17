@@ -214,7 +214,47 @@
     "sortRace": "Raza",
     "sortClass": "Clase",
     "sortAsc": "A→Z",
-    "sortDesc": "Z→A"
+    "sortDesc": "Z→A",
+    "genealogy": {
+      "title": "Árbol Genealógico",
+      "viewButton": "Ver Genealogía",
+      "recomputeLayout": "Recalcular Diseño",
+      "recomputeConfirm": "Recalcular el diseño sobreescribirá los ajustes manuales. ¿Continuar?",
+      "depthLabel": "Profundidad",
+      "emptyState": "No se encontraron vínculos familiares para este personaje.",
+      "warnings": {
+        "parentYoungerThanChild": "El progenitor nació después que el hijo.",
+        "parentDiedBeforeChildBirth": "El progenitor murió antes de que naciera el hijo."
+      }
+    },
+    "family": {
+      "addLink": "Añadir Vínculo Familiar",
+      "removeLink": "Eliminar Vínculo",
+      "types": {
+        "parent": "Progenitor",
+        "child": "Hijo",
+        "spouse": "Cónyuge",
+        "sibling": "Hermano/a"
+      },
+      "errors": {
+        "cycle": "Añadir este vínculo crearía un ciclo en la ascendencia.",
+        "selfLink": "Un personaje no puede vincularse a sí mismo.",
+        "duplicate": "Este vínculo familiar ya existe.",
+        "nonCharacterEnd": "Ambos extremos de un vínculo familiar deben ser personajes.",
+        "crossCampaign": "Los vínculos familiares no pueden cruzar los límites de la campaña."
+      }
+    },
+    "demographics": {
+      "birthYear": "Año de Nacimiento",
+      "deathYear": "Año de Muerte",
+      "gender": "Género",
+      "genderPresets": {
+        "male": "Masculino",
+        "female": "Femenino",
+        "nonbinary": "No binario",
+        "unknown": "Desconocido"
+      }
+    }
   },
   "entities": {
     "title": "Wiki",

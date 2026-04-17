@@ -71,6 +71,11 @@
               </p>
             </div>
             <div class="flex gap-2">
+              <NuxtLink :to="`/campaigns/${campaignId}/characters/${slug}/genealogy`">
+                <Button variant="outline" size="sm" data-testid="view-genealogy">{{
+                  $t('characters.genealogy.viewButton')
+                }}</Button>
+              </NuxtLink>
               <NuxtLink :to="`/campaigns/${campaignId}/characters/${slug}/edit`">
                 <Button variant="outline" size="sm" data-testid="edit-character">{{
                   $t('common.edit')

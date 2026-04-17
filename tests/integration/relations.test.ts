@@ -74,13 +74,14 @@ describe('Relationship Graph (integration)', () => {
     relationTypeId = typeList.find((t: Record<string, unknown>) => t.slug === 'enemy')?.id
   })
 
-  it('GET relation-types returns 17 built-in types', async () => {
+  it('GET relation-types returns built-in types including family types', async () => {
     const res = await api(`/api/campaigns/${campaignId}/relation-types`, {
       method: 'GET',
       headers: { Cookie: cookie },
     })
     const data = await res.json()
-    expect(data).toHaveLength(17)
+    // 17 original + 3 family types (parent_of, spouse_of, sibling_of)
+    expect(data).toHaveLength(20)
     expect(data.every((t: Record<string, unknown>) => t.isBuiltin || t.is_builtin)).toBe(true)
   })
 

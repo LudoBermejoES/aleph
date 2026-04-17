@@ -53,8 +53,12 @@ describe('validateRelationType', () => {
     expect(validateRelationType('')).toBe(false)
   })
 
-  it('has 17 built-in types', () => {
-    expect(BUILTIN_RELATION_TYPES).toHaveLength(17)
+  it('has built-in types including family slugs', () => {
+    // 17 original + 3 family types (parent_of, spouse_of, sibling_of)
+    expect(BUILTIN_RELATION_TYPES).toHaveLength(20)
+    expect(BUILTIN_RELATION_TYPES.some((t) => t.slug === 'parent_of')).toBe(true)
+    expect(BUILTIN_RELATION_TYPES.some((t) => t.slug === 'spouse_of')).toBe(true)
+    expect(BUILTIN_RELATION_TYPES.some((t) => t.slug === 'sibling_of')).toBe(true)
   })
 })
 
@@ -110,14 +114,15 @@ describe('Relation Type Seeding', () => {
     testDb.close()
   })
 
-  it('seeds 17 built-in relation types', async () => {
+  it('seeds built-in relation types including family types', async () => {
     const { seedRelationTypes } = await import('../../../server/services/relationships')
     seedRelationTypes(testDb.db, 'camp-1')
 
     const types = testDb.sqlite
       .prepare("SELECT * FROM relation_types WHERE campaign_id = 'camp-1'")
       .all() as Record<string, unknown>[]
-    expect(types).toHaveLength(17)
+    // 17 original + 3 family types (parent_of, spouse_of, sibling_of)
+    expect(types).toHaveLength(20)
     expect(types.every((t: Record<string, unknown>) => t.is_builtin === 1)).toBe(true)
   })
 

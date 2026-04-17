@@ -18,6 +18,9 @@ export const characters = sqliteTable(
     isCompanionOf: text('is_companion_of'), // character_id for mounts/companions
     folderId: text('folder_id'), // references character_folders.id
     portraitUrl: text('portrait_url'),
+    birthYear: integer('birth_year'),
+    deathYear: integer('death_year'),
+    gender: text('gender'),
   },
   (table) => [
     index('idx_characters_type').on(table.characterType),

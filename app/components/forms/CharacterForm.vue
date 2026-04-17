@@ -67,6 +67,39 @@
           <option v-for="loc in locations" :key="loc.id" :value="loc.id">{{ loc.name }}</option>
         </select>
       </div>
+      <div>
+        <label class="text-sm font-medium">{{ $t('characters.demographics.birthYear') }}</label>
+        <input
+          v-model.number="form.birthYear"
+          type="number"
+          class="w-full mt-1 px-3 py-2 rounded border border-input bg-background"
+          :placeholder="$t('characters.demographics.birthYear')"
+        />
+      </div>
+      <div>
+        <label class="text-sm font-medium">{{ $t('characters.demographics.deathYear') }}</label>
+        <input
+          v-model.number="form.deathYear"
+          type="number"
+          class="w-full mt-1 px-3 py-2 rounded border border-input bg-background"
+          :placeholder="$t('characters.demographics.deathYear')"
+        />
+      </div>
+      <div>
+        <label class="text-sm font-medium">{{ $t('characters.demographics.gender') }}</label>
+        <input
+          v-model="form.gender"
+          list="gender-presets"
+          class="w-full mt-1 px-3 py-2 rounded border border-input bg-background"
+          :placeholder="$t('characters.demographics.gender')"
+        />
+        <datalist id="gender-presets">
+          <option :value="$t('characters.demographics.genderPresets.male')" ></option>
+          <option :value="$t('characters.demographics.genderPresets.female')" ></option>
+          <option :value="$t('characters.demographics.genderPresets.nonbinary')" ></option>
+          <option :value="$t('characters.demographics.genderPresets.unknown')" ></option>
+        </datalist>
+      </div>
     </div>
 
     <div>
@@ -165,6 +198,9 @@ const props = defineProps<{
     locationId: string
     templateId?: string
     templateFields?: Record<string, unknown>
+    birthYear?: number | null
+    deathYear?: number | null
+    gender?: string | null
   }
   campaignId: string
   characterSlug?: string // present on edit, absent on create

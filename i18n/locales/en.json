@@ -214,7 +214,47 @@
     "sortRace": "Race",
     "sortClass": "Class",
     "sortAsc": "A→Z",
-    "sortDesc": "Z→A"
+    "sortDesc": "Z→A",
+    "genealogy": {
+      "title": "Family Tree",
+      "viewButton": "View Genealogy",
+      "recomputeLayout": "Recompute Layout",
+      "recomputeConfirm": "Recomputing the layout will overwrite any manual adjustments. Continue?",
+      "depthLabel": "Depth",
+      "emptyState": "No family links found for this character.",
+      "warnings": {
+        "parentYoungerThanChild": "Parent was born after the child.",
+        "parentDiedBeforeChildBirth": "Parent died before the child was born."
+      }
+    },
+    "family": {
+      "addLink": "Add Family Link",
+      "removeLink": "Remove Link",
+      "types": {
+        "parent": "Parent",
+        "child": "Child",
+        "spouse": "Spouse",
+        "sibling": "Sibling"
+      },
+      "errors": {
+        "cycle": "Adding this link would create a cycle in the ancestry.",
+        "selfLink": "A character cannot be linked to itself.",
+        "duplicate": "This family link already exists.",
+        "nonCharacterEnd": "Both ends of a family link must be characters.",
+        "crossCampaign": "Family links cannot cross campaign boundaries."
+      }
+    },
+    "demographics": {
+      "birthYear": "Birth Year",
+      "deathYear": "Death Year",
+      "gender": "Gender",
+      "genderPresets": {
+        "male": "Male",
+        "female": "Female",
+        "nonbinary": "Non-binary",
+        "unknown": "Unknown"
+      }
+    }
   },
   "entities": {
     "title": "Wiki",

@@ -27,6 +27,7 @@ import { AnchorTokenShapeUtil } from './shapes/AnchorTokenShape'
 import { MapTokenShapeUtil } from './shapes/MapTokenShape'
 import { StickyNoteShapeUtil } from './shapes/StickyNoteShape'
 import { CanvasLabelShapeUtil } from './shapes/CanvasLabelShape'
+import { GenealogyNodeShapeUtil } from './shapes/GenealogyNodeShape'
 
 const SHAPE_UTILS = [
   EntityCardShapeUtil,
@@ -40,6 +41,7 @@ const SHAPE_UTILS = [
   MapTokenShapeUtil,
   StickyNoteShapeUtil,
   CanvasLabelShapeUtil,
+  GenealogyNodeShapeUtil,
 ]
 
 export interface TldrawWrapperHandle {
