@@ -19,7 +19,10 @@ export type GenealogyNodeShape = TLBaseShape<
   }
 >
 
-export function formatYearLabel(birthYear: number | null | undefined, deathYear: number | null | undefined): string {
+export function formatYearLabel(
+  birthYear: number | null | undefined,
+  deathYear: number | null | undefined,
+): string {
   if (birthYear == null && deathYear == null) return ''
   const b = birthYear != null ? String(birthYear) : '?'
   const d = deathYear != null ? `–${deathYear}` : ''

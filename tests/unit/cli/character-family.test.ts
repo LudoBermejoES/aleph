@@ -40,7 +40,9 @@ function renderAsciiTree(nodes, edges) {
       if (placed.has(node.entityId)) continue
       placed.add(node.entityId)
       const spouseId = spouseOf.get(node.entityId)
-      const spouse = spouseId ? nodes.find((n) => n.entityId === spouseId && n.generation === gen) : null
+      const spouse = spouseId
+        ? nodes.find((n) => n.entityId === spouseId && n.generation === gen)
+        : null
       let line = formatNodeLabel(node)
       if (spouse && !placed.has(spouse.entityId)) {
         placed.add(spouse.entityId)
@@ -98,14 +100,44 @@ describe('character update argument parser', () => {
 
 describe('ASCII tree renderer', () => {
   const nodes = [
-    { entityId: 'gp', name: 'Grandparent', generation: -1, x: 0, birthYear: 900, deathYear: 960, gender: null },
-    { entityId: 'p', name: 'Parent', generation: 0, x: -80, birthYear: 930, deathYear: null, gender: null },
-    { entityId: 's', name: 'Spouse', generation: 0, x: 80, birthYear: 935, deathYear: null, gender: null },
-    { entityId: 'c', name: 'Child', generation: 1, x: 0, birthYear: null, deathYear: null, gender: null },
+    {
+      entityId: 'gp',
+      name: 'Grandparent',
+      generation: -1,
+      x: 0,
+      birthYear: 900,
+      deathYear: 960,
+      gender: null,
+    },
+    {
+      entityId: 'p',
+      name: 'Parent',
+      generation: 0,
+      x: -80,
+      birthYear: 930,
+      deathYear: null,
+      gender: null,
+    },
+    {
+      entityId: 's',
+      name: 'Spouse',
+      generation: 0,
+      x: 80,
+      birthYear: 935,
+      deathYear: null,
+      gender: null,
+    },
+    {
+      entityId: 'c',
+      name: 'Child',
+      generation: 1,
+      x: 0,
+      birthYear: null,
+      deathYear: null,
+      gender: null,
+    },
   ]
-  const edges = [
-    { type: 'spouse_of', sourceEntityId: 'p', targetEntityId: 's' },
-  ]
+  const edges = [{ type: 'spouse_of', sourceEntityId: 'p', targetEntityId: 's' }]
 
   it('renders nodes sorted by generation then x', () => {
     const out = renderAsciiTree(nodes, edges)

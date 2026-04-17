@@ -94,10 +94,10 @@
           :placeholder="$t('characters.demographics.gender')"
         />
         <datalist id="gender-presets">
-          <option :value="$t('characters.demographics.genderPresets.male')" ></option>
-          <option :value="$t('characters.demographics.genderPresets.female')" ></option>
-          <option :value="$t('characters.demographics.genderPresets.nonbinary')" ></option>
-          <option :value="$t('characters.demographics.genderPresets.unknown')" ></option>
+          <option :value="$t('characters.demographics.genderPresets.male')"></option>
+          <option :value="$t('characters.demographics.genderPresets.female')"></option>
+          <option :value="$t('characters.demographics.genderPresets.nonbinary')"></option>
+          <option :value="$t('characters.demographics.genderPresets.unknown')"></option>
         </datalist>
       </div>
     </div>
