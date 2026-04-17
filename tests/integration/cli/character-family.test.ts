@@ -1,8 +1,9 @@
 import { describe, it, expect, beforeAll } from 'vitest'
 import { execSync } from 'child_process'
+import { resolve } from 'path'
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
-const CLI = 'node c:/code/aleph/cli/bin/aleph.js'
+const CLI = `node ${resolve(process.cwd(), 'cli/bin/aleph.js')}`
 
 async function api(path: string, opts?: Omit<RequestInit, 'body'> & { body?: unknown }) {
   return fetch(`${BASE_URL}${path}`, {
@@ -80,12 +81,11 @@ describe('CLI character family commands (integration)', () => {
     })
     parentSlug = (await p.json()).slug
 
-    const c = await api(`/api/campaigns/${campaignId}/characters`, {
+    await api(`/api/campaigns/${campaignId}/characters`, {
       method: 'POST',
       headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
       body: { name: 'CLI Child' },
     })
-    childSlug = (await c.json()).slug
 
     // Set up CLI env
     cliEnv = {
