@@ -79,6 +79,31 @@ node C:/code/aleph/cli/bin/aleph.js session content set <slug> \
 
 Si falla (503 u otro error), informa al usuario y continúa — el fichero local ya está guardado y puede subirse después.
 
+## Paso 2c — Registrar asistencia
+
+Las notas manuales suelen comenzar con una línea de asistentes (ej. "Asisten Ludo, Conchi, Pau, Xavi, Jandro, Edu"). Extrae esa lista, mapea cada nombre al slug del personaje que controla ese jugador, y registra la asistencia:
+
+```bash
+node C:/code/aleph/cli/bin/aleph.js session attendance mark <slug> \
+  --campaign <id> \
+  --characters <slug1,slug2,...>
+```
+
+Reglas de mapeo:
+
+- Usa los nombres de **personajes** (no de jugadores) como slugs: `sim-sim`, `laughlin`, `durgan`, etc.
+- Si un nombre no tiene personaje asociado (DM, espectador), omítelo.
+- Si la lista de asistentes no aparece en las notas o es ambigua, pregunta al usuario antes de proceder.
+- Los slugs que no se puedan resolver aparecerán en el campo `unresolved` de la respuesta — informa al usuario.
+
+Ejemplo para Kingmaker donde asisten los jugadores de Sim Sim, Laughlin y Durgan:
+
+```bash
+node C:/code/aleph/cli/bin/aleph.js session attendance mark <slug> \
+  --campaign <id> \
+  --characters sim-sim,laughlin,durgan
+```
+
 ## Paso 3 — Analizar el contenido
 
 Leyendo las notas (preferentemente las manuales), extrae:

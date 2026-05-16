@@ -115,6 +115,7 @@ node /Users/ludo/code/aleph/cli/bin/aleph.js session content delete <slug> <cont
 
 # Attendance / RSVP
 node /Users/ludo/code/aleph/cli/bin/aleph.js session attendance set <slug> --campaign <id> --status pending|accepted|declined|tentative
+node /Users/ludo/code/aleph/cli/bin/aleph.js session attendance mark <slug> --campaign <id> --characters <slug1,slug2,...> [--absent] [--json]  # DM/co-DM: bulk-mark characters as attended (or absent with --absent)
 
 # AI generation (requires AI_PROVIDER + AI_API_KEY configured on the server)
 node /Users/ludo/code/aleph/cli/bin/aleph.js session summarize <slug> --campaign <id> [--type summary|ai_notes] [--force]  # --type defaults to summary; --force skips confirmation

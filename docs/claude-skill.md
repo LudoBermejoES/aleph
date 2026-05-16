@@ -119,6 +119,7 @@ aleph session content delete <slug> <contentId> --campaign <id> [--yes]  # delet
 
 # Attendance / RSVP
 aleph session attendance set <slug> --campaign <id> --status pending|accepted|declined|tentative
+aleph session attendance mark <slug> --campaign <id> --characters <slug1,slug2,...> [--absent] [--json]  # DM/co-DM: bulk-mark characters as attended (or absent with --absent)
 
 # AI generation (requires AI_PROVIDER + AI_API_KEY configured on the server)
 aleph session summarize <slug> --campaign <id> [--type summary|ai_notes] [--force]  # --type defaults to summary; --force skips confirmation

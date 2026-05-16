@@ -227,6 +227,43 @@ export function makeSessionCommand() {
       success('Attendance updated.')
     })
 
+  attendance
+    .command('mark <slug>')
+    .description('Mark characters as attended (or absent) — DM/co-DM only')
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .requiredOption('--characters <slugs>', 'Comma-separated character slugs')
+    .option('--absent', 'Mark characters as absent instead of attended')
+    .option('--json', 'Output raw JSON response')
+    .action(async (slug, opts) => {
+      if (!opts.characters) {
+        process.stderr.write('Error: --characters is required\n')
+        process.exit(1)
+      }
+      const attendees = opts.characters
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean)
+      if (attendees.length === 0) {
+        process.stderr.write('Error: --characters must contain at least one slug\n')
+        process.exit(1)
+      }
+      const body = { attendees, attended: !opts.absent }
+      const data = await put(
+        `/api/campaigns/${opts.campaign}/sessions/${slug}/attendance/bulk`,
+        body,
+      )
+      if (opts.json) {
+        print(data, { json: true })
+      } else {
+        success(`Marked ${data.updated} character(s) as ${opts.absent ? 'absent' : 'attended'}.`)
+        if (data.unresolved && data.unresolved.length > 0) {
+          process.stderr.write(
+            `Warning: could not resolve characters: ${data.unresolved.join(', ')}\n`,
+          )
+        }
+      }
+    })
+
   cmd.addCommand(attendance)
 
   // ─── Summarize subcommand ──────────────────────────────────────────────────
