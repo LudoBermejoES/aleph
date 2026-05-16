@@ -11,9 +11,12 @@ const props = defineProps<{
   campaignId?: string
 }>()
 
+const route = useRoute()
+
 const href = computed(() => {
-  if (props.slug && props.campaignId) {
-    return `/campaigns/${props.campaignId}/entities/${props.slug}`
+  const campaign = props.campaignId || (route.params.id as string | undefined)
+  if (props.slug && campaign) {
+    return `/campaigns/${campaign}/entities/${props.slug}`
   }
   return '#'
 })

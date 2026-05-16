@@ -46,7 +46,7 @@
         class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono"
       ></textarea>
       <div v-else class="prose dark:prose-invert max-w-none text-foreground">
-        <MDC v-if="localDraft[activeContentTab]" :value="localDraft[activeContentTab]" />
+        <MDC v-if="displayContent[activeContentTab]" :value="displayContent[activeContentTab]" />
         <p v-else class="text-muted-foreground italic">{{ $t('sessions.content.empty') }}</p>
       </div>
       <Button v-if="editingContent" class="mt-2" @click="save">{{ $t('sessions.saveLog') }}</Button>
@@ -58,6 +58,7 @@
 const props = defineProps<{
   tabs: { key: string; label: string }[]
   contentDraft: Record<string, string>
+  renderedDraft?: Record<string, string>
   loading: boolean
   canGenerate?: boolean
 }>()
@@ -70,6 +71,13 @@ const emit = defineEmits<{
 const { t } = useI18n()
 
 const activeContentTab = ref(props.tabs[0]?.key ?? 'manual_notes')
+
+const displayContent = computed(() => {
+  const rendered = props.renderedDraft ?? {}
+  return Object.fromEntries(
+    props.tabs.map((t) => [t.key, rendered[t.key] || localDraft.value[t.key] || '']),
+  )
+})
 const editingContent = ref(false)
 const localDraft = ref<Record<string, string>>({ ...props.contentDraft })
 const generating = ref(false)

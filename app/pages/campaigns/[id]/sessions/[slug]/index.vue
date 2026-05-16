@@ -107,6 +107,7 @@
         ref="contentTabsRef"
         :tabs="contentTabs"
         :content-draft="contentDraft"
+        :rendered-draft="renderedDraft"
         :loading="contentLoading"
         :can-generate="canGenerate"
         @save="saveContent"
@@ -172,6 +173,7 @@ const contentTabs = [
 ]
 const contentLoading = ref(false)
 const contentDraft = ref<Record<string, string>>({ manual_notes: '', ai_notes: '', summary: '' })
+const renderedDraft = ref<Record<string, string>>({ manual_notes: '', ai_notes: '', summary: '' })
 
 const rollsOpen = ref(false)
 const rollsLoading = ref(false)
@@ -214,6 +216,19 @@ async function loadContent() {
       ai_notes: getText(data.ai_notes),
       summary: getText(data.summary),
     }
+    const renderType = (type: string) =>
+      $fetch<{ content: string }>(
+        `/api/campaigns/${campaignId}/sessions/${slug}/render?type=${type}`,
+        { credentials: 'include' },
+      )
+        .then((r) => r.content)
+        .catch(() => '')
+    const [mn, ai, sm] = await Promise.all([
+      renderType('manual_notes'),
+      renderType('ai_notes'),
+      renderType('summary'),
+    ])
+    renderedDraft.value = { manual_notes: mn, ai_notes: ai, summary: sm }
   } catch {
     /* no content yet */
   } finally {

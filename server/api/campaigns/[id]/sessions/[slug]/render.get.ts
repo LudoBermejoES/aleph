@@ -1,10 +1,13 @@
 import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
-import { gameSessions } from '../../../../../db/schema/sessions'
+import { gameSessions, sessionContents } from '../../../../../db/schema/sessions'
 import { readEntityFile, stripSecretBlocks } from '../../../../../services/content'
 import { autoLinkContent } from '../../../../../services/autolink-render'
 import { hasMinRole } from '../../../../../utils/permissions'
 import type { CampaignRole } from '../../../../../utils/permissions'
+
+const CONTENT_TYPES = ['manual_notes', 'ai_notes', 'summary'] as const
+type ContentType = (typeof CONTENT_TYPES)[number]
 
 export default defineEventHandler(async (event) => {
   const campaignId = getRouterParam(event, 'id')!
@@ -29,6 +32,19 @@ export default defineEventHandler(async (event) => {
       effectiveRole = previewAs as CampaignRole
       previewMode = true
     }
+  }
+
+  // If ?type= is one of the session content types, render from DB instead of log file
+  const contentType = getQuery(event).type as string | undefined
+  if (contentType && CONTENT_TYPES.includes(contentType as ContentType)) {
+    const row = db
+      .select({ content: sessionContents.content })
+      .from(sessionContents)
+      .where(and(eq(sessionContents.sessionId, session.id), eq(sessionContents.type, contentType)))
+      .get()
+    const raw = row?.content ?? ''
+    const rendered = autoLinkContent(raw, campaignId, session.id, db)
+    return { content: rendered, previewMode, effectiveRole }
   }
 
   let rawContent = ''
