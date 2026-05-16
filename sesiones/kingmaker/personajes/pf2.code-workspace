@@ -1,11 +1,11 @@
 {
-	"folders": [
-		{
-			"path": "../../.."
-		},
-		{
-			"path": "../../../../pf2e-esp-translation"
-		}
-	],
-	"settings": {}
+  "folders": [
+    {
+      "path": "../../..",
+    },
+    {
+      "path": "../../../../pf2e-esp-translation",
+    },
+  ],
+  "settings": {},
 }
