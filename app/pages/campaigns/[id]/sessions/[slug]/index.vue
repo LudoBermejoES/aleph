@@ -205,10 +205,14 @@ async function loadContent() {
   contentLoading.value = true
   try {
     const data = await api.getSessionContent(slug)
+    const getText = (v: unknown) =>
+      v && typeof v === 'object'
+        ? ((v as { content?: string | null }).content ?? '')
+        : (v as string) || ''
     contentDraft.value = {
-      manual_notes: (data.manual_notes as string) || '',
-      ai_notes: (data.ai_notes as string) || '',
-      summary: (data.summary as string) || '',
+      manual_notes: getText(data.manual_notes),
+      ai_notes: getText(data.ai_notes),
+      summary: getText(data.summary),
     }
   } catch {
     /* no content yet */
