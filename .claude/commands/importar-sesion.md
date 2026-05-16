@@ -38,19 +38,46 @@ node C:/code/aleph/cli/bin/aleph.js campaign list --json
 
 ## Paso 2 — Importar la sesión
 
-Sube las notas y genera el resumen:
+Sube las notas brutas al servidor sin generar resumen automático:
 
 ```bash
 node C:/code/aleph/cli/bin/aleph.js session import \
   --campaign <id> \
   [--manual <ruta>] \
-  [--ai <ruta>]
+  [--ai <ruta>] \
+  --no-summarize
 ```
 
-- Si solo hay `--ai` (sin `--manual`), añade `--no-summarize` (la transcripción cruda de Gemini incluye mucho contenido fuera de la partida; no es buena base para el resumen).
-- Si hay `--manual`, el resumen se genera automáticamente. Si falla (503 = IA no configurada), informa y sigue.
-
 Anota el `slug` de la sesión creada/encontrada para los pasos siguientes.
+
+## Paso 2b — Generar el resumen de síntesis
+
+**Lee completamente ambos archivos** (manual notes y ai notes si existen). A partir de ellos escribe tú el resumen de la sesión siguiendo estas reglas:
+
+- Incluye solo lo que ocurrió **dentro de la partida**: hechos, diálogos relevantes, decisiones, combates, revelaciones.
+- Elimina todo lo que sea meta: quién asistió, bromas fuera de contexto, comentarios de los jugadores, interrupciones técnicas.
+- Usa siempre **nombres de personajes**, nunca nombres de jugadores.
+- Las notas manuales son la fuente de verdad narrativa. Las notas AI completan detalles de diálogo y momentos concretos que las manuales omiten.
+- Trata a Ludo Bermejo como el narrador/DM, no como un jugador más.
+
+Guarda el resumen en el fichero local:
+
+```
+C:\code\aleph\sesiones\<campaña>\summary\session-YYYY-MM-DD.md
+```
+
+El nombre del fichero debe coincidir con la fecha de la sesión (igual que en `manual-notes/` y `ai-notes/`). Si la carpeta `summary/` no existe, créala.
+
+Una vez guardado localmente, súbelo al campo `summary` de la sesión en Aleph:
+
+```bash
+node C:/code/aleph/cli/bin/aleph.js session content set <slug> \
+  --campaign <id> \
+  --type summary \
+  --file C:\code\aleph\sesiones\<campaña>\summary\session-YYYY-MM-DD.md
+```
+
+Si falla (503 u otro error), informa al usuario y continúa — el fichero local ya está guardado y puede subirse después.
 
 ## Paso 3 — Analizar el contenido
 
@@ -99,12 +126,41 @@ node C:/code/aleph/cli/bin/aleph.js character create \
   --campaign <id> --name "<nombre>" --json
 ```
 
-**Actualizar estado de un personaje:**
+**Actualizar un personaje — campos disponibles:**
+
+```bash
+# Descripción física (campo "content" / pestaña Información general)
+node C:/code/aleph/cli/bin/aleph.js character update <slug> \
+  --campaign <id> --content "<descripción física>"
+
+# Trasfondo / origen del personaje (pestaña Historia)
+node C:/code/aleph/cli/bin/aleph.js character update <slug> \
+  --campaign <id> --backstory "<trasfondo y origen del personaje>"
+
+# Historial de sesiones (pestaña Historia — se añade entrada tras cada sesión)
+node C:/code/aleph/cli/bin/aleph.js character update <slug> \
+  --campaign <id> --history "<resumen narrativo de lo ocurrido hasta ahora>"
+
+# Estado actual tras la última sesión (pestaña Información general)
+node C:/code/aleph/cli/bin/aleph.js character update <slug> \
+  --campaign <id> --current-status "<situación actual del personaje>"
+```
+
+En una sola llamada puedes combinar varios campos:
 
 ```bash
 node C:/code/aleph/cli/bin/aleph.js character update <slug> \
-  --campaign <id> --content "<descripción actualizada>"
+  --campaign <id> \
+  --current-status "<dónde está y cómo se encuentra ahora>" \
+  --history "<historial acumulado de sesiones>"
 ```
+
+| Flag CLI           | Campo en la UI        | Pestaña             |
+| ------------------ | --------------------- | ------------------- |
+| `--content`        | Descripción física    | Información general |
+| `--current-status` | Estado actual         | Información general |
+| `--backstory`      | Trasfondo             | Historia            |
+| `--history`        | Historial de sesiones | Historia            |
 
 **Entidad del wiki (NPC, objeto, lore, evento):**
 
@@ -198,6 +254,48 @@ Entidades creadas/actualizadas:
 - Entidades wiki: <lista>
 - Quests: <lista>
 ```
+
+## Enlaces a otras entidades dentro del texto
+
+Aleph puede convertir automáticamente los nombres de entidades en enlaces clicables. Hay dos formas de usarlo al rellenar los campos de texto (`--content`, `--backstory`, `--history`, `--current-status`):
+
+### Opción A — Auto-enlace automático (recomendada)
+
+Escribe el nombre de la entidad **tal cual** en el texto. Aleph lo detecta al renderizar y lo convierte en un enlace sin que tengas que hacer nada más:
+
+```
+"Sim Sim encontró a Laughlin en el Pueblo del lago antes de que llegara Tark Krap."
+```
+
+Si `Laughlin`, `Pueblo del lago` y `Tark Krap` existen como entidades en la campaña, los tres aparecerán como enlaces clicables en la UI. El sistema es **insensible a mayúsculas** y respeta límites de palabra (no enlaza "Orc" dentro de "Oracle").
+
+> **Importante**: el auto-enlace funciona mejor si los personajes, localizaciones y entidades ya existen en Aleph **antes** de subir el texto. Por eso, en el Paso 4 se crean primero todas las entidades y después se actualizan los campos de texto.
+
+### Opción B — Enlace manual con slug exacto
+
+Si quieres forzar un enlace aunque el nombre en el texto no coincida exactamente con el slug, usa la sintaxis MDC:
+
+```
+":entity-link{slug=\"pueblo-del-lago\" label=\"el pueblo\"}"
+```
+
+Ejemplo real en un campo de historial:
+
+```bash
+node C:/code/aleph/cli/bin/aleph.js character update sim-sim \
+  --campaign <id> \
+  --history "Tras la batalla en :entity-link{slug=\"pueblo-del-lago\" label=\"el pueblo\"}, Sim Sim acordó una tregua con :entity-link{slug=\"familia-laughlin\" label=\"la Familia Laughlin\"}."
+```
+
+### Cuándo usar cada opción
+
+| Situación                                                  | Opción                                       |
+| ---------------------------------------------------------- | -------------------------------------------- |
+| El nombre en el texto coincide con el nombre de la entidad | Auto-enlace (A) — escribe normal             |
+| El nombre en el texto es un alias, apodo o fragmento       | MDC manual (B) — usa `slug` + `label`        |
+| Quieres enlazar dentro de un bloque de código o encabezado | MDC manual (B) — el auto-enlace no actúa ahí |
+
+---
 
 ## Criterios de qué merece ir a Aleph
 
