@@ -129,5 +129,8 @@
   "lint-staged": {
     "*.{js,ts,vue,json,css,md}": "prettier --write",
     "*.{js,ts,vue}": "eslint --fix"
+  },
+  "optionalDependencies": {
+    "crossws": "^0.4.5"
   }
 }
