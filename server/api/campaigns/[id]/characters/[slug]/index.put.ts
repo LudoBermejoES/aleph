@@ -28,6 +28,9 @@ export default defineEventHandler(async (event) => {
     folderId: z.string().optional(),
     templateId: z.string().optional(),
     fields: z.record(z.string(), z.unknown()).optional(),
+    backstory: z.string().nullable().optional(),
+    history: z.string().nullable().optional(),
+    currentStatus: z.string().nullable().optional(),
     birthYear: z.number().int().nullable().optional(),
     deathYear: z.number().int().nullable().optional(),
     gender: z.string().max(100).nullable().optional(),
@@ -72,6 +75,9 @@ export default defineEventHandler(async (event) => {
   if (body.deathYear !== undefined) charUpdates.deathYear = body.deathYear
   if (body.gender !== undefined)
     charUpdates.gender = body.gender !== null ? body.gender.toLowerCase().trim() : null
+  if (body.backstory !== undefined) charUpdates.backstory = body.backstory
+  if (body.history !== undefined) charUpdates.history = body.history
+  if (body.currentStatus !== undefined) charUpdates.currentStatus = body.currentStatus
 
   if (Object.keys(charUpdates).length > 0) {
     db.update(characters).set(charUpdates).where(eq(characters.id, character.id)).run()

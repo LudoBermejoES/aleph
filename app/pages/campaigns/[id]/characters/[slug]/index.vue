@@ -25,7 +25,7 @@
           :character-slug="slug"
           size="lg"
           @uploaded="
-            (url) => {
+            (url: string) => {
               if (character) character.portraitUrl = url
             }
           "
@@ -275,9 +275,36 @@
         class="mb-4"
       />
 
-      <!-- Markdown Content -->
-      <div ref="contentRef" class="prose dark:prose-invert max-w-none text-foreground">
-        <MDC v-if="character.content" :value="character.content" />
+      <!-- Description (physical) -->
+      <div v-if="character.description || character.content" ref="contentRef" class="mb-6">
+        <h2 class="text-lg font-semibold mb-2">{{ $t('character.description') }}</h2>
+        <div class="prose dark:prose-invert max-w-none text-foreground">
+          <MDC :value="character.description ?? character.content ?? ''" />
+        </div>
+      </div>
+
+      <!-- Backstory -->
+      <div v-if="character.backstory" class="mb-6" data-testid="character-backstory">
+        <h2 class="text-lg font-semibold mb-2">{{ $t('character.backstory') }}</h2>
+        <div class="prose dark:prose-invert max-w-none text-foreground">
+          <MDC :value="character.backstory" />
+        </div>
+      </div>
+
+      <!-- History -->
+      <div v-if="character.history" class="mb-6" data-testid="character-history">
+        <h2 class="text-lg font-semibold mb-2">{{ $t('character.history') }}</h2>
+        <div class="prose dark:prose-invert max-w-none text-foreground">
+          <MDC :value="character.history" />
+        </div>
+      </div>
+
+      <!-- Current Status -->
+      <div v-if="character.currentStatus" class="mb-6" data-testid="character-current-status">
+        <h2 class="text-lg font-semibold mb-2">{{ $t('character.currentStatus') }}</h2>
+        <div class="prose dark:prose-invert max-w-none text-foreground">
+          <MDC :value="character.currentStatus" />
+        </div>
       </div>
 
       <!-- Secret Notes (DM only) -->

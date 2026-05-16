@@ -80,9 +80,9 @@ Use `--stdin` on `entity edit` to pipe Markdown content from a file: `cat notes.
 
 ```bash
 node /Users/ludo/code/aleph/cli/bin/aleph.js character list --campaign <id> [--status <alive|dead|missing|unknown>] [--sort <name|updatedAt|status>] [--sort-dir <asc|desc>] [--page <n>] [--limit <n>] [--json]
-node /Users/ludo/code/aleph/cli/bin/aleph.js character create --campaign <id> --name <name> [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js character create --campaign <id> --name <name> [--type <pc|npc>] [--status <alive|dead|missing|unknown>] [--gender <text>] [--json]
 node /Users/ludo/code/aleph/cli/bin/aleph.js character show --campaign <id> <slug> [--json]
-node /Users/ludo/code/aleph/cli/bin/aleph.js character update --campaign <id> <slug> [--name <n>] [--status <s>] [--content <md>] [--stdin] [--birth-year <year>] [--death-year <year|"">] [--gender <text|"">]
+node /Users/ludo/code/aleph/cli/bin/aleph.js character update --campaign <id> <slug> [--name <n>] [--type <pc|npc>] [--template-id <id>] [--fields <json>] [--status <s>] [--content <md>] [--stdin] [--backstory <md>] [--backstory-stdin] [--history <md>] [--history-stdin] [--current-status <md>] [--current-status-stdin] [--birth-year <year>] [--death-year <year|"">] [--gender <text|"">]
 node /Users/ludo/code/aleph/cli/bin/aleph.js character upload-portrait --campaign <id> --slug <slug> --file <path>
 node /Users/ludo/code/aleph/cli/bin/aleph.js character connect <slug> --campaign <id> --target <entity-slug> [--label <text>] [--description <text>] [--json]
 node /Users/ludo/code/aleph/cli/bin/aleph.js character connections <slug> --campaign <id> [--json]
@@ -118,6 +118,13 @@ node /Users/ludo/code/aleph/cli/bin/aleph.js session attendance set <slug> --cam
 
 # AI generation (requires AI_PROVIDER + AI_API_KEY configured on the server)
 node /Users/ludo/code/aleph/cli/bin/aleph.js session summarize <slug> --campaign <id> [--type summary|ai_notes] [--force]  # --type defaults to summary; --force skips confirmation
+
+# Import session notes from files (finds or creates session by date)
+node /Users/ludo/code/aleph/cli/bin/aleph.js session import --campaign <id> [--manual <file>] [--ai <file>] [--date <YYYY-MM-DD>] [--no-summarize] [--force] [--json]
+# At least one of --manual or --ai is required.
+# Date is parsed from filename (session-YYYY-MM-DD.md) if not provided.
+# Session title defaults to Spanish date format: "26 de abril de 2026".
+# If --manual is provided, auto-generates a summary unless --no-summarize is set.
 ```
 
 ### Session Groups

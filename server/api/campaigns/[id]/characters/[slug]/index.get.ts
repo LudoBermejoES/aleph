@@ -116,6 +116,7 @@ export default defineEventHandler(async (event) => {
     locationSlug = locationEntity?.slug ?? null
   }
 
+  const description = stripSecretBlocks(file.content, role)
   return {
     ...entity,
     ...character,
@@ -124,7 +125,11 @@ export default defineEventHandler(async (event) => {
     portraitUrl: character.portraitUrl ?? null,
     frontmatter: file.frontmatter,
     fields: (file.frontmatter as Record<string, unknown>).fields || {},
-    content: stripSecretBlocks(file.content, role),
+    content: description,
+    description,
+    backstory: character.backstory ?? null,
+    history: character.history ?? null,
+    currentStatus: character.currentStatus ?? null,
     stats: filteredStats,
     abilities: charAbilities,
   }

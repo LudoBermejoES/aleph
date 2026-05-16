@@ -183,6 +183,13 @@
       "when": 1776445249000,
       "tag": "0025_family_relation_types",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "6",
+      "when": 1778931090113,
+      "tag": "0026_parched_master_chief",
+      "breakpoints": true
     }
   ]
 }

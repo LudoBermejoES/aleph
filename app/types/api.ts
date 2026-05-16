@@ -105,6 +105,10 @@ export interface Character {
   updatedAt: Date
   // Detail view only
   content?: string
+  description?: string
+  backstory?: string | null
+  history?: string | null
+  currentStatus?: string | null
   templateId?: string | null
   fields?: Record<string, unknown>
   frontmatter?: Record<string, unknown>

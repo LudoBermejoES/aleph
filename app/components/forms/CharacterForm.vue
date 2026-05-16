@@ -103,7 +103,7 @@
     </div>
 
     <div>
-      <label class="text-sm font-medium">{{ $t('characters.description') }}</label>
+      <label class="text-sm font-medium">{{ $t('character.description') }}</label>
       <MarkdownEditor
         v-model="form.content"
         :placeholder="$t('characters.descriptionPlaceholder')"
@@ -111,6 +111,21 @@
         :draft-key="draftKey"
         class="mt-1"
       />
+    </div>
+
+    <div>
+      <label class="text-sm font-medium">{{ $t('character.backstory') }}</label>
+      <MarkdownEditor v-model="form.backstory" :campaign-id="campaignId" class="mt-1" />
+    </div>
+
+    <div>
+      <label class="text-sm font-medium">{{ $t('character.history') }}</label>
+      <MarkdownEditor v-model="form.history" :campaign-id="campaignId" class="mt-1" />
+    </div>
+
+    <div>
+      <label class="text-sm font-medium">{{ $t('character.currentStatus') }}</label>
+      <MarkdownEditor v-model="form.currentStatus" :campaign-id="campaignId" class="mt-1" />
     </div>
 
     <!-- Organizations -->
@@ -194,6 +209,9 @@ const props = defineProps<{
     status: string
     visibility: string
     content: string
+    backstory: string
+    history: string
+    currentStatus: string
     ownerUserId: string
     locationId: string
     templateId?: string

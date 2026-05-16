@@ -3,6 +3,7 @@ import { get, post, put, patch, del } from '../lib/client.js'
 import { print, success } from '../lib/output.js'
 import { confirm } from '@inquirer/prompts'
 import fs from 'fs'
+import path from 'path'
 
 export function makeSessionCommand() {
   const cmd = new Command('session').description('Manage game sessions')
@@ -264,7 +265,132 @@ export function makeSessionCommand() {
       process.stdout.write((result?.content ?? '') + '\n')
     })
 
+  // ─── Import subcommand ────────────────────────────────────────────────────
+
+  cmd
+    .command('import')
+    .description('Import session notes from files, creating or updating the session')
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .option('--manual <file>', 'Path to manual DM notes file')
+    .option('--ai <file>', 'Path to AI transcription file (e.g. Gemini notes)')
+    .option('--date <date>', 'Override session date (YYYY-MM-DD); default: parsed from filename')
+    .option('--no-summarize', 'Skip auto-generating the summary after import')
+    .option('--force', 'Skip confirmation prompts')
+    .option('--json', 'Output result as JSON')
+    .action(async (opts) => {
+      if (!opts.manual && !opts.ai) {
+        process.stderr.write('Error: Provide at least --manual or --ai\n')
+        process.exit(1)
+      }
+
+      // Determine date from --date flag or filename
+      let dateStr = opts.date
+      if (!dateStr) {
+        const file = opts.manual || opts.ai
+        const match = path.basename(file).match(/(\d{4}-\d{2}-\d{2})/)
+        if (match) dateStr = match[1]
+      }
+      if (!dateStr) {
+        process.stderr.write(
+          'Error: Could not determine session date from filename. Use --date YYYY-MM-DD\n',
+        )
+        process.exit(1)
+      }
+
+      const title = toSpanishDate(dateStr)
+
+      // Find existing session by scheduledDate or create one
+      let session = await findSessionByDate(opts.campaign, dateStr)
+      if (!session) {
+        session = await post(`/api/campaigns/${opts.campaign}/sessions`, {
+          title,
+          scheduledDate: dateStr,
+        })
+        process.stdout.write(`Created session: ${session.title} (${session.slug})\n`)
+      } else {
+        process.stdout.write(`Found session: ${session.title} (${session.slug})\n`)
+      }
+
+      // Set manual_notes
+      if (opts.manual) {
+        const content = fs.readFileSync(opts.manual, 'utf8')
+        await put(`/api/campaigns/${opts.campaign}/sessions/${session.slug}/content`, {
+          type: 'manual_notes',
+          content,
+        })
+        process.stdout.write('  manual_notes: set\n')
+      }
+
+      // Set ai_notes
+      if (opts.ai) {
+        const content = fs.readFileSync(opts.ai, 'utf8')
+        await put(`/api/campaigns/${opts.campaign}/sessions/${session.slug}/content`, {
+          type: 'ai_notes',
+          content,
+        })
+        process.stdout.write('  ai_notes: set\n')
+      }
+
+      // Generate summary from manual notes unless disabled
+      if (opts.manual && opts.summarize) {
+        process.stdout.write('Generating summary...\n')
+        try {
+          const result = await post(
+            `/api/campaigns/${opts.campaign}/sessions/${session.slug}/generate`,
+            { target: 'summary' },
+          )
+          process.stdout.write('  summary: generated\n')
+          if (opts.json) {
+            print(
+              {
+                session: session.slug,
+                title: session.title,
+                date: dateStr,
+                summary: result.content,
+              },
+              { json: true },
+            )
+            return
+          }
+        } catch (err) {
+          process.stderr.write(`Warning: Could not generate summary: ${err.message}\n`)
+        }
+      }
+
+      if (opts.json) {
+        print({ session: session.slug, title: session.title, date: dateStr }, { json: true })
+      } else {
+        success(`Session import complete: ${session.title} (${session.slug})`)
+      }
+    })
+
   return cmd
+}
+
+const SPANISH_MONTHS = [
+  'enero',
+  'febrero',
+  'marzo',
+  'abril',
+  'mayo',
+  'junio',
+  'julio',
+  'agosto',
+  'septiembre',
+  'octubre',
+  'noviembre',
+  'diciembre',
+]
+
+export function toSpanishDate(dateStr) {
+  const [year, month, day] = dateStr.split('-').map(Number)
+  return `${day} de ${SPANISH_MONTHS[month - 1]} de ${year}`
+}
+
+async function findSessionByDate(campaignId, dateStr) {
+  const res = await get(`/api/campaigns/${campaignId}/sessions?pageSize=0`)
+  const sessions = Array.isArray(res) ? res : (res.data ?? [])
+  return sessions.find((s) => s.scheduledDate && s.scheduledDate.startsWith(dateStr)) ?? null
 }
 
 function readStdin() {

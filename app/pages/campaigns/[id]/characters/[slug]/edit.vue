@@ -48,6 +48,9 @@ const form = ref({
   status: 'alive',
   visibility: 'members',
   content: '',
+  backstory: '',
+  history: '',
+  currentStatus: '',
   ownerUserId: '',
   locationId: '',
   templateId: '',
@@ -72,6 +75,9 @@ onMounted(async () => {
       status: char.status || 'alive',
       visibility: char.visibility || 'members',
       content: char.content || '',
+      backstory: (char as { backstory?: string | null }).backstory || '',
+      history: (char as { history?: string | null }).history || '',
+      currentStatus: (char as { currentStatus?: string | null }).currentStatus || '',
       ownerUserId: char.ownerUserId || '',
       locationId: char.locationEntityId || '',
       templateId: char.templateId || '',
@@ -90,7 +96,17 @@ onMounted(async () => {
 async function save() {
   submitting.value = true
   try {
-    const { locationId, templateFields, birthYear, deathYear, gender, ...rest } = form.value
+    const {
+      locationId,
+      templateFields,
+      birthYear,
+      deathYear,
+      gender,
+      backstory,
+      history,
+      currentStatus,
+      ...rest
+    } = form.value
     await api.updateCharacter(slug, {
       ...rest,
       ...(locationId ? { locationEntityId: locationId } : {}),
@@ -98,6 +114,9 @@ async function save() {
       birthYear: birthYear !== undefined ? birthYear : null,
       deathYear: deathYear !== undefined ? deathYear : null,
       gender: gender !== undefined ? gender : null,
+      backstory: backstory || null,
+      history: history || null,
+      currentStatus: currentStatus || null,
     })
     await charForm.value?.saveMemberships(slug)
     charForm.value?.clearDraft()

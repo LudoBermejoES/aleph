@@ -139,7 +139,11 @@
   "character": {
     "uploadPortrait": "Subir retrato",
     "portraitAlt": "Retrato de {name}",
-    "noPortrait": "Sin retrato"
+    "noPortrait": "Sin retrato",
+    "description": "Descripción",
+    "backstory": "Historia de origen",
+    "history": "Historia",
+    "currentStatus": "Estado actual"
   },
   "entity": {
     "uploadImage": "Subir imagen",

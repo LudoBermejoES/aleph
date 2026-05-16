@@ -84,9 +84,9 @@ Pipe content from a file: `cat notes.md | aleph entity edit --campaign <id> <slu
 
 ```bash
 aleph character list --campaign <id> [--status <alive|dead|missing|unknown>] [--sort <name|updatedAt|status>] [--sort-dir <asc|desc>] [--page <n>] [--limit <n>] [--json]
-aleph character create --campaign <id> --name <name> [--json]
+aleph character create --campaign <id> --name <name> [--type <pc|npc>] [--status <alive|dead|missing|unknown>] [--gender <text>] [--json]
 aleph character show --campaign <id> <slug> [--json]
-aleph character update --campaign <id> <slug> [--name <n>] [--status <s>] [--content <md>] [--stdin] [--birth-year <year>] [--death-year <year|"">] [--gender <text|"">]
+aleph character update --campaign <id> <slug> [--name <n>] [--type <pc|npc>] [--template-id <id>] [--fields <json>] [--status <s>] [--content <md>] [--stdin] [--backstory <md>] [--backstory-stdin] [--history <md>] [--history-stdin] [--current-status <md>] [--current-status-stdin] [--birth-year <year>] [--death-year <year|"">] [--gender <text|"">]
 aleph character upload-portrait --campaign <id> --slug <slug> --file <path>
 aleph character connect <slug> --campaign <id> --target <entity-slug> [--label <text>] [--description <text>] [--json]
 aleph character connections <slug> --campaign <id> [--json]
@@ -122,6 +122,13 @@ aleph session attendance set <slug> --campaign <id> --status pending|accepted|de
 
 # AI generation (requires AI_PROVIDER + AI_API_KEY configured on the server)
 aleph session summarize <slug> --campaign <id> [--type summary|ai_notes] [--force]  # --type defaults to summary; --force skips confirmation
+
+# Import session notes from files (finds or creates session by date)
+aleph session import --campaign <id> [--manual <file>] [--ai <file>] [--date <YYYY-MM-DD>] [--no-summarize] [--force] [--json]
+# At least one of --manual or --ai is required.
+# Date is parsed from filename (session-YYYY-MM-DD.md) if not provided.
+# Session title defaults to Spanish date format: "26 de abril de 2026".
+# If --manual is provided, auto-generates a summary unless --no-summarize is set.
 ```
 
 ### Session Groups

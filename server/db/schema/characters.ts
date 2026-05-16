@@ -21,6 +21,9 @@ export const characters = sqliteTable(
     birthYear: integer('birth_year'),
     deathYear: integer('death_year'),
     gender: text('gender'),
+    backstory: text('backstory'),
+    history: text('history'),
+    currentStatus: text('current_status'),
   },
   (table) => [
     index('idx_characters_type').on(table.characterType),

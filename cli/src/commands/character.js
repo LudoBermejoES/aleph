@@ -104,11 +104,16 @@ export function makeCharacterCommand() {
     .description('Create a character')
     .requiredOption('--campaign <id>', 'Campaign ID')
     .requiredOption('--name <name>', 'Character name')
+    .option('--type <type>', 'Character type: pc or npc (default: npc)')
+    .option('--status <status>', 'Initial status (alive, dead, missing, unknown)')
+    .option('--gender <gender>', 'Gender (free text)')
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
-      const data = await post(`/api/campaigns/${opts.campaign}/characters`, {
-        name: opts.name,
-      })
+      const body = { name: opts.name }
+      if (opts.type !== undefined) body.characterType = opts.type
+      if (opts.status !== undefined) body.status = opts.status
+      if (opts.gender !== undefined) body.gender = opts.gender
+      const data = await post(`/api/campaigns/${opts.campaign}/characters`, body)
       if (opts.json) {
         print(data, { json: true })
       } else {
@@ -142,8 +147,16 @@ export function makeCharacterCommand() {
     .option('--name <name>', 'Character name')
     .option('--status <status>', 'Status (alive, dead, missing, unknown)')
     .option('--type <type>', 'Character type (pc, npc)')
-    .option('--content <markdown>', 'Markdown content (biography, notes)')
-    .option('--stdin', 'Read markdown content from stdin')
+    .option('--template-id <id>', 'Template ID to assign to this character')
+    .option('--fields <json>', 'Template field values as JSON string')
+    .option('--content <markdown>', 'Markdown content (physical description)')
+    .option('--stdin', 'Read description from stdin')
+    .option('--backstory <markdown>', 'Character backstory (markdown)')
+    .option('--backstory-stdin', 'Read backstory from stdin')
+    .option('--history <markdown>', 'Character history log (markdown)')
+    .option('--history-stdin', 'Read history from stdin')
+    .option('--current-status <markdown>', 'Current status after last session (markdown)')
+    .option('--current-status-stdin', 'Read current status from stdin')
     .option('--birth-year <year>', 'Birth year (integer)')
     .option('--death-year <year>', 'Death year (integer, "" to clear)')
     .option('--gender <gender>', 'Gender (free text, "" to clear)')
@@ -153,10 +166,33 @@ export function makeCharacterCommand() {
         process.stderr.write('Error: --content and --stdin are mutually exclusive\n')
         process.exit(1)
       }
+      if (opts.backstory && opts.backstoryStdin) {
+        process.stderr.write('Error: --backstory and --backstory-stdin are mutually exclusive\n')
+        process.exit(1)
+      }
+      if (opts.history && opts.historyStdin) {
+        process.stderr.write('Error: --history and --history-stdin are mutually exclusive\n')
+        process.exit(1)
+      }
+      if (opts.currentStatus && opts.currentStatusStdin) {
+        process.stderr.write(
+          'Error: --current-status and --current-status-stdin are mutually exclusive\n',
+        )
+        process.exit(1)
+      }
       const body = {}
       if (opts.name !== undefined) body.name = opts.name
       if (opts.status !== undefined) body.status = opts.status
       if (opts.type !== undefined) body.characterType = opts.type
+      if (opts.templateId !== undefined) body.templateId = opts.templateId
+      if (opts.fields !== undefined) {
+        try {
+          body.fields = JSON.parse(opts.fields)
+        } catch {
+          process.stderr.write('Error: --fields must be valid JSON\n')
+          process.exit(1)
+        }
+      }
       if (opts.birthYear !== undefined) {
         body.birthYear = opts.birthYear === '' ? null : parseInt(opts.birthYear, 10)
       }
@@ -166,8 +202,8 @@ export function makeCharacterCommand() {
       if (opts.gender !== undefined) {
         body.gender = opts.gender === '' ? null : opts.gender
       }
-      if (opts.stdin) {
-        body.content = await new Promise((resolve) => {
+      async function readStdin() {
+        return new Promise((resolve) => {
           let data = ''
           process.stdin.setEncoding('utf8')
           process.stdin.on('data', (chunk) => {
@@ -175,12 +211,30 @@ export function makeCharacterCommand() {
           })
           process.stdin.on('end', () => resolve(data))
         })
+      }
+      if (opts.stdin) {
+        body.content = await readStdin()
       } else if (opts.content !== undefined) {
         body.content = opts.content
       }
+      if (opts.backstoryStdin) {
+        body.backstory = await readStdin()
+      } else if (opts.backstory !== undefined) {
+        body.backstory = opts.backstory
+      }
+      if (opts.historyStdin) {
+        body.history = await readStdin()
+      } else if (opts.history !== undefined) {
+        body.history = opts.history
+      }
+      if (opts.currentStatusStdin) {
+        body.currentStatus = await readStdin()
+      } else if (opts.currentStatus !== undefined) {
+        body.currentStatus = opts.currentStatus
+      }
       if (Object.keys(body).length === 0) {
         process.stderr.write(
-          'Error: provide at least one field to update (--name, --status, --type, --birth-year, --death-year, --gender, --content, --stdin)\n',
+          'Error: provide at least one field to update (--name, --status, --type, --template-id, --fields, --backstory, --history, --current-status, --birth-year, --death-year, --gender, --content, --stdin)\n',
         )
         process.exit(1)
       }
