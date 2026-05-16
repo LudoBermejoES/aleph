@@ -2,8 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
 
-// Import the exported helper directly
-import { toSpanishDate } from '../../../cli/src/commands/session.js'
+import { toSpanishDate } from '../../../cli/src/lib/date-utils.js'
 
 describe('toSpanishDate', () => {
   it('formats a date in Spanish with full month name', () => {

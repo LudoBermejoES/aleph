@@ -4,6 +4,7 @@ import { print, success } from '../lib/output.js'
 import { confirm } from '@inquirer/prompts'
 import fs from 'fs'
 import path from 'path'
+import { toSpanishDate } from '../lib/date-utils.js'
 
 export function makeSessionCommand() {
   const cmd = new Command('session').description('Manage game sessions')
@@ -365,26 +366,6 @@ export function makeSessionCommand() {
     })
 
   return cmd
-}
-
-const SPANISH_MONTHS = [
-  'enero',
-  'febrero',
-  'marzo',
-  'abril',
-  'mayo',
-  'junio',
-  'julio',
-  'agosto',
-  'septiembre',
-  'octubre',
-  'noviembre',
-  'diciembre',
-]
-
-export function toSpanishDate(dateStr) {
-  const [year, month, day] = dateStr.split('-').map(Number)
-  return `${day} de ${SPANISH_MONTHS[month - 1]} de ${year}`
 }
 
 async function findSessionByDate(campaignId, dateStr) {
