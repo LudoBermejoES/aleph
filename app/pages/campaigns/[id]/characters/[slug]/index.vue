@@ -15,8 +15,8 @@
         <span class="text-foreground">{{ character.name }}</span>
       </div>
 
+      <!-- Header (always visible, outside tabs) -->
       <div class="flex gap-6 mb-6">
-        <!-- Portrait -->
         <CharacterPortrait
           :portrait-url="character.portraitUrl ?? null"
           :name="character.name"
@@ -58,7 +58,6 @@
               >
                 📍 {{ character.locationName }}
               </NuxtLink>
-              <!-- Mount/Companion indicator (7.8) -->
               <span
                 v-if="calculatedAge !== null"
                 class="text-xs text-muted-foreground ml-2"
@@ -87,184 +86,8 @@
             </div>
           </div>
         </div>
-        <!-- end flex-1 -->
       </div>
-      <!-- end portrait+header flex -->
-
-      <!-- Stats -->
-      <div v-if="character.stats?.length" class="mb-6" data-testid="character-stats">
-        <h2 class="text-lg font-semibold mb-3">{{ $t('characters.stats') }}</h2>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
-          <div
-            v-for="stat in character.stats"
-            :key="stat.id"
-            class="p-2 rounded border border-border text-center"
-          >
-            <div class="text-xs text-muted-foreground">{{ stat.defName }}</div>
-            <div class="text-lg font-bold">
-              {{ stat.value ?? (stat.defValueType === 'boolean' ? '—' : '0') }}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Template Fields -->
-      <TemplateFieldsDisplay
-        :campaign-id="campaignId"
-        :template-id="character.templateId"
-        :field-values="character.fields || {}"
-      />
-
-      <!-- Abilities -->
-      <div v-if="character.abilities?.length" class="mb-6" data-testid="character-abilities">
-        <h2 class="text-lg font-semibold mb-3">{{ $t('characters.abilities') }}</h2>
-        <div class="space-y-2">
-          <div
-            v-for="ab in character.abilities"
-            :key="ab.id"
-            class="p-3 rounded border border-border"
-          >
-            <div class="flex items-center gap-2">
-              <span class="font-medium">{{ ab.name }}</span>
-              <span class="text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground">{{
-                ab.type
-              }}</span>
-            </div>
-            <p v-if="ab.description" class="text-sm text-muted-foreground mt-1">
-              {{ ab.description }}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Connections (7.5) -->
-      <div v-if="connections.length" class="mb-6" data-testid="character-connections">
-        <h2 class="text-lg font-semibold mb-3">{{ $t('characters.connections') }}</h2>
-        <div class="space-y-2">
-          <div
-            v-for="conn in connections"
-            :key="conn.id"
-            class="flex items-center gap-2 p-2 rounded border border-border"
-          >
-            <NuxtLink
-              v-if="conn.targetEntitySlug"
-              :to="
-                conn.targetEntityType === 'character'
-                  ? `/campaigns/${campaignId}/characters/${conn.targetEntitySlug}`
-                  : `/campaigns/${campaignId}/entities/${conn.targetEntitySlug}`
-              "
-              class="font-medium hover:underline"
-              >{{ conn.targetEntityName || conn.targetEntitySlug }}</NuxtLink
-            >
-            <span v-else class="font-medium">{{
-              conn.targetEntityName || conn.targetEntityId
-            }}</span>
-            <span
-              v-if="conn.label"
-              class="text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground"
-              >{{ conn.label }}</span
-            >
-            <span v-if="conn.description" class="text-sm text-muted-foreground">{{
-              conn.description
-            }}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Entity Relations -->
-      <div v-if="relations.length" class="mb-6" data-testid="character-relations">
-        <h2 class="text-lg font-semibold mb-3">{{ $t('characters.relations') }}</h2>
-        <div class="space-y-2">
-          <div
-            v-for="rel in relations"
-            :key="rel.id"
-            class="flex items-center gap-2 p-2 rounded border border-border"
-          >
-            <span class="text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground">{{
-              rel.label
-            }}</span>
-            <NuxtLink
-              v-if="rel.relatedEntitySlug"
-              :to="`/campaigns/${campaignId}/characters/${rel.relatedEntitySlug}`"
-              class="font-medium hover:underline"
-              >{{ rel.relatedEntityName || rel.relatedEntitySlug }}</NuxtLink
-            >
-            <span v-else class="font-medium">{{
-              rel.relatedEntityName || rel.relatedEntityId
-            }}</span>
-            <span
-              v-if="rel.attitude !== null && rel.attitude !== undefined && rel.attitude !== 0"
-              :class="[
-                'text-xs',
-                rel.attitude > 0
-                  ? 'text-green-600 dark:text-green-400'
-                  : 'text-red-600 dark:text-red-400',
-              ]"
-              >{{ rel.attitude > 0 ? '+' : '' }}{{ rel.attitude }}</span
-            >
-            <span v-if="rel.description" class="text-sm text-muted-foreground">{{
-              rel.description
-            }}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Relationship Graph -->
-      <div v-if="graphData" class="mb-6" data-testid="character-graph">
-        <h2 class="text-lg font-semibold mb-3">{{ $t('characters.graph') }}</h2>
-        <EntityGraphView
-          :nodes="graphData.nodes"
-          :edges="graphData.edges"
-          :height="350"
-          :campaign-id="campaignId"
-          :center-node-id="character?.entityId"
-          @node-click="onGraphNodeClick"
-        />
-      </div>
-
-      <!-- Companions/Mounts (7.8) -->
-      <div v-if="companions.length" class="mb-6" data-testid="character-companions">
-        <h2 class="text-lg font-semibold mb-3">{{ $t('characters.companions') }}</h2>
-        <div class="space-y-2">
-          <NuxtLink
-            v-for="comp in companions"
-            :key="comp.id"
-            :to="`/campaigns/${campaignId}/characters/${comp.slug}`"
-            class="block p-3 rounded border border-border hover:border-primary/50 transition-colors"
-          >
-            <span class="font-medium">{{ comp.name }}</span>
-          </NuxtLink>
-        </div>
-      </div>
-
-      <!-- Wealth (inventory-economy) -->
-      <div v-if="character.id" class="mb-6" data-testid="character-wealth">
-        <h2 class="text-lg font-semibold mb-3">{{ $t('characters.wealth') }}</h2>
-        <WealthDisplay :campaign-id="campaignId" :owner-id="character.id" owner-type="character" />
-      </div>
-
-      <!-- Inventory (inventory-economy) -->
-      <div v-if="character.id" class="mb-6" data-testid="character-inventory">
-        <h2 class="text-lg font-semibold mb-3">{{ $t('characters.inventory') }}</h2>
-        <InventoryPanel :campaign-id="campaignId" :owner-id="character.id" owner-type="character" />
-      </div>
-
-      <!-- Organizations (organizations change) -->
-      <div class="mb-6" data-testid="character-organizations">
-        <h2 class="text-lg font-semibold mb-3">{{ $t('organizations.title') }}</h2>
-        <div v-if="characterOrgs.length" class="space-y-2">
-          <NuxtLink
-            v-for="mem in characterOrgs"
-            :key="mem.organizationId"
-            :to="`/campaigns/${campaignId}/organizations/${mem.organizationSlug}`"
-            class="block p-3 rounded border border-border hover:border-primary/50 transition-colors"
-          >
-            <span class="font-medium">{{ mem.organizationName }}</span>
-            <span v-if="mem.role" class="text-sm text-muted-foreground ml-2">— {{ mem.role }}</span>
-          </NuxtLink>
-        </div>
-        <p v-else class="text-sm text-muted-foreground">{{ $t('organizations.noMembers') }}</p>
-      </div>
+      <!-- end header -->
 
       <!-- Preview Role Switcher (DM only) -->
       <PreviewRoleSwitcher
@@ -275,51 +98,265 @@
         class="mb-4"
       />
 
-      <!-- Description (physical) -->
-      <div v-if="character.description || character.content" ref="contentRef" class="mb-6">
-        <h2 class="text-lg font-semibold mb-2">{{ $t('character.description') }}</h2>
-        <div class="prose dark:prose-invert max-w-none text-foreground">
-          <MDC :value="character.description ?? character.content ?? ''" />
-        </div>
-      </div>
+      <!-- Tabbed content -->
+      <Tabs :model-value="activeTab" @update:model-value="setTab">
+        <TabsList class="mb-4">
+          <TabsTrigger value="main">{{ $t('character.tabs.main') }}</TabsTrigger>
+          <TabsTrigger value="story">{{ $t('character.tabs.story') }}</TabsTrigger>
+          <TabsTrigger value="relations">{{ $t('character.tabs.relations') }}</TabsTrigger>
+          <TabsTrigger value="play">{{ $t('character.tabs.play') }}</TabsTrigger>
+        </TabsList>
 
-      <!-- Backstory -->
-      <div v-if="character.backstory" class="mb-6" data-testid="character-backstory">
-        <h2 class="text-lg font-semibold mb-2">{{ $t('character.backstory') }}</h2>
-        <div class="prose dark:prose-invert max-w-none text-foreground">
-          <MDC :value="character.backstory" />
-        </div>
-      </div>
+        <!-- Main Info tab -->
+        <TabsContent value="main">
+          <!-- Description (physical) -->
+          <div
+            v-if="character.description || character.content"
+            ref="contentRef"
+            class="mb-6"
+            data-testid="character-description"
+          >
+            <h2 class="text-lg font-semibold mb-2">{{ $t('character.description') }}</h2>
+            <div class="prose dark:prose-invert max-w-none text-foreground">
+              <MDC :value="character.description ?? character.content ?? ''" />
+            </div>
+          </div>
 
-      <!-- History -->
-      <div v-if="character.history" class="mb-6" data-testid="character-history">
-        <h2 class="text-lg font-semibold mb-2">{{ $t('character.history') }}</h2>
-        <div class="prose dark:prose-invert max-w-none text-foreground">
-          <MDC :value="character.history" />
-        </div>
-      </div>
+          <!-- Current Status -->
+          <div v-if="character.currentStatus" class="mb-6" data-testid="character-current-status">
+            <h2 class="text-lg font-semibold mb-2">{{ $t('character.currentStatus') }}</h2>
+            <div class="prose dark:prose-invert max-w-none text-foreground">
+              <MDC :value="character.currentStatus" />
+            </div>
+          </div>
 
-      <!-- Current Status -->
-      <div v-if="character.currentStatus" class="mb-6" data-testid="character-current-status">
-        <h2 class="text-lg font-semibold mb-2">{{ $t('character.currentStatus') }}</h2>
-        <div class="prose dark:prose-invert max-w-none text-foreground">
-          <MDC :value="character.currentStatus" />
-        </div>
-      </div>
+          <!-- Secret Notes (DM only) -->
+          <SecretNotes
+            v-if="isDm"
+            :campaign-id="campaignId"
+            :entity-slug="slug"
+            :campaign-role="campaignRole"
+            class="mt-6"
+          />
+        </TabsContent>
 
-      <!-- Secret Notes (DM only) -->
-      <SecretNotes
-        v-if="isDm"
-        :campaign-id="campaignId"
-        :entity-slug="slug"
-        :campaign-role="campaignRole"
-        class="mt-6"
-      />
+        <!-- Story tab -->
+        <TabsContent value="story">
+          <!-- Backstory -->
+          <div v-if="character.backstory" class="mb-6" data-testid="character-backstory">
+            <h2 class="text-lg font-semibold mb-2">{{ $t('character.backstory') }}</h2>
+            <div class="prose dark:prose-invert max-w-none text-foreground">
+              <MDC :value="character.backstory" />
+            </div>
+          </div>
+
+          <!-- History -->
+          <div v-if="character.history" class="mb-6" data-testid="character-history">
+            <h2 class="text-lg font-semibold mb-2">{{ $t('character.history') }}</h2>
+            <div class="prose dark:prose-invert max-w-none text-foreground">
+              <MDC :value="character.history" />
+            </div>
+          </div>
+        </TabsContent>
+
+        <!-- Relations tab -->
+        <TabsContent value="relations">
+          <!-- Connections -->
+          <div v-if="connections.length" class="mb-6" data-testid="character-connections">
+            <h2 class="text-lg font-semibold mb-3">{{ $t('characters.connections') }}</h2>
+            <div class="space-y-2">
+              <div
+                v-for="conn in connections"
+                :key="conn.id"
+                class="flex items-center gap-2 p-2 rounded border border-border"
+              >
+                <NuxtLink
+                  v-if="conn.targetEntitySlug"
+                  :to="
+                    conn.targetEntityType === 'character'
+                      ? `/campaigns/${campaignId}/characters/${conn.targetEntitySlug}`
+                      : `/campaigns/${campaignId}/entities/${conn.targetEntitySlug}`
+                  "
+                  class="font-medium hover:underline"
+                  >{{ conn.targetEntityName || conn.targetEntitySlug }}</NuxtLink
+                >
+                <span v-else class="font-medium">{{
+                  conn.targetEntityName || conn.targetEntityId
+                }}</span>
+                <span
+                  v-if="conn.label"
+                  class="text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground"
+                  >{{ conn.label }}</span
+                >
+                <span v-if="conn.description" class="text-sm text-muted-foreground">{{
+                  conn.description
+                }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Entity Relations -->
+          <div v-if="relations.length" class="mb-6" data-testid="character-relations">
+            <h2 class="text-lg font-semibold mb-3">{{ $t('characters.relations') }}</h2>
+            <div class="space-y-2">
+              <div
+                v-for="rel in relations"
+                :key="rel.id"
+                class="flex items-center gap-2 p-2 rounded border border-border"
+              >
+                <span class="text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground">{{
+                  rel.label
+                }}</span>
+                <NuxtLink
+                  v-if="rel.relatedEntitySlug"
+                  :to="`/campaigns/${campaignId}/characters/${rel.relatedEntitySlug}`"
+                  class="font-medium hover:underline"
+                  >{{ rel.relatedEntityName || rel.relatedEntitySlug }}</NuxtLink
+                >
+                <span v-else class="font-medium">{{
+                  rel.relatedEntityName || rel.relatedEntityId
+                }}</span>
+                <span
+                  v-if="rel.attitude !== null && rel.attitude !== undefined && rel.attitude !== 0"
+                  :class="[
+                    'text-xs',
+                    rel.attitude > 0
+                      ? 'text-green-600 dark:text-green-400'
+                      : 'text-red-600 dark:text-red-400',
+                  ]"
+                  >{{ rel.attitude > 0 ? '+' : '' }}{{ rel.attitude }}</span
+                >
+                <span v-if="rel.description" class="text-sm text-muted-foreground">{{
+                  rel.description
+                }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Organizations -->
+          <div class="mb-6" data-testid="character-organizations">
+            <h2 class="text-lg font-semibold mb-3">{{ $t('organizations.title') }}</h2>
+            <div v-if="characterOrgs.length" class="space-y-2">
+              <NuxtLink
+                v-for="mem in characterOrgs"
+                :key="mem.organizationId"
+                :to="`/campaigns/${campaignId}/organizations/${mem.organizationSlug}`"
+                class="block p-3 rounded border border-border hover:border-primary/50 transition-colors"
+              >
+                <span class="font-medium">{{ mem.organizationName }}</span>
+                <span v-if="mem.role" class="text-sm text-muted-foreground ml-2"
+                  >— {{ mem.role }}</span
+                >
+              </NuxtLink>
+            </div>
+            <p v-else class="text-sm text-muted-foreground">{{ $t('organizations.noMembers') }}</p>
+          </div>
+
+          <!-- Companions/Mounts -->
+          <div v-if="companions.length" class="mb-6" data-testid="character-companions">
+            <h2 class="text-lg font-semibold mb-3">{{ $t('characters.companions') }}</h2>
+            <div class="space-y-2">
+              <NuxtLink
+                v-for="comp in companions"
+                :key="comp.id"
+                :to="`/campaigns/${campaignId}/characters/${comp.slug}`"
+                class="block p-3 rounded border border-border hover:border-primary/50 transition-colors"
+              >
+                <span class="font-medium">{{ comp.name }}</span>
+              </NuxtLink>
+            </div>
+          </div>
+
+          <!-- Relationship Graph -->
+          <div v-if="graphData" class="mb-6" data-testid="character-graph">
+            <h2 class="text-lg font-semibold mb-3">{{ $t('characters.graph') }}</h2>
+            <EntityGraphView
+              :nodes="graphData.nodes"
+              :edges="graphData.edges"
+              :height="350"
+              :campaign-id="campaignId"
+              :center-node-id="character?.entityId"
+              @node-click="onGraphNodeClick"
+            />
+          </div>
+        </TabsContent>
+
+        <!-- Play Info tab -->
+        <TabsContent value="play">
+          <!-- Stats -->
+          <div v-if="character.stats?.length" class="mb-6" data-testid="character-stats">
+            <h2 class="text-lg font-semibold mb-3">{{ $t('characters.stats') }}</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+              <div
+                v-for="stat in character.stats"
+                :key="stat.id"
+                class="p-2 rounded border border-border text-center"
+              >
+                <div class="text-xs text-muted-foreground">{{ stat.defName }}</div>
+                <div class="text-lg font-bold">
+                  {{ stat.value ?? (stat.defValueType === 'boolean' ? '—' : '0') }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Abilities -->
+          <div v-if="character.abilities?.length" class="mb-6" data-testid="character-abilities">
+            <h2 class="text-lg font-semibold mb-3">{{ $t('characters.abilities') }}</h2>
+            <div class="space-y-2">
+              <div
+                v-for="ab in character.abilities"
+                :key="ab.id"
+                class="p-3 rounded border border-border"
+              >
+                <div class="flex items-center gap-2">
+                  <span class="font-medium">{{ ab.name }}</span>
+                  <span
+                    class="text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground"
+                    >{{ ab.type }}</span
+                  >
+                </div>
+                <p v-if="ab.description" class="text-sm text-muted-foreground mt-1">
+                  {{ ab.description }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Wealth -->
+          <div v-if="character.id" class="mb-6" data-testid="character-wealth">
+            <h2 class="text-lg font-semibold mb-3">{{ $t('characters.wealth') }}</h2>
+            <WealthDisplay
+              :campaign-id="campaignId"
+              :owner-id="character.id"
+              owner-type="character"
+            />
+          </div>
+
+          <!-- Inventory -->
+          <div v-if="character.id" class="mb-6" data-testid="character-inventory">
+            <h2 class="text-lg font-semibold mb-3">{{ $t('characters.inventory') }}</h2>
+            <InventoryPanel
+              :campaign-id="campaignId"
+              :owner-id="character.id"
+              owner-type="character"
+            />
+          </div>
+
+          <!-- Template Fields -->
+          <TemplateFieldsDisplay
+            :campaign-id="campaignId"
+            :template-id="character.templateId"
+            :field-values="character.fields || {}"
+          />
+        </TabsContent>
+      </Tabs>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '~/components/ui/tabs'
 import type { Character, CharacterConnection, EntityRelation } from '~/types/api'
 
 interface OrgMembership {
@@ -333,6 +370,18 @@ const route = useRoute()
 const router = useRouter()
 const campaignId = route.params.id as string
 const slug = route.params.slug as string
+
+const VALID_TABS = ['main', 'story', 'relations', 'play'] as const
+type TabValue = (typeof VALID_TABS)[number]
+
+const activeTab = computed<TabValue>(() => {
+  const t = route.query.tab as string
+  return (VALID_TABS as readonly string[]).includes(t) ? (t as TabValue) : 'main'
+})
+
+function setTab(tab: string | number) {
+  router.replace({ query: { ...route.query, tab: String(tab) } })
+}
 
 const character = ref<Character | null>(null)
 const connections = ref<
@@ -353,7 +402,6 @@ const companions = ref<Character[]>([])
 const characterOrgs = ref<OrgMembership[]>([])
 const allChars = ref<Character[]>([])
 
-// Age calculation (7.1, 7.2)
 const calculatedAge = computed(() => {
   if (!character.value?.frontmatter?.fields?.birthYear) return null
   const birth = {
@@ -408,14 +456,12 @@ const graphData = computed(() => {
   const nodes: Record<string, { name: string; type: string; image?: string | null }> = {}
   const edges: Record<string, { source: string; target: string; label: string; color: string }> = {}
 
-  // Center node
   nodes[entityId] = {
     name: character.value.name,
     type: 'character',
     image: character.value.portraitUrl ?? null,
   }
 
-  // Relation edges
   for (const rel of relations.value) {
     if (!rel.relatedEntityId) continue
     nodes[rel.relatedEntityId] = {
@@ -431,7 +477,6 @@ const graphData = computed(() => {
     }
   }
 
-  // Connection edges (directional, no attitude)
   for (const conn of connections.value) {
     if (!conn.targetEntityId) continue
     if (!nodes[conn.targetEntityId]) {
@@ -510,18 +555,15 @@ async function load() {
     campaignRole.value = campaign?.role ?? ''
     canEdit.value = ['dm', 'co_dm', 'editor'].includes(campaignRole.value)
 
-    // Load connections
     connections.value = await api
       .getCharacterConnections(character.value?.slug ?? slug)
       .catch(() => [])
 
-    // Load all characters once — used for relations name resolution, graph portraits, and companions
     allChars.value = await api.getCharacters().catch(() => [])
     const charMap: Record<string, Character> = Object.fromEntries(
       allChars.value.map((c: Character) => [c.entityId ?? c.id, c]),
     )
 
-    // Load entity relations (bidirectional)
     if (character.value?.entityId || character.value?.id) {
       const entityId = character.value.entityId ?? character.value.id
       const rawRelations = await api.getRelations({ entity_id: entityId }).catch(() => [])
@@ -536,12 +578,10 @@ async function load() {
       })
     }
 
-    // Load companions (characters where isCompanionOf = this character's id)
     companions.value = allChars.value.filter(
       (c: Character) => c.isCompanionOf === character.value?.id,
     )
 
-    // Load organization memberships
     characterOrgs.value = await api.getCharacterOrganizations(slug).catch(() => [])
   })
 }
