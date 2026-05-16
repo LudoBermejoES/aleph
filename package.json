@@ -127,7 +127,7 @@
     "vitest": "^4.1.1"
   },
   "lint-staged": {
-    "*.{js,ts,vue,json,css,md}": "prettier --write",
-    "*.{js,ts,vue}": "eslint --fix"
+    "*.{js,ts,vue,json,css,md}": "npx prettier --write",
+    "*.{js,ts,vue}": "npx eslint --fix"
   }
 }

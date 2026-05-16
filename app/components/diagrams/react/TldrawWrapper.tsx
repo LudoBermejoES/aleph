@@ -145,8 +145,13 @@ export function TldrawWrapper({
   const allBindingUtils = useMemo(() => [...defaultBindingUtils], [])
 
   // Multiplayer sync store (always called for hook rules; result only used when syncUri is set)
+  // Use wss:// placeholder on HTTPS pages to avoid Mixed Content browser errors
+  const unusedUri =
+    typeof window !== 'undefined' && window.location.protocol === 'https:'
+      ? 'wss://unused'
+      : 'ws://unused'
   const syncStore = useSync({
-    uri: syncUri || 'ws://unused',
+    uri: syncUri || unusedUri,
     assets: assetStore,
     userInfo: syncUri && userInfo ? userInfo : undefined,
     shapeUtils: allShapeUtils,
