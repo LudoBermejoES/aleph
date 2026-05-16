@@ -116,7 +116,7 @@ export default defineEventHandler(async (event) => {
     locationSlug = locationEntity?.slug ?? null
   }
 
-  const description = stripSecretBlocks(file.content, role)
+  const description = stripSecretBlocks(file.content, role).trim()
   return {
     ...entity,
     ...character,

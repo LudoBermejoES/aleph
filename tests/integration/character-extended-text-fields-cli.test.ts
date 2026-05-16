@@ -76,7 +76,7 @@ describe('character update CLI — extended text fields (integration)', () => {
 
   function cli(args: string) {
     return execSync(`${CLI} ${args}`, {
-      env: { ...process.env, ALEPH_URL: BASE_URL, ALEPH_API_KEY: apiKey },
+      env: { ...process.env, ALEPH_URL: BASE_URL, ALEPH_TOKEN: apiKey },
     }).toString()
   }
 
