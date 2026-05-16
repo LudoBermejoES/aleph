@@ -82,7 +82,7 @@ Use `--stdin` on `entity edit` to pipe Markdown content from a file: `cat notes.
 node /Users/ludo/code/aleph/cli/bin/aleph.js character list --campaign <id> [--status <alive|dead|missing|unknown>] [--sort <name|updatedAt|status>] [--sort-dir <asc|desc>] [--page <n>] [--limit <n>] [--json]
 node /Users/ludo/code/aleph/cli/bin/aleph.js character create --campaign <id> --name <name> [--type <pc|npc>] [--status <alive|dead|missing|unknown>] [--gender <text>] [--json]
 node /Users/ludo/code/aleph/cli/bin/aleph.js character show --campaign <id> <slug> [--json]
-node /Users/ludo/code/aleph/cli/bin/aleph.js character update --campaign <id> <slug> [--name <n>] [--type <pc|npc>] [--template-id <id>] [--fields <json>] [--status <s>] [--content <md>] [--stdin] [--backstory <md>] [--backstory-stdin] [--history <md>] [--history-stdin] [--current-status <md>] [--current-status-stdin] [--birth-year <year>] [--death-year <year|"">] [--gender <text|"">]
+node /Users/ludo/code/aleph/cli/bin/aleph.js character update --campaign <id> <slug> [--name <n>] [--type <pc|npc>] [--template-id <id>] [--fields <json>] [--status <s>] [--content <md>] [--stdin] [--backstory <md>] [--backstory-stdin] [--history <md>] [--history-stdin] [--current-status <md>] [--current-status-stdin] [--birth-year <year>] [--death-year <year|"">] [--gender <text|"">] [--owner <userId|"">]
 node /Users/ludo/code/aleph/cli/bin/aleph.js character upload-portrait --campaign <id> --slug <slug> --file <path>
 node /Users/ludo/code/aleph/cli/bin/aleph.js character connect <slug> --campaign <id> --target <entity-slug> [--label <text>] [--description <text>] [--json]
 node /Users/ludo/code/aleph/cli/bin/aleph.js character connections <slug> --campaign <id> [--json]

@@ -160,6 +160,7 @@ export function makeCharacterCommand() {
     .option('--birth-year <year>', 'Birth year (integer)')
     .option('--death-year <year>', 'Death year (integer, "" to clear)')
     .option('--gender <gender>', 'Gender (free text, "" to clear)')
+    .option('--owner <userId>', 'Owner user ID ("" to clear)')
     .option('--json', 'Output as JSON')
     .action(async (slug, opts) => {
       if (opts.content && opts.stdin) {
@@ -202,6 +203,9 @@ export function makeCharacterCommand() {
       if (opts.gender !== undefined) {
         body.gender = opts.gender === '' ? null : opts.gender
       }
+      if (opts.owner !== undefined) {
+        body.ownerUserId = opts.owner === '' ? null : opts.owner
+      }
       async function readStdin() {
         return new Promise((resolve) => {
           let data = ''
@@ -234,7 +238,7 @@ export function makeCharacterCommand() {
       }
       if (Object.keys(body).length === 0) {
         process.stderr.write(
-          'Error: provide at least one field to update (--name, --status, --type, --template-id, --fields, --backstory, --history, --current-status, --birth-year, --death-year, --gender, --content, --stdin)\n',
+          'Error: provide at least one field to update (--name, --status, --type, --template-id, --fields, --backstory, --history, --current-status, --birth-year, --death-year, --gender, --owner, --content, --stdin)\n',
         )
         process.exit(1)
       }

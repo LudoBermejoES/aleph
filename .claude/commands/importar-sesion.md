@@ -96,6 +96,19 @@ Reglas de mapeo:
 - Si la lista de asistentes no aparece en las notas o es ambigua, pregunta al usuario antes de proceder.
 - Los slugs que no se puedan resolver aparecerán en el campo `unresolved` de la respuesta — informa al usuario.
 
+### Kingmaker — tabla de jugadores
+
+| Jugador (alias)              | Email en Aleph              | Personaje                  | Slug                       |
+| ---------------------------- | --------------------------- | -------------------------- | -------------------------- |
+| Eduardo Vaquerizo / Edu      | eduvaq@gmail.com            | Sim Sim                    | `sim-sim`                  |
+| Alejandro Salamanca / Jandro | gwyran@gmail.com            | Durgan "Mediabarba" Garess | `durgan-mediabarba-garess` |
+| Kauneda Arashi / Conchi      | kauneda@fihoca.com          | Tark 'Krap'                | `tark-krap`                |
+| Pau Aragones Illanas / Pau   | aragonesillanas@hotmail.com | Laughlin Lodovka           | `laughlin-lodovka`         |
+| Xavi Gracia / Xavi           | fiber.cat@gmail.com         | Dain Golka                 | `dain-golka`               |
+| Luzbel / Carlos              | mirage1cs@gmail.com         | Gael Mouro                 | `gael-mouro`               |
+| Ernesto / Eslizo             | — (sin cuenta)              | Nali de la Hierbarroja     | `nali-de-la-hierbarroja`   |
+| Ludo Bermejo                 | ludobermejo@gmail.com       | DM (narrador)              | — omitir —                 |
+
 Ejemplo para Kingmaker donde asisten los jugadores de Sim Sim, Laughlin y Durgan:
 
 ```bash
@@ -233,6 +246,28 @@ node C:/code/aleph/cli/bin/aleph.js quest create \
   --campaign <id> --name "<nombre>" --status active \
   --description "<descripción>"
 ```
+
+## Paso 4b — Relaciones entre personajes
+
+Tras crear/actualizar las entidades, revisa las notas buscando vínculos nuevos o confirmados entre personajes: amistades, alianzas, familia, rivalidades, mentores, etc.
+
+Por cada relación relevante:
+
+- ¿Ya existe? (difícil de saber sin consultarla directamente — usa el criterio narrativo)
+- ¿Es nueva o se ha reforzado en esta sesión? → créala o actualízala
+
+```bash
+node C:/code/aleph/cli/bin/aleph.js relation create \
+  --campaign <id> \
+  --source <slug-A> \
+  --target <slug-B> \
+  --forward "<etiqueta de A hacia B>" \
+  --reverse "<etiqueta de B hacia A>"
+```
+
+Ejemplos de etiquetas útiles: `"amigo de"`, `"aliado de"`, `"primo de"`, `"rival de"`, `"mentor de"`, `"protege a"`, `"desconfía de"`, `"miembro del clan"`.
+
+> **Importante**: las relaciones son bidireccionales. `--forward` es cómo A describe a B; `--reverse` es cómo B describe a A.
 
 ## Paso 5 — Confirmar antes de actuar
 

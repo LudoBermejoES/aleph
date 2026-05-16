@@ -34,6 +34,7 @@ export default defineEventHandler(async (event) => {
     birthYear: z.number().int().nullable().optional(),
     deathYear: z.number().int().nullable().optional(),
     gender: z.string().max(100).nullable().optional(),
+    ownerUserId: z.string().nullable().optional(),
   })
   const body = await validateBody(event, characterPutSchema)
   const db = useDb()
@@ -78,6 +79,7 @@ export default defineEventHandler(async (event) => {
   if (body.backstory !== undefined) charUpdates.backstory = body.backstory
   if (body.history !== undefined) charUpdates.history = body.history
   if (body.currentStatus !== undefined) charUpdates.currentStatus = body.currentStatus
+  if (body.ownerUserId !== undefined) charUpdates.ownerUserId = body.ownerUserId
 
   if (Object.keys(charUpdates).length > 0) {
     db.update(characters).set(charUpdates).where(eq(characters.id, character.id)).run()
