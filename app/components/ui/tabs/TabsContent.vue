@@ -20,6 +20,6 @@ const delegatedProps = reactiveOmit(props, 'class')
     "
     v-bind="delegatedProps"
   >
-    <slot ></slot>
+    <slot></slot>
   </TabsContent>
 </template>
