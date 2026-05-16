@@ -32,7 +32,13 @@ function loadSnapshotFromDb(diagramId: string): TLStoreSnapshot | null {
     .limit(1)
     .get()
   if (!row) return null
-  return JSON.parse(row.snapshot) as TLStoreSnapshot
+  const parsed = JSON.parse(row.snapshot) as Record<string, unknown>
+  // REST mode saved TLEditorSnapshot ({ document: { store, schema }, session })
+  // Sync mode saves TLStoreSnapshot ({ store, schema }) — extract .document if needed
+  if (parsed?.document && typeof parsed.document === 'object') {
+    return parsed.document as TLStoreSnapshot
+  }
+  return parsed as TLStoreSnapshot
 }
 
 function getCampaignIdForDiagram(diagramId: string): string | null {
