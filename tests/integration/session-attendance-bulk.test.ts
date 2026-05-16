@@ -66,6 +66,11 @@ describe('Session Attendance Bulk (integration)', () => {
     const playerKeyData = await createApiKey(playerCookie, 'att-player-key')
     playerApiKey = playerKeyData.key
 
+    // Get player userId to assign as character owner
+    const sessionRes = await apiRaw('/api/auth/get-session', { headers: { Cookie: playerCookie } })
+    const sessionData = await sessionRes.json()
+    const playerUserId = sessionData.user.id
+
     // Create campaign as DM
     const camp = await api('/api/campaigns', {
       method: 'POST',
@@ -88,11 +93,11 @@ describe('Session Attendance Bulk (integration)', () => {
       body: { token: inviteRes.token },
     })
 
-    // Create a character owned by the player
+    // DM creates character owned by the player
     const char = await api(`/api/campaigns/${campaignId}/characters`, {
       method: 'POST',
-      headers: { 'X-API-Key': playerApiKey },
-      body: { name: 'AttHero', characterType: 'pc' },
+      headers: { 'X-API-Key': dmApiKey },
+      body: { name: 'AttHero', characterType: 'pc', ownerUserId: playerUserId },
     })
     characterSlug = char.slug
 
