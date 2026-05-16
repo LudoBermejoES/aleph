@@ -102,6 +102,8 @@ describe('Session render endpoint (integration)', () => {
     expect(typeof data.content).toBe('string')
     expect(data.content).toContain(':entity-link{')
     expect(data.content).toContain(`slug="${entitySlug}"`)
+    expect(data.content).toContain('name="')
+    expect(data.content).not.toContain('label="')
   })
 
   it('GET /render?type=manual_notes returns auto-linked content', async () => {

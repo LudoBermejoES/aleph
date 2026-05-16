@@ -66,7 +66,8 @@ export function autoLinkContent(
     if (!slug) continue
     const before = result.substring(0, match.start)
     const after = result.substring(match.end)
-    result = `${before}:entity-link{slug="${slug}" label="${match.matchedText}"}${after}`
+    const escapedName = match.matchedText.replace(/"/g, '&quot;')
+    result = `${before}:entity-link{slug="${slug}" name="${escapedName}"}${after}`
   }
 
   return result
