@@ -80,19 +80,43 @@ The `characters` table SHALL have three new nullable text columns: `backstory`, 
 
 ---
 
-### Requirement: Character detail UI displays and edits all four narrative sections
+### Requirement: Character detail UI displays all four narrative sections in tabs
 
-The character detail page SHALL display `description`, `backstory`, `history`, and `current_status` as separate labelled sections, each with a dedicated MarkdownEditor. Sections with null content SHALL show an empty editor (not hidden). Labels SHALL use i18n keys.
+The character detail page SHALL display `description`, `backstory`, `history`, and `current_status` in their designated tabs of the tabbed layout introduced by the `character-page-tabs` capability:
 
-#### Scenario: DM sees four distinct edit sections on character page
+- `description` and `currentStatus` are shown in the **Main info** tab.
+- `backstory` and `history` are shown in the **Story** tab.
 
-- **GIVEN** a character with all four fields populated
-- **WHEN** a DM navigates to the character detail page
-- **THEN** four separate labelled sections are visible: Description, Backstory, History, Current Status
-- **AND** each section shows the field's markdown rendered (view mode) or a MarkdownEditor (edit mode)
+Each section SHALL render the field's markdown using the `MDC` component. Sections whose value is `null` SHALL be hidden (not rendered). Labels SHALL use i18n keys.
 
-#### Scenario: DM saves changes to current_status
+The four-section flat layout (single scrollable column, all sections always visible) is replaced by the tabbed layout. Editing these fields remains on the separate character edit page (`/edit`).
 
-- **WHEN** a DM edits the Current Status section and saves
-- **THEN** a PUT request is sent with only `{ "currentStatus": "<new value>" }`
-- **AND** the page reflects the updated content without a full reload
+#### Scenario: Description is visible in Main info tab
+
+- **GIVEN** a character with a description
+- **WHEN** the user is on the Main info tab
+- **THEN** the description text is visible with its label
+
+#### Scenario: Current status is visible in Main info tab when not null
+
+- **GIVEN** a character with a `currentStatus` value
+- **WHEN** the user is on the Main info tab
+- **THEN** the current status text is visible
+
+#### Scenario: Backstory is visible in Story tab
+
+- **GIVEN** a character with a `backstory` value
+- **WHEN** the user switches to the Story tab
+- **THEN** the backstory text is visible under the Story tab
+
+#### Scenario: History is visible in Story tab
+
+- **GIVEN** a character with a `history` value
+- **WHEN** the user is on the Story tab
+- **THEN** the history text is visible
+
+#### Scenario: Null sections are hidden
+
+- **GIVEN** a character where `backstory`, `history`, and `currentStatus` are all null
+- **WHEN** the user views the Story and Main info tabs
+- **THEN** none of those sections are rendered

@@ -392,3 +392,39 @@ The CLI SHALL provide a command to check server connectivity and health.
 - AND the server is not reachable
 - THEN the CLI prints a connection error to stderr
 - AND exits with a non-zero code
+
+### Requirement: CLI command to mark session attendance
+
+The CLI SHALL provide a `session attendance mark` subcommand that sends a bulk attendance update for a session to the server.
+
+#### Scenario: Mark characters as attended
+
+- **GIVEN** the user is authenticated with a DM or co-DM API key
+- **WHEN** the user runs `aleph session attendance mark --campaign <id> --session <slug> --characters sim-sim,laughlin`
+- **THEN** the CLI sends `PUT /api/campaigns/:id/sessions/:slug/attendance/bulk` with `{ "attendees": ["sim-sim", "laughlin"], "attended": true }`
+- **AND** prints the number of updated records and any unresolved slugs
+
+#### Scenario: Mark characters as absent
+
+- **GIVEN** the user is authenticated with a DM or co-DM API key
+- **WHEN** the user runs `aleph session attendance mark --campaign <id> --session <slug> --characters sim-sim --absent`
+- **THEN** the CLI sends the bulk attendance request with `{ "attendees": ["sim-sim"], "attended": false }`
+- **AND** prints a success message
+
+#### Scenario: Unresolved slugs are reported
+
+- **WHEN** the server returns `{ "updated": 1, "unresolved": ["ghost-slug"] }`
+- **THEN** the CLI prints a warning listing the unresolved slugs
+- **AND** exits with code 0
+
+#### Scenario: Player API key is rejected
+
+- **GIVEN** the user is authenticated with a player API key
+- **WHEN** the command is run
+- **THEN** the CLI prints the 403 error message to stderr
+- **AND** exits with a non-zero code
+
+#### Scenario: --json flag outputs raw response
+
+- **WHEN** the command is run with `--json`
+- **THEN** the CLI outputs the raw JSON response body to stdout
