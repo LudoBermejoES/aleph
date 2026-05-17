@@ -20,7 +20,7 @@
           <th class="pb-2 font-medium">{{ $t('adminUsers.email') }}</th>
           <th class="pb-2 font-medium">{{ $t('adminUsers.role') }}</th>
           <th class="pb-2 font-medium">{{ $t('adminUsers.joinDate') }}</th>
-          <th class="pb-2" ></th>
+          <th class="pb-2"></th>
         </tr>
       </thead>
       <tbody>
