@@ -98,16 +98,16 @@ Reglas de mapeo:
 
 ### Kingmaker — tabla de jugadores
 
-| Jugador (alias)              | Email en Aleph              | Personaje                  | Slug                       |
-| ---------------------------- | --------------------------- | -------------------------- | -------------------------- |
-| Eduardo Vaquerizo / Edu      | eduvaq@gmail.com            | Sim Sim                    | `sim-sim`                  |
-| Alejandro Salamanca / Jandro | gwyran@gmail.com            | Durgan "Mediabarba" Garess | `durgan-mediabarba-garess` |
-| Kauneda Arashi / Conchi      | kauneda@fihoca.com          | Tark 'Krap'                | `tark-krap`                |
-| Pau Aragones Illanas / Pau   | aragonesillanas@hotmail.com | Laughlin Lodovka           | `laughlin-lodovka`         |
-| Xavi Gracia / Xavi           | fiber.cat@gmail.com         | Dain Golka                 | `dain-golka`               |
-| Luzbel / Carlos              | mirage1cs@gmail.com         | Gael Mouro                 | `gael-mouro`               |
-| Ernesto / Eslizo             | — (sin cuenta)              | Nali de la Hierbarroja     | `nali-de-la-hierbarroja`   |
-| Ludo Bermejo                 | ludobermejo@gmail.com       | DM (narrador)              | — omitir —                 |
+| Jugador (alias)              | Email en Aleph              | userId en Aleph                    | Personaje                  | Slug                       |
+| ---------------------------- | --------------------------- | ---------------------------------- | -------------------------- | -------------------------- |
+| Eduardo Vaquerizo / Edu      | eduvaq@gmail.com            | `BJi4QrfMtimn2G2dxZ2HSjWBD8CZ3qq8` | Sim Sim                    | `sim-sim`                  |
+| Alejandro Salamanca / Jandro | gwyran@gmail.com            | `8tF0lAzqjKdwFyor1jrlKBd1uzaPKGtk` | Durgan "Mediabarba" Garess | `durgan-mediabarba-garess` |
+| Kauneda Arashi / Conchi      | kauneda@fihoca.com          | `b11Rr6P2JqE3FZcrb0EO1ISPwvszn45I` | Tark 'Krap'                | `tark-krap`                |
+| Pau Aragones Illanas / Pau   | aragonesillanas@hotmail.com | `3wfRiWzazLLNEwQLal72yXFqx8Z0IVFP` | Laughlin Lodovka           | `laughlin-lodovka`         |
+| Xavi Gracia / Xavi           | fiber.cat@gmail.com         | `YkLuHmRmCBeDBCh1y7DCl24omb9EBzQF` | Dain Golka                 | `dain-golka`               |
+| Luzbel / Carlos              | mirage1cs@gmail.com         | `NdWBPYpxAZkS5uwmFxpKwLk5Kfmr5M4Z` | Gael Mouro                 | `gael-mouro`               |
+| Ernesto / Eslizo             | — (sin cuenta)              | —                                  | Nali de la Hierbarroja     | `nali-de-la-hierbarroja`   |
+| Ludo Bermejo                 | ludobermejo@gmail.com       | `LbonxEfHrHSYKOmS6Mb7kaauceHcvi7q` | DM (narrador)              | — omitir —                 |
 
 Ejemplo para Kingmaker donde asisten los jugadores de Sim Sim, Laughlin y Durgan:
 
