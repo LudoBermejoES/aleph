@@ -34,7 +34,12 @@ export default defineEventHandler(async (event) => {
     }
 
     logger.debug('Auth accepted (API key)', { path, userId: row.user.id })
-    event.context.user = { id: row.user.id, email: row.user.email, name: row.user.name }
+    event.context.user = {
+      id: row.user.id,
+      email: row.user.email,
+      name: row.user.name,
+      role: row.user.role,
+    }
 
     // Update lastUsedAt asynchronously (fire-and-forget)
     setImmediate(() => {
@@ -59,10 +64,18 @@ export default defineEventHandler(async (event) => {
 
   logger.debug('Auth accepted', { path, userId: session.user.id, email: session.user.email })
 
+  const db = useDb()
+  const userRow = db
+    .select({ role: userTable.role })
+    .from(userTable)
+    .where(eq(userTable.id, session.user.id))
+    .get()
+
   event.context.user = {
     id: session.user.id,
     email: session.user.email,
     name: session.user.name,
+    role: userRow?.role ?? 'user',
   }
   event.context.session = session.session
 

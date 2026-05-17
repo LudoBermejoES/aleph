@@ -1067,5 +1067,19 @@
       "connecting": "Conectando...",
       "usersEditing": "{count} editando"
     }
+  },
+  "adminUsers": {
+    "title": "Gestionar usuarios",
+    "sectionTitle": "Administración",
+    "sectionDescription": "Gestiona los usuarios registrados — edita sus datos o elimina cuentas.",
+    "manageLink": "Gestionar usuarios",
+    "editUser": "Editar usuario",
+    "deleteConfirm": "¿Eliminar el usuario \"{name}\"? Esta acción no se puede deshacer.",
+    "name": "Nombre",
+    "email": "Correo electrónico",
+    "role": "Rol",
+    "joinDate": "Alta",
+    "newPassword": "Nueva contraseña",
+    "passwordPlaceholder": "Dejar en blanco para mantener la actual"
   }
 }

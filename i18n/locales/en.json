@@ -1067,5 +1067,19 @@
       "connecting": "Connecting...",
       "usersEditing": "{count} editing"
     }
+  },
+  "adminUsers": {
+    "title": "Manage Users",
+    "sectionTitle": "Administration",
+    "sectionDescription": "Manage registered users — edit their details or remove accounts.",
+    "manageLink": "Manage users",
+    "editUser": "Edit user",
+    "deleteConfirm": "Delete user \"{name}\"? This cannot be undone.",
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "joinDate": "Joined",
+    "newPassword": "New password",
+    "passwordPlaceholder": "Leave blank to keep current password"
   }
 }

@@ -25,6 +25,15 @@ export const auth = betterAuth({
     enabled: true,
     minPasswordLength: 8,
   },
+  user: {
+    additionalFields: {
+      role: {
+        type: 'string' as const,
+        defaultValue: 'user',
+        input: false,
+      },
+    },
+  },
   session: {
     expiresIn: 60 * 60 * 24 * 7, // 7 days
     updateAfter: 60 * 60 * 24, // refresh after 1 day

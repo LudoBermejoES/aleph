@@ -50,3 +50,14 @@ export async function authSignOut() {
 export function useAuthSession() {
   return useCookie('better-auth.session_token')
 }
+
+export function useCurrentUser() {
+  const { data } = useAsyncData('current-user', () =>
+    $fetch<{ id: string; name: string; email: string; role: string } | null>('/api/me').catch(
+      () => null,
+    ),
+  )
+  const user = computed(() => data.value ?? null)
+  const isAdmin = computed(() => user.value?.role === 'admin')
+  return { user, isAdmin }
+}
