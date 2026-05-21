@@ -1,3 +1,4 @@
+import { ref } from 'vue'
 import { ENTITY_SHAPE_TYPES } from '~/utils/diagram-shapes'
 
 export interface EditorForSync {
@@ -36,16 +37,18 @@ export function relationTypeToColor(relationTypeSlug?: string, attitude?: number
 
 /**
  * Composable for syncing campaign relations as tldraw arrows on the canvas.
- * Returns a `syncRelations()` function that fetches the graph and creates arrows.
+ * Returns a `syncRelations()` function and a `syncing` ref for loading state.
  */
 export function useSyncRelations(
   getEditor: () => EditorForSync | null,
   campaignId: string,
   translateLabel: (label: string | undefined | null) => string,
 ) {
-  async function syncRelations() {
+  const syncing = ref(false)
+
+  async function syncRelations(): Promise<number> {
     const ed = getEditor()
-    if (!ed) return
+    if (!ed) return 0
 
     // Collect entityId → shapeId map
     const entityToShape = new Map<string, string>()
@@ -55,14 +58,16 @@ export function useSyncRelations(
         if (!entityToShape.has(eid)) entityToShape.set(eid, shape.id)
       }
     }
-    if (entityToShape.size < 2) return
+    if (entityToShape.size < 2) return 0
 
+    syncing.value = true
     // Fetch graph
     let graphData: { edges: Record<string, GraphEdge> }
     try {
       graphData = await $fetch(`/api/campaigns/${campaignId}/graph`)
     } catch {
-      return
+      syncing.value = false
+      return 0
     }
 
     // Find existing arrow pairs to avoid duplicates
@@ -78,6 +83,7 @@ export function useSyncRelations(
     }
 
     // Create arrows
+    let created = 0
     for (const edge of Object.values(graphData.edges)) {
       const fromShapeId = entityToShape.get(edge.source)
       const toShapeId = entityToShape.get(edge.target)
@@ -126,11 +132,15 @@ export function useSyncRelations(
             isPrecise: false,
           },
         })
+        created++
       } catch (err) {
         console.error('[syncRelations] failed to create arrow:', err)
       }
     }
+
+    syncing.value = false
+    return created
   }
 
-  return { syncRelations }
+  return { syncRelations, syncing }
 }

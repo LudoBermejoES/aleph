@@ -79,10 +79,13 @@
           <Button
             size="sm"
             variant="outline"
+            :disabled="syncingRelations"
             data-testid="sync-relations-btn"
-            @click="syncRelations"
+            @click="handleSyncRelations"
           >
-            {{ $t('diagrams.syncRelations') }}
+            {{
+              syncingRelations ? $t('common.loading') : syncMessage || $t('diagrams.syncRelations')
+            }}
           </Button>
 
           <input
@@ -331,6 +334,8 @@ const selectedEntityId = ref('')
 const selectedEntityType = ref('')
 const selectedEntitySlug = ref('')
 const selectedEntityName = ref('')
+const syncingRelations = ref(false)
+const syncMessage = ref('')
 
 // i18n edge label translator
 function translateEdgeLabel(label: string | undefined | null): string {
@@ -341,7 +346,7 @@ function translateEdgeLabel(label: string | undefined | null): string {
 }
 
 // Composable functions — assigned in onEditorReady
-let syncRelations: () => Promise<void> = async () => {}
+let syncRelations: () => Promise<number> = async () => 0
 let expandRelatedEntities: (entityId: string, entityType: string) => Promise<void> = async () => {}
 
 async function load() {
@@ -430,6 +435,7 @@ function onEditorReady(editor: unknown) {
   const getEd = () => editorInstance as any
   const syncComposable = useSyncRelations(getEd, campaignId, translateEdgeLabel)
   syncRelations = syncComposable.syncRelations
+  watch(syncComposable.syncing, (v) => (syncingRelations.value = v))
 
   const expandComposable = useEntityExpansion(getEd, campaignId, () => syncRelations())
   expandRelatedEntities = expandComposable.expandRelatedEntities
@@ -440,6 +446,13 @@ function onPlacedEntitiesChange(counts: Map<string, number>) {
 }
 
 function onEntityDragStart(_entityData: string) {}
+
+async function handleSyncRelations() {
+  syncMessage.value = ''
+  const count = await syncRelations()
+  syncMessage.value = count > 0 ? `+${count}` : '✓'
+  setTimeout(() => (syncMessage.value = ''), 3000)
+}
 
 function onRelationshipCreated() {
   relationshipDialogOpen.value = false

@@ -125,18 +125,18 @@ export function buildGraphForCampaign(
     }
   }
 
-  // ── 4. Character ID ↔ Entity ID mapping ────────────────────────────────────
-  const charIdRows =
-    entityIdList.length > 0
-      ? db
-          .select({ id: characters.id, entityId: characters.entityId })
-          .from(characters)
-          .where(inArray(characters.entityId, entityIdList))
-          .all()
-      : []
+  // ── 4. All campaign characters (used for membership + location edges) ──────
+  // Fetch ALL characters in the campaign so org-member and char-location edges
+  // are built for every character, not just those already in entity relations.
+  const allCampaignCharRows = db
+    .select({ id: characters.id, entityId: characters.entityId })
+    .from(characters)
+    .innerJoin(entities, eq(characters.entityId, entities.id))
+    .where(eq(entities.campaignId, campaignId))
+    .all()
 
-  const charIdToEntityId = Object.fromEntries(charIdRows.map((c) => [c.id, c.entityId]))
-  const charIds = charIdRows.map((c) => c.id)
+  const charIdToEntityId = Object.fromEntries(allCampaignCharRows.map((c) => [c.id, c.entityId]))
+  const charIds = allCampaignCharRows.map((c) => c.id)
 
   // ── 5. Org membership (batched) ────────────────────────────────────────────
   const orgMemberRows =
@@ -350,6 +350,40 @@ export function buildGraphForCampaign(
           attitude: null,
           relationTypeSlug: 'location',
         }
+      }
+    }
+  }
+
+  // ── 10. Populate missing entity nodes for all edge endpoints ─────────────
+  // Characters involved in membership/location edges may not be in graphNodes
+  // if they have no direct entity relations. Batch-fetch any missing nodes so
+  // consumers like useEntityExpansion can read node metadata.
+  const allEdgeEntityIds = new Set<string>()
+  for (const edge of Object.values(graphEdges)) {
+    allEdgeEntityIds.add(edge.source)
+    allEdgeEntityIds.add(edge.target)
+  }
+  const missingNodeIds = Array.from(allEdgeEntityIds).filter((id) => !graphNodes[id])
+  if (missingNodeIds.length > 0) {
+    const missingRows = db
+      .select({
+        id: entities.id,
+        name: entities.name,
+        type: entities.type,
+        slug: entities.slug,
+        boardSummary: entities.boardSummary,
+      })
+      .from(entities)
+      .where(inArray(entities.id, missingNodeIds))
+      .all()
+    for (const ent of missingRows) {
+      graphNodes[ent.id] = {
+        name: ent.name,
+        type: ent.type,
+        slug: ent.slug,
+        boardSummary: ent.boardSummary ?? null,
+        image: null,
+        organizations: [],
       }
     }
   }
