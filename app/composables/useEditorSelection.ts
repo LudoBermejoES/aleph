@@ -35,9 +35,11 @@ export function useEditorSelection(editor: EditorForSelection) {
           selectedEntityType.value = getEntityTypeFromShape(shape.type)
           selectedEntitySlug.value = (shape.props!.slug as string) ?? ''
           selectedEntityName.value =
-            (shape.props!.characterName as string) ??
-            (shape.props!.locationName as string) ??
-            (shape.props!.factionName as string) ??
+            (shape.props!.characterName as string) ||
+            (shape.props!.locationName as string) ||
+            (shape.props!.factionName as string) ||
+            (shape.props!.questTitle as string) ||
+            (shape.props!.entityName as string) ||
             ''
         } else {
           selectedShapeId.value = ''

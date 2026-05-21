@@ -303,6 +303,8 @@ const popoverEntityId = ref('')
 const popoverSlug = ref('')
 const popoverX = ref(200)
 const popoverY = ref(200)
+let lastPointerX = 200
+let lastPointerY = 200
 
 // Map modal state
 const mapModalOpen = ref(false)
@@ -565,6 +567,11 @@ async function reflowShapes() {
   }
 }
 
+function onDocPointerMove(e: PointerEvent) {
+  lastPointerX = e.clientX
+  lastPointerY = e.clientY
+}
+
 // aleph:entity-preview listener
 function onAlephEntityPreview(e: Event) {
   if (readOnly.value) {
@@ -580,14 +587,12 @@ function onAlephEntityPreview(e: Event) {
     entityId: string
     campaignId: string
     slug: string
-    x: number
-    y: number
   }
   popoverEntityId.value = detail.entityId
   popoverSlug.value = detail.slug
-  // Clamp popover within viewport
-  popoverX.value = Math.min(detail.x, window.innerWidth - 300)
-  popoverY.value = Math.min(detail.y, window.innerHeight - 400)
+  // Position near the double-click point, clamped within viewport
+  popoverX.value = Math.min(lastPointerX + 16, window.innerWidth - 300)
+  popoverY.value = Math.min(lastPointerY + 16, window.innerHeight - 420)
   popoverVisible.value = true
 }
 
@@ -626,6 +631,7 @@ onMounted(() => {
   window.addEventListener('aleph:navigate', onAlephNavigate)
   window.addEventListener('aleph:open-map', onAlephOpenMap)
   document.addEventListener('mousedown', onDocMouseDown, { capture: true })
+  document.addEventListener('pointermove', onDocPointerMove, { passive: true })
 })
 
 onUnmounted(() => {
@@ -633,6 +639,7 @@ onUnmounted(() => {
   window.removeEventListener('aleph:navigate', onAlephNavigate)
   window.removeEventListener('aleph:open-map', onAlephOpenMap)
   document.removeEventListener('mousedown', onDocMouseDown, { capture: true })
+  document.removeEventListener('pointermove', onDocPointerMove)
   if (presenceInterval) {
     clearInterval(presenceInterval)
     presenceInterval = null
