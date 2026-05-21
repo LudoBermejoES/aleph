@@ -2,6 +2,7 @@ import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
 import { organizations } from '../../../../../db/schema'
 import { hasMinRole } from '../../../../../utils/permissions'
+import { deleteOrganizationWithEntity } from '../../../../../services/organizations'
 import type { CampaignRole } from '../../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
@@ -24,7 +25,13 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, message: 'Organization not found' })
   }
 
-  db.delete(organizations).where(eq(organizations.id, org.id)).run()
+  try {
+    deleteOrganizationWithEntity(db, org.id)
+  } catch (err: unknown) {
+    const e = err as { statusCode?: number; message?: string }
+    if (e.statusCode) throw createError({ statusCode: e.statusCode, message: e.message })
+    throw err
+  }
 
   return { success: true }
 })

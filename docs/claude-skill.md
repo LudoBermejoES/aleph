@@ -205,6 +205,12 @@ aleph relation delete <relationId> --campaign <id> [--yes]
 
 Relations are bidirectional links between any two entities with forward/reverse labels and an optional attitude score (-100 = hostile, 0 = neutral, 100 = allied).
 
+Organizations are first-class entities for relation purposes — their slug works as `--source` or `--target` just like characters, locations, and wiki entries. Example:
+
+```bash
+aleph relation create --campaign <id> --source los-senores-del-tigre --target la-pequena-flor --forward "arrasó" --reverse "arrasada por"
+```
+
 ### Maps
 
 ```bash

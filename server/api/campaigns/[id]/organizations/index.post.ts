@@ -1,11 +1,8 @@
 import { z } from 'zod'
-import { randomUUID } from 'crypto'
-import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../utils/db'
 import { validateBody } from '../../../../utils/validate'
-import { organizations } from '../../../../db/schema'
 import { hasMinRole } from '../../../../utils/permissions'
-import { slugify } from '../../../../services/content'
+import { createOrganizationWithEntity } from '../../../../services/organizations'
 import type { CampaignRole } from '../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
@@ -27,39 +24,26 @@ export default defineEventHandler(async (event) => {
 
   const db = useDb()
   const campaignId = getRouterParam(event, 'id')!
-  const now = new Date()
+  const createdBy = event.context.user!.id
 
-  const slug = slugify(name)
-  const existing = db
-    .select({ id: organizations.id })
-    .from(organizations)
-    .where(and(eq(organizations.campaignId, campaignId), eq(organizations.slug, slug)))
-    .get()
-  if (existing) {
-    throw createError({
-      statusCode: 409,
-      message: 'An organization with this name already exists in this campaign',
-    })
-  }
-
-  const id = randomUUID()
-  db.insert(organizations)
-    .values({
-      id,
+  try {
+    const org = createOrganizationWithEntity(db, {
       campaignId,
-      name: name.trim(),
-      slug,
-      description: description || null,
-      type: type || 'faction',
-      status: status || 'active',
-      templateId: templateId || null,
+      name,
+      description,
+      type,
+      status,
+      templateId,
       fieldsJson: fields ? JSON.stringify(fields) : null,
-      createdAt: now,
-      updatedAt: now,
+      createdBy,
     })
-    .run()
-
-  const org = db.select().from(organizations).where(eq(organizations.id, id)).get()!
-  const parsedFields = org.fieldsJson ? (JSON.parse(org.fieldsJson) as Record<string, unknown>) : {}
-  return { ...org, fields: parsedFields }
+    const parsedFields = org.fieldsJson
+      ? (JSON.parse(org.fieldsJson) as Record<string, unknown>)
+      : {}
+    return { ...org, fields: parsedFields }
+  } catch (err: unknown) {
+    const e = err as { statusCode?: number; message?: string }
+    if (e.statusCode) throw createError({ statusCode: e.statusCode, message: e.message })
+    throw err
+  }
 })

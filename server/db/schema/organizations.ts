@@ -10,6 +10,7 @@ export const organizations = sqliteTable(
     campaignId: text('campaign_id')
       .notNull()
       .references(() => campaigns.id, { onDelete: 'cascade' }),
+    entityId: text('entity_id').references(() => entities.id, { onDelete: 'set null' }),
     name: text('name').notNull(),
     slug: text('slug').notNull(),
     description: text('description'),

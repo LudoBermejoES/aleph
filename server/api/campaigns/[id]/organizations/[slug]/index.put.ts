@@ -1,10 +1,10 @@
 import { z } from 'zod'
-import { eq, and, ne } from 'drizzle-orm'
+import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
 import { validateBody } from '../../../../../utils/validate'
 import { organizations } from '../../../../../db/schema'
 import { hasMinRole } from '../../../../../utils/permissions'
-import { slugify } from '../../../../../services/content'
+import { updateOrganizationWithEntity } from '../../../../../services/organizations'
 import type { CampaignRole } from '../../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
@@ -39,46 +39,23 @@ export default defineEventHandler(async (event) => {
   const body = await validateBody(event, orgPutSchema)
   const { name, description, type, status, imageUrl, templateId, fields } = body
 
-  let newSlug = org.slug
-  if (name && name.trim() !== org.name) {
-    newSlug = slugify(name)
-    const collision = db
-      .select({ id: organizations.id })
-      .from(organizations)
-      .where(
-        and(
-          eq(organizations.campaignId, campaignId),
-          eq(organizations.slug, newSlug),
-          ne(organizations.id, org.id),
-        ),
-      )
-      .get()
-    if (collision) {
-      throw createError({
-        statusCode: 409,
-        message: 'An organization with this name already exists in this campaign',
-      })
-    }
-  }
-
-  db.update(organizations)
-    .set({
-      name: name?.trim() ?? org.name,
-      slug: newSlug,
-      description: description !== undefined ? description : org.description,
-      type: type ?? org.type,
-      status: status ?? org.status,
-      imageUrl: imageUrl !== undefined ? imageUrl : org.imageUrl,
-      templateId: templateId !== undefined ? templateId : org.templateId,
-      fieldsJson: fields !== undefined ? JSON.stringify(fields) : org.fieldsJson,
-      updatedAt: new Date(),
+  try {
+    const updated = updateOrganizationWithEntity(db, campaignId, org.id, {
+      name,
+      description,
+      type,
+      status,
+      imageUrl,
+      templateId,
+      fieldsJson: fields !== undefined ? JSON.stringify(fields) : undefined,
     })
-    .where(eq(organizations.id, org.id))
-    .run()
-
-  const updated = db.select().from(organizations).where(eq(organizations.id, org.id)).get()!
-  const parsedFields = updated.fieldsJson
-    ? (JSON.parse(updated.fieldsJson) as Record<string, unknown>)
-    : {}
-  return { ...updated, fields: parsedFields }
+    const parsedFields = updated.fieldsJson
+      ? (JSON.parse(updated.fieldsJson) as Record<string, unknown>)
+      : {}
+    return { ...updated, fields: parsedFields }
+  } catch (err: unknown) {
+    const e = err as { statusCode?: number; message?: string }
+    if (e.statusCode) throw createError({ statusCode: e.statusCode, message: e.message })
+    throw err
+  }
 })

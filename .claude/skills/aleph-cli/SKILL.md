@@ -4,7 +4,7 @@ description: Use the aleph CLI to manage campaigns, entities, characters, locati
 license: MIT
 metadata:
   author: aleph
-  version: '3.2'
+  version: '3.3'
 ---
 
 You have access to the `aleph` CLI tool at `node /Users/ludo/code/aleph/cli/bin/aleph.js` (or `npm run aleph -- <args>` from the project root). Use it to interact with the running Aleph server.
@@ -194,6 +194,12 @@ node /Users/ludo/code/aleph/cli/bin/aleph.js relation delete <relationId> --camp
 ```
 
 Relations are bidirectional links between any two entities with forward/reverse labels and an optional attitude score (-100 = hostile, 0 = neutral, 100 = allied).
+
+Organizations are first-class entities for relation purposes — their slug works as `--source` or `--target` just like characters, locations, and wiki entries. Example:
+
+```bash
+node /Users/ludo/code/aleph/cli/bin/aleph.js relation create --campaign <id> --source los-senores-del-tigre --target la-pequena-flor --forward "arrasó" --reverse "arrasada por"
+```
 
 ### Maps
 
