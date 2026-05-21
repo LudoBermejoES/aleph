@@ -10,6 +10,7 @@ import {
 } from '../../../../../db/schema/characters'
 import { readEntityFile, stripSecretBlocks } from '../../../../../services/content'
 import { stripSecretStats, stripSecretAbilities } from '../../../../../services/characters'
+import { autoLinkContent } from '../../../../../services/autolink-render'
 import type { CampaignRole } from '../../../../../utils/permissions'
 import {
   hasMinRole,
@@ -116,7 +117,10 @@ export default defineEventHandler(async (event) => {
     locationSlug = locationEntity?.slug ?? null
   }
 
-  const description = stripSecretBlocks(file.content, role).trim()
+  const autoLink = (text: string | null) =>
+    text ? autoLinkContent(text, campaignId, entity.id, db) : null
+
+  const description = autoLink(stripSecretBlocks(file.content, role).trim()) ?? ''
   return {
     ...entity,
     ...character,
@@ -127,9 +131,9 @@ export default defineEventHandler(async (event) => {
     fields: (file.frontmatter as Record<string, unknown>).fields || {},
     content: description,
     description,
-    backstory: character.backstory ?? null,
-    history: character.history ?? null,
-    currentStatus: character.currentStatus ?? null,
+    backstory: autoLink(character.backstory ?? null),
+    history: autoLink(character.history ?? null),
+    currentStatus: autoLink(character.currentStatus ?? null),
     stats: filteredStats,
     abilities: charAbilities,
   }

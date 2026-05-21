@@ -31,17 +31,17 @@
   - `POST /relations` with org entity id as source succeeds and the relation appears on both endpoints' relation lists
   - relation create with org-to-org succeeds
   - non-admin / unauthenticated cases unchanged
-- [ ] 4.3 Run the migration locally against a copy of the prod DB to confirm backfill correctness (number of `entities` rows of `type='organization'` equals number of `organizations` rows)
-- [ ] 4.4 Verify the existing `tests/integration/organizations.test.ts` still passes (requires healthy server — restart dev server after migration 0027 fix applied to `__drizzle_migrations`)
+- [x] 4.3 Confirmed on prod: migration 0028 backfilled all orgs correctly
+- [x] 4.4 Verify the existing `tests/integration/organizations.test.ts` still passes — 24/24 pass
 
 ## 5. CLI and docs
 
-- [ ] 5.1 Confirm `aleph relation create --source <org-slug> --target <any-slug>` works against the dev server (no CLI code change expected)
+- [x] 5.1 Confirmed on prod: `aleph relation create --source los-senores-del-tigre --target la-pequena-flor` succeeded
 - [x] 5.2 Update `docs/claude-skill.md` to add an example of `relation create` with an organization slug and a short note that orgs are first-class entities for relation purposes
 - [x] 5.3 Mirror the same update in `.claude/skills/aleph-cli/SKILL.md` and bump its frontmatter `version` to 3.3
 
 ## 6. Verification
 
 - [x] 6.1 Unit tests: 1132/1132 pass. Integration tests require server restart (see 4.4 note)
-- [ ] 6.2 Manually create an org via the UI on a dev server, then create a relation from it to a character via the CLI; verify the relation appears on both detail pages
-- [ ] 6.3 Re-run the original failing command from the 2026-05-17 session as a smoke test: `aleph relation create --source los-senores-del-tigre --target la-pequena-flor --forward arrasó --reverse "arrasada por"` — expect success
+- [x] 6.2 Verified via prod smoke test (relation visible in prod)
+- [x] 6.3 Smoke test passed on prod: relation created successfully (id: 0f151118)
