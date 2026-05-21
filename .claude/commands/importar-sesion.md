@@ -175,22 +175,13 @@ node C:/code/aleph/cli/bin/aleph.js character update <slug> \
 node C:/code/aleph/cli/bin/aleph.js character update <slug> \
   --campaign <id> --backstory "<trasfondo y origen del personaje>"
 
-# Historial de sesiones (pestaña Historia — se añade entrada tras cada sesión)
+# Historial de sesiones (pestaña Historia — ACUMULATIVO, ver Paso 4a)
 node C:/code/aleph/cli/bin/aleph.js character update <slug> \
-  --campaign <id> --history "<resumen narrativo de lo ocurrido hasta ahora>"
+  --campaign <id> --history-stdin < sesiones/<campaña>/histories/<slug>.md
 
-# Estado actual tras la última sesión (pestaña Información general)
+# Estado actual tras la última sesión (pestaña Información general — se reescribe cada sesión)
 node C:/code/aleph/cli/bin/aleph.js character update <slug> \
   --campaign <id> --current-status "<situación actual del personaje>"
-```
-
-En una sola llamada puedes combinar varios campos:
-
-```bash
-node C:/code/aleph/cli/bin/aleph.js character update <slug> \
-  --campaign <id> \
-  --current-status "<dónde está y cómo se encuentra ahora>" \
-  --history "<historial acumulado de sesiones>"
 ```
 
 | Flag CLI           | Campo en la UI        | Pestaña             |
@@ -199,6 +190,44 @@ node C:/code/aleph/cli/bin/aleph.js character update <slug> \
 | `--current-status` | Estado actual         | Información general |
 | `--backstory`      | Trasfondo             | Historia            |
 | `--history`        | Historial de sesiones | Historia            |
+
+## Paso 4a — Historiales de personajes (acumulativos, viven en el repo)
+
+> **CRÍTICO**: El campo `--history` es **acumulativo entre sesiones**. NUNCA lo escribas con sólo la sesión que acabas de importar — borrarías todo el historial previo. La fuente de verdad de cada historial vive en el repo, en:
+>
+> ```text
+> sesiones/<campaña>/histories/<slug-del-personaje>.md
+> ```
+>
+> Cada fichero contiene `# <Nombre> — Historial de sesiones` como H1 y una sección `## Sesión del DD de mes de YYYY — <título>` por cada sesión jugada, en orden cronológico de juego.
+
+**Flujo obligatorio para actualizar el historial de un personaje:**
+
+1. **Leer** `sesiones/<campaña>/histories/<slug>.md`. Si no existe, créalo con el H1 (`# <Nombre> — Historial de sesiones`) — significa que es la primera sesión del personaje.
+2. **Añadir** al final del fichero una nueva sección `## Sesión del DD de mes de YYYY — <título>` con la narrativa de esta sesión desde la perspectiva del personaje (uno o dos párrafos, prosa narrativa, nombres de personajes — no de jugadores).
+3. **No reescribir** secciones de sesiones anteriores salvo error factual evidente.
+4. **Subir** el fichero a Aleph saltando el H1 (la UI ya muestra el nombre del personaje):
+
+   ```bash
+   tail -n +3 sesiones/<campaña>/histories/<slug>.md | \
+     node C:/code/aleph/cli/bin/aleph.js character update <slug> \
+       --campaign <id> --history-stdin
+   ```
+
+   (En PowerShell: `Get-Content path | Select-Object -Skip 2 | node ... --history-stdin`.)
+
+**Por qué este flujo**:
+
+- El campo `--history` en Aleph se sobrescribe en cada `character update`. Sin la fuente local, una importación destruye sesiones anteriores.
+- Tener los historiales en el repo permite revisarlos, versionarlos con git y reconstruir Aleph si el servidor pierde datos.
+- El H1 está sólo en el fichero local para que sea autocontenido al leerlo; Aleph no lo necesita porque ya muestra el nombre como título de la página.
+
+**Convenciones**:
+
+- Slug del fichero = slug del personaje en Aleph (e.g. `tark-krap.md`, `durgan-mediabarba-garess.md`).
+- Una sección H2 por sesión, encabezado: `## Sesión del DD de mes de YYYY — <título corto narrativo>`.
+- Prosa narrativa, no bullets, no metadatos.
+- Si una sesión no involucra al personaje, no añadas sección para ella en ese personaje.
 
 **Entidad del wiki (NPC, objeto, lore, evento):**
 
