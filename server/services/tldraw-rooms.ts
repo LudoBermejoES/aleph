@@ -1,13 +1,14 @@
 import { TLSocketRoom } from '@tldraw/sync-core'
-import type { TLStoreSnapshot } from '@tldraw/tlschema'
+import type { TLStoreSnapshot, TLRecord } from '@tldraw/tlschema'
 import { randomUUID } from 'crypto'
 import { eq, desc } from 'drizzle-orm'
 import { useDb } from '../utils/db'
 import { diagrams, diagramSnapshots } from '../db/schema/diagrams'
 import { logger } from '../utils/logger'
+import { alephTLSchema } from './tldraw-shape-schemas'
 
 interface ManagedRoom {
-  room: TLSocketRoom
+  room: TLSocketRoom<TLRecord>
   diagramId: string
   campaignId: string
   persistTimer: ReturnType<typeof setTimeout> | null
@@ -110,6 +111,7 @@ export function getOrCreateRoom(diagramId: string): ManagedRoom | null {
   const snapshot = loadSnapshotFromDb(diagramId)
 
   const room = new TLSocketRoom({
+    schema: alephTLSchema,
     initialSnapshot: snapshot ?? undefined,
     onSessionRemoved(_room, { numSessionsRemaining, sessionId }) {
       logger.debug('tldraw-rooms: session removed', { diagramId, sessionId, numSessionsRemaining })
