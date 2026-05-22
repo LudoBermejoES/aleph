@@ -1,4 +1,4 @@
-import { eq, and, desc } from 'drizzle-orm'
+import { eq, and, desc, notInArray } from 'drizzle-orm'
 import { randomUUID } from 'crypto'
 import { useDb } from '../../../../../utils/db'
 import { diagrams, diagramSnapshots } from '../../../../../db/schema/diagrams'
@@ -60,6 +60,24 @@ export default defineEventHandler(async (event) => {
       createdAt: now,
     })
     .run()
+
+  // Keep only the 10 most recent snapshots; prune the rest
+  const keepIds = db
+    .select({ id: diagramSnapshots.id })
+    .from(diagramSnapshots)
+    .where(eq(diagramSnapshots.diagramId, diagramId))
+    .orderBy(desc(diagramSnapshots.version))
+    .limit(10)
+    .all()
+    .map((r) => r.id)
+
+  if (keepIds.length === 10) {
+    db.delete(diagramSnapshots)
+      .where(
+        and(eq(diagramSnapshots.diagramId, diagramId), notInArray(diagramSnapshots.id, keepIds)),
+      )
+      .run()
+  }
 
   // Update diagram updatedAt
   db.update(diagrams).set({ updatedAt: now }).where(eq(diagrams.id, diagramId)).run()
