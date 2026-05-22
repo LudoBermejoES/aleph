@@ -90,7 +90,11 @@
           {{ $t('diagrams.popover.openFullPage') }}
         </Button>
         <Button
-          v-if="entity.type === 'organization' || entity.type === 'location'"
+          v-if="
+            entity.type === 'organization' ||
+            entity.type === 'location' ||
+            entity.type === 'character'
+          "
           size="sm"
           variant="outline"
           data-testid="entity-popover-expand"
