@@ -61,10 +61,13 @@ export function useSyncRelations(
     if (entityToShape.size < 2) return 0
 
     syncing.value = true
-    // Fetch graph
+    // Fetch only edges connecting entities present on this canvas
+    const entityIds = [...entityToShape.keys()].join(',')
     let graphData: { edges: Record<string, GraphEdge> }
     try {
-      graphData = await $fetch(`/api/campaigns/${campaignId}/graph`)
+      graphData = await $fetch(`/api/campaigns/${campaignId}/graph`, {
+        query: { entityIds },
+      })
     } catch {
       syncing.value = false
       return 0

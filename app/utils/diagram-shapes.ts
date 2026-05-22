@@ -21,6 +21,7 @@ export const ENTITY_SHAPE_TYPES = [
   'locationPin',
   'questNode',
   'factionCard',
+  'genealogyNode',
 ]
 
 /** Get the tldraw shape type for a given entity type, with fallback */
@@ -31,6 +32,7 @@ export function getShapeType(entityType: string): string {
 /** Resolve the semantic entity type from a tldraw shape type */
 export function getEntityTypeFromShape(shapeType: string): string {
   if (shapeType === 'npcToken') return 'character'
+  if (shapeType === 'genealogyNode') return 'character'
   if (shapeType === 'factionCard') return 'organization'
   if (shapeType === 'locationPin') return 'location'
   if (shapeType === 'questNode') return 'quest'

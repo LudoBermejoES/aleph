@@ -7,5 +7,23 @@ export default defineEventHandler(async (event) => {
   const role = (event.context.campaignRole || 'visitor') as CampaignRole
   const db = useDb()
 
-  return buildGraphForCampaign(db, campaignId, role)
+  const query = getQuery(event)
+  const rawIds = query.entityIds
+  const entityIds: string[] | null = rawIds
+    ? Array.isArray(rawIds)
+      ? rawIds
+      : String(rawIds).split(',')
+    : null
+
+  const graph = buildGraphForCampaign(db, campaignId, role)
+
+  if (!entityIds || entityIds.length === 0) return graph
+
+  const entitySet = new Set(entityIds)
+  const filteredEdges = Object.fromEntries(
+    Object.entries(graph.edges).filter(
+      ([, edge]) => entitySet.has(edge.source) && entitySet.has(edge.target),
+    ),
+  )
+  return { edges: filteredEdges }
 })

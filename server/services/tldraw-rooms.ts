@@ -1,11 +1,13 @@
 import { TLSocketRoom } from '@tldraw/sync-core'
 import type { TLStoreSnapshot, TLRecord } from '@tldraw/tlschema'
 import { randomUUID } from 'crypto'
-import { eq, desc } from 'drizzle-orm'
+import { eq, desc, and, notInArray } from 'drizzle-orm'
 import { useDb } from '../utils/db'
 import { diagrams, diagramSnapshots } from '../db/schema/diagrams'
 import { logger } from '../utils/logger'
 import { alephTLSchema } from './tldraw-shape-schemas'
+
+const MAX_SNAPSHOTS_PER_DIAGRAM = 10
 
 interface ManagedRoom {
   room: TLSocketRoom<TLRecord>
@@ -76,6 +78,24 @@ function writeSnapshotToDb(diagramId: string, snapshot: TLStoreSnapshot): void {
     .run()
 
   db.update(diagrams).set({ updatedAt: now }).where(eq(diagrams.id, diagramId)).run()
+
+  // Keep only the most recent MAX_SNAPSHOTS_PER_DIAGRAM snapshots
+  const keepIds = db
+    .select({ id: diagramSnapshots.id })
+    .from(diagramSnapshots)
+    .where(eq(diagramSnapshots.diagramId, diagramId))
+    .orderBy(desc(diagramSnapshots.version))
+    .limit(MAX_SNAPSHOTS_PER_DIAGRAM)
+    .all()
+    .map((r) => r.id)
+
+  if (keepIds.length === MAX_SNAPSHOTS_PER_DIAGRAM) {
+    db.delete(diagramSnapshots)
+      .where(
+        and(eq(diagramSnapshots.diagramId, diagramId), notInArray(diagramSnapshots.id, keepIds)),
+      )
+      .run()
+  }
 }
 
 function schedulePersist(managed: ManagedRoom): void {
