@@ -64,9 +64,13 @@
             {{ $t('diagrams.addRelationship') }}
           </Button>
 
-          <!-- Expand related entities button (org/location only) -->
+          <!-- Expand related entities button (org/location/character) -->
           <Button
-            v-if="selectedEntityType === 'organization' || selectedEntityType === 'location'"
+            v-if="
+              selectedEntityType === 'organization' ||
+              selectedEntityType === 'location' ||
+              selectedEntityType === 'character'
+            "
             size="sm"
             variant="outline"
             data-testid="expand-entity-btn"

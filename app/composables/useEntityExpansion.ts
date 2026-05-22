@@ -75,6 +75,9 @@ export function useEntityExpansion(
         if (key.startsWith('org-location:') && edge.target === entityId) {
           if (!onCanvas.has(edge.source)) relatedIdSet.add(edge.source)
         }
+      } else if (entityType === 'character') {
+        if (edge.source === entityId && !onCanvas.has(edge.target)) relatedIdSet.add(edge.target)
+        if (edge.target === entityId && !onCanvas.has(edge.source)) relatedIdSet.add(edge.source)
       }
     }
     const relatedIds = Array.from(relatedIdSet)
