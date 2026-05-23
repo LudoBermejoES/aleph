@@ -539,7 +539,35 @@
     "hostile": "Hostil (-100)",
     "neutral": "Neutral (0)",
     "friendly": "Amistoso (+100)",
-    "failedSave": "Error al guardar la relación"
+    "description": "Descripción",
+    "descriptionPlaceholder": "Describe esta relación...",
+    "failedSave": "Error al guardar la relación",
+    "panel": {
+      "title": "Relaciones",
+      "empty": "Aún no hay relaciones.",
+      "addButton": "Añadir relación",
+      "editButton": "Editar",
+      "deleteButton": "Eliminar",
+      "addRelation": "Añadir relación",
+      "editRelation": "Editar relación",
+      "editMemberRole": "Editar rol de miembro",
+      "memberRole": "Rol",
+      "memberRolePlaceholder": "p.ej. Capitán, Tesorero...",
+      "deleteConfirmTitle": "¿Eliminar relación?",
+      "deleteConfirm": "Esta acción no se puede deshacer.",
+      "targetRequired": "Selecciona una entidad destino.",
+      "labelRequired": "La etiqueta de relación es obligatoria.",
+      "saveSuccess": "Relación guardada.",
+      "saveError": "Error al guardar la relación.",
+      "deleteSuccess": "Relación eliminada.",
+      "deleteError": "Error al eliminar la relación.",
+      "groupHeaders": {
+        "relations": "Relaciones",
+        "members": "Miembros",
+        "inhabitants": "Habitantes",
+        "organizations": "Organizaciones"
+      }
+    }
   },
   "graph": {
     "title": "Grafo de relaciones",

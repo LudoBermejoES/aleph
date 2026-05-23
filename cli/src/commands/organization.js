@@ -1,5 +1,5 @@
 import { Command } from 'commander'
-import { get, post, put, del, postMultipart } from '../lib/client.js'
+import { get, post, put, patch, del, postMultipart } from '../lib/client.js'
 import { print, success } from '../lib/output.js'
 import { existsSync } from 'fs'
 
@@ -143,6 +143,26 @@ export function makeOrganizationCommand() {
         print(data, { json: true })
       } else {
         success(`Member added to "${slug}".`)
+      }
+    })
+
+  // member-update subcommand
+  cmd
+    .command('member-update <slug>')
+    .description("Update a member's role in an organization")
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .requiredOption('--character <id>', 'Character ID')
+    .option('--role <role>', 'New role (pass empty string to clear)')
+    .option('--json', 'Output as JSON')
+    .action(async (slug, opts) => {
+      const data = await patch(
+        `/api/campaigns/${opts.campaign}/organizations/${slug}/members/${opts.character}`,
+        { role: opts.role ?? '' },
+      )
+      if (opts.json) {
+        print(data, { json: true })
+      } else {
+        success(`Member role updated in "${slug}".`)
       }
     })
 

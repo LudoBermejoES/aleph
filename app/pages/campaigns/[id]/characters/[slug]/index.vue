@@ -267,6 +267,19 @@
             </div>
           </div>
 
+          <!-- Editable Relations Panel -->
+          <RelationsEntityRelationsPanel
+            v-if="character?.entityId"
+            :campaign-id="campaignId"
+            :entity-id="character.entityId"
+            entity-type="character"
+            :entity-slug="character.slug"
+            :entity-name="character.name"
+            :role="campaignRole"
+            class="mb-6"
+            @relations-changed="reloadRelations"
+          />
+
           <!-- Relationship Graph -->
           <div v-if="graphData" class="mb-6" data-testid="character-graph">
             <h2 class="text-lg font-semibold mb-3">{{ $t('characters.graph') }}</h2>
@@ -584,6 +597,25 @@ async function load() {
 
     characterOrgs.value = await api.getCharacterOrganizations(slug).catch(() => [])
   })
+}
+
+async function reloadRelations() {
+  if (character.value?.entityId || character.value?.id) {
+    const entityId = character.value.entityId ?? character.value.id
+    const charMap: Record<string, Character> = Object.fromEntries(
+      allChars.value.map((c: Character) => [c.entityId ?? c.id, c]),
+    )
+    const rawRelations = await api.getRelations({ entity_id: entityId }).catch(() => [])
+    relations.value = rawRelations.map((r: EntityRelation) => {
+      const relChar = r.relatedEntityId ? charMap[r.relatedEntityId] : undefined
+      return {
+        ...r,
+        relatedEntityName: relChar?.name,
+        relatedEntitySlug: relChar?.slug,
+        relatedEntityType: 'character',
+      }
+    })
+  }
 }
 
 async function confirmDelete() {

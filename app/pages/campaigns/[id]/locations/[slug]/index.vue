@@ -183,6 +183,18 @@
           }}</Button>
         </div>
       </section>
+
+      <!-- Editable Relations Panel -->
+      <RelationsEntityRelationsPanel
+        :campaign-id="campaignId"
+        :entity-id="location.id"
+        entity-type="location"
+        :entity-slug="slug"
+        :entity-name="location.name"
+        :role="campaignRole"
+        class="mb-6"
+        @relations-changed="load"
+      />
     </template>
   </div>
 </template>

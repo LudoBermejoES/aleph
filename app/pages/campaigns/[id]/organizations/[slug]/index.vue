@@ -145,6 +145,19 @@
         </div>
         <p v-else class="text-sm text-muted-foreground">{{ $t('locations.noOrganizations') }}</p>
       </div>
+
+      <!-- Editable Relations Panel -->
+      <RelationsEntityRelationsPanel
+        v-if="org.entityId"
+        :campaign-id="campaignId"
+        :entity-id="org.entityId"
+        entity-type="organization"
+        :entity-slug="slug"
+        :entity-name="org.name"
+        :role="campaignRole"
+        class="mt-6"
+        @relations-changed="load"
+      />
     </div>
     <div v-else class="text-center py-12 text-muted-foreground">
       <p>Organization not found.</p>
@@ -163,6 +176,10 @@ const campaignRole = ref('')
 const isDm = computed(() => ['dm', 'co_dm'].includes(campaignRole.value))
 
 interface OrgData {
+  id: string
+  entityId?: string | null
+  name: string
+  slug: string
   members?: { characterId: string; role?: string | null }[]
   [key: string]: unknown
 }

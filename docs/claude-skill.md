@@ -170,6 +170,7 @@ aleph organization show <slug> --campaign <id> [--json]
 aleph organization edit <slug> --campaign <id> [--name <name>] [--type <type>] [--status <status>] [--description <desc>] [--json]
 aleph organization delete <slug> --campaign <id> [--yes]
 aleph organization member-add <slug> --campaign <id> --character <characterId> [--role <role>] [--json]
+aleph organization member-update <slug> --campaign <id> --character <characterId> [--role <role>] [--json]
 aleph organization member-remove <slug> --campaign <id> --character <characterId>
 aleph organization upload-image <slug> --campaign <id> --file <path> [--json]
 ```

@@ -539,7 +539,35 @@
     "hostile": "Hostile (-100)",
     "neutral": "Neutral (0)",
     "friendly": "Friendly (+100)",
-    "failedSave": "Failed to save relation"
+    "description": "Description",
+    "descriptionPlaceholder": "Describe this relationship...",
+    "failedSave": "Failed to save relation",
+    "panel": {
+      "title": "Relations",
+      "empty": "No relations yet.",
+      "addButton": "Add Relation",
+      "editButton": "Edit",
+      "deleteButton": "Delete",
+      "addRelation": "Add Relation",
+      "editRelation": "Edit Relation",
+      "editMemberRole": "Edit Member Role",
+      "memberRole": "Role",
+      "memberRolePlaceholder": "e.g. Captain, Treasurer...",
+      "deleteConfirmTitle": "Delete relation?",
+      "deleteConfirm": "This action cannot be undone.",
+      "targetRequired": "Please select a target entity.",
+      "labelRequired": "A forward label is required.",
+      "saveSuccess": "Relation saved.",
+      "saveError": "Failed to save relation.",
+      "deleteSuccess": "Relation deleted.",
+      "deleteError": "Failed to delete relation.",
+      "groupHeaders": {
+        "relations": "Relations",
+        "members": "Members",
+        "inhabitants": "Inhabitants",
+        "organizations": "Organizations"
+      }
+    }
   },
   "graph": {
     "title": "Relationship Graph",

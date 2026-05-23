@@ -204,6 +204,13 @@
       "when": 1779667200000,
       "tag": "0028_slow_white_queen",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "6",
+      "when": 1779529522827,
+      "tag": "0029_org_location_description",
+      "breakpoints": true
     }
   ]
 }

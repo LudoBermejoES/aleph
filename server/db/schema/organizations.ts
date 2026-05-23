@@ -36,9 +36,7 @@ export const organizationMembers = sqliteTable(
       .references(() => characters.id, { onDelete: 'cascade' }),
     role: text('role'),
   },
-  (table) => ({
-    pk: primaryKey({ columns: [table.organizationId, table.characterId] }),
-  }),
+  (table) => [primaryKey({ columns: [table.organizationId, table.characterId] })],
 )
 
 // Many-to-many: organizations ↔ locations (location entities)
@@ -51,8 +49,7 @@ export const organizationLocations = sqliteTable(
     locationEntityId: text('location_entity_id')
       .notNull()
       .references(() => entities.id, { onDelete: 'cascade' }),
+    description: text('description'),
   },
-  (table) => ({
-    pk: primaryKey({ columns: [table.organizationId, table.locationEntityId] }),
-  }),
+  (table) => [primaryKey({ columns: [table.organizationId, table.locationEntityId] })],
 )

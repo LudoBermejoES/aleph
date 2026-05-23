@@ -4,7 +4,7 @@ description: Use the aleph CLI to manage campaigns, entities, characters, locati
 license: MIT
 metadata:
   author: aleph
-  version: '3.3'
+  version: '3.4'
 ---
 
 You have access to the `aleph` CLI tool at `node /Users/ludo/code/aleph/cli/bin/aleph.js` (or `npm run aleph -- <args>` from the project root). Use it to interact with the running Aleph server.
@@ -160,6 +160,7 @@ node /Users/ludo/code/aleph/cli/bin/aleph.js organization show <slug> --campaign
 node /Users/ludo/code/aleph/cli/bin/aleph.js organization edit <slug> --campaign <id> [--name <name>] [--type <type>] [--status <status>] [--description <desc>] [--json]
 node /Users/ludo/code/aleph/cli/bin/aleph.js organization delete <slug> --campaign <id> [--yes]
 node /Users/ludo/code/aleph/cli/bin/aleph.js organization member-add <slug> --campaign <id> --character <characterId> [--role <role>] [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js organization member-update <slug> --campaign <id> --character <characterId> [--role <role>] [--json]
 node /Users/ludo/code/aleph/cli/bin/aleph.js organization member-remove <slug> --campaign <id> --character <characterId>
 node /Users/ludo/code/aleph/cli/bin/aleph.js organization upload-image <slug> --campaign <id> --file <path> [--json]
 ```

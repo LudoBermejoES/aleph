@@ -1,0 +1,1 @@
+ALTER TABLE `organization_locations` ADD `description` text;

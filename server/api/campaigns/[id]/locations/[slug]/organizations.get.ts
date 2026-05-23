@@ -26,7 +26,10 @@ export default defineEventHandler(async (event) => {
   if (!location) throw createError({ statusCode: 404, message: 'Location not found' })
 
   const links = db
-    .select({ organizationId: organizationLocations.organizationId })
+    .select({
+      organizationId: organizationLocations.organizationId,
+      description: organizationLocations.description,
+    })
     .from(organizationLocations)
     .where(eq(organizationLocations.locationEntityId, location.id))
     .all()
@@ -34,6 +37,7 @@ export default defineEventHandler(async (event) => {
   if (links.length === 0) return []
 
   const orgIds = links.map((l) => l.organizationId)
+  const descriptionByOrgId = Object.fromEntries(links.map((l) => [l.organizationId, l.description]))
 
   const orgs = db
     .select({
@@ -50,5 +54,5 @@ export default defineEventHandler(async (event) => {
     .groupBy(organizations.id)
     .all()
 
-  return orgs
+  return orgs.map((o) => ({ ...o, description: descriptionByOrgId[o.id] ?? null }))
 })
