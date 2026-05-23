@@ -113,12 +113,12 @@ describe('PATCH /organizations/:slug/members/:characterId (integration)', () => 
   })
 
   it('reflects updated role in subsequent GET', async () => {
-    const res = await apiRaw(`/api/campaigns/${campaignId}/organizations/${orgSlug}/members`, {
+    const res = await apiRaw(`/api/campaigns/${campaignId}/organizations/${orgSlug}`, {
       headers: { 'X-API-Key': dmApiKey },
     })
     expect(res.status).toBe(200)
     const body = await res.json()
-    const member = (body.data ?? body).find(
+    const member = (body.members ?? []).find(
       (m: { characterId: string }) => m.characterId === characterId,
     )
     expect(member).toBeDefined()
