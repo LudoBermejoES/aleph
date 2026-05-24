@@ -6,8 +6,8 @@ import type { CampaignRole } from '../../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
   const role = event.context.campaignRole as CampaignRole
-  if (!hasMinRole(role, 'co_dm'))
-    throw createError({ statusCode: 403, message: 'Co-DM or above can delete relations' })
+  if (!hasMinRole(role, 'editor'))
+    throw createError({ statusCode: 403, message: 'Editors or above can delete relations' })
 
   const relationId = getRouterParam(event, 'relationId')!
   const db = useDb()

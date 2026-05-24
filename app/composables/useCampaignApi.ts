@@ -145,6 +145,10 @@ export function useCampaignApi(campaignId: string) {
     return $fetch<CharacterConnection[]>(`${base}/characters/${slug}/connections`)
   }
 
+  function deleteCharacterConnection(slug: string, connectionId: string) {
+    return $fetch(`${base}/characters/${slug}/connections/${connectionId}`, { method: 'DELETE' })
+  }
+
   function getCharacterFolders() {
     return $fetch<CharacterFolder[]>(`${base}/character-folders`)
   }
@@ -789,6 +793,7 @@ export function useCampaignApi(campaignId: string) {
     deleteCharacter,
     deleteAbility,
     getCharacterConnections,
+    deleteCharacterConnection,
     getCharacterFolders,
     updateCharacterFolder,
     deleteCharacterFolder,
