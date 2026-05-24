@@ -75,7 +75,22 @@ export function useEntityRelations(campaignId: string, entity: EntityRef) {
 
       // Type-specific extras
       if (entity.type === 'organization') {
-        fetches.push($fetch<MemberRow[]>(`${base}/organizations/${entity.slug}/members`))
+        fetches.push(
+          $fetch<{
+            members?: {
+              characterId: string
+              role: string | null
+              characterName: string
+              characterSlug: string
+            }[]
+          }>(`${base}/organizations/${entity.slug}`).then((org) =>
+            (org.members ?? []).map((m) => ({
+              characterId: m.characterId,
+              role: m.role,
+              character: { name: m.characterName, slug: m.characterSlug },
+            })),
+          ),
+        )
       } else {
         fetches.push(Promise.resolve([]))
       }

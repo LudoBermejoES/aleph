@@ -20,9 +20,13 @@ const mockRelations = [
   },
 ]
 
-const mockMembers = [
-  { characterId: 'char-1', role: 'Knight', character: { name: 'Alice', slug: 'alice' } },
-]
+const mockOrgDetail = {
+  id: 'org-1',
+  name: 'Guild',
+  members: [
+    { characterId: 'char-1', role: 'Knight', characterName: 'Alice', characterSlug: 'alice' },
+  ],
+}
 
 const mockInhabitants = [{ id: 'char-3', name: 'Carl', slug: 'carl' }]
 
@@ -79,7 +83,7 @@ describe('useEntityRelations — organization', () => {
       '$fetch',
       vi.fn().mockImplementation((url: string) => {
         if (url.includes('/relations')) return Promise.resolve(mockRelations)
-        if (url.includes('/members')) return Promise.resolve(mockMembers)
+        if (url.includes('/organizations/')) return Promise.resolve(mockOrgDetail)
         return Promise.resolve([])
       }),
     )
