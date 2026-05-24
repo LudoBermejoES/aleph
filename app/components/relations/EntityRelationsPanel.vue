@@ -185,28 +185,6 @@
       </DialogContent>
     </Dialog>
 
-    <!-- Delete confirmation dialog -->
-    <AlertDialog v-model:open="deleteDialogOpen">
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>{{ $t('relations.panel.deleteConfirmTitle') }}</AlertDialogTitle>
-          <AlertDialogDescription>{{ $t('relations.panel.deleteConfirm') }}</AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel @click="deleteDialogOpen = false">{{
-            $t('common.cancel')
-          }}</AlertDialogCancel>
-          <AlertDialogAction
-            class="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            :disabled="deleting"
-            @click="executeDelete"
-          >
-            {{ deleting ? $t('common.deleting') : $t('common.delete') }}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-
     <ErrorToast v-if="actionError" :message="actionError" @dismiss="actionError = ''" />
   </div>
 </template>
@@ -331,20 +309,10 @@ async function saveMemberRole() {
 
 // ─── Delete ───────────────────────────────────────────────────────────────────
 
-const deleteDialogOpen = ref(false)
-const deleting = ref(false)
-const deleteTarget = ref<{
-  mode: DeleteMode
-  row: EntityRelationRow | MemberRow | InhabitantRow | LocationOrgRow
-} | null>(null)
-
-function confirmDelete(mode: DeleteMode, row: unknown) {
-  deleteTarget.value = { mode, row: row as EntityRelationRow }
-  deleteDialogOpen.value = true
-}
-
-function buildDeleteUrl(): string {
-  const { mode, row } = deleteTarget.value!
+function buildDeleteUrl(
+  mode: DeleteMode,
+  row: EntityRelationRow | MemberRow | InhabitantRow | LocationOrgRow,
+): string {
   const base = `/api/campaigns/${props.campaignId}`
   if (mode === 'entity-relation') {
     return `${base}/relations/${(row as EntityRelationRow).id}`
@@ -361,18 +329,14 @@ function buildDeleteUrl(): string {
   throw new Error(`Unknown mode ${mode}`)
 }
 
-async function executeDelete() {
-  if (!deleteTarget.value) return
-  deleting.value = true
+async function confirmDelete(mode: DeleteMode, row: unknown) {
+  if (!window.confirm(t('relations.panel.deleteConfirm'))) return
   try {
-    await $fetch(buildDeleteUrl(), { method: 'DELETE' })
-    deleteDialogOpen.value = false
+    await $fetch(buildDeleteUrl(mode, row as EntityRelationRow), { method: 'DELETE' })
     await refresh()
     emit('relations-changed')
   } catch {
     actionError.value = t('relations.panel.deleteError')
-  } finally {
-    deleting.value = false
   }
 }
 </script>
