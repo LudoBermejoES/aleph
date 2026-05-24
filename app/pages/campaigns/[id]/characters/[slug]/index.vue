@@ -584,9 +584,9 @@ async function load() {
         const relChar = r.relatedEntityId ? charMap[r.relatedEntityId] : undefined
         return {
           ...r,
-          relatedEntityName: relChar?.name,
-          relatedEntitySlug: relChar?.slug,
-          relatedEntityType: 'character',
+          relatedEntityName: r.relatedEntityName ?? relChar?.name,
+          relatedEntitySlug: r.relatedEntitySlug ?? relChar?.slug,
+          relatedEntityType: r.relatedEntityType ?? 'character',
         }
       })
     }
@@ -610,9 +610,9 @@ async function reloadRelations() {
       const relChar = r.relatedEntityId ? charMap[r.relatedEntityId] : undefined
       return {
         ...r,
-        relatedEntityName: relChar?.name,
-        relatedEntitySlug: relChar?.slug,
-        relatedEntityType: 'character',
+        relatedEntityName: r.relatedEntityName ?? relChar?.name,
+        relatedEntitySlug: r.relatedEntitySlug ?? relChar?.slug,
+        relatedEntityType: r.relatedEntityType ?? 'character',
       }
     })
   }
