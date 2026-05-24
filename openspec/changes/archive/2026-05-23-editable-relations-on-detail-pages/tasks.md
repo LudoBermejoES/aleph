@@ -44,9 +44,9 @@
 
 ## 7. E2E tests
 
-- [ ] 7.1 Write `tests/e2e/relations-panel-character.spec.ts`: add, edit, delete a relation from a character detail page; verify it appears on the target's detail page too
-- [ ] 7.2 Write `tests/e2e/relations-panel-organization.spec.ts`: add a member via panel, edit the member's role inline (PATCH path), delete the member
-- [ ] 7.3 Write `tests/e2e/relations-panel-location.spec.ts`: add an inhabitant, edit the link description, delete the link
+- [x] 7.1 Write `tests/e2e/relations-panel-character.spec.ts`: add, edit, delete a relation from a character detail page; verify it appears on the target's detail page too
+- [x] 7.2 Write `tests/e2e/relations-panel-organization.spec.ts`: add a member via panel, edit the member's role inline (PATCH path), delete the member
+- [x] 7.3 Write `tests/e2e/relations-panel-location.spec.ts`: add an inhabitant, edit the link description, delete the link
 - [ ] 7.4 Run `npx playwright test relations-panel-*.spec.ts` — confirm pass
 
 ## 8. aleph-cli parity
