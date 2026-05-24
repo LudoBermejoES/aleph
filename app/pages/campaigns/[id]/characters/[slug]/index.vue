@@ -268,7 +268,7 @@
           </div>
 
           <!-- Editable Relations Panel -->
-          <RelationsEntityRelationsPanel
+          <EntityRelationsPanel
             v-if="character?.entityId"
             :campaign-id="campaignId"
             :entity-id="character.entityId"

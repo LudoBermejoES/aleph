@@ -149,7 +149,7 @@
     </div>
 
     <!-- RelationFormDialog: add / edit entity-to-entity relations -->
-    <RelationsRelationFormDialog
+    <RelationFormDialog
       :open="formDialogOpen"
       :source-entity="sourceEntityRef"
       :campaign-id="campaignId"
@@ -206,11 +206,12 @@
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
+
+    <ErrorToast v-if="actionError" :message="actionError" @dismiss="actionError = ''" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { useToast } from '~/composables/useToast'
 import { useEntityRelations } from '~/composables/useEntityRelations'
 import type {
   EntityRelationRow,
@@ -234,7 +235,7 @@ const props = defineProps<{
 const emit = defineEmits<{ 'relations-changed': [] }>()
 
 const { t } = useI18n()
-const { toast } = useToast()
+const actionError = ref('')
 
 const canEdit = computed(() => ['dm', 'co_dm', 'editor'].includes(props.role ?? 'visitor'))
 
@@ -292,9 +293,8 @@ async function handleRelationSave(payload: Record<string, unknown>) {
     formDialogOpen.value = false
     await refresh()
     emit('relations-changed')
-    toast({ description: t('relations.panel.saveSuccess') })
   } catch {
-    toast({ description: t('relations.panel.saveError'), variant: 'destructive' })
+    actionError.value = t('relations.panel.saveError')
   }
 }
 
@@ -322,9 +322,8 @@ async function saveMemberRole() {
     memberRoleDialogOpen.value = false
     await refresh()
     emit('relations-changed')
-    toast({ description: t('relations.panel.saveSuccess') })
   } catch {
-    toast({ description: t('relations.panel.saveError'), variant: 'destructive' })
+    actionError.value = t('relations.panel.saveError')
   } finally {
     savingMemberRole.value = false
   }
@@ -370,9 +369,8 @@ async function executeDelete() {
     deleteDialogOpen.value = false
     await refresh()
     emit('relations-changed')
-    toast({ description: t('relations.panel.deleteSuccess') })
   } catch {
-    toast({ description: t('relations.panel.deleteError'), variant: 'destructive' })
+    actionError.value = t('relations.panel.deleteError')
   } finally {
     deleting.value = false
   }

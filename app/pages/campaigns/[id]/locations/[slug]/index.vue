@@ -185,7 +185,7 @@
       </section>
 
       <!-- Editable Relations Panel -->
-      <RelationsEntityRelationsPanel
+      <EntityRelationsPanel
         :campaign-id="campaignId"
         :entity-id="location.id"
         entity-type="location"
