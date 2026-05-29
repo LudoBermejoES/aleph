@@ -22,17 +22,21 @@ export const sessionGroups = sqliteTable(
   }),
 )
 
-export const arcs = sqliteTable('arcs', {
-  id: text('id').primaryKey(),
-  campaignId: text('campaign_id')
-    .notNull()
-    .references(() => campaigns.id, { onDelete: 'cascade' }),
-  name: text('name').notNull(),
-  slug: text('slug').notNull(),
-  description: text('description'),
-  sortOrder: integer('sort_order').notNull().default(0),
-  status: text('status').notNull().default('planned'), // planned, active, completed
-})
+export const arcs = sqliteTable(
+  'arcs',
+  {
+    id: text('id').primaryKey(),
+    campaignId: text('campaign_id')
+      .notNull()
+      .references(() => campaigns.id, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    slug: text('slug').notNull(),
+    description: text('description'),
+    sortOrder: integer('sort_order').notNull().default(0),
+    status: text('status').notNull().default('planned'), // planned, active, completed
+  },
+  (table) => [index('idx_arcs_campaign').on(table.campaignId)],
+)
 
 export const chapters = sqliteTable('chapters', {
   id: text('id').primaryKey(),
@@ -90,23 +94,27 @@ export const sessionAttendance = sqliteTable(
   (table) => [index('idx_attendance_session_user').on(table.sessionId, table.userId)],
 )
 
-export const quests = sqliteTable('quests', {
-  id: text('id').primaryKey(),
-  campaignId: text('campaign_id')
-    .notNull()
-    .references(() => campaigns.id, { onDelete: 'cascade' }),
-  name: text('name').notNull(),
-  slug: text('slug').notNull(),
-  description: text('description'),
-  status: text('status').notNull().default('active'), // active, completed, failed, abandoned
-  parentQuestId: text('parent_quest_id'),
-  entityId: text('entity_id'),
-  isSecret: integer('is_secret', { mode: 'boolean' }).notNull().default(false),
-  assignedCharacterIdsJson: text('assigned_character_ids_json'), // JSON array
-  logFilePath: text('log_file_path'),
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
-})
+export const quests = sqliteTable(
+  'quests',
+  {
+    id: text('id').primaryKey(),
+    campaignId: text('campaign_id')
+      .notNull()
+      .references(() => campaigns.id, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    slug: text('slug').notNull(),
+    description: text('description'),
+    status: text('status').notNull().default('active'), // active, completed, failed, abandoned
+    parentQuestId: text('parent_quest_id'),
+    entityId: text('entity_id'),
+    isSecret: integer('is_secret', { mode: 'boolean' }).notNull().default(false),
+    assignedCharacterIdsJson: text('assigned_character_ids_json'), // JSON array
+    logFilePath: text('log_file_path'),
+    createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+    updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
+  },
+  (table) => [index('idx_quests_campaign').on(table.campaignId)],
+)
 
 export const decisions = sqliteTable('decisions', {
   id: text('id').primaryKey(),

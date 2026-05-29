@@ -17,18 +17,14 @@ test.describe('Character extended text fields', () => {
     })
     const slug = (charRes as Record<string, string>).slug
 
-    // Navigate to edit page
-    await page.goto(`/campaigns/${campaignId}/characters/${slug}/edit`)
-    await page.waitForLoadState('networkidle')
-
     // Fill in backstory via API (MarkdownEditor is a client-only component)
     await apiFetch(page, `/api/campaigns/${campaignId}/characters/${slug}`, {
       method: 'PUT',
       body: { backstory: 'Born in the northern mountains.' },
     })
 
-    // Navigate to detail page and verify backstory section appears
-    await page.goto(`/campaigns/${campaignId}/characters/${slug}`)
+    // Navigate to detail page — backstory is on the "story" tab
+    await page.goto(`http://localhost:3333/campaigns/${campaignId}/characters/${slug}?tab=story`)
     await page.waitForLoadState('networkidle')
 
     await expect(page.locator('[data-testid="character-backstory"]')).toBeVisible({
@@ -60,16 +56,22 @@ test.describe('Character extended text fields', () => {
       },
     })
 
-    await page.goto(`/campaigns/${campaignId}/characters/${slug}`)
+    // currentStatus is on the main tab (default)
+    await page.goto(`http://localhost:3333/campaigns/${campaignId}/characters/${slug}`)
     await page.waitForLoadState('networkidle')
+    await expect(page.locator('[data-testid="character-current-status"]')).toBeVisible({
+      timeout: 10000,
+    })
+    await expect(page.locator('[data-testid="character-current-status"]')).toContainText(
+      'Currently travelling south.',
+    )
 
+    // history is on the story tab
+    await page.goto(`http://localhost:3333/campaigns/${campaignId}/characters/${slug}?tab=story`)
+    await page.waitForLoadState('networkidle')
     await expect(page.locator('[data-testid="character-history"]')).toBeVisible({ timeout: 10000 })
     await expect(page.locator('[data-testid="character-history"]')).toContainText(
       'Session 1: met the party.',
-    )
-    await expect(page.locator('[data-testid="character-current-status"]')).toBeVisible()
-    await expect(page.locator('[data-testid="character-current-status"]')).toContainText(
-      'Currently travelling south.',
     )
   })
 
@@ -86,11 +88,15 @@ test.describe('Character extended text fields', () => {
     })
     const slug = (charRes as Record<string, string>).slug
 
-    await page.goto(`/campaigns/${campaignId}/characters/${slug}`)
+    // main tab — currentStatus is hidden when null
+    await page.goto(`http://localhost:3333/campaigns/${campaignId}/characters/${slug}`)
     await page.waitForLoadState('networkidle')
+    await expect(page.locator('[data-testid="character-current-status"]')).not.toBeVisible()
 
+    // story tab — backstory/history hidden when null
+    await page.goto(`http://localhost:3333/campaigns/${campaignId}/characters/${slug}?tab=story`)
+    await page.waitForLoadState('networkidle')
     await expect(page.locator('[data-testid="character-backstory"]')).not.toBeVisible()
     await expect(page.locator('[data-testid="character-history"]')).not.toBeVisible()
-    await expect(page.locator('[data-testid="character-current-status"]')).not.toBeVisible()
   })
 })

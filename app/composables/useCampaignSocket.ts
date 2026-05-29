@@ -37,7 +37,8 @@ export function useCampaignSocket(campaignId: Ref<string | undefined>) {
       if (!res.ok) return
       const data = await res.json()
       wsToken = data.token
-    } catch {
+    } catch (e) {
+      if (import.meta.dev) console.warn('[useCampaignSocket] Failed to fetch WS token:', e)
       return
     }
 
@@ -56,7 +57,8 @@ export function useCampaignSocket(campaignId: Ref<string | undefined>) {
       let data
       try {
         data = JSON.parse(event.data)
-      } catch {
+      } catch (e) {
+        if (import.meta.dev) console.warn('[useCampaignSocket] Failed to parse WS message:', e)
         return
       }
 

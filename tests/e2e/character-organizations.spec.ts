@@ -81,6 +81,10 @@ test.describe('Character create — organization picker', () => {
       expect(page.url()).not.toContain('/new')
     }).toPass({ timeout: 15000 })
 
+    // Navigate to relations tab where organizations section lives
+    await page.click('[role="tablist"] button:has-text("Relations")')
+    await page.waitForLoadState('networkidle')
+
     // Detail page should show the org membership
     await expect(page.locator('[data-testid="character-organizations"]')).toContainText(
       'The Fellowship',
@@ -167,11 +171,14 @@ test.describe('Character edit — organization picker', () => {
     await page.locator('input[placeholder*="Ring-bearer"]').last().fill('Shipwright')
 
     // Save
+    page.on('dialog', (dialog) => dialog.dismiss())
     await page.click('button[type="submit"]:has-text("Save")')
-    await expect(async () => {
-      expect(page.url()).toMatch(/\/characters\/[^/]+$/)
-      expect(page.url()).not.toContain('/edit')
-    }).toPass({ timeout: 15000 })
+    await page.waitForURL(`**/characters/${charSlug}`, { timeout: 15000 })
+    expect(page.url()).not.toContain('/edit')
+
+    // Navigate to relations tab to see organizations
+    await page.click('[role="tablist"] button:has-text("Relations")')
+    await page.waitForLoadState('networkidle')
 
     // Detail page shows the new membership
     await expect(page.locator('[data-testid="character-organizations"]')).toContainText(
@@ -223,11 +230,14 @@ test.describe('Character edit — organization picker', () => {
     await page.click('button:has-text("Remove")')
 
     // Save
+    page.on('dialog', (dialog) => dialog.dismiss())
     await page.click('button[type="submit"]:has-text("Save")')
-    await expect(async () => {
-      expect(page.url()).toMatch(/\/characters\/[^/]+$/)
-      expect(page.url()).not.toContain('/edit')
-    }).toPass({ timeout: 15000 })
+    await page.waitForURL(`**/characters/${charSlug}`, { timeout: 15000 })
+    expect(page.url()).not.toContain('/edit')
+
+    // Navigate to relations tab to see organizations
+    await page.click('[role="tablist"] button:has-text("Relations")')
+    await page.waitForLoadState('networkidle')
 
     // Detail page should no longer show the org
     await expect(page.locator('[data-testid="character-organizations"]')).not.toContainText(

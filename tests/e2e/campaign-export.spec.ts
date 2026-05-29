@@ -53,7 +53,7 @@ test.describe('Campaign Export', () => {
     await playerPage.waitForLoadState('networkidle')
 
     // Player joins via invite URL
-    await playerPage.goto(joinUrl, { waitUntil: 'domcontentloaded' })
+    await playerPage.goto(joinUrl, { waitUntil: 'domcontentloaded' }).catch(() => {})
     await expect(async () => {
       expect(playerPage.url()).toMatch(/\/campaigns\/[^/]+$/)
     }).toPass({ timeout: 20000 })
@@ -90,6 +90,7 @@ test.describe('Campaign Export', () => {
         form.append('image', new Blob([bytes], { type: 'image/png' }), 'test.png')
         const res = await fetch(`/api/campaigns/${cId}/entities/${slug}/image`, {
           method: 'POST',
+          credentials: 'include',
           headers: { 'X-CSRF-Token': csrf },
           body: form,
         })
@@ -119,6 +120,7 @@ test.describe('Campaign Export', () => {
         form.append('file', new Blob([zipBytes], { type: 'application/zip' }), 'export.zip')
         const res = await fetch('/api/campaigns/import', {
           method: 'POST',
+          credentials: 'include',
           headers: { 'X-CSRF-Token': csrf },
           body: form,
         })

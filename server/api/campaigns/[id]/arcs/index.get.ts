@@ -5,6 +5,8 @@ import { stripSecretBlocks } from '../../../../services/content'
 import { hasMinRole } from '../../../../utils/permissions'
 import type { CampaignRole } from '../../../../utils/permissions'
 
+// Intentional raw array: arcs (story arcs) are structural metadata, small and fully loaded.
+// CLI and composable consumers depend on array shape — do not paginate.
 export default defineEventHandler(async (event) => {
   const campaignId = getRouterParam(event, 'id')!
   const db = useDb()

@@ -3,6 +3,7 @@ import { unified } from 'unified'
 import remarkParse from 'remark-parse'
 import remarkDirective from 'remark-directive'
 import remarkStringify from 'remark-stringify'
+import { ROLE_HIERARCHY } from '../../../server/utils/permissions'
 import { remarkStripSecrets } from '../../../server/services/remark-strip-secrets'
 
 async function processMarkdown(md: string, userRole: string, userId?: string): Promise<string> {
@@ -122,5 +123,22 @@ Final public info.`
     const resultDm = await processMarkdown(md, 'dm')
     expect(resultDm).toContain('DM only info')
     expect(resultDm).toContain('Alice only info')
+  })
+})
+
+describe('ROLE_HIERARCHY matches permissions.ts', () => {
+  it('has the canonical ordering for all five roles', () => {
+    expect(ROLE_HIERARCHY.dm).toBe(5)
+    expect(ROLE_HIERARCHY.co_dm).toBe(4)
+    expect(ROLE_HIERARCHY.editor).toBe(3)
+    expect(ROLE_HIERARCHY.player).toBe(2)
+    expect(ROLE_HIERARCHY.visitor).toBe(1)
+  })
+
+  it('dm > co_dm > editor > player > visitor', () => {
+    expect(ROLE_HIERARCHY.dm).toBeGreaterThan(ROLE_HIERARCHY.co_dm)
+    expect(ROLE_HIERARCHY.co_dm).toBeGreaterThan(ROLE_HIERARCHY.editor)
+    expect(ROLE_HIERARCHY.editor).toBeGreaterThan(ROLE_HIERARCHY.player)
+    expect(ROLE_HIERARCHY.player).toBeGreaterThan(ROLE_HIERARCHY.visitor)
   })
 })

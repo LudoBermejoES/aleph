@@ -12,7 +12,7 @@ const TINY_PNG = Buffer.from(
 
 async function uploadImageViaToolbar(page: import('@playwright/test').Page) {
   // Set files directly on the hidden file input to reliably trigger the Vue @change handler
-  const fileInput = page.locator('input[type="file"][accept*="image"]')
+  const fileInput = page.locator('input[type="file"][accept*="image"]').first()
   await fileInput.setInputFiles({
     name: 'test-image.png',
     mimeType: 'image/png',
@@ -31,8 +31,10 @@ test.describe('Image upload — toolbar button', () => {
     await page.goto(`${base}/campaigns/${campaignId}/characters/new`, {
       waitUntil: 'domcontentloaded',
     })
-    await expect(page.locator('.ProseMirror')).toBeVisible({ timeout: 10000 })
-    await expect(page.locator('button[title="Insert Image"]')).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('.ProseMirror').first()).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('button[title="Insert Image"]').first()).toBeVisible({
+      timeout: 10000,
+    })
 
     await uploadImageViaToolbar(page)
 
@@ -60,8 +62,10 @@ test.describe('Image upload — Markdown round-trip', () => {
     const charName = `Img Hero ${uid()}`
     await page.fill('input[placeholder*="Character name"]', charName)
 
-    await expect(page.locator('.ProseMirror')).toBeVisible({ timeout: 10000 })
-    await expect(page.locator('button[title="Insert Image"]')).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('.ProseMirror').first()).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('button[title="Insert Image"]').first()).toBeVisible({
+      timeout: 10000,
+    })
 
     await uploadImageViaToolbar(page)
 

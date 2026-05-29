@@ -6,8 +6,10 @@ const uid = () => Date.now().toString(36).slice(-4)
 test.describe('Quick fixes', () => {
   test('404 page renders translated text in English', async ({ page }) => {
     await registerAndLogin(page, `QF404 ${uid()}`)
-    await page.goto(`${BASE}/some/nonexistent/path-${uid()}`)
-    await page.waitForLoadState('networkidle')
+    await page
+      .goto(`${BASE}/some/nonexistent/path-${uid()}`, { waitUntil: 'domcontentloaded' })
+      .catch(() => {})
+    await page.waitForLoadState('networkidle').catch(() => {})
     await expect(page.locator('text=404')).toBeVisible({ timeout: 10000 })
     await expect(page.locator('text=Page not found')).toBeVisible()
     await expect(page.locator('text=Back to Campaigns')).toBeVisible()

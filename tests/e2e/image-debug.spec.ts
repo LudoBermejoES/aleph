@@ -27,13 +27,13 @@ test('debug image upload', async ({ page }) => {
   await page.goto(`${base}/campaigns/${campaignId}/characters/new`, {
     waitUntil: 'domcontentloaded',
   })
-  await expect(page.locator('.ProseMirror')).toBeVisible({ timeout: 10000 })
+  await expect(page.locator('.ProseMirror').first()).toBeVisible({ timeout: 10000 })
 
-  const imageBtn = page.locator('button[title="Insert Image"]')
+  const imageBtn = page.locator('button[title="Insert Image"]').first()
   await expect(imageBtn).toBeVisible({ timeout: 10000 })
 
   // Try direct setInputFiles on hidden input
-  const fileInput = page.locator('input[type="file"][accept*="image"]')
+  const fileInput = page.locator('input[type="file"][accept*="image"]').first()
   console.log('File input count:', await fileInput.count())
   await fileInput.setInputFiles({ name: 'test.png', mimeType: 'image/png', buffer: TINY_PNG })
 
@@ -42,7 +42,7 @@ test('debug image upload', async ({ page }) => {
 
   const imgCount = await page.locator('.ProseMirror img').count()
   console.log('Image count:', imgCount)
-  const editorHtml = await page.locator('.ProseMirror').innerHTML()
+  const editorHtml = await page.locator('.ProseMirror').first().innerHTML()
   console.log('Editor HTML:', editorHtml.substring(0, 800))
 
   // Check console errors that happened during upload

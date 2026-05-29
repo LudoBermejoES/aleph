@@ -2,6 +2,8 @@ import { eq } from 'drizzle-orm'
 import { useDb } from '../../../../utils/db'
 import { timelines, timelineEvents } from '../../../../db/schema/calendars'
 
+// Intentional raw array: timelines are small reference data always loaded in full.
+// CLI and composable consumers depend on array shape — do not paginate.
 export default defineEventHandler(async (event) => {
   const campaignId = getRouterParam(event, 'id')!
   const db = useDb()

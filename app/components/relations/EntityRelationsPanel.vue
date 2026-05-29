@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-4">
+  <div class="space-y-4" data-testid="relations-panel">
     <div class="flex items-center justify-between">
       <h3 class="text-sm font-semibold">{{ $t('relations.panel.title') }}</h3>
       <Button v-if="canEdit" size="sm" variant="outline" @click="openAddDialog">
@@ -185,6 +185,21 @@
       </DialogContent>
     </Dialog>
 
+    <!-- Delete confirmation dialog -->
+    <Dialog :open="deleteConfirmOpen" @update:open="deleteConfirmOpen = $event">
+      <DialogContent role="alertdialog" class="max-w-sm">
+        <DialogHeader>
+          <DialogTitle>{{ $t('relations.panel.deleteConfirm') }}</DialogTitle>
+        </DialogHeader>
+        <DialogFooter>
+          <Button variant="outline" @click="deleteConfirmOpen = false">{{
+            $t('common.cancel')
+          }}</Button>
+          <Button variant="destructive" @click="performDelete">{{ $t('common.delete') }}</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+
     <ErrorToast v-if="actionError" :message="actionError" @dismiss="actionError = ''" />
   </div>
 </template>
@@ -214,6 +229,8 @@ const emit = defineEmits<{ 'relations-changed': [] }>()
 
 const { t } = useI18n()
 const actionError = ref('')
+const deleteConfirmOpen = ref(false)
+const pendingDelete = ref<{ mode: DeleteMode; row: unknown } | null>(null)
 
 const canEdit = computed(() => ['dm', 'co_dm', 'editor'].includes(props.role ?? 'visitor'))
 
@@ -329,8 +346,16 @@ function buildDeleteUrl(
   throw new Error(`Unknown mode ${mode}`)
 }
 
-async function confirmDelete(mode: DeleteMode, row: unknown) {
-  if (!window.confirm(t('relations.panel.deleteConfirm'))) return
+function confirmDelete(mode: DeleteMode, row: unknown) {
+  pendingDelete.value = { mode, row }
+  deleteConfirmOpen.value = true
+}
+
+async function performDelete() {
+  deleteConfirmOpen.value = false
+  if (!pendingDelete.value) return
+  const { mode, row } = pendingDelete.value
+  pendingDelete.value = null
   try {
     await $fetch(buildDeleteUrl(mode, row as EntityRelationRow), { method: 'DELETE' })
     await refresh()

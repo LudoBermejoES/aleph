@@ -32,8 +32,8 @@ export function useSecretReveals(
         const data = await res.json()
         revealedBlocks.value = new Set((data as { blockId: string }[]).map((r) => r.blockId))
       }
-    } catch {
-      /* silently ignore */
+    } catch (e) {
+      if (import.meta.dev) console.warn('[useSecretReveals] Failed to load secret reveals:', e)
     }
   }
 

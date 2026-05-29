@@ -144,48 +144,79 @@ async function fetchAndBuildSnapshot(depth = 3) {
     data.nodes.map((n) => [n.entityId, `shape:genealogy-${n.entityId}`]),
   )
 
-  const arrows = data.edges
+  const arrowEdges = data.edges
     .filter((e) => e.type === 'parent_of')
     .map((e, i) => ({
-      id: `shape:genealogy-arrow-${i}` as `shape:${string}`,
+      arrowId: `shape:genealogy-arrow-${i}` as `shape:${string}`,
+      sourceShapeId: entityIdToShapeId.get(e.sourceEntityId),
+      targetShapeId: entityIdToShapeId.get(e.targetEntityId),
+      index: i,
+    }))
+    .filter((a) => a.sourceShapeId && a.targetShapeId)
+
+  const arrows = arrowEdges.map((a) => ({
+    id: a.arrowId,
+    type: 'arrow',
+    x: 0,
+    y: 0,
+    rotation: 0,
+    isLocked: false,
+    opacity: 1,
+    meta: {},
+    props: {
+      kind: 'arc',
+      dash: 'draw',
+      size: 'm',
+      fill: 'none',
+      color: 'black',
+      labelColor: 'black',
+      bend: 0,
+      start: { x: 0, y: 0 },
+      end: { x: 100, y: 0 },
+      arrowheadStart: 'none',
+      arrowheadEnd: 'arrow',
+      richText: { type: 'doc', content: [] },
+      labelPosition: 0.5,
+      font: 'draw',
+      scale: 1,
+      elbowMidPoint: 0.5,
+    },
+    parentId: 'page:page' as `page:${string}`,
+    index: `a${a.index + 2}` as `a${string}`,
+    typeName: 'shape' as const,
+  }))
+
+  // tldraw v3: arrow→shape connections are separate `binding` records, not inline props
+  const bindings = arrowEdges.flatMap((a) => [
+    {
+      id: `binding:genealogy-bind-start-${a.index}` as `binding:${string}`,
+      typeName: 'binding' as const,
       type: 'arrow',
-      x: 0,
-      y: 0,
-      rotation: 0,
-      isLocked: false,
-      opacity: 1,
+      fromId: a.arrowId,
+      toId: a.sourceShapeId!,
       meta: {},
       props: {
-        dash: 'draw',
-        size: 'm',
-        fill: 'none',
-        color: 'black',
-        labelColor: 'black',
-        bend: 0,
-        start: {
-          type: 'binding',
-          boundShapeId: entityIdToShapeId.get(e.sourceEntityId),
-          normalizedAnchor: { x: 0.5, y: 1 },
-          isExact: false,
-          isPrecise: false,
-        },
-        end: {
-          type: 'binding',
-          boundShapeId: entityIdToShapeId.get(e.targetEntityId),
-          normalizedAnchor: { x: 0.5, y: 0 },
-          isExact: false,
-          isPrecise: false,
-        },
-        arrowheadStart: 'none',
-        arrowheadEnd: 'arrow',
-        text: '',
-        labelPosition: 0.5,
-        font: 'draw',
+        terminal: 'start',
+        normalizedAnchor: { x: 0.5, y: 1 },
+        isExact: false,
+        isPrecise: false,
       },
-      parentId: 'page:page' as `page:${string}`,
-      index: `a${i + 2}` as `a${string}`,
-      typeName: 'shape' as const,
-    }))
+    },
+    {
+      id: `binding:genealogy-bind-end-${a.index}` as `binding:${string}`,
+      typeName: 'binding' as const,
+      type: 'arrow',
+      fromId: a.arrowId,
+      toId: a.targetShapeId!,
+      meta: {},
+      props: {
+        terminal: 'end',
+        normalizedAnchor: { x: 0.5, y: 0 },
+        isExact: false,
+        isPrecise: false,
+      },
+    },
+  ])
 
   const tldrawSnapshot: TLEditorSnapshot = {
     document: {
@@ -206,6 +237,7 @@ async function fetchAndBuildSnapshot(depth = 3) {
         },
         ...Object.fromEntries(shapes.map((s) => [s.id, s])),
         ...Object.fromEntries(arrows.map((a) => [a.id, a])),
+        ...Object.fromEntries(bindings.map((b) => [b.id, b])),
       },
       schema: {
         schemaVersion: 2,

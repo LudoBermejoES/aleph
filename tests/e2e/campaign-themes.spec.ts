@@ -60,8 +60,8 @@ test.describe('Campaign Themes', () => {
     await expect(select).toBeVisible({ timeout: 10000 })
     await select.selectOption('dark-fantasy')
 
-    // Save — the settings section has a Save button
-    await page.locator('main button:has-text("Save")').click()
+    // Save — use exact match to avoid ambiguity with "Save Details" button
+    await page.locator('main button:has-text("Save")').last().click()
 
     // After save, root layout div should have data-theme="dark-fantasy"
     const root = page.locator('div.flex.h-screen').first()

@@ -71,6 +71,7 @@ export async function apiFetch(
       const res = await fetch(p, {
         method,
         headers,
+        credentials: 'include',
         body: o.body != null ? JSON.stringify(o.body) : undefined,
       })
       if (!res.ok && res.status !== 404) {

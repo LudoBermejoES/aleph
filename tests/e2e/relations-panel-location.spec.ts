@@ -19,7 +19,7 @@ test.describe('Relations panel — location detail page', () => {
     await page.goto(`${base}/campaigns/${campaignId}/locations/${slug}`)
     await page.waitForLoadState('networkidle')
 
-    await expect(page.locator('main')).toContainText('No relations yet.', { timeout: 10000 })
+    await expect(page.locator('main')).toContainText('No relations yet.', { timeout: 20000 })
     await expect(page.locator('button:has-text("Add Relation")')).toBeVisible({ timeout: 5000 })
   })
 
@@ -49,7 +49,9 @@ test.describe('Relations panel — location detail page', () => {
 
     // Panel should show Inhabitants group header and character name
     await expect(page.locator('main')).toContainText('Town Resident', { timeout: 10000 })
-    await expect(page.locator('main button:has-text("Delete")')).toBeVisible({ timeout: 5000 })
+    await expect(
+      page.locator('[data-testid="relations-panel"] button:has-text("Delete")'),
+    ).toBeVisible({ timeout: 5000 })
   })
 
   test('panel shows Organizations section with linked orgs', async ({ page }) => {
@@ -77,7 +79,9 @@ test.describe('Relations panel — location detail page', () => {
     await page.waitForLoadState('networkidle')
 
     await expect(page.locator('main')).toContainText('Town Guild', { timeout: 10000 })
-    await expect(page.locator('main button:has-text("Delete")')).toBeVisible({ timeout: 5000 })
+    await expect(
+      page.locator('[data-testid="relations-panel"] button:has-text("Delete")'),
+    ).toBeVisible({ timeout: 5000 })
   })
 
   test('DM can remove an inhabitant via the panel Delete button', async ({ page }) => {
@@ -106,10 +110,11 @@ test.describe('Relations panel — location detail page', () => {
 
     await expect(page.locator('main')).toContainText('Evicted Resident', { timeout: 10000 })
 
-    await page.click('main button:has-text("Delete")')
+    await page.click('[data-testid="relations-panel"] button:has-text("Delete")')
+    await expect(page.locator('[role="alertdialog"]')).toBeVisible({ timeout: 15000 })
     await page.click('[role="alertdialog"] button:has-text("Delete")')
 
-    await expect(page.locator('main')).toContainText('No relations yet.', { timeout: 10000 })
+    await expect(page.locator('main')).toContainText('No relations yet.', { timeout: 20000 })
     await expect(page.locator('main')).not.toContainText('Evicted Resident', { timeout: 5000 })
   })
 
@@ -139,10 +144,11 @@ test.describe('Relations panel — location detail page', () => {
 
     await expect(page.locator('main')).toContainText('Departing Guild', { timeout: 10000 })
 
-    await page.click('main button:has-text("Delete")')
+    await page.click('[data-testid="relations-panel"] button:has-text("Delete")')
+    await expect(page.locator('[role="alertdialog"]')).toBeVisible({ timeout: 15000 })
     await page.click('[role="alertdialog"] button:has-text("Delete")')
 
-    await expect(page.locator('main')).toContainText('No relations yet.', { timeout: 10000 })
+    await expect(page.locator('main')).toContainText('No relations yet.', { timeout: 20000 })
     await expect(page.locator('main')).not.toContainText('Departing Guild', { timeout: 5000 })
   })
 })

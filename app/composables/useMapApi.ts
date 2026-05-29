@@ -1,0 +1,83 @@
+import type { CampaignMap, MapPin, MapLayer, MapRegion } from '~/types/api'
+
+export function useMapApi(campaignId: string) {
+  const base = `/api/campaigns/${campaignId}`
+
+  // ─── Maps ───────────────────────────────────────────────────────────────────
+
+  function getMaps(params?: Record<string, string>) {
+    return $fetch<CampaignMap[]>(`${base}/maps`, { params })
+  }
+
+  function getMap(slug: string) {
+    return $fetch<CampaignMap>(`${base}/maps/${slug}`)
+  }
+
+  function createMap(body: Record<string, unknown>) {
+    return $fetch<CampaignMap>(`${base}/maps`, { method: 'POST', body })
+  }
+
+  function updateMap(slug: string, body: Record<string, unknown>) {
+    return $fetch<CampaignMap>(`${base}/maps/${slug}`, { method: 'PUT', body })
+  }
+
+  function deleteMap(slug: string) {
+    return $fetch(`${base}/maps/${slug}`, { method: 'DELETE' })
+  }
+
+  function uploadMapImage(slug: string, formData: FormData) {
+    return $fetch(`${base}/maps/${slug}/upload`, { method: 'POST', body: formData })
+  }
+
+  function getMapLayers(slug: string) {
+    return $fetch<MapLayer[]>(`${base}/maps/${slug}/layers`)
+  }
+
+  function getMapPins(slug: string) {
+    return $fetch<MapPin[]>(`${base}/maps/${slug}/pins`)
+  }
+
+  function getMapRegions(slug: string) {
+    return $fetch<MapRegion[]>(`${base}/maps/${slug}/regions`)
+  }
+
+  function updateMapRegions(slug: string, body: unknown) {
+    return $fetch(`${base}/maps/${slug}/regions`, {
+      method: 'PUT',
+      body: body as Record<string, unknown>,
+    })
+  }
+
+  function updateMapLayer(mapSlug: string, layerId: string, body: Record<string, unknown>) {
+    return $fetch(`${base}/maps/${mapSlug}/layers/${layerId}`, { method: 'PUT', body })
+  }
+
+  function deleteMapLayer(mapSlug: string, layerId: string) {
+    return $fetch(`${base}/maps/${mapSlug}/layers/${layerId}`, { method: 'DELETE' })
+  }
+
+  function updateMapRegion(mapSlug: string, regionId: string, body: Record<string, unknown>) {
+    return $fetch(`${base}/maps/${mapSlug}/regions/${regionId}`, { method: 'PUT', body })
+  }
+
+  function deleteMapRegion(mapSlug: string, regionId: string) {
+    return $fetch(`${base}/maps/${mapSlug}/regions/${regionId}`, { method: 'DELETE' })
+  }
+
+  return {
+    getMaps,
+    getMap,
+    createMap,
+    updateMap,
+    deleteMap,
+    uploadMapImage,
+    getMapLayers,
+    updateMapLayer,
+    deleteMapLayer,
+    getMapPins,
+    getMapRegions,
+    updateMapRegions,
+    updateMapRegion,
+    deleteMapRegion,
+  }
+}

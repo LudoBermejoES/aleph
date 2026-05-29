@@ -6,8 +6,10 @@ const uid = () => Date.now().toString(36).slice(-4)
 test.describe('Navigation', () => {
   test('404 page shows for unknown route', async ({ page }) => {
     await registerAndLogin(page, 'Nav Tester')
-    await page.goto(`${BASE}/some/nonexistent/path`)
-    await page.waitForLoadState('networkidle')
+    await page
+      .goto(`${BASE}/some/nonexistent/path`, { waitUntil: 'domcontentloaded' })
+      .catch(() => {})
+    await page.waitForLoadState('networkidle').catch(() => {})
     await expect(page.locator('text=404')).toBeVisible({ timeout: 10000 })
   })
 

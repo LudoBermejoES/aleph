@@ -59,6 +59,7 @@ test.describe('Location creation', () => {
         const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
         await fetch(`/api/campaigns/${id}/locations`, {
           method: 'POST',
+          credentials: 'include',
           headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
           body: JSON.stringify({ name, subtype: 'region', visibility: 'members' }),
         })
@@ -92,6 +93,7 @@ test.describe('Location detail page', () => {
         const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
         const res = await fetch(`/api/campaigns/${id}/locations`, {
           method: 'POST',
+          credentials: 'include',
           headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
           body: JSON.stringify({
             name,
@@ -122,6 +124,7 @@ test.describe('Location detail page', () => {
       const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
       const res = await fetch(`/api/campaigns/${id}/locations`, {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
         body: JSON.stringify({ name: 'Barovia', subtype: 'region', visibility: 'members' }),
       })
@@ -133,6 +136,7 @@ test.describe('Location detail page', () => {
         const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
         const res = await fetch(`/api/campaigns/${id}/locations`, {
           method: 'POST',
+          credentials: 'include',
           headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
           body: JSON.stringify({
             name: 'Village of Barovia',
@@ -166,6 +170,7 @@ test.describe('Location edit page', () => {
       const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
       const res = await fetch(`/api/campaigns/${id}/locations`, {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
         body: JSON.stringify({ name: 'Old Name', subtype: 'city', visibility: 'members' }),
       })

@@ -60,6 +60,7 @@ test.describe('Map tiles', () => {
 
         const res = await fetch(`/api/campaigns/${campaignId}/maps/${slug}/upload`, {
           method: 'POST',
+          credentials: 'include',
           body: form,
           headers,
         })
@@ -110,6 +111,7 @@ test.describe('Map tiles', () => {
             for (let y = 0; y < Math.min(rows + 1, 4); y++) {
               const res = await fetch(
                 `/api/campaigns/${campaignId}/maps/${slug}/tiles/${z}/${x}/${y}`,
+                { credentials: 'include' },
               )
               const blob = await res.blob()
               tilesChecked++
@@ -125,7 +127,9 @@ test.describe('Map tiles', () => {
         }
 
         // Also check that zoom level beyond max returns fallback
-        const outOfRange = await fetch(`/api/campaigns/${campaignId}/maps/${slug}/tiles/10/0/0`)
+        const outOfRange = await fetch(`/api/campaigns/${campaignId}/maps/${slug}/tiles/10/0/0`, {
+          credentials: 'include',
+        })
         const outBlob = await outOfRange.blob()
 
         return { results, outOfRangeSize: outBlob.size }

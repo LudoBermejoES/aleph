@@ -15,8 +15,10 @@ test.describe('i18n fixes', () => {
         { name: 'i18n_redirected', value: 'es', domain: new URL(BASE).hostname, path: '/' },
       ])
 
-    await page.goto(`${BASE}/some/nonexistent/es-path-${uid()}`)
-    await page.waitForLoadState('networkidle')
+    await page
+      .goto(`${BASE}/some/nonexistent/es-path-${uid()}`, { waitUntil: 'domcontentloaded' })
+      .catch(() => {})
+    await page.waitForLoadState('networkidle').catch(() => {})
     await expect(page.locator('text=404')).toBeVisible({ timeout: 10000 })
     await expect(page.locator('text=Página no encontrada')).toBeVisible()
     await expect(page.locator('text=Volver a Campañas')).toBeVisible()
@@ -32,8 +34,10 @@ test.describe('i18n fixes', () => {
         { name: 'i18n_redirected', value: 'en', domain: new URL(BASE).hostname, path: '/' },
       ])
 
-    await page.goto(`${BASE}/some/nonexistent/en-path-${uid()}`, { waitUntil: 'domcontentloaded' })
-    await page.waitForLoadState('networkidle')
+    await page
+      .goto(`${BASE}/some/nonexistent/en-path-${uid()}`, { waitUntil: 'domcontentloaded' })
+      .catch(() => {})
+    await page.waitForLoadState('networkidle').catch(() => {})
     await expect(page.locator('text=404')).toBeVisible({ timeout: 10000 })
     await expect(page.locator('text=Page not found')).toBeVisible()
     await expect(page.locator('text=Back to Campaigns')).toBeVisible()

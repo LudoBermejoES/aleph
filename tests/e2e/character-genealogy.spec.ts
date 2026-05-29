@@ -84,6 +84,53 @@ test.describe('Character Genealogy', () => {
     })
   })
 
+  test('genealogy snapshot loads without tldraw validation errors', async ({ page }) => {
+    const consoleErrors: string[] = []
+    page.on('console', (msg) => {
+      if (msg.type() === 'error') consoleErrors.push(msg.text())
+    })
+    page.on('pageerror', (err) => {
+      consoleErrors.push(err.message)
+    })
+
+    await registerAndLogin(page, 'Snapshot Tester')
+    await createCampaign(page, `Snapshot Camp ${uid()}`)
+    const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
+
+    // Build a small family: parent + child, so the snapshot has at least one arrow + binding
+    const parent = (await apiFetch(page, `/api/campaigns/${campaignId}/characters`, {
+      method: 'POST',
+      body: { name: 'SnapParent', characterType: 'npc' },
+    })) as { slug: string }
+    const child = (await apiFetch(page, `/api/campaigns/${campaignId}/characters`, {
+      method: 'POST',
+      body: { name: 'SnapChild', characterType: 'npc' },
+    })) as { slug: string }
+    await apiFetch(page, `/api/campaigns/${campaignId}/characters/${parent.slug}/family`, {
+      method: 'POST',
+      body: { type: 'parent', targetCharacterSlug: child.slug },
+    })
+
+    await page.goto(
+      `http://localhost:3333/campaigns/${campaignId}/characters/${child.slug}/genealogy`,
+    )
+    await page.waitForLoadState('networkidle')
+    await expect(page.locator('[data-testid="genealogy-canvas"]')).toBeVisible({ timeout: 15000 })
+    // Allow the tldraw store to finish loading the snapshot
+    await page.waitForTimeout(2000)
+
+    const tldrawErrors = consoleErrors.filter(
+      (e) =>
+        e.includes('ValidationError') ||
+        e.includes('Expected "arc" or "elbow"') ||
+        e.includes('loadStoreSnapshot'),
+    )
+    expect(tldrawErrors, `tldraw errors detected:\n${tldrawErrors.join('\n')}`).toEqual([])
+
+    // Clear cookies so the next test starts with a fresh session
+    await page.context().clearCookies()
+  })
+
   test('recompute layout button resets the canvas snapshot', async ({ page }) => {
     await registerAndLogin(page, 'Recompute Tester')
     await createCampaign(page, `Recompute Camp ${uid()}`)

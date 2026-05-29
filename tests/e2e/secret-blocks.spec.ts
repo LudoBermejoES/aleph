@@ -28,12 +28,14 @@ test.describe('Secret Content Blocks', () => {
     // DM reads entity -- should see the secret block in raw content
     const dmRead = await dmPage.evaluate(
       async ([id]) => {
-        const entities = await fetch(`/api/campaigns/${id}/entities`).then((r) => r.json())
+        const entities = await fetch(`/api/campaigns/${id}/entities`, {
+          credentials: 'include',
+        }).then((r) => r.json())
         const entity = entities.entities[0]
         if (!entity) return { content: '' }
-        const detail = await fetch(`/api/campaigns/${id}/entities/${entity.slug}`).then((r) =>
-          r.json(),
-        )
+        const detail = await fetch(`/api/campaigns/${id}/entities/${entity.slug}`, {
+          credentials: 'include',
+        }).then((r) => r.json())
         return { content: detail.content }
       },
       [campaignId],
@@ -62,12 +64,14 @@ test.describe('Secret Content Blocks', () => {
     // (secret stripping happens at render time, not storage)
     const playerRead = await playerPage.evaluate(
       async ([id]) => {
-        const entities = await fetch(`/api/campaigns/${id}/entities`).then((r) => r.json())
+        const entities = await fetch(`/api/campaigns/${id}/entities`, {
+          credentials: 'include',
+        }).then((r) => r.json())
         const entity = entities.entities[0]
         if (!entity) return { content: '' }
-        const detail = await fetch(`/api/campaigns/${id}/entities/${entity.slug}`).then((r) =>
-          r.json(),
-        )
+        const detail = await fetch(`/api/campaigns/${id}/entities/${entity.slug}`, {
+          credentials: 'include',
+        }).then((r) => r.json())
         return { content: detail.content }
       },
       [campaignId],

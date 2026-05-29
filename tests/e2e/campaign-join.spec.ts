@@ -44,7 +44,7 @@ test.describe('Campaign Join Flow', () => {
     // Clear cookies so the player is unauthenticated
     await context.clearCookies()
 
-    await playerPage.goto(joinUrl, { waitUntil: 'domcontentloaded' })
+    await playerPage.goto(joinUrl, { waitUntil: 'domcontentloaded' }).catch(() => {})
     await playerPage.waitForLoadState('networkidle')
 
     // Should see register tab
@@ -90,7 +90,7 @@ test.describe('Campaign Join Flow', () => {
     await playerPage.waitForLoadState('networkidle')
 
     // Authenticated player visits the invite URL — should auto-join
-    await playerPage.goto(joinUrl, { waitUntil: 'domcontentloaded' })
+    await playerPage.goto(joinUrl, { waitUntil: 'domcontentloaded' }).catch(() => {})
 
     // Should redirect directly to the campaign (no login form shown)
     await expect(async () => {

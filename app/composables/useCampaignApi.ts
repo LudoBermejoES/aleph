@@ -1,36 +1,19 @@
 import type {
+  Campaign,
   CampaignListItem,
   CampaignMember,
-  Character,
-  CharacterFolder,
-  CharacterConnection,
-  Entity,
-  EntityListResult,
-  EntityType,
   EntityRelation,
   RelationType,
-  GameSession,
-  SessionDecision,
-  Quest,
-  CampaignMap,
-  MapPin,
-  MapLayer,
-  MapRegion,
-  Calendar,
-  CalendarDate,
-  CalendarEvent,
-  Timeline,
-  Inventory,
-  Item,
-  Currency,
-  Transaction,
-  Shop,
-  Tag,
   GraphData,
   SearchResult,
-  Mention,
-  WealthBalance,
 } from '~/types/api'
+
+import { useCharacterApi } from './useCharacterApi'
+import { useSessionApi } from './useSessionApi'
+import { useEntityApi } from './useEntityApi'
+import { useMapApi } from './useMapApi'
+import { useInventoryApi } from './useInventoryApi'
+import { useCalendarApi } from './useCalendarApi'
 
 export function useCampaignApi(campaignId: string) {
   const base = `/api/campaigns/${campaignId}`
@@ -66,389 +49,6 @@ export function useCampaignApi(campaignId: string) {
     )
   }
 
-  // ─── Entities ───────────────────────────────────────────────────────────────
-
-  function getEntities(params?: Record<string, string | number>) {
-    return $fetch<EntityListResult>(`${base}/entities`, { params })
-  }
-
-  function getEntity(slug: string) {
-    return $fetch<Entity>(`${base}/entities/${slug}`)
-  }
-
-  function createEntity(body: Partial<Entity>) {
-    return $fetch<Entity>(`${base}/entities`, { method: 'POST', body })
-  }
-
-  function updateEntity(slug: string, body: Partial<Entity>) {
-    return $fetch<Entity>(`${base}/entities/${slug}`, { method: 'PUT', body })
-  }
-
-  function deleteEntity(slug: string) {
-    return $fetch(`${base}/entities/${slug}`, { method: 'DELETE' })
-  }
-
-  function getEntityTypes() {
-    return $fetch<EntityType[]>(`${base}/entity-types`)
-  }
-
-  function updateEntityType(typeId: string, body: Record<string, unknown>) {
-    return $fetch(`${base}/entity-types/${typeId}`, { method: 'PUT', body })
-  }
-
-  function deleteEntityType(typeId: string) {
-    return $fetch(`${base}/entity-types/${typeId}`, { method: 'DELETE' })
-  }
-
-  function getTags() {
-    return $fetch<Tag[]>(`${base}/tags`)
-  }
-
-  function getMentions(params?: { entity_id?: string }) {
-    return $fetch<Mention[]>(`${base}/mentions`, { params })
-  }
-
-  // ─── Characters ─────────────────────────────────────────────────────────────
-
-  function getCharacters(params?: Record<string, string>) {
-    return $fetch<Character[]>(`${base}/characters`, { params: { pageSize: '0', ...params } })
-  }
-
-  function getCharacter(slug: string, params?: Record<string, string>) {
-    const query = params ? '?' + new URLSearchParams(params).toString() : ''
-    return $fetch<Character>(`${base}/characters/${slug}${query}`)
-  }
-
-  function createCharacter(body: Record<string, unknown>) {
-    return $fetch<Character>(`${base}/characters`, { method: 'POST', body })
-  }
-
-  function updateCharacter(slug: string, body: Record<string, unknown>) {
-    return $fetch<Character>(`${base}/characters/${slug}`, { method: 'PUT', body })
-  }
-
-  function deleteCharacter(slug: string) {
-    return $fetch(`${base}/characters/${slug}`, { method: 'DELETE' })
-  }
-
-  function deleteAbility(characterSlug: string, abilityId: string) {
-    return $fetch(`${base}/characters/${characterSlug}/abilities/${abilityId}`, {
-      method: 'DELETE',
-    })
-  }
-
-  function getCharacterOrganizations(slug: string) {
-    return $fetch<Record<string, unknown>[]>(`${base}/characters/${slug}/organizations`)
-  }
-
-  function getCharacterConnections(slug: string) {
-    return $fetch<CharacterConnection[]>(`${base}/characters/${slug}/connections`)
-  }
-
-  function deleteCharacterConnection(slug: string, connectionId: string) {
-    return $fetch(`${base}/characters/${slug}/connections/${connectionId}`, { method: 'DELETE' })
-  }
-
-  function getCharacterFolders() {
-    return $fetch<CharacterFolder[]>(`${base}/character-folders`)
-  }
-
-  function updateCharacterFolder(folderId: string, body: Record<string, unknown>) {
-    return $fetch(`${base}/character-folders/${folderId}`, { method: 'PUT', body })
-  }
-
-  function deleteCharacterFolder(folderId: string) {
-    return $fetch(`${base}/character-folders/${folderId}`, { method: 'DELETE' })
-  }
-
-  // ─── Sessions ───────────────────────────────────────────────────────────────
-
-  function getSessions(params?: Record<string, string>) {
-    return $fetch<GameSession[]>(`${base}/sessions`, { params })
-  }
-
-  function getSession(slug: string) {
-    return $fetch<GameSession>(`${base}/sessions/${slug}`)
-  }
-
-  function createSession(body: Record<string, unknown>) {
-    return $fetch<GameSession>(`${base}/sessions`, { method: 'POST', body })
-  }
-
-  function updateSession(slug: string, body: Record<string, unknown>) {
-    return $fetch<GameSession>(`${base}/sessions/${slug}`, { method: 'PUT', body })
-  }
-
-  function deleteSession(slug: string) {
-    return $fetch(`${base}/sessions/${slug}`, { method: 'DELETE' })
-  }
-
-  function getSessionContent(slug: string) {
-    return $fetch<Record<string, string | null>>(`${base}/sessions/${slug}/content`)
-  }
-
-  function updateSessionContent(slug: string, type: string, content: string) {
-    return $fetch(`${base}/sessions/${slug}/content`, { method: 'PUT', body: { type, content } })
-  }
-
-  // ─── Session Groups ──────────────────────────────────────────────────────────
-
-  function getSessionGroups() {
-    return $fetch<Record<string, unknown>[]>(`${base}/session-groups`)
-  }
-
-  function createSessionGroup(body: Record<string, unknown>) {
-    return $fetch<Record<string, unknown>>(`${base}/session-groups`, { method: 'POST', body })
-  }
-
-  function updateSessionGroup(slug: string, body: Record<string, unknown>) {
-    return $fetch<Record<string, unknown>>(`${base}/session-groups/${slug}`, {
-      method: 'PUT',
-      body,
-    })
-  }
-
-  function deleteSessionGroup(slug: string) {
-    return $fetch(`${base}/session-groups/${slug}`, { method: 'DELETE' })
-  }
-
-  function getSessionDecisions(slug: string) {
-    return $fetch<SessionDecision[]>(`${base}/sessions/${slug}/decisions`)
-  }
-
-  function createDecision(
-    slug: string,
-    body: { title: string; type?: string; description?: string },
-  ) {
-    return $fetch(`${base}/sessions/${slug}/decisions`, { method: 'POST', body })
-  }
-
-  function createConsequence(
-    slug: string,
-    decisionId: string,
-    body: { description: string; revealed?: boolean },
-  ) {
-    return $fetch(`${base}/sessions/${slug}/decisions/${decisionId}/consequences`, {
-      method: 'POST',
-      body,
-    })
-  }
-
-  function revealConsequence(
-    slug: string,
-    decisionId: string,
-    consequenceId: string,
-    revealed: boolean,
-  ) {
-    return $fetch(`${base}/sessions/${slug}/decisions/${decisionId}/consequences`, {
-      method: 'PATCH',
-      body: { consequenceId, revealed },
-    })
-  }
-
-  function patchAttendance(
-    slug: string,
-    body: { rsvpStatus?: string; attended?: boolean; userId?: string },
-  ) {
-    return $fetch(`${base}/sessions/${slug}/attendance`, { method: 'PATCH', body })
-  }
-
-  function getSessionRolls(slug: string) {
-    return $fetch<Record<string, unknown>[]>(`${base}/sessions/${slug}/rolls`)
-  }
-
-  function getCampaignArcs(params?: Record<string, string>) {
-    const query = params ? '?' + new URLSearchParams(params).toString() : ''
-    return $fetch<Record<string, unknown>[]>(`${base}/arcs${query}`)
-  }
-
-  function getArcs(params?: Record<string, string>) {
-    return getCampaignArcs(params)
-  }
-
-  function getArc(slug: string) {
-    return $fetch<Record<string, unknown>>(`${base}/arcs/${slug}`)
-  }
-
-  function createArc(body: Record<string, unknown>) {
-    return $fetch<Record<string, unknown>>(`${base}/arcs`, { method: 'POST', body })
-  }
-
-  function getChapters(arcId: string) {
-    return $fetch<Record<string, unknown>[]>(`${base}/chapters`, { params: { arc_id: arcId } })
-  }
-
-  function createChapter(body: Record<string, unknown>) {
-    return $fetch<Record<string, unknown>>(`${base}/chapters`, { method: 'POST', body })
-  }
-
-  function updateArc(slug: string, body: Record<string, unknown>) {
-    return $fetch(`${base}/arcs/${slug}`, { method: 'PUT', body })
-  }
-
-  function deleteArc(slug: string) {
-    return $fetch(`${base}/arcs/${slug}`, { method: 'DELETE' })
-  }
-
-  function updateChapter(slug: string, body: Record<string, unknown>) {
-    return $fetch(`${base}/chapters/${slug}`, { method: 'PUT', body })
-  }
-
-  function deleteChapter(slug: string) {
-    return $fetch(`${base}/chapters/${slug}`, { method: 'DELETE' })
-  }
-
-  function deleteSessionContent(sessionSlug: string, contentId: string) {
-    return $fetch(`${base}/sessions/${sessionSlug}/content/${contentId}`, { method: 'DELETE' })
-  }
-
-  // ─── Quests ─────────────────────────────────────────────────────────────────
-
-  function getQuests(params?: Record<string, string>) {
-    return $fetch<Quest[]>(`${base}/quests`, { params })
-  }
-
-  function getQuest(slug: string, params?: Record<string, string>) {
-    return $fetch<Quest>(`${base}/quests/${slug}`, { params })
-  }
-
-  function createQuest(body: Record<string, unknown>) {
-    return $fetch<Quest>(`${base}/quests`, { method: 'POST', body })
-  }
-
-  function updateQuest(slug: string, body: Record<string, unknown>) {
-    return $fetch<Quest>(`${base}/quests/${slug}`, { method: 'PUT', body })
-  }
-
-  function deleteQuest(slug: string) {
-    return $fetch(`${base}/quests/${slug}`, { method: 'DELETE' })
-  }
-
-  // ─── Maps ───────────────────────────────────────────────────────────────────
-
-  function getMaps(params?: Record<string, string>) {
-    return $fetch<CampaignMap[]>(`${base}/maps`, { params })
-  }
-
-  function getMap(slug: string) {
-    return $fetch<CampaignMap>(`${base}/maps/${slug}`)
-  }
-
-  function createMap(body: Record<string, unknown>) {
-    return $fetch<CampaignMap>(`${base}/maps`, { method: 'POST', body })
-  }
-
-  function updateMap(slug: string, body: Record<string, unknown>) {
-    return $fetch<CampaignMap>(`${base}/maps/${slug}`, { method: 'PUT', body })
-  }
-
-  function deleteMap(slug: string) {
-    return $fetch(`${base}/maps/${slug}`, { method: 'DELETE' })
-  }
-
-  function uploadMapImage(slug: string, formData: FormData) {
-    return $fetch(`${base}/maps/${slug}/upload`, { method: 'POST', body: formData })
-  }
-
-  function getMapLayers(slug: string) {
-    return $fetch<MapLayer[]>(`${base}/maps/${slug}/layers`)
-  }
-
-  function getMapPins(slug: string) {
-    return $fetch<MapPin[]>(`${base}/maps/${slug}/pins`)
-  }
-
-  function getMapRegions(slug: string) {
-    return $fetch<MapRegion[]>(`${base}/maps/${slug}/regions`)
-  }
-
-  function updateMapRegions(slug: string, body: unknown) {
-    return $fetch(`${base}/maps/${slug}/regions`, { method: 'PUT', body })
-  }
-
-  function updateMapLayer(mapSlug: string, layerId: string, body: Record<string, unknown>) {
-    return $fetch(`${base}/maps/${mapSlug}/layers/${layerId}`, { method: 'PUT', body })
-  }
-
-  function deleteMapLayer(mapSlug: string, layerId: string) {
-    return $fetch(`${base}/maps/${mapSlug}/layers/${layerId}`, { method: 'DELETE' })
-  }
-
-  function updateMapRegion(mapSlug: string, regionId: string, body: Record<string, unknown>) {
-    return $fetch(`${base}/maps/${mapSlug}/regions/${regionId}`, { method: 'PUT', body })
-  }
-
-  function deleteMapRegion(mapSlug: string, regionId: string) {
-    return $fetch(`${base}/maps/${mapSlug}/regions/${regionId}`, { method: 'DELETE' })
-  }
-
-  // ─── Calendars ──────────────────────────────────────────────────────────────
-
-  function getCalendars() {
-    return $fetch<Calendar[]>(`${base}/calendars`)
-  }
-
-  function getCalendar(calendarId: string) {
-    return $fetch<Calendar>(`${base}/calendars/${calendarId}`)
-  }
-
-  function createCalendar(body: Record<string, unknown>) {
-    return $fetch<Calendar>(`${base}/calendars`, { method: 'POST', body })
-  }
-
-  function updateCalendar(calendarId: string, body: Record<string, unknown>) {
-    return $fetch<Calendar>(`${base}/calendars/${calendarId}`, { method: 'PUT', body })
-  }
-
-  function deleteCalendar(calendarId: string) {
-    return $fetch(`${base}/calendars/${calendarId}`, { method: 'DELETE' })
-  }
-
-  function getCalendarEvents(calendarId: string, params?: Record<string, string | number>) {
-    return $fetch<CalendarEvent[]>(`${base}/calendars/${calendarId}/events`, { params })
-  }
-
-  function advanceCalendarDate(calendarId: string, body: Record<string, unknown>) {
-    return $fetch<{ currentDate: CalendarDate }>(`${base}/calendars/${calendarId}/advance`, {
-      method: 'POST',
-      body,
-    })
-  }
-
-  function deleteCalendarEvent(calendarId: string, eventId: string) {
-    return $fetch(`${base}/calendars/${calendarId}/events/${eventId}`, { method: 'DELETE' })
-  }
-
-  // ─── Timelines ──────────────────────────────────────────────────────────────
-
-  function getTimelines() {
-    return $fetch<Timeline[]>(`${base}/timelines`)
-  }
-
-  function getTimeline(slug: string) {
-    return $fetch<Timeline>(`${base}/timelines/${slug}`)
-  }
-
-  function createTimeline(body: Record<string, unknown>) {
-    return $fetch<Timeline>(`${base}/timelines`, { method: 'POST', body })
-  }
-
-  function updateTimeline(slug: string, body: Record<string, unknown>) {
-    return $fetch<Timeline>(`${base}/timelines/${slug}`, { method: 'PUT', body })
-  }
-
-  function deleteTimeline(slug: string) {
-    return $fetch(`${base}/timelines/${slug}`, { method: 'DELETE' })
-  }
-
-  function createTimelineEvent(slug: string, body: Record<string, unknown>) {
-    return $fetch(`${base}/timelines/${slug}/events`, { method: 'POST', body })
-  }
-
-  function deleteTimelineEvent(timelineSlug: string, eventId: string) {
-    return $fetch(`${base}/timelines/${timelineSlug}/events/${eventId}`, { method: 'DELETE' })
-  }
-
   // ─── Relations ──────────────────────────────────────────────────────────────
 
   function getRelations(params?: { entity_id?: string }) {
@@ -475,140 +75,26 @@ export function useCampaignApi(campaignId: string) {
     return $fetch<RelationType[]>(`${base}/relation-types`)
   }
 
-  // ─── Inventories ────────────────────────────────────────────────────────────
-
-  function getInventories(params?: Record<string, string>) {
-    return $fetch<Inventory[]>(`${base}/inventories`, { params })
-  }
-
-  function createInventory(body: Record<string, unknown>) {
-    return $fetch<Inventory>(`${base}/inventories`, { method: 'POST', body })
-  }
-
-  function transferInventoryItems(fromInventoryId: string, body: Record<string, unknown>) {
-    return $fetch(`${base}/inventories/${fromInventoryId}/transfer`, { method: 'POST', body })
-  }
-
-  function deleteInventory(inventoryId: string) {
-    return $fetch(`${base}/inventories/${inventoryId}`, { method: 'DELETE' })
-  }
-
-  function deleteInventoryItem(inventoryId: string, itemId: string) {
-    return $fetch(`${base}/inventories/${inventoryId}/items/${itemId}`, { method: 'DELETE' })
-  }
-
-  // ─── Items ──────────────────────────────────────────────────────────────────
-
-  function getItems(params?: Record<string, string>) {
-    return $fetch<Item[]>(`${base}/items`, { params })
-  }
-
-  function getItem(itemId: string) {
-    return $fetch<Item>(`${base}/items/${itemId}`)
-  }
-
-  function createItem(body: Record<string, unknown>) {
-    return $fetch<Item>(`${base}/items`, { method: 'POST', body })
-  }
-
-  function updateItem(itemId: string, body: Record<string, unknown>) {
-    return $fetch<Item>(`${base}/items/${itemId}`, { method: 'PUT', body })
-  }
-
-  function deleteItem(itemId: string) {
-    return $fetch(`${base}/items/${itemId}`, { method: 'DELETE' })
-  }
-
-  // ─── Currencies & Transactions ───────────────────────────────────────────────
-
-  function getCurrencies() {
-    return $fetch<Currency[]>(`${base}/currencies`)
-  }
-
-  function createCurrency(body: Record<string, unknown>) {
-    return $fetch<Currency>(`${base}/currencies`, { method: 'POST', body })
-  }
-
-  function updateCurrency(currencyId: string, body: Record<string, unknown>) {
-    return $fetch<Currency>(`${base}/currencies/${currencyId}`, { method: 'PUT', body })
-  }
-
-  function deleteCurrency(currencyId: string) {
-    return $fetch(`${base}/currencies/${currencyId}`, { method: 'DELETE' })
-  }
-
-  function getTransactions(params?: Record<string, string>) {
-    return $fetch<Transaction[]>(`${base}/transactions`, { params })
-  }
-
-  function getWealth(params?: { owner_id?: string; owner_type?: string }) {
-    return $fetch<WealthBalance[]>(`${base}/wealth`, { params })
-  }
-
-  // ─── Shops ──────────────────────────────────────────────────────────────────
-
-  function getShops() {
-    return $fetch<Shop[]>(`${base}/shops`)
-  }
-
-  function getShop(slug: string) {
-    return $fetch<Shop>(`${base}/shops/${slug}`)
-  }
-
-  function createShop(body: Record<string, unknown>) {
-    return $fetch<Shop>(`${base}/shops`, { method: 'POST', body })
-  }
-
-  function updateShop(slug: string, body: Record<string, unknown>) {
-    return $fetch<Shop>(`${base}/shops/${slug}`, { method: 'PUT', body })
-  }
-
-  function deleteShop(slug: string) {
-    return $fetch(`${base}/shops/${slug}`, { method: 'DELETE' })
-  }
-
-  function addShopStock(slug: string, body: Record<string, unknown>) {
-    return $fetch(`${base}/shops/${slug}/stock`, { method: 'POST', body })
-  }
-
-  function updateShopStock(slug: string, stockId: string, body: Record<string, unknown>) {
-    return $fetch(`${base}/shops/${slug}/stock/${stockId}`, { method: 'PUT', body })
-  }
-
-  function deleteShopStock(slug: string, stockId: string) {
-    return $fetch(`${base}/shops/${slug}/stock/${stockId}`, { method: 'DELETE' })
-  }
-
-  function createTransaction(body: Record<string, unknown>) {
-    return $fetch(`${base}/transactions`, { method: 'POST', body })
-  }
-
-  // ─── Templates ──────────────────────────────────────────────────────────────
-
-  function getTemplates() {
-    return $fetch<Record<string, unknown>[]>(`${base}/templates`)
-  }
-
-  function getTemplate(templateId: string) {
-    return $fetch<Record<string, unknown>>(`${base}/templates/${templateId}`)
-  }
-
-  function createTemplate(body: Record<string, unknown>) {
-    return $fetch<Record<string, unknown>>(`${base}/templates`, { method: 'POST', body })
-  }
-
-  function updateTemplate(templateId: string, body: Record<string, unknown>) {
-    return $fetch<Record<string, unknown>>(`${base}/templates/${templateId}`, {
-      method: 'PUT',
-      body,
-    })
-  }
-
-  function deleteTemplate(templateId: string) {
-    return $fetch(`${base}/templates/${templateId}`, { method: 'DELETE' })
-  }
-
   // ─── Graph ──────────────────────────────────────────────────────────────────
+
+  function getGraph() {
+    return $fetch<GraphData>(`${base}/graph`)
+  }
+
+  // ─── Search ─────────────────────────────────────────────────────────────────
+
+  function search(params: { q: string; type?: string; limit?: number }) {
+    return $fetch<SearchResult>(`${base}/search`, { params })
+  }
+
+  // ─── Dice ───────────────────────────────────────────────────────────────────
+
+  function roll(body: { formula: string; sessionId?: string }) {
+    return $fetch<{ formula: string; result: number; total: number; rolls: number[] }>(
+      `${base}/roll`,
+      { method: 'POST', body },
+    )
+  }
 
   // ─── Organizations ──────────────────────────────────────────────────────────
 
@@ -746,26 +232,13 @@ export function useCampaignApi(campaignId: string) {
     return $fetch<Record<string, unknown>[]>(`${base}/organizations/${orgSlug}/locations`)
   }
 
-  function getGraph() {
-    return $fetch<GraphData>(`${base}/graph`)
-  }
-
-  // ─── Search ─────────────────────────────────────────────────────────────────
-
-  function search(params: { q: string; type?: string; limit?: number }) {
-    return $fetch<SearchResult>(`${base}/search`, { params })
-  }
-
-  // ─── Dice ───────────────────────────────────────────────────────────────────
-
-  function roll(body: { formula: string; sessionId?: string }) {
-    return $fetch<{ formula: string; result: number; total: number; rolls: number[] }>(
-      `${base}/roll`,
-      { method: 'POST', body },
-    )
-  }
-
   return {
+    ...useEntityApi(campaignId),
+    ...useCharacterApi(campaignId),
+    ...useSessionApi(campaignId),
+    ...useMapApi(campaignId),
+    ...useCalendarApi(campaignId),
+    ...useInventoryApi(campaignId),
     // Campaign
     getCampaign,
     // Members
@@ -774,97 +247,6 @@ export function useCampaignApi(campaignId: string) {
     removeMember,
     createInvite,
     addMemberDirect,
-    // Entities
-    getEntities,
-    getEntity,
-    createEntity,
-    updateEntity,
-    deleteEntity,
-    getEntityTypes,
-    updateEntityType,
-    deleteEntityType,
-    getTags,
-    getMentions,
-    // Characters
-    getCharacters,
-    getCharacter,
-    createCharacter,
-    updateCharacter,
-    deleteCharacter,
-    deleteAbility,
-    getCharacterConnections,
-    deleteCharacterConnection,
-    getCharacterFolders,
-    updateCharacterFolder,
-    deleteCharacterFolder,
-    getCharacterOrganizations,
-    // Sessions
-    getSessions,
-    getSession,
-    createSession,
-    updateSession,
-    deleteSession,
-    getSessionContent,
-    updateSessionContent,
-    deleteSessionContent,
-    getSessionGroups,
-    createSessionGroup,
-    updateSessionGroup,
-    deleteSessionGroup,
-    getSessionDecisions,
-    createDecision,
-    createConsequence,
-    revealConsequence,
-    patchAttendance,
-    getSessionRolls,
-    getCampaignArcs,
-    getArcs,
-    getArc,
-    createArc,
-    updateArc,
-    deleteArc,
-    getChapters,
-    createChapter,
-    updateChapter,
-    deleteChapter,
-    // Quests
-    getQuests,
-    getQuest,
-    createQuest,
-    updateQuest,
-    deleteQuest,
-    // Maps
-    getMaps,
-    getMap,
-    createMap,
-    updateMap,
-    deleteMap,
-    uploadMapImage,
-    getMapLayers,
-    updateMapLayer,
-    deleteMapLayer,
-    getMapPins,
-    getMapRegions,
-    updateMapRegions,
-    updateMapRegion,
-    deleteMapRegion,
-    // Calendars
-    getCalendars,
-    getCalendar,
-    createCalendar,
-    updateCalendar,
-    deleteCalendar,
-    getCalendarEvents,
-    advanceCalendarDate,
-    deleteCalendarEvent,
-    // Timelines
-    getTimelines,
-    getTimeline,
-    createTimeline,
-    updateTimeline,
-    deleteTimeline,
-    createTimelineEvent,
-    deleteTimelineEvent,
     // Relations
     getRelations,
     getRelation,
@@ -872,41 +254,6 @@ export function useCampaignApi(campaignId: string) {
     updateRelation,
     deleteRelation,
     getRelationTypes,
-    // Inventories
-    getInventories,
-    createInventory,
-    transferInventoryItems,
-    deleteInventory,
-    deleteInventoryItem,
-    // Items
-    getItems,
-    getItem,
-    createItem,
-    updateItem,
-    deleteItem,
-    // Currencies & transactions
-    getCurrencies,
-    createCurrency,
-    updateCurrency,
-    deleteCurrency,
-    getTransactions,
-    getWealth,
-    createTransaction,
-    // Shops
-    getShops,
-    getShop,
-    createShop,
-    updateShop,
-    deleteShop,
-    addShopStock,
-    updateShopStock,
-    deleteShopStock,
-    // Templates
-    getTemplates,
-    getTemplate,
-    createTemplate,
-    updateTemplate,
-    deleteTemplate,
     // Graph
     getGraph,
     // Search & dice

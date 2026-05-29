@@ -182,7 +182,9 @@ export function buildTree(
   const spouseOfId = typeIds['spouse_of']
   const siblingOfId = typeIds['sibling_of']
 
-  const validTypeIds = [parentOfId, spouseOfId, siblingOfId].filter(Boolean)
+  const validTypeIds = [parentOfId, spouseOfId, siblingOfId].filter((id): id is string =>
+    Boolean(id),
+  )
 
   const rawNodes = new Map<string, RawNode>()
   const edges: GenealogyEdge[] = []
@@ -219,70 +221,99 @@ export function buildTree(
     rawNodes.set(entityId, { ...row, generation })
   }
 
-  function loadRelations(entityId: string) {
-    if (validTypeIds.length === 0) return []
-    return db
-      .select()
-      .from(entityRelations)
-      .where(
-        and(
-          eq(entityRelations.campaignId, campaignId),
-          inArray(entityRelations.relationTypeId, validTypeIds),
-          or(
-            eq(entityRelations.sourceEntityId, entityId),
-            eq(entityRelations.targetEntityId, entityId),
+  // Batch-load relations for a set of entity IDs. Chunked at 900 to stay within SQLite's
+  // 999 bind-parameter limit.
+  const CHUNK_SIZE = 900
+  function loadRelationsBatch(entityIds: string[]) {
+    if (validTypeIds.length === 0 || entityIds.length === 0) return []
+    const results = []
+    for (let i = 0; i < entityIds.length; i += CHUNK_SIZE) {
+      const chunk = entityIds.slice(i, i + CHUNK_SIZE)
+      const rows = db
+        .select()
+        .from(entityRelations)
+        .where(
+          and(
+            eq(entityRelations.campaignId, campaignId),
+            inArray(entityRelations.relationTypeId, validTypeIds),
+            or(
+              inArray(entityRelations.sourceEntityId, chunk),
+              inArray(entityRelations.targetEntityId, chunk),
+            ),
           ),
-        ),
-      )
-      .all()
+        )
+        .all()
+      results.push(...rows)
+    }
+    return results
   }
 
-  // BFS
+  // BFS — process one level at a time so all nodes in a frontier are fetched in one query
   loadNode(focusEntityId, 0)
-  const queue: Array<{ entityId: string; generation: number; distance: number }> = [
+  // frontier: nodes to expand at the current distance
+  let frontier: Array<{ entityId: string; generation: number; distance: number }> = [
     { entityId: focusEntityId, generation: 0, distance: 0 },
   ]
+  // generationByEntityId: track the generation each entity was first assigned in this BFS pass
+  const generationByEntityId = new Map<string, number>([[focusEntityId, 0]])
 
-  while (queue.length > 0) {
-    const { entityId, generation, distance } = queue.shift()!
-    if (distance >= cappedDepth) continue
+  while (frontier.length > 0) {
+    const nextFrontier: Array<{ entityId: string; generation: number; distance: number }> = []
 
-    const relations = loadRelations(entityId)
+    // Batch-load all relations for the entire current frontier
+    const frontierIds = frontier.map((f) => f.entityId)
+    const relations = loadRelationsBatch(frontierIds)
 
-    for (const rel of relations) {
-      const edgeKey = `${rel.id}`
-      if (edgeSeen.has(edgeKey)) continue
-      edgeSeen.add(edgeKey)
+    for (const { entityId, generation, distance } of frontier) {
+      if (distance >= cappedDepth) continue
 
-      const isSource = rel.sourceEntityId === entityId
-      const otherId = isSource ? rel.targetEntityId : rel.sourceEntityId
-      const slug = Object.entries(typeIds).find(([, id]) => id === rel.relationTypeId)?.[0]
+      const nodeRelations = relations.filter(
+        (r) => r.sourceEntityId === entityId || r.targetEntityId === entityId,
+      )
 
-      let otherGeneration = generation
-      if (slug === 'parent_of') {
-        // source = parent, target = child
-        // if current is source (parent), other (child) is one generation below
-        // if current is target (child), other (parent) is one generation above
-        otherGeneration = isSource ? generation + 1 : generation - 1
-      }
-      // spouse_of and sibling_of keep same generation
+      for (const rel of nodeRelations) {
+        const edgeKey = `${rel.id}`
+        if (edgeSeen.has(edgeKey)) continue
+        edgeSeen.add(edgeKey)
 
-      loadNode(otherId, otherGeneration)
+        const isSource = rel.sourceEntityId === entityId
+        const otherId = isSource ? rel.targetEntityId : rel.sourceEntityId
+        const slug = Object.entries(typeIds).find(([, id]) => id === rel.relationTypeId)?.[0]
 
-      if (slug && ['parent_of', 'spouse_of', 'sibling_of'].includes(slug)) {
-        edges.push({
-          id: rel.id,
-          sourceEntityId: rel.sourceEntityId,
-          targetEntityId: rel.targetEntityId,
-          type: slug as 'parent_of' | 'spouse_of' | 'sibling_of',
-          label: isSource ? rel.forwardLabel : rel.reverseLabel,
-        })
-      }
+        let otherGeneration = generation
+        if (slug === 'parent_of') {
+          // source = parent, target = child
+          // if current is source (parent), other (child) is one generation below
+          // if current is target (child), other (parent) is one generation above
+          otherGeneration = isSource ? generation + 1 : generation - 1
+        }
+        // spouse_of and sibling_of keep same generation
 
-      if (!rawNodes.has(otherId) || distance + 1 < cappedDepth) {
-        queue.push({ entityId: otherId, generation: otherGeneration, distance: distance + 1 })
+        loadNode(otherId, otherGeneration)
+
+        if (slug && ['parent_of', 'spouse_of', 'sibling_of'].includes(slug)) {
+          edges.push({
+            id: rel.id,
+            sourceEntityId: rel.sourceEntityId,
+            targetEntityId: rel.targetEntityId,
+            type: slug as 'parent_of' | 'spouse_of' | 'sibling_of',
+            label: isSource ? rel.forwardLabel : rel.reverseLabel,
+          })
+        }
+
+        const alreadyQueued = generationByEntityId.has(otherId)
+        if (!alreadyQueued || distance + 1 < cappedDepth) {
+          if (!alreadyQueued) generationByEntityId.set(otherId, otherGeneration)
+          nextFrontier.push({
+            entityId: otherId,
+            generation: otherGeneration,
+            distance: distance + 1,
+          })
+        }
       }
     }
+
+    frontier = nextFrontier
   }
 
   return { rawNodes, nodes: [], edges, warnings: [] }

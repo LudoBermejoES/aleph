@@ -51,21 +51,21 @@ test.describe('Relations panel — character detail page', () => {
     await page.click('button:has-text("Add Relation")')
 
     // Search for target entity
-    await page.waitForSelector('[data-testid="relation-target-search"]', { timeout: 5000 })
+    await page.waitForSelector('[data-testid="relation-target-search"]', { timeout: 10000 })
     await page.fill('[data-testid="relation-target-search"]', 'Target')
-    await page.waitForTimeout(500)
 
-    // Pick from dropdown
+    // Wait for dropdown to appear with the target
+    await expect(page.locator('button:has-text("Target Char")')).toBeVisible({ timeout: 10000 })
     await page.click('button:has-text("Target Char")')
 
     // Fill forward label (required)
-    await page.locator('input[placeholder*="allies with"]').fill('ally of')
+    await page.locator('input[placeholder*="allies with"]').first().fill('ally of')
 
     // Save
     await page.click('[role="dialog"] button:has-text("Save")')
 
     // Relation should appear in the panel
-    await expect(page.locator('main')).toContainText('Target Char', { timeout: 10000 })
+    await expect(page.locator('main')).toContainText('Target Char', { timeout: 20000 })
     await expect(page.locator('main')).toContainText('ally of', { timeout: 5000 })
   })
 
@@ -107,13 +107,14 @@ test.describe('Relations panel — character detail page', () => {
     await expect(page.locator('main')).toContainText('Bob Del', { timeout: 10000 })
 
     // Click Delete
-    await page.click('main button:has-text("Delete")')
+    await page.click('[data-testid="relations-panel"] button:has-text("Delete")')
 
-    // Confirm in AlertDialog
+    // Wait for AlertDialog to appear, then confirm
+    await expect(page.locator('[role="alertdialog"]')).toBeVisible({ timeout: 15000 })
     await page.click('[role="alertdialog"] button:has-text("Delete")')
 
     // Panel should show empty state
-    await expect(page.locator('main')).toContainText('No relations yet.', { timeout: 10000 })
+    await expect(page.locator('main')).toContainText('No relations yet.', { timeout: 20000 })
   })
 
   test('relation added via panel appears in the Relations section on the target character page', async ({

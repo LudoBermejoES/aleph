@@ -54,39 +54,47 @@ test.describe('Items & Shops', () => {
 
       const cur = await fetch(`/api/campaigns/${id}/currencies`, {
         method: 'POST',
+        credentials: 'include',
         headers: csrfHeader,
         body: JSON.stringify({ name: 'Gold', symbol: 'gp', valueInBase: 100, sortOrder: 0 }),
       }).then((r) => r.json())
 
       const item = await fetch(`/api/campaigns/${id}/items`, {
         method: 'POST',
+        credentials: 'include',
         headers: csrfHeader,
         body: JSON.stringify({ name: 'Health Potion', rarity: 'common', stackable: true }),
       }).then((r) => r.json())
 
       const shop = await fetch(`/api/campaigns/${id}/shops`, {
         method: 'POST',
+        credentials: 'include',
         headers: csrfHeader,
         body: JSON.stringify({ name: 'E2E Shop' }),
       }).then((r) => r.json())
 
-      const shops = await fetch(`/api/campaigns/${id}/shops`).then((r) => r.json())
+      const shops = await fetch(`/api/campaigns/${id}/shops`, { credentials: 'include' }).then(
+        (r) => r.json(),
+      )
       const shopSlug = shops.find((s: Record<string, unknown>) => s.id === shop.id)?.slug
 
       const stock = await fetch(`/api/campaigns/${id}/shops/${shopSlug}/stock`, {
         method: 'POST',
+        credentials: 'include',
         headers: csrfHeader,
         body: JSON.stringify({ itemId: item.id, quantity: 10, price: { gold: 1 } }),
       }).then((r) => r.json())
 
       const inv = await fetch(`/api/campaigns/${id}/inventories`, {
         method: 'POST',
+        credentials: 'include',
         headers: csrfHeader,
         body: JSON.stringify({ name: 'Buyer', ownerType: 'character', ownerId: 'e2e-buyer-1' }),
       }).then((r) => r.json())
 
       await fetch(`/api/campaigns/${id}/transactions`, {
         method: 'POST',
+        credentials: 'include',
         headers: csrfHeader,
         body: JSON.stringify({
           type: 'grant',
@@ -98,6 +106,7 @@ test.describe('Items & Shops', () => {
 
       const buyRes = await fetch(`/api/campaigns/${id}/shops/${shopSlug}/buy`, {
         method: 'POST',
+        credentials: 'include',
         headers: csrfHeader,
         body: JSON.stringify({
           stockId: stock.id,
@@ -112,6 +121,7 @@ test.describe('Items & Shops', () => {
 
       const inventories = await fetch(
         `/api/campaigns/${id}/inventories?owner_id=e2e-buyer-1&owner_type=character`,
+        { credentials: 'include' },
       ).then((r) => r.json())
       const hasItem = inventories[0]?.items?.some(
         (i: Record<string, unknown>) => i.itemId === item.id,

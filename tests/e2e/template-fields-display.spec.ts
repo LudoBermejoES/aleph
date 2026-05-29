@@ -13,21 +13,19 @@ test.describe('Template fields display on character detail page', () => {
     await createCampaign(page, `Template Camp ${uid()}`)
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
 
-    // Create a template with a text field and a checkbox field
+    // Create a template with fields inline
     const template = (await apiFetch(page, `/api/campaigns/${campaignId}/templates`, {
       method: 'POST',
-      body: { name: 'Hero Template', entityType: 'character' },
+      body: {
+        name: 'Hero Template',
+        entityTypeSlug: 'character',
+        fields: [
+          { key: 'hometown', label: 'Hometown', fieldType: 'text' },
+          { key: 'isLegendary', label: 'Is Legendary', fieldType: 'checkbox' },
+        ],
+      },
     })) as { id: string }
     const templateId = template.id
-
-    await apiFetch(page, `/api/campaigns/${campaignId}/templates/${templateId}/fields`, {
-      method: 'POST',
-      body: { name: 'Hometown', key: 'hometown', fieldType: 'text', sortOrder: 0 },
-    })
-    await apiFetch(page, `/api/campaigns/${campaignId}/templates/${templateId}/fields`, {
-      method: 'POST',
-      body: { name: 'Is Legendary', key: 'isLegendary', fieldType: 'checkbox', sortOrder: 1 },
-    })
 
     // Create a character linked to the template with stored field values
     const charName = `Hero ${uid()}`
@@ -42,8 +40,8 @@ test.describe('Template fields display on character detail page', () => {
     })) as { slug: string }
     const charSlug = char.slug
 
-    // Navigate to character detail page
-    await page.goto(`http://localhost:3333/campaigns/${campaignId}/characters/${charSlug}`)
+    // Navigate to character detail page — template fields are on the "play" tab
+    await page.goto(`http://localhost:3333/campaigns/${campaignId}/characters/${charSlug}?tab=play`)
     await page.waitForLoadState('networkidle')
 
     // Properties panel should be visible
@@ -71,7 +69,9 @@ test.describe('Template fields display on character detail page', () => {
       body: { name: charName, characterType: 'npc' },
     })) as { slug: string }
 
-    await page.goto(`http://localhost:3333/campaigns/${campaignId}/characters/${char.slug}`)
+    await page.goto(
+      `http://localhost:3333/campaigns/${campaignId}/characters/${char.slug}?tab=play`,
+    )
     await page.waitForLoadState('networkidle')
 
     await expect(page.locator('[data-testid="template-fields-display"]')).not.toBeVisible({
@@ -86,19 +86,16 @@ test.describe('Template fields display on entity detail page', () => {
     await createCampaign(page, `Entity Camp ${uid()}`)
     const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
 
-    // Create a template with a text field
     const template = (await apiFetch(page, `/api/campaigns/${campaignId}/templates`, {
       method: 'POST',
-      body: { name: 'Location Template', entityType: 'location' },
+      body: {
+        name: 'Location Template',
+        entityTypeSlug: 'location',
+        fields: [{ key: 'region', label: 'Region', fieldType: 'text' }],
+      },
     })) as { id: string }
     const templateId = template.id
 
-    await apiFetch(page, `/api/campaigns/${campaignId}/templates/${templateId}/fields`, {
-      method: 'POST',
-      body: { name: 'Region', key: 'region', fieldType: 'text', sortOrder: 0 },
-    })
-
-    // Create entity with templateId and fields
     const entityName = `Rivendell ${uid()}`
     const entity = (await apiFetch(page, `/api/campaigns/${campaignId}/entities`, {
       method: 'POST',
@@ -129,14 +126,13 @@ test.describe('Template fields display on location detail page', () => {
 
     const template = (await apiFetch(page, `/api/campaigns/${campaignId}/templates`, {
       method: 'POST',
-      body: { name: 'Place Template', entityType: 'location' },
+      body: {
+        name: 'Place Template',
+        entityTypeSlug: 'location',
+        fields: [{ key: 'climate', label: 'Climate', fieldType: 'text' }],
+      },
     })) as { id: string }
     const templateId = template.id
-
-    await apiFetch(page, `/api/campaigns/${campaignId}/templates/${templateId}/fields`, {
-      method: 'POST',
-      body: { name: 'Climate', key: 'climate', fieldType: 'text', sortOrder: 0 },
-    })
 
     const locationName = `Mirkwood ${uid()}`
     const loc = (await apiFetch(page, `/api/campaigns/${campaignId}/locations`, {
@@ -169,14 +165,13 @@ test.describe('Template fields display on organization detail page', () => {
 
     const template = (await apiFetch(page, `/api/campaigns/${campaignId}/templates`, {
       method: 'POST',
-      body: { name: 'Org Template', entityType: 'organization' },
+      body: {
+        name: 'Org Template',
+        entityTypeSlug: 'organization',
+        fields: [{ key: 'motto', label: 'Motto', fieldType: 'text' }],
+      },
     })) as { id: string }
     const templateId = template.id
-
-    await apiFetch(page, `/api/campaigns/${campaignId}/templates/${templateId}/fields`, {
-      method: 'POST',
-      body: { name: 'Motto', key: 'motto', fieldType: 'text', sortOrder: 0 },
-    })
 
     const orgName = `Fellowship ${uid()}`
     const org = (await apiFetch(page, `/api/campaigns/${campaignId}/organizations`, {

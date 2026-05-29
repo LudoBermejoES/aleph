@@ -441,8 +441,8 @@ async function initEditor() {
                 try {
                   const url = await uploadImage(props.campaignId!, file)
                   ed.chain().focus().setImage({ src: url }).run()
-                } catch {
-                  /* silently skip */
+                } catch (e) {
+                  if (import.meta.dev) console.warn('[MarkdownEditor] Image upload failed:', e)
                 }
               }
             },
@@ -452,8 +452,8 @@ async function initEditor() {
                   const url = await uploadImage(props.campaignId!, file)
                   ed.chain().focus().setImage({ src: url }).run()
                   ed.commands.setNodeSelection(pos)
-                } catch {
-                  /* silently skip */
+                } catch (e) {
+                  if (import.meta.dev) console.warn('[MarkdownEditor] Image upload failed:', e)
                 }
               }
             },
@@ -484,7 +484,9 @@ async function initEditor() {
                   type: e.type,
                 }))
                 return items
-              } catch {
+              } catch (e) {
+                if (import.meta.dev)
+                  console.warn('[MarkdownEditor] Entity mention search failed:', e)
                 return []
               }
             },
@@ -630,8 +632,8 @@ async function initEditor() {
         const data = await res.json()
         wsToken = data.token
       }
-    } catch {
-      /* fallback to empty token */
+    } catch (e) {
+      if (import.meta.dev) console.warn('[MarkdownEditor] Failed to fetch WS token:', e)
     }
 
     provider = new HocuspocusProvider({
@@ -790,8 +792,8 @@ async function onImageFilePicked(event: Event) {
   try {
     const url = await uploadImage(props.campaignId, file)
     editor?.chain().setImage({ src: url }).run()
-  } catch {
-    // silently skip
+  } catch (e) {
+    if (import.meta.dev) console.warn('[MarkdownEditor] Image upload (toolbar) failed:', e)
   } finally {
     input.value = ''
   }

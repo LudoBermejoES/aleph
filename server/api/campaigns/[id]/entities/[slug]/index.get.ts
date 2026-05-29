@@ -10,68 +10,71 @@ import {
   getCachedPermission,
   setCachedPermission,
 } from '../../../../../utils/permissions'
+import { withApiHandler } from '../../../../../utils/api-handler'
 
-export default defineEventHandler(async (event) => {
-  const campaignId = getRouterParam(event, 'id')!
-  const slug = getRouterParam(event, 'slug')!
-  const db = useDb()
-  const role = (event.context.campaignRole || 'visitor') as CampaignRole
-  const userId = event.context.user?.id || ''
+export default defineEventHandler((event) =>
+  withApiHandler(event, async () => {
+    const campaignId = getRouterParam(event, 'id')!
+    const slug = getRouterParam(event, 'slug')!
+    const db = useDb()
+    const role = (event.context.campaignRole || 'visitor') as CampaignRole
+    const userId = event.context.user?.id || ''
 
-  const entity = db
-    .select()
-    .from(entities)
-    .where(and(eq(entities.campaignId, campaignId), eq(entities.slug, slug)))
-    .get()
-
-  if (!entity) {
-    throw createError({ statusCode: 404, message: 'Entity not found' })
-  }
-
-  // Visibility enforcement
-  const cached = getCachedPermission(userId, entity.id, 'view')
-  const canAccess =
-    cached !== null
-      ? cached
-      : await canUserAccessEntity(
-          db,
-          userId,
-          'user',
-          role,
-          entity.id,
-          entity.visibility,
-          entity.createdBy,
-          'view',
-        )
-  if (cached === null) setCachedPermission(userId, entity.id, 'view', canAccess)
-  if (!canAccess) throw createError({ statusCode: 404, message: 'Entity not found' })
-
-  // For character entities, fall back to portraitUrl if no entity image is set
-  let imageUrl = entity.imageUrl ?? null
-  if (!imageUrl && entity.type === 'character') {
-    const character = db
-      .select({ portraitUrl: characters.portraitUrl })
-      .from(characters)
-      .where(eq(characters.entityId, entity.id))
+    const entity = db
+      .select()
+      .from(entities)
+      .where(and(eq(entities.campaignId, campaignId), eq(entities.slug, slug)))
       .get()
-    if (character?.portraitUrl) {
-      imageUrl = character.portraitUrl
+
+    if (!entity) {
+      throw createError({ statusCode: 404, message: 'Entity not found' })
     }
-  }
 
-  // Read markdown file
-  let file
-  try {
-    file = await readEntityFile(entity.filePath)
-  } catch {
-    file = { frontmatter: {}, content: '', contentHash: '' }
-  }
+    // Visibility enforcement
+    const cached = getCachedPermission(userId, entity.id, 'view')
+    const canAccess =
+      cached !== null
+        ? cached
+        : await canUserAccessEntity(
+            db,
+            userId,
+            'user',
+            role,
+            entity.id,
+            entity.visibility,
+            entity.createdBy,
+            'view',
+          )
+    if (cached === null) setCachedPermission(userId, entity.id, 'view', canAccess)
+    if (!canAccess) throw createError({ statusCode: 404, message: 'Entity not found' })
 
-  return {
-    ...entity,
-    imageUrl,
-    frontmatter: file.frontmatter,
-    content: autoLinkContent(stripSecretBlocks(file.content, role), campaignId, entity.id, db),
-    fields: file.frontmatter.fields || {},
-  }
-})
+    // For character entities, fall back to portraitUrl if no entity image is set
+    let imageUrl = entity.imageUrl ?? null
+    if (!imageUrl && entity.type === 'character') {
+      const character = db
+        .select({ portraitUrl: characters.portraitUrl })
+        .from(characters)
+        .where(eq(characters.entityId, entity.id))
+        .get()
+      if (character?.portraitUrl) {
+        imageUrl = character.portraitUrl
+      }
+    }
+
+    // Read markdown file
+    let file
+    try {
+      file = await readEntityFile(entity.filePath)
+    } catch {
+      file = { frontmatter: {}, content: '', contentHash: '' }
+    }
+
+    return {
+      ...entity,
+      imageUrl,
+      frontmatter: file.frontmatter,
+      content: autoLinkContent(stripSecretBlocks(file.content, role), campaignId, entity.id, db),
+      fields: file.frontmatter.fields || {},
+    }
+  }),
+)

@@ -19,7 +19,7 @@ test.describe('CSRF Protection', () => {
     await registerAndLogin(page, `CSRFDM2 ${uid()}`)
 
     // After login and any authenticated API call, csrf_token cookie should be set
-    await page.evaluate(() => fetch('/api/campaigns'))
+    await page.evaluate(() => fetch('/api/campaigns', { credentials: 'include' }))
 
     const cookies = await page.context().cookies()
     const csrfCookie = cookies.find((c) => c.name === 'csrf_token')
@@ -31,13 +31,14 @@ test.describe('CSRF Protection', () => {
   test('POST without CSRF token returns 403', async ({ page }) => {
     await registerAndLogin(page, `CSRFDM3 ${uid()}`)
     // Ensure CSRF cookie is set
-    await page.evaluate(() => fetch('/api/campaigns'))
+    await page.evaluate(() => fetch('/api/campaigns', { credentials: 'include' }))
     await page.waitForTimeout(200)
 
     const result = await page.evaluate(async (name: string) => {
       const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
       const res = await fetch('/api/campaigns', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
         body: JSON.stringify({ name }),
       })
@@ -53,6 +54,7 @@ test.describe('CSRF Protection', () => {
     const status = await page.evaluate(async (id: string) => {
       const res = await fetch(`/api/campaigns/${id}/entities`, {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         // No X-CSRF-Token header
         body: JSON.stringify({ name: 'Test', type: 'lore' }),

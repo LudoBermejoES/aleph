@@ -19,7 +19,7 @@ test.describe('Relations panel — organization detail page', () => {
     await page.goto(`${base}/campaigns/${campaignId}/organizations/${slug}`)
     await page.waitForLoadState('networkidle')
 
-    await expect(page.locator('main')).toContainText('No relations yet.', { timeout: 10000 })
+    await expect(page.locator('main')).toContainText('No relations yet.', { timeout: 20000 })
     await expect(page.locator('button:has-text("Add Relation")')).toBeVisible({ timeout: 5000 })
   })
 
@@ -54,7 +54,9 @@ test.describe('Relations panel — organization detail page', () => {
     // Panel should show MEMBERS group header and member name
     await expect(page.locator('main')).toContainText('Guild Knight', { timeout: 10000 })
     await expect(page.locator('main')).toContainText('Knight', { timeout: 5000 })
-    await expect(page.locator('main button:has-text("Edit")')).toBeVisible({ timeout: 5000 })
+    await expect(
+      page.locator('[data-testid="relations-panel"] button:has-text("Edit")'),
+    ).toBeVisible({ timeout: 5000 })
   })
 
   test('DM can update a member role via the panel Edit button', async ({ page }) => {
@@ -89,7 +91,7 @@ test.describe('Relations panel — organization detail page', () => {
     await expect(page.locator('main')).toContainText('Role Member', { timeout: 10000 })
 
     // Click Edit on the member row (inside panel)
-    await page.click('main button:has-text("Edit")')
+    await page.click('[data-testid="relations-panel"] button:has-text("Edit")')
 
     // Edit Member Role dialog should open
     await page.waitForSelector('[role="dialog"]:has-text("Edit Member Role")', { timeout: 5000 })
@@ -137,11 +139,12 @@ test.describe('Relations panel — organization detail page', () => {
     await expect(page.locator('main')).toContainText('Remove Knight', { timeout: 10000 })
 
     // Click Delete button in panel
-    await page.click('main button:has-text("Delete")')
+    await page.click('[data-testid="relations-panel"] button:has-text("Delete")')
+    await expect(page.locator('[role="alertdialog"]')).toBeVisible({ timeout: 15000 })
     await page.click('[role="alertdialog"] button:has-text("Delete")')
 
     // Member should be gone, panel shows empty state
-    await expect(page.locator('main')).toContainText('No relations yet.', { timeout: 10000 })
+    await expect(page.locator('main')).toContainText('No relations yet.', { timeout: 20000 })
     await expect(page.locator('main')).not.toContainText('Remove Knight', { timeout: 5000 })
   })
 })

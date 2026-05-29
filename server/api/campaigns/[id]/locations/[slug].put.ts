@@ -117,7 +117,7 @@ export default defineEventHandler(async (event) => {
     contentHash: hash,
     updatedAt: now,
   }
-  if (body.templateId !== undefined) entityUpdates.templateId = body.templateId
+  if (body.templateId !== undefined) entityUpdates.templateId = body.templateId || null
   db.update(entities).set(entityUpdates).where(eq(entities.id, entity.id)).run()
 
   indexEntity(sqlite, entity.id, campaignId, updatedFm.name, [], [], updatedContent)

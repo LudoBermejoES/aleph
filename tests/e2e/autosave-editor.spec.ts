@@ -15,11 +15,11 @@ test.describe('Autosave editor — draft recovery', () => {
 
     await page.goto(`${base}/campaigns/${campaignId}/characters/new`)
     await page.waitForLoadState('networkidle')
-    await expect(page.locator('.ProseMirror')).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('.ProseMirror').first()).toBeVisible({ timeout: 10000 })
 
     // Type some content
     const draftText = `Draft content ${uid()}`
-    await page.locator('.ProseMirror').click()
+    await page.locator('.ProseMirror').first().click()
     await page.keyboard.type(draftText)
 
     // Wait for debounce to fire (1s) and write to localStorage
@@ -34,7 +34,7 @@ test.describe('Autosave editor — draft recovery', () => {
     // Reload the page
     await page.reload()
     await page.waitForLoadState('networkidle')
-    await expect(page.locator('.ProseMirror')).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('.ProseMirror').first()).toBeVisible({ timeout: 10000 })
 
     // Restore banner should appear
     await expect(
@@ -50,7 +50,7 @@ test.describe('Autosave editor — draft recovery', () => {
     ).not.toBeVisible()
 
     // Content should be restored
-    await expect(page.locator('.ProseMirror')).toContainText(draftText)
+    await expect(page.locator('.ProseMirror').first()).toContainText(draftText)
   })
 
   test('type in editor, reload page, discard removes banner and keeps empty content', async ({
@@ -64,15 +64,15 @@ test.describe('Autosave editor — draft recovery', () => {
 
     await page.goto(`${base}/campaigns/${campaignId}/characters/new`)
     await page.waitForLoadState('networkidle')
-    await expect(page.locator('.ProseMirror')).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('.ProseMirror').first()).toBeVisible({ timeout: 10000 })
 
-    await page.locator('.ProseMirror').click()
+    await page.locator('.ProseMirror').first().click()
     await page.keyboard.type(`Discard me ${uid()}`)
     await page.waitForTimeout(1500)
 
     await page.reload()
     await page.waitForLoadState('networkidle')
-    await expect(page.locator('.ProseMirror')).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('.ProseMirror').first()).toBeVisible({ timeout: 10000 })
 
     // Banner appears
     await expect(
@@ -103,11 +103,11 @@ test.describe('Autosave editor — draft recovery', () => {
 
     await page.goto(`${base}/campaigns/${campaignId}/characters/new`)
     await page.waitForLoadState('networkidle')
-    await expect(page.locator('.ProseMirror')).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('.ProseMirror').first()).toBeVisible({ timeout: 10000 })
 
     // Fill name (required) and some content
     await page.fill('input[placeholder*="Character name"]', `Hero ${uid()}`)
-    await page.locator('.ProseMirror').click()
+    await page.locator('.ProseMirror').first().click()
     await page.keyboard.type(`Content to save ${uid()}`)
     await page.waitForTimeout(1500)
 
@@ -122,7 +122,7 @@ test.describe('Autosave editor — draft recovery', () => {
     const charSlug = page.url().split('/characters/')[1]
     await page.goto(`${base}/campaigns/${campaignId}/characters/${charSlug}/edit`)
     await page.waitForLoadState('networkidle')
-    await expect(page.locator('.ProseMirror')).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('.ProseMirror').first()).toBeVisible({ timeout: 10000 })
 
     // No restore banner
     await expect(

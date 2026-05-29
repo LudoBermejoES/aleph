@@ -20,8 +20,8 @@ test.describe('Campaign Import', () => {
 
   test('selecting a valid export JSON imports and redirects to new campaign', async ({ page }) => {
     await registerAndLogin(page, `ImportUser2 ${uid()}`)
-    await page.goto(`${BASE}/`, { waitUntil: 'domcontentloaded' })
     await page.waitForLoadState('networkidle')
+    await expect(page).toHaveURL(`${BASE}/`, { timeout: 10000 })
 
     // Prepare fixture with unique name
     const fixture = JSON.parse(
@@ -34,7 +34,7 @@ test.describe('Campaign Import', () => {
     writeFileSync(tmpPath, JSON.stringify(fixture))
 
     // Set the file on the hidden input
-    const fileInput = page.locator('input[type="file"][accept=".json"]')
+    const fileInput = page.locator('input[type="file"][accept*=".json"]')
     await fileInput.setInputFiles(tmpPath)
 
     // Should navigate to the new campaign page
@@ -49,8 +49,8 @@ test.describe('Campaign Import', () => {
 
   test('importing an invalid JSON file shows error and stays on page', async ({ page }) => {
     await registerAndLogin(page, `ImportUser3 ${uid()}`)
-    await page.goto(`${BASE}/`, { waitUntil: 'domcontentloaded' })
     await page.waitForLoadState('networkidle')
+    await expect(page).toHaveURL(`${BASE}/`, { timeout: 10000 })
 
     // Write a malformed (non-v1) JSON file
     const tmpPath = `/tmp/e2e-bad-import-${Date.now()}.json`
@@ -63,7 +63,7 @@ test.describe('Campaign Import', () => {
       await dialog.accept()
     })
 
-    const fileInput = page.locator('input[type="file"][accept=".json"]')
+    const fileInput = page.locator('input[type="file"][accept*=".json"]')
     await fileInput.setInputFiles(tmpPath)
 
     // Should remain on home page
@@ -74,7 +74,6 @@ test.describe('Campaign Import', () => {
 
   test('imported campaign appears in campaigns list', async ({ page }) => {
     await registerAndLogin(page, `ImportUser4 ${uid()}`)
-    await page.goto(`${BASE}/`, { waitUntil: 'domcontentloaded' })
     await page.waitForLoadState('networkidle')
 
     const campaignName = `Listed Import ${uid()}`
@@ -89,7 +88,7 @@ test.describe('Campaign Import', () => {
     })
 
     // Reload and check list
-    await page.goto(`${BASE}/`, { waitUntil: 'domcontentloaded' })
+    await page.reload()
     await page.waitForLoadState('networkidle')
     await expect(page.locator('body')).toContainText(campaignName, { timeout: 10000 })
   })

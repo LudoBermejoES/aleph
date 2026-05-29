@@ -56,15 +56,19 @@ export const entityTemplateFields = sqliteTable('entity_template_fields', {
   required: integer('required', { mode: 'boolean' }).notNull().default(false),
 })
 
-export const tags = sqliteTable('tags', {
-  id: text('id').primaryKey(),
-  campaignId: text('campaign_id')
-    .notNull()
-    .references(() => campaigns.id, { onDelete: 'cascade' }),
-  name: text('name').notNull(),
-  slug: text('slug').notNull(),
-  color: text('color'),
-})
+export const tags = sqliteTable(
+  'tags',
+  {
+    id: text('id').primaryKey(),
+    campaignId: text('campaign_id')
+      .notNull()
+      .references(() => campaigns.id, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    slug: text('slug').notNull(),
+    color: text('color'),
+  },
+  (table) => [index('idx_tags_campaign').on(table.campaignId)],
+)
 
 export const entityTags = sqliteTable('entity_tags', {
   entityId: text('entity_id')

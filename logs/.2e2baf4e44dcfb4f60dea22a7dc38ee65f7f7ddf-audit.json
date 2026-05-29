@@ -6,49 +6,9 @@
     "auditLog": "/Users/ludo/code/aleph/logs/.2e2baf4e44dcfb4f60dea22a7dc38ee65f7f7ddf-audit.json",
     "files": [
         {
-            "date": 1774714176532,
-            "name": "/Users/ludo/code/aleph/logs/error-2026-03-28.log",
-            "hash": "05ad21587e6a78ebf6faf8475f303600dfdda1310ccb7d9bcd22dd362c44aa81"
-        },
-        {
-            "date": 1774785130857,
-            "name": "/Users/ludo/code/aleph/logs/error-2026-03-29.log",
-            "hash": "89020c2ae471ae958bfe633bc61ac1bd9334d0cfc9d71a79611e7fa970f56584"
-        },
-        {
-            "date": 1775307225606,
-            "name": "/Users/ludo/code/aleph/logs/error-2026-04-04.log",
-            "hash": "970c6f5f7a45b80e7bdaa87a13a9954e69c581d643088056b7469a2c5d8966e4"
-        },
-        {
-            "date": 1775371650729,
-            "name": "/Users/ludo/code/aleph/logs/error-2026-04-05.log",
-            "hash": "1fc6421efc6e98709951298632d0603dffcf7178a357fcce8c0ff6d3f69aacb1"
-        },
-        {
-            "date": 1775469316231,
-            "name": "/Users/ludo/code/aleph/logs/error-2026-04-06.log",
-            "hash": "fba1b2f53d374a2337fb5d3bdca0f80ff70421365f2ad4b264832851b66adaad"
-        },
-        {
-            "date": 1775544704717,
-            "name": "/Users/ludo/code/aleph/logs/error-2026-04-07.log",
-            "hash": "fd139d3d7d724eda9da472616c21499dfce78032d1ff19f2cf364dc9aa719678"
-        },
-        {
-            "date": 1775628095310,
-            "name": "/Users/ludo/code/aleph/logs/error-2026-04-08.log",
-            "hash": "36ac0c90cd7ee4cb2bf65c398534932a9188718a57a0a8f48c6a9ce72f6ef66a"
-        },
-        {
-            "date": 1775712367968,
-            "name": "/Users/ludo/code/aleph/logs/error-2026-04-09.log",
-            "hash": "a8f1efd34a5b64a95f86f1bfef589f6618aeaa347e073b8ae31b3903e74a9c75"
-        },
-        {
-            "date": 1775841461609,
-            "name": "/Users/ludo/code/aleph/logs/error-2026-04-10.log",
-            "hash": "92ee5985e55431186fe1353d21514d5212fab82dbda01afe537d623413cdf8c1"
+            "date": 1780035616019,
+            "name": "/Users/ludo/code/aleph/logs/error-2026-05-29.log",
+            "hash": "6a2ed06ddf83d7ddd843525ddaab3460113659c2438df66509e5cd9f81d1df94"
         }
     ],
     "hashType": "sha256"

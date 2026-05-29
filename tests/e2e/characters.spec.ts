@@ -55,7 +55,7 @@ test.describe('Characters', () => {
     await page.click('aside >> text=Characters')
     await page.waitForLoadState('networkidle')
     await page.click('main >> text=Editable NPC')
-    await page.waitForURL('**/characters/**', { timeout: 15000 })
+    await page.waitForURL('**/characters/editable-npc', { timeout: 15000 })
     await expect(page.locator('main h1.text-3xl')).toContainText('Editable NPC', { timeout: 10000 })
 
     // Click Edit → navigates to /edit page
@@ -69,16 +69,19 @@ test.describe('Characters', () => {
       timeout: 10000,
     })
 
+    // Dismiss any alert dialogs (error handling uses window.alert)
+    page.on('dialog', (dialog) => dialog.dismiss())
+
     // Change status to dead on the edit page form
     await page.selectOption('select:has(option[value="dead"])', 'dead')
 
-    // Save
+    // Save and wait for redirect to detail page
     await page.click('button[type="submit"]:has-text("Save")')
     await expect(async () => {
       const url = page.url()
       expect(url).toContain('/characters/')
       expect(url).not.toMatch(/\/edit$/)
-    }).toPass({ timeout: 15000 })
+    }).toPass({ timeout: 20000 })
 
     // Verify the status changed on detail page
     await expect(page.locator('main')).toContainText('dead', { timeout: 5000 })

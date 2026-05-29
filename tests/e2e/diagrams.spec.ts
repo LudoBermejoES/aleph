@@ -8,6 +8,7 @@ async function openNewDiagramDialog(page: Page, campaignId: string) {
     waitUntil: 'domcontentloaded',
   })
   await page.waitForLoadState('networkidle')
+  await expect(page.locator('[data-testid="new-diagram-btn"]')).toBeVisible({ timeout: 15000 })
   await page.locator('[data-testid="new-diagram-btn"]').click()
   await expect(page.locator('[data-testid="diagram-title-input"]')).toBeVisible({ timeout: 5000 })
 }

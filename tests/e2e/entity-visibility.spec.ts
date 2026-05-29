@@ -20,6 +20,7 @@ test.describe('Entity Visibility', () => {
         const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
         const res = await fetch(`/api/campaigns/${id}/entities`, {
           method: 'POST',
+          credentials: 'include',
           headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
           body: JSON.stringify({ name, type: 'lore', visibility: 'dm_only' }),
         })
@@ -33,7 +34,7 @@ test.describe('Entity Visibility', () => {
     // DM can view entity
     const dmApiRes = await dmPage.evaluate(
       async ([id, slug]: string[]) => {
-        const res = await fetch(`/api/campaigns/${id}/entities/${slug}`)
+        const res = await fetch(`/api/campaigns/${id}/entities/${slug}`, { credentials: 'include' })
         return res.status
       },
       [campaignId, entitySlug],
@@ -51,6 +52,7 @@ test.describe('Entity Visibility', () => {
       const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
       const res = await fetch(`/api/campaigns/${id}/invite`, {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
         body: JSON.stringify({ role: 'player' }),
       })
@@ -63,6 +65,7 @@ test.describe('Entity Visibility', () => {
         const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
         await fetch(`/api/campaigns/${id}/join`, {
           method: 'POST',
+          credentials: 'include',
           headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
           body: JSON.stringify({ token }),
         })
@@ -73,7 +76,7 @@ test.describe('Entity Visibility', () => {
     // Player tries to access dm_only entity — should get 404
     const playerApiRes = await playerPage.evaluate(
       async ([id, slug]: string[]) => {
-        const res = await fetch(`/api/campaigns/${id}/entities/${slug}`)
+        const res = await fetch(`/api/campaigns/${id}/entities/${slug}`, { credentials: 'include' })
         return res.status
       },
       [campaignId, entitySlug],
@@ -100,6 +103,7 @@ test.describe('Entity Visibility', () => {
         const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
         const res = await fetch(`/api/campaigns/${id}/entities`, {
           method: 'POST',
+          credentials: 'include',
           headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
           body: JSON.stringify({ name, type: 'lore', visibility: 'members' }),
         })
@@ -115,6 +119,7 @@ test.describe('Entity Visibility', () => {
         const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
         await fetch(`/api/campaigns/${id}/entities/${slug}`, {
           method: 'PUT',
+          credentials: 'include',
           headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
           body: JSON.stringify({ visibility: 'dm_only' }),
         })
@@ -125,7 +130,7 @@ test.describe('Entity Visibility', () => {
     // DM still sees it
     const dmStatus = await dmPage.evaluate(
       async ([id, slug]: string[]) => {
-        const res = await fetch(`/api/campaigns/${id}/entities/${slug}`)
+        const res = await fetch(`/api/campaigns/${id}/entities/${slug}`, { credentials: 'include' })
         return res.status
       },
       [campaignId, entitySlug],

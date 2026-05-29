@@ -41,7 +41,9 @@ test.describe('Template fields on character create/edit', () => {
       },
     })) as { slug: string }
 
-    await page.goto(`http://localhost:3333/campaigns/${campaignId}/characters/${char.slug}`)
+    await page.goto(
+      `http://localhost:3333/campaigns/${campaignId}/characters/${char.slug}?tab=play`,
+    )
     await page.waitForLoadState('networkidle')
 
     await expect(page.locator('[data-testid="template-fields-display"]')).toBeVisible({
@@ -82,7 +84,13 @@ test.describe('Template fields on character create/edit', () => {
     await page.click('button[type="submit"]')
     await page.waitForLoadState('networkidle')
 
-    // Back on detail page — updated value shown
+    // Navigate directly to the play tab to see template fields
+    await page.goto(
+      `http://localhost:3333/campaigns/${campaignId}/characters/${char.slug}?tab=play`,
+    )
+    await page.waitForLoadState('networkidle')
+
+    // Updated value shown
     await expect(page.locator('[data-testid="template-fields-display"]')).toBeVisible({
       timeout: 10000,
     })

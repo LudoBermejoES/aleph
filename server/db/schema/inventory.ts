@@ -2,34 +2,42 @@ import { sqliteTable, text, integer, real, index } from 'drizzle-orm/sqlite-core
 import { campaigns } from './campaigns'
 import { user } from './auth'
 
-export const items = sqliteTable('items', {
-  id: text('id').primaryKey(),
-  campaignId: text('campaign_id')
-    .notNull()
-    .references(() => campaigns.id, { onDelete: 'cascade' }),
-  name: text('name').notNull(),
-  description: text('description'),
-  weight: real('weight'),
-  priceJson: text('price_json'), // { "gold": 50 }
-  size: text('size'),
-  rarity: text('rarity').default('common'), // common, uncommon, rare, very_rare, legendary
-  type: text('type'), // weapon, armor, potion, scroll, etc.
-  imagePath: text('image_path'),
-  propertiesJson: text('properties_json'),
-  stackable: integer('stackable', { mode: 'boolean' }).notNull().default(true),
-  entityId: text('entity_id'), // optional link to a wiki entity
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
-})
+export const items = sqliteTable(
+  'items',
+  {
+    id: text('id').primaryKey(),
+    campaignId: text('campaign_id')
+      .notNull()
+      .references(() => campaigns.id, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    description: text('description'),
+    weight: real('weight'),
+    priceJson: text('price_json'), // { "gold": 50 }
+    size: text('size'),
+    rarity: text('rarity').default('common'), // common, uncommon, rare, very_rare, legendary
+    type: text('type'), // weapon, armor, potion, scroll, etc.
+    imagePath: text('image_path'),
+    propertiesJson: text('properties_json'),
+    stackable: integer('stackable', { mode: 'boolean' }).notNull().default(true),
+    entityId: text('entity_id'), // optional link to a wiki entity
+    createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+  },
+  (table) => [index('idx_items_campaign').on(table.campaignId)],
+)
 
-export const inventories = sqliteTable('inventories', {
-  id: text('id').primaryKey(),
-  campaignId: text('campaign_id')
-    .notNull()
-    .references(() => campaigns.id, { onDelete: 'cascade' }),
-  ownerType: text('owner_type').notNull(), // character, party, shop, faction
-  ownerId: text('owner_id').notNull(),
-  name: text('name').default('Inventory'),
-})
+export const inventories = sqliteTable(
+  'inventories',
+  {
+    id: text('id').primaryKey(),
+    campaignId: text('campaign_id')
+      .notNull()
+      .references(() => campaigns.id, { onDelete: 'cascade' }),
+    ownerType: text('owner_type').notNull(), // character, party, shop, faction
+    ownerId: text('owner_id').notNull(),
+    name: text('name').default('Inventory'),
+  },
+  (table) => [index('idx_inventories_campaign').on(table.campaignId)],
+)
 
 export const inventoryItems = sqliteTable(
   'inventory_items',
@@ -49,16 +57,20 @@ export const inventoryItems = sqliteTable(
   (table) => [index('idx_inventory_items_composite').on(table.inventoryId, table.itemId)],
 )
 
-export const currencies = sqliteTable('currencies', {
-  id: text('id').primaryKey(),
-  campaignId: text('campaign_id')
-    .notNull()
-    .references(() => campaigns.id, { onDelete: 'cascade' }),
-  name: text('name').notNull(),
-  symbol: text('symbol'),
-  valueInBase: integer('value_in_base').notNull().default(1),
-  sortOrder: integer('sort_order').notNull().default(0),
-})
+export const currencies = sqliteTable(
+  'currencies',
+  {
+    id: text('id').primaryKey(),
+    campaignId: text('campaign_id')
+      .notNull()
+      .references(() => campaigns.id, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    symbol: text('symbol'),
+    valueInBase: integer('value_in_base').notNull().default(1),
+    sortOrder: integer('sort_order').notNull().default(0),
+  },
+  (table) => [index('idx_currencies_campaign').on(table.campaignId)],
+)
 
 export const wealth = sqliteTable('wealth', {
   id: text('id').primaryKey(),

@@ -386,7 +386,7 @@ test.describe('Character detail — Organizations section', () => {
     const charSlug = (samwise as Record<string, unknown>).slug
 
     const base = page.url().split('/campaigns/')[0]
-    await page.goto(`${base}/campaigns/${campaignId}/characters/${charSlug}`)
+    await page.goto(`${base}/campaigns/${campaignId}/characters/${charSlug}?tab=relations`)
     await page.waitForLoadState('networkidle')
 
     await expect(page.locator('[data-testid="character-organizations"]')).toBeVisible({
@@ -428,7 +428,7 @@ test.describe('Character detail — Organizations section', () => {
     const orgSlug = (citadel as Record<string, unknown>).slug
 
     const base = page.url().split('/campaigns/')[0]
-    await page.goto(`${base}/campaigns/${campaignId}/characters/${charSlug}`)
+    await page.goto(`${base}/campaigns/${campaignId}/characters/${charSlug}?tab=relations`)
     await page.waitForLoadState('networkidle')
 
     // Click the org link in the organizations section

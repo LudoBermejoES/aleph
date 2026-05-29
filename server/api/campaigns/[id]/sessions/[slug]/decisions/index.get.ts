@@ -1,4 +1,4 @@
-import { eq, and } from 'drizzle-orm'
+import { eq, and, inArray } from 'drizzle-orm'
 import { useDb } from '../../../../../../utils/db'
 import { gameSessions, decisions, consequences } from '../../../../../../db/schema/sessions'
 import { filterRevealedConsequences } from '../../../../../../services/sessions'
@@ -18,11 +18,23 @@ export default defineEventHandler(async (event) => {
   if (!session) throw createError({ statusCode: 404, message: 'Session not found' })
 
   const decisionList = db.select().from(decisions).where(eq(decisions.sessionId, session.id)).all()
+  if (decisionList.length === 0) return []
 
-  const result = decisionList.map((d) => {
-    const allCons = db.select().from(consequences).where(eq(consequences.decisionId, d.id)).all()
-    return { ...d, consequences: filterRevealedConsequences(allCons, role) }
-  })
+  const decisionIds = decisionList.map((d) => d.id)
+  const allConsequences = db
+    .select()
+    .from(consequences)
+    .where(inArray(consequences.decisionId, decisionIds))
+    .all()
 
-  return result
+  const consequencesByDecId = new Map<string, typeof allConsequences>()
+  for (const c of allConsequences) {
+    if (!consequencesByDecId.has(c.decisionId)) consequencesByDecId.set(c.decisionId, [])
+    consequencesByDecId.get(c.decisionId)!.push(c)
+  }
+
+  return decisionList.map((d) => ({
+    ...d,
+    consequences: filterRevealedConsequences(consequencesByDecId.get(d.id) ?? [], role),
+  }))
 })

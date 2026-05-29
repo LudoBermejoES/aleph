@@ -38,7 +38,7 @@ test.describe('Health & Public Access', () => {
 test.describe('Registration', () => {
   test('register new user redirects to home', async ({ page }) => {
     await registerAndLogin(page, 'Register Test')
-    expect(page.url()).toBe(`${BASE}/`)
+    await expect(async () => expect(page.url()).toBe(`${BASE}/`)).toPass({ timeout: 5000 })
   })
 
   test('register page links to login', async ({ page }) => {

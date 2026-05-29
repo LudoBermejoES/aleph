@@ -22,7 +22,11 @@ export const organizations = sqliteTable(
     createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
     updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
   },
-  (table) => [index('idx_orgs_type').on(table.type), index('idx_orgs_status').on(table.status)],
+  (table) => [
+    index('idx_orgs_campaign').on(table.campaignId),
+    index('idx_orgs_type').on(table.type),
+    index('idx_orgs_status').on(table.status),
+  ],
 )
 
 export const organizationMembers = sqliteTable(

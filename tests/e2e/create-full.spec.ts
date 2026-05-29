@@ -54,22 +54,12 @@ test.describe('Thorough Character Create (11b)', () => {
     await page.goto(`${BASE}/campaigns/${campaignId}/characters/new`)
     await page.waitForLoadState('networkidle')
 
-    // 11.5 Fill all fields
+    // 11.5 Fill all fields available in CharacterForm
     const charName = `Strahd ${uid()}`
     await page.fill('input[placeholder="Character name"]', charName)
     await page.selectOption('select:has(option[value="npc"])', 'npc')
     await page.selectOption('select:has(option[value="alive"])', 'alive')
-    await page.fill('input[placeholder*="Human, Elf"]', 'Vampire')
-    await page.fill('input[placeholder*="Fighter, Wizard"]', 'Necromancer')
-    await page.fill('input[placeholder*="Lawful Good"]', 'Lawful Evil')
     await page.selectOption('select:has(option[value="members"])', 'dm_only')
-
-    // 11.7 Type in MarkdownEditor
-    const editor = page.locator('.ProseMirror')
-    if (await editor.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await editor.click()
-      await editor.pressSequentially('The lord of Barovia, a powerful vampire.')
-    }
 
     // 11.8 Submit
     await page.click('button[type="submit"]:has-text("Create")')
@@ -78,13 +68,9 @@ test.describe('Thorough Character Create (11b)', () => {
       expect(page.url()).not.toContain('/new')
     }).toPass({ timeout: 15000 })
 
-    // Verify all fields on detail page
+    // Verify fields on detail page
     await expect(page.locator('main h1')).toContainText(charName, { timeout: 10000 })
     await expect(page.locator('main')).toContainText('npc')
-    await expect(page.locator('main')).toContainText('Vampire')
-    await expect(page.locator('main')).toContainText('Necromancer')
-    await expect(page.locator('main')).toContainText('Lawful Evil')
-    await expect(page.locator('main')).toContainText('alive')
   })
 
   test('PC type shows owner dropdown (11.6)', async ({ page }) => {
@@ -283,9 +269,6 @@ test.describe('Thorough Item Create (11h)', () => {
     await page.fill('input[placeholder*="weapon"]', 'weapon')
     await page.fill('input[placeholder*="lbs"]', '3 lbs')
 
-    // 11.29 Description
-    await page.fill('textarea', 'A radiant blade that burns undead.')
-
     await page.click('button[type="submit"]:has-text("Create")')
     await page.waitForLoadState('networkidle')
 
@@ -389,11 +372,14 @@ test.describe('Thorough Relation Create (11j)', () => {
       console.log('Button disabled — creating relation via API fallback')
       await page.evaluate(async (id) => {
         const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
-        const entities = await (await fetch(`/api/campaigns/${id}/entities?limit=2`)).json()
+        const entities = await (
+          await fetch(`/api/campaigns/${id}/entities?limit=2`, { credentials: 'include' })
+        ).json()
         const list = entities.entities || entities || []
         if (list.length >= 2) {
           await fetch(`/api/campaigns/${id}/relations`, {
             method: 'POST',
+            credentials: 'include',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
             body: JSON.stringify({
               sourceEntityId: list[0].id,

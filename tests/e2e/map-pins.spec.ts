@@ -15,6 +15,7 @@ test.describe('Map Pins', () => {
       const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
       const r = await fetch(`/api/campaigns/${id}/maps`, {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
         body: JSON.stringify({ name: 'Pin Test Map' }),
       })
@@ -29,11 +30,13 @@ test.describe('Map Pins', () => {
         const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
         await fetch(`/api/campaigns/${id}/maps/${slug}/pins`, {
           method: 'POST',
+          credentials: 'include',
           headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
           body: JSON.stringify({ label: 'Castle Ravenloft', lat: 100, lng: 200, color: '#ff0000' }),
         })
         await fetch(`/api/campaigns/${id}/maps/${slug}/pins`, {
           method: 'POST',
+          credentials: 'include',
           headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
           body: JSON.stringify({
             label: 'Village of Barovia',
@@ -67,6 +70,7 @@ test.describe('Map Pins', () => {
       const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
       const r = await fetch(`/api/campaigns/${id}/maps`, {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
         body: JSON.stringify({ name: 'Layer Test Map' }),
       })
@@ -78,6 +82,7 @@ test.describe('Map Pins', () => {
         const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
         await fetch(`/api/campaigns/${id}/maps/${slug}/layers`, {
           method: 'POST',
+          credentials: 'include',
           headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
           body: JSON.stringify({ name: 'Political Borders', type: 'overlay', opacity: 0.5 }),
         })

@@ -48,6 +48,7 @@ test.beforeAll(async ({ browser }) => {
     // Two entities connected as allies
     const heraRes = await fetch(`/api/campaigns/${id}/entities`, {
       method: 'POST',
+      credentials: 'include',
       headers: mutatingHeaders,
       body: JSON.stringify({ name: 'Hera', type: 'character', content: '# Hera' }),
     })
@@ -55,6 +56,7 @@ test.beforeAll(async ({ browser }) => {
 
     const zeusRes = await fetch(`/api/campaigns/${id}/entities`, {
       method: 'POST',
+      credentials: 'include',
       headers: mutatingHeaders,
       body: JSON.stringify({ name: 'Zeus', type: 'character', content: '# Zeus' }),
     })
@@ -63,17 +65,21 @@ test.beforeAll(async ({ browser }) => {
     // Third entity (Ares) only connected to Zeus — not to Hera
     const aresRes = await fetch(`/api/campaigns/${id}/entities`, {
       method: 'POST',
+      credentials: 'include',
       headers: mutatingHeaders,
       body: JSON.stringify({ name: 'Ares', type: 'character', content: '# Ares' }),
     })
     const ares = await aresRes.json()
 
-    const types = await fetch(`/api/campaigns/${id}/relation-types`).then((r: Response) => r.json())
+    const types = await fetch(`/api/campaigns/${id}/relation-types`, {
+      credentials: 'include',
+    }).then((r: Response) => r.json())
     const ally = types.find((t: Record<string, unknown>) => t.slug === 'ally') ?? types[0]
     const enemy = types.find((t: Record<string, unknown>) => t.slug === 'enemy') ?? ally
 
     const r1 = await fetch(`/api/campaigns/${id}/relations`, {
       method: 'POST',
+      credentials: 'include',
       headers: mutatingHeaders,
       body: JSON.stringify({
         sourceEntityId: hera.id,
@@ -88,6 +94,7 @@ test.beforeAll(async ({ browser }) => {
 
     const r2 = await fetch(`/api/campaigns/${id}/relations`, {
       method: 'POST',
+      credentials: 'include',
       headers: mutatingHeaders,
       body: JSON.stringify({
         sourceEntityId: zeus.id,
@@ -119,25 +126,32 @@ test.beforeAll(async ({ browser }) => {
 
     const c1 = await fetch(`/api/campaigns/${id}/characters`, {
       method: 'POST',
+      credentials: 'include',
       headers: mutatingHeaders,
       body: JSON.stringify({ name: 'Achilles', characterType: 'pc' }),
     }).then((r: Response) => r.json())
 
     const c2 = await fetch(`/api/campaigns/${id}/characters`, {
       method: 'POST',
+      credentials: 'include',
       headers: mutatingHeaders,
       body: JSON.stringify({ name: 'Patroclus', characterType: 'pc' }),
     }).then((r: Response) => r.json())
 
-    const entities = await fetch(`/api/campaigns/${id}/entities`).then((r: Response) => r.json())
+    const entities = await fetch(`/api/campaigns/${id}/entities`, { credentials: 'include' }).then(
+      (r: Response) => r.json(),
+    )
     const entityList = entities.entities ?? entities
     const e1 = entityList.find((e: Record<string, unknown>) => e.slug === c1.slug)
     const e2 = entityList.find((e: Record<string, unknown>) => e.slug === c2.slug)
-    const types = await fetch(`/api/campaigns/${id}/relation-types`).then((r: Response) => r.json())
+    const types = await fetch(`/api/campaigns/${id}/relation-types`, {
+      credentials: 'include',
+    }).then((r: Response) => r.json())
     const allyType = types.find((t: Record<string, unknown>) => t.slug === 'ally')
 
     await fetch(`/api/campaigns/${id}/relations`, {
       method: 'POST',
+      credentials: 'include',
       headers: mutatingHeaders,
       body: JSON.stringify({
         sourceEntityId: e1.id,
@@ -180,10 +194,10 @@ async function goToGraphPage(page: Page) {
 
   // Wait for ClientOnly hydration + SVG render
   await expect(page.locator('[data-testid="entity-graph-view"]')).toBeVisible({ timeout: 15000 })
-  await page.waitForSelector(
-    '[data-testid="entity-graph-view"] svg.v-network-graph, [data-testid="entity-graph-view"] svg',
-    { timeout: 20000 },
-  )
+  // Wait for v-network-graph SVG canvas to render
+  await expect(page.locator('[data-testid="entity-graph-view"] svg.v-ng-canvas')).toBeVisible({
+    timeout: 20000,
+  })
   // Wait for force layout to produce stable positions
   await page.waitForTimeout(1500)
 }
@@ -194,9 +208,11 @@ test('12.11 campaign graph renders nodes and edges', async () => {
   await goToGraphPage(page)
 
   await expect(page.locator('[data-testid="entity-graph-view"]')).toBeVisible()
-  await expect(page.locator('[data-testid="entity-graph-view"] svg').first()).toBeVisible()
+  await expect(page.locator('[data-testid="entity-graph-view"] svg.v-ng-canvas')).toBeVisible()
   // Node labels are rendered as SVG text
-  await expect(page.locator('[data-testid="entity-graph-view"] svg text').first()).toBeVisible({
+  await expect(
+    page.locator('[data-testid="entity-graph-view"] svg.v-ng-canvas text').first(),
+  ).toBeVisible({
     timeout: 10000,
   })
 })
@@ -282,7 +298,7 @@ test('12.14 clicking background clears node focus', async () => {
   expect(hasDimmedNode).toBe(true)
 
   // Click background (SVG top-left corner away from nodes)
-  const svg = page.locator('[data-testid="entity-graph-view"] svg').first()
+  const svg = page.locator('[data-testid="entity-graph-view"] svg.v-ng-canvas')
   await svg.click({ position: { x: 5, y: 5 } })
   await page.waitForTimeout(800)
 
@@ -315,7 +331,7 @@ test('12.15 double-clicking character node navigates to character detail', async
 // 12.16: Character detail graph renders with center node
 test('12.16 character detail graph renders with character as center', async () => {
   const page = sharedPage
-  await page.goto(`${BASE}/campaigns/${campaignId}/characters/${c1Slug}`, {
+  await page.goto(`${BASE}/campaigns/${campaignId}/characters/${c1Slug}?tab=relations`, {
     waitUntil: 'domcontentloaded',
   })
   await page.waitForLoadState('networkidle')
@@ -324,13 +340,11 @@ test('12.16 character detail graph renders with character as center', async () =
   await expect(
     page.locator('[data-testid="character-graph"] [data-testid="entity-graph-view"]'),
   ).toBeVisible({ timeout: 15000 })
-  await page.waitForSelector(
-    '[data-testid="character-graph"] [data-testid="entity-graph-view"] svg',
-    { timeout: 20000 },
-  )
   await expect(
-    page.locator('[data-testid="character-graph"] [data-testid="entity-graph-view"] svg').first(),
-  ).toBeVisible()
+    page.locator(
+      '[data-testid="character-graph"] [data-testid="entity-graph-view"] svg.v-ng-canvas',
+    ),
+  ).toBeVisible({ timeout: 20000 })
 })
 
 // 12.17: Hovering a node shows tooltip with name and connection count
@@ -339,7 +353,9 @@ test('12.17 hovering a node shows tooltip with entity info', async () => {
   await goToGraphPage(page)
 
   // Hover over first node label
-  const firstNodeText = page.locator('[data-testid="entity-graph-view"] svg text').first()
+  const firstNodeText = page
+    .locator('[data-testid="entity-graph-view"] svg.v-ng-canvas text')
+    .first()
   await expect(firstNodeText).toBeVisible({ timeout: 10000 })
   await firstNodeText.hover()
 

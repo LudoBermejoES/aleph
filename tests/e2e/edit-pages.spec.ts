@@ -66,11 +66,10 @@ test.describe('Edit Character via /edit page (12.37)', () => {
     await page.selectOption('select:has(option[value="dead"])', 'dead')
 
     // Submit
+    page.on('dialog', (dialog) => dialog.dismiss())
     await page.click('button[type="submit"]:has-text("Save")')
-    await expect(async () => {
-      expect(page.url()).toContain(`/characters/${slug}`)
-      expect(page.url()).not.toContain('/edit')
-    }).toPass({ timeout: 15000 })
+    await page.waitForURL(`**/characters/${slug}`, { timeout: 15000 })
+    expect(page.url()).not.toContain('/edit')
 
     // Verify changes on detail page
     await expect(page.locator('main')).toContainText('dead', { timeout: 10000 })

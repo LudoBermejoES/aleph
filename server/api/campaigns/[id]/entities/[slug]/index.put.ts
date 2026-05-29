@@ -77,7 +77,7 @@ export default defineEventHandler(async (event) => {
       visibility: updatedFrontmatter.visibility,
       contentHash: hash,
       updatedAt: now,
-      ...(body.templateId !== undefined ? { templateId: body.templateId } : {}),
+      ...(body.templateId !== undefined ? { templateId: body.templateId || null } : {}),
       ...(body.boardSummary !== undefined ? { boardSummary: body.boardSummary } : {}),
     })
     .where(eq(entities.id, entity.id))

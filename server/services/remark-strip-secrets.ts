@@ -2,18 +2,16 @@ import { visit, SKIP } from 'unist-util-visit'
 import type { Plugin } from 'unified'
 import type { Root } from 'mdast'
 import type { Node } from 'unist'
+import { ROLE_HIERARCHY } from '../utils/permissions'
+import type { CampaignRole } from '../utils/permissions'
 
 interface StripSecretsOptions {
   userRole: string // 'dm', 'co_dm', 'editor', 'player', 'visitor'
   userId?: string
 }
 
-const ROLE_HIERARCHY: Record<string, number> = {
-  dm: 5,
-  co_dm: 4,
-  editor: 3,
-  player: 2,
-  visitor: 1,
+function roleLevel(role: string): number {
+  return ROLE_HIERARCHY[role as CampaignRole] ?? 0
 }
 
 /**
@@ -52,7 +50,7 @@ export const remarkStripSecrets: Plugin<[StripSecretsOptions], Root> = (options)
       }
 
       // DM and Co-DM always see everything
-      if ((ROLE_HIERARCHY[userRole] ?? 0) >= (ROLE_HIERARCHY['co_dm'] ?? 4)) return
+      if (roleLevel(userRole) >= roleLevel('co_dm')) return
 
       // User-specific secret: only listed users (+ DM/Co-DM) can see
       if (allowedUsers.length > 0) {
@@ -60,8 +58,7 @@ export const remarkStripSecrets: Plugin<[StripSecretsOptions], Root> = (options)
         // Not in the list -> remove
       } else {
         // Role-based secret: anyone at or above the required role can see
-        const requiredLevel = ROLE_HIERARCHY[requiredRole] ?? 5
-        if ((ROLE_HIERARCHY[userRole] ?? 0) >= requiredLevel) return
+        if (roleLevel(userRole) >= roleLevel(requiredRole)) return
       }
 
       // Remove the node

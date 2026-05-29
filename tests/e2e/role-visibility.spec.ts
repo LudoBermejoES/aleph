@@ -19,6 +19,7 @@ test.describe('Role-Based Visibility', () => {
       const r = await fetch(`/api/campaigns/${id}/entities`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+        credentials: 'include',
         body: JSON.stringify({
           name: 'DM Secret Notes',
           type: 'note',
@@ -35,6 +36,7 @@ test.describe('Role-Based Visibility', () => {
       await fetch(`/api/campaigns/${id}/entities`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+        credentials: 'include',
         body: JSON.stringify({
           name: 'Public Lore',
           type: 'lore',
@@ -50,6 +52,7 @@ test.describe('Role-Based Visibility', () => {
       const r = await fetch(`/api/campaigns/${id}/invite`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+        credentials: 'include',
         body: JSON.stringify({ role: 'player' }),
       })
       return r.json()
@@ -67,6 +70,7 @@ test.describe('Role-Based Visibility', () => {
         await fetch(`/api/campaigns/${id}/join`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+          credentials: 'include',
           body: JSON.stringify({ token }),
         })
       },
@@ -102,6 +106,7 @@ test.describe('Role-Based Visibility', () => {
       const r = await fetch(`/api/campaigns/${id}/entities`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+        credentials: 'include',
         body: JSON.stringify({ name: 'Protected Entity', type: 'note', content: '# Protected' }),
       })
       return r.json()
@@ -113,6 +118,7 @@ test.describe('Role-Based Visibility', () => {
       const r = await fetch(`/api/campaigns/${id}/invite`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+        credentials: 'include',
         body: JSON.stringify({ role: 'player' }),
       })
       return r.json()
@@ -129,6 +135,7 @@ test.describe('Role-Based Visibility', () => {
         await fetch(`/api/campaigns/${id}/join`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+          credentials: 'include',
           body: JSON.stringify({ token }),
         })
       },
@@ -141,6 +148,7 @@ test.describe('Role-Based Visibility', () => {
         const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
         const r = await fetch(`/api/campaigns/${id}/entities/${slug}`, {
           method: 'DELETE',
+          credentials: 'include',
           headers: { 'X-CSRF-Token': csrf },
         })
         return { status: r.status }
