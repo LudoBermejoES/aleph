@@ -17,3 +17,7 @@ Tras escuchar a Laughlin tocar la zanfoña en una plaza, todos se dirigieron a l
 En su peregrinación anual a la piedra que marca la tumba de Urka Pelofuego, conoció a Nali de la Hierbarroja, una uwangi seguidora de Erastil que se acercó al verlo solo. Compartieron licor goblin, ron de palma destilado, miel de abejas buitre y conversación junto al fuego. Tark le confesó por primera vez en mucho tiempo que Urka murió por su culpa: la flecha iba dirigida a él. Le prometió protegerla cuando estuvieran juntos. Pasaron la noche al raso.
 
 Días después, en la taberna de mala muerte donde el grupo se reunía la noche antes de partir, volvió a abrazar a Nali, se sumó al llamamiento de Laughlin Lodovka y aceptó viajar a las Tierras Robadas.
+
+## Sesión del 24 de mayo de 2026 — El banquete de Lady Jamandi Aldori
+
+En el banquete organizado por Lady Jamandi Aldori y el alcalde Josep Selenius en Restov, Tark Krap fue ignorado en buena parte de las interacciones sociales —su condición de goblin hacía que muchos pasaran por alto su presencia en la mesa—. Al cierre de la velada protagonizó el momento más festivo: se lió a beber y a golpear la mesa con una bárbara, atrayendo la atención de todo el salón mientras la música continuaba de fondo.

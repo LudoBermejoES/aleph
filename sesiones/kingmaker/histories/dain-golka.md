@@ -11,3 +11,7 @@ Coincidió con el grupo en las termas privadas de Laurlin: era el primo enano ma
 ## Sesión del 17 de mayo de 2026 — Las tres puertas de un grupo que aún no lo es
 
 En la taberna de mala muerte donde el grupo se reunía la noche antes de partir, se acercó a Nali de la Hierbarroja al notar que Laughlin Lodovka la importunaba con intención liguesca. Cuando descubrió que ella ya conocía a Laughlin y no le molestaba, pidió una cerveza y se quedó. Aceptó sin discutir la propuesta de viajar a las Tierras Robadas en respuesta al llamamiento de Los Señores de la Espada de Aldori.
+
+## Sesión del 24 de mayo de 2026 — El banquete de Lady Jamandi Aldori
+
+Estuvo presente en el banquete de Restov. Escuchó junto al grupo los discursos de Josep Selenius y Lady Jamandi Aldori, que confirmaron oficialmente la propuesta de colonización de las Tierras Robadas con respaldo de Brevoy.

@@ -15,3 +15,7 @@ A la mañana siguiente, en la conversación que formalizó la campaña, declaró
 ## Sesión del 17 de mayo de 2026 — Las tres puertas de un grupo que aún no lo es
 
 Acudió al hospital de campaña improvisado tras el ataque de Los Señores del Tigre a La Pequeña Flor, en Nivasta. Trabajó dos días seguidos curando a la veintena de supervivientes con sus emplastes de hierbas — remedios de abuela enana, sin formación médica formal. Junto a Nali de la Hierbarroja, que llegó herida y se incorporó a las labores en cuanto pudo, identificó el envenenamiento del pozo: bayas hidrosolubles, una técnica de guerra que él conocía. Cerraron el pozo, buscaron agua en otra fuente y salvaron a la mayoría. Al cuarto día, tras el barril de vino del sargento y un buen licor enano, fue a la taberna de la ciudad: allí gritó "pelirroja" al ver a Nali, abrazó al grupo y aceptó la propuesta de Laughlin de viajar a las Tierras Robadas.
+
+## Sesión del 24 de mayo de 2026 — El banquete de Lady Jamandi Aldori
+
+En el banquete de Restov fue abordado por Harrim Garés, un enano seguidor de Groetus que lo saludó según la costumbre: mostrando las dagas de clan al cuello. Harrim confesó querer visitar las ruinas enanas de las Tierras Robadas antes de que el mundo acabe, por puro interés espiritual y no por recuperarlas. Durgan tomó nota de que Harrim no lo conocía a pesar de su edad, lo cual es inusual entre los enanos.

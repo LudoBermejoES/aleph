@@ -17,3 +17,7 @@ A la mañana siguiente, en la conversación que formalizó la campaña, declaró
 ## Sesión del 17 de mayo de 2026 — Las tres puertas de un grupo que aún no lo es
 
 Recibió en nombre de la Casa Lodovka una misiva de Los Señores de la Espada de Aldori: cualquiera que tuviera el coraje de fundar y mantener una colonia en las Tierras Robadas contaría con el apoyo y reconocimiento de Brevoy. Como hijo menor sin legado propio, vio aquí su oportunidad de tener un territorio. En la taberna la noche antes de partir intentó ligar con una recién llegada que resultó ser Nali de la Hierbarroja, a quien ya conocía de hacía un par de años. Fue interrumpido por Dain Golka, que se acercó a defenderla, y por la irrupción del resto del grupo. Sacó entonces el pergamino y propuso a todos los presentes (Sim Sim, Tark Krap, Durgan, Dain y Nali) sumarse a la expedición. Todos aceptaron.
+
+## Sesión del 24 de mayo de 2026 — El banquete de Lady Jamandi Aldori
+
+En el banquete organizado por Lady Jamandi Aldori y el alcalde Josep Selenius, el grupo fue recibido formalmente en Restov. Laughlin participó en un duelo de bardos contra Linsy, la halfling cronista: Nali le ayudó con un hechizo de orientación pero Linsy resultó más redonda, obteniendo una victoria leve. Josep Selenius y Lady Jamandi expusieron la propuesta oficial: títulos nobiliarios y apoyo de Restov a quien funde y mantenga una colonia en las Tierras Robadas. Laughlin ya tenía el pergamino.

@@ -17,3 +17,7 @@ A la mañana siguiente, en la conversación que formalizó la campaña, declaró
 ## Sesión del 17 de mayo de 2026 — Las tres puertas de un grupo que aún no lo es
 
 En la taberna de mala muerte donde el grupo se reunía la noche antes de partir, se resistió largo rato a beber mientras daba la turra a Laughlin sobre lo nocivo de los placeres terrenales. A la hora cedió a una cerveza, se relajó y empezó a sonreír. Vio entrar a Nali de la Hierbarroja, a Durgan, a Tark Krap y a Dain Golka. Cuando Laughlin sacó la misiva de Los Señores de la Espada de Aldori, aceptó unirse a la expedición a las Tierras Robadas.
+
+## Sesión del 24 de mayo de 2026 — El banquete de Lady Jamandi Aldori
+
+En el banquete de Restov interactuó con Valerie, una guerrera noble que resultó conocer las costumbres de la tierra de Sim Sim: cuando él le ofreció vino de arroz, ella lo sirvió de manera correcta según el ritual, abriendo un momento inesperado de reconocimiento mutuo. Explicó a los presentes su búsqueda de la perfección física y mental basada en las enseñanzas de Eirori, la diosa de la historia, el conocimiento y la superación personal.
