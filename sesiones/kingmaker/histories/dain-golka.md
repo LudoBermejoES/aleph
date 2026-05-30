@@ -1,17 +1,3 @@
-# Dain Golka — Historial de sesiones
+:entity-link{slug="gargnir-iii-golka" name=":entity-link{slug="gargnir-iii-golka" name="Dain Golka"}"} es un :entity-link{slug=":entity-link{slug="enano" name="enano"}" name=":entity-link{slug="enano" name="enano"}"} de constitución excepcional, criado en la tradición de los guerreros de la roca. Su familia perteneció durante generaciones a las milicias de las ciudades enanas del sur, y Dain heredó tanto su disciplina como su terquedad. Ha servido como combatiente en varios conflictos fronterizos menores, donde aprendió que un :entity-link{slug=":entity-link{slug="escudo" name="escudo"}" name=":entity-link{slug="escudo" name="escudo"}"} bien usado salva más vidas que cualquier :entity-link{slug=":entity-link{slug="ataque" name="ataque"}" name=":entity-link{slug="ataque" name="ataque"}"}. Viaja a :entity-link{slug="las-tierras-robadas" name=":entity-link{slug="las-tierras-robadas" name="las Tierras Robadas"}"} buscando un lugar donde su :entity-link{slug=":entity-link{slug="fuerza" name="fuerza"}" name=":entity-link{slug="fuerza" name="fuerza"}"} pueda construir algo duradero, no solo defender lo que otros poseen.
 
-## Sesión del 26 de abril de 2026 — Historias de Enlace
-
-Bebía en silencio en una taberna enana de una ciudad fronteriza, llorando la desaparición de su clan: los Golka se habían esfumado de la noche a la mañana, y solo quedaban dos dagas del clan en el mundo — la suya y la del jefe. El gobernante del clan Garess le adoptó como heredero. Cuando entró su primo lejano Durgan "Mediabarba" Garess acompañado de Tark Krap cargado de trastos, le reconoció y comenzó la reunión. Laughlin Lodovka, que conocía a los Golka por vínculos comerciales — la Casa Lodovka quería abrir una destilería en su territorio —, se acercó a ofrecerle la mano. Coincidió también con Sim Sim. La noche se cerró con la noticia del llamamiento de los Señores de la Espada sobre las Tierras Robadas, y decidió ir: necesita un territorio donde restaurar la estirpe Golka.
-
-## Sesión del 10 de mayo de 2026 — Encuentro en Laurlin y marcha al sur
-
-Coincidió con el grupo en las termas privadas de Laurlin: era el primo enano mayor — hombre de cierto rango — al que Durgan saludó al entrar. A la mañana siguiente, en la conversación que formalizó la campaña, declaró su motivación: restaurar el clan Golka y conseguir territorio donde extender su estirpe. Semanas después, durante el cruce de las montañas hacia el sur en pleno invierno, mató con un golpe crítico a uno de los kobolds que emboscaron al grupo bajo la nieve.
-
-## Sesión del 17 de mayo de 2026 — Las tres puertas de un grupo que aún no lo es
-
-En la taberna de mala muerte donde el grupo se reunía la noche antes de partir, se acercó a Nali de la Hierbarroja al notar que Laughlin Lodovka la importunaba con intención liguesca. Cuando descubrió que ella ya conocía a Laughlin y no le molestaba, pidió una cerveza y se quedó. Aceptó sin discutir la propuesta de viajar a las Tierras Robadas en respuesta al llamamiento de Los Señores de la Espada de Aldori.
-
-## Sesión del 24 de mayo de 2026 — El banquete de Lady Jamandi Aldori
-
-Estuvo presente en el banquete de Restov. Escuchó junto al grupo los discursos de Josep Selenius y Lady Jamandi Aldori, que confirmaron oficialmente la propuesta de colonización de las Tierras Robadas con respaldo de Brevoy.
+En el banquete de Lady Aldori se encontró con :entity-link{slug="harrim-gares" name="Harrim Garés"}, un :entity-link{slug="enano" name="enano"} seguidor de Groetus, el dios del fin de los tiempos. Se saludaron mostrando las dagas de clan según la costumbre enana. Harrim preguntó por la :entity-link{slug="desgracia" name="desgracia"} del :entity-link{slug="clan-golka" name="clan Golka"} y habló de una antigua ciudad enana enterrada en :entity-link{slug="las-tierras-robadas" name="las Tierras Robadas"} — información que Dain guardó con atención.
