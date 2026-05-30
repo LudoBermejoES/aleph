@@ -86,7 +86,14 @@ Pipe content from a file: `cat notes.md | aleph entity edit --campaign <id> <slu
 aleph character list --campaign <id> [--status <alive|dead|missing|unknown>] [--sort <name|updatedAt|status>] [--sort-dir <asc|desc>] [--page <n>] [--limit <n>] [--json]
 aleph character create --campaign <id> --name <name> [--type <pc|npc>] [--status <alive|dead|missing|unknown>] [--gender <text>] [--json]
 aleph character show --campaign <id> <slug> [--json]
-aleph character update --campaign <id> <slug> [--name <n>] [--type <pc|npc>] [--template-id <id>] [--fields <json>] [--status <s>] [--content <md>] [--stdin] [--backstory <md>] [--backstory-stdin] [--history <md>] [--history-stdin] [--current-status <md>] [--current-status-stdin] [--birth-year <year>] [--death-year <year|"">] [--gender <text|"">] [--owner <userId|"">]
+aleph character update --campaign <id> <slug> [--name <n>] [--type <pc|npc>] [--template-id <id>] [--fields <json>] [--status <alive|dead|missing|unknown>] [--content <md>] [--stdin] [--backstory <md>] [--backstory-stdin] [--history <md>] [--history-stdin] [--current-status <md>] [--current-status-stdin] [--birth-year <year>] [--death-year <year|"">] [--gender <text|"">] [--owner <userId|"">]
+# IMPORTANT: Keep these fields up to date after each session:
+#   --status          : alive|dead|missing|unknown — update immediately if a character dies or disappears
+#   --current-status  : narrative summary of where the character is and what they are doing RIGHT NOW
+#                       Should reflect the most recent session: location, goals, key relationships, pending bets/promises, etc.
+#                       Must be updated for ALL characters (PC and NPC) after each session that involves them.
+#   --backstory       : permanent background (origin, formative events) — rarely changes
+#   --history         : session-by-session chronicle of what has happened over time
 aleph character upload-portrait --campaign <id> --slug <slug> --file <path>
 aleph character connect <slug> --campaign <id> --target <entity-slug> [--label <text>] [--description <text>] [--json]
 aleph character connections <slug> --campaign <id> [--json]
