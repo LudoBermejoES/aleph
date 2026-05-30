@@ -142,6 +142,12 @@ export function computeExclusionZones(markdown: string): ExclusionZone[] {
     zones.push({ start: match.index!, end: match.index! + match[0].length })
   }
 
+  // Existing entity-link directives: :entity-link{...}
+  // Exclude the entire directive so the autolinker doesn't nest inside name/slug attributes
+  for (const match of markdown.matchAll(/:entity-link\{[^}]*\}/g)) {
+    zones.push({ start: match.index!, end: match.index! + match[0].length })
+  }
+
   return zones.sort((a, b) => a.start - b.start)
 }
 
