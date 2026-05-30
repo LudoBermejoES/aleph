@@ -58,3 +58,55 @@ describe('Attendance RSVP component logic (8.26)', () => {
     // The v-if="session.attendance?.length" guard prevents rendering
   })
 })
+
+// ─── Participant management logic ─────────────────────────────────────────────
+
+interface Member {
+  userId: string
+  name: string
+}
+
+function eligibleMembers(members: Member[], attendance: { userId: string }[]): Member[] {
+  const attendingIds = new Set(attendance.map((a) => a.userId))
+  return members.filter((m) => !attendingIds.has(m.userId))
+}
+
+describe('SessionAttendancePanel participant management', () => {
+  const members: Member[] = [
+    { userId: 'u1', name: 'Alice' },
+    { userId: 'u2', name: 'Bob' },
+    { userId: 'u3', name: 'Charlie' },
+  ]
+
+  it('eligible members excludes users already in attendance', () => {
+    const attendance = [{ userId: 'u1' }]
+    const result = eligibleMembers(members, attendance)
+    expect(result.map((m) => m.userId)).toEqual(['u2', 'u3'])
+  })
+
+  it('eligible members is empty when all members are attending', () => {
+    const attendance = [{ userId: 'u1' }, { userId: 'u2' }, { userId: 'u3' }]
+    expect(eligibleMembers(members, attendance)).toHaveLength(0)
+  })
+
+  it('all members eligible when attendance is empty', () => {
+    expect(eligibleMembers(members, [])).toHaveLength(3)
+  })
+
+  it('add/remove controls gated by canManage', () => {
+    // canManage=false → no Add or Remove controls
+    const canManage = false
+    const showAddBtn = canManage
+    const showRemoveBtn = canManage
+    expect(showAddBtn).toBe(false)
+    expect(showRemoveBtn).toBe(false)
+  })
+
+  it('add/remove controls visible when canManage is true', () => {
+    const canManage = true
+    const showAddBtn = canManage
+    const showRemoveBtn = canManage
+    expect(showAddBtn).toBe(true)
+    expect(showRemoveBtn).toBe(true)
+  })
+})

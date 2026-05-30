@@ -95,6 +95,22 @@ export function useSessionApi(campaignId: string) {
     return $fetch(`${base}/sessions/${slug}/attendance`, { method: 'PATCH', body })
   }
 
+  function addSessionParticipant(
+    slug: string,
+    body: { userId: string; characterId?: string; rsvpStatus?: string },
+  ) {
+    return $fetch<{ success: boolean }>(`${base}/sessions/${slug}/attendance`, {
+      method: 'POST',
+      body,
+    })
+  }
+
+  function removeSessionParticipant(slug: string, userId: string) {
+    return $fetch<{ success: boolean }>(`${base}/sessions/${slug}/attendance/${userId}`, {
+      method: 'DELETE',
+    })
+  }
+
   function getSessionRolls(slug: string) {
     return $fetch<Record<string, unknown>[]>(`${base}/sessions/${slug}/rolls`)
   }
@@ -185,6 +201,8 @@ export function useSessionApi(campaignId: string) {
     createConsequence,
     revealConsequence,
     patchAttendance,
+    addSessionParticipant,
+    removeSessionParticipant,
     getSessionRolls,
     getCampaignArcs,
     getArcs,

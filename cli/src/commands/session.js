@@ -264,6 +264,34 @@ export function makeSessionCommand() {
       }
     })
 
+  attendance
+    .command('add <slug>')
+    .description('Add a campaign member as a session participant — DM/co-DM only')
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .requiredOption('--user <userId>', 'User ID of the campaign member to add')
+    .option('--character <id>', 'Optional character ID to associate')
+    .option(
+      '--status <status>',
+      'RSVP status: pending|accepted|declined|tentative (default: pending)',
+    )
+    .action(async (slug, opts) => {
+      const body = { userId: opts.user }
+      if (opts.character) body.characterId = opts.character
+      if (opts.status) body.rsvpStatus = opts.status
+      await post(`/api/campaigns/${opts.campaign}/sessions/${slug}/attendance`, body)
+      success('Participant added.')
+    })
+
+  attendance
+    .command('remove <slug>')
+    .description('Remove a participant from a session — DM/co-DM only')
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .requiredOption('--user <userId>', 'User ID of the participant to remove')
+    .action(async (slug, opts) => {
+      await del(`/api/campaigns/${opts.campaign}/sessions/${slug}/attendance/${opts.user}`)
+      success('Participant removed.')
+    })
+
   cmd.addCommand(attendance)
 
   // ─── Summarize subcommand ──────────────────────────────────────────────────

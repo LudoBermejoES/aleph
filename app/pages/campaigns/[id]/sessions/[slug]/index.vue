@@ -70,8 +70,11 @@
         :can-manage="canDelete"
         :my-rsvp="myRsvp"
         :rsvp-statuses="rsvpStatuses"
+        :members="campaignMembers"
         @set-rsvp="setRsvp"
         @set-attended="setAttended"
+        @add-participant="addParticipant"
+        @remove-participant="removeParticipant"
       />
 
       <!-- Preview role switcher (DM only) -->
@@ -156,6 +159,7 @@ const canDelete = ref(false)
 const canGenerate = ref(false)
 const myRsvp = ref('pending')
 const campaignRole = ref<string>('')
+const campaignMembers = ref<{ userId: string; name: string }[]>([])
 const previewContent = ref<string | null>(null)
 const contentRef = ref<HTMLElement>()
 const api = useCampaignApi(campaignId)
@@ -198,6 +202,12 @@ async function load() {
     campaignRole.value = role
     canDelete.value = ['dm', 'co_dm'].includes(role)
     canGenerate.value = ['dm', 'co_dm', 'editor'].includes(role)
+    if (canDelete.value) {
+      campaignMembers.value = (await api.getMembers().catch(() => [])) as {
+        userId: string
+        name: string
+      }[]
+    }
     decisions.value = await api.getSessionDecisions(slug).catch(() => [])
     await loadContent()
   })
@@ -314,6 +324,24 @@ async function setRsvp(status: string) {
 async function setAttended(userId: string, attended: boolean) {
   try {
     await api.patchAttendance(slug, { userId, attended })
+    await load()
+  } catch (e: unknown) {
+    alert((e as { data?: { message?: string } })?.data?.message || t('errors.failedSave'))
+  }
+}
+
+async function addParticipant(userId: string) {
+  try {
+    await api.addSessionParticipant(slug, { userId })
+    await load()
+  } catch (e: unknown) {
+    alert((e as { data?: { message?: string } })?.data?.message || t('errors.failedSave'))
+  }
+}
+
+async function removeParticipant(userId: string) {
+  try {
+    await api.removeSessionParticipant(slug, userId)
     await load()
   } catch (e: unknown) {
     alert((e as { data?: { message?: string } })?.data?.message || t('errors.failedSave'))

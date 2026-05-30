@@ -1,6 +1,34 @@
 <template>
   <div class="mb-6 p-4 rounded-lg border border-border">
-    <h2 class="text-sm font-semibold mb-3">{{ $t('sessions.attendance') }}</h2>
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-sm font-semibold">{{ $t('sessions.attendance') }}</h2>
+      <button
+        v-if="canManage"
+        class="text-xs px-2 py-1 rounded border border-border hover:border-primary/50 transition-colors"
+        @click="showPicker = !showPicker"
+      >
+        + {{ $t('sessions.addParticipant') }}
+      </button>
+    </div>
+
+    <!-- Member picker -->
+    <div v-if="canManage && showPicker" class="mb-3 p-2 rounded border border-border bg-muted/20">
+      <p class="text-xs text-muted-foreground mb-1">{{ $t('sessions.selectMember') }}</p>
+      <div v-if="eligibleMembers.length" class="space-y-1">
+        <button
+          v-for="m in eligibleMembers"
+          :key="m.userId"
+          class="w-full text-left text-xs px-2 py-1 rounded hover:bg-accent transition-colors"
+          @click="addParticipant(m.userId)"
+        >
+          {{ m.name }}
+        </button>
+      </div>
+      <p v-else class="text-xs text-muted-foreground italic">
+        {{ $t('sessions.noEligibleMembers') }}
+      </p>
+    </div>
+
     <div v-if="attendance.length" class="space-y-2">
       <div v-for="a in attendance" :key="a.id" class="flex items-center gap-3">
         <span
@@ -27,6 +55,14 @@
           />
           {{ $t('sessions.attended') }}
         </label>
+        <button
+          v-if="canManage"
+          class="text-xs text-destructive hover:text-destructive/80 transition-colors ml-1"
+          :title="$t('sessions.removeParticipant')"
+          @click="$emit('remove-participant', a.userId)"
+        >
+          ×
+        </button>
       </div>
     </div>
     <p v-else class="text-xs text-muted-foreground italic">{{ $t('sessions.noAttendance') }}</p>
@@ -53,6 +89,8 @@
 </template>
 
 <script setup lang="ts">
+import { computed, ref } from 'vue'
+
 interface AttendanceEntry {
   id: string
   userId: string
@@ -62,15 +100,36 @@ interface AttendanceEntry {
   attended: boolean
 }
 
-defineProps<{
+interface CampaignMember {
+  userId: string
+  name: string
+}
+
+const props = defineProps<{
   attendance: AttendanceEntry[]
   canManage: boolean
   myRsvp: string
   rsvpStatuses: { value: string; label: string }[]
+  members?: CampaignMember[]
 }>()
 
-defineEmits<{
+const emit = defineEmits<{
   'set-rsvp': [status: string]
   'set-attended': [userId: string, attended: boolean]
+  'add-participant': [userId: string]
+  'remove-participant': [userId: string]
 }>()
+
+const showPicker = ref(false)
+
+const attendingUserIds = computed(() => new Set(props.attendance.map((a) => a.userId)))
+
+const eligibleMembers = computed(() =>
+  (props.members ?? []).filter((m) => !attendingUserIds.value.has(m.userId)),
+)
+
+function addParticipant(userId: string) {
+  showPicker.value = false
+  emit('add-participant', userId)
+}
 </script>

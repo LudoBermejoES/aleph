@@ -4,7 +4,7 @@ description: Use the aleph CLI to manage campaigns, entities, characters, locati
 license: MIT
 metadata:
   author: aleph
-  version: '3.4'
+  version: '3.5'
 ---
 
 You have access to the `aleph` CLI tool at `node /Users/ludo/code/aleph/cli/bin/aleph.js` (or `npm run aleph -- <args>` from the project root). Use it to interact with the running Aleph server.
@@ -116,6 +116,8 @@ node /Users/ludo/code/aleph/cli/bin/aleph.js session content delete <slug> <cont
 # Attendance / RSVP
 node /Users/ludo/code/aleph/cli/bin/aleph.js session attendance set <slug> --campaign <id> --status pending|accepted|declined|tentative
 node /Users/ludo/code/aleph/cli/bin/aleph.js session attendance mark <slug> --campaign <id> --characters <slug1,slug2,...> [--absent] [--json]  # DM/co-DM: bulk-mark characters as attended (or absent with --absent)
+node /Users/ludo/code/aleph/cli/bin/aleph.js session attendance add <slug> --campaign <id> --user <userId> [--character <id>] [--status pending|accepted|declined|tentative]  # DM/co-DM: add a campaign member as a session participant
+node /Users/ludo/code/aleph/cli/bin/aleph.js session attendance remove <slug> --campaign <id> --user <userId>  # DM/co-DM: remove a participant from a session
 
 # AI generation (requires AI_PROVIDER + AI_API_KEY configured on the server)
 node /Users/ludo/code/aleph/cli/bin/aleph.js session summarize <slug> --campaign <id> [--type summary|ai_notes] [--force]  # --type defaults to summary; --force skips confirmation
