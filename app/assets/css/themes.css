@@ -178,37 +178,12 @@
   }
 }
 
-/* Shimmer needs a positioned ::after pseudo-element on themed headings */
-[data-theme='high-fantasy'] h1,
-[data-theme='high-fantasy'] h2,
-[data-theme='high-fantasy'] h3 {
-  position: relative;
-  overflow: hidden;
-}
-
-[data-theme='high-fantasy'] h1::after,
-[data-theme='high-fantasy'] h2::after,
-[data-theme='high-fantasy'] h3::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, transparent 0%, hsl(45 100% 70% / 0.35) 50%, transparent 100%);
-  background-size: 200% 100%;
-  pointer-events: none;
-}
-
 /* Animation applications — all inside prefers-reduced-motion */
 @media (prefers-reduced-motion: no-preference) {
   [data-theme] h1,
   [data-theme] h2,
   [data-theme] h3 {
     animation: var(--theme-animation, none);
-  }
-
-  [data-theme='high-fantasy'] h1::after,
-  [data-theme='high-fantasy'] h2::after,
-  [data-theme='high-fantasy'] h3::after {
-    animation: theme-shimmer 2.5s ease-in-out infinite;
   }
 }
 
