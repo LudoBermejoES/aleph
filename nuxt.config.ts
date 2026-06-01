@@ -96,6 +96,40 @@ export default defineNuxtConfig({
     '@nuxt/fonts',
   ],
 
+  fonts: {
+    families: [
+      // dark-fantasy
+      { name: 'Cinzel Decorative', provider: 'google', global: true },
+      { name: 'IM Fell English', provider: 'google', global: true },
+      // cyberpunk
+      { name: 'Orbitron', provider: 'google', global: true },
+      { name: 'Share Tech Mono', provider: 'google', global: true },
+      // cosmic-horror
+      { name: 'Uncial Antiqua', provider: 'google', global: true },
+      { name: 'Crimson Text', provider: 'google', global: true },
+      // high-fantasy
+      { name: 'Cinzel', provider: 'google', global: true },
+      { name: 'Lora', provider: 'google', global: true },
+      // western
+      { name: 'Rye', provider: 'google', global: true },
+      { name: 'Playfair Display', provider: 'google', global: true },
+      // steampunk
+      { name: 'Special Elite', provider: 'google', global: true },
+      { name: 'Libre Baskerville', provider: 'google', global: true },
+      // eldritch
+      { name: 'Trade Winds', provider: 'google', global: true },
+      { name: 'IM Fell DW Pica', provider: 'google', global: true },
+      // fey-wilds
+      { name: 'Pacifico', provider: 'google', global: true },
+      { name: 'Nunito', provider: 'google', global: true },
+      // undead (Kult style)
+      { name: 'Spectral', provider: 'google', global: true },
+      // superhero
+      { name: 'Bangers', provider: 'google', global: true },
+      { name: 'Exo 2', provider: 'google', global: true },
+    ],
+  },
+
   // @ts-expect-error -- sentry key is augmented by @sentry/nuxt/module at build time
   sentry: {
     org: 'lb-0j',
