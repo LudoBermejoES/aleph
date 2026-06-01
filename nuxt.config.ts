@@ -93,6 +93,7 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     '@nuxtjs/mdc',
     '@nuxtjs/i18n',
+    '@nuxt/fonts',
   ],
 
   // @ts-expect-error -- sentry key is augmented by @sentry/nuxt/module at build time

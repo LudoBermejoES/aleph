@@ -1,0 +1,420 @@
+/* ============================================================
+   Immersive Campaign Themes — typography, textures, decorations,
+   and animations layered on top of the colour tokens in main.css.
+   All new [data-theme] declarations live here; main.css is unchanged.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   2. Global wiring rules
+   These consume the per-theme tokens defined below. The selectors
+   match real markup: bare <h1>/<h2>/<h3> on every page and in MDC
+   wiki content, shadcn card roots (data-slot="card"), and the bare
+   <main> content wrapper.
+   ------------------------------------------------------------ */
+
+[data-theme] h1,
+[data-theme] h2,
+[data-theme] h3 {
+  font-family: var(--theme-font-heading, inherit);
+  font-weight: var(--theme-font-weight-heading, inherit);
+  letter-spacing: var(--theme-letter-spacing, inherit);
+  text-transform: var(--theme-text-transform, none);
+}
+
+[data-theme] body,
+[data-theme] p {
+  font-family: var(--theme-font-body, inherit);
+}
+
+[data-theme] code,
+[data-theme] pre {
+  font-family: var(--theme-font-mono, monospace);
+}
+
+[data-theme] [data-slot='card'] {
+  box-shadow: var(--theme-card-shadow, none);
+  border: var(--theme-card-border, none);
+}
+
+[data-theme] h2::before {
+  content: var(--theme-heading-decoration, '');
+  margin-right: 0.4em;
+}
+
+[data-theme] main {
+  background-image: var(--theme-bg-pattern, none);
+  background-repeat: repeat;
+  background-size: auto;
+}
+
+/* ------------------------------------------------------------
+   3. Keyframe animations — defined once, referenced by name via
+   --theme-animation. All applications wrapped in prefers-reduced-motion.
+   ------------------------------------------------------------ */
+
+@keyframes theme-glitch {
+  0%,
+  100% {
+    clip-path: inset(0 0 98% 0);
+    transform: skewX(0deg);
+    opacity: 1;
+  }
+  10% {
+    clip-path: inset(10% 0 60% 0);
+    transform: skewX(-2deg);
+    opacity: 0.8;
+  }
+  20% {
+    clip-path: inset(50% 0 30% 0);
+    transform: skewX(2deg);
+    opacity: 0.9;
+  }
+  30% {
+    clip-path: inset(80% 0 5% 0);
+    transform: skewX(-1deg);
+    opacity: 0.7;
+  }
+  40% {
+    clip-path: inset(20% 0 70% 0);
+    transform: skewX(0deg);
+    opacity: 1;
+  }
+  50% {
+    clip-path: inset(0 0 0 0);
+    transform: skewX(0deg);
+    opacity: 1;
+  }
+  60% {
+    clip-path: inset(40% 0 40% 0);
+    transform: skewX(2deg);
+    opacity: 0.6;
+  }
+  70% {
+    clip-path: inset(0 0 0 0);
+    transform: skewX(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes theme-flicker {
+  0%,
+  100% {
+    opacity: 0.99;
+    text-shadow: 0 0 4px hsl(var(--primary) / 0.6);
+  }
+  8% {
+    opacity: 0.4;
+  }
+  15% {
+    opacity: 0.99;
+    text-shadow: none;
+  }
+  25% {
+    opacity: 0.85;
+    text-shadow: 0 0 8px hsl(var(--primary) / 0.4);
+  }
+  35% {
+    opacity: 0.4;
+  }
+  42% {
+    opacity: 0.99;
+  }
+  65% {
+    opacity: 0.99;
+    text-shadow: 0 0 4px hsl(var(--primary) / 0.6);
+  }
+  72% {
+    opacity: 0.5;
+  }
+  80% {
+    opacity: 0.99;
+  }
+}
+
+@keyframes theme-shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+@keyframes theme-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes theme-static {
+  0% {
+    filter: hue-rotate(0deg) contrast(1);
+  }
+  25% {
+    filter: hue-rotate(90deg) contrast(1.05);
+  }
+  50% {
+    filter: hue-rotate(180deg) contrast(1.1);
+  }
+  75% {
+    filter: hue-rotate(270deg) contrast(1.05);
+  }
+  100% {
+    filter: hue-rotate(360deg) contrast(1);
+  }
+}
+
+@keyframes theme-decay {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.65;
+  }
+}
+
+/* Shimmer needs a positioned ::after pseudo-element on themed headings */
+[data-theme='high-fantasy'] h1,
+[data-theme='high-fantasy'] h2,
+[data-theme='high-fantasy'] h3 {
+  position: relative;
+  overflow: hidden;
+}
+
+[data-theme='high-fantasy'] h1::after,
+[data-theme='high-fantasy'] h2::after,
+[data-theme='high-fantasy'] h3::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, hsl(45 100% 70% / 0.35) 50%, transparent 100%);
+  background-size: 200% 100%;
+  pointer-events: none;
+}
+
+/* Animation applications — all inside prefers-reduced-motion */
+@media (prefers-reduced-motion: no-preference) {
+  [data-theme] h1,
+  [data-theme] h2,
+  [data-theme] h3 {
+    animation: var(--theme-animation, none);
+  }
+
+  [data-theme='high-fantasy'] h1::after,
+  [data-theme='high-fantasy'] h2::after,
+  [data-theme='high-fantasy'] h3::after {
+    animation: theme-shimmer 2.5s ease-in-out infinite;
+  }
+}
+
+/* ------------------------------------------------------------
+   4 + 5 + 6. Per-theme token blocks
+   Each [data-theme='x'] block adds typography tokens, the SVG
+   background pattern, card/heading decoration, and animation ref.
+   ------------------------------------------------------------ */
+
+/* --- dark-fantasy --- */
+[data-theme='dark-fantasy'] {
+  /* 5.1 typography */
+  --theme-font-heading: 'Cinzel Decorative', serif;
+  --theme-font-body: 'IM Fell English', serif;
+  --theme-font-weight-heading: 700;
+  --theme-letter-spacing: 0.08em;
+  --theme-text-transform: uppercase;
+
+  /* 4.1 background: repeating-radial-gradient cobblestone */
+  --theme-bg-pattern:
+    radial-gradient(ellipse 6px 5px at 0px 0px, hsl(0 0% 30% / 0.08) 60%, transparent 60%),
+    radial-gradient(ellipse 6px 5px at 8px 6px, hsl(0 0% 20% / 0.06) 60%, transparent 60%);
+
+  /* 6.1 decoration */
+  --theme-card-shadow: 0 0 12px hsl(0 70% 30% / 0.5), inset 0 0 6px hsl(0 70% 20% / 0.2);
+  --theme-card-border: 2px double hsl(var(--primary));
+  --theme-heading-decoration: '⚔';
+  --theme-animation: theme-flicker 3s steps(8, end) infinite;
+}
+
+/* --- cyberpunk --- */
+[data-theme='cyberpunk'] {
+  /* 5.2 typography */
+  --theme-font-heading: 'Orbitron', sans-serif;
+  --theme-font-body: 'Share Tech Mono', monospace;
+  --theme-font-mono: 'Share Tech Mono', monospace;
+  --theme-font-weight-heading: 900;
+  --theme-letter-spacing: 0.12em;
+  --theme-text-transform: uppercase;
+
+  /* 4.2 background: inline SVG circuit grid */
+  --theme-bg-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Crect width='20' height='20' fill='none'/%3E%3Cpath d='M0 0h20M0 10h10M10 0v10M10 10h10M10 10v10' stroke='cyan' stroke-opacity='0.06' stroke-width='0.5'/%3E%3Ccircle cx='10' cy='10' r='1' fill='cyan' fill-opacity='0.08'/%3E%3C/svg%3E");
+
+  /* 6.2 decoration */
+  --theme-card-shadow: 0 0 16px hsl(180 100% 50% / 0.4), 0 0 4px hsl(180 100% 50% / 0.6);
+  --theme-card-border: 1px solid hsl(180 100% 50% / 0.6);
+  --theme-heading-decoration: '// ';
+  --theme-animation: theme-glitch 4s linear infinite;
+}
+
+/* --- cosmic-horror --- */
+[data-theme='cosmic-horror'] {
+  /* 5.3 typography */
+  --theme-font-heading: 'Uncial Antiqua', serif;
+  --theme-font-body: 'Crimson Text', serif;
+  --theme-font-weight-heading: 400;
+  --theme-letter-spacing: 0.04em;
+  --theme-text-transform: none;
+
+  /* 4.3 background: radial-gradient dot matrix star field */
+  --theme-bg-pattern: radial-gradient(
+    circle 1px at center,
+    hsl(270 60% 80% / 0.06) 100%,
+    transparent 100%
+  );
+
+  /* 6.3 decoration */
+  --theme-card-shadow: 0 0 14px hsl(270 60% 40% / 0.4);
+  --theme-card-border: 1px dashed hsl(270 60% 50% / 0.4);
+  --theme-heading-decoration: '✦ ';
+  --theme-animation: none;
+}
+
+/* --- high-fantasy --- */
+[data-theme='high-fantasy'] {
+  /* 5.4 typography */
+  --theme-font-heading: 'Cinzel', serif;
+  --theme-font-body: 'Lora', serif;
+  --theme-font-weight-heading: 700;
+  --theme-letter-spacing: 0.06em;
+  --theme-text-transform: none;
+
+  /* 4.4 background: SVG diagonal cross-hatch */
+  --theme-bg-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Cpath d='M0 20L20 0M0 0l20 20' stroke='%23b8860b' stroke-opacity='0.07' stroke-width='0.5'/%3E%3C/svg%3E");
+
+  /* 6.4 decoration */
+  --theme-card-shadow: inset 0 0 8px hsl(45 90% 50% / 0.15), 0 2px 8px hsl(45 90% 40% / 0.3);
+  --theme-card-border: 1px solid hsl(45 90% 50% / 0.5);
+  --theme-heading-decoration: '✦ ';
+  --theme-animation: none;
+}
+
+/* --- western --- */
+[data-theme='western'] {
+  /* 5.5 typography */
+  --theme-font-heading: 'Rye', serif;
+  --theme-font-body: 'Playfair Display', serif;
+  --theme-font-weight-heading: 400;
+  --theme-letter-spacing: 0.03em;
+  --theme-text-transform: none;
+
+  /* 4.5 background: SVG diagonal wood-grain stripes */
+  --theme-bg-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12'%3E%3Cpath d='M0 12L12 0' stroke='%23b8860b' stroke-opacity='0.07' stroke-width='1.5'/%3E%3C/svg%3E");
+
+  /* 6.5 decoration */
+  --theme-card-shadow: 2px 3px 8px hsl(30 50% 30% / 0.5);
+  --theme-card-border: 2px ridge hsl(30 60% 40% / 0.5);
+  --theme-heading-decoration: '★ ';
+  --theme-animation: none;
+}
+
+/* --- steampunk --- */
+[data-theme='steampunk'] {
+  /* 5.6 typography */
+  --theme-font-heading: 'Special Elite', cursive;
+  --theme-font-body: 'Libre Baskerville', serif;
+  --theme-font-weight-heading: 400;
+  --theme-letter-spacing: 0.05em;
+  --theme-text-transform: none;
+
+  /* 4.6 background: SVG hexagonal grid */
+  --theme-bg-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='24'%3E%3Cpath d='M14 1l13 7.5v9L14 25 1 17.5v-9z' fill='none' stroke='%23b87333' stroke-opacity='0.08' stroke-width='0.8'/%3E%3C/svg%3E");
+
+  /* 6.6 decoration */
+  --theme-card-shadow: 0 0 10px hsl(30 70% 40% / 0.4), inset 0 0 4px hsl(30 70% 30% / 0.2);
+  --theme-card-border: 2px double hsl(30 70% 50% / 0.5);
+  --theme-heading-decoration: '⚙ ';
+  --theme-animation: none;
+}
+
+/* --- eldritch --- */
+[data-theme='eldritch'] {
+  /* 5.7 typography */
+  --theme-font-heading: 'Trade Winds', serif;
+  --theme-font-body: 'IM Fell DW Pica', serif;
+  --theme-font-weight-heading: 400;
+  --theme-letter-spacing: 0.06em;
+  --theme-text-transform: none;
+
+  /* 4.7 background: SVG sine-wave warped grid */
+  --theme-bg-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='20'%3E%3Cpath d='M0 10 Q5 0 10 10 Q15 20 20 10 Q25 0 30 10 Q35 20 40 10' fill='none' stroke='%2332cd32' stroke-opacity='0.06' stroke-width='0.6'/%3E%3C/svg%3E");
+
+  /* 6.7 decoration */
+  --theme-card-shadow: 0 0 14px hsl(120 60% 30% / 0.5);
+  --theme-card-border: 1px groove hsl(120 60% 40% / 0.4);
+  --theme-heading-decoration: '꩜ ';
+  --theme-animation: theme-static 0.5s steps(4) infinite;
+}
+
+/* --- fey-wilds --- */
+[data-theme='fey-wilds'] {
+  /* 5.8 typography */
+  --theme-font-heading: 'Pacifico', cursive;
+  --theme-font-body: 'Nunito', sans-serif;
+  --theme-font-weight-heading: 400;
+  --theme-letter-spacing: 0.02em;
+  --theme-text-transform: none;
+
+  /* 4.8 background: SVG 4-petal flower motif */
+  --theme-bg-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Cellipse cx='10' cy='6' rx='2' ry='4' fill='%23ff69b4' fill-opacity='0.07'/%3E%3Cellipse cx='14' cy='10' rx='4' ry='2' fill='%23da70d6' fill-opacity='0.07'/%3E%3Cellipse cx='10' cy='14' rx='2' ry='4' fill='%23ff69b4' fill-opacity='0.07'/%3E%3Cellipse cx='6' cy='10' rx='4' ry='2' fill='%23da70d6' fill-opacity='0.07'/%3E%3C/svg%3E");
+
+  /* 6.8 decoration */
+  --theme-card-shadow: 0 0 12px hsl(300 60% 70% / 0.4);
+  --theme-card-border: 1px dashed hsl(300 60% 70% / 0.5);
+  --theme-heading-decoration: '✿ ';
+  --theme-animation: theme-float 3s ease-in-out infinite;
+}
+
+/* --- undead --- */
+[data-theme='undead'] {
+  /* 5.9 typography */
+  --theme-font-heading: 'UnifrakturMaguntia', cursive;
+  --theme-font-body: 'Spectral', serif;
+  --theme-font-weight-heading: 400;
+  --theme-letter-spacing: 0.04em;
+  --theme-text-transform: none;
+
+  /* 4.9 background: SVG small X/bone motif */
+  --theme-bg-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Cpath d='M4 4l8 8M12 4l-8 8' stroke='%23556b55' stroke-opacity='0.07' stroke-width='1'/%3E%3C/svg%3E");
+
+  /* 6.9 decoration */
+  --theme-card-shadow: inset 0 0 8px hsl(200 20% 20% / 0.4);
+  --theme-card-border: 1px solid hsl(200 10% 40% / 0.4);
+  --theme-heading-decoration: '✝ ';
+  --theme-animation: theme-decay 4s ease-in-out infinite;
+}
+
+/* --- superhero --- */
+[data-theme='superhero'] {
+  /* 5.10 typography */
+  --theme-font-heading: 'Bangers', cursive;
+  --theme-font-body: 'Exo 2', sans-serif;
+  --theme-font-weight-heading: 400;
+  --theme-letter-spacing: 0.1em;
+  --theme-text-transform: uppercase;
+
+  /* 4.10 background: radial-gradient halftone Ben-Day dots */
+  --theme-bg-pattern: radial-gradient(
+    circle 2px at 4px 4px,
+    hsl(var(--primary) / 0.08) 100%,
+    transparent 100%
+  );
+
+  /* 6.10 decoration */
+  --theme-card-shadow: 3px 3px 0 hsl(50 100% 50% / 0.6);
+  --theme-card-border: 2px solid hsl(var(--primary) / 0.7);
+  --theme-heading-decoration: '★ ';
+  --theme-animation: none;
+}

@@ -97,6 +97,16 @@ watch(
 // Presence system
 const { presenceUsers } = useCampaignSocket(campaignId)
 
+// Mirror active theme onto <html> so Teleport-portalled components
+// (dialogs, dropdowns, SearchCommand) also inherit theme CSS tokens.
+watchEffect(() => {
+  if (import.meta.client) {
+    const html = document.documentElement
+    if (campaignTheme.value) html.setAttribute('data-theme', campaignTheme.value)
+    else html.removeAttribute('data-theme')
+  }
+})
+
 // Fetch campaign name and theme when inside a campaign
 watch(
   campaignId,
