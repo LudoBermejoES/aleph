@@ -236,7 +236,7 @@
   --theme-card-shadow: 0 0 12px hsl(0 70% 30% / 0.5), inset 0 0 6px hsl(0 70% 20% / 0.2);
   --theme-card-border: 2px double hsl(var(--primary));
   --theme-heading-decoration: '⚔';
-  --theme-animation: theme-flicker 3s steps(8, end) infinite;
+  --theme-animation: none;
 }
 
 /* --- cyberpunk --- */
@@ -256,7 +256,7 @@
   --theme-card-shadow: 0 0 16px hsl(180 100% 50% / 0.4), 0 0 4px hsl(180 100% 50% / 0.6);
   --theme-card-border: 1px solid hsl(180 100% 50% / 0.6);
   --theme-heading-decoration: '// ';
-  --theme-animation: theme-glitch 4s linear infinite;
+  --theme-animation: none;
 }
 
 /* --- cosmic-horror --- */
@@ -355,7 +355,7 @@
   --theme-card-shadow: 0 0 14px hsl(120 60% 30% / 0.5);
   --theme-card-border: 1px groove hsl(120 60% 40% / 0.4);
   --theme-heading-decoration: '꩜ ';
-  --theme-animation: theme-static 0.5s steps(4) infinite;
+  --theme-animation: none;
 }
 
 /* --- fey-wilds --- */
@@ -396,7 +396,7 @@
   --theme-card-shadow: 0 0 14px hsl(0 90% 30% / 0.5), 0 0 4px hsl(0 90% 20% / 0.4);
   --theme-card-border: 1px solid hsl(0 80% 40% / 0.5);
   --theme-heading-decoration: '✦ ';
-  --theme-animation: theme-flicker 4s steps(6, end) infinite;
+  --theme-animation: none;
 }
 
 /* --- superhero --- */
