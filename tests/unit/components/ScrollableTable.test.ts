@@ -3,7 +3,7 @@ import { readFileSync } from 'fs'
 import { resolve } from 'path'
 
 const source = readFileSync(
-  resolve(__dirname, '../../../app/components/ui/ScrollableTable.vue'),
+  resolve(__dirname, '../../../app/components/ui/scrollable-table/index.vue'),
   'utf-8',
 )
 
