@@ -377,23 +377,26 @@
   --theme-animation: theme-float 3s ease-in-out infinite;
 }
 
-/* --- undead --- */
+/* --- undead (Kult: Divinity Lost style) ---
+   Contemporary gnostic body horror: pure black + blood red + gold accents.
+   Clean authoritative serif (not blackletter), occult star ornament,
+   blood-red card glow, subtle film-grain noise background. */
 [data-theme='undead'] {
-  /* 5.9 typography */
-  --theme-font-heading: 'UnifrakturMaguntia', cursive;
+  /* 5.9 typography — Crimson Text: classical authority with religious dread */
+  --theme-font-heading: 'Crimson Text', serif;
   --theme-font-body: 'Spectral', serif;
-  --theme-font-weight-heading: 400;
-  --theme-letter-spacing: 0.04em;
+  --theme-font-weight-heading: 600;
+  --theme-letter-spacing: 0.06em;
   --theme-text-transform: none;
 
-  /* 4.9 background: SVG small X/bone motif */
-  --theme-bg-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Cpath d='M4 4l8 8M12 4l-8 8' stroke='%23556b55' stroke-opacity='0.07' stroke-width='1'/%3E%3C/svg%3E");
+  /* 4.9 background: fine film-grain noise (SVG feTurbulence) */
+  --theme-bg-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
 
-  /* 6.9 decoration */
-  --theme-card-shadow: inset 0 0 8px hsl(200 20% 20% / 0.4);
-  --theme-card-border: 1px solid hsl(200 10% 40% / 0.4);
-  --theme-heading-decoration: '✝ ';
-  --theme-animation: theme-decay 4s ease-in-out infinite;
+  /* 6.9 decoration — blood red outer glow, crimson border */
+  --theme-card-shadow: 0 0 14px hsl(0 90% 30% / 0.5), 0 0 4px hsl(0 90% 20% / 0.4);
+  --theme-card-border: 1px solid hsl(0 80% 40% / 0.5);
+  --theme-heading-decoration: '✦ ';
+  --theme-animation: theme-flicker 4s steps(6, end) infinite;
 }
 
 /* --- superhero --- */

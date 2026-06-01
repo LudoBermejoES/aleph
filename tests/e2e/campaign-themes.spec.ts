@@ -12,7 +12,7 @@ const THEME_FONTS: Record<string, { heading: string; body: string }> = {
   steampunk: { heading: 'Special Elite', body: 'Libre Baskerville' },
   eldritch: { heading: 'Trade Winds', body: 'IM Fell DW Pica' },
   'fey-wilds': { heading: 'Pacifico', body: 'Nunito' },
-  undead: { heading: 'UnifrakturMaguntia', body: 'Spectral' },
+  undead: { heading: 'Crimson Text', body: 'Spectral' },
   superhero: { heading: 'Bangers', body: 'Exo 2' },
 }
 
