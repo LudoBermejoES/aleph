@@ -32,17 +32,16 @@ async function toggle() {
   loading.value = true
   try {
     if (props.revealed) {
-      await fetch(
+      // $fetch so the CSRF plugin injects X-CSRF-Token on this mutating request
+      await $fetch(
         `/api/campaigns/${props.campaignId}/entities/${props.entitySlug}/secrets/${props.blockId}`,
-        { method: 'DELETE', credentials: 'include' },
+        { method: 'DELETE' },
       )
       emit('update', props.blockId, false)
     } else {
-      await fetch(`/api/campaigns/${props.campaignId}/entities/${props.entitySlug}/secrets`, {
+      await $fetch(`/api/campaigns/${props.campaignId}/entities/${props.entitySlug}/secrets`, {
         method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ blockId: props.blockId }),
+        body: { blockId: props.blockId },
       })
       emit('update', props.blockId, true)
     }

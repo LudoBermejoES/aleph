@@ -120,18 +120,15 @@ async function handleFileChange(event: Event) {
   try {
     const form = new FormData()
     form.append('portrait', file)
-    const res = await fetch(
+    // Use $fetch (not raw fetch) so the CSRF plugin injects the X-CSRF-Token header
+    // for this mutating request; raw fetch bypasses it and the server returns 403.
+    const data = await $fetch<{ portraitUrl: string }>(
       `/api/campaigns/${props.campaignId}/characters/${props.characterSlug}/portrait`,
       {
         method: 'POST',
         body: form,
       },
     )
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}))
-      throw new Error(err.message || `Upload failed (${res.status})`)
-    }
-    const data = await res.json()
     emit('uploaded', data.portraitUrl)
   } catch (e) {
     console.error('[CharacterPortrait] upload error', e)

@@ -59,17 +59,15 @@ export function useSecretReveals(
       btn.addEventListener('click', async () => {
         const revealed = revealedBlocks.value.has(blockId)
         if (revealed) {
-          await fetch(`/api/campaigns/${campaignId}/entities/${slug}/secrets/${blockId}`, {
+          // $fetch so the CSRF plugin injects X-CSRF-Token on this mutating request
+          await $fetch(`/api/campaigns/${campaignId}/entities/${slug}/secrets/${blockId}`, {
             method: 'DELETE',
-            credentials: 'include',
           })
           revealedBlocks.value = new Set([...revealedBlocks.value].filter((id) => id !== blockId))
         } else {
-          await fetch(`/api/campaigns/${campaignId}/entities/${slug}/secrets`, {
+          await $fetch(`/api/campaigns/${campaignId}/entities/${slug}/secrets`, {
             method: 'POST',
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ blockId }),
+            body: { blockId },
           })
           revealedBlocks.value = new Set([...revealedBlocks.value, blockId])
         }

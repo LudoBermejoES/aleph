@@ -60,11 +60,10 @@ async function save() {
   saving.value = true
   saved.value = false
   try {
-    await fetch(`/api/campaigns/${props.campaignId}/entities/${props.entitySlug}/secret-notes`, {
+    // $fetch so the CSRF plugin injects X-CSRF-Token on this mutating request
+    await $fetch(`/api/campaigns/${props.campaignId}/entities/${props.entitySlug}/secret-notes`, {
       method: 'PUT',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content: localContent.value }),
+      body: { content: localContent.value },
     })
     saved.value = true
     setTimeout(() => {
