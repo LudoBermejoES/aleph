@@ -91,6 +91,11 @@ test.describe('Character Relationship Graph', () => {
     await expect(page.locator('[data-testid="character-graph"]')).toBeVisible({ timeout: 15000 })
     // The heading should show the i18n key result
     await expect(page.locator('[data-testid="character-graph"] h2')).toBeVisible()
+
+    // The relation label text should render on the edge (always-on edge labels).
+    await expect(
+      page.locator('[data-testid="character-graph"] .v-ng-layer-edge-labels'),
+    ).toContainText('ally of', { timeout: 15000 })
   })
 
   test('graph section appears when character has a connection', async ({ page }) => {

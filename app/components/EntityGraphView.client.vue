@@ -147,6 +147,22 @@
               />
             </g>
           </template>
+
+          <!-- Edge labels: relation text on each link. v-network-graph does not
+               auto-render edge labels (unlike node labels), so we provide the slot. -->
+          <template #edge-label="{ edge, area, scale: edgeScale, hovered, selected, edgeId }">
+            <VEdgeLabel
+              v-if="showEdgeLabel(edgeId)"
+              :text="(edge as { label?: string }).label"
+              :area="area"
+              :config="edgeLabelConfig"
+              :scale="edgeScale"
+              :hovered="hovered"
+              :selected="selected"
+              align="center"
+              vertical-align="above"
+            />
+          </template>
         </v-network-graph>
 
         <!-- Mini-map -->
@@ -196,7 +212,7 @@
 </template>
 
 <script setup lang="ts">
-import { VNetworkGraph, defineConfigs } from 'v-network-graph'
+import { VNetworkGraph, VEdgeLabel, defineConfigs } from 'v-network-graph'
 import 'v-network-graph/lib/style.css'
 import { ForceLayout } from 'v-network-graph/lib/force-layout'
 import {
@@ -204,7 +220,6 @@ import {
   computeNodeRadius,
   computeActiveHighlightSet,
   nodeOpacity,
-  edgeLabelFontSize,
   getEdgeStyle,
   createGraphSimulation,
   type SimNode,
@@ -363,6 +378,25 @@ const activeMode = computed((): 'focus' | 'hover' | null => {
 
 function getNodeOpacity(nodeId: string): number {
   return nodeOpacity(nodeId, activeHighlightSet.value, activeMode.value)
+}
+
+// Whether to render an edge's relation label: always when alwaysShowEdgeLabels is
+// set, otherwise only for edges highlighted by the current hover/focus.
+function showEdgeLabel(edgeId: string): boolean {
+  if (props.alwaysShowEdgeLabels) return true
+  if (!activeMode.value) return false
+  return activeHighlightSet.value.edgeIds.has(edgeId)
+}
+
+// Style for the VEdgeLabel slot — small grey text with a subtle white backing
+// so the relation name stays legible over edge lines and node portraits.
+const edgeLabelConfig = {
+  fontSize: 11,
+  color: '#6b7280',
+  lineHeight: 1.1,
+  margin: 4,
+  padding: 2,
+  background: { visible: true, color: 'rgba(255,255,255,0.85)', borderRadius: 3, padding: 2 },
 }
 
 // ─── Degree-based Node Sizing ────────────────────────────────────────────────
@@ -564,10 +598,9 @@ const configs = computed(() =>
         },
       },
       label: {
-        fontSize: (edge: VngConfigEdge) =>
-          props.alwaysShowEdgeLabels
-            ? 11
-            : edgeLabelFontSize(edge.id, activeHighlightSet.value, activeMode.value),
+        // Actual text is rendered via the #edge-label slot (VEdgeLabel); this
+        // config provides the default positioning/margins for that layer.
+        fontSize: 11,
         color: '#6b7280',
       },
     },
