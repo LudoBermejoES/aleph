@@ -120,7 +120,9 @@ export class EntityCardShapeUtil extends BaseBoxShapeUtil<EntityCardShape> {
     )
   }
 
-  override indicator(shape: EntityCardShape) {
-    return <rect width={shape.props.w} height={shape.props.h} rx={8} />
+  override getIndicatorPath(shape: EntityCardShape) {
+    const path = new Path2D()
+    path.rect(0, 0, shape.props.w, shape.props.h)
+    return path
   }
 }

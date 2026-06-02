@@ -87,7 +87,9 @@ export class LocationPinShapeUtil extends BaseBoxShapeUtil<LocationPinShape> {
     )
   }
 
-  override indicator(shape: LocationPinShape) {
-    return <rect width={shape.props.w} height={shape.props.h} rx={24} />
+  override getIndicatorPath(shape: LocationPinShape) {
+    const path = new Path2D()
+    path.rect(0, 0, shape.props.w, shape.props.h)
+    return path
   }
 }

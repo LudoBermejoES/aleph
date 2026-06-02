@@ -10,12 +10,15 @@ import {
   inlineBase64AssetStore,
   defaultShapeUtils,
   defaultBindingUtils,
+  atom,
   type Editor,
   type TLEditorSnapshot,
+  type TLUserStore,
 } from 'tldraw'
 import { createAlephAssetStore } from '../../../utils/aleph-asset-store'
 import { useSync } from '@tldraw/sync'
 import type { RemoteTLStoreWithStatus } from '@tldraw/sync'
+import { createUserId } from '@tldraw/tlschema'
 import { EntityCardShapeUtil } from './shapes/EntityCardShape'
 import { QuestNodeShapeUtil } from './shapes/QuestNodeShape'
 import { LocationPinShapeUtil } from './shapes/LocationPinShape'
@@ -144,6 +147,20 @@ export function TldrawWrapper({
   const allShapeUtils = useMemo(() => [...defaultShapeUtils, ...SHAPE_UTILS], [])
   const allBindingUtils = useMemo(() => [...defaultBindingUtils], [])
 
+  // Build a TLUserStore from the userInfo prop (v5 replaced userInfo with users)
+  const userStore = useMemo<TLUserStore | undefined>(() => {
+    if (!userInfo) return undefined
+    const currentUser = atom('currentUser', {
+      id: createUserId(userInfo.id),
+      typeName: 'user' as const,
+      name: userInfo.name,
+      color: userInfo.color,
+      imageUrl: '',
+      meta: {},
+    })
+    return { currentUser }
+  }, [userInfo])
+
   // Multiplayer sync store (always called for hook rules; result only used when syncUri is set)
   // Use wss:// placeholder on HTTPS pages to avoid Mixed Content browser errors
   const unusedUri =
@@ -153,7 +170,7 @@ export function TldrawWrapper({
   const syncStore = useSync({
     uri: syncUri || unusedUri,
     assets: assetStore,
-    userInfo: syncUri && userInfo ? userInfo : undefined,
+    users: syncUri && userStore ? userStore : undefined,
     shapeUtils: allShapeUtils,
     bindingUtils: allBindingUtils,
   })
@@ -231,7 +248,6 @@ export function TldrawWrapper({
         <Tldraw
           store={syncStore}
           shapeUtils={SHAPE_UTILS}
-          assets={assetStore}
           onMount={handleMount}
           hideUi={readOnly}
           licenseKey={import.meta.env.VITE_TLDRAW_LICENSE_KEY}
