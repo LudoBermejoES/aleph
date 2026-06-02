@@ -10,13 +10,13 @@
 
 ## 2. Wave 2 — Hocuspocus 4
 
-- [ ] 2.1 Bump `@hocuspocus/server@^4.1.0` and `@hocuspocus/provider@^4.1.0` in `package.json`; `npm install --legacy-peer-deps`
-- [ ] 2.2 Confirm `yjs` stays `^13` and `y-protocols` `^1` (v4 peers are satisfied; no major bump)
-- [ ] 2.3 (Optional cleanup) In `server/plugins/hocuspocus.ts`: remove the dead `encodeStateAsUpdateV2` line (~127) and tidy `_context` params; do NOT change hook signatures
-- [ ] 2.4 Confirm `sessionAwareness` is left at its default (`false`) — only matters during a mixed v3/v4 rollout
-- [ ] 2.5 Verify Node ≥22 in CI workflow and any Docker/prod runtime (local is 24); update engine pin / CI image if needed
-- [ ] 2.6 Start server on 3333 and run `npx vitest run tests/integration/collaboration.test.ts` (authenticate + load + store); then run full unit + E2E + typecheck; save to `logs/`; confirm green before Wave 3
-- [ ] 2.7 Commit Wave 2
+- [x] 2.1 Bump `@hocuspocus/server@^4.1.0` and `@hocuspocus/provider@^4.1.0` in `package.json`; `npm install --legacy-peer-deps`
+- [x] 2.2 Confirm `yjs` stays `^13` and `y-protocols` `^1` (v4 peers are satisfied; no major bump)
+- [x] 2.3 (Optional cleanup) In `server/plugins/hocuspocus.ts`: remove the dead `encodeStateAsUpdateV2` line (~127) and tidy `_context` params; do NOT change hook signatures
+- [x] 2.4 Confirm `sessionAwareness` is left at its default (`false`) — only matters during a mixed v3/v4 rollout
+- [x] 2.5 Verify Node ≥22 in CI workflow and any Docker/prod runtime (local is 24); update engine pin / CI image if needed
+- [x] 2.6 Start server on 3333 and run `npx vitest run tests/integration/collaboration.test.ts` (authenticate + load + store); then run full unit + E2E + typecheck; save to `logs/`; confirm green before Wave 3
+- [x] 2.7 Commit Wave 2
 
 ## 3. Wave 3 — tldraw 5 (+ sync, sync-core)
 
