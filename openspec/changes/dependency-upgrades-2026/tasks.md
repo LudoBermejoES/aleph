@@ -1,12 +1,12 @@
 ## 1. Wave 1 — Low-risk tooling (ESLint 10, lint-staged 17, pm2 7)
 
-- [ ] 1.1 Bump versions in `package.json`: `eslint@^10.4.1`, `lint-staged@^17.0.7`, `pm2@^7.0.1` (e.g. `npx ncu -u eslint lint-staged pm2`)
-- [ ] 1.2 `npm install --legacy-peer-deps` (the `--legacy-peer-deps` is expected — better-auth's optional SvelteKit peer pulls a Vite 8 phantom; not a real conflict)
-- [ ] 1.3 Run `npx eslint .` and fix any new `eslint:recommended` findings (`no-unassigned-vars`, `no-useless-assignment`, `preserve-caught-error`); prefer `--fix` where possible
-- [ ] 1.4 Make a trivial staged change to a `.ts`/`.vue` file and commit it on a scratch branch to confirm the husky + lint-staged 17 pre-commit hook still runs `prettier --write` + `eslint --fix` (then discard the scratch commit)
-- [ ] 1.5 Add a note to deployment docs / commit message that the server needs `pm2 update` after deploying pm2 7 (daemon must match CLI); no `ecosystem.config.cjs` change
-- [ ] 1.6 Run unit + integration + E2E + `npx nuxi typecheck`; save output to `logs/`; confirm green before Wave 2
-- [ ] 1.7 Commit Wave 1
+- [x] 1.1 Bump versions in `package.json`: `eslint@^10.4.1`, `lint-staged@^17.0.7`, `pm2@^7.0.1` (e.g. `npx ncu -u eslint lint-staged pm2`)
+- [x] 1.2 `npm install --legacy-peer-deps` (the `--legacy-peer-deps` is expected — better-auth's optional SvelteKit peer pulls a Vite 8 phantom; not a real conflict)
+- [x] 1.3 Run `npx eslint .` and fix any new `eslint:recommended` findings (`no-unassigned-vars`, `no-useless-assignment`, `preserve-caught-error`); prefer `--fix` where possible
+- [x] 1.4 Make a trivial staged change to a `.ts`/`.vue` file and commit it on a scratch branch to confirm the husky + lint-staged 17 pre-commit hook still runs `prettier --write` + `eslint --fix` (then discard the scratch commit)
+- [x] 1.5 Add a note to deployment docs / commit message that the server needs `pm2 update` after deploying pm2 7 (daemon must match CLI); no `ecosystem.config.cjs` change
+- [x] 1.6 Run unit + integration + E2E + `npx nuxi typecheck`; save output to `logs/`; confirm green before Wave 2
+- [x] 1.7 Commit Wave 1
 
 ## 2. Wave 2 — Hocuspocus 4
 
