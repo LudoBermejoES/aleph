@@ -118,13 +118,11 @@ export default defineNitroPlugin(async () => {
           const file = await readEntityFile(filePath)
           const tiptapJson = markdownToTiptap(file.content)
 
-          // Hydrate Y.js document with Tiptap content
+          // Hydrate Y.js document with Tiptap content (prosemirrorJSONToYDoc mutates document in-place)
           const { prosemirrorJSONToYDoc } = await import('y-prosemirror')
           // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Hocuspocus types don't expose getSchema()
-          const yDoc = prosemirrorJSONToYDoc((document as any).getSchema(), tiptapJson)
+          prosemirrorJSONToYDoc((document as any).getSchema(), tiptapJson)
 
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Yjs types
-          const _update = (yDoc as any).encodeStateAsUpdateV2 ? undefined : undefined
           logger.debug('Hocuspocus: document loaded', { documentName, slug })
         } catch (err) {
           logger.error('Hocuspocus: failed to load document', { documentName, error: err })
