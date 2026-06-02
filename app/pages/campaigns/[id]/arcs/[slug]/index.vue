@@ -21,7 +21,7 @@
           <h1 class="text-2xl font-bold">{{ arc.name }}</h1>
           <span
             :class="['inline-flex text-xs px-2 py-0.5 rounded mt-1', arcStatusClass(arc.status)]"
-            >{{ arc.status }}</span
+            >{{ arcStatusLabel(arc.status) }}</span
           >
         </div>
         <div v-if="canEdit" class="flex gap-2 shrink-0">
@@ -52,10 +52,10 @@
             v-model="editArcForm.status"
             class="w-full mt-1 px-3 py-1.5 rounded border border-input bg-background text-sm"
           >
-            <option value="planned">planned</option>
-            <option value="active">active</option>
-            <option value="completed">completed</option>
-            <option value="paused">paused</option>
+            <option value="planned">{{ $t('arcs.statusPlanned') }}</option>
+            <option value="active">{{ $t('arcs.statusActive') }}</option>
+            <option value="completed">{{ $t('arcs.statusCompleted') }}</option>
+            <option value="paused">{{ $t('arcs.statusPaused') }}</option>
           </select>
         </div>
         <div class="flex gap-2">
@@ -277,6 +277,14 @@ function arcStatusClass(status: string) {
     default:
       return 'bg-secondary text-secondary-foreground'
   }
+}
+
+// Translate an arc status value (planned/active/completed/paused) to its localized
+// label, falling back to the raw value for any unmapped status.
+function arcStatusLabel(status?: string | null): string {
+  if (!status) return ''
+  const key = `arcs.status${status.charAt(0).toUpperCase()}${status.slice(1)}`
+  return t(key, status)
 }
 
 async function load() {

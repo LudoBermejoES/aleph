@@ -25,7 +25,7 @@
               statusClass,
             ]"
           >
-            {{ quest.status }}
+            {{ questStatusLabel(quest.status) }}
           </span>
           <span
             v-if="quest.isSecret"
@@ -137,7 +137,7 @@
                       : 'bg-secondary text-secondary-foreground',
               ]"
             >
-              {{ sub.status }}
+              {{ questStatusLabel(sub.status) }}
             </span>
           </div>
         </div>
@@ -196,6 +196,14 @@ const statusClass = computed(() => {
       return 'bg-secondary text-secondary-foreground'
   }
 })
+
+// Translate a quest status value (active/completed/failed/abandoned/open) to its
+// localized label, falling back to the raw value for any unmapped status.
+function questStatusLabel(status?: string | null): string {
+  if (!status) return ''
+  const key = `quests.status${status.charAt(0).toUpperCase()}${status.slice(1)}`
+  return t(key, status)
+}
 
 // Secret block reveal composable
 const { loadRevealedBlocks, injectRevealButtons } = useSecretReveals(

@@ -115,7 +115,9 @@
               class="flex-1 text-sm font-medium hover:text-primary"
               >{{ c.name }}</NuxtLink
             >
-            <span class="text-xs text-muted-foreground capitalize">{{ c.characterType }}</span>
+            <span class="text-xs text-muted-foreground">{{
+              $t(`characters.${c.characterType}`)
+            }}</span>
             <button
               type="button"
               class="text-xs text-destructive hover:underline"

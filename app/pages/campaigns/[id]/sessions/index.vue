@@ -81,7 +81,7 @@
               <component
                 :is="s.status === 'planned' ? ICONS.sessionPlanned : ICONS.sessionActive"
                 class="w-3 h-3"
-              />{{ s.status }}</span
+              />{{ sessionStatusLabel(s.status) }}</span
             >
           </div>
           <span v-if="s.scheduledDate" class="text-xs text-muted-foreground">{{
@@ -116,7 +116,7 @@
               <component
                 :is="s.status === 'completed' ? ICONS.sessionCompleted : ICONS.sessionCancelled"
                 class="w-3 h-3"
-              />{{ s.status }}</span
+              />{{ sessionStatusLabel(s.status) }}</span
             >
           </div>
         </NuxtLink>
@@ -136,8 +136,19 @@
 <script setup lang="ts">
 import { ICONS } from '~/utils/icons'
 import type { GameSession } from '~/types/api'
+const { t } = useI18n()
 const route = useRoute()
 const campaignId = route.params.id as string
+
+// Translate a session status value to its localized label (handles snake_case).
+function sessionStatusLabel(status?: string | null): string {
+  if (!status) return ''
+  const pascal = status
+    .split('_')
+    .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
+    .join('')
+  return t(`sessions.status${pascal}`, status)
+}
 
 const sessions = ref<GameSession[]>([])
 const groups = ref<Record<string, unknown>[]>([])

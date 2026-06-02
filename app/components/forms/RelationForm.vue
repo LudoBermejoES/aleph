@@ -20,7 +20,10 @@
             class="block w-full text-left px-3 py-2 text-sm hover:bg-accent"
             @click="selectEntity('source', e)"
           >
-            {{ e.name }} <span class="text-xs text-muted-foreground">{{ e.type }}</span>
+            {{ e.name }}
+            <span class="text-xs text-muted-foreground">{{
+              $t(`entities.types.${e.type}`, e.type)
+            }}</span>
           </button>
         </div>
         <p v-if="form.sourceEntityName" class="text-xs text-primary mt-1">
@@ -46,7 +49,10 @@
             class="block w-full text-left px-3 py-2 text-sm hover:bg-accent"
             @click="selectEntity('target', e)"
           >
-            {{ e.name }} <span class="text-xs text-muted-foreground">{{ e.type }}</span>
+            {{ e.name }}
+            <span class="text-xs text-muted-foreground">{{
+              $t(`entities.types.${e.type}`, e.type)
+            }}</span>
           </button>
         </div>
         <p v-if="form.targetEntityName" class="text-xs text-primary mt-1">

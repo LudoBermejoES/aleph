@@ -39,10 +39,10 @@
         <div class="flex-1 min-w-0">
           <div class="font-semibold text-sm truncate">{{ entity.name }}</div>
           <span
-            class="inline-block text-xs font-medium px-2 py-0.5 rounded-full mt-1 capitalize"
+            class="inline-block text-xs font-medium px-2 py-0.5 rounded-full mt-1"
             :class="typeColor(entity.type)"
           >
-            {{ entity.type }}
+            {{ $t(`entities.types.${entity.type}`, entity.type) }}
           </span>
         </div>
 

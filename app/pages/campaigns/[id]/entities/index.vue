@@ -58,7 +58,7 @@
               <span class="font-medium">{{ entity.name }}</span>
               <span
                 class="text-xs ml-2 px-2 py-0.5 rounded bg-secondary text-secondary-foreground"
-                >{{ entity.type }}</span
+                >{{ $t(`entities.types.${entity.type}`, entity.type) }}</span
               >
             </div>
           </div>

@@ -26,7 +26,7 @@
                   ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
                   : 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
               ]"
-              >{{ session.status }}</span
+              >{{ sessionStatusLabel(session.status) }}</span
             >
             <span
               v-if="session.groupName"
@@ -150,6 +150,18 @@ const route = useRoute()
 const campaignId = route.params.id as string
 const slug = route.params.slug as string
 const { t } = useI18n()
+
+// Translate a session status value (planned/active/completed/cancelled/in_progress)
+// to its localized label. Handles snake_case (in_progress → statusInProgress) and
+// falls back to the raw value for any unmapped status.
+function sessionStatusLabel(status?: string | null): string {
+  if (!status) return ''
+  const pascal = status
+    .split('_')
+    .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
+    .join('')
+  return t(`sessions.status${pascal}`, status)
+}
 
 const session = ref<GameSession | null>(null)
 const decisions = ref<SessionDecision[]>([])

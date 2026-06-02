@@ -19,7 +19,7 @@
             <component
               :is="character.characterType === 'pc' ? ICONS.pc : ICONS.npc"
               class="w-3 h-3"
-            />{{ character.characterType }}
+            />{{ $t(`characters.${character.characterType}`) }}
           </span>
           <span v-if="character.race" class="text-xs ml-1 text-muted-foreground">{{
             character.race
@@ -66,7 +66,7 @@
           :is="ICONS[character.status as 'alive' | 'dead' | 'missing' | 'unknown'] ?? ICONS.unknown"
           class="w-3 h-3"
         />
-        {{ character.status }}
+        {{ $t(`characters.${character.status}`) }}
       </span>
     </div>
   </NuxtLink>

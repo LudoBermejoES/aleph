@@ -22,7 +22,9 @@
         @mousedown.prevent="select(opt)"
       >
         <span class="font-medium">{{ opt.name }}</span>
-        <span v-if="opt.type" class="ml-2 text-xs text-muted-foreground">{{ opt.type }}</span>
+        <span v-if="opt.type" class="ml-2 text-xs text-muted-foreground">{{
+          $t(`characters.${opt.type}`, opt.type)
+        }}</span>
       </button>
     </div>
     <div

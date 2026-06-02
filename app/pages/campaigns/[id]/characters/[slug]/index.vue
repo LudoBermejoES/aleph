@@ -37,7 +37,7 @@
               <h1 class="text-3xl font-bold">{{ character.name }}</h1>
               <div class="flex items-center gap-2 mt-2">
                 <span class="text-xs px-2 py-1 rounded bg-secondary text-secondary-foreground">{{
-                  character.characterType
+                  $t(`characters.${character.characterType}`)
                 }}</span>
                 <span
                   :class="[
@@ -47,7 +47,7 @@
                       : 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300',
                   ]"
                 >
-                  {{ character.status }}
+                  {{ $t(`characters.${character.status}`) }}
                 </span>
               </div>
               <NuxtLink
@@ -326,7 +326,7 @@
                   <span class="font-medium">{{ ab.name }}</span>
                   <span
                     class="text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground"
-                    >{{ ab.type }}</span
+                    >{{ $t(`characters.abilityTypes.${ab.type}`, ab.type) }}</span
                   >
                 </div>
                 <p v-if="ab.description" class="text-sm text-muted-foreground mt-1">

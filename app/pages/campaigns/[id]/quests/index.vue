@@ -67,7 +67,7 @@
                 "
                 class="w-3 h-3"
               />
-              {{ q.status }}
+              {{ questStatusLabel(q.status) }}
             </span>
           </div>
           <p v-if="q.description" class="text-sm text-muted-foreground mt-1">{{ q.description }}</p>
@@ -102,7 +102,7 @@
                       : ICONS.questAbandoned
               "
               class="w-3 h-3"
-            />{{ sub.status }}</span
+            />{{ questStatusLabel(sub.status) }}</span
           >
         </div>
       </div>
@@ -120,8 +120,16 @@
 <script setup lang="ts">
 import { ICONS } from '~/utils/icons'
 import type { Quest } from '~/types/api'
+const { t } = useI18n()
 const route = useRoute()
 const campaignId = route.params.id as string
+
+// Translate a quest status value to its localized label, falling back to the raw value.
+function questStatusLabel(status?: string | null): string {
+  if (!status) return ''
+  const key = `quests.status${status.charAt(0).toUpperCase()}${status.slice(1)}`
+  return t(key, status)
+}
 
 const questList = ref<Quest[]>([])
 const filter = ref('')

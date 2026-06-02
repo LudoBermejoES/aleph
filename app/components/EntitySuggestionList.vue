@@ -14,7 +14,9 @@
       @click="selectItem(index)"
     >
       <span class="font-medium">{{ item.name }}</span>
-      <span class="text-xs text-muted-foreground ml-2">{{ item.type }}</span>
+      <span class="text-xs text-muted-foreground ml-2">{{
+        $t(`entities.types.${item.type}`, item.type)
+      }}</span>
     </button>
   </div>
   <div

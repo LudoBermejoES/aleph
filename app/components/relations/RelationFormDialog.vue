@@ -12,7 +12,9 @@
         <div>
           <label class="text-sm font-medium mb-1 block">{{ $t('relations.sourceEntity') }}</label>
           <div class="flex items-center gap-2 p-2 rounded-md border border-input bg-muted/50">
-            <span class="text-xs uppercase text-muted-foreground">{{ sourceEntity.type }}</span>
+            <span class="text-xs text-muted-foreground">{{
+              $t(`entities.types.${sourceEntity.type}`, sourceEntity.type)
+            }}</span>
             <span class="font-medium">{{ sourceEntity.name }}</span>
           </div>
         </div>
@@ -37,7 +39,9 @@
               class="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-accent text-left"
               @click="selectTarget(entity)"
             >
-              <span class="text-xs uppercase text-muted-foreground">{{ entity.type }}</span>
+              <span class="text-xs text-muted-foreground">{{
+                $t(`entities.types.${entity.type}`, entity.type)
+              }}</span>
               <span>{{ entity.name }}</span>
             </button>
           </div>
@@ -45,7 +49,9 @@
             v-if="form.targetEntityId"
             class="mt-2 flex items-center gap-2 p-2 rounded-md border border-primary/50 bg-primary/5"
           >
-            <span class="text-xs uppercase text-muted-foreground">{{ form.targetEntityType }}</span>
+            <span class="text-xs text-muted-foreground">{{
+              $t(`entities.types.${form.targetEntityType}`, form.targetEntityType)
+            }}</span>
             <span class="font-medium">{{ form.targetEntityName }}</span>
             <button
               class="ml-auto text-muted-foreground hover:text-foreground"
