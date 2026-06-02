@@ -138,7 +138,14 @@ function TldrawWrapperSync({
   allBindingUtils,
 }: Pick<
   TldrawWrapperProps,
-  'readOnly' | 'campaignId' | 'darkMode' | 'syncUri' | 'userInfo' | 'onChange' | 'onEditorReady' | 'onSyncStatusChange'
+  | 'readOnly'
+  | 'campaignId'
+  | 'darkMode'
+  | 'syncUri'
+  | 'userInfo'
+  | 'onChange'
+  | 'onEditorReady'
+  | 'onSyncStatusChange'
 > & {
   assetStore: ReturnType<typeof createAlephAssetStore> | typeof inlineBase64AssetStore
   allShapeUtils: typeof SHAPE_UTILS
