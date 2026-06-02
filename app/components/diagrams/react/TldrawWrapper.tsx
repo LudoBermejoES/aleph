@@ -71,6 +71,145 @@ export interface TldrawWrapperProps {
   handleRef?: React.Ref<TldrawWrapperHandle>
 }
 
+// Shared mount/drag logic extracted to avoid duplication between sync and snapshot modes
+function useTldrawMount({
+  readOnly,
+  darkMode,
+  campaignId,
+  onChange,
+  onEditorReady,
+  isSyncMode,
+  editorRef,
+}: {
+  readOnly?: boolean
+  darkMode?: boolean
+  campaignId?: string
+  onChange?: (snapshot: TLEditorSnapshot) => void
+  onEditorReady?: (editor: Editor) => void
+  isSyncMode: boolean
+  editorRef: React.MutableRefObject<Editor | null>
+}) {
+  return useCallback(
+    (editor: Editor) => {
+      editorRef.current = editor
+      if (readOnly && !isSyncMode) {
+        editor.setCurrentTool('hand')
+        editor.updateInstanceState({ isReadonly: true })
+      }
+      if (darkMode) {
+        editor.user.updateUserPreferences({ colorScheme: 'dark' })
+      }
+      onEditorReady?.(editor)
+      if (campaignId) {
+        setTimeout(() => {
+          import('../../../utils/diagram-hydration').then(({ hydrateEntityShapes }) => {
+            hydrateEntityShapes(editor, campaignId).catch(console.error)
+          })
+        }, 0)
+      }
+      if (!isSyncMode) {
+        editor.store.listen(
+          () => {
+            if (!readOnly && onChange) onChange(getSnapshot(editor.store))
+          },
+          { scope: 'document', source: 'user' },
+        )
+      }
+    },
+    [readOnly, darkMode, campaignId, onChange, onEditorReady, isSyncMode, editorRef],
+  )
+}
+
+// Sync mode: useSync is only called when multiplayer is actually active.
+// Keeping it in a separate component ensures the hook is never invoked in
+// snapshot mode, which prevents tldraw v5 from spamming WebSocket reconnects
+// against ws://unused.
+function TldrawWrapperSync({
+  readOnly,
+  campaignId,
+  darkMode,
+  syncUri,
+  userInfo,
+  onChange,
+  onEditorReady,
+  onSyncStatusChange,
+  assetStore,
+  allShapeUtils,
+  allBindingUtils,
+}: Pick<
+  TldrawWrapperProps,
+  'readOnly' | 'campaignId' | 'darkMode' | 'syncUri' | 'userInfo' | 'onChange' | 'onEditorReady' | 'onSyncStatusChange'
+> & {
+  assetStore: ReturnType<typeof createAlephAssetStore> | typeof inlineBase64AssetStore
+  allShapeUtils: typeof SHAPE_UTILS
+  allBindingUtils: typeof defaultBindingUtils
+}) {
+  const editorRef = useRef<Editor | null>(null)
+
+  const userStore = useMemo<TLUserStore | undefined>(() => {
+    if (!userInfo) return undefined
+    const currentUser = atom('currentUser', {
+      id: createUserId(userInfo.id),
+      typeName: 'user' as const,
+      name: userInfo.name,
+      color: userInfo.color,
+      imageUrl: '',
+      meta: {},
+    })
+    return { currentUser }
+  }, [userInfo])
+
+  const syncStore = useSync({
+    uri: syncUri!,
+    assets: assetStore,
+    users: userStore,
+    shapeUtils: allShapeUtils,
+    bindingUtils: allBindingUtils,
+  })
+
+  const lastSyncStatus = useRef<RemoteTLStoreWithStatus['status'] | null>(null)
+  useEffect(() => {
+    if (!onSyncStatusChange) return
+    const status = syncStore.status
+    if (status !== lastSyncStatus.current) {
+      lastSyncStatus.current = status
+      onSyncStatusChange(status)
+    }
+  }, [syncStore.status, onSyncStatusChange])
+
+  const handleMount = useTldrawMount({
+    readOnly,
+    darkMode,
+    campaignId,
+    onChange,
+    onEditorReady,
+    isSyncMode: true,
+    editorRef,
+  })
+
+  const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+  }, [])
+
+  if (syncStore.status === 'loading') {
+    return <div className="tldraw-wrapper flex items-center justify-center">Connecting...</div>
+  }
+  if (syncStore.status === 'error') {
+    return null
+  }
+  return (
+    <div className="tldraw-wrapper" onDragOver={handleDragOver}>
+      <Tldraw
+        store={syncStore}
+        shapeUtils={SHAPE_UTILS}
+        onMount={handleMount}
+        hideUi={readOnly}
+        licenseKey={import.meta.env.VITE_TLDRAW_LICENSE_KEY}
+      />
+    </div>
+  )
+}
+
 export function TldrawWrapper({
   snapshot,
   readOnly,
@@ -115,9 +254,7 @@ export function TldrawWrapper({
         const knownTypeNames = new Set(
           Object.keys(installedSchema.sequences).map((k) => k.split('.').pop()!),
         )
-        // Keep only records whose typeName is known to the installed schema
         const safeRecords = parsed.records.filter((r) => knownTypeNames.has(r.typeName))
-
         const storeSnapshot = {
           store: Object.fromEntries(safeRecords.map((r) => [r.id, r])),
           schema: installedSchema,
@@ -137,126 +274,50 @@ export function TldrawWrapper({
     },
   }))
 
-  // Asset store: upload to server with WebP conversion, fall back to inline base64
   const assetStore = useMemo(
     () => (campaignId ? createAlephAssetStore(campaignId) : inlineBase64AssetStore),
     [campaignId],
   )
-
-  // Memoize combined shape/binding utils to avoid new array refs each render
   const allShapeUtils = useMemo(() => [...defaultShapeUtils, ...SHAPE_UTILS], [])
   const allBindingUtils = useMemo(() => [...defaultBindingUtils], [])
 
-  // Build a TLUserStore from the userInfo prop (v5 replaced userInfo with users)
-  const userStore = useMemo<TLUserStore | undefined>(() => {
-    if (!userInfo) return undefined
-    const currentUser = atom('currentUser', {
-      id: createUserId(userInfo.id),
-      typeName: 'user' as const,
-      name: userInfo.name,
-      color: userInfo.color,
-      imageUrl: '',
-      meta: {},
-    })
-    return { currentUser }
-  }, [userInfo])
-
-  // Multiplayer sync store (always called for hook rules; result only used when syncUri is set)
-  // Use wss:// placeholder on HTTPS pages to avoid Mixed Content browser errors
-  const unusedUri =
-    typeof window !== 'undefined' && window.location.protocol === 'https:'
-      ? 'wss://unused'
-      : 'ws://unused'
-  const syncStore = useSync({
-    uri: syncUri || unusedUri,
-    assets: assetStore,
-    users: syncUri && userStore ? userStore : undefined,
-    shapeUtils: allShapeUtils,
-    bindingUtils: allBindingUtils,
-  })
-  const isSyncMode = !!(syncUri && userInfo)
-
-  // Notify parent of sync status changes
-  const lastSyncStatus = useRef<RemoteTLStoreWithStatus['status'] | null>(null)
-  useEffect(() => {
-    if (!isSyncMode || !onSyncStatusChange) return
-    const status = syncStore.status
-    if (status !== lastSyncStatus.current) {
-      lastSyncStatus.current = status
-      onSyncStatusChange(status)
-    }
-  }, [isSyncMode, syncStore.status, onSyncStatusChange])
-
-  const handleMount = useCallback(
-    (editor: Editor) => {
-      editorRef.current = editor
-
-      if (readOnly && !isSyncMode) {
-        editor.setCurrentTool('hand')
-        editor.updateInstanceState({ isReadonly: true })
-      }
-
-      if (darkMode) {
-        editor.user.updateUserPreferences({ colorScheme: 'dark' })
-      }
-
-      onEditorReady?.(editor)
-
-      // Hydrate entity shapes with fresh data after mount
-      if (campaignId) {
-        setTimeout(() => {
-          import('../../../utils/diagram-hydration').then(({ hydrateEntityShapes }) => {
-            hydrateEntityShapes(editor, campaignId).catch(console.error)
-          })
-        }, 0)
-      }
-
-      // Only listen for snapshot changes in non-sync mode (REST save)
-      if (!isSyncMode) {
-        editor.store.listen(
-          () => {
-            if (!readOnly && onChange) {
-              onChange(getSnapshot(editor.store))
-            }
-          },
-          { scope: 'document', source: 'user' },
-        )
-      }
-    },
-    [readOnly, darkMode, campaignId, onChange, onEditorReady, isSyncMode],
-  )
-
-  const handleDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
-    event.preventDefault()
-  }, [])
-
-  // Native drop is handled by TldrawCanvas.vue via DOM listeners to avoid
-  // conflicts with React's synthetic event system. onNativeDrop is wired
-  // there via the onEditorReady callback.
   void onNativeDrop
 
-  // Sync mode: use synced store
-  if (isSyncMode) {
-    if (syncStore.status === 'loading') {
-      return <div className="tldraw-wrapper flex items-center justify-center">Connecting...</div>
-    }
-    if (syncStore.status === 'error') {
-      return null // parent will handle fallback
-    }
+  // Sync mode: delegate to TldrawWrapperSync which is the only place useSync is called.
+  // This prevents tldraw v5 from opening WebSocket connections in snapshot mode.
+  if (syncUri && userInfo) {
     return (
-      <div className="tldraw-wrapper" onDragOver={handleDragOver}>
-        <Tldraw
-          store={syncStore}
-          shapeUtils={SHAPE_UTILS}
-          onMount={handleMount}
-          hideUi={readOnly}
-          licenseKey={import.meta.env.VITE_TLDRAW_LICENSE_KEY}
-        />
-      </div>
+      <TldrawWrapperSync
+        readOnly={readOnly}
+        campaignId={campaignId}
+        darkMode={darkMode}
+        syncUri={syncUri}
+        userInfo={userInfo}
+        onChange={onChange}
+        onEditorReady={onEditorReady}
+        onSyncStatusChange={onSyncStatusChange}
+        assetStore={assetStore}
+        allShapeUtils={allShapeUtils}
+        allBindingUtils={allBindingUtils}
+      />
     )
   }
 
-  // Snapshot mode (current behavior)
+  // Snapshot mode: no WebSocket, no useSync
+  const handleMount = useTldrawMount({
+    readOnly,
+    darkMode,
+    campaignId,
+    onChange,
+    onEditorReady,
+    isSyncMode: false,
+    editorRef,
+  })
+
+  const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+  }, [])
+
   return (
     <div className="tldraw-wrapper" onDragOver={handleDragOver}>
       <Tldraw
