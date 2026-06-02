@@ -99,8 +99,10 @@ export class NPCTokenShapeUtil extends BaseBoxShapeUtil<NPCTokenShape> {
     return <NPCTokenComponent shape={shape} />
   }
 
-  override indicator(shape: NPCTokenShape) {
-    return <rect x={0} y={0} width={shape.props.w} height={shape.props.h} rx={4} />
+  override getIndicatorPath(shape: NPCTokenShape) {
+    const path = new Path2D()
+    path.rect(0, 0, shape.props.w, shape.props.h)
+    return path
   }
 }
 

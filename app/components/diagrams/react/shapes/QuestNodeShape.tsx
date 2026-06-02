@@ -102,7 +102,9 @@ export class QuestNodeShapeUtil extends BaseBoxShapeUtil<QuestNodeShape> {
     )
   }
 
-  override indicator(shape: QuestNodeShape) {
-    return <rect width={shape.props.w} height={shape.props.h} rx={6} />
+  override getIndicatorPath(shape: QuestNodeShape) {
+    const path = new Path2D()
+    path.rect(0, 0, shape.props.w, shape.props.h)
+    return path
   }
 }

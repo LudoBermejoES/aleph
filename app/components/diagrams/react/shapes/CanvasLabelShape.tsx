@@ -39,8 +39,10 @@ export class CanvasLabelShapeUtil extends BaseBoxShapeUtil<CanvasLabelShape> {
     return <CanvasLabelComponent shape={shape} />
   }
 
-  override indicator(shape: CanvasLabelShape) {
-    return <rect width={shape.props.w} height={shape.props.h} rx={4} />
+  override getIndicatorPath(shape: CanvasLabelShape) {
+    const path = new Path2D()
+    path.rect(0, 0, shape.props.w, shape.props.h)
+    return path
   }
 }
 

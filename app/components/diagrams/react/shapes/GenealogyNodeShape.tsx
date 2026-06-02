@@ -90,8 +90,10 @@ export class GenealogyNodeShapeUtil extends BaseBoxShapeUtil<GenealogyNodeShape>
     return <GenealogyNodeComponent shape={shape} />
   }
 
-  override indicator(shape: GenealogyNodeShape) {
-    return <rect x={0} y={0} width={shape.props.w} height={shape.props.h} rx={6} />
+  override getIndicatorPath(shape: GenealogyNodeShape) {
+    const path = new Path2D()
+    path.rect(0, 0, shape.props.w, shape.props.h)
+    return path
   }
 }
 

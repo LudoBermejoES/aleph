@@ -135,7 +135,9 @@ export class RelationshipArrowShapeUtil extends BaseBoxShapeUtil<RelationshipArr
     )
   }
 
-  override indicator(shape: RelationshipArrowShape) {
-    return <rect width={shape.props.w} height={shape.props.h} />
+  override getIndicatorPath(shape: RelationshipArrowShape) {
+    const path = new Path2D()
+    path.rect(0, 0, shape.props.w, shape.props.h)
+    return path
   }
 }

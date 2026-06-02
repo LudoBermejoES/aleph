@@ -52,8 +52,10 @@ export class MapTokenShapeUtil extends BaseBoxShapeUtil<MapTokenShape> {
     return <MapTokenComponent shape={shape} />
   }
 
-  override indicator(shape: MapTokenShape) {
-    return <rect width={shape.props.w} height={shape.props.h} rx={6} />
+  override getIndicatorPath(shape: MapTokenShape) {
+    const path = new Path2D()
+    path.rect(0, 0, shape.props.w, shape.props.h)
+    return path
   }
 }
 

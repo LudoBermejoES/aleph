@@ -42,8 +42,10 @@ export class RegionBoxShapeUtil extends BaseBoxShapeUtil<RegionBoxShape> {
     return <RegionBoxComponent shape={shape} />
   }
 
-  override indicator(shape: RegionBoxShape) {
-    return <rect width={shape.props.w} height={shape.props.h} rx={8} />
+  override getIndicatorPath(shape: RegionBoxShape) {
+    const path = new Path2D()
+    path.rect(0, 0, shape.props.w, shape.props.h)
+    return path
   }
 }
 

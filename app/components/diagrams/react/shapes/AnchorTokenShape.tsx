@@ -103,7 +103,9 @@ export class AnchorTokenShapeUtil extends BaseBoxShapeUtil<AnchorTokenShape> {
     )
   }
 
-  override indicator(shape: AnchorTokenShape) {
-    return <rect width={shape.props.w} height={shape.props.h} rx={22} />
+  override getIndicatorPath(shape: AnchorTokenShape) {
+    const path = new Path2D()
+    path.rect(0, 0, shape.props.w, shape.props.h)
+    return path
   }
 }
