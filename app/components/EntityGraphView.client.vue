@@ -238,6 +238,8 @@ const props = defineProps<{
   campaignId?: string
   centerNodeId?: string
   cardLayout?: boolean
+  /** Always render relation-type labels on edges (not just on hover/focus). */
+  alwaysShowEdgeLabels?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -563,7 +565,9 @@ const configs = computed(() =>
       },
       label: {
         fontSize: (edge: VngConfigEdge) =>
-          edgeLabelFontSize(edge.id, activeHighlightSet.value, activeMode.value),
+          props.alwaysShowEdgeLabels
+            ? 11
+            : edgeLabelFontSize(edge.id, activeHighlightSet.value, activeMode.value),
         color: '#6b7280',
       },
     },

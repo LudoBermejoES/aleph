@@ -289,6 +289,7 @@
               :height="350"
               :campaign-id="campaignId"
               :center-node-id="character?.entityId"
+              always-show-edge-labels
               @node-click="onGraphNodeClick"
             />
           </div>
