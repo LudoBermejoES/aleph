@@ -28,6 +28,7 @@ export function autoLinkContent(
       id: entities.id,
       name: entities.name,
       slug: entities.slug,
+      type: entities.type,
     })
     .from(entities)
     .where(eq(entities.campaignId, campaignId))
@@ -55,8 +56,9 @@ export function autoLinkContent(
 
   if (matches.length === 0) return content
 
-  // Build slug lookup
+  // Build slug and type lookup
   const slugMap = new Map(allEntities.map((e) => [e.id, e.slug]))
+  const typeMap = new Map(allEntities.map((e) => [e.id, e.type]))
 
   // Replace matches from end to start (so offsets stay valid)
   let result = content
@@ -64,10 +66,12 @@ export function autoLinkContent(
   for (const match of sorted) {
     const slug = slugMap.get(match.entityId)
     if (!slug) continue
+    const type = typeMap.get(match.entityId)
     const before = result.substring(0, match.start)
     const after = result.substring(match.end)
     const escapedName = match.matchedText.replace(/"/g, '&quot;')
-    result = `${before}:entity-link{slug="${slug}" name="${escapedName}"}${after}`
+    const typeAttr = type ? ` type="${type}"` : ''
+    result = `${before}:entity-link{slug="${slug}" name="${escapedName}"${typeAttr}}${after}`
   }
 
   return result

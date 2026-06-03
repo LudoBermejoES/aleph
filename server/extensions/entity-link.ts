@@ -29,6 +29,14 @@ export const EntityLink = Node.create({
           return { 'data-label': attributes.label }
         },
       },
+      type: {
+        default: null,
+        parseHTML: (element: HTMLElement) => element.getAttribute('data-type'),
+        renderHTML: (attributes: Record<string, unknown>) => {
+          if (!attributes.type) return {}
+          return { 'data-type': attributes.type }
+        },
+      },
     }
   },
 
@@ -44,8 +52,9 @@ export const EntityLink = Node.create({
         'data-entity-link': '',
         'data-slug': node.attrs.slug,
         ...(node.attrs.label ? { 'data-label': node.attrs.label } : {}),
+        ...(node.attrs.type ? { 'data-type': node.attrs.type } : {}),
         class: 'entity-link',
-        href: '#', // Placeholder; client-side routing handles navigation
+        href: '#',
       },
       label,
     ]
@@ -62,13 +71,14 @@ export const EntityLink = Node.create({
     },
 
     tokenize(src: string) {
-      // Match :entity-link{slug="value"} or :entity-link{slug="value" label="value"}
+      // Match :entity-link{slug="value"} with optional label and type attrs
       const match = /^:entity-link\{([^}]+)\}/.exec(src)
       if (!match) return undefined
 
       const attrsStr = match[1]
       const slugMatch = /slug="([^"]*)"/.exec(attrsStr)
       const labelMatch = /label="([^"]*)"/.exec(attrsStr)
+      const typeMatch = /type="([^"]*)"/.exec(attrsStr)
 
       if (!slugMatch) return undefined
 
@@ -77,6 +87,7 @@ export const EntityLink = Node.create({
         raw: match[0],
         slug: slugMatch[1],
         label: labelMatch?.[1] || null,
+        entityType: typeMatch?.[1] || null,
       }
     },
   },
@@ -87,6 +98,7 @@ export const EntityLink = Node.create({
       attrs: {
         slug: token.slug,
         label: token.label || null,
+        type: token.entityType || null,
       },
     }
   },
@@ -94,9 +106,11 @@ export const EntityLink = Node.create({
   renderMarkdown(node: { attrs?: Record<string, unknown> }) {
     const slug = node.attrs?.slug || 'unknown'
     const label = node.attrs?.label
+    const type = node.attrs?.type
+    const typeAttr = type ? ` type="${type}"` : ''
     if (label) {
-      return `:entity-link{slug="${slug}" label="${label}"}`
+      return `:entity-link{slug="${slug}" label="${label}"${typeAttr}}`
     }
-    return `:entity-link{slug="${slug}"}`
+    return `:entity-link{slug="${slug}"${typeAttr}}`
   },
 })
