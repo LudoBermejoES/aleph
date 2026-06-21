@@ -293,25 +293,53 @@ node C:/code/aleph/cli/bin/aleph.js quest create \
 
 ## Paso 4c — Relaciones entre personajes
 
-Tras crear/actualizar las entidades, revisa las notas buscando vínculos nuevos o confirmados entre personajes: amistades, alianzas, familia, rivalidades, mentores, etc.
+Tras crear/actualizar las entidades, revisa las notas buscando vínculos nuevos o confirmados entre personajes: amistades, alianzas, familia, rivalidades, amenazas, secretos compartidos, etc.
 
-Por cada relación relevante:
+**Flujo obligatorio:**
 
-- ¿Ya existe? (difícil de saber sin consultarla directamente — usa el criterio narrativo)
-- ¿Es nueva o se ha reforzado en esta sesión? → créala o actualízala
+1. **Consulta las relaciones existentes** para los PJs y NPCs relevantes:
 
-```bash
-node C:/code/aleph/cli/bin/aleph.js relation create \
-  --campaign <id> \
-  --source <slug-A> \
-  --target <slug-B> \
-  --forward "<etiqueta de A hacia B>" \
-  --reverse "<etiqueta de B hacia A>"
-```
+   ```bash
+   node /Users/ludo/code/aleph/cli/bin/aleph.js relation list \
+     --campaign <id> --json | python3 -c "
+   import json, sys
+   data = json.load(sys.stdin)
+   items = data if isinstance(data, list) else data.get('relations', data.get('data', []))
+   slugs = {'<slug1>','<slug2>','<slug-npc>'}  # pon aquí los slugs relevantes
+   for r in items:
+       s, t = r.get('sourceSlug',''), r.get('targetSlug','')
+       if s in slugs or t in slugs:
+           print(s, '--[', r.get('forward','?'), ']-->', t)
+   "
+   ```
 
-Ejemplos de etiquetas útiles: `"amigo de"`, `"aliado de"`, `"primo de"`, `"rival de"`, `"mentor de"`, `"protege a"`, `"desconfía de"`, `"miembro del clan"`.
+2. **Identifica qué relaciones son nuevas** (no aparecen en la lista) o se han reforzado significativamente esta sesión.
 
-> **Importante**: las relaciones son bidireccionales. `--forward` es cómo A describe a B; `--reverse` es cómo B describe a A.
+3. **Crea solo las relaciones nuevas** — no dupliques las que ya existen:
+
+   ```bash
+   node /Users/ludo/code/aleph/cli/bin/aleph.js relation create \
+     --campaign <id> \
+     --source <slug-A> \
+     --target <slug-B> \
+     --forward "<etiqueta de A hacia B>" \
+     --reverse "<etiqueta de B hacia A>"
+   ```
+
+**Qué merece una relación nueva:**
+
+| Situación                            | Ejemplo de etiquetas                         |
+| ------------------------------------ | -------------------------------------------- |
+| NPC amenaza a un PJ                  | "amenaza con matar a" / "es objetivo de"     |
+| PJ curó o protegió a otro en combate | "protege a" / "confía en"                    |
+| PJ y NPC se conocen del pasado       | "tiene historia con" / "conoce de antes a"   |
+| NPC está vinculado a una facción     | "miembro de" / "tiene como miembro a"        |
+| PJ desconfía o sospecha de alguien   | "desconfía de" / "es vigilado por"           |
+| NPC nuevo aparece en escena          | crear relación con los PJs que interactuaron |
+
+Ejemplos de etiquetas útiles: `"amigo de"`, `"aliado de"`, `"rival de"`, `"mentor de"`, `"protege a"`, `"desconfía de"`, `"amenaza con matar a"`, `"tiene historia con"`, `"miembro del clan"`.
+
+> **Importante**: las relaciones son bidireccionales. `--forward` es cómo A describe a B; `--reverse` es cómo B describe a A. Siempre consulta las existentes antes de crear — duplicar relaciones ensucia el grafo.
 
 ## Paso 5 — Confirmar antes de actuar
 
