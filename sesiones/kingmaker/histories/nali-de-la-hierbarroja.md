@@ -1,3 +1,17 @@
 Nali de la Hierbarroja tomó su nombre del modesto lugar donde nació, una aldea cuyo :entity-link{slug="unico" name=":entity-link{slug="unico" name="único"}"} rasgo distintivo era la hierba rojiza que crecía en sus laderas. Entró al servicio de su deidad como médico de campaña antes que como sacerdote de guerra, y aún hoy considera la :entity-link{slug="curacion" name=":entity-link{slug="curacion" name="curación"}"} y el combate caras del mismo compromiso. Ha servido en varias escaramuzas fronterizas atendiendo a heridos de ambos bandos sin demasiados escrúpulos por la política. :entity-link{slug="las-tierras-robadas" name=":entity-link{slug="las-tierras-robadas" name="Las Tierras Robadas"}"} le ofrecen la oportunidad que buscaba: un lugar donde fundar algo, no solo sobrevivir a lo que otros comenzaron.
 
 En el banquete de Lady Aldori identificó a la elfa pálida :entity-link{slug="jaetal" name="Jaethal"} como servidora de Urgatoa, diosa de la gula y la no :entity-link{slug="muerte" name="muerte"}. La mujer no parece estar viva del todo; esquiva preguntas con :entity-link{slug="habilidad" name="habilidad"} pero hace muchas propias. También soportó el interrogatorio de :entity-link{slug="tartucio" name="Tartuccio"} y calò a :entity-link{slug="myigar-barn" name="Maegar Varn"}: un noble tercer hijo que necesita ganarse su futuro y parece sentirse excluido de su familia.
+
+## Sesión del 7 de junio de 2026 — Lágrimas de ébano en la noche
+
+Nali cogió una manta y amenazó con irse al pasillo antes de dormir; sabe bien a qué huele una habitación llena de gente al amanecer. Al final se quedó. Cuando el grito la arrancó del sueño, fue la primera en salir: arco preparado, pasos silenciosos. Vio a los atacantes antes de que ellos reaccionaran, gritó la advertencia y retrocedió.
+
+Durante el combate mantuvo su papel de curandera de primera línea: curó a Sim Sim en medio del caos y disparó el arco contra el que lo había herido. Cuando terminó la pelea y quedó un superviviente, intentó intimidarle con la daga y no lo consiguió. El hombre la escupió en la cara. Llamó a Tark. Lo que siguió fue efectivo, si no elegante. El prisionero habló antes de morir: les han contratado para matar a todo el mundo, y hay gente peor que ellos aún dentro.
+
+Nali guardó la información en silencio. Nadie le había preguntado todavía lo que pensaba de Jaethal, y ella no tenía intención de ofrecerlo por las buenas.
+
+## Sesión del 14 de junio de 2026 — El jardín del fin del mundo
+
+La noche no había terminado. Nali fue la primera en ver la segunda oleada: más asesinos al otro lado de la puerta. Gritó la advertencia, retrocedió y trató de atrancar la puerta con una cuerda. Lanzó la bendición sobre el grupo antes de que empezaran los golpes. Cuando los atacantes concentraron sus dagas en Tark, cruzó el espacio en dos pasos y le curó; lo hizo dos veces. Entre medias ordenó a Dain — sin el tono suave que reserva para los templos — que pusiera los escudos al frente. El goblin terminó el combate a su manera, y Nali decidió no comentarlo.
+
+En la exploración encontró una poción de curación menor bajo la almohada ensangrentada de una víctima. Cuando abrieron la puerta al fondo de la planta y apareció el jardín tropical, Nali levantó los ojos y vio el cielo de Mawagui. La brisa era real. La estatua medio-elfa en el torrente parecía vigilante. Se arrodilló junto al agua y pasó un rato rezando; sus compañeros la dejaron. No dijo en voz alta lo que sintió al reconocer ese cielo lejos de casa.

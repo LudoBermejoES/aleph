@@ -179,7 +179,7 @@ node C:/code/aleph/cli/bin/aleph.js character update <slug> \
 node C:/code/aleph/cli/bin/aleph.js character update <slug> \
   --campaign <id> --history-stdin < sesiones/<campaña>/histories/<slug>.md
 
-# Estado actual tras la última sesión (pestaña Información general — se reescribe cada sesión)
+# Estado actual tras la última sesión (pestaña Información general — se reescribe cada sesión, ver Paso 4a)
 node C:/code/aleph/cli/bin/aleph.js character update <slug> \
   --campaign <id> --current-status "<situación actual del personaje>"
 ```
@@ -191,7 +191,22 @@ node C:/code/aleph/cli/bin/aleph.js character update <slug> \
 | `--backstory`      | Trasfondo             | Historia            |
 | `--history`        | Historial de sesiones | Historia            |
 
-## Paso 4a — Historiales de personajes (acumulativos, viven en el repo)
+## Paso 4a — Estado actual de los personajes
+
+Tras cada sesión, actualiza el estado actual de **todos los PJs que asistieron**:
+
+```bash
+node C:/code/aleph/cli/bin/aleph.js character update <slug> \
+  --campaign <id> \
+  --current-status "<situación del personaje al final de la sesión: dónde está, cómo está físicamente, qué sabe o sospecha que los demás no saben, qué lleva encima de relevancia>"
+```
+
+- Escribe en presente narrativo, no en bullets.
+- Incluye heridas, secretos no revelados, objetos adquiridos, y tensiones abiertas.
+- Este campo se **reescribe** en cada sesión — no es acumulativo.
+- Hazlo para todos los PJs asistentes, no solo los que tuvieron protagonismo.
+
+## Paso 4b — Historiales de personajes (acumulativos, viven en el repo)
 
 > **CRÍTICO**: El campo `--history` es **acumulativo entre sesiones**. NUNCA lo escribas con sólo la sesión que acabas de importar — borrarías todo el historial previo. La fuente de verdad de cada historial vive en el repo, en:
 >
@@ -276,7 +291,7 @@ node C:/code/aleph/cli/bin/aleph.js quest create \
   --description "<descripción>"
 ```
 
-## Paso 4b — Relaciones entre personajes
+## Paso 4c — Relaciones entre personajes
 
 Tras crear/actualizar las entidades, revisa las notas buscando vínculos nuevos o confirmados entre personajes: amistades, alianzas, familia, rivalidades, mentores, etc.
 
