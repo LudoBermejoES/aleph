@@ -210,9 +210,10 @@ async function loadEntity() {
       > = {}
       nodes[entity.value.id] = { name: entity.value.name, type: entity.value.type }
       for (const rel of relations) {
-        nodes[rel.relatedEntityId || rel.targetEntityId] = {
-          name: rel.relatedEntityId || rel.targetEntityId,
-          type: 'entity',
+        const otherId = rel.relatedEntityId || rel.targetEntityId
+        nodes[otherId] = {
+          name: rel.relatedEntityName || rel.targetEntityName || rel.sourceEntityName || otherId,
+          type: rel.relatedEntityType || 'entity',
         }
         edges[rel.id] = {
           source: rel.sourceEntityId,

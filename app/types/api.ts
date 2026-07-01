@@ -333,6 +333,15 @@ export interface EntityRelation {
   // Entity-centered query additions
   label?: string
   relatedEntityId?: string
+  relatedEntityName?: string
+  relatedEntitySlug?: string
+  relatedEntityType?: string
+  sourceName?: string
+  sourceSlug?: string
+  sourceType?: string
+  targetName?: string
+  targetSlug?: string
+  targetType?: string
   sourceEntityName?: string
   targetEntityName?: string
 }
