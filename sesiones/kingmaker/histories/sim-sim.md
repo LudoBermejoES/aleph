@@ -13,3 +13,15 @@ Lo arrancó del sueño un grito de agonía en el pasillo. Salió con la mente fr
 En el segundo combate Sim Sim flanqueó la posición de Nali y golpeó. La noche continuó con la exploración de las habitaciones restantes. Abrió una puerta y encontró cinco cuerpos: dos mujeres humanas, un hombre humano, un enano, un elfo. Todos acuchillados en ropa de dormir. El guardia que gritó la primera noche les había salvado la vida; a estos no llegó. En el dedo del elfo había un anillo de plata finamente labrado. Sim lo recogió y lo puso a disposición del grupo. No hizo preguntas ni dijo nada sobre a quién podría haber pertenecido.
 
 Al cruzar el jardín tropical del fondo — el río que fluye sobre sí mismo, la estatua de la medio-elfa, el cielo sin techo — Sim Sim observó sin comentar. Al abrir la puerta del pasillo lleno de muertos y escuchar la voz de Gromog amenazar al halfling del grupo, Sim Sim tampoco dijo nada. Abrió la siguiente puerta.
+
+## Sesión del 22 de junio de 2026 — La cabeza del ogro
+
+Sim Sim entró en la habitación de Gromog sin que nadie tuviera que pedírselo. Abrió una puerta oculta que Linzi le señaló y encontró dentro una habitación secreta con un arcón cerrado marcado con el símbolo de la casa noble. No forzó el arcón. Registró el resto de las habitaciones sin encontrar nada de valor. En el combate con Gromog golpeó el brazo que retenía a Linzi junto a Laughlin hasta que el ogro la soltó. Cuando Sim Sim avisó de que llegaba un segundo asesino de las Lágrimas Negras, Nali lo oyó y actuó. El hombre cayó antes de que Sim Sim necesitara intervenir.
+
+En la cocina, frente al gigante azul, sus ataques no conectaron. No comentó nada. Cuando Gael terminó el trabajo con una esfera eléctrica, Sim Sim fue a examinar al gigante caído: armadura reventada, sin arma, ya herido de antemano. Encontraron a Valerie, Amiri y Harrim Garés en un rincón, vivos. Sim Sim no expresó alivio en voz alta, pero sí prestó atención a lo que contaron sobre los supervivientes reunidos en el gran salón.
+
+## Sesión del 28 de junio de 2026 — La diosa en el pasillo
+
+Cuando el grupo llegó al santuario, Sim Sim fue quien identificó a Milani — la diosa de quienes luchan contra la opresión, la que fue santa de Aroden y siguió siendo diosa cuando Aroden ya no estaba. Es su diosa. No lo dijo en voz alta con ese énfasis, pero la forma en que rezó en aquel espacio fue diferente a la de los demás. La recuperación completa que Milani concedió no lo sorprendió. Era lo que su diosa haría.
+
+En el combate de la sala de los Lágrimas Negras, Sim Sim golpeó a uno de los supervivientes después de la esfera de Gael. El hombre seguía en pie — no por mucho. Tark atacó también y falló. Laughlin terminó el trabajo. Sim Sim no participó en el remate final: cuando Gael eliminó al último desde la puerta, Sim Sim ya estaba evaluando la habitación. Jaethal, viva y atada, fue el primer punto de interés. Lo que Nishkiv el Cuchillo y sus compañeros querían con ella es la pregunta que queda.

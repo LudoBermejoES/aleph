@@ -13,3 +13,15 @@ Salió al pasillo y aguantó. Dain no es el tipo que remata de un crítico ni el
 Dain era el único con armadura cuando llegó la segunda oleada. Ocupó el frente sin que nadie tuviera que pedírselo. Mató a dos asesinos, ambos estampados contra el suelo con golpes que resquebrajaron las baldosas. El último lo remató con un martillazo definitivo. Eficiente. Limpio. Dain no se regodea.
 
 Mientras los demás exploraban las habitaciones sin armadura, Dain se la puso sin comentarios y siguió escaneando corredores. El jardín tropical al fondo de la planta lo desconcertó — no por la magia, sino porque un lugar así no tiene defensa perimetral clara. Cuando oyeron la voz de Gromog amenazar al halfling del grupo, Dain avanzó hacia la puerta sin esperar. Lleva el escudo levantado desde entonces.
+
+## Sesión del 22 de junio de 2026 — El escudo aguanta
+
+Dain atacó a Gromog y le hizo daño. El ogro respondió: tres golpes, uno de ellos crítico que le dejó con tres puntos de vida. Tark lo arrastró hasta Nali, que lo curó. Dain sobrevivió gracias al escudo y a la movilidad de Tark. No protestó ni por el arrastre ni por llegar al borde de la muerte: forma parte del trabajo.
+
+En la cocina, Dain fue el primero en cargar contra el gigante azul. El gigante le golpeó, pero el escudo absorbió el impacto. Los golpes siguientes no conectaron. Cuando Gael terminó el combate, Dain se giró hacia las puertas del gran salón, golpeó y gritó su nombre y linaje completo. Desde dentro alguien dijo "este va a ser un enano" y empezaron a desmontar la barricada. El gran salón estaba en penumbra: mesas volcadas, tapices arrancados para frenar el humo, soldados a la defensiva. Un guardia uniformado informó de que Lady Jamandi había ido al ala oeste con ocho guardias a recuperar el salón de los duelos. Hay fuego en el pasillo. Hay combate más allá.
+
+## Sesión del 28 de junio de 2026 — El escudo nuevo
+
+Dain cruzó el corredor de humo con el trapo de Tark sobre la boca y los oídos abiertos. En el santuario de Milani rezó en silencio junto al resto — la recuperación completa fue bienvenida, especialmente después de lo que quedaba en los huesos del combate anterior. En la armería tomó un escudo nuevo, el que necesitaba desde que el gigante le había destrozado el anterior.
+
+Cuando los Lágrimas Negras atacaron, Dain abrió la puerta después de que uno apuñalara a Durgan. El hombre al otro lado lo atacó antes de que terminara de cruzar el umbral — un golpe que el escudo nuevo absorbió. Dain atacó al que estaba junto a la puerta y falló. En la sala, el daño de la esfera de Gael lo alcanzó también, ya que estaba demasiado cerca. Al final del combate estaba muy malherido — Durgan lo arrastró al interior y le curó. Siguió en pie. Siempre sigue en pie.

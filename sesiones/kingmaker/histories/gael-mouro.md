@@ -13,3 +13,17 @@ En el combate lanzó un arco eléctrico que atravesó la salvación de uno de lo
 En el segundo combate Gael lanzó un arco eléctrico que atravesó la salvación de un atacante con efecto demoledor. Discutió con los demás sobre los bonos del hechizo en el calor del momento — una discusión interna del grupo que él resolvió tirando y conectando. El ojo verde procesó los resultados con satisfacción fría.
 
 Durante la exploración entró en la habitación donde había dormido y encontró solo camas llenas de sangre y una mano arrancada de cuajo en mitad del suelo. Nadie se llevó el cuerpo por accidente. El jardín tropical al fondo del ala lo perturbó de una forma que le costó articular: la magia que impregnaba ese espacio no era decorativa ni trivial. Cuando el grupo abrió la puerta del pasillo de los muertos y escuchó a Gromog amenazar con arrancar ojos, Gael ya tenía la mente trazando el tipo de magia que podría derribar algo así.
+
+## Sesión del 22 de junio de 2026 — Esfera eléctrica
+
+Contra Gromog, Gael lanzó un arco eléctrico que hizo daño mientras el combate se decidía alrededor de él. Cuando Tark terminó el trabajo, Gael no sintió la necesidad de añadir nada. En la cocina fue diferente: el gigante azul aguantó los golpes de Dain, los de Nali, la lanza de Tark, el arco de Laughlin, los puños de Sim Sim. Todos sin éxito decisivo. Gael lanzó un arco eléctrico que se convirtió en una esfera de rayos que impactó en el pecho del gigante y lo convulsionó hasta la muerte. Fue el golpe definitivo. Durgan llegó cuando ya había terminado.
+
+El ojo verde procesó la información con una frialdad que ya no le sorprende: la esfera funcionó porque el gigante ya estaba bastante herido. Sin el daño previo del grupo, habría necesitado otro turno. En el gran salón escuchó el informe sobre Lady Jamandi y el fuego en el pasillo del ala oeste. Hay un mercenario de zonas frías muerto en la cocina y un ogro decapitado en el pasillo. Alguien organizó todo esto, y ese alguien todavía no ha aparecido.
+
+## Sesión del 28 de junio de 2026 — La esfera que mató a dos
+
+Gael fue el que propuso meditar en el santuario de Milani. Identificó el espacio como mágicamente bendecido y pidió al grupo que guardara silencio. La diosa respondió. Gael lo registró como un hecho notable — un espacio de protección divina activa en medio de una masacre — y siguió avanzando.
+
+Cuando encontraron a Tartuccio, Gael lo reconoció del banquete. No fue el que lo curó — eso fue Durgan — pero prestó atención a su testimonio: gente con dagas y tatuajes, una mujer con hacha enorme, gigantes azules, ogros. Los fragmentos empiezan a encajar en un patrón.
+
+En el combate final de la sala Gael no actuó rápido. Esperó. Canalizó dos acciones completas y lanzó una esfera eléctrica que no era un rayo único sino una red que se expandió por el centro de la sala. Mató a dos Lágrimas Negras en el mismo lanzamiento — uno directamente, el segundo por la onda expansiva. El daño alcanzó también a Tark y Dain, que estaban demasiado cerca. Gael lo calculó como aceptable. Después se reposicionó hasta el marco de la puerta, localizó al líder y lo eliminó con un hechizo desde la distancia. El ojo verde procesó el resultado: todos los enemigos abatidos, Jaethal viva, Dain malherido. Hay trabajo por delante.

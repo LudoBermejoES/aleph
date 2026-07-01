@@ -13,3 +13,15 @@ En el combate, Durgan fue el que se movió al flanco izquierdo cuando Tark bloqu
 Durgan fue el artífice de la trampa más efectiva de la segunda oleada: cortó la cuerda que bloqueaba la puerta para que el primero en empujar desde fuera cayera al suelo. Funcionó. Dain se encargó del resto. Sus propios ataques con el martillo no fueron bien — el martillo no es su arma natural — y eso le dejó con la frustración de haber aportado la idea más brillante y fallar en la ejecución. En el registro encontró y cedió una espada larga al grupo; él se quedó con su ballesta lista para el siguiente turno.
 
 El jardín tropical del fondo no le provocó reverencia sino desconcierto. Durgan entiende de plantas, y un jardín tropical en el norte de las Tierras Robadas, en un edificio cerrado, con un río que fluye sobre sí mismo, no tiene ninguna explicación botánica razonable. La estatua de la medio-elfa en el torrente lo miró fijo más tiempo del que le gustó admitir.
+
+## Sesión del 22 de junio de 2026 — El mercenario frío
+
+Durgan se parapetó en el pasillo vigilando por si llegaba alguien mientras los demás registraban las habitaciones. Cuando el grupo abrió las puertas del sur y encontró la cocina llena de muertos y el gigante azul, gritó: "¡Recordad lo que hemos hablado!" —una advertencia táctica sobre posiciones que había elaborado con el grupo antes del avance. En el combate fue el último en llegar, con la ballesta, cuando el gigante ya estaba muerto. No conectó ningún disparo.
+
+Lo más valioso que aportó Durgan esa noche fue la identificación: examinó al gigante caído —armadura reventada de mercenario, sin arma, marcas de clan desconocidas— y concluyó que era un mercenario de zonas frías, no un salvaje sin civilización. Alguien lo había contratado. Esa información cambió el peso de lo que estaban viviendo. Curó a Valerie, Amiri y Harrim Garés junto a Nali y les preguntó sobre los supervivientes del gran salón. Las respuestas confirmaron lo que ya sospechaba: esto no ha terminado.
+
+## Sesión del 28 de junio de 2026 — El gnomo y la ballesta
+
+Durgan cruzó el corredor de humo con el trapo en la cara y la ballesta a la espalda. En el santuario rezó con la misma disposición práctica con que hace todo lo demás. La recuperación completa fue una noticia bienvenida. Encontró a Tartuccio inconsciente en la sala de los sillones, lo estabilizó y escuchó su testimonio: una mujer con hacha enorme, gigantes azules, ogros. Piezas conocidas, combinación nueva.
+
+En la armería tomó virotes y una armadura mejor. En el combate disparó la ballesta con cobertura y falló — las condiciones no eran las ideales para un tirador a distancia en una sala llena de combate cuerpo a cuerpo. Lo que sí hizo bien fue moverse cuando importaba: Dain estaba muy malherido al final y Durgan lo agarró por el brazo, lo arrastró al interior de la habitación y lo curó antes de que la situación empeorara. No fue el golpe definitivo ni la táctica más brillante de la noche. Fue lo que tocaba hacer y lo hizo.

@@ -13,3 +13,17 @@ Luego tocó el interrogatorio. El prisionero no hablaba. Tark se arrancó una de
 Segunda oleada. Tark encajó varias dagas — los asesinos lo eligieron a él como objetivo, lo cual, en cierta forma, fue un cumplido. Nali lo curó dos veces y lo dejó como nuevo. Tark decapitó a uno de los últimos con un tajo y mordió en la cara al siguiente mientras el último de ellos miraba. Dain remató al superviviente. Cuando se hizo el silencio, Tark se agachó sobre uno de los caídos y comió. Los demás decidieron no comentarlo.
 
 En el registro de los cadáveres encontró en un bolsillo un frasco que brillaba con luz propia al agitarlo. Se lo guardó. No sabe qué es, pero algo que brilla así tiene que valer algo o matar a algo, y ambas opciones le parecen igual de interesantes. Cuando llegaron a la habitación de Gromog y oyeron la voz que amenazaba a un halfling con arrancarle los ojos, Tark no sintió miedo. Sintió curiosidad.
+
+## Sesión del 22 de junio de 2026 — Sangre de ogro
+
+Tark entró el primero. Gromog era ciego — Nali lo anunció en voz alta tras su tirada de conocimiento — y estaba cubierto de piojos. Tark lo atacó, falló, y el ogro se volvió hacia él. Cuando Gael, Laughlin y Sim Sim consiguieron que Gromog soltara a Linzi, Tark arrastró a Dain malherido hasta Nali para que lo curara, encajando un ataque de oportunidad en el proceso. Luego volvió. Se encaramó a la espalda del ogro, le rebana la rodilla con el primer golpe y con el segundo le cortó la cabeza limpiamente. Antes de que alguien pudiera decir nada, se bebió su sangre. Se quedó con la cabeza de Gromog como trofeo y con su garfio gigante. Después de la sesión de la apuesta con Amiri, ya tiene el primer gran bicho.
+
+En la cocina contra el gigante azul, Tark avanzó con la lanza y le hirió en el segundo ataque. No fue el golpe definitivo — ese fue de Gael — pero la herida fue suficiente para que la esfera eléctrica terminara el trabajo. Tark se encogió de hombros. Ya tiene la cabeza del ogro.
+
+## Sesión del 28 de junio de 2026 — El grito del goblin
+
+Tark empapó trapos y los repartió como embozos antes de entrar al corredor de humo. Nadie se lo pidió. Lo hizo porque era lo que tocaba. En el santuario de Milani fue uno de los que rezó en silencio — o al menos guardó suficiente quietud como para que la diosa respondiera. Al salir, encontró al gnomo Tartuccio inconsciente en el suelo e intentó hacerle el boca a boca. El gnomo vomitó. Tark lo aceptó como resultado razonable.
+
+En la sala de trofeos encontró un talismán brillando en la boca de un animal disecado. Percepción de veinticinco. Se lo guardó.
+
+Cuando un Lágrima Negra apuñaló a Durgan y cerró la puerta, Tark fue el primero en entrar a la habitación siguiente. Vio la situación — varios enemigos, un líder con dagas largas, Jaethal atada a una silla — y gritó. Un grito goblin a pleno pulmón que paralizó al grupo rival durante medio segundo. Usó ese tiempo para subirse a una mesa. Uno de los hombres se repuso antes de lo esperado y le dio un golpe duro. Tark atacó después y falló. El daño de la esfera de Gael lo alcanzó también, ya que estaba demasiado cerca del impacto. Sobrevivió. Lleva el talismán encima y sigue sin saber qué hace.
