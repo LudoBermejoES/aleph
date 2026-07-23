@@ -40471,7 +40471,7 @@ Ludo Bermejo: Nada, que en la partida en la partida previa a la partida que hice
 Xavi Gracia: Acabaste
 Kauneda Arashi: maravilloso?
 Xavi Gracia: Sí.
-Ludo Bermejo: para que se conocieran, ojo, la verdad que Roland estaría orgulloso. Terminó un goblin haciendo un fish f\*\*\*\*** por el c**\* a un PNJ y tatuándose con el f**\***** hechicero guaperas, el goblin en el c**\*, en el cachete. Cachete contra cachete, hermanos de p\*\***. Vale. Eh,
+Ludo Bermejo: para que se conocieran, ojo, la verdad que Roland estaría orgulloso. Terminó un goblin haciendo un fish f\*\*\*\*** por el c**\* a un PNJ y tatuándose con el f**\*\***\* hechicero guaperas, el goblin en el c**\*, en el cachete. Cachete contra cachete, hermanos de p\*\*\*\*. Vale. Eh,
 Kauneda Arashi: Glorioso.
 Pau Aragones Illanas: Y eso es
 Kauneda Arashi: Glorioso.
