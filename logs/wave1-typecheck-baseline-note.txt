@@ -1,0 +1,1 @@
+BASELINE NOTE: 383 typecheck errors are PRE-EXISTING at commit 915a297 (verified via worktree). Wave 1 introduced 0 new errors. nuxi typecheck is not part of the green gate; CI relies on unit + E2E + lint.

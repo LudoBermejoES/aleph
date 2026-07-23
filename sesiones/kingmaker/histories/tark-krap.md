@@ -27,3 +27,7 @@ Tark empapó trapos y los repartió como embozos antes de entrar al corredor de 
 En la sala de trofeos encontró un talismán brillando en la boca de un animal disecado. Percepción de veinticinco. Se lo guardó.
 
 Cuando un Lágrima Negra apuñaló a Durgan y cerró la puerta, Tark fue el primero en entrar a la habitación siguiente. Vio la situación — varios enemigos, un líder con dagas largas, Jaethal atada a una silla — y gritó. Un grito goblin a pleno pulmón que paralizó al grupo rival durante medio segundo. Usó ese tiempo para subirse a una mesa. Uno de los hombres se repuso antes de lo esperado y le dio un golpe duro. Tark atacó después y falló. El daño de la esfera de Gael lo alcanzó también, ya que estaba demasiado cerca del impacto. Sobrevivió. Lleva el talismán encima y sigue sin saber qué hace.
+
+## Sesión del 5 de julio de 2026 — El hacha de la jefa
+
+Tark 'Krap' fue de los primeros en lanzarse al combate al ver la puerta abrirse, y fue quien más daño hizo a Volodmira: la hirió salvajemente con la furia propia de quien no calcula sino que arremete, dejándola trastabillando antes de que Laughlin Lodovka la rematara. Cuando el polvo se asentó, Tark se acercó al cuerpo de Volodmira y cogió su hacha. Era grande, a dos manos, con runas grabadas en la hoja y la propiedad de barrido que permite golpear a los lados sin cambiar de posición. Un arma mágica. La había ganado en combate, en el sentido más directo posible: la jefa del ataque estaba muerta y él seguía en pie.

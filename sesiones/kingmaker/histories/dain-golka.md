@@ -25,3 +25,7 @@ En la cocina, Dain fue el primero en cargar contra el gigante azul. El gigante l
 Dain cruzó el corredor de humo con el trapo de Tark sobre la boca y los oídos abiertos. En el santuario de Milani rezó en silencio junto al resto — la recuperación completa fue bienvenida, especialmente después de lo que quedaba en los huesos del combate anterior. En la armería tomó un escudo nuevo, el que necesitaba desde que el gigante le había destrozado el anterior.
 
 Cuando los Lágrimas Negras atacaron, Dain abrió la puerta después de que uno apuñalara a Durgan. El hombre al otro lado lo atacó antes de que terminara de cruzar el umbral — un golpe que el escudo nuevo absorbió. Dain atacó al que estaba junto a la puerta y falló. En la sala, el daño de la esfera de Gael lo alcanzó también, ya que estaba demasiado cerca. Al final del combate estaba muy malherido — Durgan lo arrastró al interior y le curó. Siguió en pie. Siempre sigue en pie.
+
+## Sesión del 5 de julio de 2026 — La línea que no cedió
+
+Dain combatió en primera línea junto a Sim Sim, absorbiendo golpes de Los Lágrimas Negras y de la propia Volodmira. Necesitó curación de Nali en pleno combate para mantenerse en pie, y volvió a recibir daño poco después. Mató al menos a un Lágrima Negra durante la batalla. No fue una sesión brillante para el escudo de Dain Golka, pero fue exactamente la sesión que el grupo necesitaba de él: aguantar el tiempo suficiente para que Laughlin tuviera el ángulo de tiro.
