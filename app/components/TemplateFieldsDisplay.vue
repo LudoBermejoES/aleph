@@ -36,10 +36,19 @@
               </template>
               <!-- all other types: text, textarea, number, date, select -->
               <template v-else>
-                <span
+                <template
                   v-if="fieldValues[field.key] !== undefined && fieldValues[field.key] !== ''"
-                  >{{ fieldValues[field.key] }}</span
                 >
+                  <a
+                    v-if="isUrl(String(fieldValues[field.key]))"
+                    :href="String(fieldValues[field.key])"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-primary hover:underline break-all"
+                    >{{ fieldValues[field.key] }}</a
+                  >
+                  <span v-else>{{ fieldValues[field.key] }}</span>
+                </template>
                 <span v-else class="text-muted-foreground italic">—</span>
               </template>
             </td>
@@ -73,6 +82,10 @@ interface Template {
   id: string
   name: string
   fields: TemplateField[]
+}
+
+function isUrl(value: string): boolean {
+  return /^https?:\/\//i.test(value.trim())
 }
 
 const props = defineProps<{
