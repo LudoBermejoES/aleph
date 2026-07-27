@@ -1,4 +1,10 @@
-## ADDED Requirements
+# developer-experience Specification
+
+## Purpose
+
+The repository's baseline developer tooling: a `.env.example` documenting every environment variable, Prettier configuration with `format` scripts, a Husky pre-commit hook running lint-staged, a CI pipeline that runs integration and E2E tests alongside unit tests before deploying, and Docker Compose loading its environment from `.env`.
+
+## Requirements
 
 ### Requirement: .env.example documents all environment variables
 

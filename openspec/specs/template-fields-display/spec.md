@@ -1,4 +1,10 @@
-# Template Fields Display -- Spec
+# template-fields-display Specification
+
+## Purpose
+
+A reusable `<TemplateFieldsDisplay>` component that, given a campaign, a template and a set of field values, fetches the template definition and renders the values as a structured properties list -- wired into the character, entity, location and organization detail pages whenever the record's entity carries a `templateId`.
+
+## Requirements
 
 ### Requirement: TemplateFieldsDisplay component renders template fields for an entity
 

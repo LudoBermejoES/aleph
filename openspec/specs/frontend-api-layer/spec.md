@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change frontend-data-layer. Update Purpose after archive.
+A `useCampaignApi` composable that encapsulates every campaign-scoped API call, so pages and components use it instead of inline `$fetch()` calls.
 
 ## Requirements
 

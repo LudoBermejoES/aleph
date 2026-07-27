@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change locations. Update Purpose after archive.
+Locations as a specialised view over entities of `type = 'location'`: dedicated CRUD endpoints, infinite hierarchical nesting via `entities.parentId`, inhabitants (linked characters and organizations) whose link metadata editors can edit in place, built-in subtypes stored in frontmatter `fields.subtype`, `templateId` and `fields` accepted on POST and PUT, dedicated UI pages, and map pins referencing a location shown on its detail page.
 
 ## Requirements
 

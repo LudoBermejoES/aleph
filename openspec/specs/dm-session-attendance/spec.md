@@ -1,4 +1,10 @@
-## ADDED Requirements
+# dm-session-attendance Specification
+
+## Purpose
+
+Lets a DM or co-DM record who actually attended a session in one call, by sending a list of character slugs to a bulk attendance endpoint that resolves each slug to its character and owning user, upserts the attendance row, and reports back any slug it could not resolve.
+
+## Requirements
 
 ### Requirement: DM can bulk-mark session attendance by character slug
 

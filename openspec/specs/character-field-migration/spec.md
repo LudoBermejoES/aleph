@@ -1,4 +1,10 @@
-## ADDED Requirements
+# character-field-migration Specification
+
+## Purpose
+
+Preserves character `race`, `class` and `alignment` data when those columns are dropped from the `characters` table, by copying every non-null value into `entity_fields` as a text field within the same Drizzle migration.
+
+## Requirements
 
 ### Requirement: Migrate race, class, alignment column values to entity_fields
 

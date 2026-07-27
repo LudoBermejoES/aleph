@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change secrets-all-pages. Update Purpose after archive.
+Extends DM secret handling from the entity page to every detail page with entity backing. A `useSecretReveals` composable centralises fetching revealed block IDs, injecting reveal/unreveal buttons and toggling reveals; the character, location, session, quest and arc pages gain the preview-role switcher, reveal buttons and secret notes and reload their content reactively when the preview role changes; the entity page is refactored onto the composable; organization pages are excluded because organizations lack entity backing; and a sessions render endpoint is added to serve role-stripped session log content.
 
 ## Requirements
 

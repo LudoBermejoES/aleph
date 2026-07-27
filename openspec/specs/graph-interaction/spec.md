@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change improved-graph-visualization. Update Purpose after archive.
+How a user explores the relationship graph: focus+context highlighting that dims everything outside a clicked node's neighbourhood, hover tooltips carrying entity details, edge labels revealed only when relevant to the current interaction, double-click to open an entity's detail page, a per-campaign persisted compact/card layout toggle, and click-to-pan on the mini-map.
 
 ## Requirements
 

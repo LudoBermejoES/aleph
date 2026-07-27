@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change multiplayer-diagrams. Update Purpose after archive.
+Shows who else is working on a diagram canvas: other connected users' cursors with identifying information and the shapes they have selected, in real time, plus a connected-users list in the toolbar, a WebSocket connection status indicator, and deterministic distinct colours per user.
 
 ## Requirements
 

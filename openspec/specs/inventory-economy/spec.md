@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change campaign-manager-study. Update Purpose after archive.
+The campaign economy: a campaign-wide item library acting as the master catalog, per-character inventories with organizational features, a shared party inventory, custom currency systems with wealth tracking at several levels, DM-created shops players can browse and buy from, and atomic item transfer between inventories.
 
 ## Requirements
 

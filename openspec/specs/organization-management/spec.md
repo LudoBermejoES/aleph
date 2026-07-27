@@ -1,4 +1,10 @@
-## MODIFIED Requirements
+# organization-management Specification
+
+## Purpose
+
+Leading icons on organization type and status badges, and a delete action on the organization detail page gated to `dm` and `co_dm` that confirms before calling the delete endpoint and redirecting.
+
+## Requirements
 
 ### Requirement: Organization type badges display icons
 

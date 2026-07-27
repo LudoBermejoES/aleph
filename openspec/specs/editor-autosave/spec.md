@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change autosave-editor. Update Purpose after archive.
+Protects unsaved Markdown editor work by persisting a draft to `localStorage` while the user types so it survives an accidental tab close or crash, prompting on the next mount to restore or discard it, clearing it once the form saves successfully, and staying inert unless the editor is given an explicit `draftKey`.
 
 ## Requirements
 

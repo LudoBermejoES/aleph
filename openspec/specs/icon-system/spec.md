@@ -1,4 +1,10 @@
-## ADDED Requirements
+# icon-system Specification
+
+## Purpose
+
+Centralises iconography in a single `app/utils/icons.ts` that re-exports lucide-vue-next components as a named `ICONS` map covering every nav area, group header, action, status and type, so no other file imports lucide directly for navigation or badges, and fixes the Tailwind size class each context uses so icons stay consistently sized and aligned.
+
+## Requirements
 
 ### Requirement: Central icon map exports named icon components
 

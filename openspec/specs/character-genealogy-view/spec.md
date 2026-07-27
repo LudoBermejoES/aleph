@@ -1,4 +1,10 @@
-## ADDED Requirements
+# character-genealogy-view Specification
+
+## Purpose
+
+Renders a character's family tree. A server endpoint returns focus, nodes, edges and warnings together with deterministic layered layout coordinates, and a frontend page draws them on a tldraw canvas using a dedicated node shape coloured by gender and labelled with the character's name, portrait and year range.
+
+## Requirements
 
 ### Requirement: Genealogy API endpoint
 

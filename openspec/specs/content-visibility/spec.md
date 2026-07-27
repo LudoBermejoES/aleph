@@ -1,6 +1,10 @@
-# Delta for Content Visibility & Secrets
+# content-visibility Specification
 
-## ADDED Requirements
+## Purpose
+
+DM-controlled secrecy for campaign content: secret blocks carrying an optional `#id` that a DM can reveal and unreveal with the state persisted and broadcast to connected members over WebSocket, reveal-aware content stripping so players see only revealed blocks, a preview-as-player mode, and DM-only entity notes stored separately from entity content.
+
+## Requirements
 
 ### Requirement: Secret block with ID attribute
 
@@ -192,8 +196,6 @@ The system SHALL broadcast secret reveal/unreveal events to all connected campai
 - GIVEN a player is connected to the campaign WebSocket but viewing a different entity
 - WHEN a `secret:reveal` message arrives for another entity
 - THEN the client stores the reveal state but does not trigger a re-render
-
-## MODIFIED Requirements
 
 ### Requirement: stripSecretBlocks function
 

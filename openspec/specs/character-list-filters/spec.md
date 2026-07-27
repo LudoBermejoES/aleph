@@ -1,3 +1,5 @@
+# character-list-filters Specification
+
 ## Purpose
 
 Provides filtering, sorting, and enriched display for the character list page. Characters can be searched by name and filtered by status, organization, and location. Filters and sort state are synced to URL query parameters for deep-linking and navigation.

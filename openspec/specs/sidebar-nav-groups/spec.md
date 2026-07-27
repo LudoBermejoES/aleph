@@ -1,4 +1,10 @@
-## MODIFIED Requirements
+# sidebar-nav-groups Specification
+
+## Purpose
+
+Every nav link and collapsible group header in the sidebar renders a leading icon from `ICONS`, at a fixed size and aligned with its text label.
+
+## Requirements
 
 ### Requirement: Sidebar nav links display icons
 

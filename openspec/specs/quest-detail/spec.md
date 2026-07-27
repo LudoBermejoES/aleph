@@ -1,6 +1,10 @@
-# Quest Detail Page -- Spec
+# quest-detail Specification
 
-## ADDED Requirements
+## Purpose
+
+A quest detail page that shows a quest's full metadata: status, description, parent quest, linked entity, assigned characters and sub-quests.
+
+## Requirements
 
 ### Requirement: Quest detail view
 

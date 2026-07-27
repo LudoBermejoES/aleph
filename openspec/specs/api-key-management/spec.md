@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change api-keys. Update Purpose after archive.
+Programmatic authentication for Aleph: named API keys that a user creates (the raw key returned once and never stored in plaintext), lists and revokes, accepted as `X-API-Key` on every endpoint that accepts a cookie session. It supersedes the previous `POST`/`DELETE /api/cli/token` endpoints, which are removed.
 
 ## Requirements
 

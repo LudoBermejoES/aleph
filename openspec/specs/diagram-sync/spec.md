@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change multiplayer-diagrams. Update Purpose after archive.
+Real-time multi-user editing of tldraw diagrams over the `@tldraw/sync` protocol on a dedicated WebSocket route that authenticates connections and enforces campaign membership and role permissions, with one server-side `TLSocketRoom` per active diagram, a single-user REST snapshot fallback when the socket is unavailable, and a runtime feature flag gating rollout.
 
 ## Requirements
 

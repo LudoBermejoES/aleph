@@ -1,6 +1,10 @@
-# Arcs & Chapters Management -- Spec
+# arcs-chapters-ui Specification
 
-## ADDED Requirements
+## Purpose
+
+The web UI for managing narrative arcs and their chapters: an arcs list page, an arc detail page that adds, edits, reorders and deletes chapters inline, a link into it from the session form's arc/chapter picker, and the role gating that limits arc and chapter editing to DM and editor roles while players get read access.
+
+## Requirements
 
 ### Requirement: Arcs list page
 

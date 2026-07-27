@@ -1,4 +1,10 @@
-## ADDED Requirements
+# character-demographics Specification
+
+## Purpose
+
+Adds three optional demographic fields to characters -- `birthYear`, `deathYear` and `gender` -- readable and writable through the character API and CLI, guarded by a coherence check that rejects a death year earlier than the birth year and by authentication on every write, and introduced by a migration that leaves existing rows NULL.
+
+## Requirements
 
 ### Requirement: Character demographic fields
 

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change campaign-manager-study. Update Purpose after archive.
+Typed bidirectional connections between any two entities -- asymmetric labels, attitude scores and rich metadata -- together with the interactive graph for exploring them, rendered with v-network-graph and falling back to cytoscape.js beyond 500 connected entities, offering focus+context highlighting, degree-based node sizing and relation-type edge colouring, an optional `boardSummary` label field for the card layout, and inline relation management from entity detail pages.
 
 ## Requirements
 

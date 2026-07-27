@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change campaign-manager-study. Update Purpose after archive.
+The shared, multi-user side of a campaign: real-time co-editing of wiki entries, session logs and diagrams; secrets hidden and revealed selectively to users or roles over time; activity tracking and notifications for campaign changes; campaign import and export for portability; and per-campaign visual themes.
 
 ## Requirements
 

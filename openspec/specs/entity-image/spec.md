@@ -1,4 +1,10 @@
-## ADDED Requirements
+# entity-image Specification
+
+## Purpose
+
+Gives every wiki entity an optional image: a nullable `imageUrl` column, a validated multipart upload endpoint and a serving endpoint with caching headers, a reusable `EntityImage` Vue component, display on the entity detail, list and edit pages, and the field included in the entity API responses.
+
+## Requirements
 
 ### Requirement: Entity image database field
 

@@ -1,6 +1,10 @@
-# Entity Templates Management -- Spec
+# entity-templates-ui Specification
 
-## ADDED Requirements
+## Purpose
+
+The web UI for entity templates: a list page showing each template's name, entity type and field count, an editor page for creating and editing templates with reorderable typed fields, template selection that renders the template's fields on entity forms and pre-populates stored values when editing, and editing rights restricted to DM roles.
+
+## Requirements
 
 ### Requirement: Template list page
 

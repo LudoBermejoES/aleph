@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change dependency-upgrades-2026. Update Purpose after archive.
+Keeps the dependency tree current in verified waves: low-risk tooling majors (ESLint 10, lint-staged 17, pm2 7), Hocuspocus v4 and tldraw v5 upgraded without losing functionality, high-risk majors left in place and documented with the precondition for revisiting, and unit, integration, E2E and typecheck checks passing at every wave boundary with output captured to `logs/`.
 
 ## Requirements
 

@@ -1,4 +1,10 @@
-## MODIFIED Requirements
+# entity-permissions Specification
+
+## Purpose
+
+Closes the visibility gap on single-record GET endpoints by resolving entity, character and location fetches through `canUserAccessEntity`, backed by the existing LRU permission cache to avoid redundant queries. List endpoints keep using `buildVisibilityFilter`, which is already correct and stays unchanged.
+
+## Requirements
 
 ### Requirement: Entity GET endpoints enforce visibility rules
 

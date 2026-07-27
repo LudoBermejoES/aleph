@@ -1,3 +1,11 @@
+# daily-backup Specification
+
+## Purpose
+
+Backs the deployment up unattended: a consistent `better-sqlite3.backup()` snapshot plus the content directory and `.env` archived as tar.gz and uploaded to Cloudflare R2 by a Nitro scheduled task at 03:00 UTC daily, retaining only the 3 most recent archives, with restore, a freshness health check, and admin-only API endpoints to trigger and list backups.
+
+## Requirements
+
 ### Requirement: Safe SQLite snapshot before backup
 
 The backup service SHALL create a consistent SQLite snapshot using `better-sqlite3.backup()` before archiving, so that WAL-mode databases are captured atomically without stopping the application.

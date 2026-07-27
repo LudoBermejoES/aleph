@@ -1,3 +1,11 @@
+# direct-member-add Specification
+
+## Purpose
+
+Lets a DM or co-DM add an existing registered user straight into a campaign with a chosen role, bypassing the invite-token flow. It is backed by a user search endpoint returning minimal identifying information, a section on the campaign members page beside the invite link generator, and the CLI's `member add` sub-command.
+
+## Requirements
+
 ### Requirement: User search
 
 The system SHALL provide an endpoint that allows authenticated users to search for registered accounts by name or partial email, returning minimal identifying information.

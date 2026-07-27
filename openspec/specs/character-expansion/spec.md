@@ -1,3 +1,11 @@
+# character-expansion Specification
+
+## Purpose
+
+Lets a user select a character shape on a tldraw diagram canvas and place every directly related entity that is not already present around it in a radial layout, then redraw the relation arrows connecting them.
+
+## Requirements
+
 ### Requirement: Expand related entities from a character shape
 
 The system SHALL allow a user to expand all directly related entities around a selected character entity shape on the tldraw diagram canvas.

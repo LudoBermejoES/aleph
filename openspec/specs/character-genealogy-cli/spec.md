@@ -1,4 +1,10 @@
-## ADDED Requirements
+# character-genealogy-cli Specification
+
+## Purpose
+
+Extends the `aleph` CLI with the genealogy surface: demographic flags on `character update`, `character family-add` and `character family-remove` for family links, and `character genealogy` to render a character's family tree as JSON or ASCII -- with both skill documents kept in sync in the same change that moves the CLI surface.
+
+## Requirements
 
 ### Requirement: CLI `character update` accepts demographic flags
 

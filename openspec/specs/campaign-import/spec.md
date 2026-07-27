@@ -1,4 +1,10 @@
-## ADDED Requirements
+# campaign-import Specification
+
+## Purpose
+
+Recreates a whole campaign from an Aleph export JSON, remapping internal IDs and reconstructing cross-resource relationships inside a single database transaction that rolls back entirely on failure. Any authenticated user may import, from the campaigns list page or the `campaign import` CLI command; unsupported format versions are rejected.
+
+## Requirements
 
 ### Requirement: Import Campaign from Export JSON
 

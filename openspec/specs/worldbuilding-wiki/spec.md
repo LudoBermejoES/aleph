@@ -1,4 +1,10 @@
-## MODIFIED Requirements
+# worldbuilding-wiki Specification
+
+## Purpose
+
+The campaign wiki surface: leading icons on the campaign dashboard cards, entity images on the entity detail page (editable for editor role and above) and as thumbnails in the entity list, and a delete action on the entity detail page gated to `dm` and `co_dm` that confirms before deleting and redirecting.
+
+## Requirements
 
 ### Requirement: Campaign dashboard cards display icons
 

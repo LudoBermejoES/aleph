@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change tldraw-paste-webp-convert. Update Purpose after archive.
+Shrinks images entering tldraw diagrams by converting them to WebP client-side at quality 0.82 through the Canvas API and uploading them via a custom `TLAssetStore` -- applied in both snapshot and multiplayer sync rendering modes, and in the `.tldr` import flow for embedded base64 images.
 
 ## Requirements
 

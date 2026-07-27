@@ -1,10 +1,16 @@
-# Campaign Data Export
+# campaign-export Specification
 
-## Requirement: Full Campaign JSON Export
+## Purpose
+
+Lets a DM take a complete copy of a campaign out of Aleph as a single JSON file, optionally narrowed to selected resource types via query parameter, restricted to DMs and co-DMs, and triggered from either a button on the campaign dashboard or the CLI.
+
+## Requirements
+
+### Requirement: Full Campaign JSON Export
 
 The system SHALL export all campaign data as a single JSON file via an API endpoint.
 
-### Scenario: Exporting a full campaign as JSON
+#### Scenario: Exporting a full campaign as JSON
 
 - GIVEN a user with the `dm` role on a campaign that has entities, characters, sessions, and other resources
 - WHEN the user sends `GET /api/campaigns/:id/export`
@@ -16,14 +22,14 @@ The system SHALL export all campaign data as a single JSON file via an API endpo
 - AND the JSON body contains arrays for all resource types (`entities`, `characters`, `sessions`, `locations`, `organizations`, etc.)
 - AND the JSON body contains a top-level `images` object (may be empty)
 
-### Scenario: Export includes all resource types
+#### Scenario: Export includes all resource types
 
 - GIVEN a campaign with at least one record in entities, characters, sessions, locations, organizations, quests, maps, calendars, timelines, relations, items, inventories, currencies, shops, arcs, chapters, and rolls
 - WHEN the DM exports the campaign
 - THEN each resource type array in the export contains the correct number of records
 - AND each record includes all its database fields (excluding internal-only fields like content hashes)
 
-### Scenario: Export of empty campaign
+#### Scenario: Export of empty campaign
 
 - GIVEN a campaign with no entities, characters, sessions, or other child resources
 - WHEN the DM exports the campaign
@@ -32,11 +38,11 @@ The system SHALL export all campaign data as a single JSON file via an API endpo
 
 ---
 
-## Requirement: Selective Export
+### Requirement: Selective Export
 
 The system SHALL support exporting only selected resource types via query parameter.
 
-### Scenario: Exporting only entities and characters
+#### Scenario: Exporting only entities and characters
 
 - GIVEN a campaign with entities, characters, sessions, and locations
 - WHEN the user sends `GET /api/campaigns/:id/export?include=entities,characters`
@@ -44,14 +50,14 @@ The system SHALL support exporting only selected resource types via query parame
 - AND the JSON body contains `entities` and `characters` arrays with data
 - AND the JSON body does NOT contain `sessions`, `locations`, or other resource type keys
 
-### Scenario: Including an invalid resource type
+#### Scenario: Including an invalid resource type
 
 - GIVEN a valid campaign
 - WHEN the user sends `GET /api/campaigns/:id/export?include=entities,foobar`
 - THEN the response includes the `entities` array
 - AND the invalid key `foobar` is silently ignored (no error, no key in output)
 
-### Scenario: Omitting the include parameter exports everything
+#### Scenario: Omitting the include parameter exports everything
 
 - GIVEN a campaign with data in multiple resource types
 - WHEN the user sends `GET /api/campaigns/:id/export` without the `include` parameter
@@ -59,41 +65,41 @@ The system SHALL support exporting only selected resource types via query parame
 
 ---
 
-## Requirement: Export Authorization
+### Requirement: Export Authorization
 
 The system SHALL restrict export access to DMs and co-DMs of the campaign.
 
-### Scenario: DM can export
+#### Scenario: DM can export
 
 - GIVEN a user with the `dm` role on a campaign
 - WHEN the user sends `GET /api/campaigns/:id/export`
 - THEN the response status is 200
 
-### Scenario: Co-DM can export
+#### Scenario: Co-DM can export
 
 - GIVEN a user with the `co_dm` role on a campaign
 - WHEN the user sends `GET /api/campaigns/:id/export`
 - THEN the response status is 200
 
-### Scenario: Player cannot export
+#### Scenario: Player cannot export
 
 - GIVEN a user with the `player` role on a campaign
 - WHEN the user sends `GET /api/campaigns/:id/export`
 - THEN the response status is 403
 
-### Scenario: Unauthenticated user cannot export
+#### Scenario: Unauthenticated user cannot export
 
 - GIVEN no authentication credentials
 - WHEN a request is sent to `GET /api/campaigns/:id/export`
 - THEN the response status is 401
 
-### Scenario: Non-member cannot export
+#### Scenario: Non-member cannot export
 
 - GIVEN a user who is not a member of the campaign
 - WHEN the user sends `GET /api/campaigns/:id/export`
 - THEN the response status is 403
 
-### Scenario: Export of non-existent campaign
+#### Scenario: Export of non-existent campaign
 
 - GIVEN an authenticated user
 - WHEN the user sends `GET /api/campaigns/:id/export` with a non-existent campaign ID
@@ -101,23 +107,23 @@ The system SHALL restrict export access to DMs and co-DMs of the campaign.
 
 ---
 
-## Requirement: Frontend Export Button
+### Requirement: Frontend Export Button
 
 The system SHALL provide a download button on the campaign dashboard for DMs and co-DMs.
 
-### Scenario: DM sees the export button
+#### Scenario: DM sees the export button
 
 - GIVEN a user with the `dm` role viewing the campaign dashboard
 - WHEN the page loads
 - THEN an "Export Campaign" button is visible
 
-### Scenario: Player does not see the export button
+#### Scenario: Player does not see the export button
 
 - GIVEN a user with the `player` role viewing the campaign dashboard
 - WHEN the page loads
 - THEN no export button is visible
 
-### Scenario: Clicking the export button downloads a JSON file
+#### Scenario: Clicking the export button downloads a JSON file
 
 - GIVEN a DM on the campaign dashboard
 - WHEN the DM clicks the "Export Campaign" button
@@ -126,29 +132,29 @@ The system SHALL provide a download button on the campaign dashboard for DMs and
 
 ---
 
-## Requirement: CLI Export Command
+### Requirement: CLI Export Command
 
 The system SHALL provide a CLI command to export campaign data.
 
-### Scenario: Exporting via CLI to a file
+#### Scenario: Exporting via CLI to a file
 
 - GIVEN a configured CLI with valid API key
 - WHEN the user runs `aleph campaign export <id> --output export.json`
 - THEN the file `export.json` is created with valid campaign export JSON
 
-### Scenario: Exporting via CLI to stdout
+#### Scenario: Exporting via CLI to stdout
 
 - GIVEN a configured CLI with valid API key
 - WHEN the user runs `aleph campaign export <id>`
 - THEN the export JSON is printed to stdout
 
-### Scenario: Selective CLI export
+#### Scenario: Selective CLI export
 
 - GIVEN a configured CLI with valid API key
 - WHEN the user runs `aleph campaign export <id> --include entities,characters`
 - THEN the output JSON contains only the specified resource types plus the campaign envelope
 
-### Scenario: CLI export with invalid campaign ID
+#### Scenario: CLI export with invalid campaign ID
 
 - GIVEN a configured CLI with valid API key
 - WHEN the user runs `aleph campaign export nonexistent-id`

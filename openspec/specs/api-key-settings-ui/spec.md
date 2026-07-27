@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change api-keys. Update Purpose after archive.
+The "API Keys" section of the user settings page, where a user generates a named API key and revokes any of their own keys.
 
 ## Requirements
 

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change internationalization. Update Purpose after archive.
+The internationalisation foundation: at least the `en` (default) and `es` locales, a UI control for switching between them, and fallback to English whenever a key is missing from the active locale.
 
 ## Requirements
 

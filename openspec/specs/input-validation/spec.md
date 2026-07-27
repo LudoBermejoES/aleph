@@ -1,4 +1,10 @@
-## ADDED Requirements
+# input-validation Specification
+
+## Purpose
+
+Puts Zod validation behind every mutating API endpoint through a shared `validateBody` utility -- campaigns, characters, entities, relations (attitude constrained to -100..+100), transactions (positive amounts) and all remaining POST/PUT/PATCH routes -- and escapes `%` and `_` in search parameters before they reach SQL `LIKE` clauses.
+
+## Requirements
 
 ### Requirement: Shared validateBody utility
 

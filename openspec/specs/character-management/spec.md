@@ -1,4 +1,10 @@
-## MODIFIED Requirements
+# character-management Specification
+
+## Purpose
+
+The character CRUD surface: a list API applying type, status, search, folder, companion, organization, location and sort parameters server-side; POST and PUT accepting `templateId`, custom `fields` and the narrative text fields; a delete action on the detail page gated to `dm` and `co_dm`; and leading icons on the status and PC/NPC type badges.
+
+## Requirements
 
 ### Requirement: Character status badges display icons
 

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change campaign-manager-study. Update Purpose after archive.
+Fully custom in-game calendars independent of real-world rules: configurable moons and celestial phase cycles, seasons tied to the calendar, entity-linked events placed on dates, a DM-advanceable current date per campaign, correct month/day layout rendering in the browser, and chronological timeline views.
 
 ## Requirements
 

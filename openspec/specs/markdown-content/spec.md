@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change campaign-manager-study. Update Purpose after archive.
+Aleph's content substrate: narrative text lives in `.md` files in a predictable per-campaign directory hierarchy with a consistent YAML frontmatter schema, while SQLite holds only metadata and relationships. It covers MDC rendering with embedded Vue components, a Tiptap WYSIWYG editor over markdown source, filesystem watching that re-syncs metadata and indexes, an FTS5 search index kept synchronised, optional git-based content versioning, and server-side secret-block stripping on arc, chapter and quest descriptions.
 
 ## Requirements
 

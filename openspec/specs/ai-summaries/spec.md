@@ -1,4 +1,10 @@
-## ADDED Requirements
+# ai-summaries Specification
+
+## Purpose
+
+Generate a narrative session summary and structured AI notes (key decisions, NPCs, locations, plot hooks) from a session's manual notes, using Claude or OpenAI selected through server-side environment variables that are never exposed to the frontend. Generation is reachable from the session detail page and from the `session summarize` CLI command.
+
+## Requirements
 
 ### Requirement: Generate session summary from manual notes
 

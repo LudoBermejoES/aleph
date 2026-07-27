@@ -1,3 +1,11 @@
+# character-extended-text-fields Specification
+
+## Purpose
+
+Gives characters three additional narrative markdown fields -- `backstory`, `history` and `current_status` -- independent of the entity `content` used for physical description. They are persisted through the character PUT endpoint, settable from the CLI by option or stdin, and displayed in the character detail page's tabs.
+
+## Requirements
+
 ### Requirement: Characters have three additional narrative markdown fields
 
 The `characters` table SHALL have three new nullable text columns: `backstory`, `history`, and `current_status`. These fields store markdown and are independent of the existing entity `content` field (physical description).

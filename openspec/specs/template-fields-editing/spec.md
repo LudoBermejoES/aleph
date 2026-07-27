@@ -1,5 +1,9 @@
 # template-fields-editing Specification
 
+## Purpose
+
+A reusable `<TemplateFieldsForm>` component that renders an editable input for every template field type, plus a template selector on the entity create forms that pre-selects the entity type's default template -- wired into the character, location and organization create and edit pages so the chosen `templateId` and field values are saved with the record.
+
 ## Requirements
 
 ### Requirement: TemplateFieldsForm component renders editable inputs for all field types

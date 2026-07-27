@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change improved-graph-visualization. Update Purpose after archive.
+How the campaign-wide relationship graph is drawn: a tuned d3-force simulation that stays readable at 20-100 nodes, nodes sized by connection degree, edges coloured by relation type slug with line-style variants, organization clustering through both force positioning and visual grouping, and a graph API response carrying the relation type and organization membership data those require.
 
 ## Requirements
 

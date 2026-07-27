@@ -1,3 +1,11 @@
+# error-tracking Specification
+
+## Purpose
+
+Reports runtime failures to Sentry: unhandled JavaScript and Vue component errors on the client, unhandled errors in Nitro API routes and server middleware, source maps uploaded at build time so production stack traces stay readable, sampled performance tracing on both sides, and the Sentry server config imported before the production app initialises.
+
+## Requirements
+
 ### Requirement: Client-side error capture
 
 The application SHALL capture unhandled JavaScript errors and Vue component errors on the client and report them to Sentry.

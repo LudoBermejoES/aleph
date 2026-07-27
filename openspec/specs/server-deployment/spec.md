@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change deploy-to-server. Update Purpose after archive.
+How Aleph reaches production: automatic deployment on push to `master` once tests pass, `data/`, `content/`, `logs/` and `.env` preserved between deploys, HTTPS served with auto-renewing Let's Encrypt certificates, a `GET /api/health` status endpoint, and Nginx proxying WebSocket connections to Hocuspocus for real-time collaboration.
 
 ## Requirements
 

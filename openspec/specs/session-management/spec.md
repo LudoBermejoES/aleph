@@ -1,3 +1,9 @@
+# session-management Specification
+
+## Purpose
+
+The session API and list surface: full CRUD including deletion, arc and chapter assignment by slug on create and update, an optional `arcSlug` filter on the session list that also reports arc and chapter names, and leading icons on session status badges.
+
 ## Requirements
 
 ### Requirement: Session status badges display icons

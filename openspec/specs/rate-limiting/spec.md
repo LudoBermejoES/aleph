@@ -1,4 +1,10 @@
-## ADDED Requirements
+# rate-limiting Specification
+
+## Purpose
+
+Hardens the API against abuse and cross-site attacks: per-IP rate limiting on every endpoint with stricter caps on auth and file-upload routes, the health endpoint exempt and expired entries pruned amortized; CSRF tokens issued and validated for cookie-based sessions with `SameSite=Strict` session cookies; and uploaded files verified by magic bytes against their declared MIME type.
+
+## Requirements
 
 ### Requirement: Per-IP rate limiting on all API endpoints
 
@@ -80,8 +86,6 @@ The system SHALL periodically prune expired entries from the in-memory rate limi
 
 ---
 
-## ADDED Requirements (CSRF)
-
 ### Requirement: CSRF token generation for cookie-based sessions
 
 The system SHALL generate a CSRF token and set it as a cookie (`csrf_token`, HttpOnly=false, SameSite=Strict, Secure in production) when a user authenticates via cookie-based session. The token SHALL be a cryptographically random string.
@@ -145,8 +149,6 @@ The system SHALL configure better-auth to set `SameSite=Strict` on all session c
 - **THEN** the browser does not include the session cookie (SameSite=Strict behavior)
 
 ---
-
-## MODIFIED Requirements (File Upload)
 
 ### Requirement: File uploads validate actual content via magic bytes
 

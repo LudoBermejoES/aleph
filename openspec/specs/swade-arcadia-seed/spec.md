@@ -1,4 +1,10 @@
-## ADDED Requirements
+# swade-arcadia-seed Specification
+
+## Purpose
+
+Scripts that populate the existing Arcadia campaign with SWADE content: a setup script creating all SWADE entity types and character templates, a seed script turning the Spanish SWADE JSON files and superpower markdown into wiki entities with consistently formatted content, and a Spanish-labelled "Personaje SWADE" template covering the full SWADE + Supers stat block -- both reading credentials from the `aleph` CLI's `~/.aleph/config.json`.
+
+## Requirements
 
 ### Requirement: SWADE setup script creates all entity types and templates in the Arcadia campaign
 

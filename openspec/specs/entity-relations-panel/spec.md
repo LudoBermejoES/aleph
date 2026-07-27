@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change editable-relations-on-detail-pages. Update Purpose after archive.
+An `EntityRelationsPanel` on the character, organization and location detail pages that lists every relation involving the entity grouped by category, and lets editors and above add, edit and delete relations without leaving the page (deletes confirmed, data refreshed afterwards) -- backed by `editor+` enforcement on the supporting PATCH endpoints and complete English and Spanish strings.
 
 ## Requirements
 

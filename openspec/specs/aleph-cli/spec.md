@@ -1,3 +1,9 @@
+# aleph-cli Specification
+
+## Purpose
+
+Defines the surface of the `aleph` command-line client, which drives the Aleph API headlessly. It covers entity images, maps, quests, calendars and timelines, the economy (items, shops, currencies, transactions, inventories), entity templates, tags, arcs and chapters, session attendance and arc/chapter assignment, and a server health check.
+
 ## Requirements
 
 ### Requirement: Upload entity image via CLI

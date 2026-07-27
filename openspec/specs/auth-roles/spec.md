@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change campaign-manager-study. Update Purpose after archive.
+Who may see and do what in Aleph: secure registration, login and session management alongside `X-API-Key` authentication; a strict per-campaign role hierarchy with a system-wide Admin; per-entity and per-user permission overrides that supersede role defaults; visibility levels on every content type; optional named permission grants that elevate individual players without a role change; and campaign membership invitation, management and removal.
 
 ## Requirements
 

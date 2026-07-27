@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change campaign-manager-study. Update Purpose after archive.
+The DM's at-the-table utilities: an integrated dice roller reachable from anywhere in the application, a parser turning dice notation into executable rolls, a freeform whiteboard workspace for use during sessions, and random content generators for improvisation.
 
 ## Requirements
 

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change user-management-admin. Update Purpose after archive.
+System-level user administration: a `role` field on every account (`user` or `admin`, promotable only by an existing admin), admin-only endpoints to list, update and delete user accounts with an admin barred from deleting their own, and a `/settings/users` page where admins manage them.
 
 ## Requirements
 

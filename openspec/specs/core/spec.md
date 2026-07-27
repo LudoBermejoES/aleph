@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change campaign-manager-study. Update Purpose after archive.
+The umbrella capability describing what Aleph is: a markdown-first, filesystem-backed TTRPG campaign manager combining a worldbuilding wiki, interactive maps, campaign/session and character management, custom calendars and timelines, inventory and economy, dice rolling, search and organization, import and export, role-based access control with granular visibility, real-time collaboration, and per-campaign theming.
 
 ## Requirements
 

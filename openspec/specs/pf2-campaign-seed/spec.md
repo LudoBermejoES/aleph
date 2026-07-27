@@ -1,4 +1,10 @@
-## ADDED Requirements
+# pf2-campaign-seed Specification
+
+## Purpose
+
+Scripts that stand up a complete Pathfinder 2e campaign in one command: a setup script creating every entity type, template and currency, a seed script turning the PF2e JSON data files into wiki entities with consistently formatted markdown stat blocks, and a Spanish-labelled "PJ PF2e" character template covering the full PC stat block -- all reading server URL and API key from the `aleph` CLI's own `~/.aleph/config.json`.
+
+## Requirements
 
 ### Requirement: PF2e campaign setup script creates a fully structured campaign
 

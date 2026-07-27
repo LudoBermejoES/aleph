@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change campaign-manager-study. Update Purpose after archive.
+The SQLite schema behind Aleph, managed with Drizzle ORM: user accounts and Better Auth sessions, campaigns and memberships, the polymorphic entity system with templates and fields (metadata only -- content lives in `.md` files), maps with layers and pins, sessions and story structure, calendars and timelines, inventory and economy, entity-level permission overrides, and the FTS5 search index tables.
 
 ## Requirements
 

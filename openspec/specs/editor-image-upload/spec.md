@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change image-upload. Update Purpose after archive.
+Images inside campaign content: a validated multipart upload endpoint and a serving endpoint per campaign, plus three ways to get an image into the Markdown editor -- clipboard paste, drag-and-drop, and a toolbar file picker -- all serialising to standard `![alt](url)` Markdown so stored content keeps its image references.
 
 ## Requirements
 

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change campaign-manager-study. Update Purpose after archive.
+Interactive campaign maps: uploaded images tiled into 256x256 PNG tiles across zoom levels and rendered with Leaflet using `CRS.Simple` and `L.tileLayer` (never `imageOverlay`), entity-linked pins, transparent overlay layers, nested map drill-down hierarchies, drawn regions and paths, calibrated scale and distance measurement, a task to re-tile existing maps, and a role-gated delete action on the map detail page.
 
 ## Requirements
 

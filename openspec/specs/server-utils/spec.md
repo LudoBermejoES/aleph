@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change server-refactor. Update Purpose after archive.
+Shared server-side helpers that stop API endpoints redefining the same logic: the `ROLE_LEVEL` and `VISIBILITY_MIN_ROLE` constants and a `buildVisibilityFilter` RBAC condition builder in `server/utils/permissions.ts`, plus `ensureUniqueSlug` and a non-throwing `safeReadEntityFile` in `server/utils/content-helpers.ts`.
 
 ## Requirements
 

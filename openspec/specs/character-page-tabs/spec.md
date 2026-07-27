@@ -1,4 +1,10 @@
-## ADDED Requirements
+# character-page-tabs Specification
+
+## Purpose
+
+Organises everything below the character detail page header into four tabs -- Main info, Story, Relations and Play info -- and fixes which sections belong to each, hiding sections whose content is null.
+
+## Requirements
 
 ### Requirement: Character detail page has a tabbed layout below the header
 

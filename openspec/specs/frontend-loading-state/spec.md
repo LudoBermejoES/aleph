@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change frontend-data-layer. Update Purpose after archive.
+A `usePageState` composable that manages loading, error and data state consistently across pages instead of ad-hoc `ref<boolean>` flags, with form components loading auxiliary data through the API composable rather than per-component `$fetch()` and try/catch.
 
 ## Requirements
 

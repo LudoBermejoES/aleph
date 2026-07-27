@@ -1,4 +1,10 @@
-## ADDED Requirements
+# session-delete Specification
+
+## Purpose
+
+Permanently removes a session together with its attendance, content and decisions. It is available to co-DM and above through a DELETE endpoint, the `session delete` CLI subcommand with a confirmation prompt unless `--yes` is passed, and a confirmed delete button on the session detail page.
+
+## Requirements
 
 ### Requirement: Session can be deleted via API
 

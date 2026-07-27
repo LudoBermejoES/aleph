@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change internationalization. Update Purpose after archive.
+Every user-visible string rendered by a Vue component goes through a translation key, `en.json` and `es.json` carry translations for all of them, and database-sourced data (campaign names, character names, entity content) is deliberately never passed through the translation system.
 
 ## Requirements
 

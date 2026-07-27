@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change organizations. Update Purpose after archive.
+Character membership of organizations: endpoints to add and remove members with an optional role, restricted to dm, co_dm and editor; inline role editing and full member management UI on the organization detail page; the reverse view listing a character's organizations on the character detail page; and an `organization` command group in aleph-cli.
 
 ## Requirements
 

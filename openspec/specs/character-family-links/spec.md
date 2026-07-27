@@ -1,4 +1,10 @@
-## ADDED Requirements
+# character-family-links Specification
+
+## Purpose
+
+Models family relationships between characters on top of `entityRelations` using builtin parent, spouse and sibling relation types seeded per campaign, with helper endpoints that add and remove links, cycle prevention on parent links, soft warnings when birth and death years make a parent link implausible, and cascade deletion when a character is removed.
+
+## Requirements
 
 ### Requirement: Builtin family relation types
 
