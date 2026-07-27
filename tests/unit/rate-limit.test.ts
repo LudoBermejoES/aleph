@@ -1,10 +1,65 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { readFileSync, readdirSync } from 'fs'
+import { join, resolve } from 'path'
 import {
   createRateLimiter,
   classifyRequest,
   RATE_LIMITS,
   type RateLimitBucket,
 } from '../../server/utils/rate-limit'
+
+/**
+ * The rate limiter's POSITION in the middleware chain is part of the fix, so it is
+ * pinned here rather than merely achieved by a filename.
+ *
+ * Nitro orders `server/middleware/` by filename — `scanDir()` ends with
+ * `.sort((a, b) => a.path.localeCompare(b.path))` — and this test uses the same
+ * comparator, so it asserts the real execution order rather than a convention.
+ *
+ * When the limiter sorted after the auth middleware it never ran for unauthenticated
+ * traffic at all: the auth middleware throws 401 for any `/api/*` request without a
+ * valid session or API key, so no unauthenticated flood of a non-auth endpoint was ever
+ * counted, and each request still paid a DB lookup before being rejected. Renaming the
+ * limiter back behind auth must fail this test.
+ */
+describe('middleware ordering: the rate limiter runs before authentication', () => {
+  const dir = resolve(__dirname, '../../server/middleware')
+  // Identify the two middlewares by what they DO, not by their names — the names are
+  // exactly what this test exists to police.
+  const files = readdirSync(dir).filter((f) => f.endsWith('.ts'))
+  const sources = new Map(files.map((f) => [f, readFileSync(join(dir, f), 'utf-8')]))
+
+  const limiterFile = files.find((f) => sources.get(f)!.includes('createRateLimiter'))
+  const authFile = files.find((f) => /statusCode: 401/.test(sources.get(f)!))
+
+  it('finds exactly one rate-limiting and one authenticating middleware', () => {
+    expect(files.filter((f) => sources.get(f)!.includes('createRateLimiter'))).toHaveLength(1)
+    expect(files.filter((f) => /statusCode: 401/.test(sources.get(f)!))).toHaveLength(1)
+  })
+
+  it("sorts before the auth middleware under nitro's comparator", () => {
+    expect(
+      limiterFile!.localeCompare(authFile!),
+      `${limiterFile} must sort before ${authFile}. Nitro runs server middleware in ` +
+        `localeCompare order of filename, and ${authFile} throws 401 for unauthenticated ` +
+        `/api/* requests — so a limiter behind it never sees unauthenticated traffic and ` +
+        `that traffic is unmetered.`,
+    ).toBeLessThan(0)
+  })
+
+  it('the limiter needs nothing from authentication, so running first is safe', () => {
+    // If the limiter ever keys on identity it can no longer precede auth, and this fix
+    // would have to be rethought instead of quietly reverted. Comments are stripped
+    // first: the middleware's own header explains why it reads neither of these, and
+    // that explanation would otherwise satisfy the assertion.
+    const limiter = sources
+      .get(limiterFile!)!
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .replace(/^\s*\/\/.*$/gm, '')
+    expect(limiter).not.toContain('context.user')
+    expect(limiter).not.toContain('context.session')
+  })
+})
 
 describe('createRateLimiter', () => {
   beforeEach(() => {
@@ -182,7 +237,7 @@ describe('rate limit buckets (as the middleware wires them)', () => {
     }
   }
 
-  /** Mirrors server/middleware/02.rate-limit.ts for a single IP. */
+  /** Mirrors server/middleware/00.rate-limit.ts for a single IP. */
   function charge(limiters: ReturnType<typeof makeLimiters>, path: string, method: string) {
     const bucket = classifyRequest(path, method)
     if (bucket === 'exempt') return true

@@ -111,6 +111,37 @@ describe('Rate Limiting (integration)', () => {
     expect(upload.status).not.toBe(429)
   }, 60_000)
 
+  // Ordering regression. While the limiter was `02.rate-limit.ts` it ran AFTER
+  // `01.auth.ts`, which throws 401 for every unauthenticated `/api/*` request — so
+  // unauthenticated traffic to any non-auth endpoint never reached the limiter and was
+  // completely unmetered, while still paying a DB API-key lookup or a full better-auth
+  // getSession() per request. This asserts the limiter now sees that traffic: with no
+  // credentials at all, a flood must eventually 429 instead of 401ing forever.
+  it('meters unauthenticated traffic to a non-auth endpoint', async () => {
+    const fakeIp = `10.3.${(Date.now() >> 4) % 255}.${((Date.now() >> 2) % 254) + 1}`
+    // The upload budget (120) rather than general (1000): same code path, an eighth of
+    // the requests. No X-API-Key, no Cookie — nothing that could authenticate.
+    const path = `/api/campaigns/${campaignId}/entities/no-such-entity/image`
+    const statuses: number[] = []
+
+    for (let i = 0; i < RATE_LIMITS.upload.maxRequests + 5; i++) {
+      const res = await api(path, { method: 'POST', headers: { 'X-Forwarded-For': fakeIp } })
+      statuses.push(res.status)
+      if (res.status === 429) break
+    }
+
+    expect(
+      statuses.at(-1),
+      'unauthenticated requests were never counted — is the rate limit middleware ' +
+        'sorting after the auth middleware again?',
+    ).toBe(429)
+    // Everything before the 429 was rejected as unauthenticated, never served: the
+    // limiter counted requests it had no identity for, which is the whole point.
+    expect(new Set(statuses.slice(0, -1))).toEqual(new Set([401]))
+    // And an unauthenticated request under the ceiling still gets its 401, not a 429.
+    expect(statuses[0]).toBe(401)
+  }, 30_000)
+
   it('auth endpoints have a stricter limit than general', async () => {
     expect(RATE_LIMITS.auth.maxRequests).toBeLessThan(RATE_LIMITS.general.maxRequests)
     const fakeIp = `10.1.${(Date.now() >> 4) % 255}.${((Date.now() >> 2) % 254) + 1}`
