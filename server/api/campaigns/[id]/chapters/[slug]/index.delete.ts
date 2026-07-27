@@ -14,15 +14,15 @@ export default defineEventHandler(async (event) => {
   const slug = getRouterParam(event, 'slug')!
   const db = useDb()
 
-  const chapter = db.select().from(chapters).where(eq(chapters.slug, slug)).get()
-  if (!chapter) throw createError({ statusCode: 404, message: 'Chapter not found' })
-
-  const arc = db
-    .select()
-    .from(arcs)
-    .where(and(eq(arcs.id, chapter.arcId), eq(arcs.campaignId, campaignId)))
+  // Campaign-scoped in one query — see the note in index.put.ts. Deleting the wrong
+  // campaign's chapter would be worse than 404ing on the right one.
+  const chapter = db
+    .select({ id: chapters.id })
+    .from(chapters)
+    .innerJoin(arcs, eq(chapters.arcId, arcs.id))
+    .where(and(eq(arcs.campaignId, campaignId), eq(chapters.slug, slug)))
     .get()
-  if (!arc) throw createError({ statusCode: 404, message: 'Chapter not found in this campaign' })
+  if (!chapter) throw createError({ statusCode: 404, message: 'Chapter not found' })
 
   db.update(gameSessions)
     .set({ chapterId: null })

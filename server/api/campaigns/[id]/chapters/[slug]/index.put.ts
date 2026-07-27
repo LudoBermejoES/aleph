@@ -15,15 +15,16 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const db = useDb()
 
-  const chapter = db.select().from(chapters).where(eq(chapters.slug, slug)).get()
-  if (!chapter) throw createError({ statusCode: 404, message: 'Chapter not found' })
-
-  const arc = db
-    .select()
-    .from(arcs)
-    .where(and(eq(arcs.id, chapter.arcId), eq(arcs.campaignId, campaignId)))
+  // Scoped to the campaign through the arc join in the same query. Looking the slug up
+  // globally first and only then checking the campaign let a same-slug chapter in another
+  // campaign shadow this one and 404 a chapter that does exist here.
+  const chapter = db
+    .select({ id: chapters.id })
+    .from(chapters)
+    .innerJoin(arcs, eq(chapters.arcId, arcs.id))
+    .where(and(eq(arcs.campaignId, campaignId), eq(chapters.slug, slug)))
     .get()
-  if (!arc) throw createError({ statusCode: 404, message: 'Chapter not found in this campaign' })
+  if (!chapter) throw createError({ statusCode: 404, message: 'Chapter not found' })
 
   const updates: Record<string, unknown> = {}
   if (body.name !== undefined) updates.name = body.name
