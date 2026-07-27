@@ -14,12 +14,14 @@ export function makeSessionCommand() {
     .description('List sessions in a campaign')
     .requiredOption('--campaign <id>', 'Campaign ID')
     .option('--group <slug>', 'Filter by session group slug')
+    .option('--arc <slug>', 'Filter by arc slug (unknown slug yields an empty list)')
     .option('--page <n>', 'Page number', '1')
     .option('--limit <n>', 'Results per page (0 = all)', '50')
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
       const params = new URLSearchParams()
       if (opts.group) params.set('groupSlug', opts.group)
+      if (opts.arc) params.set('arcSlug', opts.arc)
       params.set('page', opts.page)
       params.set('pageSize', opts.limit)
       const qs = params.toString()
@@ -36,6 +38,10 @@ export function makeSessionCommand() {
             date: s.scheduledDate || '',
             status: s.status || '',
             group: s.groupName || '',
+            // Names, never the raw arcId/chapterId UUIDs. Blank when unassigned — or
+            // when talking to a server whose projection predates these fields.
+            arc: s.arcName || '',
+            chapter: s.chapterName || '',
           })),
         )
         if (meta) console.error(`Page ${meta.page}/${meta.totalPages} (${meta.total} total)`)
@@ -49,12 +55,16 @@ export function makeSessionCommand() {
     .requiredOption('--title <title>', 'Session title')
     .option('--date <date>', 'Session date (YYYY-MM-DD)')
     .option('--group <slug>', 'Session group slug')
+    .option('--arc <slug>', 'Arc slug to create the session in')
+    .option('--chapter <slug>', 'Chapter slug to create the session in (sets its arc too)')
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
       const data = await post(`/api/campaigns/${opts.campaign}/sessions`, {
         title: opts.title,
         scheduledDate: opts.date,
         groupSlug: opts.group,
+        arcSlug: opts.arc,
+        chapterSlug: opts.chapter,
       })
       if (opts.json) {
         print(data, { json: true })
@@ -74,12 +84,15 @@ export function makeSessionCommand() {
         print(data, { json: true })
       } else {
         const hasContent = data.hasContent || {}
+        const { arcName, chapterName } = await sessionArcNames(opts.campaign, data)
         print({
           title: data.title,
           slug: data.slug,
           date: data.scheduledDate || '',
           status: data.status || '',
           group: data.groupName || '',
+          arc: arcName,
+          chapter: chapterName,
           hasManualNotes: hasContent.manual_notes ? 'yes' : 'no',
           hasAiNotes: hasContent.ai_notes ? 'yes' : 'no',
           hasSummary: hasContent.summary ? 'yes' : 'no',
@@ -96,6 +109,11 @@ export function makeSessionCommand() {
     .option('--date <date>', 'Scheduled date (YYYY-MM-DD)')
     .option('--status <status>', 'Status: planned|active|completed|cancelled')
     .option('--group <slug>', 'Session group slug (empty string to unset)')
+    .option('--arc <slug>', 'Arc slug (empty string to unset, which clears the chapter too)')
+    .option(
+      '--chapter <slug>',
+      'Chapter slug (empty string to unset just the chapter; sets the arc it belongs to)',
+    )
     .option('--json', 'Output as JSON')
     .action(async (slug, opts) => {
       const body = {}
@@ -103,9 +121,12 @@ export function makeSessionCommand() {
       if (opts.date !== undefined) body.scheduledDate = opts.date
       if (opts.status !== undefined) body.status = opts.status
       if (opts.group !== undefined) body.groupSlug = opts.group
+      // Slugs, resolved server-side (same contract as groupSlug): '' unsets.
+      if (opts.arc !== undefined) body.arcSlug = opts.arc
+      if (opts.chapter !== undefined) body.chapterSlug = opts.chapter
       if (Object.keys(body).length === 0) {
         process.stderr.write(
-          'Error: Provide at least one field to update (--title, --date, --status, --group)\n',
+          'Error: Provide at least one field to update (--title, --date, --status, --group, --arc, --chapter)\n',
         )
         process.exit(1)
       }
@@ -431,6 +452,32 @@ export function makeSessionCommand() {
     })
 
   return cmd
+}
+
+/**
+ * Arc and chapter names for `session show`. Uses the server's `arcName`/`chapterName`
+ * when the projection carries them; otherwise resolves the ids over `GET /arcs`
+ * (one request, chapters included) so the sheet never shows a bare UUID — or nothing.
+ */
+async function sessionArcNames(campaignId, session) {
+  if (session.arcName !== undefined || session.chapterName !== undefined) {
+    return { arcName: session.arcName || '', chapterName: session.chapterName || '' }
+  }
+  if (!session.arcId && !session.chapterId) return { arcName: '', chapterName: '' }
+  const arcList = await get(`/api/campaigns/${campaignId}/arcs`).catch(() => [])
+  const arcs = Array.isArray(arcList) ? arcList : []
+  const arc = arcs.find((a) => a && a.id === session.arcId)
+  let chapterName = ''
+  if (session.chapterId) {
+    for (const a of arcs) {
+      const found = (a?.chapters ?? []).find((c) => c && c.id === session.chapterId)
+      if (found) {
+        chapterName = found.name ?? ''
+        break
+      }
+    }
+  }
+  return { arcName: arc?.name ?? '', chapterName }
 }
 
 async function findSessionByDate(campaignId, dateStr) {

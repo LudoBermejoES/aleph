@@ -5,6 +5,8 @@ import {
   sessionAttendance,
   sessionGroups,
   sessionContents,
+  arcs,
+  chapters,
 } from '../../../../../db/schema/sessions'
 import { user } from '../../../../../db/schema/auth'
 import { readEntityFile } from '../../../../../services/content'
@@ -32,6 +34,24 @@ export default defineEventHandler((event) =>
         .where(eq(sessionGroups.id, session.groupId))
         .get()
       groupName = group?.name ?? null
+    }
+
+    // Arc/chapter names, same idiom as groupName above, so this response and the list
+    // response agree on which name fields exist.
+    let arcName: string | null = null
+    if (session.arcId) {
+      const arc = db.select({ name: arcs.name }).from(arcs).where(eq(arcs.id, session.arcId)).get()
+      arcName = arc?.name ?? null
+    }
+
+    let chapterName: string | null = null
+    if (session.chapterId) {
+      const chapter = db
+        .select({ name: chapters.name })
+        .from(chapters)
+        .where(eq(chapters.id, session.chapterId))
+        .get()
+      chapterName = chapter?.name ?? null
     }
 
     // Get attendance
@@ -71,6 +91,14 @@ export default defineEventHandler((event) =>
       }
     }
 
-    return { ...session, groupName, attendance, hasContent, logContent: log.content }
+    return {
+      ...session,
+      groupName,
+      arcName,
+      chapterName,
+      attendance,
+      hasContent,
+      logContent: log.content,
+    }
   }),
 )

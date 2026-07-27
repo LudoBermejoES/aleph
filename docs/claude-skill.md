@@ -113,10 +113,12 @@ The `character create` and `character update` API endpoints accept optional `tem
 ### Sessions
 
 ```bash
-aleph session list --campaign <id> [--group <slug>] [--page <n>] [--limit <n>] [--json]
-aleph session create --campaign <id> --title <title> [--date <YYYY-MM-DD>] [--group <slug>] [--json]
-aleph session show <slug> --campaign <id> [--json]   # includes groupName, hasManualNotes/hasAiNotes/hasSummary
-aleph session update <slug> --campaign <id> [--title <title>] [--date <YYYY-MM-DD>] [--status planned|active|completed|cancelled] [--group <slug>]
+aleph session list --campaign <id> [--group <slug>] [--arc <slug>] [--page <n>] [--limit <n>] [--json]   # table shows arc + chapter names; unknown --arc slug = empty list, not an error
+aleph session create --campaign <id> --title <title> [--date <YYYY-MM-DD>] [--group <slug>] [--arc <slug>] [--chapter <slug>] [--json]
+aleph session show <slug> --campaign <id> [--json]   # includes groupName, arc + chapter names, hasManualNotes/hasAiNotes/hasSummary
+aleph session update <slug> --campaign <id> [--title <title>] [--date <YYYY-MM-DD>] [--status planned|active|completed|cancelled] [--group <slug>] [--arc <slug>] [--chapter <slug>]
+# --arc/--chapter take slugs, resolved server-side. --arc '' unsets the arc (and clears the chapter with it); --chapter '' unsets only the chapter.
+# --chapter <slug> alone also sets the arc it belongs to. Unknown slug -> 404, duplicate slug -> 409, chapter not in the named arc -> 422.
 aleph session delete <slug> --campaign <id> [--yes]  # --yes skips confirmation prompt
 
 # Session content (notes)
@@ -358,17 +360,17 @@ aleph tag delete --campaign <id> --id <tagId> [--yes]
 
 ```bash
 aleph arc list --campaign <id> [--json]
-aleph arc create --campaign <id> --name <name> [--status <status>] [--description <desc>] [--json]
-aleph arc update --campaign <id> --slug <slug> [--name <name>] [--status <status>] [--description <desc>]
+aleph arc create --campaign <id> --name <name> [--status <status>] [--description <desc>] [--sort-order <n>] [--json]
+aleph arc update --campaign <id> --slug <slug> [--name <name>] [--status <status>] [--description <desc>] [--sort-order <n>]   # --sort-order reorders the arc; must be numeric
 aleph arc delete --campaign <id> --slug <slug> [--yes]
 ```
 
 ### Chapters
 
 ```bash
-aleph chapter list --campaign <id> [--json]
-aleph chapter create --campaign <id> --name <name> [--arc <arcId>] [--description <desc>] [--json]
-aleph chapter update --campaign <id> --slug <slug> [--name <name>] [--description <desc>]
+aleph chapter list --campaign <id> [--arc <slug>] [--json]   # campaign-wide (reads the arcs endpoint); shows the arc name, not the arcId
+aleph chapter create --campaign <id> --name <name> --arc <arcSlug|arcId> [--description <desc>] [--sort-order <n>] [--json]
+aleph chapter update --campaign <id> --slug <slug> [--name <name>] [--description <desc>] [--sort-order <n>]
 aleph chapter delete --campaign <id> --slug <slug> [--yes]
 ```
 

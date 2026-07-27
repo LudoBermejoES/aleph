@@ -4,7 +4,7 @@ description: Use the aleph CLI to manage campaigns, entities, characters, locati
 license: MIT
 metadata:
   author: aleph
-  version: '3.6'
+  version: '3.7'
 ---
 
 You have access to the `aleph` CLI tool at `node /Users/ludo/code/aleph/cli/bin/aleph.js` (or `npm run aleph -- <args>` from the project root). Use it to interact with the running Aleph server.
@@ -109,10 +109,12 @@ The `character create` and `character update` API endpoints accept optional `tem
 ### Sessions
 
 ```bash
-node /Users/ludo/code/aleph/cli/bin/aleph.js session list --campaign <id> [--group <slug>] [--page <n>] [--limit <n>] [--json]
-node /Users/ludo/code/aleph/cli/bin/aleph.js session create --campaign <id> --title <title> [--date <YYYY-MM-DD>] [--group <slug>] [--json]
-node /Users/ludo/code/aleph/cli/bin/aleph.js session show <slug> --campaign <id> [--json]   # includes groupName, hasManualNotes/hasAiNotes/hasSummary
-node /Users/ludo/code/aleph/cli/bin/aleph.js session update <slug> --campaign <id> [--title <title>] [--date <YYYY-MM-DD>] [--status planned|active|completed|cancelled] [--group <slug>]
+node /Users/ludo/code/aleph/cli/bin/aleph.js session list --campaign <id> [--group <slug>] [--arc <slug>] [--page <n>] [--limit <n>] [--json]   # table shows arc + chapter names; unknown --arc slug = empty list, not an error
+node /Users/ludo/code/aleph/cli/bin/aleph.js session create --campaign <id> --title <title> [--date <YYYY-MM-DD>] [--group <slug>] [--arc <slug>] [--chapter <slug>] [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js session show <slug> --campaign <id> [--json]   # includes groupName, arc + chapter names, hasManualNotes/hasAiNotes/hasSummary
+node /Users/ludo/code/aleph/cli/bin/aleph.js session update <slug> --campaign <id> [--title <title>] [--date <YYYY-MM-DD>] [--status planned|active|completed|cancelled] [--group <slug>] [--arc <slug>] [--chapter <slug>]
+# --arc/--chapter take slugs, resolved server-side. --arc '' unsets the arc (and clears the chapter with it); --chapter '' unsets only the chapter.
+# --chapter <slug> alone also sets the arc it belongs to. Unknown slug -> 404, duplicate slug -> 409, chapter not in the named arc -> 422.
 node /Users/ludo/code/aleph/cli/bin/aleph.js session delete <slug> --campaign <id> [--yes]  # --yes skips confirmation prompt
 
 # Session content (notes)
@@ -348,17 +350,17 @@ node /Users/ludo/code/aleph/cli/bin/aleph.js tag delete --campaign <id> --id <ta
 
 ```bash
 node /Users/ludo/code/aleph/cli/bin/aleph.js arc list --campaign <id> [--json]
-node /Users/ludo/code/aleph/cli/bin/aleph.js arc create --campaign <id> --name <name> [--status <status>] [--description <desc>] [--json]
-node /Users/ludo/code/aleph/cli/bin/aleph.js arc update --campaign <id> --slug <slug> [--name <name>] [--status <status>] [--description <desc>]
+node /Users/ludo/code/aleph/cli/bin/aleph.js arc create --campaign <id> --name <name> [--status <status>] [--description <desc>] [--sort-order <n>] [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js arc update --campaign <id> --slug <slug> [--name <name>] [--status <status>] [--description <desc>] [--sort-order <n>]   # --sort-order reorders the arc; must be numeric
 node /Users/ludo/code/aleph/cli/bin/aleph.js arc delete --campaign <id> --slug <slug> [--yes]
 ```
 
 ### Chapters
 
 ```bash
-node /Users/ludo/code/aleph/cli/bin/aleph.js chapter list --campaign <id> [--json]
-node /Users/ludo/code/aleph/cli/bin/aleph.js chapter create --campaign <id> --name <name> [--arc <arcId>] [--description <desc>] [--json]
-node /Users/ludo/code/aleph/cli/bin/aleph.js chapter update --campaign <id> --slug <slug> [--name <name>] [--description <desc>]
+node /Users/ludo/code/aleph/cli/bin/aleph.js chapter list --campaign <id> [--arc <slug>] [--json]   # campaign-wide (reads the arcs endpoint); shows the arc name, not the arcId
+node /Users/ludo/code/aleph/cli/bin/aleph.js chapter create --campaign <id> --name <name> --arc <arcSlug|arcId> [--description <desc>] [--sort-order <n>] [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js chapter update --campaign <id> --slug <slug> [--name <name>] [--description <desc>] [--sort-order <n>]
 node /Users/ludo/code/aleph/cli/bin/aleph.js chapter delete --campaign <id> --slug <slug> [--yes]
 ```
 

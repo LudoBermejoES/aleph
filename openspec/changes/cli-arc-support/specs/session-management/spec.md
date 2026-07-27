@@ -14,6 +14,15 @@ resolved chapter's `arcId`. When both are supplied and the chapter does not belo
 named arc, the request MUST be rejected with 422. An unresolvable slug MUST return 404 and an
 ambiguous slug MUST return 409. Both endpoints keep requiring co_dm or higher.
 
+A session MUST NOT be left holding a chapter that belongs to a different arc than its own.
+Therefore when a **non-empty** `arcSlug` is supplied **without** `chapterSlug`, and the
+session currently holds a `chapterId` whose chapter belongs to a different arc, that
+`chapterId` MUST be cleared as part of the same update. Rejecting the request instead is not
+acceptable, because moving a session to another arc is an ordinary operation and the caller
+did not mention the chapter. Symmetrically, supplying `arcSlug: ''` together with a non-empty
+`chapterSlug` MUST be rejected with 422, since clearing the arc and naming a chapter are
+contradictory instructions.
+
 #### Scenario: Authenticated co_dm assigns an arc by slug
 
 - **GIVEN** a co_dm with a valid API key and an arc `act-i` in the campaign
@@ -43,6 +52,20 @@ ambiguous slug MUST return 409. Both endpoints keep requiring co_dm or higher.
 - **GIVEN** a session assigned to arc `act-i` and chapter `the-market`
 - **WHEN** a co_dm sends `{ "arcSlug": "" }`
 - **THEN** the response is 200 and both `arcId` and `chapterId` are `NULL`
+
+#### Scenario: Moving a session to another arc clears a now-inconsistent chapter
+
+- **Given** a session assigned to arc `act-i` and to `act-i`'s chapter `the-market`
+- **When** a co_dm sends `arcSlug: "act-ii"` with no `chapterSlug`
+- **Then** the session's `arcId` SHALL become `act-ii`'s id
+- **And** its `chapterId` SHALL be cleared, so arc and chapter never disagree
+
+#### Scenario: Clearing the arc while naming a chapter is rejected
+
+- **Given** a campaign with an arc `act-i` holding a chapter `the-market`
+- **When** a co_dm sends `arcSlug: ""` together with `chapterSlug: "the-market"`
+- **Then** the request SHALL be rejected with 422
+- **And** the session SHALL be unmodified
 
 #### Scenario: Clearing the chapter leaves the arc intact
 

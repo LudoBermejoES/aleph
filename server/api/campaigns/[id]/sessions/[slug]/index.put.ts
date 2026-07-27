@@ -4,6 +4,7 @@ import { useDb } from '../../../../../utils/db'
 import { validateBody } from '../../../../../utils/validate'
 import { gameSessions, sessionGroups } from '../../../../../db/schema/sessions'
 import { hasMinRole } from '../../../../../utils/permissions'
+import { resolveArcChapterSlugs } from '../../../../../utils/arc-chapter'
 import { writeEntityFile, readEntityFile } from '../../../../../services/content'
 import type { CampaignRole } from '../../../../../utils/permissions'
 
@@ -22,6 +23,8 @@ export default defineEventHandler(async (event) => {
     summary: z.string().nullable().optional(),
     arcId: z.string().nullable().optional(),
     chapterId: z.string().nullable().optional(),
+    arcSlug: z.string().nullable().optional(),
+    chapterSlug: z.string().nullable().optional(),
     groupSlug: z.string().nullable().optional(),
     content: z.string().optional(),
   })
@@ -42,6 +45,22 @@ export default defineEventHandler(async (event) => {
   if (body.summary !== undefined) updates.summary = body.summary || null
   if (body.arcId !== undefined) updates.arcId = body.arcId || null
   if (body.chapterId !== undefined) updates.chapterId = body.chapterId || null
+  // Slug-addressed arc/chapter assignment. Resolved before any write, so a 404/409/422
+  // leaves the session row untouched. Applied after the id fields, so an explicit slug
+  // wins if a caller sends both forms.
+  // The chapter the session will hold if no slug touches it — the id form, when sent in
+  // this same request, is what a change of arc has to be checked against, not the stored
+  // value it is about to replace.
+  const effectiveChapterId =
+    body.chapterId !== undefined ? body.chapterId || null : session.chapterId
+  const bySlug = resolveArcChapterSlugs(
+    db,
+    campaignId,
+    { arcSlug: body.arcSlug, chapterSlug: body.chapterSlug },
+    { chapterId: effectiveChapterId },
+  )
+  if (bySlug.arcId !== undefined) updates.arcId = bySlug.arcId
+  if (bySlug.chapterId !== undefined) updates.chapterId = bySlug.chapterId
   if (body.groupSlug !== undefined) {
     if (body.groupSlug === null || body.groupSlug === '') {
       updates.groupId = null

@@ -1,6 +1,6 @@
-import { eq, desc, and, sql } from 'drizzle-orm'
+import { eq, desc, and, sql, inArray, type SQL } from 'drizzle-orm'
 import { useDb } from '../../../../utils/db'
-import { gameSessions, sessionGroups } from '../../../../db/schema/sessions'
+import { gameSessions, sessionGroups, arcs, chapters } from '../../../../db/schema/sessions'
 import { parsePagination, buildMeta } from '../../../../utils/pagination'
 import { withApiHandler } from '../../../../utils/api-handler'
 
@@ -23,9 +23,27 @@ export default defineEventHandler((event) =>
       groupId = group.id
     }
 
+    // Arc filter, resolved to ids in SQL before pagination and counting so meta.total
+    // reflects it. Unlike the write path (404), an unknown slug is an empty page — same
+    // read-vs-write split groupSlug already has. An ambiguous slug stays permissive and
+    // matches every arc carrying it: over-matching is visible in the output.
+    let arcIds: string[] | undefined
+    const arcSlug = query.arcSlug as string | undefined
+    if (arcSlug) {
+      const matches = db
+        .select({ id: arcs.id })
+        .from(arcs)
+        .where(and(eq(arcs.campaignId, campaignId), eq(arcs.slug, arcSlug)))
+        .all()
+      if (matches.length === 0)
+        return { data: [], meta: buildMeta(0, parsePagination(query as Record<string, unknown>)) }
+      arcIds = matches.map((a) => a.id)
+    }
+
     const status = query.status as string | undefined
-    const conditions: ReturnType<typeof eq>[] = [eq(gameSessions.campaignId, campaignId)]
+    const conditions: SQL[] = [eq(gameSessions.campaignId, campaignId)]
     if (groupId) conditions.push(eq(gameSessions.groupId, groupId))
+    if (arcIds) conditions.push(inArray(gameSessions.arcId, arcIds))
     if (status) conditions.push(eq(gameSessions.status, status))
 
     const pagination = parsePagination(query as Record<string, unknown>)
@@ -48,7 +66,9 @@ export default defineEventHandler((event) =>
         status: gameSessions.status,
         summary: gameSessions.summary,
         arcId: gameSessions.arcId,
+        arcName: arcs.name,
         chapterId: gameSessions.chapterId,
+        chapterName: chapters.name,
         groupId: gameSessions.groupId,
         groupName: sessionGroups.name,
         createdAt: gameSessions.createdAt,
@@ -56,6 +76,8 @@ export default defineEventHandler((event) =>
       })
       .from(gameSessions)
       .leftJoin(sessionGroups, eq(gameSessions.groupId, sessionGroups.id))
+      .leftJoin(arcs, eq(gameSessions.arcId, arcs.id))
+      .leftJoin(chapters, eq(gameSessions.chapterId, chapters.id))
       .where(and(...conditions))
       .orderBy(desc(gameSessions.sessionNumber))
       .limit(pagination.limit)

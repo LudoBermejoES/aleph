@@ -24,17 +24,20 @@ export default defineEventHandler(async (event) => {
   const db = useDb()
 
   const id = randomUUID()
+  const slug = slugify(body.name)
   db.insert(arcs)
     .values({
       id,
       campaignId,
       name: body.name,
-      slug: slugify(body.name),
+      slug,
       description: body.description || null,
       sortOrder: body.sortOrder || 0,
       status: body.status || 'planned',
     })
     .run()
 
-  return { id, name: body.name }
+  // `slug` is what every other arc endpoint is addressed by, so the caller needs it
+  // straight away — without it a client can only print `(undefined)` and must re-list.
+  return { id, name: body.name, slug }
 })

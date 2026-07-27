@@ -5,6 +5,7 @@ import { useDb } from '../../../../utils/db'
 import { validateBody } from '../../../../utils/validate'
 import { gameSessions, sessionGroups } from '../../../../db/schema/sessions'
 import { hasMinRole } from '../../../../utils/permissions'
+import { resolveArcChapterSlugs } from '../../../../utils/arc-chapter'
 import { slugify, writeEntityFile, resolveEntityPath } from '../../../../services/content'
 import { join } from 'path'
 import type { CampaignRole } from '../../../../utils/permissions'
@@ -24,11 +25,20 @@ export default defineEventHandler(async (event) => {
     summary: z.string().optional(),
     arcId: z.string().optional(),
     chapterId: z.string().optional(),
+    arcSlug: z.string().nullable().optional(),
+    chapterSlug: z.string().nullable().optional(),
     groupSlug: z.string().optional(),
   })
   const body = await validateBody(event, sessionSchema)
   const db = useDb()
   const campaign = event.context.campaign
+
+  // Resolved before the log file is written so an unresolvable/ambiguous slug does not
+  // leave an orphan session .md behind.
+  const bySlug = resolveArcChapterSlugs(db, campaignId, {
+    arcSlug: body.arcSlug,
+    chapterSlug: body.chapterSlug,
+  })
 
   // Auto-increment session number
   const maxNum = db
@@ -79,8 +89,8 @@ export default defineEventHandler(async (event) => {
       scheduledDate: body.scheduledDate || null,
       status: body.status || 'planned',
       summary: body.summary || null,
-      arcId: body.arcId || null,
-      chapterId: body.chapterId || null,
+      arcId: bySlug.arcId !== undefined ? bySlug.arcId : body.arcId || null,
+      chapterId: bySlug.chapterId !== undefined ? bySlug.chapterId : body.chapterId || null,
       groupId,
       logFilePath: logPath,
       createdAt: now,
@@ -88,5 +98,14 @@ export default defineEventHandler(async (event) => {
     })
     .run()
 
-  return { id, slug, title, sessionNumber, status: body.status || 'planned', groupId }
+  return {
+    id,
+    slug,
+    title,
+    sessionNumber,
+    status: body.status || 'planned',
+    groupId,
+    arcId: bySlug.arcId !== undefined ? bySlug.arcId : body.arcId || null,
+    chapterId: bySlug.chapterId !== undefined ? bySlug.chapterId : body.chapterId || null,
+  }
 })

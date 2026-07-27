@@ -1,6 +1,32 @@
 import { requireConfig } from './config.js'
 
 /**
+ * Turn a failed response into one readable line.
+ * Server handlers put the human-readable reason in `message` (e.g. `Arc "x" not found`
+ * for a 404, the ambiguity explanation for a 409, the arc/chapter mismatch for a 422).
+ * Zod validation failures instead send `message: 'Validation failed'` plus per-field
+ * errors in `data.errors` — those are appended so the operator sees which field broke.
+ */
+async function httpErrorMessage(res) {
+  let message = `HTTP ${res.status}`
+  try {
+    const data = await res.json()
+    message = data.message || data.statusMessage || data.error || message
+    const errors = data.data?.errors
+    if (Array.isArray(errors) && errors.length > 0) {
+      const detail = errors
+        .map((e) => [e.field, e.message].filter(Boolean).join(': '))
+        .filter(Boolean)
+        .join('; ')
+      if (detail) message += ` (${detail})`
+    }
+  } catch {
+    /* ignore parse errors, use default message */
+  }
+  return message
+}
+
+/**
  * Make an authenticated HTTP request to the Aleph server.
  * Errors are written to stderr and process exits with code 2.
  */
@@ -28,14 +54,7 @@ export async function request(method, path, body) {
   }
 
   if (!res.ok) {
-    let message = `HTTP ${res.status}`
-    try {
-      const data = await res.json()
-      message = data.message || data.error || message
-    } catch {
-      /* ignore parse errors, use default message */
-    }
-    process.stderr.write(`Error: ${message}\n`)
+    process.stderr.write(`Error: ${await httpErrorMessage(res)}\n`)
     process.exit(2)
   }
 
@@ -79,14 +98,7 @@ export async function postMultipart(path, filePath, fieldName = 'file') {
   }
 
   if (!res.ok) {
-    let message = `HTTP ${res.status}`
-    try {
-      const data = await res.json()
-      message = data.message || data.error || message
-    } catch {
-      /* ignore parse errors, use default message */
-    }
-    process.stderr.write(`Error: ${message}\n`)
+    process.stderr.write(`Error: ${await httpErrorMessage(res)}\n`)
     process.exit(2)
   }
 
@@ -124,14 +136,7 @@ export async function postUnauthenticated(baseUrl, path, body) {
   }
 
   if (!res.ok) {
-    let message = `HTTP ${res.status}`
-    try {
-      const data = await res.json()
-      message = data.message || data.error || message
-    } catch {
-      /* ignore parse errors, use default message */
-    }
-    process.stderr.write(`Error: ${message}\n`)
+    process.stderr.write(`Error: ${await httpErrorMessage(res)}\n`)
     process.exit(2)
   }
 

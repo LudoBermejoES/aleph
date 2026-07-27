@@ -2,6 +2,7 @@ import { Command } from 'commander'
 import { get, post, put, del } from '../lib/client.js'
 import { print, success } from '../lib/output.js'
 import { confirm } from '@inquirer/prompts'
+import { sortOrderOrExit } from '../lib/arcs.js'
 
 export function makeArcCommand() {
   const cmd = new Command('arc').description('Manage campaign arcs')
@@ -16,7 +17,12 @@ export function makeArcCommand() {
       print(
         opts.json
           ? data
-          : data.map((a) => ({ slug: a.slug, name: a.name, status: a.status || '' })),
+          : data.map((a) => ({
+              slug: a.slug,
+              name: a.name,
+              status: a.status || '',
+              sortOrder: a.sortOrder ?? 0,
+            })),
         { json: opts.json },
       )
     })
@@ -28,16 +34,19 @@ export function makeArcCommand() {
     .requiredOption('--name <name>', 'Arc name')
     .option('--status <status>', 'Arc status')
     .option('--description <desc>', 'Arc description')
+    .option('--sort-order <n>', 'Position among the arcs of the campaign (number, default 0)')
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
       const body = { name: opts.name }
       if (opts.status !== undefined) body.status = opts.status
       if (opts.description !== undefined) body.description = opts.description
+      if (opts.sortOrder !== undefined) body.sortOrder = sortOrderOrExit(opts.sortOrder)
       const data = await post(`/api/campaigns/${opts.campaign}/arcs`, body)
       if (opts.json) {
         print(data, { json: true })
       } else {
-        success(`Arc created: ${data.name} (${data.slug})`)
+        const slug = data.slug ?? (await lookupArcSlug(opts.campaign, data.id))
+        success(`Arc created: ${data.name}${slug ? ` (${slug})` : ''}`)
       }
     })
 
@@ -49,11 +58,13 @@ export function makeArcCommand() {
     .option('--name <name>', 'New name')
     .option('--status <status>', 'New status')
     .option('--description <desc>', 'New description')
+    .option('--sort-order <n>', 'New position among the arcs of the campaign (number)')
     .action(async (opts) => {
       const body = {}
       if (opts.name !== undefined) body.name = opts.name
       if (opts.status !== undefined) body.status = opts.status
       if (opts.description !== undefined) body.description = opts.description
+      if (opts.sortOrder !== undefined) body.sortOrder = sortOrderOrExit(opts.sortOrder)
       await put(`/api/campaigns/${opts.campaign}/arcs/${opts.slug}`, body)
       success('Arc updated.')
     })
@@ -80,4 +91,15 @@ export function makeArcCommand() {
     })
 
   return cmd
+}
+
+/**
+ * Fallback for servers whose arcs POST response predates the `slug` field:
+ * look the freshly created arc up by id so the success line never prints "undefined".
+ */
+async function lookupArcSlug(campaignId, id) {
+  if (!id) return ''
+  const arcList = await get(`/api/campaigns/${campaignId}/arcs`).catch(() => [])
+  const arc = (Array.isArray(arcList) ? arcList : []).find((a) => a && a.id === id)
+  return arc?.slug ?? ''
 }

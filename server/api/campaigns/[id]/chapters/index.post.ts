@@ -23,17 +23,19 @@ export default defineEventHandler(async (event) => {
 
   const db = useDb()
   const id = randomUUID()
+  const slug = slugify(body.name)
 
   db.insert(chapters)
     .values({
       id,
       arcId: body.arcId,
       name: body.name,
-      slug: slugify(body.name),
+      slug,
       description: body.description || null,
       sortOrder: body.sortOrder || 0,
     })
     .run()
 
-  return { id, name: body.name }
+  // Same as arcs: chapter update/delete are slug-addressed, so return the slug.
+  return { id, name: body.name, slug, arcId: body.arcId }
 })
