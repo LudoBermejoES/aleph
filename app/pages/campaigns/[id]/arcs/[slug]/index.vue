@@ -291,10 +291,15 @@ async function load() {
   await withLoading(async () => {
     const previewAs = route.query.preview_as as string | undefined
     const arcParams = previewAs ? { preview_as: previewAs } : undefined
-    const [arcs, campaign, sessions] = await Promise.all([
+    // Sessions are asked for by arc on the server (arcSlug) with pagination switched
+    // off (pageSize=0). Fetching a default page and filtering client-side used to drop
+    // every session past the 50th — which, with sessions ordered by number descending,
+    // hid the whole of the earliest arcs — and the paginated `{data, meta}` envelope is
+    // not an array, so the filter threw and killed the rest of load().
+    const [arcs, campaign, sessionsRes] = await Promise.all([
       api.getArcs(arcParams),
       api.getCampaign(),
-      api.getSessions({}),
+      api.getSessions({ arcSlug: slug, pageSize: '0' }),
     ])
     const found = arcs.find((a: Arc) => a.slug === slug)
     if (!found) {
@@ -304,7 +309,13 @@ async function load() {
     arc.value = found
     campaignRole.value = (campaign as { role?: string }).role ?? ''
     canEdit.value = ['dm', 'co_dm'].includes(campaignRole.value)
-    linkedSessions.value = sessions.filter((s: GameSession) => s.arcId === found.id)
+    // pageSize=0 returns a bare array today; stay tolerant of the paginated envelope.
+    const rows = Array.isArray(sessionsRes)
+      ? sessionsRes
+      : ((sessionsRes as unknown as { data?: GameSession[] }).data ?? [])
+    // arcSlug is deliberately permissive server-side about a duplicated slug; this page
+    // is showing one specific arc, so keep only that arc's sessions.
+    linkedSessions.value = rows.filter((s: GameSession) => s.arcId === found.id)
   })
 }
 
