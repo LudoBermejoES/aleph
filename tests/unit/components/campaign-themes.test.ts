@@ -8,7 +8,11 @@ describe('CAMPAIGN_THEMES constants', () => {
     expect(def?.name).toBe('Default')
   })
 
-  it('includes all 11 themes', () => {
+  // Deliberately a hardcoded count, kept as a tripwire: it forces a human to
+  // acknowledge each catalogue change. CSS parity is checked registry-derived in
+  // tests/unit/css/themes.test.ts, so this number's job is only "was this
+  // addition intentional?" — bump it, don't delete it.
+  it('includes all 12 themes', () => {
     expect(CAMPAIGN_THEMES).toHaveLength(12)
   })
 
@@ -52,6 +56,7 @@ describe('CAMPAIGN_THEMES constants', () => {
       'fey-wilds',
       'undead',
       'superhero',
+      'mage-ascension',
     ]
     for (const id of expectedIds) {
       expect(ids).toContain(id)
