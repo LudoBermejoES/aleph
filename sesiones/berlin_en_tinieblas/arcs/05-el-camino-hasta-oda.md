@@ -1,4 +1,4 @@
-# 06. El camino hasta Oda
+# 05. El camino hasta Oda
 
 - **Slug:** `el-camino-hasta-oda`
 - **Fechas:** 2021-09-16 → 2022-01-13

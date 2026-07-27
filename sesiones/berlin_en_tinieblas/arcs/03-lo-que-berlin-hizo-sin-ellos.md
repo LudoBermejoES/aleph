@@ -1,4 +1,4 @@
-# 04. Lo que Berlín hizo sin ellos
+# 03. Lo que Berlín hizo sin ellos
 
 - **Slug:** `lo-que-berlin-hizo-sin-ellos`
 - **Fechas:** 2021-03-04 → 2021-04-29

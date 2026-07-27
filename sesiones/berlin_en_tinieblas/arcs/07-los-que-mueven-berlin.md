@@ -1,4 +1,4 @@
-# 08. Los que mueven Berlín
+# 07. Los que mueven Berlín
 
 - **Slug:** `los-que-mueven-berlin`
 - **Fechas:** 2022-03-17 → 2022-06-30

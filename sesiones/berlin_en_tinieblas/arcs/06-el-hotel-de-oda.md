@@ -1,4 +1,4 @@
-# 07. El hotel de Oda
+# 06. El hotel de Oda
 
 - **Slug:** `el-hotel-de-oda`
 - **Fechas:** 2022-01-27 → 2022-03-10

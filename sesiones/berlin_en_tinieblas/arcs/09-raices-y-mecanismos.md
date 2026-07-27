@@ -1,4 +1,4 @@
-# 10. Raíces y mecanismos
+# 09. Raíces y mecanismos
 
 - **Slug:** `raices-y-mecanismos`
 - **Fechas:** 2022-10-06 → 2023-01-19

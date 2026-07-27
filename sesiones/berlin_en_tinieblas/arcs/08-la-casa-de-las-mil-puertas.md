@@ -1,4 +1,4 @@
-# 09. La casa de las mil puertas
+# 08. La casa de las mil puertas
 
 - **Slug:** `la-casa-de-las-mil-puertas`
 - **Fechas:** 2022-07-07 → 2022-09-22

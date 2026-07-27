@@ -1,4 +1,4 @@
-# 11. La búsqueda de Salvador
+# 10. La búsqueda de Salvador
 
 - **Slug:** `la-busqueda-de-salvador`
 - **Fechas:** 2023-03-09 → 2023-04-13
