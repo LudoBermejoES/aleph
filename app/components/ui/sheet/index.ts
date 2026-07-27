@@ -10,8 +10,19 @@ export { default as SheetHeader } from './SheetHeader.vue'
 export { default as SheetTitle } from './SheetTitle.vue'
 export { default as SheetTrigger } from './SheetTrigger.vue'
 
+/**
+ * A sheet is a Dialog under the hood, so SheetContent is portalled to <body> — outside
+ * the layout root div that supplies the app's only `color` declaration. `bg-background`
+ * therefore has to be paired with `text-foreground`, or the sheet's content inherits the
+ * UA default black onto a themed dark surface (1.06–1.28:1 in the eight dark themes).
+ *
+ * A caller that swaps the background must swap the foreground with it: `layouts/default.vue`
+ * passes `bg-sidebar-background text-sidebar-foreground`, because `--foreground` on
+ * `--sidebar-background` is 1.22–1.33:1 in the three LIGHT themes, where the sidebar is the
+ * dark surface. tailwind-merge keeps only the caller's token in each pair.
+ */
 export const sheetVariants = cva(
-  'fixed z-50 gap-4 bg-background p-6 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500',
+  'fixed z-50 gap-4 bg-background text-foreground p-6 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500',
   {
     variants: {
       side: {

@@ -22,7 +22,13 @@
             </svg>
           </button>
         </SheetTrigger>
-        <SheetContent side="left" class="p-0 w-64 bg-sidebar-background border-sidebar-border">
+        <!-- Overriding the sheet's background means overriding its foreground too:
+             sheetVariants' `text-foreground` pairs with `bg-background`, and on
+             `--sidebar-background` it is 1.22–1.33:1 in the three light themes. -->
+        <SheetContent
+          side="left"
+          class="p-0 w-64 bg-sidebar-background text-sidebar-foreground border-sidebar-border"
+        >
           <SidebarNav
             :campaign-id="campaignId"
             :campaign-name="campaignName"

@@ -13,8 +13,11 @@
     <Teleport to="body">
       <div v-if="open" class="fixed inset-0 z-50" @click.self="open = false">
         <div class="fixed inset-0 bg-black/50" @click="open = false"></div>
+        <!-- Teleported to <body>, so this panel sits outside the layout root div that
+             carries the app's only `color`: `bg-background` needs `text-foreground` beside
+             it or the result names and the input inherit UA black on the dark themes. -->
         <div
-          class="fixed top-[20vh] left-1/2 -translate-x-1/2 z-[51] bg-background border border-border rounded-lg shadow-xl w-full max-w-lg"
+          class="fixed top-[20vh] left-1/2 -translate-x-1/2 z-[51] bg-background text-foreground border border-border rounded-lg shadow-xl w-full max-w-lg"
         >
           <div class="flex items-center border-b border-border px-4">
             <svg

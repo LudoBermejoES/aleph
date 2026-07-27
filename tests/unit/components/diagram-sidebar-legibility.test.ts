@@ -13,15 +13,31 @@ import { CAMPAIGN_THEMES } from '../../../app/utils/themes'
  * `<div>`. So every element in that subtree without its own `text-*` token
  * inherited the UA default (black) while sitting on a themed `bg-background`.
  *
+ * The same root cause reaches every *portalled* surface — a `<Teleport>` or a reka-ui
+ * `*Portal` moves its subtree to `<body>`, i.e. outside the layout root div, so the layout's
+ * `text-foreground` never applies to it. Dialogs, sheets and the Ctrl+K palette all landed
+ * there with `bg-background` and no foreground token. Those are guarded below too.
+ *
  * Two properties are locked down here:
- *   1. the structural one — every layout establishes a theme-aware text colour,
- *      and no component reintroduces an unthemed literal surface;
+ *   1. the structural one — every layout establishes a theme-aware text colour, every
+ *      portalled surface pairs its background token with a foreground token, and no
+ *      component reintroduces an unthemed literal surface;
  *   2. the numeric one — the tokens involved clear WCAG AA (4.5:1 for body text)
  *      in every theme in the registry, not just the one in the bug report.
  */
 
 const root = resolve(__dirname, '../../..')
 const read = (p: string) => readFileSync(resolve(root, p), 'utf-8')
+
+function sourceFiles(dir: string, exts = ['.vue']): string[] {
+  const out: string[] = []
+  for (const name of readdirSync(dir)) {
+    const full = join(dir, name)
+    if (statSync(full).isDirectory()) out.push(...sourceFiles(full, exts))
+    else if (exts.some((e) => name.endsWith(e))) out.push(full)
+  }
+  return out
+}
 
 /**
  * Strip HTML/JS comments before asserting on class names. Without this, a comment
@@ -63,15 +79,7 @@ describe('every layout establishes a theme-aware text colour', () => {
 })
 
 describe('no component paints an unthemed literal surface', () => {
-  function vueFiles(dir: string): string[] {
-    const out: string[] = []
-    for (const name of readdirSync(dir)) {
-      const full = join(dir, name)
-      if (statSync(full).isDirectory()) out.push(...vueFiles(full))
-      else if (name.endsWith('.vue')) out.push(full)
-    }
-    return out
-  }
+  const vueFiles = (dir: string) => sourceFiles(dir)
 
   it('no opaque literal-colour surface class anywhere under app/', () => {
     // A literal-white surface combined with the themed foreground tokens used
@@ -82,6 +90,83 @@ describe('no component paints an unthemed literal surface', () => {
     const offenders = vueFiles(resolve(root, 'app'))
       .filter((f) => /\bbg-(white|black)\b(?!\/)/.test(stripComments(readFileSync(f, 'utf-8'))))
       .map((f) => f.slice(root.length + 1))
+    expect(offenders).toEqual([])
+  })
+})
+
+// ---------------------------------------------------------------------------
+// 1b. Portalled surfaces — the layout's text colour cannot reach them
+// ---------------------------------------------------------------------------
+
+/**
+ * Every file under app/ that moves a subtree out of the layout root — a Vue `<Teleport>`
+ * or a reka-ui `*Portal` — mapped to the token pairs its own surface classes must carry.
+ * `[]` means the file portals but paints no surface itself, so there is nothing to pair
+ * here (the pair, if any, is asserted separately).
+ *
+ * The list is checked for completeness against the filesystem below: a NEW portalled
+ * component fails that check, which is the point. Discovering it late is how DialogContent
+ * kept `bg-background` alone through twelve themes.
+ */
+const PORTALLED: Record<string, string[]> = {
+  'app/components/ui/dialog/DialogContent.vue': ['bg-background text-foreground'],
+  'app/components/ui/dialog/DialogScrollContent.vue': ['bg-background text-foreground'],
+  'app/components/ui/sheet/SheetContent.vue': [],
+  'app/components/ui/dropdown-menu/DropdownMenuContent.vue': [
+    'bg-popover p-1 text-popover-foreground',
+  ],
+  'app/components/ui/dropdown-menu/index.ts': [],
+  'app/components/SearchCommand.vue': ['bg-background text-foreground'],
+  'app/components/ErrorToast.vue': ['bg-destructive text-destructive-foreground'],
+}
+
+describe('every portalled surface pairs its background with a foreground token', () => {
+  it('the audited list still matches what actually portals under app/', () => {
+    const found = sourceFiles(resolve(root, 'app'), ['.vue', '.ts'])
+      .filter((f) => /<Teleport|\b\w*Portal\b/.test(stripComments(readFileSync(f, 'utf-8'))))
+      .map((f) => f.slice(root.length + 1))
+      .sort()
+    expect(
+      found,
+      'A file portals out of the layout root but is not in PORTALLED. Add it, and give it ' +
+        'a bg/text token pair — the layout root div is the only place this app declares ' +
+        '`color`, so a portalled subtree inherits the UA default black instead.',
+    ).toEqual(Object.keys(PORTALLED).sort())
+  })
+
+  for (const [file, pairs] of Object.entries(PORTALLED)) {
+    for (const pair of pairs) {
+      it(`${file}: carries '${pair}'`, () => {
+        expect(stripComments(read(file))).toContain(pair)
+      })
+    }
+  }
+
+  it('sheetVariants pairs bg-background with text-foreground', () => {
+    // SheetContent's surface lives in the cva base, not the component.
+    expect(stripComments(read('app/components/ui/sheet/index.ts'))).toContain(
+      'bg-background text-foreground',
+    )
+  })
+
+  it('no caller swaps a portalled background without swapping the foreground', () => {
+    // `cn`/tailwind-merge keeps only the caller's token per pair, so overriding
+    // `bg-background` alone strands the base `text-foreground` on a surface it was not
+    // measured against: `--foreground` on `--sidebar-background` is 1.22-1.33:1 in the
+    // three light themes, so the mobile sidebar sheet would have broken the other way.
+    const offenders: string[] = []
+    for (const f of sourceFiles(resolve(root, 'app'))) {
+      const source = stripComments(readFileSync(f, 'utf-8'))
+      for (const tag of source.matchAll(
+        /<(?:SheetContent|DialogContent|DialogScrollContent)\b[\s\S]*?>/g,
+      )) {
+        const attr = tag[0].match(/\bclass="([^"]*)"/)
+        if (!attr) continue
+        if (/\bbg-[\w-]+/.test(attr[1]!) && !/\btext-[\w-]*foreground\b/.test(attr[1]!)) {
+          offenders.push(`${f.slice(root.length + 1)}: class="${attr[1]}"`)
+        }
+      }
+    }
     expect(offenders).toEqual([])
   })
 })
@@ -198,6 +283,45 @@ describe('sidebar body text clears WCAG AA in every registered theme', () => {
         ratio,
         `${theme}: popover body text would be ${ratio.toFixed(2)}:1`,
       ).toBeGreaterThanOrEqual(AA_BODY)
+    })
+
+    it(`${theme}: --sidebar-foreground on --sidebar-background >= ${AA_BODY}:1`, () => {
+      // The pair layouts/default.vue hands the mobile navigation sheet.
+      const t = tokensFor(theme)
+      const ratio = contrast(
+        triplet(t['--sidebar-foreground']!),
+        triplet(t['--sidebar-background']!),
+      )
+      expect(
+        ratio,
+        `${theme}: mobile sidebar sheet text would be ${ratio.toFixed(2)}:1`,
+      ).toBeGreaterThanOrEqual(AA_BODY)
+    })
+  }
+})
+
+describe('a portalled background override must bring its own foreground', () => {
+  // Why layouts/default.vue passes `text-sidebar-foreground` rather than leaning on
+  // sheetVariants' `text-foreground`: on the sidebar surface that token is the WRONG one,
+  // and in the light themes it is as unreadable as the bug this all started from. Asserting
+  // the failure keeps the pairing from being "simplified" away later.
+  const wrongOnSidebar = THEMES.filter((theme) => {
+    const t = tokensFor(theme)
+    return contrast(triplet(t['--foreground']!), triplet(t['--sidebar-background']!)) < AA_BODY
+  })
+
+  it('--foreground fails AA on --sidebar-background in the light themes', () => {
+    expect(wrongOnSidebar.length).toBeGreaterThanOrEqual(3)
+    expect(wrongOnSidebar).toContain('high-fantasy')
+  })
+
+  for (const theme of wrongOnSidebar) {
+    it(`${theme}: --sidebar-foreground beats --foreground on --sidebar-background`, () => {
+      const t = tokensFor(theme)
+      const bg = triplet(t['--sidebar-background']!)
+      expect(contrast(triplet(t['--sidebar-foreground']!), bg)).toBeGreaterThan(
+        contrast(triplet(t['--foreground']!), bg),
+      )
     })
   }
 })
