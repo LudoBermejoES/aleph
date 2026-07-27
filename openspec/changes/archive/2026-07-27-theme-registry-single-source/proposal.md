@@ -104,9 +104,11 @@ already correct and are **not** touched.
 **Server API / data model / migrations:** none. No endpoint, schema, or column changes.
 
 **aleph-cli (explicitly assessed per project rules):** **no impact.** No API endpoint, auth flow,
-or data model changes here. The CLI has no theme command and the `campaigns.theme` column is
-untouched, so `cli/src/commands/`, `cli/src/lib/client.js`, `config.js`, the login/logout flows,
-`docs/claude-skill.md`, and `.claude/skills/aleph-cli/SKILL.md` all stay as they are.
+or data model changes here. The CLI does have a theme surface — `aleph campaign create --theme`
+(`cli/src/commands/campaign.js:35`) — but it is an unvalidated pass-through holding no enumeration of
+slugs, and the `campaigns.theme` column is untouched, so `cli/src/commands/`, `cli/src/lib/client.js`,
+`config.js`, the login/logout flows, `docs/claude-skill.md`, and `.claude/skills/aleph-cli/SKILL.md`
+all stay as they are.
 
 **i18n:** none. No new user-facing strings; theme display names already live in the registry.
 

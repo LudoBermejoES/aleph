@@ -139,8 +139,17 @@
       must still be 0 failed after. This change must add none.
 - [x] 4.6 No E2E run needed: `tests/e2e/campaign-themes.spec.ts` covers behaviour that does not
       change.
-- [x] 4.7 aleph-cli: nothing to do, and confirm so. No endpoint, auth flow, or data-model change,
-      no theme command in the CLI, so `cli/`, `docs/claude-skill.md`, and
-      `.claude/skills/aleph-cli/SKILL.md` need no update and no skill version bump.
+- [x] 4.7 aleph-cli: nothing to do, and confirm so. Correcting the reason this task and the proposal
+      originally gave — "the CLI has no theme command" is **false**. `aleph campaign create` takes
+      `--theme <theme>` (`cli/src/commands/campaign.js:35`) and `campaign show` prints
+      `data.theme || 'default'` (line 64). The conclusion survives the correction: the option is an
+      unvalidated pass-through to `POST /api/campaigns`, the CLI holds no enumeration of theme slugs
+      (`grep -rn 'CAMPAIGN_THEMES\|dark-fantasy' cli/` finds only two illustrative slugs in the
+      option's own help string), and the display fallback matches the unchanged
+      `Theme stored per campaign` requirement. No endpoint, auth flow, or data-model change here, so
+      `cli/`, `docs/claude-skill.md`, and `.claude/skills/aleph-cli/SKILL.md` need no update and no
+      skill version bump.
 - [x] 4.8 Archive with `openspec archive theme-registry-single-source` **only after** groups 1–3
-      land. Leaving it active with unticked tasks is correct until then.
+      land. Leaving it active with unticked tasks is correct until then. Archived per this repo's
+      `/opsx:archive` step 5 (a folder move; the delta→main-spec merge is the agent-driven step 4,
+      verified against the `9bde8c3` guard before the move).
