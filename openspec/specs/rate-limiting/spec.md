@@ -2,13 +2,13 @@
 
 ## Purpose
 
-Hardens the API against abuse and cross-site attacks: per-IP rate limiting on every endpoint, classified by HTTP method so that image reads and image writes draw on separate budgets, with stricter caps on auth and upload routes, the health endpoint exempt and expired entries pruned amortized; CSRF tokens issued and validated for cookie-based sessions with `SameSite=Strict` session cookies; and uploaded files verified by magic bytes against their declared MIME type.
+Hardens the API against abuse and cross-site attacks: per-IP rate limiting on every endpoint, applied ahead of authentication so that unauthenticated traffic is metered too, classified by HTTP method so that image reads and image writes draw on separate budgets, with stricter caps on auth and upload routes, the health endpoint exempt and expired entries pruned amortized; CSRF tokens issued and validated for cookie-based sessions with `SameSite=Strict` session cookies; and uploaded files verified by magic bytes against their declared MIME type.
 
 ## Requirements
 
 ### Requirement: Per-IP rate limiting on all API endpoints
 
-The system SHALL enforce per-IP rate limiting on all API endpoints via `server/middleware/02.rate-limit.ts`. Requests exceeding the limit SHALL receive HTTP 429 with a `Retry-After` header. The general allowance SHALL be 1000 requests per 60 seconds per IP.
+The system SHALL enforce per-IP rate limiting on all API endpoints via `server/middleware/00.rate-limit.ts`. Requests exceeding the limit SHALL receive HTTP 429 with a `Retry-After` header. The general allowance SHALL be 1000 requests per 60 seconds per IP.
 
 #### Scenario: Normal usage within limits succeeds
 
@@ -36,6 +36,31 @@ The system SHALL enforce per-IP rate limiting on all API endpoints via `server/m
 - **GIVEN** an SSR page render calls an API route in-process, with no socket peer and no forwarding header
 - **WHEN** the rate limit middleware runs
 - **THEN** the request is not counted, so internal renders for different users do not share a single bucket
+
+---
+
+### Requirement: The rate limiter runs before authentication
+
+Nitro runs `server/middleware/` in filename order (`scanDir()` ends with `.sort((a, b) => a.path.localeCompare(b.path))`), and the authentication middleware throws HTTP 401 for every `/api/*` request that carries no valid session or API key. The rate limit middleware's filename SHALL therefore sort before the authentication middleware's, so that unauthenticated traffic is counted instead of being rejected uncounted. Running first SHALL be sound by construction: the limiter SHALL take no input from authentication, keying only on the client IP and on `classifyRequest(path, method)` and reading neither `event.context.user` nor `event.context.session`. The ordering SHALL be pinned by a test that identifies the two middlewares by behaviour rather than by name and asserts the order under Nitro's own comparator.
+
+#### Scenario: An unauthenticated flood is metered
+
+- **GIVEN** a client that sends neither a session cookie nor an API key
+- **WHEN** it sends more requests to a non-auth endpoint than that endpoint's bucket allows in 60 seconds
+- **THEN** the excess requests return HTTP 429 rather than only HTTP 401, so the flood is bounded instead of unmetered
+- **AND** at most the bucket's allowance of requests per minute per IP pay a pre-auth session or API-key lookup
+
+#### Scenario: Unauthenticated traffic is charged to the bucket its path and method classify to
+
+- **GIVEN** that before authentication there is no identity to bucket on, and the only pre-auth signal — whether a cookie or `X-API-Key` header is present — is supplied by the caller
+- **WHEN** an unauthenticated request to a non-auth endpoint is counted
+- **THEN** it is charged to the same bucket as the identical authenticated request, with no separate anonymous bucket that a junk credential could opt into
+
+#### Scenario: Moving the limiter back behind authentication fails the test suite
+
+- **GIVEN** the ordering test locates the limiter by its construction of rate limiters and the authentication middleware by the HTTP 401 it throws
+- **WHEN** the limiter is renamed so that it sorts after the authentication middleware
+- **THEN** the test fails, naming both files and the reason the order matters
 
 ---
 
