@@ -119,6 +119,9 @@
               />{{ sessionStatusLabel(s.status) }}</span
             >
           </div>
+          <span v-if="s.scheduledDate" class="text-xs text-muted-foreground">{{
+            new Date(s.scheduledDate).toLocaleDateString()
+          }}</span>
         </NuxtLink>
       </div>
     </div>
