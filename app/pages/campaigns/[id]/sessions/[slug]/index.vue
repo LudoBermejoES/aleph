@@ -33,6 +33,26 @@
               class="text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground"
               >{{ session.groupName }}</span
             >
+            <!-- Which arc (and chapter) this session belongs to; the arc links to its page. -->
+            <NuxtLink
+              v-if="session.arcName && session.arcSlug"
+              :to="`/campaigns/${campaignId}/arcs/${session.arcSlug}`"
+              class="text-xs px-2 py-0.5 rounded bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+              data-testid="session-arc-badge"
+              >{{ session.arcName }}</NuxtLink
+            >
+            <span
+              v-else-if="session.arcName"
+              class="text-xs px-2 py-0.5 rounded bg-primary/10 text-primary"
+              data-testid="session-arc-badge"
+              >{{ session.arcName }}</span
+            >
+            <span
+              v-if="session.chapterName"
+              class="text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground"
+              data-testid="session-chapter-badge"
+              >{{ session.chapterName }}</span
+            >
             <span v-if="session.scheduledDate" class="text-xs text-muted-foreground">{{
               new Date(session.scheduledDate).toLocaleString()
             }}</span>

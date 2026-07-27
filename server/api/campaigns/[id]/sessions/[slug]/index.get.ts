@@ -39,9 +39,16 @@ export default defineEventHandler((event) =>
     // Arc/chapter names, same idiom as groupName above, so this response and the list
     // response agree on which name fields exist.
     let arcName: string | null = null
+    // The slug comes along so a client can link to the arc without a second request.
+    let arcSlug: string | null = null
     if (session.arcId) {
-      const arc = db.select({ name: arcs.name }).from(arcs).where(eq(arcs.id, session.arcId)).get()
+      const arc = db
+        .select({ name: arcs.name, slug: arcs.slug })
+        .from(arcs)
+        .where(eq(arcs.id, session.arcId))
+        .get()
       arcName = arc?.name ?? null
+      arcSlug = arc?.slug ?? null
     }
 
     let chapterName: string | null = null
@@ -95,6 +102,7 @@ export default defineEventHandler((event) =>
       ...session,
       groupName,
       arcName,
+      arcSlug,
       chapterName,
       attendance,
       hasContent,

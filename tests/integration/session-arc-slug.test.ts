@@ -568,6 +568,9 @@ describe('Session list arc filter and name projection (integration)', () => {
     expect(s.chapterName).toBe(MARKET_LIST)
     // The list and single-session responses must agree on which name fields exist.
     expect(s.groupName).toBe('Main Table')
+    // `arcSlug` rides along so a client can link to the arc without a second request —
+    // the session page's arc badge is a link and depends on it.
+    expect(s.arcSlug).toBe('act-i')
   })
 
   it('single-session GET reports null names when unassigned', async () => {
@@ -578,6 +581,7 @@ describe('Session list arc filter and name projection (integration)', () => {
     const s = (await res.json()) as Row
     expect(s.arcId).toBeNull()
     expect(s.arcName).toBeNull()
+    expect(s.arcSlug).toBeNull()
     expect(s.chapterName).toBeNull()
   })
 
