@@ -396,3 +396,26 @@
   --theme-heading-decoration: '★ ';
   --theme-animation: none;
 }
+
+/* --- mage-ascension ---
+   Fonts follow the wod20_web reading site rather than inventing a new pair:
+   Marcellus for headings (Roman capitals, occult-formal without being a costume)
+   and Sorts Mill Goudy for body, which that site uses precisely because it holds
+   up over thousands of words of chronicle. Both are distinct from the Cinzel /
+   Cinzel Decorative / Uncial Antiqua already spoken for by other themes.
+   The background motif is a faint lattice of circles — the Spheres seen edge-on
+   through the Consensus — and the heading mark is a sphere glyph. */
+[data-theme='mage-ascension'] {
+  --theme-font-heading: 'Marcellus', serif;
+  --theme-font-body: 'Sorts Mill Goudy', serif;
+  --theme-font-weight-heading: 400;
+  --theme-letter-spacing: 0.05em;
+  --theme-text-transform: none;
+
+  --theme-bg-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44'%3E%3Cg fill='none' stroke='%23c084fc' stroke-opacity='0.06' stroke-width='0.6'%3E%3Ccircle cx='22' cy='22' r='9'/%3E%3Ccircle cx='0' cy='0' r='9'/%3E%3Ccircle cx='44' cy='0' r='9'/%3E%3Ccircle cx='0' cy='44' r='9'/%3E%3Ccircle cx='44' cy='44' r='9'/%3E%3C/g%3E%3C/svg%3E");
+
+  --theme-card-shadow: 0 0 16px hsl(271 91% 60% / 0.18);
+  --theme-card-border: 1px solid hsl(271 60% 45% / 0.35);
+  --theme-heading-decoration: '◈ ';
+  --theme-animation: none;
+}

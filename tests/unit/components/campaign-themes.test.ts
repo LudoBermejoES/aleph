@@ -9,7 +9,7 @@ describe('CAMPAIGN_THEMES constants', () => {
   })
 
   it('includes all 11 themes', () => {
-    expect(CAMPAIGN_THEMES).toHaveLength(11)
+    expect(CAMPAIGN_THEMES).toHaveLength(12)
   })
 
   it('includes the superhero theme', () => {
@@ -74,5 +74,25 @@ describe('Theme slug validation', () => {
     expect(resolve('unknown-theme')).toBe('default')
     expect(resolve('cyberpunk')).toBe('cyberpunk')
     expect(resolve('superhero')).toBe('superhero')
+  })
+
+  it('includes the Mage: The Ascension theme with its violet/gold swatches', () => {
+    const mage = CAMPAIGN_THEMES.find((t) => t.id === 'mage-ascension')
+    expect(mage).toBeDefined()
+    expect(mage?.name).toBe('Mage: The Ascension')
+    // Carried over from wod20_web's [data-theme='mage'] so the two properties agree.
+    expect(mage?.colors.background).toBe('#140b1f')
+    expect(mage?.colors.primary).toBe('#c084fc')
+    expect(mage?.colors.accent).toBeTruthy()
+  })
+
+  it('gives every theme a distinct id and a full swatch triple', () => {
+    const ids = CAMPAIGN_THEMES.map((t) => t.id)
+    expect(new Set(ids).size).toBe(ids.length)
+    for (const t of CAMPAIGN_THEMES) {
+      expect(t.colors.background).toMatch(/^#[0-9a-f]{6}$/i)
+      expect(t.colors.primary).toMatch(/^#[0-9a-f]{6}$/i)
+      expect(t.colors.accent).toMatch(/^#[0-9a-f]{6}$/i)
+    }
   })
 })

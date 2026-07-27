@@ -64,4 +64,9 @@ export const CAMPAIGN_THEMES: CampaignTheme[] = [
     name: 'Superhero',
     colors: { background: '#080f24', primary: '#ffd700', accent: '#cc2200' },
   },
+  {
+    id: 'mage-ascension',
+    name: 'Mage: The Ascension',
+    colors: { background: '#140b1f', primary: '#c084fc', accent: '#d9a534' },
+  },
 ]

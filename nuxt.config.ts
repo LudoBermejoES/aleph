@@ -122,6 +122,9 @@ export default defineNuxtConfig({
       // fey-wilds
       { name: 'Pacifico', provider: 'google', global: true },
       { name: 'Nunito', provider: 'google', global: true },
+      // mage-ascension
+      { name: 'Marcellus', provider: 'google', global: true },
+      { name: 'Sorts Mill Goudy', provider: 'google', global: true },
       // undead (Kult style)
       { name: 'Spectral', provider: 'google', global: true },
       // superhero

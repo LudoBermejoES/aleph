@@ -437,3 +437,39 @@ body {
   --sidebar-border: 220 60% 20%;
   --sidebar-ring: 50 100% 55%;
 }
+
+/* Mage: The Ascension — deep violet with arcane gold. The palette is carried over
+   from the wod20_web reading site's `[data-theme='mage']` (#140b1f ground, #ece6f5
+   text, #c084fc accent) so the two properties agree, translated to this file's HSL
+   triplets and extended to the full token set. Gold is the second accent (arcane
+   brass); `destructive` stays conventionally red so error states still read as
+   errors rather than as Paradox. Body text is 15.5:1 on the ground, muted 8.4:1. */
+[data-theme='mage-ascension'] {
+  --background: 268 48% 7%;
+  --foreground: 270 40% 92%;
+  --card: 268 42% 11%;
+  --card-foreground: 270 40% 92%;
+  --popover: 268 42% 11%;
+  --popover-foreground: 270 40% 92%;
+  --primary: 271 91% 75%;
+  --primary-foreground: 270 60% 12%;
+  --secondary: 268 30% 18%;
+  --secondary-foreground: 270 40% 92%;
+  --muted: 268 30% 18%;
+  --muted-foreground: 268 30% 72%;
+  --accent: 43 74% 55%;
+  --accent-foreground: 268 48% 10%;
+  --destructive: 0 62% 42%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 268 30% 22%;
+  --input: 268 30% 22%;
+  --ring: 271 91% 75%;
+  --sidebar-background: 270 50% 5%;
+  --sidebar-foreground: 270 35% 82%;
+  --sidebar-primary: 271 91% 72%;
+  --sidebar-primary-foreground: 270 60% 10%;
+  --sidebar-accent: 268 35% 15%;
+  --sidebar-accent-foreground: 270 40% 90%;
+  --sidebar-border: 268 30% 18%;
+  --sidebar-ring: 271 91% 75%;
+}

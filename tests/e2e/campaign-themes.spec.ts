@@ -14,6 +14,7 @@ const THEME_FONTS: Record<string, { heading: string; body: string }> = {
   'fey-wilds': { heading: 'Pacifico', body: 'Nunito' },
   undead: { heading: 'Crimson Text', body: 'Spectral' },
   superhero: { heading: 'Bangers', body: 'Exo 2' },
+  'mage-ascension': { heading: 'Marcellus', body: 'Sorts Mill Goudy' },
 }
 
 test.describe('Campaign Themes', () => {

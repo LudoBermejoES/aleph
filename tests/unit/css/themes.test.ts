@@ -15,6 +15,7 @@ const THEMES = [
   'fey-wilds',
   'undead',
   'superhero',
+  'mage-ascension',
 ]
 
 // Extract the token block for a theme: find the [data-theme='x'] { block that
