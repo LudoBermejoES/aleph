@@ -22,7 +22,10 @@
         />
         <span v-else class="text-sm">{{ typeIcon(entity.entityType) }}</span>
       </div>
-      <span class="text-sm flex-1 min-w-0 truncate">{{ entity.name }}</span>
+      <!-- An entity name is the card's primary content, so it carries `text-foreground`
+           explicitly rather than inheriting: brighter than the group heading's
+           `text-muted-foreground` above, which is metadata. -->
+      <span class="text-sm text-foreground flex-1 min-w-0 truncate">{{ entity.name }}</span>
       <span
         v-if="badgeCount(entity.id) > 0"
         class="text-xs bg-primary text-primary-foreground rounded-full w-5 h-5 flex items-center justify-center shrink-0"

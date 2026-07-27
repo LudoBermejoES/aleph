@@ -1,8 +1,13 @@
 <template>
+  <!-- `bg-popover text-popover-foreground` is the token pair, as in
+       ui/dropdown-menu/DropdownMenuContent.vue. This was previously the only
+       literal-white surface in the app, which mixed an unthemed background with
+       the themed foreground tokens used inside it: the summary and tags below
+       (`text-muted-foreground`) landed at 2.32:1 under mage-ascension. -->
   <div
     v-if="visible"
     ref="popoverRef"
-    class="absolute z-50 bg-white rounded-lg shadow-xl border border-border p-4 w-72"
+    class="absolute z-50 bg-popover text-popover-foreground rounded-lg shadow-xl border border-border p-4 w-72"
     :style="{ left: x + 'px', top: y + 'px' }"
     data-testid="entity-popover"
   >
