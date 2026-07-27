@@ -21,6 +21,34 @@
   text-transform: var(--theme-text-transform, none);
 }
 
+/* Heading colour — opt-in per theme via --theme-heading-color.
+   Deliberately NOT folded into the rule above: that selector weighs 0-1-1, so a
+   `color` declaration there would outrank every per-heading utility class
+   (`text-destructive` on the Danger Zone h2, `text-muted-foreground` on the 404
+   h1, `text-foreground` on EmptyState h3) in all twelve themes. `:where()` +
+   `:is()` keep this at plain element weight (0-0-1) instead, so those utilities
+   still win and the fallback `inherit` reproduces today's rendering exactly for
+   every theme that defines no --theme-heading-color. */
+:where([data-theme]) :is(h1, h2, h3) {
+  color: var(--theme-heading-color, inherit);
+}
+
+/* Inside prose bodies (session/entity chronicle), `.prose * { color: inherit }`
+   in main.css weighs 0-1-0 and would swallow the rule above, so re-assert the
+   heading colour at 0-1-1. Same `inherit` fallback, and `.prose *` already
+   forces `inherit` there, so this too is a no-op without the token. */
+:where([data-theme]) .prose :is(h1, h2, h3) {
+  color: var(--theme-heading-color, inherit);
+}
+
+/* MDC renders every markdown heading as `<h2><a href="#slug">…</a></h2>`, so the
+   visible glyphs belong to the anchor, which `.prose a` paints (0-1-1). Match at
+   0-1-2. The fallback repeats `.prose a`'s own declaration verbatim, so themes
+   without the token compute the identical colour they do today. */
+:where([data-theme]) .prose :is(h1, h2, h3) a {
+  color: var(--theme-heading-color, hsl(var(--primary)));
+}
+
 [data-theme] body,
 [data-theme] p {
   font-family: var(--theme-font-body, inherit);
@@ -411,6 +439,12 @@
   --theme-font-weight-heading: 400;
   --theme-letter-spacing: 0.05em;
   --theme-text-transform: none;
+
+  /* Arcane gold headings — the same hsl as this theme's --accent, so titles and
+     accents read as one voice against the violet. 9.78:1 on --background,
+     9.16:1 on --card, 10.02:1 on --sidebar-background (WCAG AA large text
+     needs 3:1; this also clears the 4.5:1 normal-text bar). */
+  --theme-heading-color: hsl(43 74% 55%);
 
   --theme-bg-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44'%3E%3Cg fill='none' stroke='%23c084fc' stroke-opacity='0.06' stroke-width='0.6'%3E%3Ccircle cx='22' cy='22' r='9'/%3E%3Ccircle cx='0' cy='0' r='9'/%3E%3Ccircle cx='44' cy='0' r='9'/%3E%3Ccircle cx='0' cy='44' r='9'/%3E%3Ccircle cx='44' cy='44' r='9'/%3E%3C/g%3E%3C/svg%3E");
 
