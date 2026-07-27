@@ -62,7 +62,43 @@ Archive a completed change in the experimental workflow.
    - If changes needed: "Sync now (recommended)", "Archive without syncing"
    - If already synced: "Archive now", "Sync anyway", "Cancel"
 
-   If user chooses sync, use Task tool (subagent_type: "general-purpose", prompt: "Use Skill tool to invoke openspec-sync-specs for change '<name>'. Delta spec analysis: <include the analyzed delta spec summary>"). Proceed to archive regardless of choice.
+   If user chooses sync, use Task tool (subagent_type: "general-purpose", prompt: "Use Skill tool to invoke openspec-sync-specs for change '<name>'. Delta spec analysis: <include the analyzed delta spec summary>").
+
+   **Then VERIFY the sync before going any further. Do not skip this.** The sync is an
+   agent-driven edit of `openspec/specs/<capability>/spec.md`, and it fails silently when
+   it goes wrong — most notoriously when the `openspec-sync-specs` skill is not installed
+   in this repo, in which case the subagent has been known to copy the delta file over the
+   main spec verbatim. That leaves a delta header (`## ADDED Requirements`) where the main
+   spec's `## Purpose` / `## Requirements` sections should be, and openspec's parser then
+   reports **zero requirements** for that capability — silently unenforcing every
+   requirement in it, with nothing in the archive output to hint at it. This happened once
+   across 26 capabilities and hid 179 requirements.
+
+   For **each** capability the sync touched, check its main spec:
+
+   ```bash
+   # 1. It must NOT look like a delta.
+   head -1 "openspec/specs/<capability>/spec.md"   # must not be "## ADDED/MODIFIED/REMOVED Requirements"
+   grep -c '^## \(ADDED\|MODIFIED\|REMOVED\|RENAMED\) Requirements' "openspec/specs/<capability>/spec.md"   # must be 0
+
+   # 2. It must have the merged-spec sections.
+   grep -c '^## Purpose' "openspec/specs/<capability>/spec.md"        # must be 1
+   grep -c '^## Requirements' "openspec/specs/<capability>/spec.md"   # must be 1
+
+   # 3. openspec must actually SEE its requirements — this is the check that matters.
+   openspec validate "<capability>" --type spec --strict
+   ```
+
+   Compare the requirement count openspec reports against `grep -c '^### Requirement:'` on
+   the file. **They must match.** A file-count above the reported count means requirements
+   are parsed as zero and are invisible to `validate`, `list` and `archive`.
+
+   **If any check fails: STOP. Do not archive.** Report exactly which capability is
+   malformed and what is wrong with it. Archiving on top of a broken merge buries the
+   damage, and the CLI will later refuse to archive _into_ that capability at all.
+
+   If the user chose not to sync, skip this verification and proceed — the main specs were
+   deliberately left untouched.
 
 5. **Perform the archive**
 
