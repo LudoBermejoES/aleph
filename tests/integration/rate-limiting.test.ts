@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeAll } from 'vitest'
+import { RATE_LIMITS } from '../../server/utils/rate-limit'
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3333'
 
@@ -62,13 +63,13 @@ describe('Rate Limiting (integration)', () => {
   })
 
   it('returns 429 with Retry-After header when limit is exceeded', async () => {
-    // Fire 101+ requests to exceed the general limit (100/60s)
+    // Fire one more than the general allowance.
     // Use a unique fake IP via X-Forwarded-For to isolate this test
     const fakeIp = `10.0.${(Date.now() >> 4) % 255}.${(Date.now() >> 2) % 255}`
     let got429 = false
     let retryAfter: string | null = null
 
-    for (let i = 0; i < 310; i++) {
+    for (let i = 0; i < RATE_LIMITS.general.maxRequests + 10; i++) {
       const res = await api(`/api/campaigns/${campaignId}`, {
         headers: {
           'X-API-Key': apiKey,
@@ -87,11 +88,35 @@ describe('Rate Limiting (integration)', () => {
     expect(Number(retryAfter)).toBeGreaterThan(0)
   }, 30_000)
 
-  it('auth endpoints have a stricter limit (30/60s)', async () => {
+  // Regression: `GET .../entities/:slug/image` is also the image-SERVING URL.
+  // While the limiter classified by path suffix, every rendered thumbnail spent
+  // a slot from the upload (write) budget, so an upload POST 429'd permanently.
+  it('image GETs do not exhaust the upload budget', async () => {
+    const fakeIp = `10.2.${(Date.now() >> 4) % 255}.${((Date.now() >> 2) % 254) + 1}`
+    const headers = { 'X-API-Key': apiKey, 'X-Forwarded-For': fakeIp }
+
+    // Well past the upload allowance. A 404 (no such entity / no image) still
+    // means the request cleared the rate limiter, which is what we assert on.
+    for (let i = 0; i < 200; i++) {
+      const res = await api(`/api/campaigns/${campaignId}/entities/no-such-entity-${i}/image`, {
+        headers,
+      })
+      expect(res.status).not.toBe(429)
+    }
+
+    const upload = await api(`/api/campaigns/${campaignId}/entities/no-such-entity/image`, {
+      method: 'POST',
+      headers,
+    })
+    expect(upload.status).not.toBe(429)
+  }, 60_000)
+
+  it('auth endpoints have a stricter limit than general', async () => {
+    expect(RATE_LIMITS.auth.maxRequests).toBeLessThan(RATE_LIMITS.general.maxRequests)
     const fakeIp = `10.1.${(Date.now() >> 4) % 255}.${((Date.now() >> 2) % 254) + 1}`
     let got429 = false
 
-    for (let i = 0; i < 35; i++) {
+    for (let i = 0; i < RATE_LIMITS.auth.maxRequests + 5; i++) {
       const res = await api('/api/auth/sign-in/email', {
         method: 'POST',
         headers: { 'X-Forwarded-For': fakeIp },

@@ -2,27 +2,28 @@
 
 ## Purpose
 
-Hardens the API against abuse and cross-site attacks: per-IP rate limiting on every endpoint with stricter caps on auth and file-upload routes, the health endpoint exempt and expired entries pruned amortized; CSRF tokens issued and validated for cookie-based sessions with `SameSite=Strict` session cookies; and uploaded files verified by magic bytes against their declared MIME type.
+Hardens the API against abuse and cross-site attacks: per-IP rate limiting on every endpoint, classified by HTTP method so that image reads and image writes draw on separate budgets, with stricter caps on auth and upload routes, the health endpoint exempt and expired entries pruned amortized; CSRF tokens issued and validated for cookie-based sessions with `SameSite=Strict` session cookies; and uploaded files verified by magic bytes against their declared MIME type.
 
 ## Requirements
 
 ### Requirement: Per-IP rate limiting on all API endpoints
 
-The system SHALL enforce per-IP rate limiting on all API endpoints via `server/middleware/02.rate-limit.ts`. Requests exceeding the limit SHALL receive HTTP 429 with a `Retry-After` header.
+The system SHALL enforce per-IP rate limiting on all API endpoints via `server/middleware/02.rate-limit.ts`. Requests exceeding the limit SHALL receive HTTP 429 with a `Retry-After` header. The general allowance SHALL be 1000 requests per 60 seconds per IP.
 
 #### Scenario: Normal usage within limits succeeds
 
-- **WHEN** a client sends 50 requests in 60 seconds to general API endpoints
+- **WHEN** a client sends 500 requests in 60 seconds to general API endpoints
 - **THEN** all requests are processed normally
 
 #### Scenario: Exceeding general rate limit returns 429
 
-- **WHEN** a client sends 101 requests in 60 seconds to general API endpoints
-- **THEN** the 101st request returns HTTP 429 with `Retry-After` header indicating seconds until the window resets
+- **WHEN** a client sends 1001 requests in 60 seconds to general API endpoints
+- **THEN** the 1001st request returns HTTP 429 with `Retry-After` header indicating seconds until the window resets
 
 #### Scenario: Rate limit is per-IP
 
-- **WHEN** client A sends 100 requests and client B sends 100 requests in 60 seconds
+- **GIVEN** the reverse proxy sets `X-Forwarded-For`
+- **WHEN** client A sends 1000 requests and client B sends 1000 requests in 60 seconds
 - **THEN** both clients are within their individual limits and all requests succeed
 
 #### Scenario: Rate limit window resets after expiry
@@ -30,37 +31,86 @@ The system SHALL enforce per-IP rate limiting on all API endpoints via `server/m
 - **WHEN** a client hits the rate limit, then waits for the window to expire
 - **THEN** subsequent requests succeed
 
+#### Scenario: Server-internal requests are not counted
+
+- **GIVEN** an SSR page render calls an API route in-process, with no socket peer and no forwarding header
+- **WHEN** the rate limit middleware runs
+- **THEN** the request is not counted, so internal renders for different users do not share a single bucket
+
+---
+
+### Requirement: Rate limit bucket is chosen by HTTP method, not by path substring
+
+Several image endpoints answer on the same path for both reads and writes (`GET`/`POST` on `.../entities/:slug/image`, `.../characters/:slug/portrait`, `.../organizations/:slug/image`, `.../session-groups/:slug/image`). The system SHALL classify a request into a rate limit bucket using its HTTP method as well as its path, so that reads are never charged to the upload (write) budget. Classification SHALL live in a pure, unit-testable function (`classifyRequest` in `server/utils/rate-limit.ts`).
+
+#### Scenario: Image serving does not spend the upload budget
+
+- **GIVEN** a campaign page that renders many character portraits and entity images
+- **WHEN** the browser issues more image `GET` requests than the upload allowance
+- **THEN** every `GET` succeeds, and a subsequent image upload `POST` still succeeds
+
+#### Scenario: Upload flooding is still refused
+
+- **WHEN** a client sends more image `POST` requests than the upload allowance in 60 seconds
+- **THEN** the excess requests return HTTP 429
+- **AND** the client's image read budget is unaffected
+
+#### Scenario: No classification rule is dead
+
+- **GIVEN** the set of image routes that actually exist under `server/api/`
+- **WHEN** each route's live path and method are classified
+- **THEN** every classification rule matches at least one real route (no rule keyed on a substring that no route contains)
+
 ---
 
 ### Requirement: Stricter rate limiting on auth endpoints
 
-The system SHALL enforce a stricter rate limit on `/api/auth/*` endpoints: 10 requests per 60 seconds per IP. This prevents brute-force attacks on login.
+The system SHALL enforce a stricter rate limit on `/api/auth/*` endpoints than on general endpoints: 120 requests per 60 seconds per IP. The allowance accounts for `/api/auth/get-session`, which fires on every route navigation, while still capping credential guessing at 2 requests per second per IP.
 
 #### Scenario: Auth rate limit is stricter than general
 
-- **WHEN** a client sends 11 login attempts in 60 seconds
-- **THEN** the 11th request returns HTTP 429
+- **WHEN** a client sends 121 login attempts in 60 seconds
+- **THEN** the 121st request returns HTTP 429
 
 #### Scenario: Auth rate limit does not affect other endpoints
 
-- **WHEN** a client hits the auth rate limit (10 requests)
+- **WHEN** a client hits the auth rate limit
 - **THEN** requests to non-auth endpoints continue to succeed (within general limit)
 
 #### Scenario: Successful login is also rate-limited
 
-- **WHEN** a client sends 10 successful login requests in 60 seconds followed by an 11th
-- **THEN** the 11th returns HTTP 429 (rate limiting is not conditional on success/failure)
+- **WHEN** a client sends 120 successful login requests in 60 seconds followed by a 121st
+- **THEN** the 121st returns HTTP 429 (rate limiting is not conditional on success/failure)
 
 ---
 
 ### Requirement: Stricter rate limiting on file upload endpoints
 
-The system SHALL enforce a rate limit of 20 requests per 60 seconds per IP on file upload endpoints (`**/upload.post.ts`, `**/image.post.ts`, `**/portrait.post.ts`).
+The system SHALL enforce a rate limit of 120 requests per 60 seconds per IP on write requests to image endpoints — paths ending in `/upload`, `/image`, `/images` or `/portrait` with a method other than `GET`, `HEAD` or `OPTIONS`.
 
 #### Scenario: Upload rate limit prevents abuse
 
-- **WHEN** a client sends 21 file upload requests in 60 seconds
-- **THEN** the 21st request returns HTTP 429
+- **WHEN** a client sends 121 file upload requests in 60 seconds
+- **THEN** the 121st request returns HTTP 429
+
+#### Scenario: Bulk portrait upload for a party succeeds
+
+- **GIVEN** a DM uploading portraits for a dozen characters in quick succession
+- **WHEN** the uploads are submitted
+- **THEN** all of them succeed
+
+---
+
+### Requirement: Generous rate limiting on image serving endpoints
+
+The system SHALL apply a separate, higher allowance of 1200 requests per 60 seconds per IP to read requests on image-serving endpoints, including `GET /api/campaigns/:id/images/:filename` and `GET /api/campaigns/:id/maps/:slug/tiles/:z/:x/:y`. Tiled map viewports issue one request per tile per pan and zoom, so image reads must not draw on the general budget.
+
+#### Scenario: Panning a tiled map does not exhaust the general budget
+
+- **GIVEN** a map with tiles across several zoom levels
+- **WHEN** the viewer pans and zooms, issuing several hundred tile `GET` requests
+- **THEN** all tile requests succeed
+- **AND** ordinary API requests from the same client still succeed
 
 ---
 
