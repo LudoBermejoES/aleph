@@ -117,7 +117,12 @@ test.describe('Session AI Generate', () => {
     })
     await page.waitForLoadState('networkidle')
 
-    // On Manual Notes tab (default), no generate button
+    // Select the Manual Notes tab explicitly (Summary is the first/default tab)
+    const manualNotesTab = page.locator('button', { hasText: 'Manual Notes' })
+    await expect(manualNotesTab).toBeVisible({ timeout: 10000 })
+    await manualNotesTab.click()
+
+    // On Manual Notes tab, no generate button
     const generateBtn = page.locator('button', { hasText: /Generate/ })
     await expect(generateBtn).toHaveCount(0)
   })

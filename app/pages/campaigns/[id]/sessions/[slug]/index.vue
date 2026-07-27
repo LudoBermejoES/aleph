@@ -183,9 +183,9 @@ const contentTabsRef = ref<{
 } | null>(null)
 
 const contentTabs = [
+  { key: 'summary', label: t('sessions.content.summary') },
   { key: 'manual_notes', label: t('sessions.content.manualNotes') },
   { key: 'ai_notes', label: t('sessions.content.aiNotes') },
-  { key: 'summary', label: t('sessions.content.summary') },
 ]
 const contentLoading = ref(false)
 const contentDraft = ref<Record<string, string>>({ manual_notes: '', ai_notes: '', summary: '' })
