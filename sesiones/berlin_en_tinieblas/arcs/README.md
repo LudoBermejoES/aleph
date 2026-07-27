@@ -46,6 +46,15 @@ material:
 
 ## Decisiones discutibles
 
+- **Sin capítulos.** aleph admite una jerarquía arco → capítulo → sesión, pero esta
+  campaña no usa capítulos y no va a usarlos: ninguna de las 73 sesiones tiene
+  `chapterId`. Se evaluó una propuesta de dieciséis capítulos para los seis arcos con
+  costuras internas reales y se descartó, porque nada en la interfaz de lectura agrupa
+  las sesiones por capítulo —la página de una sesión no menciona ni su arco— y a ~515
+  palabras por sesión un capítulo sería un bloque de escenas, no un capítulo de libro.
+  La descripción de cada arco, más su nota de frontera, ya hacen ese trabajo. El
+  documento con la propuesta se ha eliminado por no usarse.
+
 - **Diez arcos, no once: los dos arcos de 1943 se han fundido en uno.** El análisis original
   trazó once arcos y mantuvo separados «La ciudad bajo la cúpula» (siete sesiones, el umbral y
   la lonja) y «Los invitados de Klinger» (siete sesiones, la mansión y el regreso), con este
