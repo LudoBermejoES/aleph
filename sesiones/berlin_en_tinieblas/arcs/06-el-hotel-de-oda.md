@@ -11,7 +11,7 @@ Peter invoca en una lengua que implica poder de la misma manera en que una torme
 
 Las alas están abajo, metálicas, fabricadas con esperanza pura para un vuelo que nunca ocurrió. Suben peleando con querubines blandos como el miedo que todavía no ha endurecido, encuentran un escudo y una diadema que a esas criaturas les quita el combustible, y un libro escrito como un cuento infantil: una niña, un edificio, un padre que era el conserje, que bebía, que le pegaba, y que una noche fue a su habitación. La niña no recuerda lo que pasó después. La puerta del último piso se abre cuando le ofrecen las alas, la calma de la diadema y el cuento, y al otro lado hay ojos flotando alrededor de una marca en el suelo con forma de cuerpo, una muchacha sin ojos inmóvil en un rincón de la cama, y una figura que se forma entre los ojos y dice que fue culpa suya, que él la mató.
 
-El padre tumba a Julia y casi acaba con Roland —Carl se pone en medio del golpe—, y es Julia, al levantarse, quien lo termina. El hotel se deshace. El arco cierra en el mundo físico con lo que queda de una vida rescatada: Ona deja la universidad y el doctorado, se instala en la capilla, empieza a ir al psicólogo, y el Doctor de la Peste que quiso salir con ellos acaba siendo un familiar. Detrás de Ona, en su sombra, Peter reconoce a Coyote.
+El padre tumba a Julia y casi acaba con Roland —Carl se pone en medio del golpe—, y es Julia, al levantarse, quien lo termina. El hotel se deshace. El arco cierra en el mundo físico con lo que queda de una vida rescatada: Oda deja la universidad y el doctorado, se instala en la capilla, empieza a ir al psicólogo, y el Doctor de la Peste que quiso salir con ellos acaba siendo un familiar. Detrás de Oda, en su sombra, Peter reconoce a Coyote.
 
 ## Sesiones
 
