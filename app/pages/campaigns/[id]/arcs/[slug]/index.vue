@@ -104,6 +104,9 @@
             class="flex items-center gap-2 p-2 rounded border border-border hover:bg-accent/30 text-sm"
           >
             <span class="font-medium">{{ session.title }}</span>
+            <span v-if="session.scheduledDate" class="text-xs text-muted-foreground">{{
+              new Date(session.scheduledDate).toLocaleDateString()
+            }}</span>
           </NuxtLink>
         </div>
       </section>
@@ -222,6 +225,7 @@
 
 <script setup lang="ts">
 import type { GameSession } from '~/types/api'
+import { sortSessionsByDate } from '~/utils/session-order'
 
 interface Chapter {
   id: string
@@ -315,7 +319,10 @@ async function load() {
       : ((sessionsRes as unknown as { data?: GameSession[] }).data ?? [])
     // arcSlug is deliberately permissive server-side about a duplicated slug; this page
     // is showing one specific arc, so keep only that arc's sessions.
-    linkedSessions.value = rows.filter((s: GameSession) => s.arcId === found.id)
+    // `sessionNumber` does not follow chronological order in aleph (it can be
+    // reassigned independently of when a session was played), so order the list by
+    // `scheduledDate` rather than trust whatever order the API returned.
+    linkedSessions.value = sortSessionsByDate(rows.filter((s: GameSession) => s.arcId === found.id))
   })
 }
 
