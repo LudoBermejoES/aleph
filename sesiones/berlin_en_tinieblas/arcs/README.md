@@ -24,9 +24,10 @@ lado, se dice en la descripción de ese arco en lugar de inventar un arco parale
 | 09  | [La búsqueda de Roland](09-raices-y-mecanismos.md)                 | `raices-y-mecanismos`          | 2022-10-06 → 2023-01-19 | 7        |
 | 10  | [La búsqueda de Salvador](10-la-busqueda-de-salvador.md)           | `la-busqueda-de-salvador`      | 2023-03-09 → 2023-04-13 | 5        |
 | 11  | [La búsqueda de Julia](11-la-busqueda-de-julia.md)                 | `la-busqueda-de-julia`         | 2023-04-20 → 2023-05-25 | 6        |
-|     | **Total**                                                          |                                |                         | **79**   |
+| 12  | [La búsqueda de Philip](12-la-busqueda-de-philip.md)               | `la-busqueda-de-philip`        | 2023-06-01 → 2023-07-13 | 7        |
+|     | **Total**                                                          |                                |                         | **86**   |
 
-5 + 14 + 4 + 8 + 8 + 7 + 9 + 6 + 7 + 5 + 6 = 79.
+5 + 14 + 4 + 8 + 8 + 7 + 9 + 6 + 7 + 5 + 6 + 7 = 86.
 
 > **El arco 09 es el único cuyo slug no se deriva de su nombre.** Se tituló «Raíces y mecanismos»
 > —descriptivo: el ritual de Madre y la máquina del nodo— y de ahí salió el slug
@@ -116,4 +117,7 @@ todo aquí se ordena por `scheduledDate`.
 
 Las búsquedas de personaje se juegan **en jueves**, como el resto de la campaña. El arco 10
 salta el 6 de abril de 2023 —Jueves Santo— y por eso su última sesión cae el día 13; el arco 11
-retoma el jueves siguiente, el 20 de abril, y corre sin saltos hasta el 25 de mayo.
+retoma el jueves siguiente, el 20 de abril, y corre sin saltos hasta el 25 de mayo; y el arco 12
+retoma el jueves siguiente a ése, el 1 de junio, y corre sin saltos hasta el 13 de julio. Las tres
+búsquedas son por tanto **consecutivas y sin semanas muertas** entre ellas, del 9 de marzo al 13
+de julio de 2023.
