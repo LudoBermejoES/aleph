@@ -1,11 +1,11 @@
 # Arcos narrativos — Berlín en tinieblas
 
-Campaña de Mago: la Ascensión 20.º aniversario ambientada en Berlín. 73 sesiones,
-del 9 de abril de 2020 al 13 de abril de 2023, derivadas de las crónicas de
+Campaña de Mago: la Ascensión 20.º aniversario ambientada en Berlín. 79 sesiones,
+del 9 de abril de 2020 al 25 de mayo de 2023, derivadas de las crónicas de
 [`../summary/`](../summary/).
 
 En el esquema de aleph una sesión tiene **exactamente un** `arcId`, así que los arcos
-**particionan** las 73 sesiones: son tramos contiguos de sesiones consecutivas —temporadas,
+**particionan** las 79 sesiones: son tramos contiguos de sesiones consecutivas —temporadas,
 o libros— y no se solapan. Cuando un hilo secundario cruza un arco o lo atraviesa de lado a
 lado, se dice en la descripción de ese arco en lugar de inventar un arco paralelo.
 
@@ -23,9 +23,16 @@ lado, se dice en la descripción de ese arco en lugar de inventar un arco parale
 | 08  | [La casa de las mil puertas](08-la-casa-de-las-mil-puertas.md)     | `la-casa-de-las-mil-puertas`   | 2022-07-07 → 2022-09-22 | 6        |
 | 09  | [Raíces y mecanismos](09-raices-y-mecanismos.md)                   | `raices-y-mecanismos`          | 2022-10-06 → 2023-01-19 | 7        |
 | 10  | [La búsqueda de Salvador](10-la-busqueda-de-salvador.md)           | `la-busqueda-de-salvador`      | 2023-03-09 → 2023-04-13 | 5        |
-|     | **Total**                                                          |                                |                         | **73**   |
+| 11  | [La búsqueda de Julia](11-la-busqueda-de-julia.md)                 | `la-busqueda-de-julia`         | 2023-04-20 → 2023-05-25 | 6        |
+|     | **Total**                                                          |                                |                         | **79**   |
 
-5 + 14 + 4 + 8 + 8 + 7 + 9 + 6 + 7 + 5 = 73.
+5 + 14 + 4 + 8 + 8 + 7 + 9 + 6 + 7 + 5 + 6 = 79.
+
+> **Los arcos 09 y siguientes: el nombre del arco 09 no coincide con su archivo.** En la base
+> de datos de aleph el arco `raices-y-mecanismos` se llama **«La búsqueda de Roland»**, mientras
+> que este directorio lo titula «Raíces y mecanismos». La discrepancia es anterior a los arcos 10
+> y 11 y no se ha tocado aquí; se apunta para que nadie la lea como un error introducido al
+> añadir las búsquedas de personaje.
 
 ## Cómo se han trazado las fronteras
 
@@ -43,11 +50,17 @@ material:
   busca un camino durante el 05 y se resuelve dentro de su cabeza en el 06.
 - **Escenarios cerrados.** La mansión de la Orden de Hermes (08) y el hotel de Oda (06) son
   lugares con entrada, recorrido y salida: se explican solos como arcos.
+- **Búsquedas de personaje.** Los arcos 10 y 11 son de una clase distinta al resto: cada uno
+  lo protagoniza **un solo personaje** y los demás jugadores encarnan a gente ajena a la cábala
+  —las vidas anteriores de Salvador en el 10; los mercenarios de escolta, y luego los
+  estudiantes akáshicos cuyos cuerpos ocupan, en el 11—. La frontera entre ambos no es un
+  cambio de mundo sino un cambio de protagonista, y es nítida porque la cábala se separa a
+  propósito: cada uno se va a preparar por su cuenta.
 
 ## Decisiones discutibles
 
 - **Sin capítulos.** aleph admite una jerarquía arco → capítulo → sesión, pero esta
-  campaña no usa capítulos y no va a usarlos: ninguna de las 73 sesiones tiene
+  campaña no usa capítulos y no va a usarlos: ninguna de las 79 sesiones tiene
   `chapterId`. Se evaluó una propuesta de dieciséis capítulos para los seis arcos con
   costuras internas reales y se descartó, porque nada en la interfaz de lectura agrupa
   las sesiones por capítulo —la página de una sesión no menciona ni su arco— y a ~515
@@ -90,3 +103,7 @@ La campaña **empieza el 9 de abril de 2020**, no en octubre: hay cinco sesiones
 (abril a julio de 2020) que forman el arco 01 y que son las que llevan al grupo hasta la
 puerta. En aleph, además, el campo `sessionNumber` **no** sigue el orden cronológico, así que
 todo aquí se ordena por `scheduledDate`.
+
+Las búsquedas de personaje se juegan **en jueves**, como el resto de la campaña. El arco 10
+salta el 6 de abril de 2023 —Jueves Santo— y por eso su última sesión cae el día 13; el arco 11
+retoma el jueves siguiente, el 20 de abril, y corre sin saltos hasta el 25 de mayo.
