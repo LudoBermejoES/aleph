@@ -1,6 +1,11 @@
-# 09. Raíces y mecanismos
+# 09. La búsqueda de Roland
 
 - **Slug:** `raices-y-mecanismos`
+  <!-- El slug NO se cambia y el nombre del archivo lo sigue: es el identificador real del arco en
+       aleph, y renombrarlo rompería las referencias existentes. Es el único arco donde el slug no
+       es el nombre en minúsculas y con guiones, porque se tituló «Raíces y mecanismos» antes de
+       renombrarse. -->
+- **Nombre anterior:** «Raíces y mecanismos» (descriptivo: el ritual de Madre y la máquina del nodo)
 - **Fechas:** 2022-10-06 → 2023-01-19
 - **Sesiones:** 7
 - **Estado:** completed

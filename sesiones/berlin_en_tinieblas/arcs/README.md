@@ -21,18 +21,20 @@ lado, se dice en la descripción de ese arco en lugar de inventar un arco parale
 | 06  | [El hotel de Oda](06-el-hotel-de-oda.md)                           | `el-hotel-de-oda`              | 2022-01-27 → 2022-03-10 | 7        |
 | 07  | [Los que mueven Berlín](07-los-que-mueven-berlin.md)               | `los-que-mueven-berlin`        | 2022-03-17 → 2022-06-30 | 9        |
 | 08  | [La casa de las mil puertas](08-la-casa-de-las-mil-puertas.md)     | `la-casa-de-las-mil-puertas`   | 2022-07-07 → 2022-09-22 | 6        |
-| 09  | [Raíces y mecanismos](09-raices-y-mecanismos.md)                   | `raices-y-mecanismos`          | 2022-10-06 → 2023-01-19 | 7        |
+| 09  | [La búsqueda de Roland](09-raices-y-mecanismos.md)                 | `raices-y-mecanismos`          | 2022-10-06 → 2023-01-19 | 7        |
 | 10  | [La búsqueda de Salvador](10-la-busqueda-de-salvador.md)           | `la-busqueda-de-salvador`      | 2023-03-09 → 2023-04-13 | 5        |
 | 11  | [La búsqueda de Julia](11-la-busqueda-de-julia.md)                 | `la-busqueda-de-julia`         | 2023-04-20 → 2023-05-25 | 6        |
 |     | **Total**                                                          |                                |                         | **79**   |
 
 5 + 14 + 4 + 8 + 8 + 7 + 9 + 6 + 7 + 5 + 6 = 79.
 
-> **Los arcos 09 y siguientes: el nombre del arco 09 no coincide con su archivo.** En la base
-> de datos de aleph el arco `raices-y-mecanismos` se llama **«La búsqueda de Roland»**, mientras
-> que este directorio lo titula «Raíces y mecanismos». La discrepancia es anterior a los arcos 10
-> y 11 y no se ha tocado aquí; se apunta para que nadie la lea como un error introducido al
-> añadir las búsquedas de personaje.
+> **El arco 09 es el único cuyo slug no se deriva de su nombre.** Se tituló «Raíces y mecanismos»
+> —descriptivo: el ritual de Madre y la máquina del nodo— y de ahí salió el slug
+> `raices-y-mecanismos`. Al renombrarse a **«La búsqueda de Roland»**, que es como se llama en la
+> base de datos y como se llama ya aquí, el slug se dejó intacto **a propósito**: es el
+> identificador real del arco en aleph y renombrarlo rompería las referencias existentes. El
+> nombre del archivo sigue al slug, no al nombre, por la misma razón. En los diez arcos restantes
+> nombre y slug coinciden.
 
 ## Cómo se han trazado las fronteras
 
@@ -50,12 +52,15 @@ material:
   busca un camino durante el 05 y se resuelve dentro de su cabeza en el 06.
 - **Escenarios cerrados.** La mansión de la Orden de Hermes (08) y el hotel de Oda (06) son
   lugares con entrada, recorrido y salida: se explican solos como arcos.
-- **Búsquedas de personaje.** Los arcos 10 y 11 son de una clase distinta al resto: cada uno
-  lo protagoniza **un solo personaje** y los demás jugadores encarnan a gente ajena a la cábala
-  —las vidas anteriores de Salvador en el 10; los mercenarios de escolta, y luego los
-  estudiantes akáshicos cuyos cuerpos ocupan, en el 11—. La frontera entre ambos no es un
-  cambio de mundo sino un cambio de protagonista, y es nítida porque la cábala se separa a
-  propósito: cada uno se va a preparar por su cuenta.
+- **Búsquedas de personaje.** La campaña termina con **tres arcos seguidos** de una clase
+  distinta al resto —09 Roland, 10 Salvador, 11 Julia—: cada uno lo protagoniza **un solo
+  personaje**, y en el 10 y el 11 los demás jugadores encarnan a gente ajena a la cábala (las
+  vidas anteriores de Salvador; los mercenarios de escolta y luego los estudiantes akáshicos
+  cuyos cuerpos ocupan). Las fronteras entre ellos no son cambios de mundo sino cambios de
+  protagonista, y son nítidas porque la cábala se separa a propósito: cada uno se va a preparar
+  por su cuenta. El 09 es el menos puro de los tres y por eso conserva su nota aparte más abajo:
+  además del ritual de Madre lleva dentro la secuencia de botones del nodo nazi y el parón de
+  meses de la campaña.
 
 ## Decisiones discutibles
 
@@ -87,11 +92,16 @@ material:
   casi-Oráculo, el túnel bajo el canal, el simulacro de Hugo y la Príncipe de Berlín parecen
   seis cosas distintas, pero son un solo movimiento: la cábala dejando de reaccionar y
   empezando a acumular palancas en el Berlín del presente.
-- **El arco 09 junta un ritual y una máquina.** El traslado de Madre y la sala del nodo nazi
-  conviven porque son la misma temporada de consolidación, y porque la máquina que Salvador
-  toca ahí es exactamente la que le arrastra al arco 10. El parón de meses de la campaña cae
-  dentro de este arco, no en su frontera: las sesiones del 12 y 19 de enero de 2023 son
-  explícitamente un reencuentro con los asuntos pendientes, no un comienzo nuevo.
+- **El arco 09 junta un ritual y una máquina, y por eso su nombre se discutió.** El traslado de
+  Madre y la sala del nodo nazi conviven porque son la misma temporada de consolidación, y porque
+  la máquina que Salvador toca ahí es exactamente la que le arrastra al arco 10. El parón de meses
+  de la campaña cae dentro de este arco, no en su frontera: las sesiones del 12 y 19 de enero de
+  2023 son explícitamente un reencuentro con los asuntos pendientes, no un comienzo nuevo. Se
+  tituló primero «Raíces y mecanismos», que describe esas dos mitades, y se renombró a **«La
+  búsqueda de Roland»**, que dice de quién es el arco: es Roland quien pide ayuda a Heidy, a quien
+  Madre le rechaza la sangre, y de cuyo árbol sale su propio avatar. El nombre nuevo tiene además
+  la ventaja de dejar a la vista que la campaña acaba con tres búsquedas de personaje seguidas. La
+  pérdida —que el nodo nazi ya no se anuncia en el título— se acepta a cambio de eso.
 - **Ninguna sesión ha sido forzada.** Las dos crónicas de notas escasas (17 de noviembre de
   2022 y 12 de enero de 2023) se apoyan en su contexto: la primera declara ser la continuación
   directa de la secuencia de botones de la anterior, y la segunda declara ser el regreso tras
