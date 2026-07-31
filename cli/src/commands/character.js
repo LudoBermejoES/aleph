@@ -1,6 +1,6 @@
 import { Command } from 'commander'
 import { get, post, put, del, postMultipart, resolveEntitySlug } from '../lib/client.js'
-import { print, success } from '../lib/output.js'
+import { print, success, info } from '../lib/output.js'
 import { existsSync } from 'fs'
 
 /**
@@ -48,6 +48,13 @@ function renderAsciiTree(nodes, edges) {
       process.stdout.write(`${indent}${line}\n`)
     }
   }
+}
+
+/** Render a note timestamp; the server sends epoch millis for `updatedAt`. */
+function formatNoteDate(value) {
+  if (value === null || value === undefined) return '?'
+  const d = new Date(value)
+  return Number.isNaN(d.getTime()) ? String(value) : d.toISOString()
 }
 
 function formatNodeLabel(node) {
@@ -247,6 +254,90 @@ export function makeCharacterCommand() {
         print(data, { json: true })
       } else {
         success(`Character updated: ${slug}`)
+      }
+    })
+
+  // ─── Public notes ───────────────────────────────────────────────────────────
+  // A note is per (character, author). `notes` reads every note on the character; `note-set`
+  // writes only the authenticated key's own note, via `/notes/me`. There is deliberately no
+  // flag that addresses another member's note — the route shape does not allow it.
+
+  cmd
+    .command('notes <slug>')
+    .description("List every public note on a character, with each note's author")
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .option('--json', 'Output as JSON')
+    .action(async (slug, opts) => {
+      const data = await get(`/api/campaigns/${opts.campaign}/characters/${slug}`)
+      const notes = data.notes ?? []
+      if (opts.json) {
+        print(notes, { json: true })
+        return
+      }
+      if (notes.length === 0) {
+        info('(no notes)')
+        return
+      }
+      for (const n of notes) {
+        console.log(`── ${n.authorName ?? n.authorUserId} (${formatNoteDate(n.updatedAt)})`)
+        console.log(n.body)
+        console.log('')
+      }
+    })
+
+  cmd
+    .command('note-show <slug>')
+    .description("Show the authenticated user's own note on a character")
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .option('--json', 'Output as JSON')
+    .action(async (slug, opts) => {
+      const data = await get(`/api/campaigns/${opts.campaign}/characters/${slug}/notes/me`)
+      if (opts.json) {
+        print(data, { json: true })
+      } else if (!data.note) {
+        info('(no note)')
+      } else {
+        console.log(data.note.body)
+      }
+    })
+
+  cmd
+    .command('note-set <slug>')
+    .description("Write the authenticated user's own public note on a character")
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .option('--body <markdown>', 'Note body (markdown)')
+    .option('--stdin', 'Read the note body from stdin')
+    .option('--clear', 'Delete the note (equivalent to an empty body)')
+    .option('--json', 'Output as JSON')
+    .action(async (slug, opts) => {
+      const sources = [opts.body !== undefined, !!opts.stdin, !!opts.clear].filter(Boolean).length
+      if (sources !== 1) {
+        process.stderr.write('Error: provide exactly one of --body, --stdin or --clear\n')
+        process.exit(1)
+      }
+      let body = ''
+      if (opts.stdin) {
+        body = await new Promise((resolve) => {
+          let data = ''
+          process.stdin.setEncoding('utf8')
+          process.stdin.on('data', (chunk) => {
+            data += chunk
+          })
+          process.stdin.on('end', () => resolve(data))
+        })
+      } else if (opts.body !== undefined) {
+        body = opts.body
+      }
+      // An empty or whitespace-only body deletes the note server-side — that is what --clear is
+      const data = await put(`/api/campaigns/${opts.campaign}/characters/${slug}/notes/me`, {
+        body,
+      })
+      if (opts.json) {
+        print(data, { json: true })
+      } else if (data.note) {
+        success(`Note saved on ${slug}`)
+      } else {
+        success(`Note removed from ${slug}`)
       }
     })
 

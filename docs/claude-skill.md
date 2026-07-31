@@ -94,6 +94,15 @@ aleph character update --campaign <id> <slug> [--name <n>] [--type <pc|npc>] [--
 #                       Must be updated for ALL characters (PC and NPC) after each session that involves them.
 #   --backstory       : permanent background (origin, formative events) — rarely changes
 #   --history         : session-by-session chronicle of what has happened over time
+aleph character notes <slug> --campaign <id> [--json]                                  # every public note on the character, with its author
+aleph character note-show <slug> --campaign <id> [--json]                              # only your own note
+aleph character note-set <slug> --campaign <id> (--body <md> | --stdin | --clear) [--json]
+# Public notes are one row per (character, author): every campaign member who can READ the character
+# may write their own note, and no save can overwrite another member's. `note-set` only ever touches
+# your own note — there is no route or flag for editing someone else's.
+#   --clear (or an empty/whitespace-only --body) DELETES your note rather than storing a blank.
+#   A `visitor` gets 403 and the command exits non-zero.
+#   A character you cannot read answers 404 — the same as reading it.
 aleph character upload-portrait --campaign <id> --slug <slug> --file <path>
 aleph character connect <slug> --campaign <id> --target <entity-slug> [--label <text>] [--description <text>] [--json]
 aleph character connections <slug> --campaign <id> [--json]

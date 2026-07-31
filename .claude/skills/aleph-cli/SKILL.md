@@ -4,7 +4,7 @@ description: Use the aleph CLI to manage campaigns, entities, characters, locati
 license: MIT
 metadata:
   author: aleph
-  version: '3.7'
+  version: '3.8'
 ---
 
 You have access to the `aleph` CLI tool at `node /Users/ludo/code/aleph/cli/bin/aleph.js` (or `npm run aleph -- <args>` from the project root). Use it to interact with the running Aleph server.
@@ -90,6 +90,15 @@ node /Users/ludo/code/aleph/cli/bin/aleph.js character update --campaign <id> <s
 #                       Must be updated for ALL characters (PC and NPC) after each session that involves them.
 #   --backstory       : permanent background that doesn't change (origin, formative events)
 #   --history         : session-by-session chronicle of what has happened to the character over time
+node /Users/ludo/code/aleph/cli/bin/aleph.js character notes <slug> --campaign <id> [--json]                                  # every public note on the character, with its author
+node /Users/ludo/code/aleph/cli/bin/aleph.js character note-show <slug> --campaign <id> [--json]                              # only your own note
+node /Users/ludo/code/aleph/cli/bin/aleph.js character note-set <slug> --campaign <id> (--body <md> | --stdin | --clear) [--json]
+# Public notes are one row per (character, author): every campaign member who can READ the character
+# may write their own note, and no save can overwrite another member's. `note-set` only ever touches
+# your own note — there is no route or flag for editing someone else's.
+#   --clear (or an empty/whitespace-only --body) DELETES your note rather than storing a blank.
+#   A `visitor` gets 403 and the command exits non-zero.
+#   A character you cannot read answers 404 — the same as reading it.
 node /Users/ludo/code/aleph/cli/bin/aleph.js character upload-portrait --campaign <id> --slug <slug> --file <path>
 node /Users/ludo/code/aleph/cli/bin/aleph.js character connect <slug> --campaign <id> --target <entity-slug> [--label <text>] [--description <text>] [--json]
 node /Users/ludo/code/aleph/cli/bin/aleph.js character connections <slug> --campaign <id> [--json]
