@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, index } from 'drizzle-orm/sqlite-core'
+import { sqliteTable, text, integer, index, uniqueIndex } from 'drizzle-orm/sqlite-core'
 import { entities } from './entities'
 import { campaigns } from './campaigns'
 import { user } from './auth'
@@ -31,6 +31,38 @@ export const characters = sqliteTable(
     index('idx_characters_owner_user').on(table.ownerUserId),
     index('idx_characters_folder').on(table.folderId),
     index('idx_characters_location').on(table.locationEntityId),
+  ],
+)
+
+/**
+ * Public notes: one row per (character, author).
+ *
+ * Storing a note per author instead of one shared column is what removes the lost update —
+ * two members annotating the same character write different rows, so neither can destroy the
+ * other's text. The unique index is the invariant, not a lookup optimisation: it makes "one
+ * note per person per character" impossible to violate, so a double-submit cannot fork a row.
+ *
+ * Both foreign keys cascade. A note whose character or author no longer exists cannot be
+ * attributed, and an unattributed note on a character page is a rumour, not a note.
+ */
+export const characterNotes = sqliteTable(
+  'character_notes',
+  {
+    id: text('id').primaryKey(),
+    characterId: text('character_id')
+      .notNull()
+      .references(() => characters.id, { onDelete: 'cascade' }),
+    authorUserId: text('author_user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    body: text('body').notNull().default(''),
+    createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+    updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
+  },
+  (table) => [
+    uniqueIndex('character_notes_char_author').on(table.characterId, table.authorUserId),
+    index('idx_character_notes_character').on(table.characterId),
+    index('idx_character_notes_author').on(table.authorUserId),
   ],
 )
 
