@@ -4,9 +4,16 @@
 
 A player who opens a character they do not own and clicks **Edit character** currently hits a
 dead end: `PUT /api/campaigns/:id/characters/:slug` answers `403 You can only edit your own
-character` (`server/api/campaigns/[id]/characters/[slug]/index.put.ts:57`), and the detail page
-never offers the button in the first place — `canEdit` is `['dm','co_dm','editor']` only
-(`app/pages/campaigns/[id]/characters/[slug]/index.vue:570`).
+character` (`server/api/campaigns/[id]/characters/[slug]/index.put.ts:57`).
+
+> **Correction (2026-07-31), found during implementation.** This proposal originally claimed the
+> detail page "never offers the button in the first place — `canEdit` is `['dm','co_dm','editor']`
+> only". **That was wrong.** `canEdit` never gated that link: at `c229f52` the `NuxtLink` at
+> `index.vue:78-81` carries **no `v-if` at all`, and `canEdit`is used only for`:editable` on a
+different element (`:23`). So the button was offered to **everyone, visitors included**, and led
+> straight to the 403. The dead end was worse than described, not milder. This also means the
+> spec's "a visitor sees no editor" scenario was **false before this change\*\* — adding the gate is
+> what makes it true, so that scenario is new behaviour, not a regression guard.
 
 That is correct for the character's own data and wrong for the table's. Players accumulate real
 knowledge about NPCs and about each other's characters — who lied to them, which alias belongs
@@ -91,3 +98,10 @@ This change adds server API endpoints and a data model, so per the project rules
   side-channel that outlives the restriction. This must be asserted by a test, not assumed.
 - **`visitor` writes.** Whether `visitor` may annotate at all is a deliberate decision recorded
   in design.md, not an accident of `hasMinRole`.
+- **A pre-existing stale-permission window that notes INHERIT, found during implementation.**
+  `PUT /characters/:slug` never calls `invalidatePermissionCache()`, and `getCachedPermission`
+  has a 5-minute TTL. A member who read a character _before_ its visibility was narrowed keeps
+  reading it — and now its notes — until the entry expires. This is a read-path gap that public
+  notes inherit rather than create; fixing it means touching `index.put.ts`, which this change
+  forbids. Follow-up, not a blocker, and stated here so nobody reads the visibility-narrowing
+  scenario as a stronger guarantee than it is.
