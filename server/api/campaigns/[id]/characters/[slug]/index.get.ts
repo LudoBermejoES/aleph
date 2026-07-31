@@ -1,23 +1,23 @@
-import { eq, and } from 'drizzle-orm'
+import { eq, desc } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
 import { entities } from '../../../../../db/schema/entities'
+import { user } from '../../../../../db/schema/auth'
 import {
-  characters,
   characterStats,
   statDefinitions,
   statGroups,
   abilities,
+  characterNotes,
 } from '../../../../../db/schema/characters'
 import { readEntityFile, stripSecretBlocks } from '../../../../../services/content'
-import { stripSecretStats, stripSecretAbilities } from '../../../../../services/characters'
+import {
+  stripSecretStats,
+  stripSecretAbilities,
+  resolveReadableCharacter,
+} from '../../../../../services/characters'
 import { autoLinkContent } from '../../../../../services/autolink-render'
 import type { CampaignRole } from '../../../../../utils/permissions'
-import {
-  hasMinRole,
-  canUserAccessEntity,
-  getCachedPermission,
-  setCachedPermission,
-} from '../../../../../utils/permissions'
+import { hasMinRole } from '../../../../../utils/permissions'
 import { withApiHandler } from '../../../../../utils/api-handler'
 
 export default defineEventHandler((event) =>
@@ -38,33 +38,14 @@ export default defineEventHandler((event) =>
       }
     }
 
-    const entity = db
-      .select()
-      .from(entities)
-      .where(and(eq(entities.campaignId, campaignId), eq(entities.slug, slug)))
-      .get()
-    if (!entity) throw createError({ statusCode: 404, message: 'Character not found' })
-
-    // Visibility enforcement
-    const cached = getCachedPermission(userId, entity.id, 'view')
-    const canAccess =
-      cached !== null
-        ? cached
-        : await canUserAccessEntity(
-            db,
-            userId,
-            'user',
-            actualRole,
-            entity.id,
-            entity.visibility,
-            entity.createdBy,
-            'view',
-          )
-    if (cached === null) setCachedPermission(userId, entity.id, 'view', canAccess)
-    if (!canAccess) throw createError({ statusCode: 404, message: 'Character not found' })
-
-    const character = db.select().from(characters).where(eq(characters.entityId, entity.id)).get()
-    if (!character) throw createError({ statusCode: 404, message: 'Character data not found' })
+    // Entity lookup + visibility enforcement, shared verbatim with the /notes/me routes
+    const { entity, character } = await resolveReadableCharacter(
+      db,
+      campaignId,
+      slug,
+      userId,
+      actualRole,
+    )
 
     // Get stats with group info
     const stats = db
@@ -119,6 +100,25 @@ export default defineEventHandler((event) =>
       locationSlug = locationEntity?.slug ?? null
     }
 
+    // Public notes — every note on the character, attributed to its author.
+    // Readable by exactly whoever can read the character: the visibility check above already
+    // gated this, so notes narrow automatically if the character's visibility is narrowed.
+    // Ordered by updatedAt descending so the page and the tests agree on the order.
+    const notes = db
+      .select({
+        id: characterNotes.id,
+        authorUserId: characterNotes.authorUserId,
+        authorName: user.name,
+        body: characterNotes.body,
+        createdAt: characterNotes.createdAt,
+        updatedAt: characterNotes.updatedAt,
+      })
+      .from(characterNotes)
+      .innerJoin(user, eq(characterNotes.authorUserId, user.id))
+      .where(eq(characterNotes.characterId, character.id))
+      .orderBy(desc(characterNotes.updatedAt))
+      .all()
+
     const autoLink = (text: string | null) =>
       text ? autoLinkContent(text, campaignId, entity.id, db) : null
 
@@ -138,6 +138,7 @@ export default defineEventHandler((event) =>
       currentStatus: autoLink(character.currentStatus ?? null),
       stats: filteredStats,
       abilities: charAbilities,
+      notes,
     }
   }),
 )
