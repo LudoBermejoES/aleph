@@ -14,9 +14,18 @@
       }}</NuxtLink>
       <span>/</span><span>{{ $t('common.edit') }}</span>
     </div>
-    <h1 class="text-2xl font-bold mb-6">{{ $t('characters.edit') }}</h1>
+    <h1 class="text-2xl font-bold mb-6">
+      {{ restricted ? $t('characterNotes.editorTitle') : $t('characters.edit') }}
+    </h1>
+
+    <!--
+      Full editor. Rendered ONLY when the caller may edit the character's own data, so in
+      restricted mode every owner-only input (name, type, status, owner, visibility, template
+      fields, backstory, history) is ABSENT from the DOM rather than disabled — a disabled input
+      still ships its value and invites a devtools bypass.
+    -->
     <CharacterForm
-      v-if="loaded"
+      v-if="loaded && !restricted"
       ref="charForm"
       v-model="form"
       :campaign-id="campaignId"
@@ -31,6 +40,42 @@
         >
       </template>
     </CharacterForm>
+
+    <!-- Restricted editor: the note field and nothing else. -->
+    <form
+      v-else-if="loaded && restricted"
+      class="space-y-4"
+      data-testid="character-note-only-form"
+      @submit.prevent="saveNote"
+    >
+      <p class="text-sm text-muted-foreground" data-testid="restricted-editor-explanation">
+        {{ $t('characterNotes.restrictedExplanation') }}
+      </p>
+      <div>
+        <label class="text-sm font-medium" for="character-note-body">{{
+          $t('characterNotes.title')
+        }}</label>
+        <textarea
+          id="character-note-body"
+          v-model="noteBody"
+          data-testid="note-body-input"
+          class="w-full mt-1 px-3 py-2 rounded border border-input bg-background text-sm min-h-[160px] resize-y"
+          :placeholder="$t('characterNotes.placeholder')"
+        ></textarea>
+        <p class="text-xs text-muted-foreground mt-1">{{ $t('characterNotes.emptyDeletes') }}</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <Button type="submit" :disabled="submitting" data-testid="save-note">
+          {{ submitting ? '…' : $t('common.save') }}
+        </Button>
+        <NuxtLink :to="`/campaigns/${campaignId}/characters/${slug}`"
+          ><Button type="button" variant="outline">{{ $t('common.cancel') }}</Button></NuxtLink
+        >
+        <span v-if="noteError" class="text-xs text-destructive" data-testid="note-error">{{
+          noteError
+        }}</span>
+      </div>
+    </form>
   </div>
 </template>
 
@@ -66,9 +111,37 @@ const charForm = ref<{
   clearDraft: () => void
 } | null>(null)
 
+/**
+ * Restricted mode: the caller may annotate but not edit. Decided from data the page already
+ * has — the character's `ownerUserId` and the caller's campaign role — mirroring the server's
+ * `canEditCharacter()`. The UI is not the boundary: the note travels on its own `/notes/me`
+ * endpoint that accepts only `{ body }`, and `PUT /characters/:slug` still answers 403 here.
+ */
+const restricted = ref(false)
+const noteBody = ref('')
+const noteError = ref('')
+
 onMounted(async () => {
   try {
-    const char = await api.getCharacter(slug)
+    // /api/me is awaited explicitly rather than via useCurrentUser(): the ownership comparison
+    // below must not race an unresolved useAsyncData on a client-side navigation.
+    const [char, campaign, me] = await Promise.all([
+      api.getCharacter(slug),
+      api.getCampaign(),
+      $fetch<{ id: string } | null>('/api/me').catch(() => null),
+    ])
+    const role = (campaign as { role?: string })?.role ?? ''
+    const canEditFull =
+      ['dm', 'co_dm', 'editor'].includes(role) ||
+      (role === 'player' && !!char.ownerUserId && char.ownerUserId === me?.id)
+
+    if (!canEditFull && !['dm', 'co_dm', 'editor', 'player'].includes(role)) {
+      // A visitor has no editor at all
+      await router.push(`/campaigns/${campaignId}/characters/${slug}`)
+      return
+    }
+
+    restricted.value = !canEditFull
     form.value = {
       name: char.name || '',
       characterType: char.characterType || 'npc',
@@ -85,6 +158,10 @@ onMounted(async () => {
       birthYear: (char as { birthYear?: number | null }).birthYear ?? null,
       deathYear: (char as { deathYear?: number | null }).deathYear ?? null,
       gender: (char as { gender?: string | null }).gender ?? null,
+    }
+    if (restricted.value) {
+      const mine = await api.getMyCharacterNote(slug).catch(() => ({ note: null }))
+      noteBody.value = mine.note?.body ?? ''
     }
     loaded.value = true
   } catch {
@@ -123,6 +200,21 @@ async function save() {
     await router.push(`/campaigns/${campaignId}/characters/${slug}`)
   } catch (e: unknown) {
     alert((e as { data?: { message?: string } })?.data?.message || t('characters.failedSave'))
+  } finally {
+    submitting.value = false
+  }
+}
+
+/** Restricted save: only the note is submitted, never a character field. */
+async function saveNote() {
+  submitting.value = true
+  noteError.value = ''
+  try {
+    await api.saveMyCharacterNote(slug, noteBody.value)
+    await router.push(`/campaigns/${campaignId}/characters/${slug}`)
+  } catch (e: unknown) {
+    noteError.value =
+      (e as { data?: { message?: string } })?.data?.message || t('characterNotes.failedSave')
   } finally {
     submitting.value = false
   }

@@ -75,7 +75,15 @@
                   $t('characters.genealogy.viewButton')
                 }}</Button>
               </NuxtLink>
-              <NuxtLink :to="`/campaigns/${campaignId}/characters/${slug}/edit`">
+              <!--
+                Offered to anyone who may edit the character OR merely annotate it: a player
+                looking at someone else's character lands in the restricted, note-only editor
+                instead of the old dead end. A visitor is offered nothing.
+              -->
+              <NuxtLink
+                v-if="canEdit || canAnnotate"
+                :to="`/campaigns/${campaignId}/characters/${slug}/edit`"
+              >
                 <Button variant="outline" size="sm" data-testid="edit-character">{{
                   $t('common.edit')
                 }}</Button>
@@ -129,6 +137,17 @@
               <MDC :value="character.currentStatus" />
             </div>
           </div>
+
+          <!-- Public notes (any member who can read the character) -->
+          <CharacterNotesPanel
+            :campaign-id="campaignId"
+            :character-slug="slug"
+            :notes="character.notes ?? []"
+            :can-annotate="canAnnotate"
+            :my-user-id="currentUser?.id ?? null"
+            class="mt-6"
+            @saved="load"
+          />
 
           <!-- Secret Notes (DM only) -->
           <SecretNotes
@@ -546,6 +565,12 @@ const api = useCampaignApi(campaignId)
 const canEdit = ref(false)
 const campaignRole = ref('')
 const isDm = computed(() => ['dm', 'co_dm'].includes(campaignRole.value))
+const { user: currentUser } = useCurrentUser()
+/**
+ * Who may write a public note: everyone but a `visitor`. Deliberately separate from `canEdit`,
+ * which stays `['dm','co_dm','editor']` — annotating must never widen into editing.
+ */
+const canAnnotate = computed(() => ['dm', 'co_dm', 'editor', 'player'].includes(campaignRole.value))
 const contentRef = ref<HTMLElement>()
 const { t } = useI18n()
 const { loadRevealedBlocks, injectRevealButtons } = useSecretReveals(

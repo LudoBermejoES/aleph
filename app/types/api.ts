@@ -112,6 +112,22 @@ export interface Character {
   templateId?: string | null
   fields?: Record<string, unknown>
   frontmatter?: Record<string, unknown>
+  /** Public notes — one per author, readable by whoever can read the character. */
+  notes?: CharacterNote[]
+}
+
+/**
+ * A public note on a character. One row per (character, author), so `authorUserId` is the
+ * identity of the note as much as `id` is.
+ */
+export interface CharacterNote {
+  id: string
+  authorUserId: string
+  /** Present on the character read payload; absent on the caller's own-note route. */
+  authorName?: string
+  body: string
+  createdAt: string | number | Date
+  updatedAt: string | number | Date
 }
 
 export interface CharacterFolder {

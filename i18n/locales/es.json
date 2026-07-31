@@ -151,6 +151,21 @@
       "play": "Juego"
     }
   },
+  "characterNotes": {
+    "title": "Notas públicas",
+    "description": "Lo que la mesa sabe de este personaje. Todos los miembros pueden leerlas; tú escribes la tuya.",
+    "empty": "Aún no hay notas.",
+    "emptyInvite": "Aún no hay notas: añade la primera.",
+    "placeholder": "¿Qué sabes de este personaje?",
+    "save": "Guardar nota",
+    "saved": "Nota guardada",
+    "failedSave": "No se pudo guardar la nota",
+    "you": "(tú)",
+    "emptyDeletes": "Guardar una nota vacía la elimina.",
+    "editorTitle": "Añade tus notas",
+    "restrictedExplanation": "Puedes añadir tus propias notas a este personaje. Sus datos solo puede cambiarlos su propietario o un editor.",
+    "visitorRefused": "Los visitantes no pueden añadir notas."
+  },
   "entity": {
     "uploadImage": "Subir imagen",
     "imageAlt": "Imagen de {name}",

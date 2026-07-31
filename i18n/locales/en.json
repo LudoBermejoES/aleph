@@ -151,6 +151,21 @@
       "play": "Play Info"
     }
   },
+  "characterNotes": {
+    "title": "Public notes",
+    "description": "What the table knows about this character. Every member can read these; you write your own.",
+    "empty": "No notes yet.",
+    "emptyInvite": "No notes yet — add the first one.",
+    "placeholder": "What do you know about this character?",
+    "save": "Save note",
+    "saved": "Note saved",
+    "failedSave": "Could not save the note",
+    "you": "(you)",
+    "emptyDeletes": "Saving an empty note removes it.",
+    "editorTitle": "Add your notes",
+    "restrictedExplanation": "You can add your own notes to this character. Its own details can only be changed by its owner or an editor.",
+    "visitorRefused": "Visitors cannot add notes."
+  },
   "entity": {
     "uploadImage": "Upload image",
     "imageAlt": "{name} image",

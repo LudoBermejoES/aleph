@@ -1,5 +1,5 @@
 <template>
-  <form class="space-y-6" @submit.prevent="$emit('submit')">
+  <form class="space-y-6" data-testid="character-form" @submit.prevent="$emit('submit')">
     <div class="grid grid-cols-2 gap-4">
       <div class="col-span-2">
         <label class="text-sm font-medium">{{ $t('characters.name') }}</label>
