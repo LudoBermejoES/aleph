@@ -1,7 +1,14 @@
 import type { Page } from '@playwright/test'
 import { expect } from '@playwright/test'
 
-export const BASE = 'http://localhost:3333'
+/**
+ * Where the suite points. Defaults to 3333 exactly as before; `E2E_PORT` / `E2E_BASE_URL`
+ * exist because another project's dev server on 3333 silently hijacks the run, and the fix
+ * has to be "point somewhere else", not "kill the other server".
+ * A server started on a non-default port needs `BETTER_AUTH_URL` set to match, since
+ * better-auth only trusts ports 3000, 3001 and 3333 (`server/utils/auth.ts`).
+ */
+export const BASE = process.env.E2E_BASE_URL || `http://localhost:${process.env.E2E_PORT || 3333}`
 
 /**
  * Wait for the page URL to match a pattern (works with SPA navigation).
