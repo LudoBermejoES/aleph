@@ -116,15 +116,11 @@ async function handleFileChange(event: Event) {
   try {
     const form = new FormData()
     form.append('image', file)
-    const res = await fetch(url, {
+    // Use $fetch so Nuxt's CSRF plugin injects x-csrf-token; raw fetch bypasses it.
+    const data = await $fetch<{ imageUrl: string }>(url, {
       method: 'POST',
       body: form,
     })
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}))
-      throw new Error(err.message || `Upload failed (${res.status})`)
-    }
-    const data = await res.json()
     emit('uploaded', data.imageUrl)
   } catch (e) {
     console.error('[EntityImage] upload error', e)

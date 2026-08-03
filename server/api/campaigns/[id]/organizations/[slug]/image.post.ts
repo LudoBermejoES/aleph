@@ -2,7 +2,7 @@ import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
 import { organizations } from '../../../../../db/schema/organizations'
 import { hasMinRole } from '../../../../../utils/permissions'
-import { writeFile, mkdir } from 'fs/promises'
+import { writeFile, mkdir, unlink } from 'fs/promises'
 import { join, extname } from 'path'
 import { detectMimeFromBytes } from '../../../../../utils/sanitize'
 import type { CampaignRole } from '../../../../../utils/permissions'
@@ -70,6 +70,11 @@ export default defineEventHandler(async (event) => {
 
   const imageDir = join(process.cwd(), campaign.contentDir, 'organizations', slug)
   await mkdir(imageDir, { recursive: true })
+  for (const oldExt of ['.png', '.jpg', '.webp']) {
+    if (oldExt !== ext) {
+      await unlink(join(imageDir, `image${oldExt}`)).catch(() => {})
+    }
+  }
   await writeFile(join(imageDir, `image${ext}`), file.data)
 
   const imageUrl = `/api/campaigns/${campaignId}/organizations/${slug}/image`

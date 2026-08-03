@@ -3,7 +3,7 @@ import { useDb } from '../../../../../utils/db'
 import { entities } from '../../../../../db/schema/entities'
 import { characters } from '../../../../../db/schema/characters'
 import { hasMinRole } from '../../../../../utils/permissions'
-import { writeFile, mkdir } from 'fs/promises'
+import { writeFile, mkdir, unlink } from 'fs/promises'
 import { join, extname } from 'path'
 import { detectMimeFromBytes } from '../../../../../utils/sanitize'
 import type { CampaignRole } from '../../../../../utils/permissions'
@@ -74,6 +74,13 @@ export default defineEventHandler(async (event) => {
 
   const portraitDir = join(process.cwd(), campaign.contentDir, 'characters', slug)
   await mkdir(portraitDir, { recursive: true })
+  // Remove any portrait file with a different extension so portrait.get.ts
+  // doesn't serve a stale one (it returns the first extension it finds).
+  for (const oldExt of ['.png', '.jpg', '.webp']) {
+    if (oldExt !== ext) {
+      await unlink(join(portraitDir, `portrait${oldExt}`)).catch(() => {})
+    }
+  }
   await writeFile(join(portraitDir, `portrait${ext}`), file.data)
 
   const portraitUrl = `/api/campaigns/${campaignId}/characters/${slug}/portrait`
