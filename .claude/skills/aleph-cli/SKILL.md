@@ -4,7 +4,7 @@ description: Use the aleph CLI to manage campaigns, entities, characters, locati
 license: MIT
 metadata:
   author: aleph
-  version: '3.9'
+  version: '3.10'
 ---
 
 You have access to the `aleph` CLI tool at `node /Users/ludo/code/aleph/cli/bin/aleph.js` (or `npm run aleph -- <args>` from the project root). Use it to interact with the running Aleph server.
@@ -209,6 +209,11 @@ node /Users/ludo/code/aleph/cli/bin/aleph.js location image-add <slug> --campaig
 node /Users/ludo/code/aleph/cli/bin/aleph.js location image-update <slug> <imageId> --campaign <id> [--caption <text>] [--order <n>]
 node /Users/ludo/code/aleph/cli/bin/aleph.js location image-set-primary <slug> <imageId> --campaign <id>
 node /Users/ludo/code/aleph/cli/bin/aleph.js location image-remove <slug> <imageId> --campaign <id>
+#   MIME type comes from the FILE EXTENSION (png/jpg/jpeg/webp); the server also checks the magic
+#   bytes and answers 400 on a mismatch, so renaming a .gif to .png fails.
+#   --caption travels as a form field, not JSON. `image-update --caption ""` CLEARS the caption.
+#   image-update with neither --caption nor --order fails locally without sending a request.
+#   Deleting the main image promotes the next one; emptying the gallery clears the location image.
 ```
 
 Subtypes: `country`, `region`, `city`, `town`, `village`, `dungeon`, `lair`, `building`, `room`, `wilderness`, `other`

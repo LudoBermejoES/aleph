@@ -45,7 +45,20 @@ npm run aleph roll "2d6+3"
 # Sessions are filed under narrative arcs by slug; '' unsets (and clears the chapter)
 npm run aleph session update <session-slug> --campaign <id> --arc <arc-slug>
 npm run aleph session list --campaign <id> --arc <arc-slug>
+
+# A location holds a gallery. Exactly one image is the main one, and that is the one every
+# other surface shows (list thumbnail, detail header, map pins, graph, search).
+npm run aleph location image-add waterdeep --campaign <id> --file harbour.png --caption "The harbour"
+npm run aleph location images waterdeep --campaign <id>          # '*' marks the main image
+npm run aleph location image-set-primary waterdeep <imageId> --campaign <id>
 ```
+
+The gallery commands are the only ones that upload a file, via `postMultipart()`. Two details
+that bite otherwise: the MIME type is derived from the **file extension** (the server also
+verifies the magic bytes and rejects a mismatch), and `--caption` travels as a second form field
+rather than in a JSON body. `image-update --caption ""` clears a caption instead of storing an
+empty string, and `image-update` with neither `--caption` nor `--order` fails locally without
+sending a request.
 
 ## How it's built
 

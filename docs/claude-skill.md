@@ -219,6 +219,11 @@ aleph location image-add <slug> --campaign <id> --file <path> [--caption <text>]
 aleph location image-update <slug> <imageId> --campaign <id> [--caption <text>] [--order <n>]
 aleph location image-set-primary <slug> <imageId> --campaign <id>
 aleph location image-remove <slug> <imageId> --campaign <id>
+#   MIME type comes from the FILE EXTENSION (png/jpg/jpeg/webp); the server also checks the magic
+#   bytes and answers 400 on a mismatch, so renaming a .gif to .png fails.
+#   --caption travels as a form field, not JSON. `image-update --caption ""` CLEARS the caption.
+#   image-update with neither --caption nor --order fails locally without sending a request.
+#   Deleting the main image promotes the next one; emptying the gallery clears the location image.
 ```
 
 Subtypes: `country`, `region`, `city`, `town`, `village`, `dungeon`, `lair`, `building`, `room`, `wilderness`, `other`

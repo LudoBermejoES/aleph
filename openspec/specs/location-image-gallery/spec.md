@@ -393,31 +393,77 @@ layout. The migration SHALL be idempotent.
 The aleph-cli SHALL expose the gallery through `location` subcommands: `images <slug>` to list,
 `image-add <slug> --file <path> [--caption <text>]` to upload, `image-update <slug> <imageId>
 [--caption <text>] [--order <n>]`, `image-set-primary <slug> <imageId>`, and `image-remove <slug>
-<imageId>`. Both `docs/claude-skill.md` and `.claude/skills/aleph-cli/SKILL.md` SHALL document
-them, with a `version` bump in the local skill's frontmatter.
+<imageId>`. Every one of them SHALL require `--campaign <id>`, and `images`/`image-add` SHALL
+accept `--json`.
+
+Uploading is the only multipart path in the CLI: `postMultipart()` SHALL derive the part's MIME
+type from the file extension (the server verifies the magic bytes and rejects a mismatch) and
+SHALL send `--caption` as a separate form field, omitting the field entirely when no caption was
+given rather than sending the string `"undefined"`.
+
+**Three** files document the CLI for assistants and SHALL be updated together: `docs/cli.md`,
+`docs/claude-skill.md`, and `.claude/skills/aleph-cli/SKILL.md` (with a `version` bump in its
+frontmatter), plus the near-verbatim copy of the last one in the `mago20` superrepo, which
+differs only in the absolute path prefix.
 
 #### Scenario: CLI lists a location's images
 
 - **WHEN** a user runs `aleph location images <slug> --campaign <id>` with a valid API key
-- **THEN** the images are printed in gallery order with their ids, captions and a primary marker
+- **THEN** the images are printed in gallery order with their ids, captions and sort order
+- **AND** the main image is marked with `*` rather than a raw boolean
+
+#### Scenario: CLI prints an empty gallery without failing
+
+- **WHEN** `images` is run for a location that has no images
+- **THEN** the command exits `0` and prints a no-results line, not an error
 
 #### Scenario: CLI uploads an image
 
 - **WHEN** a user runs `aleph location image-add <slug> --campaign <id> --file cover.png`
 - **THEN** the image is uploaded via multipart and the new image's id and URL are printed
+- **AND** `--json` prints the created image as parseable JSON instead
+
+#### Scenario: CLI stores the caption it was given
+
+- **WHEN** `image-add` is run with `--caption "Harbour at dawn"`
+- **THEN** a subsequent `images --json` shows that caption on the new image
 
 #### Scenario: CLI sets the main image
 
 - **WHEN** a user runs `aleph location image-set-primary <slug> <imageId> --campaign <id>`
-- **THEN** that image becomes primary and the change is confirmed on stdout
+- **THEN** that image becomes primary, every other image loses the marker, and the change is
+  confirmed on stdout
+
+#### Scenario: CLI edits a caption and a position
+
+- **WHEN** `image-update` is run with `--caption`, `--order`, or both
+- **THEN** only the supplied fields change
+- **AND** `--caption ""` clears the caption rather than storing an empty string
+
+#### Scenario: CLI rejects an empty update locally
+
+- **WHEN** `image-update` is run with neither `--caption` nor `--order`
+- **THEN** the CLI exits non-zero with `--caption and/or --order` on stderr and sends no request
+
+#### Scenario: CLI deletes an image
+
+- **WHEN** `image-remove` is run for the main image of a multi-image gallery
+- **THEN** the command exits `0` and a survivor becomes the main image
+
+#### Scenario: CLI surfaces server errors instead of swallowing them
+
+- **WHEN** a command targets an unknown image id, an unknown location, or uploads a file whose
+  content does not match its extension
+- **THEN** the CLI exits non-zero and prints the server's message on stderr
 
 #### Scenario: CLI without an API key fails cleanly
 
 - **WHEN** any of the image commands is run with no configured API key
-- **THEN** the CLI exits non-zero with an authentication error, not a stack trace
+- **THEN** the CLI exits non-zero with a configuration error, not a stack trace
 
-#### Scenario: Both skill files stay in step
+#### Scenario: The skill files stay in step
 
-- **WHEN** the CLI image commands are added
-- **THEN** `docs/claude-skill.md` and `.claude/skills/aleph-cli/SKILL.md` both document the same
-  command surface
+- **WHEN** the CLI image commands change
+- **THEN** `docs/cli.md`, `docs/claude-skill.md`, `.claude/skills/aleph-cli/SKILL.md` and the
+  superrepo copy all describe the same command surface
+- **AND** diffing the two skill files with their path prefixes normalised produces no output
