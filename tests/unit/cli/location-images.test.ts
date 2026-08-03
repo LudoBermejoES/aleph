@@ -13,7 +13,21 @@ import { readFileSync, mkdtempSync, writeFileSync, rmSync } from 'fs'
 import { join, resolve } from 'path'
 import { tmpdir } from 'os'
 
-import { postMultipart } from '../../../cli/src/lib/client.js'
+// `client.js` pulls in `config.js`, which imports `conf` — a dependency of `cli/package.json`,
+// NOT of the root. The unit-test CI job installs root deps only (`cli/` deps are installed in
+// the integration job), so importing the real config here fails in CI while passing locally off
+// a stale `cli/node_modules`. Mocking with a factory means the real module — and `conf` — is
+// never loaded, which keeps `tests/unit/` free of CLI dependencies the way every other
+// `tests/unit/cli/` test is.
+vi.mock('../../../cli/src/lib/config.js', () => ({
+  requireConfig: () => ({
+    url: process.env.ALEPH_URL,
+    apiKey: process.env.ALEPH_TOKEN,
+    apiKeyId: null,
+  }),
+}))
+
+const { postMultipart } = await import('../../../cli/src/lib/client.js')
 
 const source = readFileSync(resolve(__dirname, '../../../cli/src/commands/location.js'), 'utf-8')
 
