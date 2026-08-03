@@ -1,5 +1,5 @@
 import { Command } from 'commander'
-import { get, post, put, del, postMultipart, resolveEntitySlug } from '../lib/client.js'
+import { get, post, put, del, patch, postMultipart, resolveEntitySlug } from '../lib/client.js'
 import { print, success, info } from '../lib/output.js'
 import { existsSync } from 'fs'
 
@@ -540,6 +540,87 @@ export function makeCharacterCommand() {
       }
       await del(`/api/campaigns/${opts.campaign}/character-folders/${folderId}`)
       success(`Folder ${folderId} deleted.`)
+    })
+
+  cmd
+    .command('images <slug>')
+    .description("List a character's gallery images")
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .option('--json', 'Output as JSON')
+    .action(async (slug, opts) => {
+      const data = await get(`/api/campaigns/${opts.campaign}/characters/${slug}/images`)
+      if (opts.json) {
+        print(data, { json: true })
+      } else {
+        print(
+          data.map((i) => ({
+            id: i.id,
+            main: i.isPrimary ? '*' : '',
+            order: i.sortOrder,
+            caption: i.caption || '',
+            url: i.url,
+          })),
+        )
+      }
+    })
+
+  cmd
+    .command('image-add <slug>')
+    .description("Upload an image to a character's gallery")
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .requiredOption('--file <path>', 'Path to image file (png, jpg, webp)')
+    .option('--caption <text>', 'Caption for the image')
+    .option('--json', 'Output as JSON')
+    .action(async (slug, opts) => {
+      const data = await postMultipart(
+        `/api/campaigns/${opts.campaign}/characters/${slug}/images`,
+        opts.file,
+        'image',
+        { caption: opts.caption },
+      )
+      if (opts.json) {
+        print(data, { json: true })
+      } else {
+        success(`Image uploaded: ${data.id} → ${data.url}`)
+      }
+    })
+
+  cmd
+    .command('image-update <slug> <imageId>')
+    .description("Update a character gallery image's caption or order")
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .option('--caption <text>', 'New caption (empty string clears it)')
+    .option('--order <n>', 'New sort order')
+    .action(async (slug, imageId, opts) => {
+      const body = {}
+      if (opts.caption !== undefined) body.caption = opts.caption || null
+      if (opts.order !== undefined) body.sortOrder = Number(opts.order)
+      if (Object.keys(body).length === 0) {
+        process.stderr.write('Error: pass --caption and/or --order\n')
+        process.exit(2)
+      }
+      await patch(`/api/campaigns/${opts.campaign}/characters/${slug}/images/${imageId}`, body)
+      success(`Image ${imageId} updated.`)
+    })
+
+  cmd
+    .command('image-set-primary <slug> <imageId>')
+    .description("Make an image the character's main portrait")
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .action(async (slug, imageId, opts) => {
+      await patch(`/api/campaigns/${opts.campaign}/characters/${slug}/images/${imageId}`, {
+        isPrimary: true,
+      })
+      success(`Image ${imageId} is now the main portrait of "${slug}".`)
+    })
+
+  cmd
+    .command('image-remove <slug> <imageId>')
+    .description('Delete a character gallery image')
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .action(async (slug, imageId, opts) => {
+      await del(`/api/campaigns/${opts.campaign}/characters/${slug}/images/${imageId}`)
+      success(`Image ${imageId} deleted from "${slug}".`)
     })
 
   return cmd

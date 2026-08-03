@@ -67,6 +67,14 @@
         :field-values="org.fields || {}"
       />
 
+      <!-- Image gallery -->
+      <EntityImageGallery
+        :images-url="`/api/campaigns/${campaignId}/organizations/${slug}/images`"
+        :name="org.name"
+        :editable="['dm', 'co_dm', 'editor'].includes(campaignRole)"
+        @changed="onGalleryChanged"
+      />
+
       <!-- Members section -->
       <div>
         <div class="flex items-center justify-between mb-3">
@@ -247,6 +255,12 @@ async function removeMember(characterId: string) {
   } catch (e: unknown) {
     alert((e as { data?: { message?: string } })?.data?.message || 'Failed to remove member')
   }
+}
+
+function onGalleryChanged(images: { isPrimary: boolean; url: string }[]) {
+  if (!org.value) return
+  const primary = images.find((i) => i.isPrimary)
+  if (primary) org.value.imageUrl = primary.url
 }
 
 async function confirmDelete() {

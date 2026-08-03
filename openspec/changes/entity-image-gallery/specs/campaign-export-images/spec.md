@@ -1,0 +1,101 @@
+## MODIFIED Requirements
+
+### Requirement: Export embeds images as base64 data URIs
+
+The system SHALL read all image files referenced by image fields in the exported data and embed
+them in the export JSON under a top-level `images` map, keyed by original URL, with values as
+base64 data URIs. The set of image-bearing fields walked by the collector SHALL include the
+`url` of every character gallery image (`characterImages`) and every organization gallery image
+(`organizationImages`), in addition to the existing `locationImages` and single-image fields.
+
+#### Scenario: Export with images produces images map
+
+- **GIVEN** a DM exports a campaign that has at least one entity with an `imageUrl` pointing to
+  an uploaded image
+- **WHEN** the DM sends `GET /api/campaigns/:id/export`
+- **THEN** the export JSON contains a top-level `images` object
+- **AND** the `images` object has an entry keyed by the original image URL
+- **AND** the value is a base64 data URI string starting with `data:image/`
+
+#### Scenario: Export version is 1.1 when images are present
+
+- **GIVEN** a DM exports a campaign that has at least one embedded image
+- **WHEN** the DM sends `GET /api/campaigns/:id/export`
+- **THEN** the export JSON `version` field is `"1.1"`
+
+#### Scenario: Export version is 1.1 even when no images exist
+
+- **GIVEN** a DM exports a campaign that has no uploaded images
+- **WHEN** the DM sends `GET /api/campaigns/:id/export`
+- **THEN** the export JSON `version` field is `"1.1"`
+- **AND** the `images` object is present but empty (`{}`)
+
+#### Scenario: Missing image file is skipped without error
+
+- **GIVEN** an entity's `imageUrl` references a file that does not exist on disk
+- **WHEN** the DM exports the campaign
+- **THEN** the export succeeds with status 200
+- **AND** the missing URL is absent from the `images` map
+
+#### Scenario: All image-bearing fields are collected
+
+- **GIVEN** a campaign has images on entities, characters (portraitUrl), organizations (imageUrl),
+  sessionGroups, maps, mapLayers, items, location galleries, character galleries, and
+  organization galleries
+- **WHEN** the DM exports the campaign
+- **THEN** the `images` map contains entries for all of their image URLs
+
+#### Scenario: Every character gallery image is embedded, not just the primary
+
+- **GIVEN** a character with two portrait images of which one is primary
+- **WHEN** the DM exports the campaign
+- **THEN** the `images` map contains an entry for each of the two URLs
+
+#### Scenario: Every organization gallery image is embedded, not just the primary
+
+- **GIVEN** an organization with three images of which one is primary
+- **WHEN** the DM exports the campaign
+- **THEN** the `images` map contains an entry for each of the three URLs
+
+### Requirement: Import restores embedded images and rewrites URLs
+
+The system SHALL, when importing a `"1.1"` export, write each embedded image to the new
+campaign's content directory and update all image URL fields in the imported records to
+reference the new campaign. This SHALL include the `url` of every imported character gallery
+image and every imported organization gallery image. `characters.portraitUrl` and
+`organizations.imageUrl` SHALL be re-derived from the restored primaries rather than left
+pointing at the source campaign.
+
+#### Scenario: Images are written to disk on import
+
+- **GIVEN** a user imports a `"1.1"` export containing embedded images
+- **WHEN** the user sends `POST /api/campaigns/import`
+- **THEN** each image file is written to the new campaign's content directory
+
+#### Scenario: Image URL fields are rewritten to new campaign
+
+- **GIVEN** a user imports a `"1.1"` export containing embedded images
+- **WHEN** the import completes successfully
+- **THEN** character `portraitUrl` fields reference URLs under the new campaign id
+- **AND** organization `imageUrl` fields reference URLs under the new campaign id
+- **AND** character gallery image `url` fields are rewritten similarly
+- **AND** organization gallery image `url` fields are rewritten similarly
+
+#### Scenario: Character gallery images are readable after import
+
+- **GIVEN** a `"1.1"` export containing a character with two gallery images
+- **WHEN** the import completes
+- **THEN** each image's file exists on disk under the new campaign's content directory
+- **AND** requesting each image's URL returns the image bytes with status 200
+
+#### Scenario: Organization gallery images are readable after import
+
+- **GIVEN** a `"1.1"` export containing an organization with two gallery images
+- **WHEN** the import completes
+- **THEN** each image is readable under the new campaign's content directory
+
+#### Scenario: 1.0 export imports successfully without image restoration
+
+- **GIVEN** a user imports a `"1.0"` export (no `images` key)
+- **WHEN** the user sends `POST /api/campaigns/import`
+- **THEN** the import succeeds with status 201

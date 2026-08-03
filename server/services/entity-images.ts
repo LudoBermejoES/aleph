@@ -5,7 +5,11 @@ import { mkdir, unlink, writeFile } from 'fs/promises'
 import { join } from 'path'
 import { entities } from '../db/schema/entities'
 import { entityImages } from '../db/schema/entity-images'
+import { characters } from '../db/schema/characters'
+import { organizations } from '../db/schema/organizations'
 import { logger } from '../utils/logger'
+
+export type EntityKind = 'location' | 'character' | 'organization'
 
 export interface EntityImageDTO {
   id: string
@@ -24,9 +28,46 @@ export function galleryDir(contentDir: string, slug: string): string {
   return join(process.cwd(), contentDir, 'locations', slug, 'images')
 }
 
-/** The stable serve URL of a gallery image. Location slugs are immutable, so this never rots. */
+/** The stable serve URL of a location gallery image. */
 export function galleryImageUrl(campaignId: string, slug: string, imageId: string): string {
   return `/api/campaigns/${campaignId}/locations/${slug}/images/${imageId}`
+}
+
+export function characterGalleryDir(contentDir: string, slug: string): string {
+  return join(process.cwd(), contentDir, 'characters', slug, 'images')
+}
+
+export function characterGalleryImageUrl(
+  campaignId: string,
+  slug: string,
+  imageId: string,
+): string {
+  return `/api/campaigns/${campaignId}/characters/${slug}/images/${imageId}`
+}
+
+export function orgGalleryDir(contentDir: string, slug: string): string {
+  return join(process.cwd(), contentDir, 'organizations', slug, 'images')
+}
+
+export function orgGalleryImageUrl(campaignId: string, slug: string, imageId: string): string {
+  return `/api/campaigns/${campaignId}/organizations/${slug}/images/${imageId}`
+}
+
+export function resolveGalleryDir(kind: EntityKind, contentDir: string, slug: string): string {
+  if (kind === 'character') return characterGalleryDir(contentDir, slug)
+  if (kind === 'organization') return orgGalleryDir(contentDir, slug)
+  return galleryDir(contentDir, slug)
+}
+
+export function resolveGalleryImageUrl(
+  kind: EntityKind,
+  campaignId: string,
+  slug: string,
+  imageId: string,
+): string {
+  if (kind === 'character') return characterGalleryImageUrl(campaignId, slug, imageId)
+  if (kind === 'organization') return orgGalleryImageUrl(campaignId, slug, imageId)
+  return galleryImageUrl(campaignId, slug, imageId)
 }
 
 function toDTO(row: typeof entityImages.$inferSelect): EntityImageDTO {
@@ -61,14 +102,19 @@ export function getImage(db: Db, entityId: string, imageId: string) {
 }
 
 /**
- * The ONLY writer of `entities.imageUrl` for entities that have a gallery.
+ * Sync the primary image URL to the entity-type-specific mirror column.
  *
- * Keeps the column equal to the primary image's URL, or null when the gallery is empty, so that
- * every existing consumer (graph builder, export, map-pin popovers, search) shows the primary
- * without knowing galleries exist. Must be called inside the same transaction as the mutation
- * that changed the gallery.
+ * - location  → entities.imageUrl  (read by graph builder, export, map pins)
+ * - character → characters.portraitUrl
+ * - organization → organizations.imageUrl
+ *
+ * Must be called inside the same transaction as the gallery mutation.
  */
-export function syncPrimaryImageUrl(db: Db, entityId: string): string | null {
+export function syncPrimaryImageUrl(
+  db: Db,
+  entityId: string,
+  kind: EntityKind = 'location',
+): string | null {
   const primary = db
     .select({ url: entityImages.url })
     .from(entityImages)
@@ -76,7 +122,18 @@ export function syncPrimaryImageUrl(db: Db, entityId: string): string | null {
     .get()
 
   const url = primary?.url ?? null
-  db.update(entities).set({ imageUrl: url }).where(eq(entities.id, entityId)).run()
+
+  if (kind === 'character') {
+    db.update(characters).set({ portraitUrl: url }).where(eq(characters.entityId, entityId)).run()
+  } else if (kind === 'organization') {
+    db.update(organizations)
+      .set({ imageUrl: url })
+      .where(eq(organizations.entityId, entityId))
+      .run()
+  } else {
+    db.update(entities).set({ imageUrl: url }).where(eq(entities.id, entityId)).run()
+  }
+
   return url
 }
 
@@ -101,6 +158,7 @@ export interface AddImageInput {
   ext: string
   caption?: string | null
   userId: string
+  entityKind?: EntityKind
 }
 
 /**
@@ -111,9 +169,10 @@ export interface AddImageInput {
  * truth, so a row without its file is the state worth preventing.
  */
 export async function addImage(db: Db, input: AddImageInput): Promise<EntityImageDTO> {
+  const kind = input.entityKind ?? 'location'
   const imageId = randomUUID()
   const filename = `${imageId}${input.ext}`
-  const dir = galleryDir(input.contentDir, input.slug)
+  const dir = resolveGalleryDir(kind, input.contentDir, input.slug)
   const filePath = join(dir, filename)
 
   await mkdir(dir, { recursive: true })
@@ -140,7 +199,7 @@ export async function addImage(db: Db, input: AddImageInput): Promise<EntityImag
         campaignId: input.campaignId,
         entityId: input.entityId,
         filename,
-        url: galleryImageUrl(input.campaignId, input.slug, imageId),
+        url: resolveGalleryImageUrl(kind, input.campaignId, input.slug, imageId),
         caption: input.caption?.trim() ? input.caption.trim() : null,
         sortOrder,
         isPrimary: isFirst,
@@ -149,7 +208,7 @@ export async function addImage(db: Db, input: AddImageInput): Promise<EntityImag
       }
 
       tx.insert(entityImages).values(row).run()
-      syncPrimaryImageUrl(tx as unknown as Db, input.entityId)
+      syncPrimaryImageUrl(tx as unknown as Db, input.entityId, kind)
 
       return toDTO(row as typeof entityImages.$inferSelect)
     })
@@ -171,6 +230,7 @@ export function updateImage(
   entityId: string,
   imageId: string,
   patch: UpdateImagePatch,
+  kind: EntityKind = 'location',
 ): EntityImageDTO | null {
   return db.transaction((tx) => {
     const existing = getImage(tx as unknown as Db, entityId, imageId)
@@ -190,7 +250,7 @@ export function updateImage(
       setPrimaryRows(tx as unknown as Db, entityId, imageId)
     }
 
-    syncPrimaryImageUrl(tx as unknown as Db, entityId)
+    syncPrimaryImageUrl(tx as unknown as Db, entityId, kind)
 
     return toDTO(getImage(tx as unknown as Db, entityId, imageId)!)
   })
@@ -201,6 +261,7 @@ export interface DeleteImageInput {
   imageId: string
   slug: string
   contentDir: string
+  entityKind?: EntityKind
 }
 
 /**
@@ -211,6 +272,7 @@ export interface DeleteImageInput {
  * whereas a 500 on delete is not.
  */
 export async function deleteImage(db: Db, input: DeleteImageInput): Promise<boolean> {
+  const kind = input.entityKind ?? 'location'
   const result = db.transaction((tx) => {
     const existing = getImage(tx as unknown as Db, input.entityId, input.imageId)
     if (!existing) return null
@@ -227,13 +289,13 @@ export async function deleteImage(db: Db, input: DeleteImageInput): Promise<bool
       if (next) setPrimaryRows(tx as unknown as Db, input.entityId, next.id)
     }
 
-    syncPrimaryImageUrl(tx as unknown as Db, input.entityId)
+    syncPrimaryImageUrl(tx as unknown as Db, input.entityId, kind)
     return existing
   })
 
   if (!result) return false
 
-  const filePath = join(galleryDir(input.contentDir, input.slug), result.filename)
+  const filePath = join(resolveGalleryDir(kind, input.contentDir, input.slug), result.filename)
   try {
     await unlink(filePath)
   } catch (err) {

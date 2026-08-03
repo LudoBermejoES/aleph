@@ -59,6 +59,8 @@ export interface CampaignExport {
   organizationMembers?: unknown[]
   organizationLocations?: unknown[]
   locationImages?: unknown[]
+  characterImages?: unknown[]
+  organizationImages?: unknown[]
   /** url → base64 data URI, added by the export route after the payload is built. */
   images?: Record<string, string>
 }
@@ -91,6 +93,8 @@ export const VALID_RESOURCE_TYPES = new Set([
   'organizationMembers',
   'organizationLocations',
   'locationImages',
+  'characterImages',
+  'organizationImages',
 ])
 
 // ─── Image embedding helpers ──────────────────────────────────────────────────
@@ -120,6 +124,8 @@ export function collectImageUrls(exportData: CampaignExport): string[] {
   // Gallery images: every image, not only the primary — the primary is already covered by the
   // entity's mirrored imageUrl, but the rest would export as dead links without this line.
   for (const r of exportData.locationImages ?? []) add((r as Record<string, unknown>).url)
+  for (const r of exportData.characterImages ?? []) add((r as Record<string, unknown>).url)
+  for (const r of exportData.organizationImages ?? []) add((r as Record<string, unknown>).url)
   return Array.from(seen)
 }
 
@@ -169,6 +175,38 @@ function resolveImageFile(
     const imageId = galleryMatch[2]!
     for (const ext of IMAGE_EXTS) {
       const filePath = resolve(contentDir, 'locations', slug, 'images', `${imageId}.${ext}`)
+      if (existsSync(filePath)) {
+        return { filePath, mime: MIME_BY_EXT[ext] ?? 'image/png' }
+      }
+    }
+    return null
+  }
+
+  // Pattern: /api/campaigns/{id}/characters/{slug}/images/{imageId}
+  const charGalleryMatch = url.match(
+    /\/api\/campaigns\/[^/]+\/characters\/([^/]+)\/images\/([^/?]+)$/,
+  )
+  if (charGalleryMatch) {
+    const slug = charGalleryMatch[1]!
+    const imageId = charGalleryMatch[2]!
+    for (const ext of IMAGE_EXTS) {
+      const filePath = resolve(contentDir, 'characters', slug, 'images', `${imageId}.${ext}`)
+      if (existsSync(filePath)) {
+        return { filePath, mime: MIME_BY_EXT[ext] ?? 'image/png' }
+      }
+    }
+    return null
+  }
+
+  // Pattern: /api/campaigns/{id}/organizations/{slug}/images/{imageId}
+  const orgGalleryMatch = url.match(
+    /\/api\/campaigns\/[^/]+\/organizations\/([^/]+)\/images\/([^/?]+)$/,
+  )
+  if (orgGalleryMatch) {
+    const slug = orgGalleryMatch[1]!
+    const imageId = orgGalleryMatch[2]!
+    for (const ext of IMAGE_EXTS) {
+      const filePath = resolve(contentDir, 'organizations', slug, 'images', `${imageId}.${ext}`)
       if (existsSync(filePath)) {
         return { filePath, mime: MIME_BY_EXT[ext] ?? 'image/png' }
       }
@@ -265,12 +303,53 @@ export async function buildCampaignExport(
     }))
   }
 
+  // Collect character and org entityIds so gallery images can be partitioned by entity type.
+  const charEntityIds = db
+    .select({ entityId: characters.entityId })
+    .from(characters)
+    .innerJoin(entities, eq(characters.entityId, entities.id))
+    .where(eq(entities.campaignId, campaignId))
+    .all()
+    .map((r) => r.entityId)
+  const orgEntityIds = db
+    .select({ entityId: organizations.entityId })
+    .from(organizations)
+    .where(eq(organizations.campaignId, campaignId))
+    .all()
+    .flatMap((r) => (r.entityId ? [r.entityId] : []))
+  const nonLocationEntityIds = [...new Set([...charEntityIds, ...orgEntityIds])]
+
   if (shouldInclude('locationImages', filteredInclude)) {
-    result.locationImages = db
+    const allImages = db
       .select()
       .from(entityImages)
       .where(eq(entityImages.campaignId, campaignId))
       .all()
+    result.locationImages = nonLocationEntityIds.length
+      ? allImages.filter((img) => !nonLocationEntityIds.includes(img.entityId))
+      : allImages
+  }
+
+  if (shouldInclude('characterImages', filteredInclude)) {
+    result.characterImages = charEntityIds.length
+      ? db
+          .select()
+          .from(entityImages)
+          .where(eq(entityImages.campaignId, campaignId))
+          .all()
+          .filter((img) => charEntityIds.includes(img.entityId))
+      : []
+  }
+
+  if (shouldInclude('organizationImages', filteredInclude)) {
+    result.organizationImages = orgEntityIds.length
+      ? db
+          .select()
+          .from(entityImages)
+          .where(eq(entityImages.campaignId, campaignId))
+          .all()
+          .filter((img) => orgEntityIds.includes(img.entityId))
+      : []
   }
 
   if (shouldInclude('tags', filteredInclude)) {
@@ -499,15 +578,23 @@ export async function buildCampaignExportZip(
 
     // Gallery URLs also end in /images/{id}, so they must be matched BEFORE the generic
     // campaign-images pattern or they land in the wrong directory on import.
-    const galleryMatch = url.match(/\/locations\/([^/]+)\/images\/([^/?]+)$/)
+    const locationGalleryMatch = url.match(/\/locations\/([^/]+)\/images\/([^/?]+)$/)
+    const charGalleryMatch = url.match(/\/characters\/([^/]+)\/images\/([^/?]+)$/)
+    const orgGalleryMatch = url.match(/\/organizations\/([^/]+)\/images\/([^/?]+)$/)
     const imagesMatch = url.match(/\/images\/([^/?]+)$/)
     const entityMatch = url.match(/\/entities\/([^/]+)\/image$/)
     const portraitMatch = url.match(/\/characters\/([^/]+)\/portrait$/)
 
     let entryName: string | null = null
-    if (galleryMatch) {
+    if (locationGalleryMatch) {
       const ext = resolved.filePath.split('.').pop() ?? 'png'
-      entryName = `images/location-image-${galleryMatch[2]}.${ext}`
+      entryName = `images/location-image-${locationGalleryMatch[2]}.${ext}`
+    } else if (charGalleryMatch) {
+      const ext = resolved.filePath.split('.').pop() ?? 'png'
+      entryName = `images/character-image-${charGalleryMatch[2]}.${ext}`
+    } else if (orgGalleryMatch) {
+      const ext = resolved.filePath.split('.').pop() ?? 'png'
+      entryName = `images/org-image-${orgGalleryMatch[2]}.${ext}`
     } else if (imagesMatch) {
       entryName = `images/${imagesMatch[1]}`
     } else if (entityMatch) {

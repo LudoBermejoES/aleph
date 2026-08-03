@@ -157,6 +157,15 @@
             :campaign-role="campaignRole"
             class="mt-6"
           />
+
+          <!-- Image gallery -->
+          <EntityImageGallery
+            :images-url="`/api/campaigns/${campaignId}/characters/${slug}/images`"
+            :name="character.name"
+            :editable="canEdit"
+            class="mt-6"
+            @changed="onGalleryChanged"
+          />
         </TabsContent>
 
         <!-- Story tab -->
@@ -642,6 +651,12 @@ async function reloadRelations() {
       }
     })
   }
+}
+
+function onGalleryChanged(images: { isPrimary: boolean; url: string }[]) {
+  if (!character.value) return
+  const primary = images.find((i) => i.isPrimary)
+  if (primary) character.value.portraitUrl = primary.url
 }
 
 async function confirmDelete() {

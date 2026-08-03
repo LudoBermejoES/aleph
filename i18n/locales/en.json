@@ -36,6 +36,19 @@
     "yes": "Yes",
     "no": "No"
   },
+  "gallery": {
+    "title": "Images",
+    "empty": "No images yet",
+    "upload": "Upload image",
+    "main": "Main",
+    "setMain": "Set as main image",
+    "captionPlaceholder": "Caption",
+    "moveUp": "Move image up",
+    "moveDown": "Move image down",
+    "confirmDelete": "Delete this image? This cannot be undone.",
+    "imageAlt": "Image of {name}",
+    "uploadFailed": "Upload failed"
+  },
   "auth": {
     "signIn": "Sign In",
     "signInDescription": "Enter your credentials to access your campaigns",

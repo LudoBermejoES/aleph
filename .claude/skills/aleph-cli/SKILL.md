@@ -4,7 +4,7 @@ description: Use the aleph CLI to manage campaigns, entities, characters, locati
 license: MIT
 metadata:
   author: aleph
-  version: '3.10'
+  version: '3.11'
 ---
 
 You have access to the `aleph` CLI tool at `node /Users/ludo/code/aleph/cli/bin/aleph.js` (or `npm run aleph -- <args>` from the project root). Use it to interact with the running Aleph server.
@@ -109,6 +109,16 @@ node /Users/ludo/code/aleph/cli/bin/aleph.js character folder-delete <folderId> 
 node /Users/ludo/code/aleph/cli/bin/aleph.js character family-add <slug> --campaign <id> --type <parent|child|spouse|sibling> --target <slug> [--json]
 node /Users/ludo/code/aleph/cli/bin/aleph.js character family-remove <slug> <relationId> --campaign <id> [--yes]
 node /Users/ludo/code/aleph/cli/bin/aleph.js character genealogy <slug> --campaign <id> [--depth <n>] [--format ascii|json]
+
+# Character images (gallery). Exactly one image is the main portrait shown elsewhere.
+node /Users/ludo/code/aleph/cli/bin/aleph.js character images <slug> --campaign <id> [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js character image-add <slug> --campaign <id> --file <path> [--caption <text>] [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js character image-update <slug> <imageId> --campaign <id> [--caption <text>] [--order <n>]
+node /Users/ludo/code/aleph/cli/bin/aleph.js character image-set-primary <slug> <imageId> --campaign <id>
+node /Users/ludo/code/aleph/cli/bin/aleph.js character image-remove <slug> <imageId> --campaign <id>
+#   --caption travels as a form field, not JSON. `image-update --caption ""` CLEARS the caption.
+#   image-update with neither --caption nor --order fails locally without sending a request.
+#   Deleting the main image promotes the next one; emptying the gallery clears portraitUrl.
 ```
 
 `upload-portrait` accepts PNG, JPEG, or WebP files up to 10 MB.
@@ -183,6 +193,16 @@ node /Users/ludo/code/aleph/cli/bin/aleph.js organization member-add <slug> --ca
 node /Users/ludo/code/aleph/cli/bin/aleph.js organization member-update <slug> --campaign <id> --character <characterId> [--role <role>] [--json]
 node /Users/ludo/code/aleph/cli/bin/aleph.js organization member-remove <slug> --campaign <id> --character <characterId>
 node /Users/ludo/code/aleph/cli/bin/aleph.js organization upload-image <slug> --campaign <id> --file <path> [--json]
+
+# Organization images (gallery). Exactly one image is the main one shown elsewhere.
+node /Users/ludo/code/aleph/cli/bin/aleph.js organization images <slug> --campaign <id> [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js organization image-add <slug> --campaign <id> --file <path> [--caption <text>] [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js organization image-update <slug> <imageId> --campaign <id> [--caption <text>] [--order <n>]
+node /Users/ludo/code/aleph/cli/bin/aleph.js organization image-set-primary <slug> <imageId> --campaign <id>
+node /Users/ludo/code/aleph/cli/bin/aleph.js organization image-remove <slug> <imageId> --campaign <id>
+#   --caption travels as a form field, not JSON. `image-update --caption ""` CLEARS the caption.
+#   image-update with neither --caption nor --order fails locally without sending a request.
+#   Deleting the main image promotes the next one; emptying the gallery clears imageUrl.
 ```
 
 Types: `faction`, `guild`, `army`, `cult`, `government`, `other`

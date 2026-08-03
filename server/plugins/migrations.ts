@@ -2,6 +2,8 @@ import { migrate } from 'drizzle-orm/better-sqlite3/migrator'
 import { useDb } from '../utils/db'
 import { logger } from '../utils/logger'
 import { backfillLocationImages } from '../db/backfills/location-images'
+import { backfillCharacterImages } from '../db/backfills/character-images'
+import { backfillOrganizationImages } from '../db/backfills/organization-images'
 import { join } from 'path'
 
 export default defineNitroPlugin(async () => {
@@ -25,5 +27,23 @@ export default defineNitroPlugin(async () => {
     }
   } catch (error) {
     logger.error('Failed to backfill location gallery images', { error })
+  }
+
+  try {
+    const result = await backfillCharacterImages(db)
+    if (result.migrated > 0) {
+      logger.info('Backfilled character gallery images', result)
+    }
+  } catch (error) {
+    logger.error('Failed to backfill character gallery images', { error })
+  }
+
+  try {
+    const result = await backfillOrganizationImages(db)
+    if (result.migrated > 0) {
+      logger.info('Backfilled organization gallery images', result)
+    }
+  } catch (error) {
+    logger.error('Failed to backfill organization gallery images', { error })
   }
 })

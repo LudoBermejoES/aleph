@@ -92,7 +92,7 @@ describe('Character Portrait (integration)', () => {
     expect(res.status).toBe(404)
   })
 
-  it('POST portrait uploads successfully and returns portraitUrl', async () => {
+  it('POST portrait uploads successfully and returns a gallery portraitUrl', async () => {
     const form = new FormData()
     form.append('portrait', new Blob([PNG_1PX], { type: 'image/png' }), 'portrait.png')
     const res = await api(`/api/campaigns/${campaignId}/characters/${characterSlug}/portrait`, {
@@ -102,14 +102,16 @@ describe('Character Portrait (integration)', () => {
     })
     expect(res.status).toBe(200)
     const data = await res.json()
-    expect(data.portraitUrl).toBe(
-      `/api/campaigns/${campaignId}/characters/${characterSlug}/portrait`,
+    // portrait.post.ts now creates a gallery entry; the URL is a gallery image URL
+    expect(data.portraitUrl).toContain(
+      `/api/campaigns/${campaignId}/characters/${characterSlug}/images/`,
     )
   })
 
-  it('GET portrait returns image bytes after upload', async () => {
+  it('GET portrait redirects to gallery image after upload', async () => {
     const res = await api(`/api/campaigns/${campaignId}/characters/${characterSlug}/portrait`, {
       headers: { Cookie: cookie },
+      redirect: 'follow',
     })
     expect(res.status).toBe(200)
     expect(res.headers.get('content-type')).toContain('image/')
@@ -117,13 +119,13 @@ describe('Character Portrait (integration)', () => {
     expect(buf.byteLength).toBeGreaterThan(0)
   })
 
-  it('character show returns portraitUrl after upload', async () => {
+  it('character show returns gallery portraitUrl after upload', async () => {
     const res = await api(`/api/campaigns/${campaignId}/characters/${characterSlug}`, {
       headers: { Cookie: cookie },
     })
     const data = await res.json()
-    expect(data.portraitUrl).toBe(
-      `/api/campaigns/${campaignId}/characters/${characterSlug}/portrait`,
+    expect(data.portraitUrl).toContain(
+      `/api/campaigns/${campaignId}/characters/${characterSlug}/images/`,
     )
   })
 

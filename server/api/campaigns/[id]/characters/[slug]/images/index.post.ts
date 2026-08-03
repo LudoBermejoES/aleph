@@ -1,16 +1,19 @@
-import { useDb } from '../../../../../utils/db'
-import { withApiHandler } from '../../../../../utils/api-handler'
-import { hasMinRole } from '../../../../../utils/permissions'
-import { resolveReadableCharacter } from '../../../../../services/characters'
-import { addImage, listImages, updateImage } from '../../../../../services/entity-images'
-import { ImageUploadError, validateImageUpload } from '../../../../../utils/image-upload'
-import type { CampaignRole } from '../../../../../utils/permissions'
+import { useDb } from '../../../../../../utils/db'
+import { withApiHandler } from '../../../../../../utils/api-handler'
+import { hasMinRole } from '../../../../../../utils/permissions'
+import { resolveReadableCharacter } from '../../../../../../services/characters'
+import { addImage } from '../../../../../../services/entity-images'
+import { ImageUploadError, validateImageUpload } from '../../../../../../utils/image-upload'
+import type { CampaignRole } from '../../../../../../utils/permissions'
 
 export default defineEventHandler(async (event) =>
   withApiHandler(event, async () => {
     const role = (event.context.campaignRole || 'visitor') as CampaignRole
     if (!hasMinRole(role, 'editor')) {
-      throw createError({ statusCode: 403, message: 'Editors or above can upload portraits' })
+      throw createError({
+        statusCode: 403,
+        message: 'Editors or above can upload character images',
+      })
     }
 
     const campaignId = getRouterParam(event, 'id')!
@@ -28,7 +31,7 @@ export default defineEventHandler(async (event) =>
 
     let validated
     try {
-      validated = validateImageUpload(formData.find((f) => f.name === 'portrait'))
+      validated = validateImageUpload(formData.find((f) => f.name === 'image'))
     } catch (err) {
       if (err instanceof ImageUploadError) {
         throw createError({ statusCode: 400, message: err.message })
@@ -36,9 +39,8 @@ export default defineEventHandler(async (event) =>
       throw err
     }
 
-    // Delegate to the gallery service. If the character already has a primary, replace it.
-    const existing = listImages(db, entity.id)
-    const primary = existing.find((i) => i.isPrimary)
+    const captionPart = formData.find((f) => f.name === 'caption')
+    const caption = captionPart?.data ? captionPart.data.toString('utf-8') : null
 
     const image = await addImage(db, {
       campaignId,
@@ -47,16 +49,12 @@ export default defineEventHandler(async (event) =>
       contentDir: campaign.contentDir,
       data: validated.data,
       ext: validated.ext,
-      caption: null,
+      caption,
       userId,
       entityKind: 'character',
     })
 
-    // If there was a previous primary, promote the new image to primary.
-    if (primary && !image.isPrimary) {
-      updateImage(db, entity.id, image.id, { isPrimary: true }, 'character')
-    }
-
-    return { portraitUrl: image.url }
+    setResponseStatus(event, 201)
+    return image
   }),
 )

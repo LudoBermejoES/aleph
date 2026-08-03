@@ -36,6 +36,19 @@
     "yes": "Sí",
     "no": "No"
   },
+  "gallery": {
+    "title": "Imágenes",
+    "empty": "Sin imágenes todavía",
+    "upload": "Subir imagen",
+    "main": "Principal",
+    "setMain": "Establecer como imagen principal",
+    "captionPlaceholder": "Pie de foto",
+    "moveUp": "Mover imagen arriba",
+    "moveDown": "Mover imagen abajo",
+    "confirmDelete": "¿Eliminar esta imagen? Esta acción no se puede deshacer.",
+    "imageAlt": "Imagen de {name}",
+    "uploadFailed": "Error al subir la imagen"
+  },
   "auth": {
     "signIn": "Iniciar sesión",
     "signInDescription": "Introduce tus credenciales para acceder a tus campañas",

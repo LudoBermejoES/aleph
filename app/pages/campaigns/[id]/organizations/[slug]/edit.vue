@@ -92,6 +92,15 @@
         </NuxtLink>
       </div>
     </form>
+
+    <!-- Image gallery -->
+    <EntityImageGallery
+      v-if="!loading"
+      :images-url="`/api/campaigns/${campaignId}/organizations/${slug}/images`"
+      :name="form.name"
+      :editable="true"
+      class="mt-8"
+    />
   </div>
 </template>
 

@@ -52,12 +52,13 @@ const MIME_TO_EXT: Record<string, string> = {
  * Decode each base64 data URI from the images map, write the file to the correct
  * location in the new campaign's content directory, and return a map of old URL → new URL.
  *
- * Three URL patterns are handled:
- *   /api/campaigns/{id}/images/{filename}         → contentDir/images/{filename}
- *   /api/campaigns/{id}/entities/{slug}/image     → contentDir/entities/{slug}/image.{ext}
- *   /api/campaigns/{id}/characters/{slug}/portrait → contentDir/characters/{slug}/portrait.{ext}
- *   /api/campaigns/{id}/locations/{slug}/images/{imageId}
- *                                                 → contentDir/locations/{slug}/images/{imageId}.{ext}
+ * URL patterns handled:
+ *   /api/campaigns/{id}/images/{filename}                  → contentDir/images/{filename}
+ *   /api/campaigns/{id}/entities/{slug}/image              → contentDir/entities/{slug}/image.{ext}
+ *   /api/campaigns/{id}/locations/{slug}/images/{imageId}  → contentDir/locations/{slug}/images/{imageId}.{ext}
+ *   /api/campaigns/{id}/characters/{slug}/images/{imageId} → contentDir/characters/{slug}/images/{imageId}.{ext}
+ *   /api/campaigns/{id}/organizations/{slug}/images/{imageId} → contentDir/organizations/{slug}/images/{imageId}.{ext}
+ *   /api/campaigns/{id}/characters/{slug}/portrait          → contentDir/characters/{slug}/portrait.{ext}
  */
 export function extractAndWriteImages(
   images: Record<string, string>,
@@ -109,6 +110,36 @@ export function extractAndWriteImages(
       mkdirSync(dir, { recursive: true })
       writeFileSync(join(dir, `${imageId}.${ext}`), fileData)
       urlMap.set(oldUrl, `/api/campaigns/${newCampaignId}/locations/${slug}/images/${imageId}`)
+      continue
+    }
+
+    // Pattern: /api/campaigns/{id}/characters/{slug}/images/{imageId}
+    const charGalleryMatch = oldUrl.match(
+      /\/api\/campaigns\/[^/]+\/characters\/([^/]+)\/images\/([^/?]+)$/,
+    )
+    if (charGalleryMatch) {
+      const slug = charGalleryMatch[1]!
+      const oldImageId = charGalleryMatch[2]!
+      const imageId = idMap?.get(oldImageId) ?? oldImageId
+      const dir = resolve(newContentDir, 'characters', slug, 'images')
+      mkdirSync(dir, { recursive: true })
+      writeFileSync(join(dir, `${imageId}.${ext}`), fileData)
+      urlMap.set(oldUrl, `/api/campaigns/${newCampaignId}/characters/${slug}/images/${imageId}`)
+      continue
+    }
+
+    // Pattern: /api/campaigns/{id}/organizations/{slug}/images/{imageId}
+    const orgGalleryMatch = oldUrl.match(
+      /\/api\/campaigns\/[^/]+\/organizations\/([^/]+)\/images\/([^/?]+)$/,
+    )
+    if (orgGalleryMatch) {
+      const slug = orgGalleryMatch[1]!
+      const oldImageId = orgGalleryMatch[2]!
+      const imageId = idMap?.get(oldImageId) ?? oldImageId
+      const dir = resolve(newContentDir, 'organizations', slug, 'images')
+      mkdirSync(dir, { recursive: true })
+      writeFileSync(join(dir, `${imageId}.${ext}`), fileData)
+      urlMap.set(oldUrl, `/api/campaigns/${newCampaignId}/organizations/${slug}/images/${imageId}`)
       continue
     }
 
@@ -220,6 +251,10 @@ export function buildIdMap(payload: CampaignExport): Map<string, string> {
   // primary-key collision. The new id also renames the file and the URL; see
   // extractAndWriteImages.
   for (const r of payload.locationImages ?? [])
+    register((r as Record<string, unknown>).id as string)
+  for (const r of payload.characterImages ?? [])
+    register((r as Record<string, unknown>).id as string)
+  for (const r of payload.organizationImages ?? [])
     register((r as Record<string, unknown>).id as string)
 
   return idMap
@@ -793,6 +828,7 @@ export function importCampaign(
           description: (o.description as string) ?? null,
           type: (o.type as string) ?? 'faction',
           status: (o.status as string) ?? 'active',
+          entityId: remap(idMap, o.entityId as string),
           createdAt: now,
           updatedAt: now,
         })
@@ -828,6 +864,94 @@ export function importCampaign(
         .run()
     }
 
+    // 29. Character gallery images (absent in exports before this change — harmless no-op)
+    for (const r of payload.characterImages ?? []) {
+      const img = r as Record<string, unknown>
+      const oldId = img.id as string
+      const newId = remapRequired(idMap, oldId)
+      const oldUrl = img.url as string
+      const newUrl = rewriteImageUrl(oldUrl, imageUrlMap) ?? oldUrl
+      const dataUri = payload.images?.[oldUrl]
+      const mime = dataUri?.match(/^data:([^;]+);base64,/)?.[1]
+      const ext = mime
+        ? (MIME_TO_EXT[mime] ?? 'png')
+        : ((img.filename as string) ?? '').split('.').pop() || 'png'
+      db.insert(entityImages)
+        .values({
+          id: newId,
+          campaignId: newCampaignId,
+          entityId: remapRequired(idMap, img.entityId as string),
+          filename: `${newId}.${ext}`,
+          url: newUrl,
+          caption: (img.caption as string) ?? null,
+          sortOrder: (img.sortOrder as number) ?? 0,
+          isPrimary: (img.isPrimary as boolean) ?? false,
+          createdBy: importingUserId,
+          createdAt: now,
+        })
+        .run()
+    }
+
+    // 29a. Re-sync characters.portraitUrl from restored primaries
+    for (const r of payload.characterImages ?? []) {
+      const img = r as Record<string, unknown>
+      if (!img.isPrimary) continue
+      const entityId = remapRequired(idMap, img.entityId as string)
+      const restored = db
+        .select({ url: entityImages.url })
+        .from(entityImages)
+        .where(and(eq(entityImages.entityId, entityId), eq(entityImages.isPrimary, true)))
+        .get()
+      db.update(characters)
+        .set({ portraitUrl: restored?.url ?? null })
+        .where(eq(characters.entityId, entityId))
+        .run()
+    }
+
+    // 30. Organization gallery images
+    for (const r of payload.organizationImages ?? []) {
+      const img = r as Record<string, unknown>
+      const oldId = img.id as string
+      const newId = remapRequired(idMap, oldId)
+      const oldUrl = img.url as string
+      const newUrl = rewriteImageUrl(oldUrl, imageUrlMap) ?? oldUrl
+      const dataUri = payload.images?.[oldUrl]
+      const mime = dataUri?.match(/^data:([^;]+);base64,/)?.[1]
+      const ext = mime
+        ? (MIME_TO_EXT[mime] ?? 'png')
+        : ((img.filename as string) ?? '').split('.').pop() || 'png'
+      db.insert(entityImages)
+        .values({
+          id: newId,
+          campaignId: newCampaignId,
+          entityId: remapRequired(idMap, img.entityId as string),
+          filename: `${newId}.${ext}`,
+          url: newUrl,
+          caption: (img.caption as string) ?? null,
+          sortOrder: (img.sortOrder as number) ?? 0,
+          isPrimary: (img.isPrimary as boolean) ?? false,
+          createdBy: importingUserId,
+          createdAt: now,
+        })
+        .run()
+    }
+
+    // 30a. Re-sync organizations.imageUrl from restored primaries
+    for (const r of payload.organizationImages ?? []) {
+      const img = r as Record<string, unknown>
+      if (!img.isPrimary) continue
+      const entityId = remapRequired(idMap, img.entityId as string)
+      const restored = db
+        .select({ url: entityImages.url })
+        .from(entityImages)
+        .where(and(eq(entityImages.entityId, entityId), eq(entityImages.isPrimary, true)))
+        .get()
+      db.update(organizations)
+        .set({ imageUrl: restored?.url ?? null })
+        .where(eq(organizations.entityId, entityId))
+        .run()
+    }
+
     return { id: newCampaignId, name: resolvedName, slug }
   })
 }
@@ -847,7 +971,9 @@ function galleryRowsByOldUrl(db: BetterSQLite3Database, newCampaignId: string) {
   return new Map(rows.map((r) => [r.url, { id: r.id, slug: r.slug }]))
 }
 
-const GALLERY_ENTRY_RE = /^images\/location-image-(.+)\.(\w+)$/
+const LOCATION_GALLERY_ENTRY_RE = /^images\/location-image-(.+)\.(\w+)$/
+const CHARACTER_GALLERY_ENTRY_RE = /^images\/character-image-(.+)\.(\w+)$/
+const ORG_GALLERY_ENTRY_RE = /^images\/org-image-(.+)\.(\w+)$/
 
 /**
  * Place one gallery image file from a ZIP and point its row at the new campaign.
@@ -867,19 +993,35 @@ function placeGalleryImage(
     place: (destPath: string) => void
   },
 ): string | null {
-  const match = args.entryName.match(GALLERY_ENTRY_RE)
-  if (!match) return null
+  let entityType: 'locations' | 'characters' | 'organizations' | null = null
+  let ext: string | null = null
 
-  const ext = match[2]!
+  const locMatch = args.entryName.match(LOCATION_GALLERY_ENTRY_RE)
+  const charMatch = args.entryName.match(CHARACTER_GALLERY_ENTRY_RE)
+  const orgMatch = args.entryName.match(ORG_GALLERY_ENTRY_RE)
+
+  if (locMatch) {
+    entityType = 'locations'
+    ext = locMatch[2]!
+  } else if (charMatch) {
+    entityType = 'characters'
+    ext = charMatch[2]!
+  } else if (orgMatch) {
+    entityType = 'organizations'
+    ext = orgMatch[2]!
+  } else {
+    return null
+  }
+
   const row = args.rows.get(args.oldUrl)
   if (!row) return null
 
-  const dir = resolve(args.absContentDir, 'locations', row.slug, 'images')
+  const dir = resolve(args.absContentDir, entityType, row.slug, 'images')
   mkdirSync(dir, { recursive: true })
   const filename = `${row.id}.${ext}`
   args.place(join(dir, filename))
 
-  const newUrl = `/api/campaigns/${args.newCampaignId}/locations/${row.slug}/images/${row.id}`
+  const newUrl = `/api/campaigns/${args.newCampaignId}/${entityType}/${row.slug}/images/${row.id}`
   db.update(entityImages).set({ filename, url: newUrl }).where(eq(entityImages.id, row.id)).run()
   return newUrl
 }
@@ -1001,6 +1143,10 @@ export function importCampaignFromZip(
     db.update(characters)
       .set({ portraitUrl: newUrl })
       .where(eq(characters.portraitUrl, oldUrl))
+      .run()
+    db.update(organizations)
+      .set({ imageUrl: newUrl })
+      .where(eq(organizations.imageUrl, oldUrl))
       .run()
     db.update(sessionGroups)
       .set({ imageUrl: newUrl })
@@ -1208,6 +1354,10 @@ export async function importCampaignFromZipStream(
     db.update(characters)
       .set({ portraitUrl: newUrl })
       .where(eq(characters.portraitUrl, oldUrl))
+      .run()
+    db.update(organizations)
+      .set({ imageUrl: newUrl })
+      .where(eq(organizations.imageUrl, oldUrl))
       .run()
     db.update(sessionGroups)
       .set({ imageUrl: newUrl })

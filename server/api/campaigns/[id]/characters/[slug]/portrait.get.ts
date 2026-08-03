@@ -56,6 +56,11 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, message: 'No portrait uploaded' })
   }
 
+  // New-style gallery URL — redirect to the gallery image endpoint.
+  if (character.portraitUrl.includes('/images/')) {
+    return sendRedirect(event, character.portraitUrl, 301)
+  }
+
   const portraitDir = join(process.cwd(), campaign.contentDir, 'characters', slug)
   // Find whichever extension was stored
   let fileBuffer: Buffer | null = null

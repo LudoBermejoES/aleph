@@ -113,6 +113,16 @@ aleph character folder-delete <folderId> --campaign <id> [--yes]
 aleph character family-add <slug> --campaign <id> --type <parent|child|spouse|sibling> --target <slug> [--json]
 aleph character family-remove <slug> <relationId> --campaign <id> [--yes]
 aleph character genealogy <slug> --campaign <id> [--depth <n>] [--format ascii|json]
+
+# Character images (gallery). Exactly one image is the main portrait shown elsewhere.
+aleph character images <slug> --campaign <id> [--json]
+aleph character image-add <slug> --campaign <id> --file <path> [--caption <text>] [--json]
+aleph character image-update <slug> <imageId> --campaign <id> [--caption <text>] [--order <n>]
+aleph character image-set-primary <slug> <imageId> --campaign <id>
+aleph character image-remove <slug> <imageId> --campaign <id>
+#   --caption travels as a form field, not JSON. `image-update --caption ""` CLEARS the caption.
+#   image-update with neither --caption nor --order fails locally without sending a request.
+#   Deleting the main image promotes the next one; emptying the gallery clears portraitUrl.
 ```
 
 `upload-portrait` accepts PNG, JPEG, or WebP files up to 10 MB. The portrait is shown on the character detail page in the web UI.
@@ -193,6 +203,16 @@ aleph organization member-add <slug> --campaign <id> --character <characterId> [
 aleph organization member-update <slug> --campaign <id> --character <characterId> [--role <role>] [--json]
 aleph organization member-remove <slug> --campaign <id> --character <characterId>
 aleph organization upload-image <slug> --campaign <id> --file <path> [--json]
+
+# Organization images (gallery). Exactly one image is the main one shown elsewhere.
+aleph organization images <slug> --campaign <id> [--json]
+aleph organization image-add <slug> --campaign <id> --file <path> [--caption <text>] [--json]
+aleph organization image-update <slug> <imageId> --campaign <id> [--caption <text>] [--order <n>]
+aleph organization image-set-primary <slug> <imageId> --campaign <id>
+aleph organization image-remove <slug> <imageId> --campaign <id>
+#   --caption travels as a form field, not JSON. `image-update --caption ""` CLEARS the caption.
+#   image-update with neither --caption nor --order fails locally without sending a request.
+#   Deleting the main image promotes the next one; emptying the gallery clears imageUrl.
 ```
 
 Types: `faction`, `guild`, `army`, `cult`, `government`, `other`

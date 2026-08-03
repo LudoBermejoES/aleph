@@ -41,9 +41,18 @@
       </template>
     </CharacterForm>
 
+    <!-- Image gallery (always shown when loaded) -->
+    <EntityImageGallery
+      v-if="loaded"
+      :images-url="`/api/campaigns/${campaignId}/characters/${slug}/images`"
+      :name="form.name"
+      :editable="!restricted"
+      class="mt-8"
+    />
+
     <!-- Restricted editor: the note field and nothing else. -->
     <form
-      v-else-if="loaded && restricted"
+      v-if="loaded && restricted"
       class="space-y-4"
       data-testid="character-note-only-form"
       @submit.prevent="saveNote"

@@ -1,0 +1,178 @@
+
+Running 3 tests using 1 worker
+
+[1A[2K[1/3] tests/e2e/character-image-gallery.spec.ts:41:3 › Character image gallery › editor uploads two portraits, sets the second as primary, header portrait updates
+[1A[2K[2/3] (retries) tests/e2e/character-image-gallery.spec.ts:41:3 › Character image gallery › editor uploads two portraits, sets the second as primary, header portrait updates (retry #1)
+[1A[2K  1) tests/e2e/character-image-gallery.spec.ts:41:3 › Character image gallery › editor uploads two portraits, sets the second as primary, header portrait updates 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByTestId('gallery-upload')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByTestId('gallery-upload')[22m
+
+
+      48 |
+      49 |     // Gallery panel is visible (editor can edit)
+    > 50 |     await expect(page.getByTestId('gallery-upload')).toBeVisible()
+         |                                                      ^
+      51 |     await expect(page.getByTestId('gallery-item')).toHaveCount(0)
+      52 |
+      53 |     // Upload first portrait
+        at /Users/ludo/code/aleph/tests/e2e/character-image-gallery.spec.ts:50:54
+
+    Error Context: test-results/character-image-gallery-Ch-4196f-ary-header-portrait-updates/error-context.md
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByTestId('gallery-upload')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByTestId('gallery-upload')[22m
+
+
+      48 |
+      49 |     // Gallery panel is visible (editor can edit)
+    > 50 |     await expect(page.getByTestId('gallery-upload')).toBeVisible()
+         |                                                      ^
+      51 |     await expect(page.getByTestId('gallery-item')).toHaveCount(0)
+      52 |
+      53 |     // Upload first portrait
+        at /Users/ludo/code/aleph/tests/e2e/character-image-gallery.spec.ts:50:54
+
+    Error Context: test-results/character-image-gallery-Ch-4196f-ary-header-portrait-updates-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/character-image-gallery-Ch-4196f-ary-header-portrait-updates-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/character-image-gallery-Ch-4196f-ary-header-portrait-updates-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K[3/3] tests/e2e/character-image-gallery.spec.ts:84:3 › Character image gallery › editor deletes a portrait and the gallery updates
+[1A[2K[4/3] (retries) tests/e2e/character-image-gallery.spec.ts:84:3 › Character image gallery › editor deletes a portrait and the gallery updates (retry #1)
+[1A[2K  2) tests/e2e/character-image-gallery.spec.ts:84:3 › Character image gallery › editor deletes a portrait and the gallery updates 
+
+    TimeoutError: page.setInputFiles: Timeout 15000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('[data-testid="gallery-file-input"]')[22m
+
+
+      31 |
+      32 | async function uploadViaUi(page: Page, filename = 'portrait.png') {
+    > 33 |   await page.setInputFiles('[data-testid="gallery-file-input"]', {
+         |   ^
+      34 |     name: filename,
+      35 |     mimeType: 'image/png',
+      36 |     buffer: Buffer.from(PNG_1PX_BASE64, 'base64'),
+        at uploadViaUi (/Users/ludo/code/aleph/tests/e2e/character-image-gallery.spec.ts:33:3)
+        at /Users/ludo/code/aleph/tests/e2e/character-image-gallery.spec.ts:91:5
+
+    Error Context: test-results/character-image-gallery-Ch-6a847-ait-and-the-gallery-updates/error-context.md
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    TimeoutError: page.setInputFiles: Timeout 15000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('[data-testid="gallery-file-input"]')[22m
+
+
+      31 |
+      32 | async function uploadViaUi(page: Page, filename = 'portrait.png') {
+    > 33 |   await page.setInputFiles('[data-testid="gallery-file-input"]', {
+         |   ^
+      34 |     name: filename,
+      35 |     mimeType: 'image/png',
+      36 |     buffer: Buffer.from(PNG_1PX_BASE64, 'base64'),
+        at uploadViaUi (/Users/ludo/code/aleph/tests/e2e/character-image-gallery.spec.ts:33:3)
+        at /Users/ludo/code/aleph/tests/e2e/character-image-gallery.spec.ts:91:5
+
+    Error Context: test-results/character-image-gallery-Ch-6a847-ait-and-the-gallery-updates-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/character-image-gallery-Ch-6a847-ait-and-the-gallery-updates-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/character-image-gallery-Ch-6a847-ait-and-the-gallery-updates-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K[5/3] tests/e2e/character-image-gallery.spec.ts:100:3 › Character image gallery › gallery is visible on the character edit page
+[1A[2K[6/3] (retries) tests/e2e/character-image-gallery.spec.ts:100:3 › Character image gallery › gallery is visible on the character edit page (retry #1)
+[1A[2K  3) tests/e2e/character-image-gallery.spec.ts:100:3 › Character image gallery › gallery is visible on the character edit page 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByTestId('gallery-upload')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByTestId('gallery-upload')[22m
+
+
+      105 |
+      106 |     // Gallery upload button is present (edit page, editable = true)
+    > 107 |     await expect(page.getByTestId('gallery-upload')).toBeVisible()
+          |                                                      ^
+      108 |
+      109 |     await uploadViaUi(page)
+      110 |     await expect(page.getByTestId('gallery-item')).toHaveCount(1)
+        at /Users/ludo/code/aleph/tests/e2e/character-image-gallery.spec.ts:107:54
+
+    Error Context: test-results/character-image-gallery-Ch-db63b--on-the-character-edit-page/error-context.md
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByTestId('gallery-upload')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByTestId('gallery-upload')[22m
+
+
+      105 |
+      106 |     // Gallery upload button is present (edit page, editable = true)
+    > 107 |     await expect(page.getByTestId('gallery-upload')).toBeVisible()
+          |                                                      ^
+      108 |
+      109 |     await uploadViaUi(page)
+      110 |     await expect(page.getByTestId('gallery-item')).toHaveCount(1)
+        at /Users/ludo/code/aleph/tests/e2e/character-image-gallery.spec.ts:107:54
+
+    Error Context: test-results/character-image-gallery-Ch-db63b--on-the-character-edit-page-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/character-image-gallery-Ch-db63b--on-the-character-edit-page-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/character-image-gallery-Ch-db63b--on-the-character-edit-page-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K  3 failed
+    tests/e2e/character-image-gallery.spec.ts:41:3 › Character image gallery › editor uploads two portraits, sets the second as primary, header portrait updates 
+    tests/e2e/character-image-gallery.spec.ts:84:3 › Character image gallery › editor deletes a portrait and the gallery updates 
+    tests/e2e/character-image-gallery.spec.ts:100:3 › Character image gallery › gallery is visible on the character edit page 
