@@ -31,3 +31,9 @@ En el combate final de la sala Gael no actuó rápido. Esperó. Canalizó dos ac
 ## Sesión del 5 de julio de 2026 — La mala racha del mago
 
 La sesión del 5 de julio no fue de Gael Mouro. Los arcos eléctricos lanzados contra dos atacantes a la vez no hicieron nada apreciable. El hechizo preparado con dos acciones y lanzado directamente contra Volodmira falló de manera estrepitosa — el tipo de fallo que los bardos recordarán aunque el mago preferiría olvidar. Los gigantes parecían tener algo que resistía sus hechizos, o simplemente la noche no era la suya. Terminó el combate sin heridas graves, pero con la percepción clara de que algo en su repertorio no estaba funcionando como debería contra este tipo de enemigos.
+
+## Sesión del 19 de julio de 2025 — Sin objetivos para el ojo verde
+
+Una sesión sin magia que usar. Los Espectros de Hierro pasaron con su provocación; los demás nobles recogieron sus cartas; el grupo recibió la suya. Gael escuchó la asignación — Cinturón Verde, bandidos, Puesto Comercial de Oleg como punto de partida — y procesó las implicaciones. Territorio abierto. Enemigos sin resistencia mágica conocida, a diferencia de los gigantes de la noche anterior. El ojo verde tiene más preguntas sobre quién organizó todo eso que sobre la nueva misión.
+
+En el salón con Lady Jamandi, Gael escuchó sus respuestas sobre los posibles responsables del ataque. La lista incluye a Pitax. La lista también incluye a cualquiera que no quiera ver a Rostland crecer. Es una lista demasiado larga para un solo hombre con un ojo verde.

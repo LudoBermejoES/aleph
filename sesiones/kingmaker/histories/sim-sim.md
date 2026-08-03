@@ -29,3 +29,9 @@ En el combate de la sala de los Lágrimas Negras, Sim Sim golpeó a uno de los s
 ## Sesión del 5 de julio de 2026 — El primero en entrar
 
 Fue Sim Sim quien se plantó junto a la puerta cerrada mientras Nali atendía a los heridos, y quien la abrió cuando llegó el momento. Lo que encontró al otro lado era una masacre: el suelo cubierto de cuerpos y Yamandi Aldori combatiendo contra dos gigantes con una espada de fuego. Se apartó para dejar paso. Cuando llegaron Los Lágrimas Negras desde la segunda puerta, Sim Sim entró y golpeó al primero que encontró. Lo rodearon y no pararon hasta dejarlo en el suelo. El combate siguió sin él durante varios turnos, hasta que Nali lo curó. Lady Aldori encontró la sala sin enemigos cuando se dio la vuelta, y miró al grupo con una sorpresa que Sim Sim habría preferido no necesitar.
+
+## Sesión del 19 de julio de 2025 — Corsarios con patente
+
+El gran salón estaba restaurado. Los cuatro grupos recibieron sus cartas por orden de importancia, y el grupo fue el último — "aunque no por ello menos importante", dijo Lady Jamandi, una frase que Sim Sim registró como lo que era: una cortesía. Los Espectros de Hierro pasaron junto al grupo y dejaron caer la provocación sin mirar. Sim Sim los observó en silencio.
+
+Cuando llegó el turno de leer el texto de la carta, Sim Sim no entendía por qué necesitaban un papel para ir a tierras que no eran de nadie. En su pueblo no funciona así. Laughlin Lodovka lo explicó: sin el papel, cualquier reino podría expulsarlos una vez hecho el trabajo. Con él, son corsarios con patente de Restov. Sim Sim lo entendió cuando lo formularon en esos términos. Su pueblo tiene corsarios.

@@ -31,3 +31,9 @@ Tomó un escudo nuevo de la armería. No era su elemento natural, pero el combat
 ## Sesión del 5 de julio de 2026 — La canción por los caídos
 
 Laughlin mantuvo el canto bárdico durante todo el combate contra Los Lágrimas Negras y Volodmira, sin interrumpirlo ni cuando los disparos fallaban ni cuando Linzi quedó a un punto de morir. Fue Laughlin quien mató al primer Lágrima Negra de la sala, y fue Laughlin quien, con Volodmira trastabillando tras los golpes de Tark 'Krap', disparó el arco largo y la remató. La flecha entró limpia. Yamandi Aldori, que acababa de atravesar al último de los gigantes y se volvía para ayudar, encontró la sala ya silenciosa y los miró con algo que Laughlin reconoció como admiración genuina, del tipo que no se regala.
+
+## Sesión del 19 de julio de 2025 — La barda que miraba atrás
+
+Laughlin reconoció al Barón Haron Drelet antes de que abriera la boca: noble con experiencia, rodeado de veteranos y diplomáticos, el tipo de hombre que recoge una carta con una inclinación de cabeza y no necesita nada más. Cuando fue el turno del grupo, Laughlin escuchó la asignación — Cinturón Verde, Marcas de Narl, los bandidos, el Puesto Comercial de Oleg — y empezó a calcular lo que implicaba.
+
+Linzi vaciló entre Tartuccio y el grupo. Laughlin no necesitó pensarlo: la halfling tenía talento, y un bardo solo canta mejor si hay algo que valga la pena cantar. Linzi se quedó. Después, en el salón vacío con Lady Jamandi, Laughlin habló de la diosa y del templo del ala este. No fue hacer la pelota — o no solo eso. Fue establecer que el grupo no era solo espadas: tenían a alguien a quien la diosa había bendecido en el peor momento. Lady Jamandi lo escuchó y dijo que estaba segura de que conseguirían sus objetivos. Laughlin tomó nota.

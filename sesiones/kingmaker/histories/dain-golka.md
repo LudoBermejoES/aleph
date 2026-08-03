@@ -29,3 +29,9 @@ Cuando los Lágrimas Negras atacaron, Dain abrió la puerta después de que uno 
 ## Sesión del 5 de julio de 2026 — La línea que no cedió
 
 Dain combatió en primera línea junto a Sim Sim, absorbiendo golpes de Los Lágrimas Negras y de la propia Volodmira. Necesitó curación de Nali en pleno combate para mantenerse en pie, y volvió a recibir daño poco después. Mató al menos a un Lágrima Negra durante la batalla. No fue una sesión brillante para el escudo de Dain Golka, pero fue exactamente la sesión que el grupo necesitaba de él: aguantar el tiempo suficiente para que Laughlin tuviera el ángulo de tiro.
+
+## Sesión del 19 de julio de 2025 — La tirada de Sociedad
+
+Los Espectros de Hierro pasaron junto al grupo con la provocación en voz baja y siguieron andando. Dain sacó una tirada de Sociedad de catorce y los identificó antes de que se alejaran demasiado. Información archivada. No hay nada en esa provocación que requiera respuesta inmediata.
+
+El resto de la mañana fue escuchar, procesar y subir de nivel. La asignación del grupo al Cinturón Verde tiene sentido tácticamente: territorio abierto, amenaza conocida (bandidos), punto de partida definido (el Puesto Comercial de Oleg). Dain prefiere los problemas con nombre y dirección a los que llegaron sin anunciar la noche anterior.

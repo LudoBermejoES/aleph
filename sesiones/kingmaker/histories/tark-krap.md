@@ -31,3 +31,9 @@ Cuando un Lágrima Negra apuñaló a Durgan y cerró la puerta, Tark fue el prim
 ## Sesión del 5 de julio de 2026 — El hacha de la jefa
 
 Tark 'Krap' fue de los primeros en lanzarse al combate al ver la puerta abrirse, y fue quien más daño hizo a Volodmira: la hirió salvajemente con la furia propia de quien no calcula sino que arremete, dejándola trastabillando antes de que Laughlin Lodovka la rematara. Cuando el polvo se asentó, Tark se acercó al cuerpo de Volodmira y cogió su hacha. Era grande, a dos manos, con runas grabadas en la hoja y la propiedad de barrido que permite golpear a los lados sin cambiar de posición. Un arma mágica. La había ganado en combate, en el sentido más directo posible: la jefa del ataque estaba muerta y él seguía en pie.
+
+## Sesión del 19 de julio de 2025 — El colmillo y el abrazo
+
+Amiri fue directa a Tark 'Krap' antes de irse. Lo rodeó con los brazos y lo levantó del suelo sin esfuerzo visible, con la indiferencia de quien levanta algo porque puede y porque quiere. Tark lleva hacha, armadura y escudo. Amiri es el doble de grande. Tark se dejó.
+
+Cuando Lady Jamandi mencionó que Linzi le había dicho que habían entrado en sus almacenes sin robar, Tark 'Krap' se adelantó — más verde en las mejillas de lo habitual — y devolvió un colgante de colmillo de jabalí que había encontrado colgando en una habitación. Lady Jamandi lo examinó y explicó que debía de ser una broma de algún invitado: era suyo, podían quedárselo. Tark se lo volvió a poner con la misma ceremonia silenciosa con que se recupera algo que era tuyo desde el principio.

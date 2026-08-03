@@ -29,3 +29,7 @@ En la armería tomó virotes y una armadura mejor. En el combate disparó la bal
 ## Sesión del 5 de julio de 2026 — El rastreador bien pertrechado
 
 Durgan entró en combate ya curado de las heridas de la sesión anterior, gracias a la medicina de Nali de la Hierbarroja. Combatió con la ballesta desde posición de cobertura, conectando varios disparos pero fallando en otros momentos cruciales. Cuando el combate terminó, entre el saqueo de Volodmira aparecieron unas Tracker Googles que Nali le entregó: un artilugio pequeño que otorga bonificador a supervivencia, rastrear y sentir dirección. Para alguien que lleva el apellido Garess y creció leyendo el terreno antes que los libros, no podían haber ido a mejores manos.
+
+## Sesión del 19 de julio de 2025 — La pregunta que nadie quería hacer
+
+Durgan fue quien preguntó. Mientras los demás procesaban la recompensa y los agradecimientos, fue el que verbalizó lo que todos pensaban: ¿quién organizó el ataque? Lady Jamandi respondió sin esquivar la pregunta — los bandidos del Cinturón Verde, quizás agentes de algún reino vecino que no quiere que Rostland crezca — pero admitió que todos los prisioneros capturados habían sido interrogados a fondo y ninguno conocía los motivos. Durgan escuchó y guardó la información. Hay alguien detrás de todo esto, y ese alguien todavía no tiene nombre.

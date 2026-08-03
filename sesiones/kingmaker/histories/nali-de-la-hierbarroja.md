@@ -25,3 +25,9 @@ En la cocina también entró y atacó al gigante azul. Cuando encontraron a Vale
 ## Sesión del 5 de julio de 2026 — El médico de campaña
 
 Nali estuvo bajo presión constante durante toda la sesión. Curó a Durgan y Dain durante la fase de preparación, antes de que la puerta se abriera. En combate curó a Dain en medio de la batalla. Cuando Volodmira cayó y la sala quedó en silencio, fue directo a Linzi: la halfling estaba moribunda, a un solo punto de no volver. Con algo de ayuda de Durgan, logró estabilizarla — margen muy estrecho, pero suficiente. Después curó a Sim Sim, a Dain de nuevo y a Tark 'Krap'. También disparó contra Volodmira y dio. Y además se quedó con la poción de curación encontrada en el cuerpo de la jefa. Una sesión que recordará como ejemplo de por qué un médico de campo no puede permitirse el lujo de equivocarse.
+
+## Sesión del 19 de julio de 2025 — El médico mira el mapa
+
+Nali escuchó la asignación con la atención de alguien que ya está evaluando dónde podrían herirse. Cinturón Verde. Marcas de Narl. Tierras salvajes. Cuando el grupo discutió el transporte, fue Nali quien señaló lo obvio: un carro en ese terreno podría ser más estorbo que ayuda. Las mulas son más versátiles.
+
+En el salón con Lady Jamandi, Nali guardó silencio mientras Durgan preguntaba sobre el ataque y Laughlin hablaba de la diosa. Ya tiene lo que necesitaba escuchar. Hay al menos dos teorías sobre quién está detrás de todo esto, ninguna de ellas tranquilizadora. Y tiene dos pociones de curación nuevas, que siempre son mejores que las teorías.
