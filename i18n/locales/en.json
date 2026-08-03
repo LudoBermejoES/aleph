@@ -969,7 +969,19 @@
     "confirmDeleteMessage": "Are you sure you want to delete this location? This action cannot be undone.",
     "failedSave": "Failed to save location",
     "failedLoad": "Failed to load location",
-    "inhabitantCount": "{count} inhabitant | {count} inhabitants"
+    "inhabitantCount": "{count} inhabitant | {count} inhabitants",
+    "images": {
+      "title": "Images",
+      "empty": "No images yet",
+      "upload": "Upload image",
+      "main": "Main",
+      "setMain": "Set as main image",
+      "captionPlaceholder": "Caption",
+      "moveUp": "Move image up",
+      "moveDown": "Move image down",
+      "confirmDelete": "Delete this image? This cannot be undone.",
+      "imageAlt": "Image of {name}"
+    }
   },
   "aria": {
     "markdownEditor": {

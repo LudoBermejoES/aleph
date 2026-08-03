@@ -336,6 +336,17 @@ export interface RelationType {
   isBuiltin: boolean
 }
 
+/** One image in a location's gallery. Exactly one image of a non-empty gallery is primary. */
+export interface LocationImage {
+  id: string
+  url: string
+  filename: string
+  caption: string | null
+  sortOrder: number
+  isPrimary: boolean
+  createdAt: string
+}
+
 export interface EntityRelation {
   id: string
   campaignId: string

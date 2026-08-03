@@ -212,6 +212,13 @@ aleph location inhabitant-remove <slug> --campaign <id> --character <characterId
 aleph location organizations <slug> --campaign <id> [--json]
 aleph location org-add <slug> --campaign <id> --org <organizationId>
 aleph location org-remove <slug> --campaign <id> --org <organizationId>
+
+# Location images (gallery). Exactly one image is the main one shown elsewhere.
+aleph location images <slug> --campaign <id> [--json]
+aleph location image-add <slug> --campaign <id> --file <path> [--caption <text>] [--json]
+aleph location image-update <slug> <imageId> --campaign <id> [--caption <text>] [--order <n>]
+aleph location image-set-primary <slug> <imageId> --campaign <id>
+aleph location image-remove <slug> <imageId> --campaign <id>
 ```
 
 Subtypes: `country`, `region`, `city`, `town`, `village`, `dungeon`, `lair`, `building`, `room`, `wilderness`, `other`

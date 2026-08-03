@@ -27,6 +27,15 @@
       <!-- Icon by subtype -->
       <span class="text-sm shrink-0">{{ subtypeIcon }}</span>
 
+      <!-- Primary gallery image, when the location has one. No placeholder otherwise. -->
+      <EntityImage
+        v-if="node.imageUrl"
+        :image-url="node.imageUrl"
+        :name="node.name"
+        size="sm"
+        class="shrink-0"
+      />
+
       <!-- Name link -->
       <NuxtLink
         :to="`/campaigns/${campaignId}/locations/${node.slug}`"
@@ -66,6 +75,7 @@ interface TreeNode {
   slug: string
   subtype?: string
   childCount?: number
+  imageUrl?: string | null
   children: TreeNode[]
 }
 

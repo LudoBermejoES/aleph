@@ -3,6 +3,7 @@ import { useDb } from '../../../../utils/db'
 import { entities } from '../../../../db/schema/entities'
 import { stripSecretBlocks } from '../../../../services/content'
 import { safeReadEntityFile } from '../../../../utils/content-helpers'
+import { listImages } from '../../../../services/entity-images'
 import {
   hasMinRole,
   canUserAccessEntity,
@@ -85,10 +86,15 @@ export default defineEventHandler(async (event) => {
 
   const subtype = (file.frontmatter?.fields?.subtype as string) ?? 'other'
 
+  const images = listImages(db, entity.id)
+
   return {
     ...entity,
     subtype,
     ancestors,
+    images,
+    // Always equal to entity.imageUrl — the gallery service keeps the mirror in step.
+    primaryImageUrl: entity.imageUrl ?? null,
     frontmatter: file.frontmatter,
     fields: (file.frontmatter as Record<string, unknown>).fields || {},
     content: stripSecretBlocks(file.content, role),

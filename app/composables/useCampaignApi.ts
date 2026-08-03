@@ -3,6 +3,7 @@ import type {
   CampaignListItem,
   CampaignMember,
   EntityRelation,
+  LocationImage,
   RelationType,
   GraphData,
   SearchResult,
@@ -228,6 +229,41 @@ export function useCampaignApi(campaignId: string) {
     return $fetch(`${base}/locations/${slug}/organizations/${organizationId}`, { method: 'DELETE' })
   }
 
+  // ─── Location images (gallery) ──────────────────────────────────────────────
+
+  function getLocationImages(slug: string) {
+    return $fetch<LocationImage[]>(`${base}/locations/${slug}/images`)
+  }
+
+  function uploadLocationImage(slug: string, file: File, caption?: string) {
+    const form = new FormData()
+    form.append('image', file)
+    if (caption) form.append('caption', caption)
+    return $fetch<LocationImage>(`${base}/locations/${slug}/images`, {
+      method: 'POST',
+      body: form,
+    })
+  }
+
+  function updateLocationImage(
+    slug: string,
+    imageId: string,
+    body: { caption?: string | null; sortOrder?: number; isPrimary?: boolean },
+  ) {
+    return $fetch<LocationImage>(`${base}/locations/${slug}/images/${imageId}`, {
+      method: 'PATCH',
+      body,
+    })
+  }
+
+  function setLocationPrimaryImage(slug: string, imageId: string) {
+    return updateLocationImage(slug, imageId, { isPrimary: true })
+  }
+
+  function deleteLocationImage(slug: string, imageId: string) {
+    return $fetch(`${base}/locations/${slug}/images/${imageId}`, { method: 'DELETE' })
+  }
+
   function getOrganizationLocations(orgSlug: string) {
     return $fetch<Record<string, unknown>[]>(`${base}/organizations/${orgSlug}/locations`)
   }
@@ -280,6 +316,12 @@ export function useCampaignApi(campaignId: string) {
     getLocationOrganizations,
     addLocationOrganization,
     removeLocationOrganization,
+    // Location images
+    getLocationImages,
+    uploadLocationImage,
+    updateLocationImage,
+    setLocationPrimaryImage,
+    deleteLocationImage,
     getOrganizationLocations,
   }
 }

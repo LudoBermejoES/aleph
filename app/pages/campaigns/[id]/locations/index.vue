@@ -53,6 +53,7 @@ interface LocationItem {
   parentName?: string | null
   childCount?: number
   inhabitantCount?: number
+  imageUrl?: string | null
 }
 
 interface TreeNode extends LocationItem {

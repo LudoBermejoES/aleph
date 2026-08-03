@@ -5,6 +5,7 @@ import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 import { Zip, ZipDeflate } from 'fflate'
 import { campaigns } from '../db/schema/campaigns'
 import { entities, entityTemplates, entityTemplateFields, tags } from '../db/schema/entities'
+import { entityImages } from '../db/schema/entity-images'
 import { characters } from '../db/schema/characters'
 import { sessionGroups, arcs, chapters, gameSessions, quests } from '../db/schema/sessions'
 import { maps } from '../db/schema/maps'
@@ -57,6 +58,9 @@ export interface CampaignExport {
   organizations?: unknown[]
   organizationMembers?: unknown[]
   organizationLocations?: unknown[]
+  locationImages?: unknown[]
+  /** url → base64 data URI, added by the export route after the payload is built. */
+  images?: Record<string, string>
 }
 
 export const VALID_RESOURCE_TYPES = new Set([
@@ -86,6 +90,7 @@ export const VALID_RESOURCE_TYPES = new Set([
   'organizations',
   'organizationMembers',
   'organizationLocations',
+  'locationImages',
 ])
 
 // ─── Image embedding helpers ──────────────────────────────────────────────────
@@ -112,6 +117,9 @@ export function collectImageUrls(exportData: CampaignExport): string[] {
   for (const r of exportData.sessionGroups ?? []) add((r as Record<string, unknown>).imageUrl)
   for (const r of exportData.maps ?? []) add((r as Record<string, unknown>).imagePath)
   for (const r of exportData.items ?? []) add((r as Record<string, unknown>).imagePath)
+  // Gallery images: every image, not only the primary — the primary is already covered by the
+  // entity's mirrored imageUrl, but the rest would export as dead links without this line.
+  for (const r of exportData.locationImages ?? []) add((r as Record<string, unknown>).url)
   return Array.from(seen)
 }
 
@@ -147,6 +155,20 @@ function resolveImageFile(
     const slug = entityMatch[1]!
     for (const ext of IMAGE_EXTS) {
       const filePath = resolve(contentDir, 'entities', slug, `image.${ext}`)
+      if (existsSync(filePath)) {
+        return { filePath, mime: MIME_BY_EXT[ext] ?? 'image/png' }
+      }
+    }
+    return null
+  }
+
+  // Pattern: /api/campaigns/{id}/locations/{slug}/images/{imageId}
+  const galleryMatch = url.match(/\/api\/campaigns\/[^/]+\/locations\/([^/]+)\/images\/([^/?]+)$/)
+  if (galleryMatch) {
+    const slug = galleryMatch[1]!
+    const imageId = galleryMatch[2]!
+    for (const ext of IMAGE_EXTS) {
+      const filePath = resolve(contentDir, 'locations', slug, 'images', `${imageId}.${ext}`)
       if (existsSync(filePath)) {
         return { filePath, mime: MIME_BY_EXT[ext] ?? 'image/png' }
       }
@@ -241,6 +263,14 @@ export async function buildCampaignExport(
       ...t,
       fields: templateFieldsList.filter((f) => f.templateId === t.id),
     }))
+  }
+
+  if (shouldInclude('locationImages', filteredInclude)) {
+    result.locationImages = db
+      .select()
+      .from(entityImages)
+      .where(eq(entityImages.campaignId, campaignId))
+      .all()
   }
 
   if (shouldInclude('tags', filteredInclude)) {
@@ -467,12 +497,18 @@ export async function buildCampaignExportZip(
     const resolved = resolveImageFile(url, contentDir)
     if (!resolved) continue
 
+    // Gallery URLs also end in /images/{id}, so they must be matched BEFORE the generic
+    // campaign-images pattern or they land in the wrong directory on import.
+    const galleryMatch = url.match(/\/locations\/([^/]+)\/images\/([^/?]+)$/)
     const imagesMatch = url.match(/\/images\/([^/?]+)$/)
     const entityMatch = url.match(/\/entities\/([^/]+)\/image$/)
     const portraitMatch = url.match(/\/characters\/([^/]+)\/portrait$/)
 
     let entryName: string | null = null
-    if (imagesMatch) {
+    if (galleryMatch) {
+      const ext = resolved.filePath.split('.').pop() ?? 'png'
+      entryName = `images/location-image-${galleryMatch[2]}.${ext}`
+    } else if (imagesMatch) {
       entryName = `images/${imagesMatch[1]}`
     } else if (entityMatch) {
       const ext = resolved.filePath.split('.').pop() ?? 'png'

@@ -25,11 +25,19 @@
 
       <!-- Header -->
       <div class="flex items-start justify-between gap-4 mb-6">
-        <div>
-          <h1 class="text-2xl font-bold">{{ location.name }}</h1>
-          <span class="text-sm text-muted-foreground capitalize">{{
-            $t(`locations.subtypes.${location.subtype || 'other'}`)
-          }}</span>
+        <div class="flex items-start gap-4">
+          <EntityImage
+            v-if="location.primaryImageUrl"
+            :image-url="location.primaryImageUrl"
+            :name="location.name"
+            size="lg"
+          />
+          <div>
+            <h1 class="text-2xl font-bold">{{ location.name }}</h1>
+            <span class="text-sm text-muted-foreground capitalize">{{
+              $t(`locations.subtypes.${location.subtype || 'other'}`)
+            }}</span>
+          </div>
         </div>
         <div class="flex gap-2 shrink-0">
           <NuxtLink :to="`/campaigns/${campaignId}/locations/${slug}/edit`">
@@ -69,6 +77,15 @@
         :entity-slug="slug"
         :campaign-role="campaignRole"
         class="mt-6 mb-6"
+      />
+
+      <!-- Images -->
+      <LocationImageGallery
+        :campaign-id="campaignId"
+        :slug="slug"
+        :name="location.name"
+        :editable="canEdit"
+        @changed="onImagesChanged"
       />
 
       <!-- Sub-locations -->
@@ -219,6 +236,7 @@ interface LocationData {
   parentId?: string | null
   templateId?: string | null
   fields?: Record<string, unknown>
+  primaryImageUrl?: string | null
 }
 interface CharacterEntry {
   id: string
@@ -243,6 +261,7 @@ const selectedCharacter = ref('')
 const selectedOrg = ref('')
 const campaignRole = ref('')
 const isDm = computed(() => ['dm', 'co_dm'].includes(campaignRole.value))
+const canEdit = computed(() => ['dm', 'co_dm', 'editor'].includes(campaignRole.value))
 const contentRef = ref<HTMLElement>()
 const { loadRevealedBlocks, injectRevealButtons } = useSecretReveals(
   contentRef,
@@ -298,6 +317,12 @@ onMounted(async () => {
   await nextTick()
   injectRevealButtons()
 })
+
+// The header image reads primaryImageUrl, so it has to follow a gallery change without a reload.
+function onImagesChanged(images: { url: string; isPrimary: boolean }[]) {
+  if (!location.value) return
+  location.value.primaryImageUrl = images.find((i) => i.isPrimary)?.url ?? null
+}
 
 async function addInhabitant() {
   if (!selectedCharacter.value) return

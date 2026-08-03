@@ -72,7 +72,7 @@ export const del = (path) => request('DELETE', path)
  * Multipart POST — used for file uploads (e.g. character portraits).
  * fieldName: the form field name the server expects (e.g. 'portrait').
  */
-export async function postMultipart(path, filePath, fieldName = 'file') {
+export async function postMultipart(path, filePath, fieldName = 'file', extraFields = {}) {
   const { basename } = await import('path')
   const config = requireConfig()
   const url = `${config.url.replace(/\/$/, '')}${path}`
@@ -84,6 +84,9 @@ export async function postMultipart(path, filePath, fieldName = 'file') {
   const mimeMap = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', webp: 'image/webp' }
   const mime = mimeMap[ext] ?? 'application/octet-stream'
   form.append(fieldName, new Blob([fileBuffer], { type: mime }), basename(filePath))
+  for (const [key, value] of Object.entries(extraFields)) {
+    if (value !== undefined && value !== null) form.append(key, String(value))
+  }
 
   let res
   try {

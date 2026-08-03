@@ -969,7 +969,19 @@
     "confirmDeleteMessage": "¿Seguro que quieres eliminar este lugar? Esta acción no se puede deshacer.",
     "failedSave": "Error al guardar el lugar",
     "failedLoad": "Error al cargar el lugar",
-    "inhabitantCount": "{count} habitante | {count} habitantes"
+    "inhabitantCount": "{count} habitante | {count} habitantes",
+    "images": {
+      "title": "Imágenes",
+      "empty": "Aún no hay imágenes",
+      "upload": "Subir imagen",
+      "main": "Principal",
+      "setMain": "Establecer como imagen principal",
+      "captionPlaceholder": "Pie de foto",
+      "moveUp": "Mover imagen hacia arriba",
+      "moveDown": "Mover imagen hacia abajo",
+      "confirmDelete": "¿Eliminar esta imagen? No se puede deshacer.",
+      "imageAlt": "Imagen de {name}"
+    }
   },
   "aria": {
     "markdownEditor": {

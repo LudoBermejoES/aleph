@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto'
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
-import { eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import { unzipSync, Unzip, UnzipInflate, UnzipPassThrough } from 'fflate'
 import type { IncomingMessage } from 'http'
 import type { Readable } from 'stream'
@@ -8,6 +8,7 @@ import { campaigns } from '../db/schema/campaigns'
 import { campaignMembers } from '../db/schema/campaign-members'
 import { entityTypes } from '../db/schema/entity-types'
 import { entities, entityTemplates, entityTemplateFields, tags } from '../db/schema/entities'
+import { entityImages } from '../db/schema/entity-images'
 import { characters } from '../db/schema/characters'
 import { sessionGroups, arcs, chapters, gameSessions, quests } from '../db/schema/sessions'
 import { maps } from '../db/schema/maps'
@@ -55,11 +56,14 @@ const MIME_TO_EXT: Record<string, string> = {
  *   /api/campaigns/{id}/images/{filename}         → contentDir/images/{filename}
  *   /api/campaigns/{id}/entities/{slug}/image     → contentDir/entities/{slug}/image.{ext}
  *   /api/campaigns/{id}/characters/{slug}/portrait → contentDir/characters/{slug}/portrait.{ext}
+ *   /api/campaigns/{id}/locations/{slug}/images/{imageId}
+ *                                                 → contentDir/locations/{slug}/images/{imageId}.{ext}
  */
 export function extractAndWriteImages(
   images: Record<string, string>,
   newContentDir: string,
   newCampaignId: string,
+  idMap?: Map<string, string>,
 ): Map<string, string> {
   const urlMap = new Map<string, string>()
 
@@ -90,6 +94,21 @@ export function extractAndWriteImages(
       mkdirSync(dir, { recursive: true })
       writeFileSync(join(dir, `image.${ext}`), fileData)
       urlMap.set(oldUrl, `/api/campaigns/${newCampaignId}/entities/${slug}/image`)
+      continue
+    }
+
+    // Pattern: /api/campaigns/{id}/locations/{slug}/images/{imageId}
+    const galleryMatch = oldUrl.match(
+      /\/api\/campaigns\/[^/]+\/locations\/([^/]+)\/images\/([^/?]+)$/,
+    )
+    if (galleryMatch) {
+      const slug = galleryMatch[1]!
+      const oldImageId = galleryMatch[2]!
+      const imageId = idMap?.get(oldImageId) ?? oldImageId
+      const dir = resolve(newContentDir, 'locations', slug, 'images')
+      mkdirSync(dir, { recursive: true })
+      writeFileSync(join(dir, `${imageId}.${ext}`), fileData)
+      urlMap.set(oldUrl, `/api/campaigns/${newCampaignId}/locations/${slug}/images/${imageId}`)
       continue
     }
 
@@ -197,6 +216,11 @@ export function buildIdMap(payload: CampaignExport): Map<string, string> {
   for (const r of payload.mentions ?? []) register((r as Record<string, unknown>).id as string)
   // Organizations
   for (const r of payload.organizations ?? []) register((r as Record<string, unknown>).id as string)
+  // Location gallery images — remapped so the same export can be imported twice without a
+  // primary-key collision. The new id also renames the file and the URL; see
+  // extractAndWriteImages.
+  for (const r of payload.locationImages ?? [])
+    register((r as Record<string, unknown>).id as string)
 
   return idMap
 }
@@ -256,7 +280,7 @@ export function importCampaign(
     // 1b. Extract and write embedded images (v1.1 exports only)
     const imageUrlMap =
       payload.images && Object.keys(payload.images).length > 0
-        ? extractAndWriteImages(payload.images, contentDir, newCampaignId)
+        ? extractAndWriteImages(payload.images, contentDir, newCampaignId, idMap)
         : new Map<string, string>()
 
     // 2. Campaign
@@ -365,6 +389,54 @@ export function importCampaign(
           createdAt: now,
           updatedAt: now,
         })
+        .run()
+    }
+
+    // 7b. Location gallery images
+    for (const r of payload.locationImages ?? []) {
+      const img = r as Record<string, unknown>
+      const oldId = img.id as string
+      const newId = remapRequired(idMap, oldId)
+      const oldUrl = img.url as string
+      const newUrl = rewriteImageUrl(oldUrl, imageUrlMap) ?? oldUrl
+      // Mirror exactly what extractAndWriteImages wrote to disk: {newId}.{ext-from-mime}.
+      // Deriving the extension from the data URI is the only way the row and the file agree
+      // when the source stored .jpeg and the mime maps to .jpg.
+      const dataUri = payload.images?.[oldUrl]
+      const mime = dataUri?.match(/^data:([^;]+);base64,/)?.[1]
+      const ext = mime
+        ? (MIME_TO_EXT[mime] ?? 'png')
+        : ((img.filename as string) ?? '').split('.').pop() || 'png'
+      db.insert(entityImages)
+        .values({
+          id: newId,
+          campaignId: newCampaignId,
+          entityId: remapRequired(idMap, img.entityId as string),
+          filename: `${newId}.${ext}`,
+          url: newUrl,
+          caption: (img.caption as string) ?? null,
+          sortOrder: (img.sortOrder as number) ?? 0,
+          isPrimary: (img.isPrimary as boolean) ?? false,
+          createdBy: importingUserId,
+          createdAt: now,
+        })
+        .run()
+    }
+
+    // 7c. Re-derive each location's imageUrl from its restored primary, rather than trusting the
+    // value copied from the source campaign.
+    for (const r of payload.locationImages ?? []) {
+      const img = r as Record<string, unknown>
+      if (!img.isPrimary) continue
+      const entityId = remapRequired(idMap, img.entityId as string)
+      const restored = db
+        .select({ url: entityImages.url })
+        .from(entityImages)
+        .where(and(eq(entityImages.entityId, entityId), eq(entityImages.isPrimary, true)))
+        .get()
+      db.update(entities)
+        .set({ imageUrl: restored?.url ?? null })
+        .where(eq(entities.id, entityId))
         .run()
     }
 
@@ -761,6 +833,58 @@ export function importCampaign(
 }
 
 /**
+ * Gallery rows the base import just created, keyed by the URL they still carry from the source
+ * campaign. The ZIP importers need this because `importCampaign` remaps every gallery id, but the
+ * ZIP entry names embed the OLD id — this map is the bridge between the two.
+ */
+function galleryRowsByOldUrl(db: BetterSQLite3Database, newCampaignId: string) {
+  const rows = db
+    .select({ id: entityImages.id, url: entityImages.url, slug: entities.slug })
+    .from(entityImages)
+    .innerJoin(entities, eq(entityImages.entityId, entities.id))
+    .where(eq(entityImages.campaignId, newCampaignId))
+    .all()
+  return new Map(rows.map((r) => [r.url, { id: r.id, slug: r.slug }]))
+}
+
+const GALLERY_ENTRY_RE = /^images\/location-image-(.+)\.(\w+)$/
+
+/**
+ * Place one gallery image file from a ZIP and point its row at the new campaign.
+ *
+ * Returns the new URL, or null when the entry is not a gallery entry (the caller then falls
+ * through to the generic image patterns). `place` does the actual write or rename so the buffered
+ * and streaming importers can share everything else.
+ */
+function placeGalleryImage(
+  db: BetterSQLite3Database,
+  args: {
+    entryName: string
+    oldUrl: string
+    newCampaignId: string
+    absContentDir: string
+    rows: ReturnType<typeof galleryRowsByOldUrl>
+    place: (destPath: string) => void
+  },
+): string | null {
+  const match = args.entryName.match(GALLERY_ENTRY_RE)
+  if (!match) return null
+
+  const ext = match[2]!
+  const row = args.rows.get(args.oldUrl)
+  if (!row) return null
+
+  const dir = resolve(args.absContentDir, 'locations', row.slug, 'images')
+  mkdirSync(dir, { recursive: true })
+  const filename = `${row.id}.${ext}`
+  args.place(join(dir, filename))
+
+  const newUrl = `/api/campaigns/${args.newCampaignId}/locations/${row.slug}/images/${row.id}`
+  db.update(entityImages).set({ filename, url: newUrl }).where(eq(entityImages.id, row.id)).run()
+  return newUrl
+}
+
+/**
  * Import a campaign from a v1.2 ZIP archive buffer.
  *
  * The ZIP must contain:
@@ -823,9 +947,24 @@ export function importCampaignFromZip(
   // Write image files and build old URL → new URL map
   const urlMap = new Map<string, string>()
 
+  const galleryRows = galleryRowsByOldUrl(db, newCampaignId)
+
   for (const [entryName, oldUrl] of Object.entries(imageMap)) {
     const fileData = unzipped[entryName]
     if (!fileData) continue
+
+    const galleryUrl = placeGalleryImage(db, {
+      entryName,
+      oldUrl,
+      newCampaignId,
+      absContentDir,
+      rows: galleryRows,
+      place: (destPath) => writeFileSync(destPath, Buffer.from(fileData)),
+    })
+    if (galleryUrl) {
+      urlMap.set(oldUrl, galleryUrl)
+      continue
+    }
 
     const imagesMatch = entryName.match(/^images\/([^/]+)$/)
     const entityMatch = entryName.match(/^images\/entity-(.+)-image\.(\w+)$/)
@@ -1008,6 +1147,8 @@ export async function importCampaignFromZipStream(
   // Move temp image files to their real locations, build URL rewrite map
   const urlMap = new Map<string, string>()
 
+  const galleryRows = galleryRowsByOldUrl(db, newCampaignId)
+
   for (const [entryName, oldUrl] of Object.entries(imageMap)) {
     const safeName = entryName.replace(/\//g, '__')
     const srcPath = join(tmpDir, safeName)
@@ -1017,6 +1158,19 @@ export async function importCampaignFromZipStream(
     const portraitMatch = entryName.match(/^images\/character-(.+)-portrait\.(\w+)$/)
 
     try {
+      const galleryUrl = placeGalleryImage(db, {
+        entryName,
+        oldUrl,
+        newCampaignId,
+        absContentDir,
+        rows: galleryRows,
+        place: (destPath) => renameSync(srcPath, destPath),
+      })
+      if (galleryUrl) {
+        urlMap.set(oldUrl, galleryUrl)
+        continue
+      }
+
       if (imagesMatch) {
         const filename = imagesMatch[1]!
         const dir = resolve(absContentDir, 'images')

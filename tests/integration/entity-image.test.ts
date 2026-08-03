@@ -61,7 +61,10 @@ describe('Entity Image (integration)', () => {
     const ent = await api(`/api/campaigns/${campaignId}/entities`, {
       method: 'POST',
       headers: withCsrf(cookie, csrfToken),
-      body: { name: 'Image Test Entity', type: 'location' },
+      // Deliberately NOT a location: locations route this endpoint into their image gallery
+      // (see tests/integration/location-images.test.ts). This suite guards the generic
+      // single-image path, which is what every other entity type still uses.
+      body: { name: 'Image Test Entity', type: 'item' },
     })
     entitySlug = (await ent.json()).slug
   })

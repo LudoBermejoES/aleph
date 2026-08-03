@@ -215,7 +215,10 @@ describe('Campaign Export ZIP Images (integration)', () => {
     const entityRes = await apiRaw(`/api/campaigns/${campaignId}/entities`, {
       method: 'POST',
       headers: { 'X-API-Key': apiKey },
-      body: { name: 'Image Entity', type: 'location', visibility: 'members' },
+      // Deliberately NOT a location: a location's image goes through its gallery and is packed
+      // under `images/location-image-*` instead (see location-images-export.test.ts). This suite
+      // guards the `images/entity-*-image.*` ZIP entry that every other entity type produces.
+      body: { name: 'Image Entity', type: 'item', visibility: 'members' },
     })
     const entity = await entityRes.json()
     entitySlug = entity.slug

@@ -3,12 +3,10 @@ import { useDb } from '../../../../../utils/db'
 import { entities } from '../../../../../db/schema/entities'
 import { hasMinRole } from '../../../../../utils/permissions'
 import { writeFile, mkdir } from 'fs/promises'
-import { join, extname } from 'path'
-import { detectMimeFromBytes } from '../../../../../utils/sanitize'
+import { join } from 'path'
+import { ImageUploadError, validateImageUpload } from '../../../../../utils/image-upload'
+import { addImage, updateImage } from '../../../../../services/entity-images'
 import type { CampaignRole } from '../../../../../utils/permissions'
-
-const ALLOWED_MIME_TYPES = ['image/png', 'image/jpeg', 'image/webp']
-const MAX_SIZE_BYTES = 10 * 1024 * 1024 // 10 MB
 
 export default defineEventHandler(async (event) => {
   const role = event.context.campaignRole as CampaignRole
@@ -18,6 +16,7 @@ export default defineEventHandler(async (event) => {
 
   const campaignId = getRouterParam(event, 'id')!
   const slug = getRouterParam(event, 'slug')!
+  const userId = event.context.user?.id || ''
   const db = useDb()
   const campaign = event.context.campaign
 
@@ -33,42 +32,40 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'No file uploaded' })
   }
 
-  const file = formData.find((f) => f.name === 'image')
-  if (!file || !file.data) {
-    throw createError({ statusCode: 400, message: 'Image file is required (field name: "image")' })
+  let validated
+  try {
+    validated = validateImageUpload(formData.find((f) => f.name === 'image'))
+  } catch (err) {
+    if (err instanceof ImageUploadError) {
+      throw createError({ statusCode: 400, message: err.message })
+    }
+    throw err
   }
 
-  const mime = file.type || 'application/octet-stream'
-  if (!ALLOWED_MIME_TYPES.includes(mime)) {
-    throw createError({
-      statusCode: 400,
-      message: `Invalid file type "${mime}". Allowed: png, jpeg, webp`,
+  // Locations own a gallery, and `entities.imageUrl` is its derived mirror. Writing the column
+  // here would make this route a second writer and let the two disagree, so delegate instead: the
+  // upload becomes a gallery image and is promoted to primary. Every other entity type keeps the
+  // single-file behaviour below, byte for byte.
+  if (entity.type === 'location') {
+    const image = await addImage(db, {
+      campaignId,
+      entityId: entity.id,
+      slug,
+      contentDir: campaign.contentDir,
+      data: validated.data,
+      ext: validated.ext,
+      caption: null,
+      userId,
     })
+    if (!image.isPrimary) {
+      updateImage(db, entity.id, image.id, { isPrimary: true })
+    }
+    return { imageUrl: image.url }
   }
-
-  if (file.data.length > MAX_SIZE_BYTES) {
-    throw createError({ statusCode: 400, message: 'File exceeds the 10 MB size limit' })
-  }
-
-  // Validate actual file content via magic bytes
-  const detectedMime = detectMimeFromBytes(file.data)
-  if (!detectedMime || detectedMime !== mime) {
-    throw createError({
-      statusCode: 400,
-      message: 'File content does not match declared MIME type',
-    })
-  }
-
-  const mimeToExt: Record<string, string> = {
-    'image/png': '.png',
-    'image/jpeg': '.jpg',
-    'image/webp': '.webp',
-  }
-  const ext = mimeToExt[mime] ?? (extname(file.filename || '.png') || '.png')
 
   const imageDir = join(process.cwd(), campaign.contentDir, 'entities', slug)
   await mkdir(imageDir, { recursive: true })
-  await writeFile(join(imageDir, `image${ext}`), file.data)
+  await writeFile(join(imageDir, `image${validated.ext}`), validated.data)
 
   const imageUrl = `/api/campaigns/${campaignId}/entities/${slug}/image`
 

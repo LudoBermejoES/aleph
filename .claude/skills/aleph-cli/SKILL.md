@@ -4,7 +4,7 @@ description: Use the aleph CLI to manage campaigns, entities, characters, locati
 license: MIT
 metadata:
   author: aleph
-  version: '3.8'
+  version: '3.9'
 ---
 
 You have access to the `aleph` CLI tool at `node /Users/ludo/code/aleph/cli/bin/aleph.js` (or `npm run aleph -- <args>` from the project root). Use it to interact with the running Aleph server.
@@ -202,6 +202,13 @@ node /Users/ludo/code/aleph/cli/bin/aleph.js location inhabitant-remove <slug> -
 node /Users/ludo/code/aleph/cli/bin/aleph.js location organizations <slug> --campaign <id> [--json]
 node /Users/ludo/code/aleph/cli/bin/aleph.js location org-add <slug> --campaign <id> --org <organizationId>
 node /Users/ludo/code/aleph/cli/bin/aleph.js location org-remove <slug> --campaign <id> --org <organizationId>
+
+# Location images (gallery). Exactly one image is the main one shown elsewhere.
+node /Users/ludo/code/aleph/cli/bin/aleph.js location images <slug> --campaign <id> [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js location image-add <slug> --campaign <id> --file <path> [--caption <text>] [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js location image-update <slug> <imageId> --campaign <id> [--caption <text>] [--order <n>]
+node /Users/ludo/code/aleph/cli/bin/aleph.js location image-set-primary <slug> <imageId> --campaign <id>
+node /Users/ludo/code/aleph/cli/bin/aleph.js location image-remove <slug> <imageId> --campaign <id>
 ```
 
 Subtypes: `country`, `region`, `city`, `town`, `village`, `dungeon`, `lair`, `building`, `room`, `wilderness`, `other`

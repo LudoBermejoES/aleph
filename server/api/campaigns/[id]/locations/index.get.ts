@@ -47,6 +47,8 @@ export default defineEventHandler(async (event) => {
       filePath: entities.filePath,
       parentId: entities.parentId,
       visibility: entities.visibility,
+      // Mirror of the primary gallery image — no join, no file read.
+      imageUrl: entities.imageUrl,
       updatedAt: entities.updatedAt,
       parentName: parentEntities.name,
       childCount:
@@ -74,6 +76,7 @@ export default defineEventHandler(async (event) => {
     parentId: loc.parentId,
     parentName: loc.parentName ?? null,
     visibility: loc.visibility,
+    imageUrl: loc.imageUrl ?? null,
     updatedAt: loc.updatedAt,
     childCount: loc.childCount ?? 0,
     inhabitantCount: loc.inhabitantCount ?? 0,

@@ -32,6 +32,16 @@
         >
       </template>
     </LocationForm>
+
+    <!-- Images. Only on edit, never on create: the location must exist before it can hold one. -->
+    <LocationImageGallery
+      v-if="!loading"
+      class="mt-8"
+      :campaign-id="campaignId"
+      :slug="slug"
+      :name="form.name"
+      editable
+    />
   </div>
 </template>
 
