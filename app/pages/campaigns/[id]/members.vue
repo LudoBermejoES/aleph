@@ -8,7 +8,7 @@
       <span>{{ $t('members.title') }}</span>
     </div>
 
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex items-center justify-between mb-6 flex-wrap gap-y-2">
       <h1 class="text-2xl font-bold">{{ $t('members.title') }}</h1>
       <Dialog v-model:open="showInviteDialog">
         <DialogTrigger as-child>

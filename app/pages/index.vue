@@ -1,6 +1,6 @@
 <template>
   <div class="p-8">
-    <div class="flex items-center justify-between mb-8">
+    <div class="flex items-center justify-between mb-8 flex-wrap gap-y-2">
       <div>
         <h1 class="text-3xl font-bold">{{ $t('campaigns.title') }}</h1>
         <p class="text-muted-foreground">{{ $t('campaigns.subtitle') }}</p>

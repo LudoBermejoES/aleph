@@ -16,7 +16,7 @@
       <span class="text-foreground">{{ $t('characters.genealogy.title') }}</span>
     </div>
 
-    <div class="flex items-center justify-between mb-4">
+    <div class="flex items-center justify-between mb-4 flex-wrap gap-y-2">
       <h1 class="text-2xl font-bold" data-testid="genealogy-title">
         {{ $t('characters.genealogy.title') }}
       </h1>

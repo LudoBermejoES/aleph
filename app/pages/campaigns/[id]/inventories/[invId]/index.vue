@@ -13,7 +13,7 @@
         <span class="text-foreground">{{ inventory.name }}</span>
       </div>
 
-      <div class="flex items-start justify-between mb-6">
+      <div class="flex items-start justify-between mb-6 flex-wrap gap-y-2">
         <div>
           <h1 class="text-2xl font-bold">{{ inventory.name }}</h1>
           <span class="text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground">{{

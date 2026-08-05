@@ -30,7 +30,7 @@
           "
         />
         <div class="flex-1">
-          <div class="flex items-start justify-between">
+          <div class="flex items-start justify-between flex-wrap gap-y-2">
             <div>
               <h1 class="text-2xl font-bold">{{ org.name }}</h1>
               <div class="flex gap-2 mt-2">

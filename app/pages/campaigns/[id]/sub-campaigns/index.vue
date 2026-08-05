@@ -12,7 +12,7 @@
       <span>{{ $t('subCampaigns.title') }}</span>
     </div>
 
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex items-center justify-between mb-6 flex-wrap gap-y-2">
       <h1 class="text-2xl font-bold">{{ $t('subCampaigns.title') }}</h1>
       <Button @click="openCreate">{{ $t('subCampaigns.new') }}</Button>
     </div>

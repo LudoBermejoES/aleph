@@ -1,6 +1,6 @@
 <template>
   <div class="p-8 max-w-5xl">
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex items-center justify-between mb-6 flex-wrap gap-y-2">
       <h1 class="text-2xl font-bold">{{ $t('locations.title') }}</h1>
       <NuxtLink :to="`/campaigns/${campaignId}/locations/new`">
         <Button>{{ $t('locations.new') }}</Button>

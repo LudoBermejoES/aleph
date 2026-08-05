@@ -68,8 +68,14 @@
       <slot></slot>
     </main>
 
-    <!-- Global search — available on all campaign pages via Ctrl+K -->
-    <SearchCommand v-if="campaignId" :campaign-id="campaignId" />
+    <!-- Global search — available on all campaign pages via Ctrl+K.
+         Fixed positioning is deliberate: this used to be a plain flex sibling of
+         `<main>` in the row above, which gave it no width constraint and let it eat
+         up to 145px of viewport width from `<main>` on every page (worst on mobile,
+         where it also rendered invisible, stacked under the fixed top bar's z-40). -->
+    <div v-if="campaignId" class="fixed top-2 right-2 z-30 hidden md:block">
+      <SearchCommand :campaign-id="campaignId" />
+    </div>
   </div>
 </template>
 

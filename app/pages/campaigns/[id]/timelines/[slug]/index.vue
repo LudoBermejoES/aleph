@@ -15,7 +15,7 @@
         <span class="text-foreground">{{ timeline.name }}</span>
       </div>
 
-      <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center justify-between mb-4 flex-wrap gap-y-2">
         <h1 class="text-2xl font-bold">{{ timeline.name }}</h1>
         <div class="flex items-center gap-2">
           <div class="flex gap-2" data-testid="view-switcher">

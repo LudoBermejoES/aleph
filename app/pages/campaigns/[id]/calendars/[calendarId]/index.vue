@@ -15,7 +15,7 @@
         <span class="text-foreground">{{ calendar.name }}</span>
       </div>
 
-      <div class="flex items-center justify-between mb-6">
+      <div class="flex items-center justify-between mb-6 flex-wrap gap-y-2">
         <h1 class="text-2xl font-bold">{{ calendar.name }}</h1>
         <div class="flex items-center gap-2">
           <span class="text-sm text-muted-foreground">

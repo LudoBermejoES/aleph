@@ -32,7 +32,7 @@
         />
 
         <div class="flex-1">
-          <div class="flex items-start justify-between mb-4">
+          <div class="flex items-start justify-between mb-4 flex-wrap gap-y-2">
             <div>
               <h1 class="text-3xl font-bold">{{ character.name }}</h1>
               <div class="flex items-center gap-2 mt-2">

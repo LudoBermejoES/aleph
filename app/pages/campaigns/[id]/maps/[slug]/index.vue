@@ -24,7 +24,7 @@
         </template>
       </div>
 
-      <div class="flex items-start justify-between mb-6">
+      <div class="flex items-start justify-between mb-6 flex-wrap gap-y-2">
         <h1 class="text-2xl font-bold">{{ mapData.name }}</h1>
         <div class="flex items-center gap-2">
           <NuxtLink :to="`/campaigns/${campaignId}/maps/${slug}/edit`">

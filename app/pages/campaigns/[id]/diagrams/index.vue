@@ -8,7 +8,7 @@
       <span>{{ $t('diagrams.title') }}</span>
     </div>
 
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex items-center justify-between mb-6 flex-wrap gap-y-2">
       <h1 class="text-2xl font-bold">{{ $t('diagrams.title') }}</h1>
       <Button v-if="canEdit" data-testid="new-diagram-btn" @click="showCreateDialog = true">
         {{ $t('diagrams.create') }}

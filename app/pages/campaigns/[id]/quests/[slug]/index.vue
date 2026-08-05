@@ -16,7 +16,7 @@
       </div>
 
       <!-- Header -->
-      <div class="flex items-start justify-between gap-4 mb-6">
+      <div class="flex items-start justify-between gap-4 mb-6 flex-wrap gap-y-2">
         <div>
           <h1 class="text-2xl font-bold">{{ quest.name }}</h1>
           <span

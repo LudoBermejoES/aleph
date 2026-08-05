@@ -8,7 +8,7 @@
       <span>{{ $t('arcs.title') }}</span>
     </div>
 
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex items-center justify-between mb-6 flex-wrap gap-y-2">
       <h1 class="text-2xl font-bold">{{ $t('arcs.title') }}</h1>
     </div>
 

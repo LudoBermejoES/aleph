@@ -6,7 +6,7 @@
       >
       <span>/</span><span>{{ $t('shops.title') }}</span>
     </div>
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex items-center justify-between mb-6 flex-wrap gap-y-2">
       <h1 class="text-2xl font-bold">{{ $t('shops.title') }}</h1>
       <NuxtLink :to="`/campaigns/${campaignId}/shops/new`">
         <Button data-testid="new-shop-btn">{{ $t('shops.new') }}</Button>

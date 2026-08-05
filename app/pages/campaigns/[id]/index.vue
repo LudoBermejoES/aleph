@@ -2,7 +2,7 @@
   <div class="p-8">
     <LoadingSkeleton v-if="!campaign" :rows="4" />
     <div v-else class="space-y-8">
-      <div class="flex items-center justify-between">
+      <div class="flex items-center justify-between flex-wrap gap-y-2">
         <div>
           <h1 class="text-3xl font-bold">{{ campaign.name }}</h1>
           <p v-if="campaign.description" class="text-muted-foreground">

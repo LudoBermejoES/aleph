@@ -8,7 +8,7 @@
       <span>{{ $t('templates.title') }}</span>
     </div>
 
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex items-center justify-between mb-6 flex-wrap gap-y-2">
       <h1 class="text-2xl font-bold">{{ $t('templates.title') }}</h1>
       <NuxtLink v-if="canManage" :to="`/campaigns/${campaignId}/templates/new`">
         <Button>{{ $t('templates.new') }}</Button>

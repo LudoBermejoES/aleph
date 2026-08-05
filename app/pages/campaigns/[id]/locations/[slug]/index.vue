@@ -24,7 +24,7 @@
       </div>
 
       <!-- Header -->
-      <div class="flex items-start justify-between gap-4 mb-6">
+      <div class="flex items-start justify-between gap-4 mb-6 flex-wrap gap-y-2">
         <div class="flex items-start gap-4">
           <EntityImage
             v-if="location.primaryImageUrl"
