@@ -1,6 +1,7 @@
 import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
 import { arcs, gameSessions } from '../../../../../db/schema/sessions'
+import { entities } from '../../../../../db/schema/entities'
 import { hasMinRole } from '../../../../../utils/permissions'
 import type { CampaignRole } from '../../../../../utils/permissions'
 
@@ -23,6 +24,10 @@ export default defineEventHandler(async (event) => {
 
   db.update(gameSessions).set({ arcId: null }).where(eq(gameSessions.arcId, arc.id)).run()
   db.delete(arcs).where(eq(arcs.id, arc.id)).run()
+
+  // arcs.id === entities.id (the mirror row backing relation-graph lookups); deleting it
+  // cascades entity_relations pointing at this arc.
+  db.delete(entities).where(eq(entities.id, arc.id)).run()
 
   return { success: true }
 })

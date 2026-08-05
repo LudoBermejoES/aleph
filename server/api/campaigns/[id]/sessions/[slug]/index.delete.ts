@@ -1,6 +1,7 @@
 import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
 import { gameSessions } from '../../../../../db/schema/sessions'
+import { entities } from '../../../../../db/schema/entities'
 import { hasMinRole } from '../../../../../utils/permissions'
 import type { CampaignRole } from '../../../../../utils/permissions'
 
@@ -23,6 +24,10 @@ export default defineEventHandler(async (event) => {
 
   // foreign_keys = ON — cascade deletes session_contents, session_attendance, decisions
   db.delete(gameSessions).where(eq(gameSessions.id, session.id)).run()
+
+  // game_sessions.id === entities.id (the mirror row backing relation-graph lookups);
+  // deleting it cascades entity_relations pointing at this session.
+  db.delete(entities).where(eq(entities.id, session.id)).run()
 
   return { success: true }
 })

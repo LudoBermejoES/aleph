@@ -4,10 +4,12 @@ import { eq, sql } from 'drizzle-orm'
 import { useDb } from '../../../../utils/db'
 import { validateBody } from '../../../../utils/validate'
 import { gameSessions } from '../../../../db/schema/sessions'
+import { entities } from '../../../../db/schema/entities'
 import { hasMinRole } from '../../../../utils/permissions'
 import { resolveArcChapterSlugs } from '../../../../utils/arc-chapter'
 import { resolveSubCampaignIdForCreate } from '../../../../utils/sub-campaign'
-import { slugify, writeEntityFile, resolveEntityPath } from '../../../../services/content'
+import { writeEntityFile, resolveEntityPath } from '../../../../services/content'
+import { ensureUniqueSlug } from '../../../../utils/content-helpers'
 import { join } from 'path'
 import type { CampaignRole } from '../../../../utils/permissions'
 
@@ -51,7 +53,9 @@ export default defineEventHandler(async (event) => {
 
   const id = randomUUID()
   const title = body.title || `Session ${sessionNumber}`
-  const slug = slugify(title)
+  // Shared by both rows: game_sessions.id doubles as entities.id (same shared-id pattern
+  // organizations/quests already use), and one campaign-wide unique slug backs both.
+  const slug = ensureUniqueSlug(db, campaignId, title)
   const now = new Date()
 
   // Write session log .md file
@@ -65,9 +69,29 @@ export default defineEventHandler(async (event) => {
     visibility: 'members' as const,
     fields: { sessionNumber, status: body.status || 'planned' },
   }
-  await writeEntityFile(logPath, frontmatter, body.content || `# ${title}\n\nSession notes...`)
+  const hash = await writeEntityFile(
+    logPath,
+    frontmatter,
+    body.content || `# ${title}\n\nSession notes...`,
+  )
 
   const subCampaignId = resolveSubCampaignIdForCreate(db, campaignId, body.subCampaignSlug)
+
+  db.insert(entities)
+    .values({
+      id,
+      campaignId,
+      type: 'session',
+      name: title,
+      slug,
+      filePath: logPath,
+      visibility: 'members',
+      contentHash: hash,
+      createdBy: event.context.user.id,
+      createdAt: now,
+      updatedAt: now,
+    })
+    .run()
 
   db.insert(gameSessions)
     .values({

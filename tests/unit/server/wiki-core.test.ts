@@ -38,18 +38,19 @@ describe('Entity Type Seeding', () => {
     testDb.close()
   })
 
-  it('creates all 9 built-in entity types for a campaign', () => {
+  it('creates all 10 built-in entity types for a campaign', () => {
     seedEntityTypes(testDb.db, 'camp-1')
 
     const types = testDb.sqlite
       .prepare("SELECT * FROM entity_types WHERE campaign_id = 'camp-1' ORDER BY sort_order")
       .all() as Record<string, unknown>[]
 
-    expect(types).toHaveLength(9)
+    expect(types).toHaveLength(10)
     expect(types[0].slug).toBe('character')
     expect(types[0].is_builtin).toBe(1)
     expect(types[1].slug).toBe('location')
     expect(types[8].slug).toBe('session')
+    expect(types[9].slug).toBe('arc')
   })
 
   it('all seeded types have is_builtin flag', () => {
@@ -89,7 +90,7 @@ describe('Entity Type Seeding', () => {
       .prepare("SELECT * FROM entity_types WHERE campaign_id = 'camp-2'")
       .all()
 
-    expect(camp1Types).toHaveLength(9)
-    expect(camp2Types).toHaveLength(9)
+    expect(camp1Types).toHaveLength(10)
+    expect(camp2Types).toHaveLength(10)
   })
 })

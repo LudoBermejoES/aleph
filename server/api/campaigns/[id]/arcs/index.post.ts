@@ -3,8 +3,9 @@ import { randomUUID } from 'crypto'
 import { useDb } from '../../../../utils/db'
 import { validateBody } from '../../../../utils/validate'
 import { arcs } from '../../../../db/schema/sessions'
+import { entities } from '../../../../db/schema/entities'
 import { hasMinRole } from '../../../../utils/permissions'
-import { slugify } from '../../../../services/content'
+import { ensureUniqueSlug } from '../../../../utils/content-helpers'
 import { resolveSubCampaignIdForCreate } from '../../../../utils/sub-campaign'
 import type { CampaignRole } from '../../../../utils/permissions'
 
@@ -27,8 +28,28 @@ export default defineEventHandler(async (event) => {
 
   const subCampaignId = resolveSubCampaignIdForCreate(db, campaignId, body.subCampaignSlug)
 
+  // Shared by both rows: arcs.id doubles as entities.id (same shared-id pattern
+  // organizations/quests/sessions already use), and one campaign-wide unique slug backs both.
   const id = randomUUID()
-  const slug = slugify(body.name)
+  const slug = ensureUniqueSlug(db, campaignId, body.name)
+  const now = new Date()
+
+  db.insert(entities)
+    .values({
+      id,
+      campaignId,
+      type: 'arc',
+      name: body.name,
+      slug,
+      // Arcs have no backing .md file, no createdAt/updatedAt of their own — see design.md.
+      filePath: '',
+      visibility: 'members',
+      createdBy: event.context.user.id,
+      createdAt: now,
+      updatedAt: now,
+    })
+    .run()
+
   db.insert(arcs)
     .values({
       id,

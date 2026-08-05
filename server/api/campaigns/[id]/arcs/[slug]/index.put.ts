@@ -1,6 +1,7 @@
 import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
 import { arcs } from '../../../../../db/schema/sessions'
+import { entities } from '../../../../../db/schema/entities'
 import { hasMinRole } from '../../../../../utils/permissions'
 import { resolveSubCampaignSlug } from '../../../../../utils/sub-campaign'
 import type { CampaignRole } from '../../../../../utils/permissions'
@@ -34,6 +35,15 @@ export default defineEventHandler(async (event) => {
 
   if (Object.keys(updates).length > 0) {
     db.update(arcs).set(updates).where(eq(arcs.id, arc.id)).run()
+  }
+
+  // Keep the mirror entity (arcs.id === entities.id) in sync: name is the only field the
+  // relation graph / entity lookup surface.
+  if (body.name !== undefined) {
+    db.update(entities)
+      .set({ name: body.name, updatedAt: new Date() })
+      .where(eq(entities.id, arc.id))
+      .run()
   }
 
   return { success: true }

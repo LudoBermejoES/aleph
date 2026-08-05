@@ -284,6 +284,13 @@ aleph relation create --campaign <id> --source encontrar-al-herrero --target imp
 
 This is independent of `parentQuestId` (the single "sub-quest of" hierarchy shown in the quest tree UI) — use relations when you need a custom label, an attitude score, or a link to something that isn't a quest.
 
+Sessions and arcs are relatable too — link a session to the characters/locations/organizations that were part of it, or an arc to the entities it centers on:
+
+```bash
+aleph relation create --campaign <id> --source la-noche-que-se-trago-a-clara --target clara-bohm --forward "contó con" --reverse "participó en"
+aleph relation create --campaign <id> --source el-camino-hasta-oda --target la-capilla --forward "parte de" --reverse "es el hogar de la cábala durante"
+```
+
 ### Maps
 
 ```bash

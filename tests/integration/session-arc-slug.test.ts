@@ -304,19 +304,30 @@ describe('Session arc/chapter slug assignment (integration)', () => {
     expect(row.arcId).toBe(arc.actII!.id)
   })
 
-  it('ambiguous arc slug returns 409 naming slug and match count', async () => {
+  // Two arcs sharing a slug used to be constructible through this same POST — `arcs` had no
+  // uniqueness check at all before the `relatable-sessions-arcs` change gave arc creation a
+  // campaign-wide unique slug (needed so every arc gets a resolvable mirror `entities` row).
+  // That change makes this precondition unreachable through the API going forward; the 409
+  // disambiguation logic in the resolver itself is untouched and still guards any arc rows
+  // that predate the fix, but an integration test can no longer construct the scenario without
+  // a raw DB insert, so this now asserts the new behavior instead: distinct, resolvable slugs.
+  it('two arcs created with the same name get distinct, individually resolvable slugs', async () => {
     const twinCampaign = await createCampaign(`Twin Arcs ${ts}`)
     const t1 = await createArc(twinCampaign, 'Twin Arc')
     const t2 = await createArc(twinCampaign, 'Twin Arc')
-    expect(t1.slug).toBe(t2.slug)
+    expect(t1.slug).not.toBe(t2.slug)
 
-    const s = await createSession(twinCampaign)
-    const put = await putSession(twinCampaign, s.body.slug as string, { arcSlug: 'twin-arc' })
-    expect(put.status).toBe(409)
-    expect(String(put.body.message)).toContain('twin-arc')
-    expect(String(put.body.message)).toContain('2')
-    const row = await sessionRow(twinCampaign, s.body.id as string)
-    expect(row.arcId).toBeNull()
+    const s1 = await createSession(twinCampaign)
+    const put1 = await putSession(twinCampaign, s1.body.slug as string, { arcSlug: t1.slug })
+    expect(put1.status).toBe(200)
+    const row1 = await sessionRow(twinCampaign, s1.body.id as string)
+    expect(row1.arcId).toBe(t1.id)
+
+    const s2 = await createSession(twinCampaign)
+    const put2 = await putSession(twinCampaign, s2.body.slug as string, { arcSlug: t2.slug })
+    expect(put2.status).toBe(200)
+    const row2 = await sessionRow(twinCampaign, s2.body.id as string)
+    expect(row2.arcId).toBe(t2.id)
   })
 
   it('ambiguous chapter slug is 409 alone and resolvable with arcSlug', async () => {
@@ -537,9 +548,11 @@ describe('Session list arc filter and name projection (integration)', () => {
     expect(row.chapterName).toBeNull()
   })
 
-  it('ambiguous arc slug on the read path matches every arc sharing it', async () => {
-    // design.md decision 4: the read path stays permissive where the write path 409s —
-    // an over-matching filter is visible in the output.
+  // Same note as the write-path test above: two arcs named alike used to share a slug because
+  // `arcs` had no uniqueness check at all. `relatable-sessions-arcs` gives arc creation a
+  // campaign-wide unique slug, so this precondition can no longer be constructed through the
+  // API — asserting the new behavior instead: each arc's own slug filters to only its session.
+  it('two arcs with the same name filter independently by their own distinct slugs', async () => {
     const mk = async (path: string, body: Row) => {
       const res = await apiRaw(`/api/campaigns/${campaignId}/${path}`, {
         method: 'POST',
@@ -551,13 +564,15 @@ describe('Session list arc filter and name projection (integration)', () => {
     }
     const twinA = await mk('arcs', { name: 'Twin Read Arc' })
     const twinB = await mk('arcs', { name: 'Twin Read Arc' })
-    expect(twinA.slug).toBe(twinB.slug)
+    expect(twinA.slug).not.toBe(twinB.slug)
     const sA = await mk('sessions', { title: `Twin A ${ts}`, arcId: twinA.id })
     const sB = await mk('sessions', { title: `Twin B ${ts}`, arcId: twinB.id })
 
-    const { body } = await listSessions(`?arcSlug=${twinA.slug}&pageSize=0`)
-    const ids = (body as unknown as Row[]).map((s) => s.id)
-    expect(ids.sort()).toEqual([sA.id, sB.id].sort())
+    const { body: bodyA } = await listSessions(`?arcSlug=${twinA.slug}&pageSize=0`)
+    expect((bodyA as unknown as Row[]).map((s) => s.id)).toEqual([sA.id])
+
+    const { body: bodyB } = await listSessions(`?arcSlug=${twinB.slug}&pageSize=0`)
+    expect((bodyB as unknown as Row[]).map((s) => s.id)).toEqual([sB.id])
   })
 
   it('single-session GET reports arc and chapter names too', async () => {

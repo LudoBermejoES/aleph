@@ -5,6 +5,8 @@ import { backfillLocationImages } from '../db/backfills/location-images'
 import { backfillCharacterImages } from '../db/backfills/character-images'
 import { backfillOrganizationImages } from '../db/backfills/organization-images'
 import { backfillQuestEntities } from '../db/backfills/quest-entities'
+import { backfillSessionEntities } from '../db/backfills/session-entities'
+import { backfillArcEntities } from '../db/backfills/arc-entities'
 import { join } from 'path'
 
 export default defineNitroPlugin(async () => {
@@ -52,5 +54,17 @@ export default defineNitroPlugin(async () => {
     await backfillQuestEntities(db)
   } catch (error) {
     logger.error('Failed to backfill quest mirror entities', { error })
+  }
+
+  try {
+    await backfillSessionEntities(db)
+  } catch (error) {
+    logger.error('Failed to backfill session mirror entities', { error })
+  }
+
+  try {
+    await backfillArcEntities(db)
+  } catch (error) {
+    logger.error('Failed to backfill arc mirror entities', { error })
   }
 })

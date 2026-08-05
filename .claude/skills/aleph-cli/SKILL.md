@@ -4,7 +4,7 @@ description: Use the aleph CLI to manage campaigns, entities, characters, locati
 license: MIT
 metadata:
   author: aleph
-  version: '3.14'
+  version: '3.15'
 ---
 
 You have access to the `aleph` CLI tool at `node /Users/ludo/code/aleph/cli/bin/aleph.js` (or `npm run aleph -- <args>` from the project root). Use it to interact with the running Aleph server.
@@ -273,6 +273,13 @@ node /Users/ludo/code/aleph/cli/bin/aleph.js relation create --campaign <id> --s
 ```
 
 This is independent of `parentQuestId` (the single "sub-quest of" hierarchy shown in the quest tree UI) — use relations when you need a custom label, an attitude score, or a link to something that isn't a quest.
+
+Sessions and arcs are relatable too — link a session to the characters/locations/organizations that were part of it, or an arc to the entities it centers on:
+
+```bash
+node /Users/ludo/code/aleph/cli/bin/aleph.js relation create --campaign <id> --source la-noche-que-se-trago-a-clara --target clara-bohm --forward "contó con" --reverse "participó en"
+node /Users/ludo/code/aleph/cli/bin/aleph.js relation create --campaign <id> --source el-camino-hasta-oda --target la-capilla --forward "parte de" --reverse "es el hogar de la cábala durante"
+```
 
 ### Maps
 

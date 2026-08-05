@@ -3,6 +3,7 @@ import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
 import { validateBody } from '../../../../../utils/validate'
 import { gameSessions } from '../../../../../db/schema/sessions'
+import { entities } from '../../../../../db/schema/entities'
 import { hasMinRole } from '../../../../../utils/permissions'
 import { resolveArcChapterSlugs } from '../../../../../utils/arc-chapter'
 import { resolveSubCampaignSlug } from '../../../../../utils/sub-campaign'
@@ -67,6 +68,15 @@ export default defineEventHandler(async (event) => {
   }
 
   db.update(gameSessions).set(updates).where(eq(gameSessions.id, session.id)).run()
+
+  // Keep the mirror entity (game_sessions.id === entities.id) in sync: name is the only
+  // field the relation graph / entity lookup surface.
+  if (body.title !== undefined) {
+    db.update(entities)
+      .set({ name: body.title, updatedAt: new Date() })
+      .where(eq(entities.id, session.id))
+      .run()
+  }
 
   // Update log file content if provided
   if (body.content !== undefined && session.logFilePath) {

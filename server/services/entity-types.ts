@@ -12,6 +12,7 @@ const BUILTIN_TYPES = [
   { slug: 'quest', name: 'Quest', icon: 'flag', sortOrder: 7 },
   { slug: 'note', name: 'Note', icon: 'file-text', sortOrder: 8 },
   { slug: 'session', name: 'Session', icon: 'clock', sortOrder: 9 },
+  { slug: 'arc', name: 'Arc', icon: 'book', sortOrder: 10 },
 ]
 
 /**
