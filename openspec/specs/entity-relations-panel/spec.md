@@ -8,12 +8,12 @@ An `EntityRelationsPanel` on the character, organization and location detail pag
 
 ### Requirement: Relations panel on entity detail pages
 
-The system SHALL render an `EntityRelationsPanel` component on the character, organization, and location detail pages that lists every relation involving the current entity, grouped by category (entity relations, organization membership, character-location, organization-location).
+The system SHALL render an `EntityRelationsPanel` component on the character, organization, location, quest, session, and arc detail pages that lists every relation involving the current entity, grouped by category (entity relations, organization membership, character-location, organization-location).
 
 #### Scenario: Visitor sees relations panel in read-only mode
 
 - **GIVEN** a user with the `visitor` or `player` role on a campaign
-- **WHEN** they open the detail page for a character, organization, or location with existing relations
+- **WHEN** they open the detail page for a character, organization, location, quest, session, or arc with existing relations
 - **THEN** the relations panel renders the full list grouped by category
 - **AND** no add, edit, or delete action buttons are visible
 
@@ -30,6 +30,13 @@ The system SHALL render an `EntityRelationsPanel` component on the character, or
 - **WHEN** the panel renders
 - **THEN** the rows are grouped under headers "Relations", "Organizations", "Location"
 - **AND** each group shows its row count
+
+#### Scenario: Panel renders on a quest, session, or arc detail page
+
+- **GIVEN** a quest, session, or arc with existing entity-relations (quests, sessions, and arcs only ever populate the generic "entity relations" group — they have no members/inhabitants/location-org groups)
+- **WHEN** an editor+ opens its detail page
+- **THEN** the panel renders the generic relations group with an "Add Relation" button
+- **AND** relation targets link to `/campaigns/:id/:type/:slug` using the target's own entity type, so a quest/session/arc row can link back to a character, location, organization, or another quest/session/arc
 
 ### Requirement: Add relation from detail page
 
@@ -48,6 +55,14 @@ The system SHALL let editors+ create a new relation involving the current entity
 - **WHEN** the editor clicks "Save"
 - **THEN** `POST /api/campaigns/:id/relations` (or the equivalent membership endpoint for org-member mode) is called with the entered values
 - **AND** the dialog closes on success
+- **AND** the new row appears in the relations panel without a full page reload
+
+#### Scenario: Editor submits a new relation with no relation type selected
+
+- **GIVEN** the add-relation dialog is open with a target selected and a hand-typed forward label, but no option chosen from the "Relation Type" dropdown
+- **WHEN** the editor clicks "Save"
+- **THEN** `POST /api/campaigns/:id/relations` is called with `relationTypeId: null`
+- **AND** the request SHALL succeed (the server falls back to the campaign's builtin `custom` relation type)
 - **AND** the new row appears in the relations panel without a full page reload
 
 #### Scenario: Editor cancels the dialog
