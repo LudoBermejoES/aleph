@@ -73,12 +73,18 @@ aleph entity delete --campaign <id> <slug> [--yes]
 aleph entity upload-image --campaign <id> --slug <slug> --file <path> [--json]
 aleph entity type-update <typeId> --campaign <id> [--name <name>]
 aleph entity type-delete <typeId> --campaign <id> [--yes]
+
+# Nicknames — alternate names/aliases that also resolve in auto-linking (case-insensitive, word-boundary)
+aleph entity nickname list <slug> --campaign <id> [--json]
+aleph entity nickname add <slug> <nickname> --campaign <id> [--json]
+aleph entity nickname remove <slug> <nickname> --campaign <id>
 ```
 
 Entity types: `location`, `faction`, `npc`, `creature`, `item`, `lore`, `event`, or any custom string.
 Pipe content from a file: `cat notes.md | aleph entity edit --campaign <id> <slug> --stdin`
 `--board-summary` sets a short graph card label (max 120 chars, separate from the main summary). Pass an empty string to clear it.
 `upload-image` accepts PNG, JPEG, or WebP files up to 10 MB. The image is shown on the entity detail page in the web UI.
+Nicknames work on any entity (including characters, locations, and organizations — they all share the same underlying entity record and slug). A nickname must be non-empty and unique per entity (case-insensitive); duplicates return 409. Nicknames participate in the same auto-linking system as primary names: typing a nickname in a session, history, or any other text field renders it as a clickable link to that entity.
 
 ### Characters
 

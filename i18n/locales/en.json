@@ -335,7 +335,16 @@
     "confirmDeleteMessage": "Are you sure you want to delete this entity? This action cannot be undone.",
     "boardSummary": "Graph label",
     "boardSummaryPlaceholder": "Short label shown on the relationship graph card",
-    "boardSummaryHint": "Shown instead of the summary on the graph card view"
+    "boardSummaryHint": "Shown instead of the summary on the graph card view",
+    "nicknames": {
+      "title": "Nicknames",
+      "empty": "No nicknames yet",
+      "add": "Add nickname",
+      "addPlaceholder": "e.g. El hermético",
+      "remove": "Remove nickname",
+      "failedAdd": "Failed to add nickname",
+      "failedRemove": "Failed to remove nickname"
+    }
   },
   "sessions": {
     "title": "Sessions",

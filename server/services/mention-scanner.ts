@@ -2,6 +2,7 @@ import { randomUUID } from 'crypto'
 import { eq, and } from 'drizzle-orm'
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 import { entities } from '../db/schema/entities'
+import { entityNicknames } from '../db/schema/entity-nicknames'
 import { entityMentions } from '../db/schema/mentions'
 import {
   buildAutomaton,
@@ -34,13 +35,26 @@ export async function scanCampaignMentions(
 
   if (allEntities.length === 0) return { scanned: 0, mentionsFound: 0 }
 
-  // Build automaton from entity names
-  // We need aliases too -- for now just use names
+  // One batch query for the whole campaign, not one per entity.
+  const nicknameRows = db
+    .select({ entityId: entityNicknames.entityId, nickname: entityNicknames.nickname })
+    .from(entityNicknames)
+    .innerJoin(entities, eq(entityNicknames.entityId, entities.id))
+    .where(eq(entities.campaignId, campaignId))
+    .all()
+  const aliasesByEntity = new Map<string, string[]>()
+  for (const row of nicknameRows) {
+    const list = aliasesByEntity.get(row.entityId)
+    if (list) list.push(row.nickname)
+    else aliasesByEntity.set(row.entityId, [row.nickname])
+  }
+
+  // Build automaton from entity names and nicknames
   const automaton = buildAutomaton(
     allEntities.map((e) => ({
       id: e.id,
       name: e.name,
-      aliases: [], // TODO: load from entity_names table
+      aliases: aliasesByEntity.get(e.id) ?? [],
     })),
   )
 

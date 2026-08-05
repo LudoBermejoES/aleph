@@ -148,6 +148,9 @@
         </div>
       </div>
 
+      <!-- Nicknames -->
+      <NicknamesPanel :campaign-id="campaignId" :entity-slug="slug" :editable="canEdit" />
+
       <!-- Secret Notes (DM only) -->
       <SecretNotes
         v-if="campaignRole"

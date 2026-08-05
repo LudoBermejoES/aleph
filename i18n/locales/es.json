@@ -335,7 +335,16 @@
     "confirmDeleteMessage": "¿Estás seguro de que quieres eliminar esta entidad? Esta acción no se puede deshacer.",
     "boardSummary": "Etiqueta del grafo",
     "boardSummaryPlaceholder": "Etiqueta corta mostrada en la tarjeta del grafo de relaciones",
-    "boardSummaryHint": "Se muestra en lugar del resumen en la vista de tarjetas del grafo"
+    "boardSummaryHint": "Se muestra en lugar del resumen en la vista de tarjetas del grafo",
+    "nicknames": {
+      "title": "Apodos",
+      "empty": "Aún no hay apodos",
+      "add": "Añadir apodo",
+      "addPlaceholder": "ej. El hermético",
+      "remove": "Eliminar apodo",
+      "failedAdd": "Error al añadir el apodo",
+      "failedRemove": "Error al eliminar el apodo"
+    }
   },
   "sessions": {
     "title": "Sesiones",

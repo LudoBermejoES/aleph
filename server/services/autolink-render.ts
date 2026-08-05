@@ -8,6 +8,7 @@ import {
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 import { eq } from 'drizzle-orm'
 import { entities } from '../db/schema/entities'
+import { entityNicknames } from '../db/schema/entity-nicknames'
 
 /**
  * Transform markdown content by replacing entity name mentions
@@ -36,11 +37,25 @@ export function autoLinkContent(
 
   if (allEntities.length === 0) return content
 
+  // One batch query for the whole campaign, not one per entity.
+  const nicknameRows = db
+    .select({ entityId: entityNicknames.entityId, nickname: entityNicknames.nickname })
+    .from(entityNicknames)
+    .innerJoin(entities, eq(entityNicknames.entityId, entities.id))
+    .where(eq(entities.campaignId, campaignId))
+    .all()
+  const aliasesByEntity = new Map<string, string[]>()
+  for (const row of nicknameRows) {
+    const list = aliasesByEntity.get(row.entityId)
+    if (list) list.push(row.nickname)
+    else aliasesByEntity.set(row.entityId, [row.nickname])
+  }
+
   const automaton = buildAutomaton(
     allEntities.map((e) => ({
       id: e.id,
       name: e.name,
-      aliases: [],
+      aliases: aliasesByEntity.get(e.id) ?? [],
     })),
   )
 

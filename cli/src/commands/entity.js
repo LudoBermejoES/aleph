@@ -178,5 +178,58 @@ export function makeEntityCommand() {
       success(`Entity type ${typeId} deleted.`)
     })
 
+  // ─── Nickname subcommand ────────────────────────────────────────────────────
+
+  const nickname = new Command('nickname').description('Manage entity nicknames')
+
+  nickname
+    .command('list <slug>')
+    .description('List nicknames for an entity')
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .option('--json', 'Output as JSON')
+    .action(async (slug, opts) => {
+      const data = await get(`/api/campaigns/${opts.campaign}/entities/${slug}/nicknames`)
+      if (opts.json) {
+        print(data, { json: true })
+      } else if (data.length === 0) {
+        process.stdout.write('(no nicknames)\n')
+      } else {
+        for (const n of data) process.stdout.write(`${n.nickname}\n`)
+      }
+    })
+
+  nickname
+    .command('add <slug> <nickname>')
+    .description('Add a nickname to an entity')
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .option('--json', 'Output as JSON')
+    .action(async (slug, nicknameValue, opts) => {
+      const data = await post(`/api/campaigns/${opts.campaign}/entities/${slug}/nicknames`, {
+        nickname: nicknameValue,
+      })
+      if (opts.json) {
+        print(data, { json: true })
+      } else {
+        success(`Nickname added: ${data.nickname}`)
+      }
+    })
+
+  nickname
+    .command('remove <slug> <nickname>')
+    .description('Remove a nickname from an entity')
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .action(async (slug, nicknameValue, opts) => {
+      const existing = await get(`/api/campaigns/${opts.campaign}/entities/${slug}/nicknames`)
+      const match = existing.find((n) => n.nickname.toLowerCase() === nicknameValue.toLowerCase())
+      if (!match) {
+        process.stderr.write(`Error: Nickname "${nicknameValue}" not found on "${slug}"\n`)
+        process.exit(1)
+      }
+      await del(`/api/campaigns/${opts.campaign}/entities/${slug}/nicknames/${match.id}`)
+      success(`Nickname removed: ${match.nickname}`)
+    })
+
+  cmd.addCommand(nickname)
+
   return cmd
 }
