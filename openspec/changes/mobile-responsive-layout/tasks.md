@@ -18,4 +18,4 @@
 
 ## 4. Deploy
 
-- [ ] 4.1 Commit, push to `master`, verify the GitHub Actions deploy succeeds
+- [x] 4.1 Commit, push to `master`, verify the GitHub Actions deploy succeeds
