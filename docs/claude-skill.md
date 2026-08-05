@@ -276,6 +276,14 @@ Organizations are first-class entities for relation purposes — their slug work
 aleph relation create --campaign <id> --source los-senores-del-tigre --target la-pequena-flor --forward "arrasó" --reverse "arrasada por"
 ```
 
+Quests are relatable too — a quest's own slug works as `--source`/`--target`, so sub-quests can be linked to a main quest (or to any character/location/other quest) with custom labels, same as everything else:
+
+```bash
+aleph relation create --campaign <id> --source encontrar-al-herrero --target impedir-la-corrupcion-de-tezgul --forward "es parte de" --reverse "incluye la sub-misión"
+```
+
+This is independent of `parentQuestId` (the single "sub-quest of" hierarchy shown in the quest tree UI) — use relations when you need a custom label, an attitude score, or a link to something that isn't a quest.
+
 ### Maps
 
 ```bash

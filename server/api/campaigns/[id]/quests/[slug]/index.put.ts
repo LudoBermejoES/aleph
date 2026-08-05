@@ -3,6 +3,7 @@ import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
 import { validateBody } from '../../../../../utils/validate'
 import { quests } from '../../../../../db/schema/sessions'
+import { entities } from '../../../../../db/schema/entities'
 import { hasMinRole } from '../../../../../utils/permissions'
 import { canTransitionQuestStatus } from '../../../../../services/sessions'
 import { resolveSubCampaignSlug } from '../../../../../utils/sub-campaign'
@@ -43,7 +44,8 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  const updates: Record<string, unknown> = { updatedAt: new Date() }
+  const now = new Date()
+  const updates: Record<string, unknown> = { updatedAt: now }
   if (body.name !== undefined) updates.name = body.name
   if (body.description !== undefined) updates.description = body.description
   if (body.status !== undefined) updates.status = body.status
@@ -53,6 +55,16 @@ export default defineEventHandler(async (event) => {
   }
 
   db.update(quests).set(updates).where(eq(quests.id, quest.id)).run()
+
+  // Keep the mirror entity (quests.id === entities.id) in sync: name and secrecy are the only
+  // fields the relation graph / entity lookup surface, so only those need mirroring.
+  const entityUpdates: Record<string, unknown> = {}
+  if (body.name !== undefined) entityUpdates.name = body.name
+  if (body.isSecret !== undefined) entityUpdates.visibility = body.isSecret ? 'dm_only' : 'members'
+  if (Object.keys(entityUpdates).length > 0) {
+    entityUpdates.updatedAt = now
+    db.update(entities).set(entityUpdates).where(eq(entities.id, quest.id)).run()
+  }
 
   return { success: true }
 })

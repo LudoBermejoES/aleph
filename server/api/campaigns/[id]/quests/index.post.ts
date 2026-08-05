@@ -3,8 +3,10 @@ import { randomUUID } from 'crypto'
 import { useDb } from '../../../../utils/db'
 import { validateBody } from '../../../../utils/validate'
 import { quests } from '../../../../db/schema/sessions'
+import { entities } from '../../../../db/schema/entities'
 import { hasMinRole } from '../../../../utils/permissions'
-import { slugify, writeEntityFile, resolveEntityPath } from '../../../../services/content'
+import { writeEntityFile, resolveEntityPath } from '../../../../services/content'
+import { ensureUniqueSlug } from '../../../../utils/content-helpers'
 import { resolveSubCampaignIdForCreate } from '../../../../utils/sub-campaign'
 import { join } from 'path'
 import type { CampaignRole } from '../../../../utils/permissions'
@@ -34,22 +36,46 @@ export default defineEventHandler(async (event) => {
 
   const subCampaignId = resolveSubCampaignIdForCreate(db, campaignId, body.subCampaignSlug)
 
+  // Shared by both rows: quests.id doubles as entities.id (the same shared-id pattern
+  // `organizations` already uses), and one campaign-wide unique slug backs both, so a quest
+  // can never collide with another entity of any type.
   const id = randomUUID()
-  const slug = slugify(body.name)
+  const slug = ensureUniqueSlug(db, campaignId, body.name)
   const now = new Date()
 
   // Write quest .md file
   const contentDir = join(process.cwd(), campaign.contentDir)
   const logPath = resolveEntityPath(contentDir, 'quests', slug)
+  const visibility = body.isSecret ? ('dm_only' as const) : ('members' as const)
   const frontmatter = {
     type: 'quest',
     name: body.name,
     aliases: [] as string[],
     tags: body.tags || [],
-    visibility: body.isSecret ? ('dm_only' as const) : ('members' as const),
+    visibility,
     fields: { status: body.status || 'active' },
   }
-  await writeEntityFile(logPath, frontmatter, body.content || `# ${body.name}\n\nQuest details...`)
+  const hash = await writeEntityFile(
+    logPath,
+    frontmatter,
+    body.content || `# ${body.name}\n\nQuest details...`,
+  )
+
+  db.insert(entities)
+    .values({
+      id,
+      campaignId,
+      type: 'quest',
+      name: body.name,
+      slug,
+      filePath: logPath,
+      visibility,
+      contentHash: hash,
+      createdBy: event.context.user.id,
+      createdAt: now,
+      updatedAt: now,
+    })
+    .run()
 
   db.insert(quests)
     .values({

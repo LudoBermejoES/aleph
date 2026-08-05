@@ -1,6 +1,7 @@
 import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
 import { quests } from '../../../../../db/schema/sessions'
+import { entities } from '../../../../../db/schema/entities'
 import { hasMinRole } from '../../../../../utils/permissions'
 import type { CampaignRole } from '../../../../../utils/permissions'
 
@@ -25,6 +26,10 @@ export default defineEventHandler(async (event) => {
   db.update(quests).set({ parentQuestId: null }).where(eq(quests.parentQuestId, quest.id)).run()
 
   db.delete(quests).where(eq(quests.id, quest.id)).run()
+
+  // quests.id === entities.id (the mirror row backing relation-graph lookups); deleting it
+  // cascades entity_relations pointing at this quest via the FK's onDelete: 'cascade'.
+  db.delete(entities).where(eq(entities.id, quest.id)).run()
 
   return { success: true }
 })

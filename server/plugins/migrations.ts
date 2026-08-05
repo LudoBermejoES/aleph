@@ -4,6 +4,7 @@ import { logger } from '../utils/logger'
 import { backfillLocationImages } from '../db/backfills/location-images'
 import { backfillCharacterImages } from '../db/backfills/character-images'
 import { backfillOrganizationImages } from '../db/backfills/organization-images'
+import { backfillQuestEntities } from '../db/backfills/quest-entities'
 import { join } from 'path'
 
 export default defineNitroPlugin(async () => {
@@ -45,5 +46,11 @@ export default defineNitroPlugin(async () => {
     }
   } catch (error) {
     logger.error('Failed to backfill organization gallery images', { error })
+  }
+
+  try {
+    await backfillQuestEntities(db)
+  } catch (error) {
+    logger.error('Failed to backfill quest mirror entities', { error })
   }
 })
