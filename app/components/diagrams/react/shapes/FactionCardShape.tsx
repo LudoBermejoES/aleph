@@ -203,6 +203,10 @@ function FactionCardComponent({ shape }: { shape: FactionCardShape }) {
               textOverflow: 'ellipsis',
               whiteSpace: 'nowrap',
               textAlign: 'center',
+              // Explicit dark color: this bar's background is always white regardless of
+              // the campaign's theme, but text color without one would inherit the theme's
+              // foreground (light/near-white in dark themes), making it unreadable here.
+              color: '#111827',
             }}
           >
             {shape.props.factionName}

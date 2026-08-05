@@ -89,6 +89,10 @@ export class QuestNodeShapeUtil extends BaseBoxShapeUtil<QuestNodeShape> {
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap',
+                // Explicit dark color: this card's background is always white regardless
+                // of the campaign's theme, but unset text color would inherit the theme's
+                // foreground (light/near-white in dark themes), making it unreadable here.
+                color: '#111827',
               }}
             >
               {shape.props.questTitle}
