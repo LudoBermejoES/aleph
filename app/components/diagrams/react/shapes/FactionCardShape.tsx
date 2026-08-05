@@ -1,6 +1,8 @@
 /** @jsxImportSource react */
+import type React from 'react'
 import { useState } from 'react'
 import { BaseBoxShapeUtil, type TLBaseShape, HTMLContainer, type RecordProps, T } from 'tldraw'
+import { useImageAspectFit } from './useImageAspectFit'
 
 export type FactionCardShape = TLBaseShape<
   'factionCard',
@@ -14,6 +16,7 @@ export type FactionCardShape = TLBaseShape<
     crestUrl?: string
     alignment?: string
     memberCount?: number
+    aspectRatio?: number
   }
 >
 
@@ -59,6 +62,7 @@ export class FactionCardShapeUtil extends BaseBoxShapeUtil<FactionCardShape> {
     crestUrl: T.optional(T.string),
     alignment: T.optional(T.string),
     memberCount: T.optional(T.number),
+    aspectRatio: T.optional(T.number),
   }
 
   override getDefaultProps() {
@@ -72,7 +76,12 @@ export class FactionCardShapeUtil extends BaseBoxShapeUtil<FactionCardShape> {
       crestUrl: undefined,
       alignment: undefined,
       memberCount: undefined,
+      aspectRatio: undefined,
     }
+  }
+
+  override isAspectRatioLocked() {
+    return true
   }
 
   override onDoubleClick = (shape: FactionCardShape) => {
@@ -109,6 +118,14 @@ function FactionCardComponent({ shape }: { shape: FactionCardShape }) {
     ? (ALIGNMENT_COLORS[shape.props.alignment] ?? '#6b7280')
     : null
   const alignmentLabel = shape.props.alignment?.replace(/_/g, ' ') ?? ''
+  const fitImage = useImageAspectFit(shape.id, 'factionCard', shape.props.aspectRatio)
+
+  const hasSecondRow = !!alignmentColor || shape.props.memberCount != null
+  const chromeHeight = 8 + 14 + (hasSecondRow ? 4 + 14 : 0)
+
+  function handleLoad(e: React.SyntheticEvent<HTMLImageElement>) {
+    fitImage(e, chromeHeight)
+  }
 
   return (
     <HTMLContainer>
@@ -144,6 +161,7 @@ function FactionCardComponent({ shape }: { shape: FactionCardShape }) {
               src={shape.props.crestUrl}
               alt={shape.props.factionName}
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              onLoad={handleLoad}
               onError={() => setImgError(true)}
             />
           ) : (

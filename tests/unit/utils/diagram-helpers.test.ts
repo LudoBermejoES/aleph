@@ -56,8 +56,8 @@ function buildLocationPinShape(
       slug: entity.slug,
       locationName: entity.name,
       locationImageUrl: entity.imageUrl ?? undefined,
-      w: 180,
-      h: 60,
+      w: 140,
+      h: 175,
     },
   }
 }
@@ -165,8 +165,8 @@ describe('buildLocationPinShape', () => {
     expect(shape.props.entityId).toBe('loc-1')
     expect(shape.props.locationName).toBe('Tavern')
     expect(shape.props.slug).toBe('tavern')
-    expect(shape.props.w).toBe(180)
-    expect(shape.props.h).toBe(60)
+    expect(shape.props.w).toBe(140)
+    expect(shape.props.h).toBe(175)
   })
 
   it('sets locationImageUrl when imageUrl is provided', () => {

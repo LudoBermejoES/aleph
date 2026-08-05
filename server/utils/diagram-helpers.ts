@@ -62,8 +62,8 @@ export function buildLocationPinShape(
     x,
     y,
     props: {
-      w: 180,
-      h: 60,
+      w: 140,
+      h: 175,
       entityId: entity.id,
       campaignId,
       slug: entity.slug,

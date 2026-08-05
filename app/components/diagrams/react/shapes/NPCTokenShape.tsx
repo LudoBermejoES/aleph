@@ -1,6 +1,8 @@
 /** @jsxImportSource react */
+import type React from 'react'
 import { useState } from 'react'
 import { BaseBoxShapeUtil, type TLBaseShape, HTMLContainer, type RecordProps, T } from 'tldraw'
+import { useImageAspectFit } from './useImageAspectFit'
 
 export type NPCTokenShape = TLBaseShape<
   'npcToken',
@@ -14,6 +16,7 @@ export type NPCTokenShape = TLBaseShape<
     slug: string
     statusBadge?: string
     tags?: string[]
+    aspectRatio?: number
   }
 >
 
@@ -65,6 +68,7 @@ export class NPCTokenShapeUtil extends BaseBoxShapeUtil<NPCTokenShape> {
     slug: T.string,
     statusBadge: T.optional(T.string),
     tags: T.optional(T.arrayOf(T.string)),
+    aspectRatio: T.optional(T.number),
   }
 
   override getDefaultProps() {
@@ -78,7 +82,12 @@ export class NPCTokenShapeUtil extends BaseBoxShapeUtil<NPCTokenShape> {
       slug: '',
       statusBadge: undefined,
       tags: [] as string[],
+      aspectRatio: undefined,
     }
+  }
+
+  override isAspectRatioLocked() {
+    return true
   }
 
   override onDoubleClick = (shape: NPCTokenShape) => {
@@ -112,11 +121,20 @@ function NPCTokenComponent({ shape }: { shape: NPCTokenShape }) {
   const tags = shape.props.tags ?? []
   const visibleTags = tags.slice(0, 2)
   const overflowCount = tags.length - visibleTags.length
+  const fitImage = useImageAspectFit(shape.id, 'npcToken', shape.props.aspectRatio)
 
   // Reserve space for tags row if there are tags
   const tagsRowHeight = tags.length > 0 ? 20 : 0
   const nameRowHeight = 18
-  const imgSize = Math.min(shape.props.w, shape.props.h - nameRowHeight - tagsRowHeight - 12)
+  const chromeHeight = nameRowHeight + tagsRowHeight + 12
+  // Square while there's no image (or it hasn't loaded/fitted yet) — once fitted, the
+  // portrait area takes the shape's own w/h, matching the image's true aspect ratio.
+  const imgW = shape.props.w
+  const imgH = Math.max(shape.props.h - chromeHeight, 0)
+
+  function handleLoad(e: React.SyntheticEvent<HTMLImageElement>) {
+    fitImage(e, chromeHeight)
+  }
 
   const statusColor = shape.props.statusBadge
     ? (STATUS_COLORS[shape.props.statusBadge] ?? '#9ca3af')
@@ -140,8 +158,8 @@ function NPCTokenComponent({ shape }: { shape: NPCTokenShape }) {
         <div
           style={{
             position: 'relative',
-            width: imgSize,
-            height: imgSize,
+            width: imgW,
+            height: imgH,
             overflow: 'hidden',
             border: '2px solid #8b5cf6',
             borderRadius: 4,
@@ -156,11 +174,12 @@ function NPCTokenComponent({ shape }: { shape: NPCTokenShape }) {
             <img
               src={shape.props.portraitUrl}
               alt={shape.props.characterName}
-              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              onLoad={handleLoad}
               onError={() => setImgError(true)}
             />
           ) : (
-            <PlaceholderToken size={imgSize} />
+            <PlaceholderToken size={Math.min(imgW, imgH)} />
           )}
           {/* Status badge */}
           {statusColor && (

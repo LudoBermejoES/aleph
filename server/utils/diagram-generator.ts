@@ -457,7 +457,7 @@ export function generateFactionWeb(
       const shape =
         info.entity.kind === 'character'
           ? buildNpcTokenShape(info.entity.data, campaignId, sp.x - 70, sp.y - 80)
-          : buildLocationPinShape(info.entity.data, campaignId, sp.x - 90, sp.y - 30)
+          : buildLocationPinShape(info.entity.data, campaignId, sp.x - 70, sp.y - 87)
       shapes.push(shape)
       entityIdToShapeId.set(entityId, shape.id)
 
@@ -484,7 +484,7 @@ export function generateFactionWeb(
     const shape =
       entity.kind === 'character'
         ? buildNpcTokenShape(entity.data, campaignId, x - 70, y - 80)
-        : buildLocationPinShape(entity.data, campaignId, x - 90, y - 30)
+        : buildLocationPinShape(entity.data, campaignId, x - 70, y - 87)
     shapes.push(shape)
     entityIdToShapeId.set(entityId, shape.id)
 

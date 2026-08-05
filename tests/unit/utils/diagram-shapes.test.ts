@@ -82,8 +82,8 @@ describe('buildShapeCreateArgs', () => {
     )
     expect(result.type).toBe('locationPin')
     expect(result.props.locationName).toBe('Tavern')
-    expect(result.props.w).toBe(180)
-    expect(result.props.h).toBe(60)
+    expect(result.props.w).toBe(140)
+    expect(result.props.h).toBe(175)
   })
 
   it('builds locationPin with locationImageUrl from portraitUrl', () => {

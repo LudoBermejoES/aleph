@@ -83,8 +83,8 @@ export function buildShapeCreateArgs(
         type: 'locationPin',
         props: {
           ...baseProps,
-          w: 180,
-          h: 60,
+          w: 140,
+          h: 175,
           locationName: entity.name,
           locationImageUrl: entity.portraitUrl ?? entity.image ?? undefined,
         },

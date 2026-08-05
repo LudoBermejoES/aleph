@@ -18,6 +18,7 @@ const customShapeSchemas = {
       slug: T.string,
       statusBadge: T.optional(T.string),
       tags: T.optional(T.arrayOf(T.string)),
+      aspectRatio: T.optional(T.number),
     },
   },
   locationPin: {
@@ -29,6 +30,7 @@ const customShapeSchemas = {
       locationName: T.string,
       slug: T.string,
       locationImageUrl: T.optional(T.string),
+      aspectRatio: T.optional(T.number),
     },
   },
   questNode: {
@@ -53,6 +55,7 @@ const customShapeSchemas = {
       crestUrl: T.optional(T.string),
       alignment: T.optional(T.string),
       memberCount: T.optional(T.number),
+      aspectRatio: T.optional(T.number),
     },
   },
   entityCard: {
