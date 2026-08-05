@@ -24,4 +24,4 @@
 ## 5. Deploy
 
 - [x] 5.1 Typecheck (`vue-tsc --noEmit`) clean
-- [ ] 5.2 Commit, push to `master`, verify the GitHub Actions deploy succeeds
+- [x] 5.2 Commit, push to `master`, verify the GitHub Actions deploy succeeds
