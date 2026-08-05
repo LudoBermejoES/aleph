@@ -138,6 +138,14 @@
             </div>
           </div>
 
+          <!-- Nicknames -->
+          <NicknamesPanel
+            :campaign-id="campaignId"
+            :entity-slug="slug"
+            :editable="canEdit"
+            class="mb-6"
+          />
+
           <!-- Public notes (any member who can read the character) -->
           <CharacterNotesPanel
             :campaign-id="campaignId"
