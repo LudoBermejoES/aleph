@@ -97,6 +97,17 @@ describe('autoLinkContent resolves nicknames from the DB', () => {
     expect(result).toContain('name="El hermético"')
   })
 
+  it('links a known entity name with no self-exclusion when currentEntityId is null', () => {
+    const result = autoLinkContent(
+      'El grupo se reunió con Philip Holmes en el sanctum.',
+      campaignId,
+      null,
+      testDb.db,
+    )
+
+    expect(result).toContain(':entity-link{slug="philip-holmes"')
+  })
+
   it('leaves text unlinked when no matching nickname exists', () => {
     const result = autoLinkContent('Nadie mencionó a Phillip aquí.', campaignId, null, testDb.db)
     expect(result).not.toContain(':entity-link')

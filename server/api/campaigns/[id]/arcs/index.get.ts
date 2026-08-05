@@ -2,6 +2,7 @@ import { and, eq } from 'drizzle-orm'
 import { useDb } from '../../../../utils/db'
 import { arcs, chapters } from '../../../../db/schema/sessions'
 import { stripSecretBlocks } from '../../../../services/content'
+import { buildAutolinkContext, applyAutolink } from '../../../../services/autolink-render'
 import { hasMinRole } from '../../../../utils/permissions'
 import { resolveSubCampaignSlug } from '../../../../utils/sub-campaign'
 import type { CampaignRole } from '../../../../utils/permissions'
@@ -42,6 +43,13 @@ export default defineEventHandler(async (event) => {
     .orderBy(arcs.sortOrder)
     .all()
 
+  if (arcList.length === 0) return []
+
+  // Built once and reused for every arc/chapter description below, instead of once per
+  // description — auto-linking re-queries all campaign entities/nicknames and rebuilds an
+  // automaton each time it's built, and a campaign can have many arcs and chapters.
+  const autolinkContext = buildAutolinkContext(campaignId, db)
+
   return arcList.map((arc) => {
     const chapterList = db
       .select()
@@ -51,10 +59,14 @@ export default defineEventHandler(async (event) => {
       .all()
     return {
       ...arc,
-      description: arc.description ? stripSecretBlocks(arc.description, role) : arc.description,
+      description: arc.description
+        ? applyAutolink(stripSecretBlocks(arc.description, role), null, autolinkContext)
+        : arc.description,
       chapters: chapterList.map((ch) => ({
         ...ch,
-        description: ch.description ? stripSecretBlocks(ch.description, role) : ch.description,
+        description: ch.description
+          ? applyAutolink(stripSecretBlocks(ch.description, role), null, autolinkContext)
+          : ch.description,
       })),
     }
   })

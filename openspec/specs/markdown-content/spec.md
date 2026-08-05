@@ -155,6 +155,16 @@ The system SHALL render markdown content with support for embedded Vue component
 - AND the `name` attribute of each link reflects the matched text (not the primary entity name)
 - AND nicknames are sourced from the `entity_nicknames` table, not from `.md` frontmatter `aliases`
 
+#### Scenario: Auto-linked entity names in arc and chapter descriptions
+
+- GIVEN an arc "Act I" with description "The party met Julia Kirchner in the docks" and a character "Julia Kirchner" with the nickname "Julia" in the same campaign
+- AND a chapter "The Ambush" belonging to that arc with description "Julia's warning came too late"
+- WHEN a campaign member requests `GET /api/campaigns/{id}/arcs`
+- THEN "Julia Kirchner" in the arc's `description` is converted to a `:entity-link{slug="julia-kirchner" ...}` directive
+- AND "Julia" in the chapter's `description` is converted to a `:entity-link{slug="julia-kirchner" ...}` directive resolved via the nickname
+- AND secret-blocked text is still stripped by role before auto-linking runs, exactly as for session, character, and wiki-entity content
+- AND the arc detail page (`/campaigns/{id}/arcs/{slug}`) renders both links as clickable, matching the behavior already present for session summaries, character content, and wiki-entity content
+
 ### Requirement: Rich Text Editor with Markdown Source
 
 The system SHALL provide a WYSIWYG editor (Tiptap) that uses markdown as the underlying format.
