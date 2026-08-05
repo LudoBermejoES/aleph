@@ -93,6 +93,18 @@
         class="mb-6"
       />
 
+      <!-- Relations -->
+      <EntityRelationsPanel
+        v-if="arc.id"
+        :campaign-id="campaignId"
+        :entity-id="arc.id"
+        entity-type="arc"
+        :entity-slug="slug"
+        :entity-name="arc.name"
+        :role="campaignRole"
+        class="mb-6"
+      />
+
       <!-- Linked sessions -->
       <section v-if="linkedSessions.length" class="mb-6">
         <h2 class="text-lg font-semibold mb-3">{{ $t('arcs.sessions') }}</h2>

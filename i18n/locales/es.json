@@ -312,6 +312,7 @@
       "quest": "Misión",
       "item": "Objeto",
       "session": "Sesión",
+      "arc": "Arco",
       "note": "Nota"
     },
     "new": "Nueva entidad",

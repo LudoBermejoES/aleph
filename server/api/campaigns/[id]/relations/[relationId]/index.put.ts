@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
   const relationId = getRouterParam(event, 'relationId')!
   const relationPutSchema = z.object({
     attitude: z.number().int().min(-100).max(100).optional(),
-    description: z.string().optional(),
+    description: z.string().nullable().optional(),
     forwardLabel: z.string().optional(),
     reverseLabel: z.string().optional(),
     visibility: z.string().optional(),

@@ -104,6 +104,60 @@ describe('Relationship Graph (integration)', () => {
     expect(relationId).toBeDefined()
   })
 
+  it('POST creates relation when relationTypeId and description are explicitly null', async () => {
+    // The Add Relation dialog sends `null` (not omitted) for these optional fields when
+    // left blank — the schema must accept that, not just a missing key.
+    const res = await api(`/api/campaigns/${campaignId}/relations`, {
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
+      body: {
+        sourceEntityId: entity1Id,
+        targetEntityId: entity2Id,
+        relationTypeId: null,
+        forwardLabel: 'knows',
+        reverseLabel: 'knows',
+        description: null,
+      },
+    })
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.id).toBeDefined()
+
+    // Falls back to the campaign's builtin 'custom' relation type.
+    await api(`/api/campaigns/${campaignId}/relations/${body.id}`, {
+      method: 'DELETE',
+      headers: withCsrf(cookie, csrfToken),
+    })
+  })
+
+  it('PUT updates relation when description is explicitly null', async () => {
+    const create = await api(`/api/campaigns/${campaignId}/relations`, {
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
+      body: {
+        sourceEntityId: entity1Id,
+        targetEntityId: entity2Id,
+        relationTypeId,
+        forwardLabel: 'ally of',
+        reverseLabel: 'ally of',
+        description: 'temporary',
+      },
+    })
+    const { id } = await create.json()
+
+    const res = await api(`/api/campaigns/${campaignId}/relations/${id}`, {
+      method: 'PUT',
+      headers: withCsrf(cookie, csrfToken),
+      body: { description: null },
+    })
+    expect(res.status).toBe(200)
+
+    await api(`/api/campaigns/${campaignId}/relations/${id}`, {
+      method: 'DELETE',
+      headers: withCsrf(cookie, csrfToken),
+    })
+  })
+
   it('GET entity-centered relations returns correct labels', async () => {
     const res = await api(`/api/campaigns/${campaignId}/relations?entity_id=${entity1Id}`, {
       method: 'GET',

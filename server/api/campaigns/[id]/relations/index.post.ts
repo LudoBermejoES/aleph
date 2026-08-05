@@ -17,11 +17,11 @@ export default defineEventHandler(async (event) => {
   const relationSchema = z.object({
     sourceEntityId: z.string(),
     targetEntityId: z.string(),
-    relationTypeId: z.string().optional(),
+    relationTypeId: z.string().nullable().optional(),
     forwardLabel: z.string().optional(),
     reverseLabel: z.string().optional(),
     attitude: z.number().int().min(-100).max(100).optional(),
-    description: z.string().optional(),
+    description: z.string().nullable().optional(),
     metadata: z.record(z.string(), z.unknown()).optional(),
     visibility: z.string().optional(),
     isPinned: z.boolean().optional(),

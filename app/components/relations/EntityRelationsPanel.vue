@@ -207,6 +207,7 @@
 <script setup lang="ts">
 import { useEntityRelations } from '~/composables/useEntityRelations'
 import type {
+  EntityType,
   EntityRelationRow,
   MemberRow,
   InhabitantRow,
@@ -219,7 +220,7 @@ type DeleteMode = 'entity-relation' | 'org-member' | 'char-location' | 'org-loca
 const props = defineProps<{
   campaignId: string
   entityId: string
-  entityType: 'character' | 'organization' | 'location'
+  entityType: EntityType
   entitySlug: string
   entityName: string
   role?: CampaignRole

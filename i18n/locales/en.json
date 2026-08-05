@@ -312,6 +312,7 @@
       "quest": "Quest",
       "item": "Item",
       "session": "Session",
+      "arc": "Arc",
       "note": "Note"
     },
     "new": "New Entity",

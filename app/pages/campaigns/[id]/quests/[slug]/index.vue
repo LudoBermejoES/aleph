@@ -110,6 +110,18 @@
         </div>
       </div>
 
+      <!-- Relations -->
+      <EntityRelationsPanel
+        v-if="quest.id"
+        :campaign-id="campaignId"
+        :entity-id="quest.id"
+        entity-type="quest"
+        :entity-slug="slug"
+        :entity-name="quest.name"
+        :role="campaignRole"
+        class="mb-6"
+      />
+
       <!-- Sub-quests -->
       <section v-if="subQuests.length">
         <h2 class="text-lg font-semibold mb-3">{{ $t('quests.subQuests') }}</h2>

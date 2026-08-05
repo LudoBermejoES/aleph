@@ -1,6 +1,6 @@
 import { ref, type Ref } from 'vue'
 
-export type EntityType = 'character' | 'organization' | 'location'
+export type EntityType = 'character' | 'organization' | 'location' | 'quest' | 'session' | 'arc'
 
 export interface EntityRef {
   id: string

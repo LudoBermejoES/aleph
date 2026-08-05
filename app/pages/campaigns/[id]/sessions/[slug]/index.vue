@@ -159,6 +159,18 @@
         :entity-slug="slug"
         :campaign-role="campaignRole"
       />
+
+      <!-- Relations -->
+      <EntityRelationsPanel
+        v-if="session.id"
+        :campaign-id="campaignId"
+        :entity-id="session.id"
+        entity-type="session"
+        :entity-slug="slug"
+        :entity-name="session.title"
+        :role="campaignRole"
+        class="mt-6"
+      />
     </div>
   </div>
 </template>
