@@ -86,6 +86,7 @@ export function buildShapeCreateArgs(
           w: 180,
           h: 60,
           locationName: entity.name,
+          locationImageUrl: entity.portraitUrl ?? entity.image ?? undefined,
         },
       }
     case 'questNode':

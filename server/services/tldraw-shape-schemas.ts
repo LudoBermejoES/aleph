@@ -28,6 +28,7 @@ const customShapeSchemas = {
       campaignId: T.string,
       locationName: T.string,
       slug: T.string,
+      locationImageUrl: T.optional(T.string),
     },
   },
   questNode: {

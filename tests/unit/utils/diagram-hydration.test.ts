@@ -50,6 +50,45 @@ describe('hydrateEntityShapes', () => {
     )
   })
 
+  it('refreshes locationPin shapes with the location image', async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        'loc-1': {
+          id: 'loc-1',
+          name: 'Updated Tavern',
+          type: 'location',
+          slug: 'updated-tavern',
+          portraitUrl: '/img/tavern.png',
+          status: null,
+          tags: [],
+        },
+      }),
+    })
+    vi.stubGlobal('fetch', mockFetch)
+
+    const updateShapes = vi.fn()
+    const editor = {
+      getCurrentPageShapes: () => [
+        {
+          id: 'shape-loc',
+          type: 'locationPin',
+          props: { entityId: 'loc-1', campaignId: 'camp-1', locationName: 'Old Tavern' },
+        },
+      ],
+      updateShapes,
+    }
+
+    await hydrateEntityShapes(editor, 'camp-1')
+
+    expect(updateShapes).toHaveBeenCalledWith([
+      {
+        id: 'shape-loc',
+        props: { locationName: 'Updated Tavern', locationImageUrl: '/img/tavern.png' },
+      },
+    ])
+  })
+
   it('batches 120 entity IDs into 3 requests of 50', async () => {
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,

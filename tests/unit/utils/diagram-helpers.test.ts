@@ -41,7 +41,7 @@ function buildNpcTokenShape(
 }
 
 function buildLocationPinShape(
-  entity: { id: string; name: string; slug: string },
+  entity: { id: string; name: string; slug: string; imageUrl?: string | null },
   campaignId: string,
   x: number,
   y: number,
@@ -55,6 +55,7 @@ function buildLocationPinShape(
       campaignId,
       slug: entity.slug,
       locationName: entity.name,
+      locationImageUrl: entity.imageUrl ?? undefined,
       w: 180,
       h: 60,
     },
@@ -166,6 +167,26 @@ describe('buildLocationPinShape', () => {
     expect(shape.props.slug).toBe('tavern')
     expect(shape.props.w).toBe(180)
     expect(shape.props.h).toBe(60)
+  })
+
+  it('sets locationImageUrl when imageUrl is provided', () => {
+    const shape = buildLocationPinShape(
+      { id: 'loc-1', name: 'Tavern', slug: 'tavern', imageUrl: '/img/tavern.png' },
+      'camp-1',
+      0,
+      0,
+    )
+    expect(shape.props.locationImageUrl).toBe('/img/tavern.png')
+  })
+
+  it('locationImageUrl is undefined when imageUrl is null', () => {
+    const shape = buildLocationPinShape(
+      { id: 'loc-1', name: 'Tavern', slug: 'tavern', imageUrl: null },
+      'camp-1',
+      0,
+      0,
+    )
+    expect(shape.props.locationImageUrl).toBeUndefined()
   })
 })
 

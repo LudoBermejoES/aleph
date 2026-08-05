@@ -94,6 +94,14 @@ describe('alephTLSchema', () => {
       const { slug: _, ...withoutSlug } = baseProps
       expect(() => shapeValidator.validate(makeShape('locationPin', withoutSlug))).toThrow()
     })
+
+    it('validates with an optional locationImageUrl', () => {
+      expect(() =>
+        shapeValidator.validate(
+          makeShape('locationPin', { ...baseProps, locationImageUrl: '/img/shire.png' }),
+        ),
+      ).not.toThrow()
+    })
   })
 
   describe('questNode', () => {

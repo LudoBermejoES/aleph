@@ -86,6 +86,24 @@ describe('buildShapeCreateArgs', () => {
     expect(result.props.h).toBe(60)
   })
 
+  it('builds locationPin with locationImageUrl from portraitUrl', () => {
+    const result = buildShapeCreateArgs(
+      'location',
+      { id: 'loc1', name: 'Tavern', slug: 'tavern', portraitUrl: '/img/tavern.png' },
+      campaignId,
+    )
+    expect(result.props.locationImageUrl).toBe('/img/tavern.png')
+  })
+
+  it('builds locationPin with locationImageUrl from image fallback', () => {
+    const result = buildShapeCreateArgs(
+      'location',
+      { id: 'loc1', name: 'Tavern', slug: 'tavern', image: '/img/tavern-fallback.png' },
+      campaignId,
+    )
+    expect(result.props.locationImageUrl).toBe('/img/tavern-fallback.png')
+  })
+
   it('builds factionCard for organization', () => {
     const result = buildShapeCreateArgs(
       'organization',

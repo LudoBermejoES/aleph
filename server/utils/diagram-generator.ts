@@ -346,7 +346,13 @@ export function generateFactionWeb(
   interface RelatedEntity {
     kind: 'character' | 'location'
     label: string
-    data: { id: string; name: string; slug: string; portraitUrl?: string | null }
+    data: {
+      id: string
+      name: string
+      slug: string
+      portraitUrl?: string | null
+      imageUrl?: string | null
+    }
   }
 
   const orgShapeIds = new Map<string, string>() // orgId → shapeId
@@ -385,6 +391,7 @@ export function generateFactionWeb(
         id: entities.id,
         name: entities.name,
         slug: entities.slug,
+        imageUrl: entities.imageUrl,
       })
       .from(organizationLocations)
       .innerJoin(entities, eq(organizationLocations.locationEntityId, entities.id))

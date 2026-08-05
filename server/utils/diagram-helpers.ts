@@ -51,7 +51,7 @@ export function buildNpcTokenShape(
  * Build a locationPin shape descriptor for a location entity.
  */
 export function buildLocationPinShape(
-  entity: { id: string; name: string; slug: string },
+  entity: { id: string; name: string; slug: string; imageUrl?: string | null },
   campaignId: string,
   x: number,
   y: number,
@@ -68,6 +68,7 @@ export function buildLocationPinShape(
       campaignId,
       slug: entity.slug,
       locationName: entity.name,
+      locationImageUrl: entity.imageUrl ?? undefined,
     },
   }
 }

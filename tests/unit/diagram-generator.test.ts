@@ -272,6 +272,63 @@ describe('generateFactionWeb', () => {
       result.shapes[0].x === result.shapes[1].x && result.shapes[0].y === result.shapes[1].y
     expect(samePosition).toBe(false)
   })
+
+  it('carries the location image through to the locationPin shape', () => {
+    const orgs = [
+      {
+        id: 'o1',
+        name: 'Order of the Shield',
+        slug: 'order',
+        type: 'faction',
+        status: 'active',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ]
+    const locationRows = [
+      { id: 'loc-1', name: 'The Keep', slug: 'the-keep', imageUrl: '/img/keep.png' },
+    ]
+    // Call order per org: 1st = orgs, 2nd = memberRows (empty), 3rd = locationRows
+    let callCount = 0
+    const db = {
+      select: function () {
+        return this
+      },
+      from: function () {
+        return this
+      },
+      where: function () {
+        return this
+      },
+      limit: function () {
+        return this
+      },
+      orderBy: function () {
+        return this
+      },
+      innerJoin: function () {
+        return this
+      },
+      leftJoin: function () {
+        return this
+      },
+      all: function () {
+        callCount++
+        if (callCount === 1) return orgs
+        if (callCount === 2) return []
+        return locationRows
+      },
+      get: function () {
+        return undefined
+      },
+    } as any
+    const result = generateFactionWeb(db, 'campaign-1')
+    const locationShape = result.shapes.find((s: { type: string }) => s.type === 'locationPin') as
+      | { props: Record<string, unknown> }
+      | undefined
+    expect(locationShape).toBeDefined()
+    expect(locationShape!.props.locationImageUrl).toBe('/img/keep.png')
+  })
 })
 
 describe('generateSessionTimeline', () => {

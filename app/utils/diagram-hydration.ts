@@ -74,6 +74,7 @@ export async function hydrateEntityShapes(editor: unknown, campaignId: string): 
     } else if (shapeType === 'locationPin') {
       props = {
         locationName: data.name,
+        locationImageUrl: data.portraitUrl ?? undefined,
       }
     } else if (shapeType === 'questNode') {
       props = {
