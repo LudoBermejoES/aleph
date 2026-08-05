@@ -147,6 +147,14 @@ The system SHALL render markdown content with support for embedded Vue component
 - AND auto-linking is case-insensitive ("castle ravenloft" also links)
 - AND auto-linking does not apply inside code blocks, frontmatter, or existing links
 
+#### Scenario: Auto-linked entity nicknames
+
+- GIVEN the entity "Philip Holmes" has DB nicknames "Phillip" and "El hermético"
+- WHEN a content field containing "El hermético discussed the pact with Phillip" is rendered
+- THEN "El hermético" and "Phillip" are both converted to entity links pointing to `philip-holmes`
+- AND the `name` attribute of each link reflects the matched text (not the primary entity name)
+- AND nicknames are sourced from the `entity_nicknames` table, not from `.md` frontmatter `aliases`
+
 ### Requirement: Rich Text Editor with Markdown Source
 
 The system SHALL provide a WYSIWYG editor (Tiptap) that uses markdown as the underlying format.
