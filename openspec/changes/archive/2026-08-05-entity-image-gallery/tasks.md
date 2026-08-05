@@ -2,7 +2,7 @@
 
 - [x] 1.1 Write a new Drizzle migration that walks every `characters` row with a non-null `portraitUrl`, copies the existing `portrait.{ext}` file to `{contentDir}/characters/{slug}/images/{newId}.{ext}`, inserts an `entity_images` row with `isPrimary = 1`, `sortOrder = 0`, and updates `characters.portraitUrl` to the new gallery URL. Skip rows already present in `entity_images`. Skip rows whose source file does not exist on disk.
 - [x] 1.2 Write a second migration (or extend 1.1) to do the same for every `organizations` row with a non-null `imageUrl`, copying from `{contentDir}/organizations/{slug}/image.{ext}` to `{contentDir}/organizations/{slug}/images/{newId}.{ext}` and updating `organizations.imageUrl`.
-- [ ] 1.3 Verify both migrations are idempotent by running them twice locally and confirming no duplicates.
+- [x] 1.3 Verify both migrations are idempotent by running them twice locally and confirming no duplicates.
 - [x] 1.4 Add the new migration files to `server/db/migrations/_journal.json` with timestamps greater than the existing `add-location-image-gallery` migration.
 
 ## 2. Gallery Service Extension

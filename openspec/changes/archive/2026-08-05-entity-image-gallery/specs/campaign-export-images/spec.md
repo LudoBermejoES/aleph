@@ -45,6 +45,13 @@ base64 data URIs. The set of image-bearing fields walked by the collector SHALL 
 - **WHEN** the DM exports the campaign
 - **THEN** the `images` map contains entries for all of their image URLs
 
+#### Scenario: Every gallery image is embedded, not just the primary
+
+- **GIVEN** a location with three gallery images of which one is primary
+- **WHEN** the DM exports the campaign
+- **THEN** the `images` map contains an entry for each of the three URLs
+- **AND** each value is a base64 data URI
+
 #### Scenario: Every character gallery image is embedded, not just the primary
 
 - **GIVEN** a character with two portrait images of which one is primary
@@ -81,6 +88,13 @@ pointing at the source campaign.
 - **AND** character gallery image `url` fields are rewritten similarly
 - **AND** organization gallery image `url` fields are rewritten similarly
 
+#### Scenario: Gallery images are readable after import
+
+- **GIVEN** a `"1.1"` export containing a location with three gallery images
+- **WHEN** the import completes
+- **THEN** each image's file exists on disk under the new campaign's content directory
+- **AND** requesting each image's URL returns the image bytes with status 200
+
 #### Scenario: Character gallery images are readable after import
 
 - **GIVEN** a `"1.1"` export containing a character with two gallery images
@@ -99,3 +113,15 @@ pointing at the source campaign.
 - **GIVEN** a user imports a `"1.0"` export (no `images` key)
 - **WHEN** the user sends `POST /api/campaigns/import`
 - **THEN** the import succeeds with status 201
+- **AND** image URL fields in the imported records retain their original values (which may be broken)
+- **AND** no error is returned
+
+#### Scenario: Import version validation accepts both 1.0 and 1.1
+
+- **WHEN** a user sends `POST /api/campaigns/import` with `version: "1.1"`
+- **THEN** the response status is 201
+
+#### Scenario: Import version validation still rejects unknown versions
+
+- **WHEN** a user sends `POST /api/campaigns/import` with `version: "2.0"`
+- **THEN** the response status is 422
