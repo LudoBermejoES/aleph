@@ -1,6 +1,6 @@
 # Philip Holmes — Historial de sesiones
 
-## Sesión del 30 de julio de 2025 — La carta y la puerta
+## Sesión del 30 de julio de 2026 — La carta y la puerta
 
 Philip reunió a los suyos en su sanctum para dar explicaciones que llevaba tiempo evitando. Araxi, Rike, Anneliese y Marcos querían saber más de lo que habían vivido en el viaje al otro universo y Philip se lo debía.
 

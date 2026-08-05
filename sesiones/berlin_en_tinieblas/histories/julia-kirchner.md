@@ -1,6 +1,6 @@
 # Julia Kirchner — Historial de sesiones
 
-## Sesión del 30 de julio de 2025 — Veintitrés razones
+## Sesión del 30 de julio de 2026 — Veintitrés razones
 
 Julia comprimió el día laboral con magia antes de ponerse la armadura. Quince horas en siete, los signos de Naruto y la meditación como instrumentos, la armadura de Salvador como catalizador. Después cruzó Berlín Este en moto.
 

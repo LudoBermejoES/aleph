@@ -1,6 +1,6 @@
 # Otto Von Grugger — Historial de sesiones
 
-## Sesión del 30 de julio de 2025 — El precio de la daga
+## Sesión del 30 de julio de 2026 — El precio de la daga
 
 Silke Willems, director del BFV (oficina de Cologne-Chorweiler), recibió a Otto en su despacho y le tendió la mano. La misión anterior, con toda la brutalidad política que generó, no fue un problema sino una carta de presentación. Otto fue promovido para dirigir una unidad especial de tres o cuatro personas que respondería directamente al director, con autorización para reclutar fuera del cuerpo policial.
 

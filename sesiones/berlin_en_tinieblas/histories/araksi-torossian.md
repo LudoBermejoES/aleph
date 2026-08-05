@@ -1,6 +1,6 @@
 # Araksi Torossian — Historial de sesiones
 
-## Sesión del 30 de julio de 2025 — La carta y la puerta
+## Sesión del 30 de julio de 2026 — La carta y la puerta
 
 Araksi estaba en el sanctum de Philip cuando él intentó por fin explicar lo de la carta del Tarot. Escuchó. No todas las piezas encajaron —el mundo de los magos y sus pactos con criaturas poderosas no es el suyo— pero suficientes. Philip llevaba tiempo queriendo alejarse del grupo para protegerlos, y era una idea que a Araksi no le hacía ninguna gracia: los dos años que lleva como humana le han enseñado que la distancia no protege a nadie.
 
