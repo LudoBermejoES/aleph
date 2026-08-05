@@ -177,9 +177,9 @@ contradictory instructions.
 filters results to sessions whose `arcId` matches an arc of that slug in the campaign, applied
 in SQL before pagination and counting so the returned `meta.total` reflects the filter. An
 unknown `arcSlug` MUST return an empty page rather than an error, matching the existing
-`groupSlug` read behaviour. The response projection MUST additionally include `arcName` and
+`subCampaignSlug` read behaviour. The response projection MUST additionally include `arcName` and
 `chapterName`, sourced from left joins on `arcs` and `chapters` in the same manner as the
-existing `groupName` join.
+existing `subCampaignName` join.
 
 #### Scenario: Authenticated member filters sessions by arc
 
@@ -201,7 +201,7 @@ existing `groupName` join.
 
 #### Scenario: Arc filter composes with the group and status filters
 
-- **WHEN** a member requests `?arcSlug=act-i&groupSlug=main-table&status=completed`
+- **WHEN** a member requests `?arcSlug=act-i&subCampaignSlug=mortales&status=completed`
 - **THEN** all three predicates are ANDed in the query
 - **AND** only sessions satisfying all three are returned
 
@@ -222,3 +222,47 @@ existing `groupName` join.
 - **GIVEN** a request with no valid API key and no session cookie
 - **WHEN** it requests `GET /api/campaigns/:id/sessions?arcSlug=act-i`
 - **THEN** the response is 401 and no session data is returned
+
+### Requirement: Sessions always belong to a sub-campaign
+
+Every session SHALL have a non-null `subCampaignId`. `POST /api/campaigns/:id/sessions` SHALL
+accept an optional `subCampaignSlug` body field; when omitted, the created session's
+`subCampaignId` MUST be set to the campaign's default sub-campaign. `PUT
+/api/campaigns/:id/sessions/:slug` SHALL accept `subCampaignSlug` to reassign an existing
+session to a different sub-campaign; an unresolvable slug MUST return 404 and the session MUST
+be left unchanged. `GET /api/campaigns/:id/sessions` SHALL accept an optional
+`subCampaignSlug` query parameter (replacing the removed `groupSlug`) filtering to sessions
+assigned to that sub-campaign, and the response projection SHALL include `subCampaignName`
+(replacing the removed `groupName`).
+
+#### Scenario: Session created without a sub-campaign gets the default
+
+- **WHEN** a co_dm sends `POST /api/campaigns/:id/sessions` with `{ "title": "Session 9" }` and no `subCampaignSlug`
+- **THEN** the created session's `subCampaignId` is the campaign's default sub-campaign's id
+
+#### Scenario: Session created with an explicit sub-campaign
+
+- **GIVEN** a sub-campaign `mortales` exists in the campaign
+- **WHEN** a co_dm sends `{ "title": "Sangre en Kreuzberg", "subCampaignSlug": "mortales" }`
+- **THEN** the created session's `subCampaignId` is `mortales`'s id
+
+#### Scenario: Reassigning a session to another sub-campaign
+
+- **WHEN** a co_dm sends `PUT /api/campaigns/:id/sessions/:slug` with `{ "subCampaignSlug": "mortales" }`
+- **THEN** the session's `subCampaignId` becomes `mortales`'s id
+
+#### Scenario: Filtering sessions by sub-campaign
+
+- **GIVEN** 12 of 73 sessions assigned to sub-campaign `mortales`
+- **WHEN** a member requests `GET /api/campaigns/:id/sessions?subCampaignSlug=mortales&pageSize=0`
+- **THEN** exactly those 12 sessions are returned, and each carries `subCampaignName: "Mortales"`
+
+#### Scenario: Unknown sub-campaign slug on session filter yields an empty page
+
+- **WHEN** a member requests `?subCampaignSlug=nonexistent`
+- **THEN** the response is 200 with an empty `data` array and `meta.total` 0
+
+#### Scenario: Unknown sub-campaign slug on session create or update returns 404
+
+- **WHEN** a co_dm sends `{ "subCampaignSlug": "nonexistent" }` on session create or update
+- **THEN** the response is 404 quoting `nonexistent` and no session is created or modified

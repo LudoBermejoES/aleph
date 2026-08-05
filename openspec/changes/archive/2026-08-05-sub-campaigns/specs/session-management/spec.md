@@ -28,7 +28,7 @@ existing `subCampaignName` join.
 - **WHEN** a member requests `?arcSlug=nonexistent`
 - **THEN** the response is 200 with an empty `data` array and `meta.total` 0
 
-#### Scenario: Arc filter composes with the sub-campaign and status filters
+#### Scenario: Arc filter composes with the group and status filters
 
 - **WHEN** a member requests `?arcSlug=act-i&subCampaignSlug=mortales&status=completed`
 - **THEN** all three predicates are ANDed in the query
@@ -40,7 +40,7 @@ existing `subCampaignName` join.
 - **WHEN** a member lists sessions
 - **THEN** that session object includes `arcName: "Act I"` and `chapterName: "The Market"`
 
-#### Scenario: Unassigned arc/chapter report null names
+#### Scenario: Unassigned sessions report null names
 
 - **GIVEN** a session with `arcId` and `chapterId` both `NULL`
 - **WHEN** a member lists sessions
