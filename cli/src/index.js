@@ -10,7 +10,7 @@ import { makeCampaignCommand } from './commands/campaign.js'
 import { makeEntityCommand } from './commands/entity.js'
 import { makeCharacterCommand } from './commands/character.js'
 import { makeSessionCommand } from './commands/session.js'
-import { makeSessionGroupCommand } from './commands/session-group.js'
+import { makeSubCampaignCommand } from './commands/sub-campaign.js'
 import { makeMemberCommand } from './commands/member.js'
 import { makeSearchCommand } from './commands/search.js'
 import { makeRollCommand } from './commands/roll.js'
@@ -49,7 +49,7 @@ program.addCommand(makeCampaignCommand())
 program.addCommand(makeEntityCommand())
 program.addCommand(makeCharacterCommand())
 program.addCommand(makeSessionCommand())
-program.addCommand(makeSessionGroupCommand())
+program.addCommand(makeSubCampaignCommand())
 program.addCommand(makeMemberCommand())
 program.addCommand(makeSearchCommand())
 program.addCommand(makeRollCommand())

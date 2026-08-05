@@ -29,13 +29,17 @@ describe('CLI session update arc/chapter flags', () => {
 
   it('counts --arc and --chapter in the at-least-one-field guard message', () => {
     expect(source).toContain(
-      'Provide at least one field to update (--title, --date, --status, --group, --arc, --chapter)',
+      'Provide at least one field to update (--title, --date, --status, --subcampaign, --arc, --chapter)',
     )
   })
 
-  it('keeps --group behaviour untouched', () => {
-    expect(source).toContain("'--group <slug>', 'Session group slug (empty string to unset)'")
-    expect(source).toContain('if (opts.group !== undefined) body.groupSlug = opts.group')
+  it('supports --subcampaign with --group retained as a deprecated alias', () => {
+    expect(source).toContain("'--subcampaign <slug>', 'Move to a different sub-campaign (by slug)'")
+    expect(source).toContain("'--group <slug>', 'Deprecated alias for --subcampaign'")
+    expect(source).toContain('const subCampaignSlug = opts.subcampaign ?? opts.group')
+    expect(source).toContain(
+      'if (subCampaignSlug !== undefined) body.subCampaignSlug = subCampaignSlug',
+    )
   })
 })
 
@@ -51,8 +55,8 @@ describe('CLI session list arc filter and columns', () => {
     expect(source).toContain("if (opts.arc) params.set('arcSlug', opts.arc)")
   })
 
-  it('still forwards groupSlug and pagination alongside it', () => {
-    expect(source).toContain("if (opts.group) params.set('groupSlug', opts.group)")
+  it('still forwards subCampaignSlug (via --subcampaign or the --group alias) and pagination', () => {
+    expect(source).toContain("if (subCampaignSlug) params.set('subCampaignSlug', subCampaignSlug)")
     expect(source).toContain("params.set('page', opts.page)")
     expect(source).toContain("params.set('pageSize', opts.limit)")
   })

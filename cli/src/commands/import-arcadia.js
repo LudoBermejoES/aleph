@@ -101,18 +101,18 @@ function deriveSlug(name) {
 }
 
 // ---------------------------------------------------------------------------
-// Ensure session group exists (idempotent)
+// Ensure sub-campaign exists (idempotent)
 // ---------------------------------------------------------------------------
 async function ensureSessionGroup(config, campaignId, name) {
-  const groups = await apiGet(config, `/campaigns/${campaignId}/session-groups`)
+  const subCampaigns = await apiGet(config, `/campaigns/${campaignId}/sub-campaigns`)
   const expectedSlug = deriveSlug(name)
-  const existing = groups.find((g) => g.slug === expectedSlug)
+  const existing = subCampaigns.find((sc) => sc.slug === expectedSlug)
   if (existing) {
-    console.log(`→ Skipped group: ${name} (already exists)`)
+    console.log(`→ Skipped sub-campaign: ${name} (already exists)`)
     return existing.slug
   }
-  const created = await apiPost(config, `/campaigns/${campaignId}/session-groups`, { name })
-  console.log(`✓ Created group: ${name}`)
+  const created = await apiPost(config, `/campaigns/${campaignId}/sub-campaigns`, { name })
+  console.log(`✓ Created sub-campaign: ${name}`)
   return created.slug
 }
 
@@ -144,7 +144,7 @@ async function ensureSession(config, campaignId, title, scheduledDate, groupSlug
   try {
     const body = { title, status: 'completed' }
     if (scheduledDate) body.scheduledDate = scheduledDate
-    if (groupSlug) body.groupSlug = groupSlug
+    if (groupSlug) body.subCampaignSlug = groupSlug
     const created = await apiPost(config, `/campaigns/${campaignId}/sessions`, body)
     existingSlugs.add(created.slug)
     console.log(`  ✓ Session ${n}: ${title}`)
@@ -368,8 +368,8 @@ export async function runImport(config) {
   sessionSlugCache = null // reset cache on each run
   console.log(`\nImporting Arcadia campaigns into campaign ${campaignId} at ${config.url}\n`)
 
-  // Create one session group per sub-campaign
-  console.log('Creating session groups...')
+  // Create one sub-campaign per storyline
+  console.log('Creating sub-campaigns...')
   const groupSlugs = {}
   for (const g of CAMPAIGN_GROUPS) {
     groupSlugs[g.key] = await ensureSessionGroup(config, campaignId, g.name)

@@ -1,6 +1,6 @@
 import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
-import { sessionGroups } from '../../../../../db/schema/sessions'
+import { subCampaigns } from '../../../../../db/schema/sessions'
 import { hasMinRole } from '../../../../../utils/permissions'
 import { writeFile, mkdir } from 'fs/promises'
 import { join, extname } from 'path'
@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
   if (!hasMinRole(role, 'editor')) {
     throw createError({
       statusCode: 403,
-      message: 'Editors or above can upload session group images',
+      message: 'Editors or above can upload sub-campaign images',
     })
   }
 
@@ -24,12 +24,12 @@ export default defineEventHandler(async (event) => {
   const db = useDb()
   const campaign = event.context.campaign
 
-  const group = db
+  const subCampaign = db
     .select()
-    .from(sessionGroups)
-    .where(and(eq(sessionGroups.campaignId, campaignId), eq(sessionGroups.slug, slug)))
+    .from(subCampaigns)
+    .where(and(eq(subCampaigns.campaignId, campaignId), eq(subCampaigns.slug, slug)))
     .get()
-  if (!group) throw createError({ statusCode: 404, message: 'Session group not found' })
+  if (!subCampaign) throw createError({ statusCode: 404, message: 'Sub-campaign not found' })
 
   const formData = await readMultipartFormData(event)
   if (!formData || formData.length === 0) {
@@ -68,15 +68,15 @@ export default defineEventHandler(async (event) => {
   }
   const ext = mimeToExt[mime] ?? (extname(file.filename || '.png') || '.png')
 
-  const imageDir = join(process.cwd(), campaign.contentDir, 'session-groups', slug)
+  const imageDir = join(process.cwd(), campaign.contentDir, 'sub-campaigns', slug)
   await mkdir(imageDir, { recursive: true })
   await writeFile(join(imageDir, `image${ext}`), file.data)
 
-  const imageUrl = `/api/campaigns/${campaignId}/session-groups/${slug}/image`
+  const imageUrl = `/api/campaigns/${campaignId}/sub-campaigns/${slug}/image`
 
-  db.update(sessionGroups)
+  db.update(subCampaigns)
     .set({ imageUrl, updatedAt: new Date() })
-    .where(eq(sessionGroups.id, group.id))
+    .where(eq(subCampaigns.id, subCampaign.id))
     .run()
 
   return { imageUrl }

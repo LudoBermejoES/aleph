@@ -2,8 +2,8 @@ import { sqliteTable, text, integer, unique, index } from 'drizzle-orm/sqlite-co
 import { campaigns } from './campaigns'
 import { user } from './auth'
 
-export const sessionGroups = sqliteTable(
-  'session_groups',
+export const subCampaigns = sqliteTable(
+  'sub_campaigns',
   {
     id: text('id').primaryKey(),
     campaignId: text('campaign_id')
@@ -14,6 +14,7 @@ export const sessionGroups = sqliteTable(
     description: text('description'),
     imageUrl: text('image_url'),
     sortOrder: integer('sort_order').notNull().default(0),
+    isDefault: integer('is_default', { mode: 'boolean' }).notNull().default(false),
     createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
     updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
   },
@@ -29,13 +30,19 @@ export const arcs = sqliteTable(
     campaignId: text('campaign_id')
       .notNull()
       .references(() => campaigns.id, { onDelete: 'cascade' }),
+    subCampaignId: text('sub_campaign_id')
+      .notNull()
+      .references(() => subCampaigns.id),
     name: text('name').notNull(),
     slug: text('slug').notNull(),
     description: text('description'),
     sortOrder: integer('sort_order').notNull().default(0),
     status: text('status').notNull().default('planned'), // planned, active, completed
   },
-  (table) => [index('idx_arcs_campaign').on(table.campaignId)],
+  (table) => [
+    index('idx_arcs_campaign').on(table.campaignId),
+    index('idx_arcs_sub_campaign').on(table.subCampaignId),
+  ],
 )
 
 export const chapters = sqliteTable('chapters', {
@@ -64,7 +71,9 @@ export const gameSessions = sqliteTable(
     summary: text('summary'),
     arcId: text('arc_id').references(() => arcs.id),
     chapterId: text('chapter_id').references(() => chapters.id),
-    groupId: text('group_id').references(() => sessionGroups.id, { onDelete: 'set null' }),
+    subCampaignId: text('sub_campaign_id')
+      .notNull()
+      .references(() => subCampaigns.id),
     logFilePath: text('log_file_path'),
     createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
     updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
@@ -73,7 +82,7 @@ export const gameSessions = sqliteTable(
     index('idx_sessions_status').on(table.status),
     index('idx_sessions_arc').on(table.arcId),
     index('idx_sessions_chapter').on(table.chapterId),
-    index('idx_sessions_group').on(table.groupId),
+    index('idx_sessions_sub_campaign').on(table.subCampaignId),
   ],
 )
 
@@ -101,6 +110,9 @@ export const quests = sqliteTable(
     campaignId: text('campaign_id')
       .notNull()
       .references(() => campaigns.id, { onDelete: 'cascade' }),
+    subCampaignId: text('sub_campaign_id')
+      .notNull()
+      .references(() => subCampaigns.id),
     name: text('name').notNull(),
     slug: text('slug').notNull(),
     description: text('description'),
@@ -113,7 +125,10 @@ export const quests = sqliteTable(
     createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
     updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
   },
-  (table) => [index('idx_quests_campaign').on(table.campaignId)],
+  (table) => [
+    index('idx_quests_campaign').on(table.campaignId),
+    index('idx_quests_sub_campaign').on(table.subCampaignId),
+  ],
 )
 
 export const decisions = sqliteTable('decisions', {

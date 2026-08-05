@@ -21,12 +21,13 @@ function withCsrf(cookie: string, csrfToken: string): Record<string, string> {
   return { Cookie: `${cookie}; csrf_token=${csrfToken}`, 'X-CSRF-Token': csrfToken }
 }
 
-describe('Session Groups + Content (integration)', () => {
+describe('Sub-Campaigns + Session Content (integration)', () => {
   const email = `sgtest-${Date.now()}@example.com`
   let cookie = ''
   let csrfToken = ''
   let campaignId = ''
-  let groupSlug = ''
+  let defaultSlug = ''
+  let subCampaignSlug = ''
   let sessionSlug = ''
 
   beforeAll(async () => {
@@ -50,32 +51,42 @@ describe('Session Groups + Content (integration)', () => {
     campaignId = (await camp.json()).id
   })
 
-  it('POST /session-groups creates a group', async () => {
-    const res = await api(`/api/campaigns/${campaignId}/session-groups`, {
+  it('a new campaign already has exactly one default sub-campaign', async () => {
+    const res = await api(`/api/campaigns/${campaignId}/sub-campaigns`, {
+      headers: { Cookie: cookie },
+    })
+    const data = await res.json()
+    expect(data.length).toBe(1)
+    expect(data[0].isDefault).toBe(true)
+    defaultSlug = data[0].slug
+  })
+
+  it('POST /sub-campaigns creates a non-default sub-campaign', async () => {
+    const res = await api(`/api/campaigns/${campaignId}/sub-campaigns`, {
       method: 'POST',
       headers: withCsrf(cookie, csrfToken),
-      body: { name: 'La Familia', description: 'The main group' },
+      body: { name: 'La Familia', description: 'The main sub-campaign' },
     })
     expect(res.status).toBe(200)
     const data = await res.json()
     expect(data.name).toBe('La Familia')
     expect(data.slug).toBe('la-familia')
-    groupSlug = data.slug
+    expect(data.isDefault).toBe(false)
+    subCampaignSlug = data.slug
   })
 
-  it('GET /session-groups returns all groups', async () => {
-    const res = await api(`/api/campaigns/${campaignId}/session-groups`, {
+  it('GET /sub-campaigns returns both the default and the new one', async () => {
+    const res = await api(`/api/campaigns/${campaignId}/sub-campaigns`, {
       method: 'GET',
       headers: { Cookie: cookie },
     })
-    const body = await res.json()
-    const data = body.data ?? body
-    expect(data.length).toBeGreaterThanOrEqual(1)
-    expect(data[0].name).toBe('La Familia')
+    const data = await res.json()
+    expect(data.length).toBe(2)
+    expect(data.some((sc: Record<string, unknown>) => sc.name === 'La Familia')).toBe(true)
   })
 
-  it('PUT /session-groups/:slug updates name', async () => {
-    const res = await api(`/api/campaigns/${campaignId}/session-groups/${groupSlug}`, {
+  it('PUT /sub-campaigns/:slug updates name', async () => {
+    const res = await api(`/api/campaigns/${campaignId}/sub-campaigns/${subCampaignSlug}`, {
       method: 'PUT',
       headers: withCsrf(cookie, csrfToken),
       body: { name: 'La Familia Updated', description: 'Updated desc' },
@@ -85,41 +96,45 @@ describe('Session Groups + Content (integration)', () => {
     expect(data.name).toBe('La Familia Updated')
   })
 
-  it('POST /sessions with groupSlug assigns group', async () => {
+  it('POST /sessions with subCampaignSlug assigns it', async () => {
     const res = await api(`/api/campaigns/${campaignId}/sessions`, {
       method: 'POST',
       headers: withCsrf(cookie, csrfToken),
-      body: { title: 'Group Session', groupSlug },
+      body: { title: 'Sub-campaign Session', subCampaignSlug },
     })
     expect(res.status).toBe(200)
     const data = await res.json()
-    expect(data.groupId).toBeTruthy()
+    expect(data.subCampaignId).toBeTruthy()
     sessionSlug = data.slug
   })
 
-  it('GET /sessions returns groupName on sessions', async () => {
+  it('POST /sessions without subCampaignSlug falls back to the default', async () => {
+    const res = await api(`/api/campaigns/${campaignId}/sessions`, {
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
+      body: { title: 'Unassigned Session' },
+    })
+    expect(res.status).toBe(200)
+    const data = await res.json()
+    expect(data.subCampaignId).toBeTruthy()
+  })
+
+  it('GET /sessions returns subCampaignName on sessions', async () => {
     const res = await api(`/api/campaigns/${campaignId}/sessions`, {
       method: 'GET',
       headers: { Cookie: cookie },
     })
     const body = await res.json()
     const data = body.data ?? body
-    const grouped = data.find((s: Record<string, unknown>) => s.slug === sessionSlug)
-    expect(grouped?.groupName).toBeTruthy()
+    const assigned = data.find((s: Record<string, unknown>) => s.slug === sessionSlug)
+    expect(assigned?.subCampaignName).toBeTruthy()
   })
 
-  it('GET /sessions?groupSlug= filters by group', async () => {
-    // Create a session without a group
-    await api(`/api/campaigns/${campaignId}/sessions`, {
-      method: 'POST',
-      headers: withCsrf(cookie, csrfToken),
-      body: { title: 'Ungrouped Session' },
-    })
-
-    const res = await api(`/api/campaigns/${campaignId}/sessions?groupSlug=${groupSlug}`, {
-      method: 'GET',
-      headers: { Cookie: cookie },
-    })
+  it('GET /sessions?subCampaignSlug= filters by sub-campaign', async () => {
+    const res = await api(
+      `/api/campaigns/${campaignId}/sessions?subCampaignSlug=${subCampaignSlug}`,
+      { method: 'GET', headers: { Cookie: cookie } },
+    )
     const body = await res.json()
     const data = body.data ?? body
     expect(data.length).toBe(1)
@@ -181,18 +196,27 @@ describe('Session Groups + Content (integration)', () => {
     expect(data.hasContent.manual_notes).toBe(true)
   })
 
-  it('DELETE /session-groups/:slug sets sessions groupId to null', async () => {
-    await api(`/api/campaigns/${campaignId}/session-groups/${groupSlug}`, {
+  it('DELETE /sub-campaigns/:slug (default) is rejected with 422', async () => {
+    const res = await api(`/api/campaigns/${campaignId}/sub-campaigns/${defaultSlug}`, {
       method: 'DELETE',
       headers: withCsrf(cookie, csrfToken),
     })
+    expect(res.status).toBe(422)
+  })
+
+  it('DELETE /sub-campaigns/:slug (non-default) reassigns sessions to the default', async () => {
+    const del = await api(`/api/campaigns/${campaignId}/sub-campaigns/${subCampaignSlug}`, {
+      method: 'DELETE',
+      headers: withCsrf(cookie, csrfToken),
+    })
+    expect(del.status).toBe(200)
 
     const res = await api(`/api/campaigns/${campaignId}/sessions/${sessionSlug}`, {
       method: 'GET',
       headers: { Cookie: cookie },
     })
     const data = await res.json()
-    expect(data.groupId).toBeNull()
-    expect(data.groupName).toBeNull()
+    expect(data.subCampaignId).toBeTruthy()
+    expect(data.subCampaignSlug).toBe(defaultSlug)
   })
 })

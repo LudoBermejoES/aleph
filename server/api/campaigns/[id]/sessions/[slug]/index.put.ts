@@ -2,9 +2,10 @@ import { z } from 'zod'
 import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
 import { validateBody } from '../../../../../utils/validate'
-import { gameSessions, sessionGroups } from '../../../../../db/schema/sessions'
+import { gameSessions } from '../../../../../db/schema/sessions'
 import { hasMinRole } from '../../../../../utils/permissions'
 import { resolveArcChapterSlugs } from '../../../../../utils/arc-chapter'
+import { resolveSubCampaignSlug } from '../../../../../utils/sub-campaign'
 import { writeEntityFile, readEntityFile } from '../../../../../services/content'
 import type { CampaignRole } from '../../../../../utils/permissions'
 
@@ -25,7 +26,7 @@ export default defineEventHandler(async (event) => {
     chapterId: z.string().nullable().optional(),
     arcSlug: z.string().nullable().optional(),
     chapterSlug: z.string().nullable().optional(),
-    groupSlug: z.string().nullable().optional(),
+    subCampaignSlug: z.string().optional(),
     content: z.string().optional(),
   })
   const body = await validateBody(event, sessionPutSchema)
@@ -61,24 +62,8 @@ export default defineEventHandler(async (event) => {
   )
   if (bySlug.arcId !== undefined) updates.arcId = bySlug.arcId
   if (bySlug.chapterId !== undefined) updates.chapterId = bySlug.chapterId
-  if (body.groupSlug !== undefined) {
-    if (body.groupSlug === null || body.groupSlug === '') {
-      updates.groupId = null
-    } else {
-      const group = db
-        .select({ id: sessionGroups.id })
-        .from(sessionGroups)
-        .where(
-          and(eq(sessionGroups.campaignId, campaignId), eq(sessionGroups.slug, body.groupSlug)),
-        )
-        .get()
-      if (!group)
-        throw createError({
-          statusCode: 404,
-          message: `Session group "${body.groupSlug}" not found`,
-        })
-      updates.groupId = group.id
-    }
+  if (body.subCampaignSlug) {
+    updates.subCampaignId = resolveSubCampaignSlug(db, campaignId, body.subCampaignSlug)
   }
 
   db.update(gameSessions).set(updates).where(eq(gameSessions.id, session.id)).run()

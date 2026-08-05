@@ -146,9 +146,9 @@ const REAL_IMAGE_ROUTES: Array<{ path: string; methods: string[]; file: string }
     file: 'organizations/[slug]/image.{get,post}.ts',
   },
   {
-    path: '/api/campaigns/c1/session-groups/arc-one/image',
+    path: '/api/campaigns/c1/sub-campaigns/arc-one/image',
     methods: ['GET', 'POST'],
-    file: 'session-groups/[slug]/image.{get,post}.ts',
+    file: 'sub-campaigns/[slug]/image.{get,post}.ts',
   },
   {
     path: '/api/campaigns/c1/maps/atlas/image',

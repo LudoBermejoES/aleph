@@ -1,6 +1,6 @@
 import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
-import { sessionGroups } from '../../../../../db/schema/sessions'
+import { subCampaigns } from '../../../../../db/schema/sessions'
 import { readFile, stat } from 'fs/promises'
 import { join } from 'path'
 
@@ -10,14 +10,14 @@ export default defineEventHandler(async (event) => {
   const db = useDb()
   const campaign = event.context.campaign
 
-  const group = db
-    .select({ id: sessionGroups.id })
-    .from(sessionGroups)
-    .where(and(eq(sessionGroups.campaignId, campaignId), eq(sessionGroups.slug, slug)))
+  const subCampaign = db
+    .select({ id: subCampaigns.id })
+    .from(subCampaigns)
+    .where(and(eq(subCampaigns.campaignId, campaignId), eq(subCampaigns.slug, slug)))
     .get()
-  if (!group) throw createError({ statusCode: 404, message: 'Session group not found' })
+  if (!subCampaign) throw createError({ statusCode: 404, message: 'Sub-campaign not found' })
 
-  const imageDir = join(process.cwd(), campaign.contentDir, 'session-groups', slug)
+  const imageDir = join(process.cwd(), campaign.contentDir, 'sub-campaigns', slug)
 
   for (const ext of ['.png', '.jpg', '.webp']) {
     const imagePath = join(imageDir, `image${ext}`)

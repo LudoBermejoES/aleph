@@ -5,6 +5,7 @@ import { validateBody } from '../../../../utils/validate'
 import { quests } from '../../../../db/schema/sessions'
 import { hasMinRole } from '../../../../utils/permissions'
 import { slugify, writeEntityFile, resolveEntityPath } from '../../../../services/content'
+import { resolveSubCampaignIdForCreate } from '../../../../utils/sub-campaign'
 import { join } from 'path'
 import type { CampaignRole } from '../../../../utils/permissions'
 
@@ -25,10 +26,13 @@ export default defineEventHandler(async (event) => {
     parentQuestId: z.string().optional(),
     entityId: z.string().optional(),
     assignedCharacterIds: z.array(z.string()).optional(),
+    subCampaignSlug: z.string().optional(),
   })
   const body = await validateBody(event, questSchema)
   const db = useDb()
   const campaign = event.context.campaign
+
+  const subCampaignId = resolveSubCampaignIdForCreate(db, campaignId, body.subCampaignSlug)
 
   const id = randomUUID()
   const slug = slugify(body.name)
@@ -51,6 +55,7 @@ export default defineEventHandler(async (event) => {
     .values({
       id,
       campaignId,
+      subCampaignId,
       name: body.name,
       slug,
       description: body.description || null,

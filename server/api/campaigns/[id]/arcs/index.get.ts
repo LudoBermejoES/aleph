@@ -1,8 +1,9 @@
-import { eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import { useDb } from '../../../../utils/db'
 import { arcs, chapters } from '../../../../db/schema/sessions'
 import { stripSecretBlocks } from '../../../../services/content'
 import { hasMinRole } from '../../../../utils/permissions'
+import { resolveSubCampaignSlug } from '../../../../utils/sub-campaign'
 import type { CampaignRole } from '../../../../utils/permissions'
 
 // Intentional raw array: arcs (story arcs) are structural metadata, small and fully loaded.
@@ -21,10 +22,23 @@ export default defineEventHandler(async (event) => {
     }
   }
 
+  const subCampaignSlug = getQuery(event).subCampaignSlug as string | undefined
+  let subCampaignId: string | undefined
+  if (subCampaignSlug) {
+    try {
+      subCampaignId = resolveSubCampaignSlug(db, campaignId, subCampaignSlug)
+    } catch {
+      return [] // unknown slug -> empty result, not an error (matches subCampaignSlug/arcSlug read behaviour)
+    }
+  }
+
+  const conditions = [eq(arcs.campaignId, campaignId)]
+  if (subCampaignId) conditions.push(eq(arcs.subCampaignId, subCampaignId))
+
   const arcList = db
     .select()
     .from(arcs)
-    .where(eq(arcs.campaignId, campaignId))
+    .where(and(...conditions))
     .orderBy(arcs.sortOrder)
     .all()
 

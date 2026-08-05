@@ -5,6 +5,7 @@ import { validateBody } from '../../../../../utils/validate'
 import { quests } from '../../../../../db/schema/sessions'
 import { hasMinRole } from '../../../../../utils/permissions'
 import { canTransitionQuestStatus } from '../../../../../services/sessions'
+import { resolveSubCampaignSlug } from '../../../../../utils/sub-campaign'
 import type { CampaignRole } from '../../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
@@ -20,6 +21,7 @@ export default defineEventHandler(async (event) => {
     description: z.string().optional(),
     status: z.enum(['active', 'completed', 'failed', 'on_hold']).optional(),
     isSecret: z.boolean().optional(),
+    subCampaignSlug: z.string().optional(),
   })
   const body = await validateBody(event, questPutSchema)
   const db = useDb()
@@ -46,6 +48,9 @@ export default defineEventHandler(async (event) => {
   if (body.description !== undefined) updates.description = body.description
   if (body.status !== undefined) updates.status = body.status
   if (body.isSecret !== undefined) updates.isSecret = body.isSecret
+  if (body.subCampaignSlug !== undefined) {
+    updates.subCampaignId = resolveSubCampaignSlug(db, campaignId, body.subCampaignSlug)
+  }
 
   db.update(quests).set(updates).where(eq(quests.id, quest.id)).run()
 

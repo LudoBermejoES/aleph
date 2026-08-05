@@ -3,7 +3,7 @@ import { useDb } from '../../../../../utils/db'
 import {
   gameSessions,
   sessionAttendance,
-  sessionGroups,
+  subCampaigns,
   sessionContents,
   arcs,
   chapters,
@@ -25,18 +25,20 @@ export default defineEventHandler((event) =>
       .get()
     if (!session) throw createError({ statusCode: 404, message: 'Session not found' })
 
-    // Get group name if assigned
-    let groupName: string | null = null
-    if (session.groupId) {
-      const group = db
-        .select({ name: sessionGroups.name })
-        .from(sessionGroups)
-        .where(eq(sessionGroups.id, session.groupId))
+    // Get sub-campaign name/slug (every session always has one)
+    let subCampaignName: string | null = null
+    let subCampaignSlug: string | null = null
+    if (session.subCampaignId) {
+      const subCampaign = db
+        .select({ name: subCampaigns.name, slug: subCampaigns.slug })
+        .from(subCampaigns)
+        .where(eq(subCampaigns.id, session.subCampaignId))
         .get()
-      groupName = group?.name ?? null
+      subCampaignName = subCampaign?.name ?? null
+      subCampaignSlug = subCampaign?.slug ?? null
     }
 
-    // Arc/chapter names, same idiom as groupName above, so this response and the list
+    // Arc/chapter names, same idiom as subCampaignName above, so this response and the list
     // response agree on which name fields exist.
     let arcName: string | null = null
     // The slug comes along so a client can link to the arc without a second request.
@@ -100,7 +102,8 @@ export default defineEventHandler((event) =>
 
     return {
       ...session,
-      groupName,
+      subCampaignName,
+      subCampaignSlug,
       arcName,
       arcSlug,
       chapterName,

@@ -119,10 +119,10 @@ describe('Select elements have aria-labels (11.7)', () => {
   })
 })
 
-// Session-groups dialog uses shadcn Dialog
-describe('SessionGroups uses shadcn Dialog (4.1-4.2)', () => {
+// Sub-campaigns dialog uses shadcn Dialog
+describe('SubCampaigns uses shadcn Dialog (4.1-4.2)', () => {
   const source = readFileSync(
-    resolve(root, 'app/pages/campaigns/[id]/session-groups/index.vue'),
+    resolve(root, 'app/pages/campaigns/[id]/sub-campaigns/index.vue'),
     'utf-8',
   )
 

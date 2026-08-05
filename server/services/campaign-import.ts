@@ -10,7 +10,7 @@ import { entityTypes } from '../db/schema/entity-types'
 import { entities, entityTemplates, entityTemplateFields, tags } from '../db/schema/entities'
 import { entityImages } from '../db/schema/entity-images'
 import { characters } from '../db/schema/characters'
-import { sessionGroups, arcs, chapters, gameSessions, quests } from '../db/schema/sessions'
+import { subCampaigns, arcs, chapters, gameSessions, quests } from '../db/schema/sessions'
 import { maps } from '../db/schema/maps'
 import { calendars, timelines } from '../db/schema/calendars'
 import { relationTypes, entityRelations } from '../db/schema/relations'
@@ -179,6 +179,14 @@ function remapRequired(idMap: Map<string, string>, oldId: string): string {
   return idMap.get(oldId) ?? oldId
 }
 
+/**
+ * Sub-campaign rows from either the current export key or the legacy `sessionGroups`
+ * key produced before the rename, so older exports still import cleanly.
+ */
+function getSubCampaignRows(payload: CampaignExport): Record<string, unknown>[] {
+  return (payload.subCampaigns ?? payload.sessionGroups ?? []) as Record<string, unknown>[]
+}
+
 function slugify(name: string): string {
   return name
     .toLowerCase()
@@ -211,8 +219,8 @@ export function buildIdMap(payload: CampaignExport): Map<string, string> {
   for (const r of payload.entities ?? []) register((r as Record<string, unknown>).id as string)
   // Characters
   for (const r of payload.characters ?? []) register((r as Record<string, unknown>).id as string)
-  // SessionGroups
-  for (const r of payload.sessionGroups ?? []) register((r as Record<string, unknown>).id as string)
+  // SubCampaigns
+  for (const r of getSubCampaignRows(payload)) register(r.id as string)
   // Arcs
   for (const r of payload.arcs ?? []) register((r as Record<string, unknown>).id as string)
   // Chapters
@@ -496,10 +504,13 @@ export function importCampaign(
         .run()
     }
 
-    // 9. SessionGroups
-    for (const r of payload.sessionGroups ?? []) {
-      const g = r as Record<string, unknown>
-      db.insert(sessionGroups)
+    // 9. SubCampaigns (accepts legacy `sessionGroups` exports too, see getSubCampaignRows)
+    let sawDefaultSubCampaign = false
+    for (const r of getSubCampaignRows(payload)) {
+      const g = r
+      const isDefault = (g.isDefault as boolean) ?? false
+      if (isDefault) sawDefaultSubCampaign = true
+      db.insert(subCampaigns)
         .values({
           id: remapRequired(idMap, g.id as string),
           campaignId: newCampaignId,
@@ -508,6 +519,33 @@ export function importCampaign(
           description: (g.description as string) ?? null,
           imageUrl: rewriteImageUrl(g.imageUrl as string, imageUrlMap),
           sortOrder: (g.sortOrder as number) ?? 0,
+          isDefault,
+          createdAt: now,
+          updatedAt: now,
+        })
+        .run()
+    }
+    // Legacy exports (and the unusual case of a new-format export with no default
+    // flagged) never end up without a landing spot: synthesize one.
+    let defaultSubCampaignId: string
+    if (sawDefaultSubCampaign) {
+      defaultSubCampaignId = db
+        .select({ id: subCampaigns.id })
+        .from(subCampaigns)
+        .where(and(eq(subCampaigns.campaignId, newCampaignId), eq(subCampaigns.isDefault, true)))
+        .get()!.id
+    } else {
+      defaultSubCampaignId = randomUUID()
+      db.insert(subCampaigns)
+        .values({
+          id: defaultSubCampaignId,
+          campaignId: newCampaignId,
+          name: 'General',
+          slug: 'general',
+          description: null,
+          imageUrl: null,
+          sortOrder: 0,
+          isDefault: true,
           createdAt: now,
           updatedAt: now,
         })
@@ -521,6 +559,8 @@ export function importCampaign(
         .values({
           id: remapRequired(idMap, a.id as string),
           campaignId: newCampaignId,
+          // Legacy exports (before arcs had sub-campaigns) fall back to the default.
+          subCampaignId: remap(idMap, a.subCampaignId as string) ?? defaultSubCampaignId,
           name: a.name as string,
           slug: a.slug as string,
           description: (a.description as string) ?? null,
@@ -560,7 +600,9 @@ export function importCampaign(
           summary: (s.summary as string) ?? null,
           arcId: remap(idMap, s.arcId as string),
           chapterId: remap(idMap, s.chapterId as string),
-          groupId: remap(idMap, s.groupId as string),
+          // Legacy exports carry `groupId`; current ones carry `subCampaignId`.
+          subCampaignId:
+            remap(idMap, (s.subCampaignId ?? s.groupId) as string) ?? defaultSubCampaignId,
           logFilePath: (s.logFilePath as string) ?? null,
           createdAt: now,
           updatedAt: now,
@@ -575,6 +617,7 @@ export function importCampaign(
         .values({
           id: remapRequired(idMap, q.id as string),
           campaignId: newCampaignId,
+          subCampaignId: remap(idMap, q.subCampaignId as string) ?? defaultSubCampaignId,
           name: q.name as string,
           slug: q.slug as string,
           description: (q.description as string) ?? null,
@@ -1148,10 +1191,7 @@ export function importCampaignFromZip(
       .set({ imageUrl: newUrl })
       .where(eq(organizations.imageUrl, oldUrl))
       .run()
-    db.update(sessionGroups)
-      .set({ imageUrl: newUrl })
-      .where(eq(sessionGroups.imageUrl, oldUrl))
-      .run()
+    db.update(subCampaigns).set({ imageUrl: newUrl }).where(eq(subCampaigns.imageUrl, oldUrl)).run()
     db.update(maps).set({ imagePath: newUrl }).where(eq(maps.imagePath, oldUrl)).run()
     db.update(items).set({ imagePath: newUrl }).where(eq(items.imagePath, oldUrl)).run()
   }
@@ -1359,10 +1399,7 @@ export async function importCampaignFromZipStream(
       .set({ imageUrl: newUrl })
       .where(eq(organizations.imageUrl, oldUrl))
       .run()
-    db.update(sessionGroups)
-      .set({ imageUrl: newUrl })
-      .where(eq(sessionGroups.imageUrl, oldUrl))
-      .run()
+    db.update(subCampaigns).set({ imageUrl: newUrl }).where(eq(subCampaigns.imageUrl, oldUrl)).run()
     db.update(maps).set({ imagePath: newUrl }).where(eq(maps.imagePath, oldUrl)).run()
     db.update(items).set({ imagePath: newUrl }).where(eq(items.imagePath, oldUrl)).run()
   }

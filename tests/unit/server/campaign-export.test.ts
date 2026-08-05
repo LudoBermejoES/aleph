@@ -333,9 +333,9 @@ describe('collectImageUrls', () => {
     expect(collectImageUrls(data as CampaignExport)).toContain('/api/campaigns/c1/images/char.png')
   })
 
-  it('collects imageUrl from sessionGroups', () => {
+  it('collects imageUrl from subCampaigns', () => {
     const data: Partial<CampaignExport> = {
-      sessionGroups: [{ imageUrl: '/api/campaigns/c1/images/sg.png' }],
+      subCampaigns: [{ imageUrl: '/api/campaigns/c1/images/sg.png' }],
     }
     expect(collectImageUrls(data as CampaignExport)).toContain('/api/campaigns/c1/images/sg.png')
   })
@@ -376,7 +376,7 @@ describe('collectImageUrls', () => {
     const data: Partial<CampaignExport> = {
       entities: [],
       characters: [],
-      sessionGroups: [],
+      subCampaigns: [],
       maps: [],
       items: [],
     }

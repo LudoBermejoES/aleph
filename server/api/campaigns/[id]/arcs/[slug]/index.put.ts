@@ -2,6 +2,7 @@ import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
 import { arcs } from '../../../../../db/schema/sessions'
 import { hasMinRole } from '../../../../../utils/permissions'
+import { resolveSubCampaignSlug } from '../../../../../utils/sub-campaign'
 import type { CampaignRole } from '../../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
@@ -27,6 +28,9 @@ export default defineEventHandler(async (event) => {
   if (body.description !== undefined) updates.description = body.description
   if (body.sortOrder !== undefined) updates.sortOrder = body.sortOrder
   if (body.status !== undefined) updates.status = body.status
+  if (body.subCampaignSlug !== undefined) {
+    updates.subCampaignId = resolveSubCampaignSlug(db, campaignId, body.subCampaignSlug)
+  }
 
   if (Object.keys(updates).length > 0) {
     db.update(arcs).set(updates).where(eq(arcs.id, arc.id)).run()

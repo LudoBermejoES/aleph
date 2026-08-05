@@ -19,7 +19,7 @@ import { campaigns } from '../../../server/db/schema/campaigns'
 import { entities } from '../../../server/db/schema/entities'
 import { characters } from '../../../server/db/schema/characters'
 import { campaignMembers } from '../../../server/db/schema/campaign-members'
-import { sessionGroups, gameSessions } from '../../../server/db/schema/sessions'
+import { subCampaigns, gameSessions, arcs } from '../../../server/db/schema/sessions'
 import { entityRelations } from '../../../server/db/schema/relations'
 import { user } from '../../../server/db/schema/auth'
 import {
@@ -180,7 +180,7 @@ describe('importCampaign - ID remapping', () => {
     expect(allEntities[0].campaignId).not.toBe(oldCampaignId)
   })
 
-  it('remaps session.groupId and relation sourceEntityId/targetEntityId', () => {
+  it('remaps session.subCampaignId and relation sourceEntityId/targetEntityId', () => {
     const oldCampaignId = randomUUID()
     const oldGroupId = randomUUID()
     const oldSessionId = randomUUID()
@@ -191,8 +191,15 @@ describe('importCampaign - ID remapping', () => {
 
     const payload = makeMinimalExport({
       campaign: { id: oldCampaignId, name: 'C', slug: 'c' },
-      sessionGroups: [
-        { id: oldGroupId, campaignId: oldCampaignId, name: 'Group', slug: 'group', sortOrder: 0 },
+      subCampaigns: [
+        {
+          id: oldGroupId,
+          campaignId: oldCampaignId,
+          name: 'General',
+          slug: 'general',
+          sortOrder: 0,
+          isDefault: true,
+        },
       ],
       sessions: [
         {
@@ -202,7 +209,7 @@ describe('importCampaign - ID remapping', () => {
           slug: 'session-1',
           sessionNumber: 1,
           status: 'completed',
-          groupId: oldGroupId,
+          subCampaignId: oldGroupId,
         },
       ],
       entities: [
@@ -263,15 +270,63 @@ describe('importCampaign - ID remapping', () => {
     importCampaign(testDb.db, { payload, importingUserId: userId })
 
     const allSessions = testDb.db.select().from(gameSessions).all()
-    const allGroups = testDb.db.select().from(sessionGroups).all()
+    const allGroups = testDb.db.select().from(subCampaigns).all()
     const allRelations = testDb.db.select().from(entityRelations).all()
     const allEntities = testDb.db.select().from(entities).all()
 
-    expect(allSessions[0].groupId).toBe(allGroups[0].id)
-    expect(allSessions[0].groupId).not.toBe(oldGroupId)
+    expect(allSessions[0].subCampaignId).toBe(allGroups[0].id)
+    expect(allSessions[0].subCampaignId).not.toBe(oldGroupId)
     expect(allRelations[0].sourceEntityId).toBe(allEntities.find((e) => e.name === 'A')!.id)
     expect(allRelations[0].targetEntityId).toBe(allEntities.find((e) => e.name === 'B')!.id)
     expect(allRelations[0].sourceEntityId).not.toBe(oldEntity1)
+  })
+
+  it('imports a legacy export (sessionGroups/groupId, no isDefault) and synthesizes a default sub-campaign', () => {
+    const oldCampaignId = randomUUID()
+    const oldGroupId = randomUUID()
+    const oldSessionId = randomUUID()
+    const oldArcId = randomUUID()
+
+    const payload = makeMinimalExport({
+      campaign: { id: oldCampaignId, name: 'C', slug: 'c' },
+      sessionGroups: [
+        { id: oldGroupId, campaignId: oldCampaignId, name: 'Group', slug: 'group', sortOrder: 0 },
+      ],
+      arcs: [
+        { id: oldArcId, campaignId: oldCampaignId, name: 'Arc 1', slug: 'arc-1', sortOrder: 0 },
+      ],
+      sessions: [
+        {
+          id: oldSessionId,
+          campaignId: oldCampaignId,
+          title: 'Session 1',
+          slug: 'session-1',
+          sessionNumber: 1,
+          status: 'completed',
+          groupId: oldGroupId,
+        },
+      ],
+    })
+
+    importCampaign(testDb.db, { payload, importingUserId: userId })
+
+    const allSubCampaigns = testDb.db.select().from(subCampaigns).all()
+    const allSessions = testDb.db.select().from(gameSessions).all()
+    const allArcs = testDb.db.select().from(arcs).all()
+
+    // The legacy group imports fine, but nothing in the payload was flagged default,
+    // so a synthesized "General" default must exist alongside it.
+    expect(allSubCampaigns).toHaveLength(2)
+    const defaultRow = allSubCampaigns.find((sc) => sc.isDefault)
+    expect(defaultRow).toBeDefined()
+    expect(defaultRow!.name).toBe('General')
+
+    // The session followed its legacy groupId to the imported (non-default) group.
+    const importedGroup = allSubCampaigns.find((sc) => !sc.isDefault)!
+    expect(allSessions[0].subCampaignId).toBe(importedGroup.id)
+
+    // The arc had no sub-campaign concept in the legacy export, so it falls back to the default.
+    expect(allArcs[0].subCampaignId).toBe(defaultRow!.id)
   })
 })
 

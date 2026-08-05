@@ -29,14 +29,13 @@
           <option value="cancelled">{{ $t('sessions.statusCancelled') }}</option>
         </select>
       </div>
-      <div v-if="groups.length" class="col-span-2">
-        <label class="text-sm font-medium">{{ $t('sessions.group') }}</label>
+      <div v-if="subCampaigns.length" class="col-span-2">
+        <label class="text-sm font-medium">{{ $t('sessions.subCampaign') }}</label>
         <select
-          v-model="form.groupSlug"
+          v-model="form.subCampaignSlug"
           class="w-full mt-1 px-3 py-2 rounded border border-input bg-background"
         >
-          <option value="">{{ $t('sessions.noGroup') }}</option>
-          <option v-for="g in groups" :key="g.id" :value="g.slug">{{ g.name }}</option>
+          <option v-for="sc in subCampaigns" :key="sc.id" :value="sc.slug">{{ sc.name }}</option>
         </select>
       </div>
       <div v-if="arcs.length" class="col-span-2">
@@ -101,7 +100,7 @@ const props = defineProps<{
     scheduledDate: string
     status: string
     content: string
-    groupSlug?: string
+    subCampaignSlug?: string
     arcId?: string
     chapterId?: string
   }
@@ -126,7 +125,9 @@ const draftKey = computed(() =>
   props.campaignId ? `aleph:draft:${props.campaignId}:session:${props.sessionSlug ?? 'new'}` : null,
 )
 
-const groups = ref<{ id: string; name: string; [key: string]: unknown }[]>([])
+const subCampaigns = ref<
+  { id: string; name: string; slug: string; isDefault?: boolean; [key: string]: unknown }[]
+>([])
 const arcs = ref<
   { id: string; name: string; chapters?: { id: string; name: string }[]; [key: string]: unknown }[]
 >([])
@@ -144,11 +145,15 @@ function onArcChange() {
 onMounted(async () => {
   if (props.campaignId) {
     try {
-      const [groupsData, arcsData] = await Promise.all([
-        $fetch<typeof groups.value>(`/api/campaigns/${props.campaignId}/session-groups`),
+      const [subCampaignsData, arcsData] = await Promise.all([
+        $fetch<typeof subCampaigns.value>(`/api/campaigns/${props.campaignId}/sub-campaigns`),
         $fetch<typeof arcs.value>(`/api/campaigns/${props.campaignId}/arcs`),
       ])
-      groups.value = groupsData
+      subCampaigns.value = subCampaignsData
+      if (!form.value.subCampaignSlug) {
+        const defaultSubCampaign = subCampaignsData.find((sc) => sc.isDefault)
+        if (defaultSubCampaign) form.value.subCampaignSlug = defaultSubCampaign.slug
+      }
       arcs.value = arcsData
     } catch (e: unknown) {
       const err = e as { data?: { message?: string }; message?: string }

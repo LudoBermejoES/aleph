@@ -51,7 +51,7 @@ const form = ref({
   scheduledDate: '',
   status: 'planned',
   content: '',
-  groupSlug: '',
+  subCampaignSlug: '',
   arcId: '',
   chapterId: '',
 })
@@ -75,7 +75,7 @@ onMounted(async () => {
         : '',
       status: session.status || 'planned',
       content: session.logContent || '',
-      groupSlug: ((session as Record<string, unknown>).groupSlug as string) || '',
+      subCampaignSlug: ((session as Record<string, unknown>).subCampaignSlug as string) || '',
       arcId: session.arcId || '',
       chapterId: session.chapterId || '',
     }

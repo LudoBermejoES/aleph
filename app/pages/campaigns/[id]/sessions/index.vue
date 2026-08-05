@@ -11,8 +11,8 @@
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-2xl font-bold">{{ $t('sessions.title') }}</h1>
       <div class="flex items-center gap-2">
-        <NuxtLink v-if="canEdit" :to="`/campaigns/${campaignId}/session-groups`">
-          <Button variant="outline" size="sm">{{ $t('sessions.groups') }}</Button>
+        <NuxtLink v-if="canEdit" :to="`/campaigns/${campaignId}/sub-campaigns`">
+          <Button variant="outline" size="sm">{{ $t('sessions.subCampaigns') }}</Button>
         </NuxtLink>
         <NuxtLink :to="`/campaigns/${campaignId}/sessions/new`">
           <Button data-testid="new-session-btn">{{ $t('sessions.new') }}</Button>
@@ -20,37 +20,37 @@
       </div>
     </div>
 
-    <!-- Group tabs -->
-    <div v-if="groups.length" class="flex gap-2 mb-6 flex-wrap">
+    <!-- Sub-campaign tabs -->
+    <div v-if="subCampaigns.length" class="flex gap-2 mb-6 flex-wrap">
       <button
         :class="[
           'flex items-center gap-2 px-3 py-1.5 rounded-full text-sm border transition-colors',
-          activeGroupSlug === null
+          activeSubCampaignSlug === null
             ? 'bg-primary text-primary-foreground border-primary'
             : 'border-border hover:border-primary/50',
         ]"
-        @click="activeGroupSlug = null"
+        @click="activeSubCampaignSlug = null"
       >
-        {{ $t('sessions.allGroups') }}
+        {{ $t('sessions.allSubCampaigns') }}
       </button>
       <button
-        v-for="group in groups"
-        :key="group.id"
+        v-for="subCampaign in subCampaigns"
+        :key="subCampaign.id"
         :class="[
           'flex items-center gap-2 px-3 py-1.5 rounded-full text-sm border transition-colors',
-          activeGroupSlug === group.slug
+          activeSubCampaignSlug === subCampaign.slug
             ? 'bg-primary text-primary-foreground border-primary'
             : 'border-border hover:border-primary/50',
         ]"
-        @click="activeGroupSlug = group.slug"
+        @click="activeSubCampaignSlug = subCampaign.slug"
       >
         <img
-          v-if="group.imageUrl"
-          :src="group.imageUrl"
-          :alt="group.name"
+          v-if="subCampaign.imageUrl"
+          :src="subCampaign.imageUrl"
+          :alt="subCampaign.name"
           class="w-4 h-4 rounded-full object-cover"
         />
-        {{ group.name }}
+        {{ subCampaign.name }}
       </button>
     </div>
 
@@ -70,9 +70,9 @@
             <div class="flex items-center gap-2">
               <span class="font-medium">{{ s.title }}</span>
               <span
-                v-if="s.groupName"
+                v-if="s.subCampaignName"
                 class="text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground"
-                >{{ s.groupName }}</span
+                >{{ s.subCampaignName }}</span
               >
             </div>
             <span
@@ -105,9 +105,9 @@
             <div class="flex items-center gap-2">
               <span class="font-medium">{{ s.title }}</span>
               <span
-                v-if="s.groupName"
+                v-if="s.subCampaignName"
                 class="text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground"
-                >{{ s.groupName }}</span
+                >{{ s.subCampaignName }}</span
               >
             </div>
             <span
@@ -154,8 +154,8 @@ function sessionStatusLabel(status?: string | null): string {
 }
 
 const sessions = ref<GameSession[]>([])
-const groups = ref<Record<string, unknown>[]>([])
-const activeGroupSlug = ref<string | null>(null)
+const subCampaigns = ref<Record<string, unknown>[]>([])
+const activeSubCampaignSlug = ref<string | null>(null)
 const canEdit = ref(false)
 const { loading, error, withLoading, dismissError } = useLoadingState()
 const api = useCampaignApi(campaignId)
@@ -169,23 +169,23 @@ const past = computed(() =>
 
 async function loadSessions() {
   const params: Record<string, string> = { pageSize: '0' }
-  if (activeGroupSlug.value) params.groupSlug = activeGroupSlug.value
+  if (activeSubCampaignSlug.value) params.subCampaignSlug = activeSubCampaignSlug.value
   const res = await api.getSessions(params)
   sessions.value = Array.isArray(res) ? res : (res as { data: GameSession[] }).data
 }
 
 async function load() {
   await withLoading(async () => {
-    const [campaignData, groupsData] = await Promise.all([
+    const [campaignData, subCampaignsData] = await Promise.all([
       $fetch<{ role?: string }>(`/api/campaigns/${campaignId}`),
-      api.getSessionGroups(),
+      api.getSubCampaigns(),
     ])
     canEdit.value = ['dm', 'co_dm', 'editor'].includes(campaignData?.role ?? '')
-    groups.value = groupsData
+    subCampaigns.value = subCampaignsData
     await loadSessions()
   })
 }
 
-watch(activeGroupSlug, loadSessions)
+watch(activeSubCampaignSlug, loadSessions)
 onMounted(load)
 </script>

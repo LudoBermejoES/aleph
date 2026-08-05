@@ -33,25 +33,25 @@ export function useSessionApi(campaignId: string) {
     return $fetch(`${base}/sessions/${slug}/content`, { method: 'PUT', body: { type, content } })
   }
 
-  // ─── Session Groups ──────────────────────────────────────────────────────────
+  // ─── Sub-Campaigns ───────────────────────────────────────────────────────────
 
-  function getSessionGroups() {
-    return $fetch<Record<string, unknown>[]>(`${base}/session-groups`)
+  function getSubCampaigns() {
+    return $fetch<Record<string, unknown>[]>(`${base}/sub-campaigns`)
   }
 
-  function createSessionGroup(body: Record<string, unknown>) {
-    return $fetch<Record<string, unknown>>(`${base}/session-groups`, { method: 'POST', body })
+  function createSubCampaign(body: Record<string, unknown>) {
+    return $fetch<Record<string, unknown>>(`${base}/sub-campaigns`, { method: 'POST', body })
   }
 
-  function updateSessionGroup(slug: string, body: Record<string, unknown>) {
-    return $fetch<Record<string, unknown>>(`${base}/session-groups/${slug}`, {
+  function updateSubCampaign(slug: string, body: Record<string, unknown>) {
+    return $fetch<Record<string, unknown>>(`${base}/sub-campaigns/${slug}`, {
       method: 'PUT',
       body,
     })
   }
 
-  function deleteSessionGroup(slug: string) {
-    return $fetch(`${base}/session-groups/${slug}`, { method: 'DELETE' })
+  function deleteSubCampaign(slug: string) {
+    return $fetch(`${base}/sub-campaigns/${slug}`, { method: 'DELETE' })
   }
 
   function getSessionDecisions(slug: string) {
@@ -192,10 +192,10 @@ export function useSessionApi(campaignId: string) {
     getSessionContent,
     updateSessionContent,
     deleteSessionContent,
-    getSessionGroups,
-    createSessionGroup,
-    updateSessionGroup,
-    deleteSessionGroup,
+    getSubCampaigns,
+    createSubCampaign,
+    updateSubCampaign,
+    deleteSubCampaign,
     getSessionDecisions,
     createDecision,
     createConsequence,

@@ -16,6 +16,10 @@ describe('Session Schema', () => {
       INSERT INTO campaigns (id, name, slug, content_dir, created_by, created_at, updated_at)
       VALUES ('camp-1', 'Test Campaign', 'test', '/content', 'user-1', ${now}, ${now})
     `)
+    testDb.sqlite.exec(`
+      INSERT INTO sub_campaigns (id, campaign_id, name, slug, sort_order, is_default, created_at, updated_at)
+      VALUES ('sub-camp-1', 'camp-1', 'General', 'general', 0, 1, ${now}, ${now})
+    `)
   })
 
   afterEach(() => {
@@ -25,9 +29,9 @@ describe('Session Schema', () => {
   it('creates sessions with auto-incrementable number', () => {
     const now = Date.now()
     testDb.sqlite.exec(`
-      INSERT INTO game_sessions (id, campaign_id, title, slug, session_number, status, created_at, updated_at)
-      VALUES ('s1', 'camp-1', 'Session 1', 'session-1', 1, 'completed', ${now}, ${now}),
-             ('s2', 'camp-1', 'Session 2', 'session-2', 2, 'planned', ${now}, ${now})
+      INSERT INTO game_sessions (id, campaign_id, sub_campaign_id, title, slug, session_number, status, created_at, updated_at)
+      VALUES ('s1', 'camp-1', 'sub-camp-1', 'Session 1', 'session-1', 1, 'completed', ${now}, ${now}),
+             ('s2', 'camp-1', 'sub-camp-1', 'Session 2', 'session-2', 2, 'planned', ${now}, ${now})
     `)
 
     const max = testDb.sqlite
@@ -42,8 +46,8 @@ describe('Session Schema', () => {
   it('tracks session attendance', () => {
     const now = Date.now()
     testDb.sqlite.exec(`
-      INSERT INTO game_sessions (id, campaign_id, title, slug, session_number, status, created_at, updated_at)
-      VALUES ('s1', 'camp-1', 'Session 1', 'session-1', 1, 'planned', ${now}, ${now})
+      INSERT INTO game_sessions (id, campaign_id, sub_campaign_id, title, slug, session_number, status, created_at, updated_at)
+      VALUES ('s1', 'camp-1', 'sub-camp-1', 'Session 1', 'session-1', 1, 'planned', ${now}, ${now})
     `)
     testDb.sqlite.exec(`
       INSERT INTO session_attendance (id, session_id, user_id, rsvp_status, attended)
@@ -61,12 +65,12 @@ describe('Session Schema', () => {
   it('creates quest with sub-quest nesting', () => {
     const now = Date.now()
     testDb.sqlite.exec(`
-      INSERT INTO quests (id, campaign_id, name, slug, status, is_secret, created_at, updated_at)
-      VALUES ('q1', 'camp-1', 'Find the Sword', 'find-sword', 'active', 0, ${now}, ${now})
+      INSERT INTO quests (id, campaign_id, sub_campaign_id, name, slug, status, is_secret, created_at, updated_at)
+      VALUES ('q1', 'camp-1', 'sub-camp-1', 'Find the Sword', 'find-sword', 'active', 0, ${now}, ${now})
     `)
     testDb.sqlite.exec(`
-      INSERT INTO quests (id, campaign_id, name, slug, status, parent_quest_id, is_secret, created_at, updated_at)
-      VALUES ('q2', 'camp-1', 'Visit the Smith', 'visit-smith', 'active', 'q1', 0, ${now}, ${now})
+      INSERT INTO quests (id, campaign_id, sub_campaign_id, name, slug, status, parent_quest_id, is_secret, created_at, updated_at)
+      VALUES ('q2', 'camp-1', 'sub-camp-1', 'Visit the Smith', 'visit-smith', 'active', 'q1', 0, ${now}, ${now})
     `)
 
     const parent = testDb.sqlite.prepare("SELECT * FROM quests WHERE id = 'q1'").get() as Record<
@@ -99,9 +103,9 @@ describe('Session Schema', () => {
   it('secret quests are filterable', () => {
     const now = Date.now()
     testDb.sqlite.exec(`
-      INSERT INTO quests (id, campaign_id, name, slug, status, is_secret, created_at, updated_at)
-      VALUES ('q1', 'camp-1', 'Public Quest', 'public', 'active', 0, ${now}, ${now}),
-             ('q2', 'camp-1', 'Secret Quest', 'secret', 'active', 1, ${now}, ${now})
+      INSERT INTO quests (id, campaign_id, sub_campaign_id, name, slug, status, is_secret, created_at, updated_at)
+      VALUES ('q1', 'camp-1', 'sub-camp-1', 'Public Quest', 'public', 'active', 0, ${now}, ${now}),
+             ('q2', 'camp-1', 'sub-camp-1', 'Secret Quest', 'secret', 'active', 1, ${now}, ${now})
     `)
 
     const all = testDb.sqlite
@@ -117,8 +121,8 @@ describe('Session Schema', () => {
   it('creates decisions with consequences', () => {
     const now = Date.now()
     testDb.sqlite.exec(`
-      INSERT INTO game_sessions (id, campaign_id, title, slug, session_number, status, created_at, updated_at)
-      VALUES ('s1', 'camp-1', 'Session 1', 'session-1', 1, 'active', ${now}, ${now})
+      INSERT INTO game_sessions (id, campaign_id, sub_campaign_id, title, slug, session_number, status, created_at, updated_at)
+      VALUES ('s1', 'camp-1', 'sub-camp-1', 'Session 1', 'session-1', 1, 'active', ${now}, ${now})
     `)
     testDb.sqlite.exec(`
       INSERT INTO decisions (id, session_id, campaign_id, type, title, created_at)
@@ -143,8 +147,8 @@ describe('Session Schema', () => {
 
   it('arcs contain chapters in order', () => {
     testDb.sqlite.exec(`
-      INSERT INTO arcs (id, campaign_id, name, slug, sort_order, status)
-      VALUES ('arc-1', 'camp-1', 'Act 1', 'act-1', 1, 'active')
+      INSERT INTO arcs (id, campaign_id, sub_campaign_id, name, slug, sort_order, status)
+      VALUES ('arc-1', 'camp-1', 'sub-camp-1', 'Act 1', 'act-1', 1, 'active')
     `)
     testDb.sqlite.exec(`
       INSERT INTO chapters (id, arc_id, name, slug, sort_order)

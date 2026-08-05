@@ -160,12 +160,14 @@ export interface GameSession {
   summary: string | null
   arcId: string | null
   chapterId: string | null
+  subCampaignId?: string | null
   logFilePath: string | null
   createdAt: Date
   updatedAt: Date
   // Resolved names, present on both the list and the single-session responses.
-  // `arcSlug` comes along so a client can link to the arc without a second request.
-  groupName?: string | null
+  // `arcSlug`/`subCampaignSlug` come along so a client can link without a second request.
+  subCampaignName?: string | null
+  subCampaignSlug?: string | null
   arcName?: string | null
   arcSlug?: string | null
   chapterName?: string | null

@@ -1,9 +1,10 @@
-import { eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import { useDb } from '../../../../utils/db'
 import { quests } from '../../../../db/schema/sessions'
 import { filterSecretQuests } from '../../../../services/sessions'
 import { stripSecretBlocks } from '../../../../services/content'
 import { hasMinRole } from '../../../../utils/permissions'
+import { resolveSubCampaignSlug } from '../../../../utils/sub-campaign'
 import type { CampaignRole } from '../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
@@ -20,7 +21,24 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  const allQuests = db.select().from(quests).where(eq(quests.campaignId, campaignId)).all()
+  const subCampaignSlug = getQuery(event).subCampaignSlug as string | undefined
+  let subCampaignId: string | undefined
+  if (subCampaignSlug) {
+    try {
+      subCampaignId = resolveSubCampaignSlug(db, campaignId, subCampaignSlug)
+    } catch {
+      return [] // unknown slug -> empty result, not an error
+    }
+  }
+
+  const conditions = [eq(quests.campaignId, campaignId)]
+  if (subCampaignId) conditions.push(eq(quests.subCampaignId, subCampaignId))
+
+  const allQuests = db
+    .select()
+    .from(quests)
+    .where(and(...conditions))
+    .all()
 
   let results = filterSecretQuests(allQuests, role)
 

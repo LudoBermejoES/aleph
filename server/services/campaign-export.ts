@@ -7,7 +7,7 @@ import { campaigns } from '../db/schema/campaigns'
 import { entities, entityTemplates, entityTemplateFields, tags } from '../db/schema/entities'
 import { entityImages } from '../db/schema/entity-images'
 import { characters } from '../db/schema/characters'
-import { sessionGroups, arcs, chapters, gameSessions, quests } from '../db/schema/sessions'
+import { subCampaigns, arcs, chapters, gameSessions, quests } from '../db/schema/sessions'
 import { maps } from '../db/schema/maps'
 import { relationTypes, entityRelations } from '../db/schema/relations'
 import { items, inventories, currencies, shops, transactions } from '../db/schema/inventory'
@@ -36,6 +36,8 @@ export interface CampaignExport {
   entities?: unknown[]
   characters?: unknown[]
   sessions?: unknown[]
+  subCampaigns?: unknown[]
+  /** @deprecated Read-only compatibility for exports produced before the sub-campaigns rename. */
   sessionGroups?: unknown[]
   quests?: unknown[]
   maps?: unknown[]
@@ -70,7 +72,7 @@ export const VALID_RESOURCE_TYPES = new Set([
   'entities',
   'characters',
   'sessions',
-  'sessionGroups',
+  'subCampaigns',
   'quests',
   'maps',
   'calendars',
@@ -118,7 +120,7 @@ export function collectImageUrls(exportData: CampaignExport): string[] {
   }
   for (const r of exportData.entities ?? []) add((r as Record<string, unknown>).imageUrl)
   for (const r of exportData.characters ?? []) add((r as Record<string, unknown>).portraitUrl)
-  for (const r of exportData.sessionGroups ?? []) add((r as Record<string, unknown>).imageUrl)
+  for (const r of exportData.subCampaigns ?? []) add((r as Record<string, unknown>).imageUrl)
   for (const r of exportData.maps ?? []) add((r as Record<string, unknown>).imagePath)
   for (const r of exportData.items ?? []) add((r as Record<string, unknown>).imagePath)
   // Gallery images: every image, not only the primary — the primary is already covered by the
@@ -381,11 +383,11 @@ export async function buildCampaignExport(
       .all()
   }
 
-  if (shouldInclude('sessionGroups', filteredInclude)) {
-    result.sessionGroups = db
+  if (shouldInclude('subCampaigns', filteredInclude)) {
+    result.subCampaigns = db
       .select()
-      .from(sessionGroups)
-      .where(eq(sessionGroups.campaignId, campaignId))
+      .from(subCampaigns)
+      .where(eq(subCampaigns.campaignId, campaignId))
       .all()
   }
 

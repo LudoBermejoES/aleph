@@ -4,7 +4,7 @@ description: Use the aleph CLI to manage campaigns, entities, characters, locati
 license: MIT
 metadata:
   author: aleph
-  version: '3.11'
+  version: '3.12'
 ---
 
 You have access to the `aleph` CLI tool at `node /Users/ludo/code/aleph/cli/bin/aleph.js` (or `npm run aleph -- <args>` from the project root). Use it to interact with the running Aleph server.
@@ -128,10 +128,11 @@ The `character create` and `character update` API endpoints accept optional `tem
 ### Sessions
 
 ```bash
-node /Users/ludo/code/aleph/cli/bin/aleph.js session list --campaign <id> [--group <slug>] [--arc <slug>] [--page <n>] [--limit <n>] [--json]   # table shows arc + chapter names; unknown --arc slug = empty list, not an error
-node /Users/ludo/code/aleph/cli/bin/aleph.js session create --campaign <id> --title <title> [--date <YYYY-MM-DD>] [--group <slug>] [--arc <slug>] [--chapter <slug>] [--json]
-node /Users/ludo/code/aleph/cli/bin/aleph.js session show <slug> --campaign <id> [--json]   # includes groupName, arc + chapter names, hasManualNotes/hasAiNotes/hasSummary
-node /Users/ludo/code/aleph/cli/bin/aleph.js session update <slug> --campaign <id> [--title <title>] [--date <YYYY-MM-DD>] [--status planned|active|completed|cancelled] [--group <slug>] [--arc <slug>] [--chapter <slug>]
+node /Users/ludo/code/aleph/cli/bin/aleph.js session list --campaign <id> [--subcampaign <slug>] [--arc <slug>] [--page <n>] [--limit <n>] [--json]   # table shows arc + chapter names; unknown --arc slug = empty list, not an error
+node /Users/ludo/code/aleph/cli/bin/aleph.js session create --campaign <id> --title <title> [--date <YYYY-MM-DD>] [--subcampaign <slug>] [--arc <slug>] [--chapter <slug>] [--json]   # omit --subcampaign to use the campaign's default sub-campaign
+node /Users/ludo/code/aleph/cli/bin/aleph.js session show <slug> --campaign <id> [--json]   # includes subCampaignName, arc + chapter names, hasManualNotes/hasAiNotes/hasSummary
+node /Users/ludo/code/aleph/cli/bin/aleph.js session update <slug> --campaign <id> [--title <title>] [--date <YYYY-MM-DD>] [--status planned|active|completed|cancelled] [--subcampaign <slug>] [--arc <slug>] [--chapter <slug>]
+# --group is a deprecated alias for --subcampaign, kept for one release.
 # --arc/--chapter take slugs, resolved server-side. --arc '' unsets the arc (and clears the chapter with it); --chapter '' unsets only the chapter.
 # --chapter <slug> alone also sets the arc it belongs to. Unknown slug -> 404, duplicate slug -> 409, chapter not in the named arc -> 422.
 node /Users/ludo/code/aleph/cli/bin/aleph.js session delete <slug> --campaign <id> [--yes]  # --yes skips confirmation prompt
@@ -158,13 +159,18 @@ node /Users/ludo/code/aleph/cli/bin/aleph.js session import --campaign <id> [--m
 # If --manual is provided, auto-generates a summary unless --no-summarize is set.
 ```
 
-### Session Groups
+### Sub-Campaigns
+
+Organizes arcs, sessions, and quests into named storylines within a single campaign
+(e.g. a mage-focused main campaign and a mortals-focused sub-campaign in the same
+setting). Every campaign has exactly one default sub-campaign ("General"), auto-created
+on campaign creation; arcs/sessions/quests fall back to it when `--subcampaign` is omitted.
 
 ```bash
-node /Users/ludo/code/aleph/cli/bin/aleph.js session-group list --campaign <id> [--json]
-node /Users/ludo/code/aleph/cli/bin/aleph.js session-group create --campaign <id> --name <name> [--description <desc>] [--json]
-node /Users/ludo/code/aleph/cli/bin/aleph.js session-group update <slug> --campaign <id> [--name <name>] [--description <desc>]
-node /Users/ludo/code/aleph/cli/bin/aleph.js session-group delete <slug> --campaign <id> [--yes]  # --yes skips confirmation; sessions become unassigned
+node /Users/ludo/code/aleph/cli/bin/aleph.js sub-campaign list --campaign <id> [--json]   # shows name, slug, and whether it's the default
+node /Users/ludo/code/aleph/cli/bin/aleph.js sub-campaign create --campaign <id> --name <name> [--description <desc>] [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js sub-campaign update <slug> --campaign <id> [--name <name>] [--description <desc>]   # the default sub-campaign can be renamed but not deleted
+node /Users/ludo/code/aleph/cli/bin/aleph.js sub-campaign delete <slug> --campaign <id> [--yes]  # --yes skips confirmation; arcs/sessions/quests move to the default; deleting the default itself returns 422
 ```
 
 ### Members
@@ -275,9 +281,9 @@ node /Users/ludo/code/aleph/cli/bin/aleph.js map region-delete --campaign <id> -
 ### Quests
 
 ```bash
-node /Users/ludo/code/aleph/cli/bin/aleph.js quest list --campaign <id> [--status <status>] [--json]
-node /Users/ludo/code/aleph/cli/bin/aleph.js quest create --campaign <id> --name <name> [--status <status>] [--description <desc>] [--json]
-node /Users/ludo/code/aleph/cli/bin/aleph.js quest update --campaign <id> --slug <slug> [--name <name>] [--status <status>] [--description <desc>]
+node /Users/ludo/code/aleph/cli/bin/aleph.js quest list --campaign <id> [--status <status>] [--subcampaign <slug>] [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js quest create --campaign <id> --name <name> [--status <status>] [--description <desc>] [--subcampaign <slug>] [--json]   # omit --subcampaign to use the campaign's default sub-campaign
+node /Users/ludo/code/aleph/cli/bin/aleph.js quest update --campaign <id> --slug <slug> [--name <name>] [--status <status>] [--description <desc>] [--subcampaign <slug>]
 node /Users/ludo/code/aleph/cli/bin/aleph.js quest delete --campaign <id> --slug <slug> [--yes]
 ```
 
@@ -390,9 +396,9 @@ node /Users/ludo/code/aleph/cli/bin/aleph.js tag delete --campaign <id> --id <ta
 ### Arcs
 
 ```bash
-node /Users/ludo/code/aleph/cli/bin/aleph.js arc list --campaign <id> [--json]
-node /Users/ludo/code/aleph/cli/bin/aleph.js arc create --campaign <id> --name <name> [--status <status>] [--description <desc>] [--sort-order <n>] [--json]
-node /Users/ludo/code/aleph/cli/bin/aleph.js arc update --campaign <id> --slug <slug> [--name <name>] [--status <status>] [--description <desc>] [--sort-order <n>]   # --sort-order reorders the arc; must be numeric
+node /Users/ludo/code/aleph/cli/bin/aleph.js arc list --campaign <id> [--subcampaign <slug>] [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js arc create --campaign <id> --name <name> [--status <status>] [--description <desc>] [--sort-order <n>] [--subcampaign <slug>] [--json]   # omit --subcampaign to use the campaign's default sub-campaign
+node /Users/ludo/code/aleph/cli/bin/aleph.js arc update --campaign <id> --slug <slug> [--name <name>] [--status <status>] [--description <desc>] [--sort-order <n>] [--subcampaign <slug>]   # --sort-order reorders the arc; must be numeric
 node /Users/ludo/code/aleph/cli/bin/aleph.js arc delete --campaign <id> --slug <slug> [--yes]
 ```
 

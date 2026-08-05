@@ -13,14 +13,16 @@ export function makeSessionCommand() {
     .command('list')
     .description('List sessions in a campaign')
     .requiredOption('--campaign <id>', 'Campaign ID')
-    .option('--group <slug>', 'Filter by session group slug')
+    .option('--subcampaign <slug>', 'Filter by sub-campaign slug')
+    .option('--group <slug>', 'Deprecated alias for --subcampaign')
     .option('--arc <slug>', 'Filter by arc slug (unknown slug yields an empty list)')
     .option('--page <n>', 'Page number', '1')
     .option('--limit <n>', 'Results per page (0 = all)', '50')
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
       const params = new URLSearchParams()
-      if (opts.group) params.set('groupSlug', opts.group)
+      const subCampaignSlug = opts.subcampaign ?? opts.group
+      if (subCampaignSlug) params.set('subCampaignSlug', subCampaignSlug)
       if (opts.arc) params.set('arcSlug', opts.arc)
       params.set('page', opts.page)
       params.set('pageSize', opts.limit)
@@ -37,7 +39,7 @@ export function makeSessionCommand() {
             slug: s.slug,
             date: s.scheduledDate || '',
             status: s.status || '',
-            group: s.groupName || '',
+            subCampaign: s.subCampaignName || '',
             // Names, never the raw arcId/chapterId UUIDs. Blank when unassigned — or
             // when talking to a server whose projection predates these fields.
             arc: s.arcName || '',
@@ -54,7 +56,8 @@ export function makeSessionCommand() {
     .requiredOption('--campaign <id>', 'Campaign ID')
     .requiredOption('--title <title>', 'Session title')
     .option('--date <date>', 'Session date (YYYY-MM-DD)')
-    .option('--group <slug>', 'Session group slug')
+    .option('--subcampaign <slug>', 'Sub-campaign slug (defaults to the campaign default)')
+    .option('--group <slug>', 'Deprecated alias for --subcampaign')
     .option('--arc <slug>', 'Arc slug to create the session in')
     .option('--chapter <slug>', 'Chapter slug to create the session in (sets its arc too)')
     .option('--json', 'Output as JSON')
@@ -62,7 +65,7 @@ export function makeSessionCommand() {
       const data = await post(`/api/campaigns/${opts.campaign}/sessions`, {
         title: opts.title,
         scheduledDate: opts.date,
-        groupSlug: opts.group,
+        subCampaignSlug: opts.subcampaign ?? opts.group,
         arcSlug: opts.arc,
         chapterSlug: opts.chapter,
       })
@@ -90,7 +93,7 @@ export function makeSessionCommand() {
           slug: data.slug,
           date: data.scheduledDate || '',
           status: data.status || '',
-          group: data.groupName || '',
+          subCampaign: data.subCampaignName || '',
           arc: arcName,
           chapter: chapterName,
           hasManualNotes: hasContent.manual_notes ? 'yes' : 'no',
@@ -108,7 +111,8 @@ export function makeSessionCommand() {
     .option('--title <title>', 'New title')
     .option('--date <date>', 'Scheduled date (YYYY-MM-DD)')
     .option('--status <status>', 'Status: planned|active|completed|cancelled')
-    .option('--group <slug>', 'Session group slug (empty string to unset)')
+    .option('--subcampaign <slug>', 'Move to a different sub-campaign (by slug)')
+    .option('--group <slug>', 'Deprecated alias for --subcampaign')
     .option('--arc <slug>', 'Arc slug (empty string to unset, which clears the chapter too)')
     .option(
       '--chapter <slug>',
@@ -120,13 +124,14 @@ export function makeSessionCommand() {
       if (opts.title !== undefined) body.title = opts.title
       if (opts.date !== undefined) body.scheduledDate = opts.date
       if (opts.status !== undefined) body.status = opts.status
-      if (opts.group !== undefined) body.groupSlug = opts.group
-      // Slugs, resolved server-side (same contract as groupSlug): '' unsets.
+      const subCampaignSlug = opts.subcampaign ?? opts.group
+      if (subCampaignSlug !== undefined) body.subCampaignSlug = subCampaignSlug
+      // Slugs, resolved server-side (same contract as arcSlug): '' unsets.
       if (opts.arc !== undefined) body.arcSlug = opts.arc
       if (opts.chapter !== undefined) body.chapterSlug = opts.chapter
       if (Object.keys(body).length === 0) {
         process.stderr.write(
-          'Error: Provide at least one field to update (--title, --date, --status, --group, --arc, --chapter)\n',
+          'Error: Provide at least one field to update (--title, --date, --status, --subcampaign, --arc, --chapter)\n',
         )
         process.exit(1)
       }

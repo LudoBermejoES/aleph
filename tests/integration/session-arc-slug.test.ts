@@ -422,7 +422,7 @@ describe('Session list arc filter and name projection (integration)', () => {
   let filterArc = { id: '', slug: '' }
   let otherArc = { id: '', slug: '' }
   let namedChapter = { id: '', slug: '' }
-  let groupSlug = ''
+  let subCampaignSlug = ''
   const inArcIds: string[] = []
   let unassignedId = ''
   let unassignedSlug = ''
@@ -463,14 +463,14 @@ describe('Session list arc filter and name projection (integration)', () => {
     otherArc = { id: b.id as string, slug: b.slug as string }
     const ch = await mk('chapters', { name: MARKET_LIST, arcId: filterArc.id })
     namedChapter = { id: ch.id as string, slug: ch.slug as string }
-    const grp = await mk('session-groups', { name: 'Main Table' })
-    groupSlug = grp.slug as string
+    const grp = await mk('sub-campaigns', { name: 'Main Table' })
+    subCampaignSlug = grp.slug as string
 
-    // 3 sessions in Act I (one of them also grouped + completed + chaptered), 2 elsewhere.
+    // 3 sessions in Act I (one of them also in a sub-campaign + completed + chaptered), 2 elsewhere.
     for (let i = 0; i < 3; i++) {
       const extra =
         i === 0
-          ? { groupSlug, status: 'completed', chapterSlug: namedChapter.slug }
+          ? { subCampaignSlug, status: 'completed', chapterSlug: namedChapter.slug }
           : { status: 'planned' }
       const s = await mk('sessions', { title: `In Arc ${i} ${ts}`, arcSlug: 'act-i', ...extra })
       inArcIds.push(s.id as string)
@@ -511,8 +511,10 @@ describe('Session list arc filter and name projection (integration)', () => {
     expect((body.meta as Row).total).toBe(0)
   })
 
-  it('arc filter composes with the group and status filters', async () => {
-    const { body } = await listSessions(`?arcSlug=act-i&groupSlug=${groupSlug}&status=completed`)
+  it('arc filter composes with the sub-campaign and status filters', async () => {
+    const { body } = await listSessions(
+      `?arcSlug=act-i&subCampaignSlug=${subCampaignSlug}&status=completed`,
+    )
     const data = body.data as Row[]
     expect(data.length).toBe(1)
     expect(data[0]!.id).toBe(tripleMatchId)
@@ -523,7 +525,7 @@ describe('Session list arc filter and name projection (integration)', () => {
     const row = (body as unknown as Row[]).find((s) => s.id === tripleMatchId)!
     expect(row.arcName).toBe('Act I')
     expect(row.chapterName).toBe(MARKET_LIST)
-    expect(row.groupName).toBe('Main Table')
+    expect(row.subCampaignName).toBe('Main Table')
   })
 
   it('unassigned sessions report null names', async () => {
@@ -567,7 +569,7 @@ describe('Session list arc filter and name projection (integration)', () => {
     expect(s.arcName).toBe('Act I')
     expect(s.chapterName).toBe(MARKET_LIST)
     // The list and single-session responses must agree on which name fields exist.
-    expect(s.groupName).toBe('Main Table')
+    expect(s.subCampaignName).toBe('Main Table')
     // `arcSlug` rides along so a client can link to the arc without a second request —
     // the session page's arc badge is a link and depends on it.
     expect(s.arcSlug).toBe('act-i')

@@ -2,9 +2,9 @@ import { describe, it, expect } from 'vitest'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
 
-describe('CLI session-group delete command', () => {
+describe('CLI sub-campaign delete command', () => {
   const source = readFileSync(
-    resolve(__dirname, '../../../cli/src/commands/session-group.js'),
+    resolve(__dirname, '../../../cli/src/commands/sub-campaign.js'),
     'utf-8',
   )
 

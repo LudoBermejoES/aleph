@@ -11,9 +11,13 @@ export function makeArcCommand() {
     .command('list')
     .description('List arcs in a campaign')
     .requiredOption('--campaign <id>', 'Campaign ID')
+    .option('--subcampaign <slug>', 'Filter by sub-campaign slug')
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
-      const data = await get(`/api/campaigns/${opts.campaign}/arcs`)
+      const params = opts.subcampaign
+        ? `?subCampaignSlug=${encodeURIComponent(opts.subcampaign)}`
+        : ''
+      const data = await get(`/api/campaigns/${opts.campaign}/arcs${params}`)
       print(
         opts.json
           ? data
@@ -35,12 +39,14 @@ export function makeArcCommand() {
     .option('--status <status>', 'Arc status')
     .option('--description <desc>', 'Arc description')
     .option('--sort-order <n>', 'Position among the arcs of the campaign (number, default 0)')
+    .option('--subcampaign <slug>', 'Sub-campaign slug (defaults to the campaign default)')
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
       const body = { name: opts.name }
       if (opts.status !== undefined) body.status = opts.status
       if (opts.description !== undefined) body.description = opts.description
       if (opts.sortOrder !== undefined) body.sortOrder = sortOrderOrExit(opts.sortOrder)
+      if (opts.subcampaign !== undefined) body.subCampaignSlug = opts.subcampaign
       const data = await post(`/api/campaigns/${opts.campaign}/arcs`, body)
       if (opts.json) {
         print(data, { json: true })
@@ -59,12 +65,14 @@ export function makeArcCommand() {
     .option('--status <status>', 'New status')
     .option('--description <desc>', 'New description')
     .option('--sort-order <n>', 'New position among the arcs of the campaign (number)')
+    .option('--subcampaign <slug>', 'Move to a different sub-campaign (by slug)')
     .action(async (opts) => {
       const body = {}
       if (opts.name !== undefined) body.name = opts.name
       if (opts.status !== undefined) body.status = opts.status
       if (opts.description !== undefined) body.description = opts.description
       if (opts.sortOrder !== undefined) body.sortOrder = sortOrderOrExit(opts.sortOrder)
+      if (opts.subcampaign !== undefined) body.subCampaignSlug = opts.subcampaign
       await put(`/api/campaigns/${opts.campaign}/arcs/${opts.slug}`, body)
       success('Arc updated.')
     })

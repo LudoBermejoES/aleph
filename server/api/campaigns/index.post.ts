@@ -7,6 +7,7 @@ import { logger } from '../../utils/logger'
 import { auditLogFromEvent } from '../../utils/audit'
 import { seedEntityTypes } from '../../services/entity-types'
 import { seedRelationTypes } from '../../services/relationships'
+import { createDefaultSubCampaign } from '../../services/sub-campaigns'
 import { validateBody } from '../../utils/validate'
 import { mkdirSync } from 'fs'
 import { join } from 'path'
@@ -61,9 +62,10 @@ export default defineEventHandler(async (event) => {
     })
     .run()
 
-  // Seed built-in entity types and relation types
+  // Seed built-in entity types, relation types, and the mandatory default sub-campaign
   seedEntityTypes(db, id)
   seedRelationTypes(db, id)
+  createDefaultSubCampaign(db, id)
 
   logger.info('Campaign created', { campaignId: id, name, userId: user.id })
   auditLogFromEvent(event, {

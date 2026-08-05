@@ -1,11 +1,12 @@
 import { z } from 'zod'
 import { randomUUID } from 'crypto'
-import { eq, sql, and } from 'drizzle-orm'
+import { eq, sql } from 'drizzle-orm'
 import { useDb } from '../../../../utils/db'
 import { validateBody } from '../../../../utils/validate'
-import { gameSessions, sessionGroups } from '../../../../db/schema/sessions'
+import { gameSessions } from '../../../../db/schema/sessions'
 import { hasMinRole } from '../../../../utils/permissions'
 import { resolveArcChapterSlugs } from '../../../../utils/arc-chapter'
+import { resolveSubCampaignIdForCreate } from '../../../../utils/sub-campaign'
 import { slugify, writeEntityFile, resolveEntityPath } from '../../../../services/content'
 import { join } from 'path'
 import type { CampaignRole } from '../../../../utils/permissions'
@@ -27,7 +28,7 @@ export default defineEventHandler(async (event) => {
     chapterId: z.string().optional(),
     arcSlug: z.string().nullable().optional(),
     chapterSlug: z.string().nullable().optional(),
-    groupSlug: z.string().optional(),
+    subCampaignSlug: z.string().optional(),
   })
   const body = await validateBody(event, sessionSchema)
   const db = useDb()
@@ -66,18 +67,7 @@ export default defineEventHandler(async (event) => {
   }
   await writeEntityFile(logPath, frontmatter, body.content || `# ${title}\n\nSession notes...`)
 
-  // Resolve groupSlug to groupId if provided
-  let groupId: string | null = null
-  if (body.groupSlug) {
-    const group = db
-      .select({ id: sessionGroups.id })
-      .from(sessionGroups)
-      .where(and(eq(sessionGroups.campaignId, campaignId), eq(sessionGroups.slug, body.groupSlug)))
-      .get()
-    if (!group)
-      throw createError({ statusCode: 404, message: `Session group "${body.groupSlug}" not found` })
-    groupId = group.id
-  }
+  const subCampaignId = resolveSubCampaignIdForCreate(db, campaignId, body.subCampaignSlug)
 
   db.insert(gameSessions)
     .values({
@@ -91,7 +81,7 @@ export default defineEventHandler(async (event) => {
       summary: body.summary || null,
       arcId: bySlug.arcId !== undefined ? bySlug.arcId : body.arcId || null,
       chapterId: bySlug.chapterId !== undefined ? bySlug.chapterId : body.chapterId || null,
-      groupId,
+      subCampaignId,
       logFilePath: logPath,
       createdAt: now,
       updatedAt: now,
@@ -104,7 +94,7 @@ export default defineEventHandler(async (event) => {
     title,
     sessionNumber,
     status: body.status || 'planned',
-    groupId,
+    subCampaignId,
     arcId: bySlug.arcId !== undefined ? bySlug.arcId : body.arcId || null,
     chapterId: bySlug.chapterId !== undefined ? bySlug.chapterId : body.chapterId || null,
   }

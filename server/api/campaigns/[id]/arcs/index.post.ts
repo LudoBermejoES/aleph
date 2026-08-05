@@ -5,6 +5,7 @@ import { validateBody } from '../../../../utils/validate'
 import { arcs } from '../../../../db/schema/sessions'
 import { hasMinRole } from '../../../../utils/permissions'
 import { slugify } from '../../../../services/content'
+import { resolveSubCampaignIdForCreate } from '../../../../utils/sub-campaign'
 import type { CampaignRole } from '../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
@@ -19,9 +20,12 @@ export default defineEventHandler(async (event) => {
     description: z.string().optional(),
     sortOrder: z.number().optional(),
     status: z.string().optional(),
+    subCampaignSlug: z.string().optional(),
   })
   const body = await validateBody(event, arcSchema)
   const db = useDb()
+
+  const subCampaignId = resolveSubCampaignIdForCreate(db, campaignId, body.subCampaignSlug)
 
   const id = randomUUID()
   const slug = slugify(body.name)
@@ -29,6 +33,7 @@ export default defineEventHandler(async (event) => {
     .values({
       id,
       campaignId,
+      subCampaignId,
       name: body.name,
       slug,
       description: body.description || null,

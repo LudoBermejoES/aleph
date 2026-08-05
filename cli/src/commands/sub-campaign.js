@@ -3,48 +3,55 @@ import { confirm } from '@inquirer/prompts'
 import { get, post, put, del } from '../lib/client.js'
 import { print, success } from '../lib/output.js'
 
-export function makeSessionGroupCommand() {
-  const cmd = new Command('session-group').description('Manage session groups')
+export function makeSubCampaignCommand() {
+  const cmd = new Command('sub-campaign').description('Manage sub-campaigns')
 
   cmd
     .command('list')
-    .description('List session groups in a campaign')
+    .description('List sub-campaigns in a campaign')
     .requiredOption('--campaign <id>', 'Campaign ID')
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
-      const data = await get(`/api/campaigns/${opts.campaign}/session-groups`)
+      const data = await get(`/api/campaigns/${opts.campaign}/sub-campaigns`)
       if (opts.json) {
         print(data, { json: true })
       } else {
-        print(data.map((g) => ({ name: g.name, slug: g.slug, description: g.description || '' })))
+        print(
+          data.map((sc) => ({
+            name: sc.name,
+            slug: sc.slug,
+            default: sc.isDefault ? 'yes' : '',
+            description: sc.description || '',
+          })),
+        )
       }
     })
 
   cmd
     .command('create')
-    .description('Create a session group')
+    .description('Create a sub-campaign')
     .requiredOption('--campaign <id>', 'Campaign ID')
-    .requiredOption('--name <name>', 'Group name')
-    .option('--description <desc>', 'Group description')
+    .requiredOption('--name <name>', 'Sub-campaign name')
+    .option('--description <desc>', 'Sub-campaign description')
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
-      const data = await post(`/api/campaigns/${opts.campaign}/session-groups`, {
+      const data = await post(`/api/campaigns/${opts.campaign}/sub-campaigns`, {
         name: opts.name,
         description: opts.description,
       })
       if (opts.json) {
         print(data, { json: true })
       } else {
-        success(`Session group created: ${data.name} (${data.slug})`)
+        success(`Sub-campaign created: ${data.name} (${data.slug})`)
       }
     })
 
   cmd
     .command('update <slug>')
-    .description('Update a session group')
+    .description('Update a sub-campaign')
     .requiredOption('--campaign <id>', 'Campaign ID')
-    .option('--name <name>', 'New group name')
-    .option('--description <desc>', 'New group description')
+    .option('--name <name>', 'New sub-campaign name')
+    .option('--description <desc>', 'New sub-campaign description')
     .option('--json', 'Output as JSON')
     .action(async (slug, opts) => {
       const body = {}
@@ -56,18 +63,18 @@ export function makeSessionGroupCommand() {
         )
         process.exit(1)
       }
-      await put(`/api/campaigns/${opts.campaign}/session-groups/${slug}`, body)
+      await put(`/api/campaigns/${opts.campaign}/sub-campaigns/${slug}`, body)
       if (opts.json) {
         print({ success: true }, { json: true })
       } else {
-        success('Session group updated.')
+        success('Sub-campaign updated.')
       }
     })
 
   cmd
     .command('delete <slug>')
     .description(
-      'Delete a session group (sessions will be unassigned). Use --yes to skip confirmation.',
+      'Delete a sub-campaign (its arcs/sessions/quests move to the default sub-campaign; the default itself cannot be deleted). Use --yes to skip confirmation.',
     )
     .requiredOption('--campaign <id>', 'Campaign ID')
     .option('--yes', 'Skip confirmation prompt')
@@ -75,16 +82,16 @@ export function makeSessionGroupCommand() {
     .action(async (slug, opts) => {
       if (!opts.yes) {
         const ok = await confirm({
-          message: `Delete session group "${slug}"? Sessions will be unassigned.`,
+          message: `Delete sub-campaign "${slug}"? Its arcs, sessions, and quests will move to the default sub-campaign.`,
           default: false,
         })
         if (!ok) return
       }
-      await del(`/api/campaigns/${opts.campaign}/session-groups/${slug}`)
+      await del(`/api/campaigns/${opts.campaign}/sub-campaigns/${slug}`)
       if (opts.json) {
         print({ success: true }, { json: true })
       } else {
-        success(`Session group deleted: ${slug}`)
+        success(`Sub-campaign deleted: ${slug}`)
       }
     })
 

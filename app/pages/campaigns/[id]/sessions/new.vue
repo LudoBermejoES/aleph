@@ -39,7 +39,7 @@ const form = ref({
   scheduledDate: '',
   status: 'planned',
   content: '',
-  groupSlug: '',
+  subCampaignSlug: '',
   arcId: '',
   chapterId: '',
 })

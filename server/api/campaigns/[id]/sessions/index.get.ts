@@ -1,6 +1,6 @@
 import { eq, desc, and, sql, inArray, type SQL } from 'drizzle-orm'
 import { useDb } from '../../../../utils/db'
-import { gameSessions, sessionGroups, arcs, chapters } from '../../../../db/schema/sessions'
+import { gameSessions, subCampaigns, arcs, chapters } from '../../../../db/schema/sessions'
 import { parsePagination, buildMeta } from '../../../../utils/pagination'
 import { withApiHandler } from '../../../../utils/api-handler'
 
@@ -10,22 +10,22 @@ export default defineEventHandler((event) =>
     const query = getQuery(event)
     const db = useDb()
 
-    let groupId: string | undefined
-    const groupSlug = query.groupSlug as string | undefined
-    if (groupSlug) {
-      const group = db
-        .select({ id: sessionGroups.id })
-        .from(sessionGroups)
-        .where(and(eq(sessionGroups.campaignId, campaignId), eq(sessionGroups.slug, groupSlug)))
+    let subCampaignId: string | undefined
+    const subCampaignSlug = query.subCampaignSlug as string | undefined
+    if (subCampaignSlug) {
+      const subCampaign = db
+        .select({ id: subCampaigns.id })
+        .from(subCampaigns)
+        .where(and(eq(subCampaigns.campaignId, campaignId), eq(subCampaigns.slug, subCampaignSlug)))
         .get()
-      if (!group)
+      if (!subCampaign)
         return { data: [], meta: buildMeta(0, parsePagination(query as Record<string, unknown>)) }
-      groupId = group.id
+      subCampaignId = subCampaign.id
     }
 
     // Arc filter, resolved to ids in SQL before pagination and counting so meta.total
     // reflects it. Unlike the write path (404), an unknown slug is an empty page — same
-    // read-vs-write split groupSlug already has. An ambiguous slug stays permissive and
+    // read-vs-write split subCampaignSlug already has. An ambiguous slug stays permissive and
     // matches every arc carrying it: over-matching is visible in the output.
     let arcIds: string[] | undefined
     const arcSlug = query.arcSlug as string | undefined
@@ -42,7 +42,7 @@ export default defineEventHandler((event) =>
 
     const status = query.status as string | undefined
     const conditions: SQL[] = [eq(gameSessions.campaignId, campaignId)]
-    if (groupId) conditions.push(eq(gameSessions.groupId, groupId))
+    if (subCampaignId) conditions.push(eq(gameSessions.subCampaignId, subCampaignId))
     if (arcIds) conditions.push(inArray(gameSessions.arcId, arcIds))
     if (status) conditions.push(eq(gameSessions.status, status))
 
@@ -69,13 +69,13 @@ export default defineEventHandler((event) =>
         arcName: arcs.name,
         chapterId: gameSessions.chapterId,
         chapterName: chapters.name,
-        groupId: gameSessions.groupId,
-        groupName: sessionGroups.name,
+        subCampaignId: gameSessions.subCampaignId,
+        subCampaignName: subCampaigns.name,
         createdAt: gameSessions.createdAt,
         updatedAt: gameSessions.updatedAt,
       })
       .from(gameSessions)
-      .leftJoin(sessionGroups, eq(gameSessions.groupId, sessionGroups.id))
+      .leftJoin(subCampaigns, eq(gameSessions.subCampaignId, subCampaigns.id))
       .leftJoin(arcs, eq(gameSessions.arcId, arcs.id))
       .leftJoin(chapters, eq(gameSessions.chapterId, chapters.id))
       .where(and(...conditions))

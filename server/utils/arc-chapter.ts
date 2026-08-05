@@ -6,7 +6,7 @@ import { arcs, chapters } from '../db/schema/sessions'
 /**
  * Slug-addressed arc/chapter assignment for sessions.
  *
- * Mirrors the `groupSlug` convention already used by the sessions PUT/POST handlers:
+ * Mirrors the `subCampaignSlug` convention already used by the sessions PUT/POST handlers:
  * the client sends a slug, the server resolves it against the route's campaign, and
  * `null`/`''` unsets the FK. Resolution lives here (not in each client) so the wording
  * of every error and the campaign scoping are defined exactly once.

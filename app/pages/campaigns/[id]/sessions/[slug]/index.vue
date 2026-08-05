@@ -29,9 +29,9 @@
               >{{ sessionStatusLabel(session.status) }}</span
             >
             <span
-              v-if="session.groupName"
+              v-if="session.subCampaignName"
               class="text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground"
-              >{{ session.groupName }}</span
+              >{{ session.subCampaignName }}</span
             >
             <!-- Which arc (and chapter) this session belongs to; the arc links to its page. -->
             <NuxtLink
