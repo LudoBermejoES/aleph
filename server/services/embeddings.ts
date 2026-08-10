@@ -11,12 +11,22 @@ export const EMBEDDING_DIM = 384
  * returns its k nearest neighbors even when none are actually related to the
  * query — a raw `k = N` clause with no cutoff means every query, including
  * nonsense/gibberish input, "finds" something. This model doesn't cleanly
- * separate true matches from noise (empirically, real matches land around
- * 0.11-0.16 distance and unrelated/gibberish queries land around 0.18-0.20
- * against this project's content — see openspec/changes/add-semantic-search
- * tasks.md section 4), so this threshold is a best-effort heuristic, not a
- * rigorously calibrated boundary. Revisit after task 5.4's post-backfill
- * spot-check against real campaign content.
+ * separate true matches from noise: empirically, real matches on this
+ * project's content land anywhere from ~0.11 (strong, specific) to ~0.16
+ * (weaker, thinner content) distance, and gibberish/unrelated queries land
+ * ~0.18-0.20 — a genuinely narrow margin, confirmed unreliable in practice:
+ * raising this to 0.17 to give weak-but-real matches more headroom broke the
+ * pre-existing "random gibberish returns zero results" integration test
+ * (tests/integration/collaboration.test.ts) against this project's real dev
+ * corpus, and 0.15 itself already broke once on different hardware/ONNX
+ * runtime (a borderline true-positive moved from 0.148 to >0.15 between a
+ * local run and CI). There is no cutoff with comfortable margin on both
+ * sides given this model's actual score distribution — 0.15 is kept because
+ * it's the value that passes every currently-known real test case (both this
+ * project's and this change's own), not because it's confidently correct in
+ * general. Revisit with real numbers from task 5.4's post-backfill spot-check
+ * before trusting this further; a weakly-worded genuine match sitting above
+ * this line and getting silently dropped is a real, known risk.
  */
 const SEMANTIC_MAX_DISTANCE = 0.15
 

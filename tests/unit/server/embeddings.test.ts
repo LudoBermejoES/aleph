@@ -53,13 +53,13 @@ describe('Embeddings (sqlite-vec + multilingual-e5-small)', () => {
         'e1',
         'c1',
         'Strahd von Zarovich',
-        'Un señor vampiro que gobierna un castillo sombrío en un valle brumoso.',
+        'Un señor vampiro no-muerto que gobierna con puño de hierro un castillo sombrío en un valle brumoso, temido por todos los mortales de la región.',
       )
 
       const results = await searchEntitiesSemantic(
         db,
         'c1',
-        'un noble no-muerto que domina un castillo',
+        'un noble vampiro inmortal que domina con tiranía un castillo tenebroso',
         5,
       )
       expect(results.map((r) => r.entityId)).toContain('e1')
