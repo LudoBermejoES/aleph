@@ -6,6 +6,7 @@ import { hasMinRole } from '../../../../utils/permissions'
 import { writeEntityFile, resolveEntityPath } from '../../../../services/content'
 import { ensureUniqueSlug } from '../../../../utils/content-helpers'
 import { indexEntity } from '../../../../services/search'
+import { indexEntityEmbedding } from '../../../../services/embeddings'
 import { logger } from '../../../../utils/logger'
 import { invalidateAutomatonCache } from '../../../../services/autolink'
 import { validateBody } from '../../../../utils/validate'
@@ -83,6 +84,7 @@ export default defineEventHandler(async (event) => {
 
   // Index in FTS5
   indexEntity(sqlite, id, campaignId, name.trim(), aliases || [], tags || [], content || '')
+  await indexEntityEmbedding(sqlite, id, campaignId, name.trim(), content || '')
 
   // Invalidate autolink cache so new entity name is included in future matches
   invalidateAutomatonCache(campaignId)

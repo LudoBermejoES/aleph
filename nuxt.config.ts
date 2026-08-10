@@ -51,6 +51,11 @@ export default defineNuxtConfig({
       r2SecretAccessKey: '',
       r2Bucket: '',
     },
+    search: {
+      // Rollback path for the semantic search arm — no schema/data change,
+      // just falls back to lexical-only. See openspec/changes/add-semantic-search.
+      semanticEnabled: process.env.SEARCH_SEMANTIC_ENABLED !== 'false',
+    },
     public: {
       hocuspocusUrl: 'ws://localhost:3334',
       diagramMultiplayer: false,

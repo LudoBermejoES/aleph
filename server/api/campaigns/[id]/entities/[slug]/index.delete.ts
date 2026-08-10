@@ -4,6 +4,7 @@ import { entities } from '../../../../../db/schema/entities'
 import { hasMinRole } from '../../../../../utils/permissions'
 import { deleteEntityFile } from '../../../../../services/content'
 import { removeEntityFromIndex } from '../../../../../services/search'
+import { removeEntityEmbedding } from '../../../../../services/embeddings'
 import { logger } from '../../../../../utils/logger'
 import type { CampaignRole } from '../../../../../utils/permissions'
 
@@ -33,6 +34,7 @@ export default defineEventHandler(async (event) => {
 
   // Remove from FTS5
   removeEntityFromIndex(sqlite, entity.id)
+  removeEntityEmbedding(sqlite, entity.id)
 
   // Delete DB row (cascades to entity_tags, entity_permissions)
   db.delete(entities).where(eq(entities.id, entity.id)).run()

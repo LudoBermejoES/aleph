@@ -8,6 +8,7 @@ import { hasMinRole } from '../../../../utils/permissions'
 import { writeEntityFile, resolveEntityPath } from '../../../../services/content'
 import { ensureUniqueSlug } from '../../../../utils/content-helpers'
 import { indexEntity } from '../../../../services/search'
+import { indexEntityEmbedding } from '../../../../services/embeddings'
 import { invalidateAutomatonCache } from '../../../../services/autolink'
 import { join } from 'path'
 import type { CampaignRole } from '../../../../utils/permissions'
@@ -110,6 +111,7 @@ export default defineEventHandler(async (event) => {
     .run()
 
   indexEntity(sqlite, id, campaignId, name.trim(), [], [], content || '')
+  await indexEntityEmbedding(sqlite, id, campaignId, name.trim(), content || '')
   invalidateAutomatonCache(campaignId)
 
   return {

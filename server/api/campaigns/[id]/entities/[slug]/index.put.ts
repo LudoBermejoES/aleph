@@ -5,6 +5,7 @@ import { entities } from '../../../../../db/schema/entities'
 import { hasMinRole } from '../../../../../utils/permissions'
 import { writeEntityFile, readEntityFile } from '../../../../../services/content'
 import { indexEntity } from '../../../../../services/search'
+import { indexEntityEmbedding } from '../../../../../services/embeddings'
 import { invalidateAutomatonCache } from '../../../../../services/autolink'
 import { validateBody } from '../../../../../utils/validate'
 import type { CampaignRole } from '../../../../../utils/permissions'
@@ -93,6 +94,7 @@ export default defineEventHandler(async (event) => {
     updatedFrontmatter.tags || [],
     updatedContent,
   )
+  await indexEntityEmbedding(sqlite, entity.id, campaignId, updatedFrontmatter.name, updatedContent)
 
   // Invalidate autolink cache on name/alias change
   invalidateAutomatonCache(campaignId)

@@ -3,6 +3,7 @@ import { useSqlite, useDb } from '../utils/db'
 import { markdownToTiptap, tiptapToMarkdown, mergeFrontmatter } from '../services/collaboration'
 import { readEntityFile, writeEntityFile } from '../services/content'
 import { indexEntity } from '../services/search'
+import { indexEntityEmbedding } from '../services/embeddings'
 import { auth } from '../utils/auth'
 import { logger } from '../utils/logger'
 import { validateWsToken } from '../services/ws-token'
@@ -197,6 +198,7 @@ export default defineNitroPlugin(async () => {
                 .where(eq(entities.id, entityId))
                 .run()
               indexEntity(sqlite, entityId, campaignId, entityName, [], [], markdown)
+              await indexEntityEmbedding(sqlite, entityId, campaignId, entityName, markdown)
             }
 
             logger.debug('Hocuspocus: document saved', { documentName, slug })

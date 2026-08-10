@@ -11,6 +11,7 @@ import {
   resolveEntityPath,
 } from '../../../../../services/content'
 import { indexEntity } from '../../../../../services/search'
+import { indexEntityEmbedding } from '../../../../../services/embeddings'
 import { join } from 'path'
 import type { CampaignRole } from '../../../../../utils/permissions'
 import { withApiHandler } from '../../../../../utils/api-handler'
@@ -138,6 +139,7 @@ export default defineEventHandler((event) =>
     }
 
     indexEntity(sqlite, newEntityId, campaignId, newName, [], [], origFile.content || '')
+    await indexEntityEmbedding(sqlite, newEntityId, campaignId, newName, origFile.content || '')
 
     return { id: newCharId, entityId: newEntityId, slug: newSlug, name: newName }
   }),

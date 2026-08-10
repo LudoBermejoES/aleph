@@ -4,6 +4,7 @@ import { entities } from '../../../../../db/schema/entities'
 import { hasMinRole } from '../../../../../utils/permissions'
 import { deleteEntityFile } from '../../../../../services/content'
 import { removeEntityFromIndex } from '../../../../../services/search'
+import { removeEntityEmbedding } from '../../../../../services/embeddings'
 import type { CampaignRole } from '../../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
@@ -26,6 +27,7 @@ export default defineEventHandler(async (event) => {
 
   await deleteEntityFile(entity.filePath)
   removeEntityFromIndex(sqlite, entity.id)
+  removeEntityEmbedding(sqlite, entity.id)
   // Cascade handles characters, stats, abilities, connections
   db.delete(entities).where(eq(entities.id, entity.id)).run()
 

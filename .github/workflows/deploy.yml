@@ -66,6 +66,9 @@ jobs:
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
+      - name: Download embedding model
+        run: npm run download-embedding-model
+
       - name: Build Nuxt app
         env:
           VITE_TLDRAW_LICENSE_KEY: ${{ secrets.VITE_TLDRAW_LICENSE_KEY }}
@@ -79,6 +82,7 @@ jobs:
           # Copy built output and essential files
           cp -r .output /tmp/aleph-deploy/
           cp -r server/db/migrations /tmp/aleph-deploy/migrations
+          cp -r models /tmp/aleph-deploy/
           cp ecosystem.config.cjs /tmp/aleph-deploy/
           cp package.json /tmp/aleph-deploy/
           cp package-lock.json /tmp/aleph-deploy/

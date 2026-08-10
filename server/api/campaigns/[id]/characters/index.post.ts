@@ -9,6 +9,7 @@ import { buildCharacterFrontmatter } from '../../../../services/characters'
 import { writeEntityFile, resolveEntityPath } from '../../../../services/content'
 import { ensureUniqueSlug } from '../../../../utils/content-helpers'
 import { indexEntity } from '../../../../services/search'
+import { indexEntityEmbedding } from '../../../../services/embeddings'
 import { logger } from '../../../../utils/logger'
 import { join } from 'path'
 import type { CampaignRole } from '../../../../utils/permissions'
@@ -105,6 +106,7 @@ export default defineEventHandler(async (event) => {
 
   // Index in FTS5
   indexEntity(sqlite, entityId, campaignId, name.trim(), aliases || [], tags || [], content || '')
+  await indexEntityEmbedding(sqlite, entityId, campaignId, name.trim(), content || '')
 
   logger.debug('Character created', { characterId, entityId, name, campaignId })
 

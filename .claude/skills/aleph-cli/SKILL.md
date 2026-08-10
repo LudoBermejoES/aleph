@@ -4,7 +4,7 @@ description: Use the aleph CLI to manage campaigns, entities, characters, locati
 license: MIT
 metadata:
   author: aleph
-  version: '3.15'
+  version: '3.16'
 ---
 
 You have access to the `aleph` CLI tool at `node /Users/ludo/code/aleph/cli/bin/aleph.js` (or `npm run aleph -- <args>` from the project root). Use it to interact with the running Aleph server.
@@ -455,7 +455,7 @@ node /Users/ludo/code/aleph/cli/bin/aleph.js health [--json]    # check server c
 aleph search --campaign <id> <query> [--json]
 ```
 
-Returns entities, characters, and sessions matching the query.
+Returns entities, characters, and sessions matching the query. Hybrid search: combines exact/fuzzy text matching with meaning-based (semantic) matching, so a query can surface relevant entities even when it shares no words with their content. Text matching still wins for exact names; semantic matching adds recall on top. `--json` output includes each result's `score` and which arm(s) matched (`lexical`, `semantic`, or both).
 
 ### Dice Rolls
 

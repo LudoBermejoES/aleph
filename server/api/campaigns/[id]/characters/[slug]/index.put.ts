@@ -7,6 +7,7 @@ import { characters } from '../../../../../db/schema/characters'
 import { canEditCharacter } from '../../../../../services/characters'
 import { writeEntityFile, readEntityFile } from '../../../../../services/content'
 import { indexEntity } from '../../../../../services/search'
+import { indexEntityEmbedding } from '../../../../../services/embeddings'
 import type { CampaignRole } from '../../../../../utils/permissions'
 import { withApiHandler } from '../../../../../utils/api-handler'
 
@@ -137,6 +138,7 @@ export default defineEventHandler((event) =>
       updatedFm.tags || [],
       updatedContent,
     )
+    await indexEntityEmbedding(sqlite, entity.id, campaignId, updatedFm.name, updatedContent)
 
     return { success: true }
   }),

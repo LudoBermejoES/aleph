@@ -6,6 +6,7 @@ import { entities } from '../../../../db/schema/entities'
 import { hasMinRole } from '../../../../utils/permissions'
 import { writeEntityFile, readEntityFile } from '../../../../services/content'
 import { indexEntity } from '../../../../services/search'
+import { indexEntityEmbedding } from '../../../../services/embeddings'
 import type { CampaignRole, Visibility } from '../../../../utils/permissions'
 
 const VALID_SUBTYPES = [
@@ -121,6 +122,7 @@ export default defineEventHandler(async (event) => {
   db.update(entities).set(entityUpdates).where(eq(entities.id, entity.id)).run()
 
   indexEntity(sqlite, entity.id, campaignId, updatedFm.name, [], [], updatedContent)
+  await indexEntityEmbedding(sqlite, entity.id, campaignId, updatedFm.name, updatedContent)
 
   const updated = db.select().from(entities).where(eq(entities.id, entity.id)).get()!
   return {

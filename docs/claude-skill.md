@@ -203,6 +203,8 @@ Roles: `player`, `editor`, `co_dm`
 aleph search --campaign <id> <query> [--json]
 ```
 
+Hybrid search: combines exact/fuzzy text matching with meaning-based (semantic) matching, so a query can surface relevant entities even when it shares no words with their content (e.g. a Spanish-language concept query can find a session summary that never uses those exact words). Text matching still wins for exact names; semantic matching adds recall on top. `--json` output includes each result's `score` and which arm(s) matched (`lexical`, `semantic`, or both).
+
 ### Organizations
 
 ```bash

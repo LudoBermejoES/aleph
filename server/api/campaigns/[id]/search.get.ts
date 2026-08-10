@@ -1,6 +1,6 @@
 import { eq, and, inArray, type SQL } from 'drizzle-orm'
 import { useDb, useSqlite } from '../../../utils/db'
-import { searchEntities } from '../../../services/search'
+import { hybridSearchEntities } from '../../../services/hybrid-search'
 import { entities } from '../../../db/schema/entities'
 import { ROLE_LEVEL, VISIBILITY_MIN_ROLE } from '../../../utils/permissions'
 import type { CampaignRole } from '../../../utils/permissions'
@@ -19,20 +19,27 @@ export default defineEventHandler(async (event) => {
 
   const sqlite = useSqlite()
   const db = useDb()
-  const rawResults = searchEntities(sqlite, campaignId, q)
+  const config = useRuntimeConfig(event)
 
-  if (!rawResults.length) return { results: [], query: q }
+  const { fused, lexicalSnippets } = await hybridSearchEntities(sqlite, campaignId, q, 20, {
+    semanticEnabled: config.search.semanticEnabled,
+  })
+
+  if (!fused.length) return { results: [], query: q }
 
   const roleLevel = ROLE_LEVEL[role] ?? 1
-  const entityIds = rawResults.map((r) => r.entityId)
+  const entityIds = fused.map((r) => r.entityId)
 
-  // Single batch query — replaces per-result DB lookups
+  // Single batch query — replaces per-result DB lookups. Visibility/campaign
+  // scoping is applied once here, to the union of both arms' matches, which
+  // is equivalent to applying it identically to each arm before fusion.
   const conditions: SQL[] = [eq(entities.campaignId, campaignId), inArray(entities.id, entityIds)]
   if (typeFilter) conditions.push(eq(entities.type, typeFilter))
 
   const entityRows = db
     .select({
       id: entities.id,
+      name: entities.name,
       slug: entities.slug,
       type: entities.type,
       visibility: entities.visibility,
@@ -44,7 +51,7 @@ export default defineEventHandler(async (event) => {
 
   const entityMap = new Map(entityRows.map((e) => [e.id, e]))
 
-  const finalResults = rawResults
+  const finalResults = fused
     .map((r) => {
       const ent = entityMap.get(r.entityId)
       if (!ent) return null
@@ -55,7 +62,15 @@ export default defineEventHandler(async (event) => {
       const minLevel = VISIBILITY_MIN_ROLE[ent.visibility] ?? 99
       if (roleLevel < minLevel) return null
 
-      return { ...r, slug: ent.slug, type: ent.type }
+      return {
+        entityId: r.entityId,
+        name: ent.name,
+        snippet: lexicalSnippets.get(r.entityId) ?? '',
+        score: r.score,
+        arms: r.arms,
+        slug: ent.slug,
+        type: ent.type,
+      }
     })
     .filter(Boolean)
 

@@ -1,6 +1,7 @@
 import chokidar, { type FSWatcher } from 'chokidar'
 import { readEntityFile } from './content'
 import { indexEntity } from './search'
+import { indexEntityEmbedding } from './embeddings'
 import { logger } from '../utils/logger'
 import type Database from 'better-sqlite3'
 
@@ -107,6 +108,7 @@ async function handleAddOrChange(
       frontmatter.tags,
       content,
     )
+    await indexEntityEmbedding(sqlite, frontmatter.id, campaignSlug, frontmatter.name, content)
 
     logger.debug('Entity indexed', { entityId: frontmatter.id, name: frontmatter.name, action })
     onEntityChange?.(frontmatter.id, action)
