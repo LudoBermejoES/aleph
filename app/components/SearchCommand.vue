@@ -68,7 +68,7 @@
                     if (el) resultEls[i] = el.$el || el
                   }
                 "
-                :to="`/campaigns/${campaignId}/entities/${result.slug || result.entityId}`"
+                :to="entityDetailPath(campaignId, result.type, result.slug || result.entityId)"
                 :class="[
                   'block px-3 py-2 rounded text-sm transition-colors',
                   i === selectedIndex ? 'bg-accent' : 'hover:bg-accent/50',
@@ -109,6 +109,8 @@
 </template>
 
 <script setup lang="ts">
+import { entityDetailPath } from '~/utils/entity-routes'
+
 const props = defineProps<{ campaignId: string }>()
 const router = useRouter()
 
@@ -194,7 +196,7 @@ function selectCurrent() {
   if (item) {
     selectResult(item)
     const slug = item.slug || item.entityId
-    router.push(`/campaigns/${props.campaignId}/entities/${slug}`)
+    router.push(entityDetailPath(props.campaignId, item.type as string | undefined, slug!))
   }
 }
 

@@ -122,6 +122,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
+import { entityDetailPath } from '~/utils/entity-routes'
 
 const props = defineProps<{
   visible: boolean
@@ -195,11 +196,7 @@ async function fetchEntity(slug: string) {
 function entityUrl() {
   if (!entity.value) return ''
   const { type, slug } = entity.value
-  if (type === 'character') return `/campaigns/${props.campaignId}/characters/${slug}`
-  if (type === 'location') return `/campaigns/${props.campaignId}/locations/${slug}`
-  if (type === 'organization') return `/campaigns/${props.campaignId}/organizations/${slug}`
-  if (type === 'quest') return `/campaigns/${props.campaignId}/quests/${slug}`
-  return `/campaigns/${props.campaignId}/entities/${slug}`
+  return entityDetailPath(props.campaignId, type, slug)
 }
 
 function openFullPage() {
