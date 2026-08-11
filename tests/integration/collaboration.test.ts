@@ -306,13 +306,22 @@ describe('Save Pipeline (integration)', () => {
     })
     const data = await entity.json()
 
-    // Search for unique term — should not be found
+    // Search for unique term — this entity should not be found via it yet.
+    // Scoped to this specific entity (by slug) rather than requiring zero
+    // total results: the semantic search arm can occasionally surface a weak,
+    // low-confidence match for other entities from an unrelated query — a
+    // documented, platform-variance-sensitive characteristic of the hybrid
+    // search's similarity threshold (see server/services/embeddings.ts) — and
+    // that's not what this test is meant to catch. This test's actual concern
+    // is FTS5 re-indexing, not the semantic arm's precision.
     const search1 = await api(`/api/campaigns/${campaignId}/search?q=${uniqueTerm}`, {
       method: 'GET',
       headers: { Cookie: cookie },
     })
     const results1 = await search1.json()
-    expect(results1.results?.length || 0).toBe(0)
+    expect((results1.results || []).some((r: { slug?: string }) => r.slug === data.slug)).toBe(
+      false,
+    )
 
     // Update entity with unique term
     await api(`/api/campaigns/${campaignId}/entities/${data.slug}`, {
@@ -321,13 +330,13 @@ describe('Save Pipeline (integration)', () => {
       body: { content: `# FTS Test\n\nThis contains ${uniqueTerm} for searching.` },
     })
 
-    // Search again — should now find it
+    // Search again — should now find this entity specifically
     const search2 = await api(`/api/campaigns/${campaignId}/search?q=${uniqueTerm}`, {
       method: 'GET',
       headers: { Cookie: cookie },
     })
     const results2 = await search2.json()
-    expect(results2.results?.length).toBeGreaterThanOrEqual(1)
+    expect((results2.results || []).some((r: { slug?: string }) => r.slug === data.slug)).toBe(true)
   })
 })
 
