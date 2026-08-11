@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { eq, and } from 'drizzle-orm'
-import { useDb } from '../../../../../utils/db'
+import { useDb, useSqlite } from '../../../../../utils/db'
 import { validateBody } from '../../../../../utils/validate'
 import { gameSessions } from '../../../../../db/schema/sessions'
 import { entities } from '../../../../../db/schema/entities'
@@ -8,6 +8,8 @@ import { hasMinRole } from '../../../../../utils/permissions'
 import { resolveArcChapterSlugs } from '../../../../../utils/arc-chapter'
 import { resolveSubCampaignSlug } from '../../../../../utils/sub-campaign'
 import { writeEntityFile, readEntityFile } from '../../../../../services/content'
+import { indexEntity } from '../../../../../services/search'
+import { indexEntityEmbedding } from '../../../../../services/embeddings'
 import type { CampaignRole } from '../../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
@@ -98,6 +100,20 @@ export default defineEventHandler(async (event) => {
     }
     await writeEntityFile(session.logFilePath, existing.frontmatter, body.content)
   }
+
+  // Re-index with the current name/content, whichever (if either) just changed.
+  const finalName = body.title !== undefined ? body.title : session.title
+  let finalContent = ''
+  if (session.logFilePath) {
+    try {
+      finalContent = (await readEntityFile(session.logFilePath)).content
+    } catch {
+      finalContent = ''
+    }
+  }
+  const sqlite = useSqlite()
+  indexEntity(sqlite, session.id, campaignId, finalName, [], ['session'], finalContent)
+  await indexEntityEmbedding(sqlite, session.id, campaignId, finalName, finalContent)
 
   return { success: true }
 })

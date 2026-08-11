@@ -1,12 +1,14 @@
 import { z } from 'zod'
 import { randomUUID } from 'crypto'
-import { useDb } from '../../../../utils/db'
+import { useDb, useSqlite } from '../../../../utils/db'
 import { validateBody } from '../../../../utils/validate'
 import { arcs } from '../../../../db/schema/sessions'
 import { entities } from '../../../../db/schema/entities'
 import { hasMinRole } from '../../../../utils/permissions'
 import { ensureUniqueSlug } from '../../../../utils/content-helpers'
 import { resolveSubCampaignIdForCreate } from '../../../../utils/sub-campaign'
+import { indexEntity } from '../../../../services/search'
+import { indexEntityEmbedding } from '../../../../services/embeddings'
 import type { CampaignRole } from '../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
@@ -62,6 +64,10 @@ export default defineEventHandler(async (event) => {
       status: body.status || 'planned',
     })
     .run()
+
+  const sqlite = useSqlite()
+  indexEntity(sqlite, id, campaignId, body.name, [], [], body.description || '')
+  await indexEntityEmbedding(sqlite, id, campaignId, body.name, body.description || '')
 
   // `slug` is what every other arc endpoint is addressed by, so the caller needs it
   // straight away — without it a client can only print `(undefined)` and must re-list.

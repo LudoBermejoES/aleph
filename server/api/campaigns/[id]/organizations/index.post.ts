@@ -1,8 +1,10 @@
 import { z } from 'zod'
-import { useDb } from '../../../../utils/db'
+import { useDb, useSqlite } from '../../../../utils/db'
 import { validateBody } from '../../../../utils/validate'
 import { hasMinRole } from '../../../../utils/permissions'
 import { createOrganizationWithEntity } from '../../../../services/organizations'
+import { indexEntity } from '../../../../services/search'
+import { indexEntityEmbedding } from '../../../../services/embeddings'
 import type { CampaignRole } from '../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
@@ -37,6 +39,11 @@ export default defineEventHandler(async (event) => {
       fieldsJson: fields ? JSON.stringify(fields) : null,
       createdBy,
     })
+
+    const sqlite = useSqlite()
+    indexEntity(sqlite, org.id, campaignId, org.name, [], [], org.description || '')
+    await indexEntityEmbedding(sqlite, org.id, campaignId, org.name, org.description || '')
+
     const parsedFields = org.fieldsJson
       ? (JSON.parse(org.fieldsJson) as Record<string, unknown>)
       : {}

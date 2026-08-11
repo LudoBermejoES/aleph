@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { randomUUID } from 'crypto'
-import { useDb } from '../../../../utils/db'
+import { useDb, useSqlite } from '../../../../utils/db'
 import { validateBody } from '../../../../utils/validate'
 import { quests } from '../../../../db/schema/sessions'
 import { entities } from '../../../../db/schema/entities'
@@ -8,6 +8,8 @@ import { hasMinRole } from '../../../../utils/permissions'
 import { writeEntityFile, resolveEntityPath } from '../../../../services/content'
 import { ensureUniqueSlug } from '../../../../utils/content-helpers'
 import { resolveSubCampaignIdForCreate } from '../../../../utils/sub-campaign'
+import { indexEntity } from '../../../../services/search'
+import { indexEntityEmbedding } from '../../../../services/embeddings'
 import { join } from 'path'
 import type { CampaignRole } from '../../../../utils/permissions'
 
@@ -97,6 +99,11 @@ export default defineEventHandler(async (event) => {
       updatedAt: now,
     })
     .run()
+
+  const questContent = body.content || `# ${body.name}\n\nQuest details...`
+  const sqlite = useSqlite()
+  indexEntity(sqlite, id, campaignId, body.name, [], body.tags || [], questContent)
+  await indexEntityEmbedding(sqlite, id, campaignId, body.name, questContent)
 
   return { id, slug, name: body.name, status: body.status || 'active' }
 })

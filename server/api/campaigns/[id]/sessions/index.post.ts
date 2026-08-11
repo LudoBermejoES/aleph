@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { randomUUID } from 'crypto'
 import { eq, sql } from 'drizzle-orm'
-import { useDb } from '../../../../utils/db'
+import { useDb, useSqlite } from '../../../../utils/db'
 import { validateBody } from '../../../../utils/validate'
 import { gameSessions } from '../../../../db/schema/sessions'
 import { entities } from '../../../../db/schema/entities'
@@ -10,6 +10,8 @@ import { resolveArcChapterSlugs } from '../../../../utils/arc-chapter'
 import { resolveSubCampaignIdForCreate } from '../../../../utils/sub-campaign'
 import { writeEntityFile, resolveEntityPath } from '../../../../services/content'
 import { ensureUniqueSlug } from '../../../../utils/content-helpers'
+import { indexEntity } from '../../../../services/search'
+import { indexEntityEmbedding } from '../../../../services/embeddings'
 import { join } from 'path'
 import type { CampaignRole } from '../../../../utils/permissions'
 
@@ -111,6 +113,11 @@ export default defineEventHandler(async (event) => {
       updatedAt: now,
     })
     .run()
+
+  const sessionContent = body.content || `# ${title}\n\nSession notes...`
+  const sqlite = useSqlite()
+  indexEntity(sqlite, id, campaignId, title, [], ['session'], sessionContent)
+  await indexEntityEmbedding(sqlite, id, campaignId, title, sessionContent)
 
   return {
     id,

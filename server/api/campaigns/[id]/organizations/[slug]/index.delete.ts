@@ -1,8 +1,10 @@
 import { eq, and } from 'drizzle-orm'
-import { useDb } from '../../../../../utils/db'
+import { useDb, useSqlite } from '../../../../../utils/db'
 import { organizations } from '../../../../../db/schema'
 import { hasMinRole } from '../../../../../utils/permissions'
 import { deleteOrganizationWithEntity } from '../../../../../services/organizations'
+import { removeEntityFromIndex } from '../../../../../services/search'
+import { removeEntityEmbedding } from '../../../../../services/embeddings'
 import type { CampaignRole } from '../../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
@@ -32,6 +34,10 @@ export default defineEventHandler(async (event) => {
     if (e.statusCode) throw createError({ statusCode: e.statusCode, message: e.message })
     throw err
   }
+
+  const sqlite = useSqlite()
+  removeEntityFromIndex(sqlite, org.id)
+  removeEntityEmbedding(sqlite, org.id)
 
   return { success: true }
 })

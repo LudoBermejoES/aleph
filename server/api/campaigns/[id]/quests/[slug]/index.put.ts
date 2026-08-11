@@ -1,12 +1,15 @@
 import { z } from 'zod'
 import { eq, and } from 'drizzle-orm'
-import { useDb } from '../../../../../utils/db'
+import { useDb, useSqlite } from '../../../../../utils/db'
 import { validateBody } from '../../../../../utils/validate'
 import { quests } from '../../../../../db/schema/sessions'
 import { entities } from '../../../../../db/schema/entities'
 import { hasMinRole } from '../../../../../utils/permissions'
 import { canTransitionQuestStatus } from '../../../../../services/sessions'
 import { resolveSubCampaignSlug } from '../../../../../utils/sub-campaign'
+import { readEntityFile } from '../../../../../services/content'
+import { indexEntity } from '../../../../../services/search'
+import { indexEntityEmbedding } from '../../../../../services/embeddings'
 import type { CampaignRole } from '../../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
@@ -65,6 +68,21 @@ export default defineEventHandler(async (event) => {
     entityUpdates.updatedAt = now
     db.update(entities).set(entityUpdates).where(eq(entities.id, quest.id)).run()
   }
+
+  // Re-index with the current name/content, whichever (if either) just changed.
+  const finalName = body.name !== undefined ? body.name : quest.name
+  let finalContent = ''
+  if (quest.logFilePath) {
+    try {
+      finalContent = (await readEntityFile(quest.logFilePath)).content
+    } catch {
+      finalContent = ''
+    }
+  }
+  if (!finalContent) finalContent = body.description ?? quest.description ?? ''
+  const sqlite = useSqlite()
+  indexEntity(sqlite, quest.id, campaignId, finalName, [], [], finalContent)
+  await indexEntityEmbedding(sqlite, quest.id, campaignId, finalName, finalContent)
 
   return { success: true }
 })

@@ -1,10 +1,12 @@
 import { z } from 'zod'
 import { eq, and } from 'drizzle-orm'
-import { useDb } from '../../../../../utils/db'
+import { useDb, useSqlite } from '../../../../../utils/db'
 import { validateBody } from '../../../../../utils/validate'
 import { organizations } from '../../../../../db/schema'
 import { hasMinRole } from '../../../../../utils/permissions'
 import { updateOrganizationWithEntity } from '../../../../../services/organizations'
+import { indexEntity } from '../../../../../services/search'
+import { indexEntityEmbedding } from '../../../../../services/embeddings'
 import type { CampaignRole } from '../../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
@@ -49,6 +51,17 @@ export default defineEventHandler(async (event) => {
       templateId,
       fieldsJson: fields !== undefined ? JSON.stringify(fields) : undefined,
     })
+
+    const sqlite = useSqlite()
+    indexEntity(sqlite, updated.id, campaignId, updated.name, [], [], updated.description || '')
+    await indexEntityEmbedding(
+      sqlite,
+      updated.id,
+      campaignId,
+      updated.name,
+      updated.description || '',
+    )
+
     const parsedFields = updated.fieldsJson
       ? (JSON.parse(updated.fieldsJson) as Record<string, unknown>)
       : {}

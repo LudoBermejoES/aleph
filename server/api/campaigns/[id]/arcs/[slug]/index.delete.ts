@@ -1,8 +1,10 @@
 import { eq, and } from 'drizzle-orm'
-import { useDb } from '../../../../../utils/db'
+import { useDb, useSqlite } from '../../../../../utils/db'
 import { arcs, gameSessions } from '../../../../../db/schema/sessions'
 import { entities } from '../../../../../db/schema/entities'
 import { hasMinRole } from '../../../../../utils/permissions'
+import { removeEntityFromIndex } from '../../../../../services/search'
+import { removeEntityEmbedding } from '../../../../../services/embeddings'
 import type { CampaignRole } from '../../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
@@ -28,6 +30,10 @@ export default defineEventHandler(async (event) => {
   // arcs.id === entities.id (the mirror row backing relation-graph lookups); deleting it
   // cascades entity_relations pointing at this arc.
   db.delete(entities).where(eq(entities.id, arc.id)).run()
+
+  const sqlite = useSqlite()
+  removeEntityFromIndex(sqlite, arc.id)
+  removeEntityEmbedding(sqlite, arc.id)
 
   return { success: true }
 })

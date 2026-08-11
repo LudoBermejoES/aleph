@@ -1,9 +1,11 @@
 import { eq, and } from 'drizzle-orm'
-import { useDb } from '../../../../../utils/db'
+import { useDb, useSqlite } from '../../../../../utils/db'
 import { arcs } from '../../../../../db/schema/sessions'
 import { entities } from '../../../../../db/schema/entities'
 import { hasMinRole } from '../../../../../utils/permissions'
 import { resolveSubCampaignSlug } from '../../../../../utils/sub-campaign'
+import { indexEntity } from '../../../../../services/search'
+import { indexEntityEmbedding } from '../../../../../services/embeddings'
 import type { CampaignRole } from '../../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
@@ -45,6 +47,12 @@ export default defineEventHandler(async (event) => {
       .where(eq(entities.id, arc.id))
       .run()
   }
+
+  const finalName = body.name !== undefined ? body.name : arc.name
+  const finalDescription = body.description !== undefined ? body.description : arc.description
+  const sqlite = useSqlite()
+  indexEntity(sqlite, arc.id, campaignId, finalName, [], [], finalDescription || '')
+  await indexEntityEmbedding(sqlite, arc.id, campaignId, finalName, finalDescription || '')
 
   return { success: true }
 })
