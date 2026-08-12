@@ -90,9 +90,9 @@ Nicknames work on any entity (including characters, locations, and organizations
 
 ```bash
 aleph character list --campaign <id> [--status <alive|dead|missing|unknown>] [--sort <name|updatedAt|status>] [--sort-dir <asc|desc>] [--page <n>] [--limit <n>] [--json]
-aleph character create --campaign <id> --name <name> [--type <pc|npc>] [--status <alive|dead|missing|unknown>] [--gender <text>] [--json]
+aleph character create --campaign <id> --name <name> [--type <pc|npc>] [--status <alive|dead|missing|unknown>] [--gender <text>] [--visibility <public|members|editors|dm_only|private|specific_users>] [--json]
 aleph character show --campaign <id> <slug> [--json]
-aleph character update --campaign <id> <slug> [--name <n>] [--type <pc|npc>] [--template-id <id>] [--fields <json>] [--status <alive|dead|missing|unknown>] [--content <md>] [--stdin] [--backstory <md>] [--backstory-stdin] [--history <md>] [--history-stdin] [--current-status <md>] [--current-status-stdin] [--birth-year <year>] [--death-year <year|"">] [--gender <text|"">] [--owner <userId|"">]
+aleph character update --campaign <id> <slug> [--name <n>] [--type <pc|npc>] [--template-id <id>] [--fields <json>] [--status <alive|dead|missing|unknown>] [--content <md>] [--stdin] [--backstory <md>] [--backstory-stdin] [--history <md>] [--history-stdin] [--current-status <md>] [--current-status-stdin] [--birth-year <year>] [--death-year <year|"">] [--gender <text|"">] [--owner <userId|"">] [--visibility <public|members|editors|dm_only|private|specific_users>]
 # IMPORTANT: Keep these fields up to date after each session:
 #   --status          : alive|dead|missing|unknown — update immediately if a character dies or disappears
 #   --current-status  : narrative summary of where the character is and what they are doing RIGHT NOW

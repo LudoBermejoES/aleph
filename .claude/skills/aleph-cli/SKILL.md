@@ -4,7 +4,7 @@ description: Use the aleph CLI to manage campaigns, entities, characters, locati
 license: MIT
 metadata:
   author: aleph
-  version: '3.17'
+  version: '3.18'
 ---
 
 You have access to the `aleph` CLI tool at `node /Users/ludo/code/aleph/cli/bin/aleph.js` (or `npm run aleph -- <args>` from the project root). Use it to interact with the running Aleph server.
@@ -86,9 +86,9 @@ Nicknames work on any entity (including characters, locations, and organizations
 
 ```bash
 node /Users/ludo/code/aleph/cli/bin/aleph.js character list --campaign <id> [--status <alive|dead|missing|unknown>] [--sort <name|updatedAt|status>] [--sort-dir <asc|desc>] [--page <n>] [--limit <n>] [--json]
-node /Users/ludo/code/aleph/cli/bin/aleph.js character create --campaign <id> --name <name> [--type <pc|npc>] [--status <alive|dead|missing|unknown>] [--gender <text>] [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js character create --campaign <id> --name <name> [--type <pc|npc>] [--status <alive|dead|missing|unknown>] [--gender <text>] [--visibility <public|members|editors|dm_only|private|specific_users>] [--json]
 node /Users/ludo/code/aleph/cli/bin/aleph.js character show --campaign <id> <slug> [--json]
-node /Users/ludo/code/aleph/cli/bin/aleph.js character update --campaign <id> <slug> [--name <n>] [--type <pc|npc>] [--template-id <id>] [--fields <json>] [--status <alive|dead|missing|unknown>] [--content <md>] [--stdin] [--backstory <md>] [--backstory-stdin] [--history <md>] [--history-stdin] [--current-status <md>] [--current-status-stdin] [--birth-year <year>] [--death-year <year|"">] [--gender <text|"">] [--owner <userId|"">]
+node /Users/ludo/code/aleph/cli/bin/aleph.js character update --campaign <id> <slug> [--name <n>] [--type <pc|npc>] [--template-id <id>] [--fields <json>] [--status <alive|dead|missing|unknown>] [--content <md>] [--stdin] [--backstory <md>] [--backstory-stdin] [--history <md>] [--history-stdin] [--current-status <md>] [--current-status-stdin] [--birth-year <year>] [--death-year <year|"">] [--gender <text|"">] [--owner <userId|"">] [--visibility <public|members|editors|dm_only|private|specific_users>]
 # IMPORTANT: Keep these fields up to date after each session:
 #   --status          : alive|dead|missing|unknown — update immediately if a character dies or disappears
 #   --current-status  : narrative summary of where the character is and what they are doing RIGHT NOW

@@ -100,6 +100,7 @@ export function makeCharacterCommand() {
             slug: c.slug,
             type: c.characterType || '',
             status: c.status || '',
+            visibility: c.visibility || '',
           })),
         )
         if (meta) console.error(`Page ${meta.page}/${meta.totalPages} (${meta.total} total)`)
@@ -114,12 +115,17 @@ export function makeCharacterCommand() {
     .option('--type <type>', 'Character type: pc or npc (default: npc)')
     .option('--status <status>', 'Initial status (alive, dead, missing, unknown)')
     .option('--gender <gender>', 'Gender (free text)')
+    .option(
+      '--visibility <vis>',
+      'Visibility (public, members, editors, dm_only, private, specific_users)',
+    )
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
       const body = { name: opts.name }
       if (opts.type !== undefined) body.characterType = opts.type
       if (opts.status !== undefined) body.status = opts.status
       if (opts.gender !== undefined) body.gender = opts.gender
+      if (opts.visibility !== undefined) body.visibility = opts.visibility
       const data = await post(`/api/campaigns/${opts.campaign}/characters`, body)
       if (opts.json) {
         print(data, { json: true })
@@ -142,6 +148,7 @@ export function makeCharacterCommand() {
           name: data.name,
           slug: data.slug,
           type: data.characterType || '',
+          visibility: data.visibility || '',
           portrait: data.portraitUrl || '(none)',
         })
       }
@@ -168,6 +175,10 @@ export function makeCharacterCommand() {
     .option('--death-year <year>', 'Death year (integer, "" to clear)')
     .option('--gender <gender>', 'Gender (free text, "" to clear)')
     .option('--owner <userId>', 'Owner user ID ("" to clear)')
+    .option(
+      '--visibility <vis>',
+      'Visibility (public, members, editors, dm_only, private, specific_users)',
+    )
     .option('--json', 'Output as JSON')
     .action(async (slug, opts) => {
       if (opts.content && opts.stdin) {
@@ -213,6 +224,7 @@ export function makeCharacterCommand() {
       if (opts.owner !== undefined) {
         body.ownerUserId = opts.owner === '' ? null : opts.owner
       }
+      if (opts.visibility !== undefined) body.visibility = opts.visibility
       async function readStdin() {
         return new Promise((resolve) => {
           let data = ''
@@ -245,7 +257,7 @@ export function makeCharacterCommand() {
       }
       if (Object.keys(body).length === 0) {
         process.stderr.write(
-          'Error: provide at least one field to update (--name, --status, --type, --template-id, --fields, --backstory, --history, --current-status, --birth-year, --death-year, --gender, --owner, --content, --stdin)\n',
+          'Error: provide at least one field to update (--name, --status, --type, --template-id, --fields, --backstory, --history, --current-status, --birth-year, --death-year, --gender, --owner, --visibility, --content, --stdin)\n',
         )
         process.exit(1)
       }
