@@ -29,6 +29,7 @@ export function makeOrganizationCommand() {
             slug: o.slug,
             type: o.type,
             status: o.status,
+            visibility: o.visibility,
             members: o.memberCount,
           })),
         )
@@ -43,6 +44,10 @@ export function makeOrganizationCommand() {
     .requiredOption('--name <name>', 'Organization name')
     .option('--type <type>', 'Type (faction, guild, army, cult, government, other)', 'faction')
     .option('--status <status>', 'Status (active, inactive, secret, dissolved)', 'active')
+    .option(
+      '--visibility <vis>',
+      'Visibility (public, members, editors, dm_only, private, specific_users)',
+    )
     .option('--description <desc>', 'Description')
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
@@ -50,6 +55,7 @@ export function makeOrganizationCommand() {
         name: opts.name,
         type: opts.type,
         status: opts.status,
+        visibility: opts.visibility,
         description: opts.description,
       })
       if (opts.json) {
@@ -74,6 +80,7 @@ export function makeOrganizationCommand() {
           slug: data.slug,
           type: data.type,
           status: data.status,
+          visibility: data.visibility,
           description: data.description || '',
           members:
             (data.members || [])
@@ -110,6 +117,10 @@ export function makeOrganizationCommand() {
     .option('--name <name>', 'New name')
     .option('--type <type>', 'New type (faction, guild, army, cult, government, other)')
     .option('--status <status>', 'New status (active, inactive, secret, dissolved)')
+    .option(
+      '--visibility <vis>',
+      'New visibility (public, members, editors, dm_only, private, specific_users)',
+    )
     .option('--description <desc>', 'New description')
     .option('--json', 'Output as JSON')
     .action(async (slug, opts) => {
@@ -117,6 +128,7 @@ export function makeOrganizationCommand() {
       if (opts.name) body.name = opts.name
       if (opts.type) body.type = opts.type
       if (opts.status) body.status = opts.status
+      if (opts.visibility) body.visibility = opts.visibility
       if (opts.description !== undefined) body.description = opts.description
       const data = await put(`/api/campaigns/${opts.campaign}/organizations/${slug}`, body)
       if (opts.json) {

@@ -209,9 +209,9 @@ Hybrid search: combines exact/fuzzy text matching with meaning-based (semantic) 
 
 ```bash
 aleph organization list --campaign <id> [--page <n>] [--limit <n>] [--json]
-aleph organization create --campaign <id> --name <name> [--type <type>] [--status <status>] [--description <desc>] [--json]
+aleph organization create --campaign <id> --name <name> [--type <type>] [--status <status>] [--visibility <vis>] [--description <desc>] [--json]
 aleph organization show <slug> --campaign <id> [--json]
-aleph organization edit <slug> --campaign <id> [--name <name>] [--type <type>] [--status <status>] [--description <desc>] [--json]
+aleph organization edit <slug> --campaign <id> [--name <name>] [--type <type>] [--status <status>] [--visibility <vis>] [--description <desc>] [--json]
 aleph organization delete <slug> --campaign <id> [--yes]
 aleph organization member-add <slug> --campaign <id> --character <characterId> [--role <role>] [--json]
 aleph organization member-update <slug> --campaign <id> --character <characterId> [--role <role>] [--json]

@@ -55,6 +55,20 @@
       </div>
 
       <div>
+        <label class="block text-sm font-medium mb-1">{{ $t('organizations.visibility') }}</label>
+        <select
+          v-model="form.visibility"
+          class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+        >
+          <option value="members">{{ $t('characters.visibilityMembers') }}</option>
+          <option value="public">{{ $t('characters.visibilityPublic') }}</option>
+          <option value="editors">{{ $t('characters.visibilityEditors') }}</option>
+          <option value="dm_only">{{ $t('characters.visibilityDmOnly') }}</option>
+          <option value="private">{{ $t('characters.visibilityPrivate') }}</option>
+        </select>
+      </div>
+
+      <div>
         <label class="block text-sm font-medium mb-1">{{ $t('organizations.description') }}</label>
         <textarea
           v-model="form.description"
@@ -128,6 +142,7 @@ const form = ref({
   name: '',
   type: 'faction',
   status: 'active',
+  visibility: 'members',
   description: '',
   templateId: '',
   templateFields: {} as Record<string, unknown>,
@@ -150,6 +165,7 @@ async function load() {
     name: org.name as string,
     type: org.type as string,
     status: org.status as string,
+    visibility: (org.visibility as string) || 'members',
     description: (org.description as string) || '',
     templateId: (org.templateId as string) || '',
     templateFields: (org.fields as Record<string, unknown>) || {},

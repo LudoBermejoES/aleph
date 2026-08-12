@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
 
   let generated: ReturnType<typeof generateDiagram>
   try {
-    generated = generateDiagram(db, campaignId, body.type as DiagramType)
+    generated = generateDiagram(db, campaignId, body.type as DiagramType, role, userId)
   } catch (e: unknown) {
     throw createError({ statusCode: 422, message: (e as Error).message ?? 'Generation failed' })
   }

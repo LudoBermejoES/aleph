@@ -10,6 +10,7 @@ import {
 } from '../db/schema/organizations'
 import { computeAttitudeColor } from './relationships'
 import { filterPinsByVisibility } from './maps'
+import { getVisibleEntityIds } from '../utils/permissions'
 import type { CampaignRole } from '../utils/permissions'
 
 export interface GraphNode {
@@ -43,6 +44,7 @@ export function buildGraphForCampaign(
   db: BetterSQLite3Database<Record<string, unknown>>,
   campaignId: string,
   role: CampaignRole,
+  userId: string,
 ): GraphData {
   const graphNodes: Record<string, GraphNode> = {}
   const graphEdges: Record<string, GraphEdge> = {}
@@ -388,5 +390,17 @@ export function buildGraphForCampaign(
     }
   }
 
-  return { nodes: graphNodes, edges: graphEdges }
+  // ── 11. Visibility filter (applies to every node-adding section above,
+  // regardless of which one produced it — see openspec/changes/enforce-entity-visibility) ──
+  const visibleIds = getVisibleEntityIds(db, campaignId, role, userId)
+  const visibleNodes = Object.fromEntries(
+    Object.entries(graphNodes).filter(([id]) => visibleIds.has(id)),
+  )
+  const visibleEdges = Object.fromEntries(
+    Object.entries(graphEdges).filter(
+      ([, edge]) => visibleNodes[edge.source] && visibleNodes[edge.target],
+    ),
+  )
+
+  return { nodes: visibleNodes, edges: visibleEdges }
 }

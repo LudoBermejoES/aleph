@@ -69,6 +69,29 @@ describe('createOrganizationWithEntity', () => {
     expect(entity!.slug).toBe('black-hand-org')
   })
 
+  it('stores the provided visibility on the mirror entity', () => {
+    const org = createOrganizationWithEntity(testDb.db, {
+      campaignId: 'camp-1',
+      name: 'Black Hand',
+      createdBy: 'user-1',
+      visibility: 'dm_only',
+    })
+
+    const entity = testDb.db.select().from(entities).where(eq(entities.id, org.id)).get()!
+    expect(entity.visibility).toBe('dm_only')
+  })
+
+  it('defaults visibility to members when not specified', () => {
+    const org = createOrganizationWithEntity(testDb.db, {
+      campaignId: 'camp-1',
+      name: 'Black Hand',
+      createdBy: 'user-1',
+    })
+
+    const entity = testDb.db.select().from(entities).where(eq(entities.id, org.id)).get()!
+    expect(entity.visibility).toBe('members')
+  })
+
   it('throws 409 if an org with the same slug already exists', () => {
     createOrganizationWithEntity(testDb.db, {
       campaignId: 'camp-1',
@@ -138,6 +161,21 @@ describe('updateOrganizationWithEntity', () => {
     const org = testDb.db.select().from(organizations).where(eq(organizations.id, orgId)).get()!
     expect(org.description).toBe('A secretive guild')
     expect(org.slug).toBe('black-hand')
+  })
+
+  it('updates the mirror entity visibility', () => {
+    updateOrganizationWithEntity(testDb.db, 'camp-1', orgId, { visibility: 'dm_only' })
+
+    const entity = testDb.db.select().from(entities).where(eq(entities.id, orgId)).get()!
+    expect(entity.visibility).toBe('dm_only')
+  })
+
+  it('leaves visibility untouched when not included in the patch', () => {
+    updateOrganizationWithEntity(testDb.db, 'camp-1', orgId, { visibility: 'dm_only' })
+    updateOrganizationWithEntity(testDb.db, 'camp-1', orgId, { description: 'Updated desc' })
+
+    const entity = testDb.db.select().from(entities).where(eq(entities.id, orgId)).get()!
+    expect(entity.visibility).toBe('dm_only')
   })
 })
 

@@ -7,6 +7,7 @@ import {
   generateSessionTimeline,
   generateDiagram,
   toTldrawSnapshot,
+  filterSnapshotByVisibility,
 } from '../../server/utils/diagram-generator'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -43,7 +44,7 @@ function mockDbWith(returnData: any[]) {
 describe('generateEntityGraph', () => {
   it('throws when no entities found', () => {
     const db = mockDb({}) as any
-    expect(() => generateEntityGraph(db, 'campaign-1')).toThrow('No entities found')
+    expect(() => generateEntityGraph(db, 'campaign-1', 'dm', 'user-1')).toThrow('No entities found')
   })
 
   it('produces entityCard shapes for each entity', () => {
@@ -78,15 +79,15 @@ describe('generateEntityGraph', () => {
       },
       all: function () {
         callCount++
-        // First call: entities, second call: relations
-        return callCount === 1 ? entities : []
+        // 1st call: visibility check, 2nd: entities, rest: relations/memberships (empty)
+        return callCount <= 2 ? entities : []
       },
       get: function () {
         return undefined
       },
     } as any
 
-    const result = generateEntityGraph(db, 'campaign-1')
+    const result = generateEntityGraph(db, 'campaign-1', 'dm', 'user-1')
     expect(result.shapes).toHaveLength(2)
     expect(result.shapes[0].type).toBe('entityCard')
     expect(result.shapes[0].props.entityName).toBe('Aria')
@@ -125,9 +126,11 @@ describe('generateEntityGraph', () => {
       },
       all: function () {
         callCount++
-        // 1st: entities, 2nd: relations, rest: empty (org members, char-locations, org-locations)
+        // 1st: visibility check, 2nd: entities, 3rd: relations, rest: empty
+        // (org members, char-locations, org-locations)
         if (callCount === 1) return entities
-        if (callCount === 2) return relations
+        if (callCount === 2) return entities
+        if (callCount === 3) return relations
         return []
       },
       get: function () {
@@ -135,7 +138,7 @@ describe('generateEntityGraph', () => {
       },
     } as any
 
-    const result = generateEntityGraph(db, 'campaign-1')
+    const result = generateEntityGraph(db, 'campaign-1', 'dm', 'user-1')
     expect(result.bindings.length).toBeGreaterThanOrEqual(1)
     expect(result.bindings[0].type).toBe('arrow')
   })
@@ -171,14 +174,14 @@ describe('generateEntityGraph', () => {
       },
       all: function () {
         callCount++
-        return callCount === 1 ? entities : []
+        return callCount <= 2 ? entities : []
       },
       get: function () {
         return undefined
       },
     } as any
 
-    const result = generateEntityGraph(db, 'campaign-1')
+    const result = generateEntityGraph(db, 'campaign-1', 'dm', 'user-1')
     for (const shape of result.shapes) {
       expect(typeof shape.x).toBe('number')
       expect(typeof shape.y).toBe('number')
@@ -189,7 +192,7 @@ describe('generateEntityGraph', () => {
 describe('generateQuestTree', () => {
   it('throws when no quests found', () => {
     const db = mockDb({}) as any
-    expect(() => generateQuestTree(db, 'campaign-1')).toThrow('No quests found')
+    expect(() => generateQuestTree(db, 'campaign-1', 'dm', 'user-1')).toThrow('No quests found')
   })
 
   it('produces questNode shapes', () => {
@@ -198,7 +201,7 @@ describe('generateQuestTree', () => {
       { id: 'q2', name: 'Sub Quest', slug: 'sub', status: 'planned', parentQuestId: 'q1' },
     ]
     const db = mockDbWith(questList) as any
-    const result = generateQuestTree(db, 'campaign-1')
+    const result = generateQuestTree(db, 'campaign-1', 'dm', 'user-1')
     expect(result.shapes.length).toBe(2)
     expect(result.shapes[0].type).toBe('questNode')
     expect(result.bindings.length).toBe(1)
@@ -208,7 +211,9 @@ describe('generateQuestTree', () => {
 describe('generateFactionWeb', () => {
   it('throws when no organizations found', () => {
     const db = mockDb({}) as any
-    expect(() => generateFactionWeb(db, 'campaign-1')).toThrow('No organizations found')
+    expect(() => generateFactionWeb(db, 'campaign-1', 'dm', 'user-1')).toThrow(
+      'No organizations found',
+    )
   })
 
   it('uses radial layout for organizations', () => {
@@ -258,13 +263,14 @@ describe('generateFactionWeb', () => {
       },
       all: function () {
         callCount++
-        return callCount === 1 ? orgs : []
+        // 1st call: visibility check, 2nd: org list, rest: members/locations (empty)
+        return callCount <= 2 ? orgs : []
       },
       get: function () {
         return undefined
       },
     } as any
-    const result = generateFactionWeb(db, 'campaign-1')
+    const result = generateFactionWeb(db, 'campaign-1', 'dm', 'user-1')
     // 2 org shapes, no members/locations since those queries return empty
     expect(result.shapes.length).toBe(2)
     // Both shapes should have distinct positions
@@ -314,15 +320,19 @@ describe('generateFactionWeb', () => {
       },
       all: function () {
         callCount++
-        if (callCount === 1) return orgs
-        if (callCount === 2) return []
+        // 1st: visibility check (must include every entity id used below, org and
+        // location alike — a real query against `entities` would), 2nd: org list,
+        // 3rd: memberRows (empty), 4th: locationRows
+        if (callCount === 1) return [...orgs, ...locationRows]
+        if (callCount === 2) return orgs
+        if (callCount === 3) return []
         return locationRows
       },
       get: function () {
         return undefined
       },
     } as any
-    const result = generateFactionWeb(db, 'campaign-1')
+    const result = generateFactionWeb(db, 'campaign-1', 'dm', 'user-1')
     const locationShape = result.shapes.find((s: { type: string }) => s.type === 'locationPin') as
       | { props: Record<string, unknown> }
       | undefined
@@ -334,7 +344,9 @@ describe('generateFactionWeb', () => {
 describe('generateSessionTimeline', () => {
   it('throws when no sessions found', () => {
     const db = mockDb({}) as any
-    expect(() => generateSessionTimeline(db, 'campaign-1')).toThrow('No sessions found')
+    expect(() => generateSessionTimeline(db, 'campaign-1', 'dm', 'user-1')).toThrow(
+      'No sessions found',
+    )
   })
 
   it('lays out sessions left-to-right and connects with arrows', () => {
@@ -386,7 +398,7 @@ describe('generateSessionTimeline', () => {
       },
     ]
     const db = mockDbWith(sessions) as any
-    const result = generateSessionTimeline(db, 'campaign-1')
+    const result = generateSessionTimeline(db, 'campaign-1', 'dm', 'user-1')
     expect(result.shapes.length).toBe(3)
     expect(result.bindings.length).toBe(2)
     // Increasing x coords
@@ -398,10 +410,10 @@ describe('generateSessionTimeline', () => {
 describe('generateDiagram', () => {
   it('dispatches to the correct generator', () => {
     const db = mockDb({}) as any
-    expect(() => generateDiagram(db, 'c1', 'entity-graph')).toThrow()
-    expect(() => generateDiagram(db, 'c1', 'quest-tree')).toThrow()
-    expect(() => generateDiagram(db, 'c1', 'faction-web')).toThrow()
-    expect(() => generateDiagram(db, 'c1', 'session-timeline')).toThrow()
+    expect(() => generateDiagram(db, 'c1', 'entity-graph', 'dm', 'user-1')).toThrow()
+    expect(() => generateDiagram(db, 'c1', 'quest-tree', 'dm', 'user-1')).toThrow()
+    expect(() => generateDiagram(db, 'c1', 'faction-web', 'dm', 'user-1')).toThrow()
+    expect(() => generateDiagram(db, 'c1', 'session-timeline', 'dm', 'user-1')).toThrow()
   })
 })
 
@@ -416,5 +428,54 @@ describe('toTldrawSnapshot', () => {
     expect(snapshot).toHaveProperty('store')
     expect(snapshot.store['shape:shape1']).toBeDefined()
     expect(snapshot.store['page:page']).toBeDefined()
+  })
+})
+
+describe('filterSnapshotByVisibility', () => {
+  function buildSnapshot() {
+    const generated = {
+      shapes: [
+        { id: 'e1', type: 'entityCard', x: 0, y: 0, props: { entityId: 'e1', entityName: 'A' } },
+        { id: 'e2', type: 'entityCard', x: 100, y: 0, props: { entityId: 'e2', entityName: 'B' } },
+      ],
+      bindings: [{ id: 'r1', type: 'arrow' as const, fromId: 'e1', toId: 'e2', label: 'knows' }],
+    }
+    return toTldrawSnapshot(generated) as any
+  }
+
+  it('leaves the snapshot untouched when every entity is visible', () => {
+    const snapshot = buildSnapshot()
+    const filtered = filterSnapshotByVisibility(snapshot, new Set(['e1', 'e2']))
+    expect(Object.keys(filtered.store)).toEqual(Object.keys(snapshot.store))
+  })
+
+  it('removes a hidden entity shape but keeps unrelated shapes', () => {
+    const snapshot = buildSnapshot()
+    const filtered = filterSnapshotByVisibility(snapshot, new Set(['e1']))
+    expect(filtered.store['shape:e1']).toBeDefined()
+    expect(filtered.store['shape:e2']).toBeUndefined()
+  })
+
+  it('removes the arrow and both its binding records when either endpoint is hidden', () => {
+    const snapshot = buildSnapshot()
+    const filtered = filterSnapshotByVisibility(snapshot, new Set(['e1']))
+    expect(filtered.store['shape:r1']).toBeUndefined()
+    expect(filtered.store['binding:r1-start']).toBeUndefined()
+    expect(filtered.store['binding:r1-end']).toBeUndefined()
+  })
+
+  it('keeps the arrow when both endpoints remain visible', () => {
+    const snapshot = buildSnapshot()
+    const filtered = filterSnapshotByVisibility(snapshot, new Set(['e1', 'e2']))
+    expect(filtered.store['shape:r1']).toBeDefined()
+    expect(filtered.store['binding:r1-start']).toBeDefined()
+    expect(filtered.store['binding:r1-end']).toBeDefined()
+  })
+
+  it('always keeps non-entity records (document, page)', () => {
+    const snapshot = buildSnapshot()
+    const filtered = filterSnapshotByVisibility(snapshot, new Set())
+    expect(filtered.store['document:document']).toBeDefined()
+    expect(filtered.store['page:page']).toBeDefined()
   })
 })

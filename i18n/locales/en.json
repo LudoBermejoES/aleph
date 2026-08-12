@@ -901,6 +901,7 @@
     "descriptionPlaceholder": "Describe the organization...",
     "type": "Type",
     "status": "Status",
+    "visibility": "Visibility",
     "members": "Members",
     "noMembers": "No members yet",
     "addMember": "Add Member",

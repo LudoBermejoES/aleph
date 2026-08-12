@@ -3,6 +3,7 @@ import type { Column, SQL } from 'drizzle-orm'
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 import { campaignMemberPermissions } from '../db/schema/campaign-members'
 import { entityPermissions } from '../db/schema/permissions'
+import { entities } from '../db/schema/entities'
 
 export type SystemRole = 'admin' | 'user'
 export type CampaignRole = 'dm' | 'co_dm' | 'editor' | 'player' | 'visitor'
@@ -77,6 +78,30 @@ export function buildVisibilityFilter(
       and(eq(visibilityCol, 'private'), eq(createdByCol, userId)),
     )!,
   )
+}
+
+/**
+ * Every entity id (of any type — sessions/quests/arcs/organizations are all
+ * mirror entities sharing their id with an `entities` row) the given role
+ * may currently view, per `buildVisibilityFilter`'s rules. Used anywhere a
+ * whole set of entities needs filtering at once rather than a single-row
+ * check (diagram/graph generation, in particular — see
+ * openspec/changes/enforce-entity-visibility).
+ */
+export function getVisibleEntityIds(
+  db: BetterSQLite3Database<Record<string, unknown>>,
+  campaignId: string,
+  role: CampaignRole,
+  userId: string,
+): Set<string> {
+  const conditions: SQL[] = [eq(entities.campaignId, campaignId)]
+  buildVisibilityFilter(role, userId, conditions, entities.visibility, entities.createdBy)
+  const rows = db
+    .select({ id: entities.id })
+    .from(entities)
+    .where(and(...conditions))
+    .all()
+  return new Set(rows.map((r) => r.id))
 }
 
 /**

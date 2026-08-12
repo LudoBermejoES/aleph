@@ -279,3 +279,151 @@ describe('Diagram API (integration)', () => {
     expect(res.status).toBe(404)
   })
 })
+
+describe('Diagram snapshot — view-time visibility filtering (enforce-entity-visibility)', () => {
+  const ts = Date.now()
+  const dmEmail = `diag-vis-dm-${ts}@example.com`
+  const playerEmail = `diag-vis-player-${ts}@example.com`
+
+  let dmApiKey = ''
+  let playerApiKey = ''
+  let campaignId = ''
+  let diagramId = ''
+  let visibleCharEntityId = ''
+  let toggledCharEntityId = ''
+
+  beforeAll(async () => {
+    const dmCookie = await signUpAndGetCookie(dmEmail)
+    const dmKeyData = await createApiKey(dmCookie, 'diag-vis-dm-key')
+    dmApiKey = dmKeyData.key
+
+    const camp = await api('/api/campaigns', {
+      method: 'POST',
+      headers: baseHeaders(dmApiKey),
+      body: { name: `Diagram Visibility Test Camp ${ts}` },
+    })
+    campaignId = camp.id
+
+    const invite = await api(`/api/campaigns/${campaignId}/invite`, {
+      method: 'POST',
+      headers: baseHeaders(dmApiKey),
+      body: { role: 'player' },
+    })
+    const playerCookie = await signUpAndGetCookie(playerEmail)
+    const playerKeyData = await createApiKey(playerCookie, 'diag-vis-player-key')
+    playerApiKey = playerKeyData.key
+    await api(`/api/campaigns/${campaignId}/join`, {
+      method: 'POST',
+      headers: baseHeaders(playerApiKey),
+      body: { token: invite.token },
+    })
+
+    const visibleChar = await api(`/api/campaigns/${campaignId}/characters`, {
+      method: 'POST',
+      headers: baseHeaders(dmApiKey),
+      body: { name: 'Always Visible', characterType: 'npc', visibility: 'members' },
+    })
+    visibleCharEntityId = visibleChar.entityId
+
+    const toggledChar = await api(`/api/campaigns/${campaignId}/characters`, {
+      method: 'POST',
+      headers: baseHeaders(dmApiKey),
+      body: { name: 'Toggled Character', characterType: 'npc', visibility: 'members' },
+    })
+    toggledCharEntityId = toggledChar.entityId
+
+    const diagram = await api(`/api/campaigns/${campaignId}/diagrams`, {
+      method: 'POST',
+      headers: baseHeaders(dmApiKey),
+      body: { title: 'Visibility Test Diagram', diagramType: 'freeform' },
+    })
+    diagramId = diagram.id
+
+    const snapshotPayload = {
+      schema: { schemaVersion: 2 },
+      store: {
+        'shape:visible': {
+          id: 'shape:visible',
+          typeName: 'shape',
+          type: 'entityCard',
+          props: { entityId: visibleCharEntityId },
+        },
+        'shape:toggled': {
+          id: 'shape:toggled',
+          typeName: 'shape',
+          type: 'entityCard',
+          props: { entityId: toggledCharEntityId },
+        },
+        'shape:arrow1': {
+          id: 'shape:arrow1',
+          typeName: 'shape',
+          type: 'arrow',
+          props: {},
+        },
+        'binding:arrow1-start': {
+          id: 'binding:arrow1-start',
+          typeName: 'binding',
+          fromId: 'shape:arrow1',
+          toId: 'shape:visible',
+        },
+        'binding:arrow1-end': {
+          id: 'binding:arrow1-end',
+          typeName: 'binding',
+          fromId: 'shape:arrow1',
+          toId: 'shape:toggled',
+        },
+      },
+    }
+    await api(`/api/campaigns/${campaignId}/diagrams/${diagramId}/snapshot`, {
+      method: 'PUT',
+      headers: baseHeaders(dmApiKey),
+      body: snapshotPayload,
+    })
+  })
+
+  it('shows both shapes to a player while both characters are members-visible', async () => {
+    const data = await api(`/api/campaigns/${campaignId}/diagrams/${diagramId}/snapshot`, {
+      headers: baseHeaders(playerApiKey),
+    })
+    expect(data.snapshot.store['shape:visible']).toBeDefined()
+    expect(data.snapshot.store['shape:toggled']).toBeDefined()
+    expect(data.snapshot.store['shape:arrow1']).toBeDefined()
+  })
+
+  it('hides a shape (and its arrow) from a player once its entity becomes dm_only, without regenerating', async () => {
+    await api(`/api/campaigns/${campaignId}/characters/toggled-character`, {
+      method: 'PUT',
+      headers: baseHeaders(dmApiKey),
+      body: { visibility: 'dm_only' },
+    })
+
+    const data = await api(`/api/campaigns/${campaignId}/diagrams/${diagramId}/snapshot`, {
+      headers: baseHeaders(playerApiKey),
+    })
+    expect(data.snapshot.store['shape:visible']).toBeDefined()
+    expect(data.snapshot.store['shape:toggled']).toBeUndefined()
+    expect(data.snapshot.store['shape:arrow1']).toBeUndefined()
+    expect(data.snapshot.store['binding:arrow1-start']).toBeUndefined()
+    expect(data.snapshot.store['binding:arrow1-end']).toBeUndefined()
+
+    // The DM still sees everything — this is a per-viewer filter, not a mutation of storage.
+    const dmData = await api(`/api/campaigns/${campaignId}/diagrams/${diagramId}/snapshot`, {
+      headers: baseHeaders(dmApiKey),
+    })
+    expect(dmData.snapshot.store['shape:toggled']).toBeDefined()
+  })
+
+  it('reveals the shape to a player again once the entity is made members-visible, without regenerating', async () => {
+    await api(`/api/campaigns/${campaignId}/characters/toggled-character`, {
+      method: 'PUT',
+      headers: baseHeaders(dmApiKey),
+      body: { visibility: 'members' },
+    })
+
+    const data = await api(`/api/campaigns/${campaignId}/diagrams/${diagramId}/snapshot`, {
+      headers: baseHeaders(playerApiKey),
+    })
+    expect(data.snapshot.store['shape:toggled']).toBeDefined()
+    expect(data.snapshot.store['shape:arrow1']).toBeDefined()
+  })
+})

@@ -1,4 +1,4 @@
-import { eq, and, desc, asc, sql, isNull } from 'drizzle-orm'
+import { eq, and, desc, asc, sql, isNull, type SQL } from 'drizzle-orm'
 import { alias } from 'drizzle-orm/sqlite-core'
 import { useDb } from '../../../../utils/db'
 import { entities } from '../../../../db/schema/entities'
@@ -7,6 +7,8 @@ import { organizations, organizationMembers } from '../../../../db/schema/organi
 import { parsePagination, buildMeta } from '../../../../utils/pagination'
 import { escapeLike } from '../../../../utils/sanitize'
 import { withApiHandler } from '../../../../utils/api-handler'
+import { buildVisibilityFilter } from '../../../../utils/permissions'
+import type { CampaignRole } from '../../../../utils/permissions'
 
 const locationEntities = alias(entities, 'loc_entities')
 
@@ -15,6 +17,8 @@ export default defineEventHandler((event) =>
     const campaignId = getRouterParam(event, 'id')!
     const query = getQuery(event)
     const db = useDb()
+    const role = (event.context.campaignRole || 'visitor') as CampaignRole
+    const userId = event.context.user?.id || ''
 
     const characterType = query.type as string | undefined
     const status = query.status as string | undefined
@@ -38,27 +42,21 @@ export default defineEventHandler((event) =>
         ? asc(sortCol as Parameters<typeof asc>[0])
         : desc(sortCol as Parameters<typeof desc>[0])
 
-    const conditions: ReturnType<typeof eq>[] = [eq(entities.campaignId, campaignId)]
+    const conditions: SQL[] = [eq(entities.campaignId, campaignId)]
     if (characterType) conditions.push(eq(characters.characterType, characterType))
     if (status) conditions.push(eq(characters.status, status))
     if (search)
-      conditions.push(
-        sql`${entities.name} LIKE ${'%' + escapeLike(search) + '%'} ESCAPE '\\'` as ReturnType<
-          typeof eq
-        >,
-      )
+      conditions.push(sql`${entities.name} LIKE ${'%' + escapeLike(search) + '%'} ESCAPE '\\'`)
     if (folderId) conditions.push(eq(characters.folderId, folderId))
     if (companionOf) conditions.push(eq(characters.isCompanionOf, companionOf))
-    if (companions === 'false')
-      conditions.push(isNull(characters.isCompanionOf) as ReturnType<typeof eq>)
+    if (companions === 'false') conditions.push(isNull(characters.isCompanionOf))
     if (locationEntityId) conditions.push(eq(characters.locationEntityId, locationEntityId))
     if (organizationId) {
       conditions.push(
-        sql`EXISTS (SELECT 1 FROM organization_members om WHERE om.character_id = ${characters.id} AND om.organization_id = ${organizationId})` as ReturnType<
-          typeof eq
-        >,
+        sql`EXISTS (SELECT 1 FROM organization_members om WHERE om.character_id = ${characters.id} AND om.organization_id = ${organizationId})`,
       )
     }
+    buildVisibilityFilter(role, userId, conditions, entities.visibility, entities.createdBy)
 
     const pagination = parsePagination(query as Record<string, unknown>)
 

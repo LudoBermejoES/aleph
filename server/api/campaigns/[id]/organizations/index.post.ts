@@ -18,11 +18,14 @@ export default defineEventHandler(async (event) => {
     description: z.string().optional(),
     type: z.string().optional(),
     status: z.string().optional(),
+    visibility: z
+      .enum(['public', 'members', 'editors', 'dm_only', 'private', 'specific_users'])
+      .optional(),
     templateId: z.string().optional(),
     fields: z.record(z.string(), z.unknown()).optional(),
   })
   const body = await validateBody(event, orgSchema)
-  const { name, description, type, status, templateId, fields } = body
+  const { name, description, type, status, visibility, templateId, fields } = body
 
   const db = useDb()
   const campaignId = getRouterParam(event, 'id')!
@@ -35,6 +38,7 @@ export default defineEventHandler(async (event) => {
       description,
       type,
       status,
+      visibility,
       templateId,
       fieldsJson: fields ? JSON.stringify(fields) : null,
       createdBy,

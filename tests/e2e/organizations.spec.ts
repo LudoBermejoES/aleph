@@ -438,6 +438,78 @@ test.describe('Character detail — Organizations section', () => {
   })
 })
 
+// ─── Visibility ──────────────────────────────────────────────────────────────
+
+test.describe('Organization visibility', () => {
+  test('DM creates a dm_only organization via the form; player does not see it in the list', async ({
+    browser,
+  }) => {
+    const id = uid()
+    const dmContext = await browser.newContext()
+    const dmPage = await dmContext.newPage()
+    await registerAndLogin(dmPage, `Org Vis DM ${id}`)
+    await createCampaign(dmPage, `Org Vis Camp ${id}`)
+    const campaignId = dmPage.url().split('/campaigns/')[1]?.split('/')[0]
+
+    await dmPage.click('aside >> text=Organizations')
+    await dmPage.waitForLoadState('networkidle')
+    await dmPage.click('[data-testid="new-organization-btn"]')
+    await dmPage.waitForURL('**/organizations/new', { timeout: 10000 })
+
+    const orgName = `Hidden Cabal ${id}`
+    await dmPage.fill('input[placeholder*="Organization name"]', orgName)
+    await dmPage.selectOption('select:has(option[value="dm_only"])', 'dm_only')
+    await dmPage.click('button[type="submit"]:has-text("Create")')
+
+    await expect(async () => {
+      expect(dmPage.url()).toMatch(/\/organizations\/[^/]+$/)
+    }).toPass({ timeout: 15000 })
+
+    // DM sees it in the list
+    await dmPage.click('aside >> text=Organizations')
+    await dmPage.waitForLoadState('networkidle')
+    await expect(dmPage.locator(`main >> text=${orgName}`)).toBeVisible({ timeout: 10000 })
+
+    // Invite and join a player
+    const playerContext = await browser.newContext()
+    const playerPage = await playerContext.newPage()
+    await registerAndLogin(playerPage, `Org Vis Player ${id}`)
+
+    const inviteToken = await dmPage.evaluate(async (campId: string) => {
+      const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
+      const res = await fetch(`/api/campaigns/${campId}/invite`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+        body: JSON.stringify({ role: 'player' }),
+      })
+      return (await res.json()).token as string
+    }, campaignId)
+
+    await playerPage.evaluate(
+      async ([campId, token]: string[]) => {
+        const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
+        await fetch(`/api/campaigns/${campId}/join`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+          body: JSON.stringify({ token }),
+        })
+      },
+      [campaignId, inviteToken],
+    )
+
+    await playerPage.goto(
+      `${playerPage.url().split('/campaigns/')[0]}/campaigns/${campaignId}/organizations`,
+    )
+    await playerPage.waitForLoadState('networkidle')
+    await expect(playerPage.locator(`main >> text=${orgName}`)).not.toBeVisible({ timeout: 5000 })
+
+    await dmContext.close()
+    await playerContext.close()
+  })
+})
+
 // ─── Delete flow ─────────────────────────────────────────────────────────────
 
 test.describe('Organization delete', () => {

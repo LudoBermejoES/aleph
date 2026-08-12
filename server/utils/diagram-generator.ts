@@ -16,6 +16,8 @@ import {
   buildFactionCardShape,
   radialLayout,
 } from './diagram-helpers'
+import { getVisibleEntityIds } from './permissions'
+import type { CampaignRole } from './permissions'
 
 export type DiagramType = 'entity-graph' | 'quest-tree' | 'faction-web' | 'session-timeline'
 
@@ -49,7 +51,11 @@ function makeArrowBinding(fromId: string, toId: string, label?: string): Generat
 export function generateEntityGraph(
   db: BetterSQLite3Database<Record<string, unknown>>,
   campaignId: string,
+  role: CampaignRole,
+  userId: string,
 ): GeneratedDiagram {
+  const visibleIds = getVisibleEntityIds(db, campaignId, role, userId)
+
   const entityList = db
     .select({
       id: entities.id,
@@ -61,6 +67,7 @@ export function generateEntityGraph(
     .where(eq(entities.campaignId, campaignId))
     .limit(50)
     .all()
+    .filter((e) => visibleIds.has(e.id))
 
   if (entityList.length === 0) {
     throw new Error('No entities found for entity-graph generation')
@@ -144,7 +151,9 @@ export function generateEntityGraph(
     }
 
     // Fetch and create org shapes (capped)
-    const orgIdsToCreate = Array.from(orgIdsNeeded).slice(0, MAX_EXPANDED_ORGS)
+    const orgIdsToCreate = Array.from(orgIdsNeeded)
+      .filter((id) => visibleIds.has(id))
+      .slice(0, MAX_EXPANDED_ORGS)
     if (orgIdsToCreate.length > 0) {
       const orgRows = db
         .select({ id: organizations.id, name: organizations.name, slug: organizations.slug })
@@ -231,13 +240,18 @@ export function generateEntityGraph(
 export function generateQuestTree(
   db: BetterSQLite3Database<Record<string, unknown>>,
   campaignId: string,
+  role: CampaignRole,
+  userId: string,
 ): GeneratedDiagram {
+  const visibleIds = getVisibleEntityIds(db, campaignId, role, userId)
+
   const questList = db
     .select()
     .from(quests)
     .where(eq(quests.campaignId, campaignId))
     .limit(50)
     .all()
+    .filter((q) => visibleIds.has(q.id))
 
   if (questList.length === 0) {
     throw new Error('No quests found for quest-tree generation')
@@ -308,8 +322,11 @@ export function generateQuestTree(
 export function generateFactionWeb(
   db: BetterSQLite3Database<Record<string, unknown>>,
   campaignId: string,
+  role: CampaignRole,
+  userId: string,
 ): GeneratedDiagram {
   const MAX_MEMBERS_PER_ORG = 10
+  const visibleIds = getVisibleEntityIds(db, campaignId, role, userId)
 
   // Try dedicated organizations table first, fall back to entities of type 'organization'
   const orgList = db
@@ -319,7 +336,7 @@ export function generateFactionWeb(
     .limit(20)
     .all()
 
-  const items: { id: string; name: string; slug: string; imageUrl?: string | null }[] =
+  const items: { id: string; name: string; slug: string; imageUrl?: string | null }[] = (
     orgList.length > 0
       ? orgList
       : db
@@ -328,6 +345,7 @@ export function generateFactionWeb(
           .where(and(eq(entities.campaignId, campaignId), eq(entities.type, 'organization')))
           .limit(20)
           .all()
+  ).filter((o) => visibleIds.has(o.id))
 
   if (items.length === 0) {
     throw new Error('No organizations found for faction-web generation')
@@ -385,6 +403,7 @@ export function generateFactionWeb(
       .where(eq(organizationMembers.organizationId, org.id))
       .limit(MAX_MEMBERS_PER_ORG)
       .all()
+      .filter((m) => visibleIds.has(m.entityId))
 
     const locationRows = db
       .select({
@@ -397,6 +416,7 @@ export function generateFactionWeb(
       .innerJoin(entities, eq(organizationLocations.locationEntityId, entities.id))
       .where(eq(organizationLocations.organizationId, org.id))
       .all()
+      .filter((l) => visibleIds.has(l.id))
 
     const related: RelatedEntity[] = [
       ...memberRows.map((m) => ({
@@ -502,7 +522,11 @@ export function generateFactionWeb(
 export function generateSessionTimeline(
   db: BetterSQLite3Database<Record<string, unknown>>,
   campaignId: string,
+  role: CampaignRole,
+  userId: string,
 ): GeneratedDiagram {
+  const visibleIds = getVisibleEntityIds(db, campaignId, role, userId)
+
   const sessionList = db
     .select()
     .from(gameSessions)
@@ -510,6 +534,7 @@ export function generateSessionTimeline(
     .orderBy(gameSessions.sessionNumber)
     .limit(30)
     .all()
+    .filter((s) => visibleIds.has(s.id))
 
   if (sessionList.length === 0) {
     throw new Error('No sessions found for session-timeline generation')
@@ -551,16 +576,18 @@ export function generateDiagram(
   db: BetterSQLite3Database<Record<string, unknown>>,
   campaignId: string,
   type: DiagramType,
+  role: CampaignRole,
+  userId: string,
 ): GeneratedDiagram {
   switch (type) {
     case 'entity-graph':
-      return generateEntityGraph(db, campaignId)
+      return generateEntityGraph(db, campaignId, role, userId)
     case 'quest-tree':
-      return generateQuestTree(db, campaignId)
+      return generateQuestTree(db, campaignId, role, userId)
     case 'faction-web':
-      return generateFactionWeb(db, campaignId)
+      return generateFactionWeb(db, campaignId, role, userId)
     case 'session-timeline':
-      return generateSessionTimeline(db, campaignId)
+      return generateSessionTimeline(db, campaignId, role, userId)
     default:
       throw new Error(`Unknown diagram type: ${type}`)
   }
@@ -684,4 +711,68 @@ export function toTldrawSnapshot(generated: GeneratedDiagram): object {
       ...arrowRecords,
     },
   }
+}
+
+interface TldrawStoreRecord {
+  id: string
+  typeName: string
+  type?: string
+  fromId?: string
+  toId?: string
+  props?: { entityId?: string }
+  [key: string]: unknown
+}
+
+interface TldrawSnapshot {
+  schema: unknown
+  store: Record<string, TldrawStoreRecord>
+}
+
+/**
+ * Remove shapes (and their arrows) from an already-generated tldraw snapshot
+ * that reference an entity the *current viewer* can no longer see, without
+ * regenerating the diagram — a diagram is a persisted artifact a DM
+ * generates once and players view repeatedly over the campaign's lifetime,
+ * and visibility can change after generation. See
+ * openspec/changes/enforce-entity-visibility.
+ *
+ * Arrows are removed by association: each `GeneratedBinding` becomes one
+ * arrow shape plus two binding records pointing at its endpoints (see
+ * `toTldrawSnapshot` above) — if either endpoint is hidden, the arrow and
+ * both its binding records go with it, not just the endpoint shape.
+ */
+export function filterSnapshotByVisibility(
+  snapshot: TldrawSnapshot,
+  visibleEntityIds: Set<string>,
+): TldrawSnapshot {
+  const store = snapshot.store
+
+  const hiddenShapeIds = new Set<string>()
+  for (const [key, record] of Object.entries(store)) {
+    if (record.typeName !== 'shape' || record.type === 'arrow') continue
+    const entityId = record.props?.entityId
+    if (entityId && !visibleEntityIds.has(entityId)) {
+      hiddenShapeIds.add(key)
+    }
+  }
+
+  if (hiddenShapeIds.size === 0) return snapshot
+
+  const arrowShapeIdsToRemove = new Set<string>()
+  for (const record of Object.values(store)) {
+    if (record.typeName === 'binding' && record.toId && hiddenShapeIds.has(record.toId)) {
+      arrowShapeIdsToRemove.add(record.fromId!)
+    }
+  }
+
+  const filteredStore: Record<string, TldrawStoreRecord> = {}
+  for (const [key, record] of Object.entries(store)) {
+    if (hiddenShapeIds.has(key)) continue
+    if (arrowShapeIdsToRemove.has(key)) continue
+    if (record.typeName === 'binding' && record.fromId && arrowShapeIdsToRemove.has(record.fromId))
+      continue
+    filteredStore[key] = record
+  }
+
+  return { ...snapshot, store: filteredStore }
 }

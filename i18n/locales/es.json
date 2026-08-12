@@ -901,6 +901,7 @@
     "descriptionPlaceholder": "Describe la organización...",
     "type": "Tipo",
     "status": "Estado",
+    "visibility": "Visibilidad",
     "members": "Miembros",
     "noMembers": "Sin miembros todavía",
     "addMember": "Añadir Miembro",

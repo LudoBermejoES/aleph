@@ -11,6 +11,7 @@ interface OrgCreateData {
   description?: string | null
   type?: string
   status?: string
+  visibility?: string
   templateId?: string | null
   fieldsJson?: string | null
   createdBy: string
@@ -21,13 +22,24 @@ interface OrgUpdateData {
   description?: string | null
   type?: string
   status?: string
+  visibility?: string
   imageUrl?: string | null
   templateId?: string | null
   fieldsJson?: string | null
 }
 
 export function createOrganizationWithEntity(db: BetterSQLite3Database, data: OrgCreateData) {
-  const { campaignId, name, description, type, status, templateId, fieldsJson, createdBy } = data
+  const {
+    campaignId,
+    name,
+    description,
+    type,
+    status,
+    visibility,
+    templateId,
+    fieldsJson,
+    createdBy,
+  } = data
   const now = new Date()
   const orgId = randomUUID()
   const orgSlug = slugify(name)
@@ -63,7 +75,7 @@ export function createOrganizationWithEntity(db: BetterSQLite3Database, data: Or
         name: name.trim(),
         slug: entitySlug,
         filePath: '',
-        visibility: 'members',
+        visibility: visibility ?? 'members',
         createdBy,
         createdAt: now,
         updatedAt: now,
@@ -146,6 +158,7 @@ export function updateOrganizationWithEntity(
         .set({
           ...(patch.name ? { name: patch.name.trim() } : {}),
           ...(newEntitySlug ? { slug: newEntitySlug } : {}),
+          ...(patch.visibility ? { visibility: patch.visibility } : {}),
           updatedAt: now,
         })
         .where(eq(entities.id, org.entityId))

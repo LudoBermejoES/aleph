@@ -112,6 +112,7 @@ export function useCampaignApi(campaignId: string) {
     description?: string
     type?: string
     status?: string
+    visibility?: string
     templateId?: string
     fields?: Record<string, unknown>
   }) {
@@ -125,6 +126,7 @@ export function useCampaignApi(campaignId: string) {
       description?: string
       type?: string
       status?: string
+      visibility?: string
       templateId?: string
       fields?: Record<string, unknown>
     },

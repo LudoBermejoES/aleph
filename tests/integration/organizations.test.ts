@@ -30,12 +30,16 @@ async function signUpAndGetCookie(email: string, password: string, name = 'Test 
   return csrfToken ? `${sessionCookie}; csrf_token=${csrfToken}` : sessionCookie
 }
 
-async function createApiKey(cookie: string, name = 'test-key') {
+function withCsrf(cookie: string) {
   const csrfMatch = cookie.match(/csrf_token=([^;]+)/)
   const csrfToken = csrfMatch?.[1] || ''
+  return { Cookie: cookie, 'X-CSRF-Token': csrfToken }
+}
+
+async function createApiKey(cookie: string, name = 'test-key') {
   const res = await apiRaw('/api/apikeys', {
     method: 'POST',
-    headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
+    headers: withCsrf(cookie),
     body: { name },
   })
   return res.json()
@@ -329,7 +333,7 @@ describe('Organization access control (integration)', () => {
     // Accept invite as player
     await apiRaw(`/api/campaigns/${campaignId}/join`, {
       method: 'POST',
-      headers: { Cookie: playerCookie },
+      headers: withCsrf(playerCookie),
       body: { token },
     })
 
@@ -340,5 +344,101 @@ describe('Organization access control (integration)', () => {
       body: { name: 'Player Org' },
     })
     expect(res.status).toBe(403)
+  })
+
+  it('player cannot list or fetch a dm_only organization, but co_dm and dm can', async () => {
+    const dmEmail = `org-vis-dm-${Date.now()}@example.com`
+    const dmCookie = await signUpAndGetCookie(dmEmail, 'password123', 'DM User')
+    const dmKey = (await createApiKey(dmCookie, 'dm-key')).key
+    const campaign = await createCampaign(dmKey, `Vis Campaign ${Date.now()}`)
+    const campaignId = campaign.id
+
+    const playerEmail = `org-vis-player-${Date.now()}@example.com`
+    const playerCookie = await signUpAndGetCookie(playerEmail, 'password123', 'Player User')
+    const playerKey = (await createApiKey(playerCookie, 'player-key')).key
+    const inviteRes = await apiRaw(`/api/campaigns/${campaignId}/invite`, {
+      method: 'POST',
+      headers: { 'X-API-Key': dmKey },
+      body: { role: 'player' },
+    })
+    const { token } = await inviteRes.json()
+    await apiRaw(`/api/campaigns/${campaignId}/join`, {
+      method: 'POST',
+      headers: withCsrf(playerCookie),
+      body: { token },
+    })
+
+    const createRes = await apiRaw(`/api/campaigns/${campaignId}/organizations`, {
+      method: 'POST',
+      headers: { 'X-API-Key': dmKey },
+      body: { name: 'Hidden Cabal', visibility: 'dm_only' },
+    })
+    const org = await createRes.json()
+
+    // Player: excluded from list, 404 on detail
+    const playerList = await apiRaw(`/api/campaigns/${campaignId}/organizations`, {
+      headers: { 'X-API-Key': playerKey },
+    })
+    const playerListBody = await playerList.json()
+    const playerNames = (playerListBody.data ?? playerListBody).map((o: { name: string }) => o.name)
+    expect(playerNames).not.toContain('Hidden Cabal')
+
+    const playerDetail = await apiRaw(`/api/campaigns/${campaignId}/organizations/${org.slug}`, {
+      headers: { 'X-API-Key': playerKey },
+    })
+    expect(playerDetail.status).toBe(404)
+
+    // DM: included in list, 200 on detail
+    const dmList = await apiRaw(`/api/campaigns/${campaignId}/organizations`, {
+      headers: { 'X-API-Key': dmKey },
+    })
+    const dmListBody = await dmList.json()
+    const dmNames = (dmListBody.data ?? dmListBody).map((o: { name: string }) => o.name)
+    expect(dmNames).toContain('Hidden Cabal')
+
+    const dmDetail = await apiRaw(`/api/campaigns/${campaignId}/organizations/${org.slug}`, {
+      headers: { 'X-API-Key': dmKey },
+    })
+    expect(dmDetail.status).toBe(200)
+  })
+
+  it('a private organization is visible only to its creator', async () => {
+    const dmEmail = `org-priv-dm-${Date.now()}@example.com`
+    const dmCookie = await signUpAndGetCookie(dmEmail, 'password123', 'DM User')
+    const dmKey = (await createApiKey(dmCookie, 'dm-key')).key
+    const campaign = await createCampaign(dmKey, `Priv Campaign ${Date.now()}`)
+    const campaignId = campaign.id
+
+    const editorEmail = `org-priv-editor-${Date.now()}@example.com`
+    const editorCookie = await signUpAndGetCookie(editorEmail, 'password123', 'Editor User')
+    const editorKey = (await createApiKey(editorCookie, 'editor-key')).key
+    const inviteRes = await apiRaw(`/api/campaigns/${campaignId}/invite`, {
+      method: 'POST',
+      headers: { 'X-API-Key': dmKey },
+      body: { role: 'editor' },
+    })
+    const { token } = await inviteRes.json()
+    await apiRaw(`/api/campaigns/${campaignId}/join`, {
+      method: 'POST',
+      headers: withCsrf(editorCookie),
+      body: { token },
+    })
+
+    const createRes = await apiRaw(`/api/campaigns/${campaignId}/organizations`, {
+      method: 'POST',
+      headers: { 'X-API-Key': dmKey },
+      body: { name: "DM's Private Club", visibility: 'private' },
+    })
+    const org = await createRes.json()
+
+    const creatorDetail = await apiRaw(`/api/campaigns/${campaignId}/organizations/${org.slug}`, {
+      headers: { 'X-API-Key': dmKey },
+    })
+    expect(creatorDetail.status).toBe(200)
+
+    const otherDetail = await apiRaw(`/api/campaigns/${campaignId}/organizations/${org.slug}`, {
+      headers: { 'X-API-Key': editorKey },
+    })
+    expect(otherDetail.status).toBe(404)
   })
 })

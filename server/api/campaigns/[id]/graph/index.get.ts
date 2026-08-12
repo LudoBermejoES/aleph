@@ -5,6 +5,7 @@ import type { CampaignRole } from '../../../../utils/permissions'
 export default defineEventHandler(async (event) => {
   const campaignId = getRouterParam(event, 'id')!
   const role = (event.context.campaignRole || 'visitor') as CampaignRole
+  const userId = event.context.user?.id || ''
   const db = useDb()
 
   const query = getQuery(event)
@@ -15,7 +16,7 @@ export default defineEventHandler(async (event) => {
       : String(rawIds).split(',')
     : null
 
-  const graph = buildGraphForCampaign(db, campaignId, role)
+  const graph = buildGraphForCampaign(db, campaignId, role, userId)
 
   if (!entityIds || entityIds.length === 0) return graph
 

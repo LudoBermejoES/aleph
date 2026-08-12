@@ -130,3 +130,97 @@ describe('Graph API — relationTypeSlug and organizations (12.8-12.10)', () => 
     expect(res.status).toBe(401)
   })
 })
+
+describe('Graph API — node visibility filtering (enforce-entity-visibility)', () => {
+  function withCsrfHeader(cookie: string) {
+    const csrfMatch = cookie.match(/csrf_token=([^;]+)/)
+    return { Cookie: cookie, 'X-CSRF-Token': csrfMatch?.[1] || '' }
+  }
+
+  async function signUpAndGetCookie(email: string, password: string, name: string) {
+    await api('/api/auth/sign-up/email', { method: 'POST', body: { name, email, password } })
+    const res = await api('/api/auth/sign-in/email', { method: 'POST', body: { email, password } })
+    const cookies = res.headers.get('set-cookie') || ''
+    const match = cookies.match(/better-auth\.session_token=([^;]+)/)
+    const sessionCookie = match ? `better-auth.session_token=${match[1]}` : ''
+    const getRes = await api('/api/campaigns', { headers: { Cookie: sessionCookie } })
+    const setCookie = getRes.headers.get('set-cookie') || ''
+    const csrfMatch = setCookie.match(/csrf_token=([^;]+)/)
+    const csrfToken = csrfMatch?.[1] || ''
+    return csrfToken ? `${sessionCookie}; csrf_token=${csrfToken}` : sessionCookie
+  }
+
+  it('excludes a dm_only character node (and its edges) from a player, keeps it for the dm', async () => {
+    const dmEmail = `graph-vis-dm-${Date.now()}@example.com`
+    const dmCookie = await signUpAndGetCookie(dmEmail, 'password123', 'DM User')
+    const camp = await api('/api/campaigns', {
+      method: 'POST',
+      headers: withCsrfHeader(dmCookie),
+      body: { name: `Graph Vis Campaign ${Date.now()}` },
+    })
+    const campId = (await camp.json()).id
+
+    const playerEmail = `graph-vis-player-${Date.now()}@example.com`
+    const playerCookie = await signUpAndGetCookie(playerEmail, 'password123', 'Player User')
+    const inviteRes = await api(`/api/campaigns/${campId}/invite`, {
+      method: 'POST',
+      headers: withCsrfHeader(dmCookie),
+      body: { role: 'player' },
+    })
+    const { token } = await inviteRes.json()
+    await api(`/api/campaigns/${campId}/join`, {
+      method: 'POST',
+      headers: withCsrfHeader(playerCookie),
+      body: { token },
+    })
+
+    const visibleChar = await api(`/api/campaigns/${campId}/characters`, {
+      method: 'POST',
+      headers: withCsrfHeader(dmCookie),
+      body: { name: 'Visible Ally', characterType: 'npc' },
+    })
+    const visibleId = (await visibleChar.json()).entityId
+
+    const hiddenChar = await api(`/api/campaigns/${campId}/characters`, {
+      method: 'POST',
+      headers: withCsrfHeader(dmCookie),
+      body: { name: 'Hidden Villain', characterType: 'npc', visibility: 'dm_only' },
+    })
+    const hiddenId = (await hiddenChar.json()).entityId
+
+    const types = await api(`/api/campaigns/${campId}/relation-types`, {
+      headers: { Cookie: dmCookie },
+    })
+    const relationTypeId = (await types.json()).find(
+      (t: Record<string, unknown>) => t.slug === 'ally',
+    )?.id
+    await api(`/api/campaigns/${campId}/relations`, {
+      method: 'POST',
+      headers: withCsrfHeader(dmCookie),
+      body: {
+        sourceEntityId: visibleId,
+        targetEntityId: hiddenId,
+        relationTypeId,
+        forwardLabel: 'allies with',
+        reverseLabel: 'allied by',
+      },
+    })
+
+    const playerRes = await api(`/api/campaigns/${campId}/graph`, {
+      headers: { Cookie: playerCookie },
+    })
+    const playerGraph = await playerRes.json()
+    expect(playerGraph.nodes[hiddenId]).toBeUndefined()
+    expect(playerGraph.nodes[visibleId]).toBeDefined()
+    expect(
+      Object.values(playerGraph.edges).some(
+        (e) => (e as Record<string, unknown>).target === hiddenId,
+      ),
+    ).toBe(false)
+
+    const dmRes = await api(`/api/campaigns/${campId}/graph`, { headers: { Cookie: dmCookie } })
+    const dmGraph = await dmRes.json()
+    expect(dmGraph.nodes[hiddenId]).toBeDefined()
+    expect(dmGraph.nodes[visibleId]).toBeDefined()
+  })
+})

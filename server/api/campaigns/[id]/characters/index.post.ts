@@ -23,7 +23,9 @@ export default defineEventHandler(async (event) => {
   const characterSchema = z.object({
     name: z.string().min(1).max(200),
     content: z.string().optional(),
-    visibility: z.enum(['members', 'players', 'dm_only', 'public']).optional(),
+    visibility: z
+      .enum(['public', 'members', 'editors', 'dm_only', 'private', 'specific_users'])
+      .optional(),
     aliases: z.array(z.string()).optional(),
     tags: z.array(z.string()).optional(),
     characterType: z.string().optional(),

@@ -207,3 +207,82 @@ describe('Character CRUD (integration)', () => {
     expect(get.status).toBe(404)
   })
 })
+
+describe('Character list visibility (integration)', () => {
+  function withCsrf(cookie: string) {
+    const csrfMatch = cookie.match(/csrf_token=([^;]+)/)
+    return { Cookie: cookie, 'X-CSRF-Token': csrfMatch?.[1] || '' }
+  }
+
+  async function signUpAndGetCookie(email: string, password: string, name: string) {
+    await api('/api/auth/sign-up/email', { method: 'POST', body: { name, email, password } })
+    const res = await api('/api/auth/sign-in/email', { method: 'POST', body: { email, password } })
+    const cookies = res.headers.get('set-cookie') || ''
+    const match = cookies.match(/better-auth\.session_token=([^;]+)/)
+    const sessionCookie = match ? `better-auth.session_token=${match[1]}` : ''
+    const getRes = await api('/api/campaigns', { headers: { Cookie: sessionCookie } })
+    const setCookie = getRes.headers.get('set-cookie') || ''
+    const csrfMatch = setCookie.match(/csrf_token=([^;]+)/)
+    const csrfToken = csrfMatch?.[1] || ''
+    return csrfToken ? `${sessionCookie}; csrf_token=${csrfToken}` : sessionCookie
+  }
+
+  it('excludes dm_only and non-owned private characters from a player, keeps them for co_dm/dm and the creator', async () => {
+    const dmEmail = `char-vis-dm-${Date.now()}@example.com`
+    const dmCookie = await signUpAndGetCookie(dmEmail, 'password123', 'DM User')
+    const camp = await api('/api/campaigns', {
+      method: 'POST',
+      headers: withCsrf(dmCookie),
+      body: { name: `Char Vis Campaign ${Date.now()}` },
+    })
+    const campaignId = (await camp.json()).id
+
+    const playerEmail = `char-vis-player-${Date.now()}@example.com`
+    const playerCookie = await signUpAndGetCookie(playerEmail, 'password123', 'Player User')
+    const inviteRes = await api(`/api/campaigns/${campaignId}/invite`, {
+      method: 'POST',
+      headers: withCsrf(dmCookie),
+      body: { role: 'player' },
+    })
+    const { token } = await inviteRes.json()
+    await api(`/api/campaigns/${campaignId}/join`, {
+      method: 'POST',
+      headers: withCsrf(playerCookie),
+      body: { token },
+    })
+
+    await api(`/api/campaigns/${campaignId}/characters`, {
+      method: 'POST',
+      headers: withCsrf(dmCookie),
+      body: { name: 'Hidden NPC', characterType: 'npc', visibility: 'dm_only' },
+    })
+    await api(`/api/campaigns/${campaignId}/characters`, {
+      method: 'POST',
+      headers: withCsrf(dmCookie),
+      body: { name: "DM's Secret", characterType: 'npc', visibility: 'private' },
+    })
+    await api(`/api/campaigns/${campaignId}/characters`, {
+      method: 'POST',
+      headers: withCsrf(dmCookie),
+      body: { name: 'Visible NPC', characterType: 'npc' },
+    })
+
+    const playerList = await api(`/api/campaigns/${campaignId}/characters`, {
+      headers: { Cookie: playerCookie },
+    })
+    const playerBody = await playerList.json()
+    const playerNames = (playerBody.data ?? playerBody).map((c: { name: string }) => c.name)
+    expect(playerNames).not.toContain('Hidden NPC')
+    expect(playerNames).not.toContain("DM's Secret")
+    expect(playerNames).toContain('Visible NPC')
+
+    const dmList = await api(`/api/campaigns/${campaignId}/characters`, {
+      headers: { Cookie: dmCookie },
+    })
+    const dmBody = await dmList.json()
+    const dmNames = (dmBody.data ?? dmBody).map((c: { name: string }) => c.name)
+    expect(dmNames).toContain('Hidden NPC')
+    expect(dmNames).toContain("DM's Secret")
+    expect(dmNames).toContain('Visible NPC')
+  })
+})

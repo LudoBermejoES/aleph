@@ -1,7 +1,8 @@
 import { eq, and, desc } from 'drizzle-orm'
 import { useDb } from '../../../../../utils/db'
 import { diagrams, diagramSnapshots } from '../../../../../db/schema/diagrams'
-import { hasMinRole } from '../../../../../utils/permissions'
+import { hasMinRole, getVisibleEntityIds } from '../../../../../utils/permissions'
+import { filterSnapshotByVisibility } from '../../../../../utils/diagram-generator'
 import type { CampaignRole } from '../../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
@@ -12,6 +13,7 @@ export default defineEventHandler(async (event) => {
 
   const campaignId = getRouterParam(event, 'id')!
   const diagramId = getRouterParam(event, 'diagramId')!
+  const userId = event.context.user?.id || ''
   const db = useDb()
 
   const diagram = db
@@ -36,5 +38,11 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, message: 'No snapshot found' })
   }
 
-  return { snapshot: JSON.parse(snapshot.snapshot), version: snapshot.version }
+  // Filter shapes the current viewer can no longer see — a diagram is
+  // generated once but viewed repeatedly, and visibility can change after
+  // generation. Never trust generation-time filtering alone here.
+  const visibleIds = getVisibleEntityIds(db, campaignId, role, userId)
+  const filtered = filterSnapshotByVisibility(JSON.parse(snapshot.snapshot), visibleIds)
+
+  return { snapshot: filtered, version: snapshot.version }
 })

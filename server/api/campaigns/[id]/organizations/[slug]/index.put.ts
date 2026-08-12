@@ -34,12 +34,15 @@ export default defineEventHandler(async (event) => {
     description: z.string().optional(),
     type: z.string().optional(),
     status: z.string().optional(),
+    visibility: z
+      .enum(['public', 'members', 'editors', 'dm_only', 'private', 'specific_users'])
+      .optional(),
     imageUrl: z.string().nullable().optional(),
     templateId: z.string().nullable().optional(),
     fields: z.record(z.string(), z.unknown()).optional(),
   })
   const body = await validateBody(event, orgPutSchema)
-  const { name, description, type, status, imageUrl, templateId, fields } = body
+  const { name, description, type, status, visibility, imageUrl, templateId, fields } = body
 
   try {
     const updated = updateOrganizationWithEntity(db, campaignId, org.id, {
@@ -47,6 +50,7 @@ export default defineEventHandler(async (event) => {
       description,
       type,
       status,
+      visibility,
       imageUrl,
       templateId,
       fieldsJson: fields !== undefined ? JSON.stringify(fields) : undefined,
