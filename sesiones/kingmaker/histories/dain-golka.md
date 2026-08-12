@@ -35,3 +35,7 @@ Dain combatió en primera línea junto a Sim Sim, absorbiendo golpes de Los Lág
 Los Espectros de Hierro pasaron junto al grupo con la provocación en voz baja y siguieron andando. Dain sacó una tirada de Sociedad de catorce y los identificó antes de que se alejaran demasiado. Información archivada. No hay nada en esa provocación que requiera respuesta inmediata.
 
 El resto de la mañana fue escuchar, procesar y subir de nivel. La asignación del grupo al Cinturón Verde tiene sentido tácticamente: territorio abierto, amenaza conocida (bandidos), punto de partida definido (el Puesto Comercial de Oleg). Dain prefiere los problemas con nombre y dirección a los que llegaron sin anunciar la noche anterior.
+
+## Sesión del 2 de agosto de 2026 — El Señor de las Astas
+
+Diez días de camino hasta El Cruce de N'vrapta no le dieron mucho que hacer más allá de aguantar la lluvia y el cansancio acumulado, que soportó sin quejarse mientras escuchaba a Durgan quejarse por los dos. En el pueblo, un par de enanos lo recibieron a él y a Durgan como a hermanos — preguntaron qué hacían tan lejos de casa, advirtieron sin dar detalles de que hacia el oeste solo hay mal rollo, y confirmaron que las montañas que se ven en la distancia son tan peligrosas como parecen. Dain guardó la advertencia igual que guarda todo: sin comentarios, pero sin olvidarla. También oyó, de segunda mano, el rumor de unas ruinas élficas al oeste cargadas de tesoro y espíritus dispuestos a defenderlas.

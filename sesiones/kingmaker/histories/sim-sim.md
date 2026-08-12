@@ -35,3 +35,9 @@ Fue Sim Sim quien se plantó junto a la puerta cerrada mientras Nali atendía a 
 El gran salón estaba restaurado. Los cuatro grupos recibieron sus cartas por orden de importancia, y el grupo fue el último — "aunque no por ello menos importante", dijo Lady Jamandi, una frase que Sim Sim registró como lo que era: una cortesía. Los Espectros de Hierro pasaron junto al grupo y dejaron caer la provocación sin mirar. Sim Sim los observó en silencio.
 
 Cuando llegó el turno de leer el texto de la carta, Sim Sim no entendía por qué necesitaban un papel para ir a tierras que no eran de nadie. En su pueblo no funciona así. Laughlin Lodovka lo explicó: sin el papel, cualquier reino podría expulsarlos una vez hecho el trabajo. Con él, son corsarios con patente de Restov. Sim Sim lo entendió cuando lo formularon en esos términos. Su pueblo tiene corsarios.
+
+## Sesión del 2 de agosto de 2026 — El Señor de las Astas
+
+Diez días de camino hacia el oeste, la mayor parte bajo lluvia, no cambiaron mucho su rutina: se levantó antes que nadie cada mañana para sus ejercicios, incluso el último día, a las cuatro, ganándose el comentario de Dain sobre caminar "hacia la iluminación". No dijo nada al respecto. Tampoco dijo nada cuando Sim Sim quemó los conejos que Tark había cazado — simplemente dejó que Gael y Durgan arreglaran lo que pudieron del desastre.
+
+En la posada de El Cruce de N'vrapta se impuso el reto de no beber ni una gota, y aguantó más de lo esperado antes de ceder al vino local — infame, cambió a cerveza — y, más tarde, a un brindis por Davik Nettles, el guardés de un puente asesinado por bandidos cuyo fantasma sigue rondando las ruinas al sur. No fue hipocresía: algunas cosas merecen una excepción.

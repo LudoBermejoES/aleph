@@ -341,6 +341,49 @@ Ejemplos de etiquetas útiles: `"amigo de"`, `"aliado de"`, `"rival de"`, `"ment
 
 > **Importante**: las relaciones son bidireccionales. `--forward` es cómo A describe a B; `--reverse` es cómo B describe a A. Siempre consulta las existentes antes de crear — duplicar relaciones ensucia el grafo.
 
+## Paso 4d — Relaciones de la sesión con sus entidades (OBLIGATORIO)
+
+> **Siempre, en cada importación.** Además de las relaciones entre personajes (Paso 4c), la **propia sesión** debe quedar conectada en el grafo con **todas las entidades existentes que aparecen en ella** (personajes, NPCs, organizaciones y localizaciones con peso narrativo). Una sesión es una entidad más; si no se enlaza, queda huérfana en el grafo. Este paso **no es opcional** y aplica cada vez que se genera o importa una sesión.
+
+La sesión actúa como `--source` (su slug es el de la sesión creada/encontrada en el Paso 2) y cada entidad que aparece como `--target`. **Solo entidades que ya existen en Aleph** — no crees relaciones hacia algo que no hayas creado en el Paso 4.
+
+**Convención de etiquetas** (coincide con las sesiones ya existentes en la campaña):
+
+| Target                 | `--forward` (sesión → entidad) | `--reverse` (entidad → sesión) |
+| ---------------------- | ------------------------------ | ------------------------------ |
+| Personaje / NPC        | `contó con`                    | `participó en`                 |
+| Organización / facción | `involucró a`                  | `participó en`                 |
+| Localización           | `transcurrió en`               | `fue escenario de`             |
+
+**Flujo obligatorio:**
+
+1. Reúne la lista de entidades **existentes** que aparecen en la sesión (las creadas/actualizadas en el Paso 4 más las que ya existían y se mencionan de forma relevante).
+2. Consulta las relaciones actuales de la sesión para no duplicar:
+
+   ```bash
+   node /Users/ludo/code/aleph/cli/bin/aleph.js relation list --campaign <id> --json | node -e "
+   const d=JSON.parse(require('fs').readFileSync(0,'utf8'));
+   const items=Array.isArray(d)?d:(d.relations||d.data||[]);
+   const S='<session-slug>';
+   items.filter(r=>(r.sourceSlug||r.source)===S||(r.targetSlug||r.target)===S)
+        .forEach(r=>console.log((r.sourceSlug||r.source),'->',(r.targetSlug||r.target)));
+   "
+   ```
+
+3. Crea una relación de la sesión hacia cada entidad que **aún no esté enlazada**:
+
+   ```bash
+   node /Users/ludo/code/aleph/cli/bin/aleph.js relation create \
+     --campaign <id> \
+     --source <session-slug> \
+     --target <entity-slug> \
+     --forward "contó con" --reverse "participó en"
+   # organización: --forward "involucró a" --reverse "participó en"
+   # localización:  --forward "transcurrió en" --reverse "fue escenario de"
+   ```
+
+> **Regla de cierre**: una sesión sin relaciones con sus entidades está incompleta. Antes de dar por terminada la importación (Paso 6), verifica con `relation list` que la sesión tiene al menos una relación por cada personaje asistente y cada organización/localización relevante.
+
 ## Paso 5 — Confirmar antes de actuar
 
 Antes de crear o modificar entidades, presenta al usuario la lista de acciones planificadas:
@@ -385,6 +428,7 @@ Entidades creadas/actualizadas:
 - Organizaciones: <lista>
 - Entidades wiki: <lista>
 - Quests: <lista>
+- Relaciones de la sesión: <n> (sesión → entidades: personajes, orgs, localizaciones)
 ```
 
 ## Enlaces a otras entidades dentro del texto

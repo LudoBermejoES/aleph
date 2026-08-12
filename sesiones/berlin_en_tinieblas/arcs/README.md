@@ -25,7 +25,8 @@ lado, se dice en la descripción de ese arco en lugar de inventar un arco parale
 | 10  | [La búsqueda de Salvador](10-la-busqueda-de-salvador.md)           | `la-busqueda-de-salvador`      | 2023-03-09 → 2023-04-13 | 5        |
 | 11  | [La búsqueda de Julia](11-la-busqueda-de-julia.md)                 | `la-busqueda-de-julia`         | 2023-04-20 → 2023-05-25 | 6        |
 | 12  | [La búsqueda de Philip](12-la-busqueda-de-philip.md)               | `la-busqueda-de-philip`        | 2023-06-01 → 2023-07-13 | 7        |
-|     | **Total**                                                          |                                |                         | **86**   |
+|     | **Total (arcos 01-12, contiguos)**                                 |                                |                         | **86**   |
+| 13  | [La búsqueda de Otto](13-la-busqueda-de-otto.md)                   | `la-busqueda-de-otto`          | 2024-05-30 → 2024-06-27 | 4        |
 
 5 + 14 + 4 + 8 + 8 + 7 + 9 + 6 + 7 + 5 + 6 + 7 = 86.
 
@@ -62,6 +63,13 @@ material:
   por su cuenta. El 09 es el menos puro de los tres y por eso conserva su nota aparte más abajo:
   además del ritual de Madre lleva dentro la secuencia de botones del nodo nazi y el parón de
   meses de la campaña.
+
+- **El arco 13 no pertenece a la partición.** Los arcos 01-12 cubren, sin huecos, las 79
+  sesiones originales hasta el 13 de julio de 2023. La búsqueda de Otto ocurrió en fechas
+  reales de mayo-junio de 2024 —muy posteriores a esa última sesión y muy anteriores a la
+  reanudación de la campaña en 2026—, jugada a solas y fuera del calendario regular del grupo.
+  Se numera 13 por orden de creación, no porque continúe la secuencia de los arcos 01-12; ver
+  su nota aparte en [`13-la-busqueda-de-otto.md`](13-la-busqueda-de-otto.md).
 
 ## Decisiones discutibles
 

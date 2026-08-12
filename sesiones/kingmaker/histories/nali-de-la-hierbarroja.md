@@ -31,3 +31,7 @@ Nali estuvo bajo presión constante durante toda la sesión. Curó a Durgan y Da
 Nali escuchó la asignación con la atención de alguien que ya está evaluando dónde podrían herirse. Cinturón Verde. Marcas de Narl. Tierras salvajes. Cuando el grupo discutió el transporte, fue Nali quien señaló lo obvio: un carro en ese terreno podría ser más estorbo que ayuda. Las mulas son más versátiles.
 
 En el salón con Lady Jamandi, Nali guardó silencio mientras Durgan preguntaba sobre el ataque y Laughlin hablaba de la diosa. Ya tiene lo que necesitaba escuchar. Hay al menos dos teorías sobre quién está detrás de todo esto, ninguna de ellas tranquilizadora. Y tiene dos pociones de curación nuevas, que siempre son mejores que las teorías.
+
+## Sesión del 9 de agosto de 2026 — La primera noche seca
+
+Nali se turnó con Gael en los fogones durante la semana de lluvia, y una noche, tras varios intentos fallidos, consiguió un banquete de verdad que levantó el ánimo de todo el grupo. En el Puesto Comercial de Oleg, cuando la oferta de Laughlin necesitaba algo más que una carta y una tapadera, Nali tomó la palabra: invocó a la guía de la manada y la idea de que una casa empieza cuando alguien enciende un fuego y otro decide sentarse a su lado. Caló. Oleg sacó licor como gesto y Svetlana confirmó que contarían con ellos. Los bandidos del tributo vuelven en dos días.

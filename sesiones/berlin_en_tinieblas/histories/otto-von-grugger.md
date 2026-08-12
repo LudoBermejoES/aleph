@@ -1,5 +1,21 @@
 # Otto Von Grugger — Historial de sesiones
 
+## Sesión del 30 de mayo de 2024 — El dilema de Otto
+
+Otto y Cloaka se colaron en la cuarta planta de un hotel que las cámaras de seguridad no tardaron en detectar. Con un truco de entropía sobre un espejo de ascensor ganó tiempo, y cuando una barrera de Correspondencia le impidió el paso directo por la ventana, cruzó por la Umbra en su lugar — un pasillo reflejado, cargado de un placer ajeno que no le gustó nada. Al otro lado, junto a Raffela y Tzippi, se topó con una figura flotante que se hacía llamar Christopher: un antiguo colega convertido en otra cosa, que confesó sin remordimiento haber dejado morir a un aliado por debilidad y dejó un mensaje muy concreto para Salvador, prometiendo volver a verle. Ofreció perseguirlo al otro Berlín o quedarse a impedir una cena hecha de víctimas inocentes que se estaba sirviendo en el mismo edificio. Otto se quedó. La tarjeta que Christopher dejó atrás los llevó a un ascensor que bajaba hacia un restaurante subterráneo, con dos objetivos ya localizados y la operación todavía por empezar.
+
+## Sesión del 6 de junio de 2024 — Lo que se servía abajo
+
+En el restaurante, Otto ayudó a reducir e interrogar a un cocinero que no era humano, sin sacarle una palabra ni con una cruz ni con una estrella de David de por medio. Detrás de una puerta que la Entropía del grupo pudrió hasta desmontar esperaba una bestia radiactiva con forma de ídolo de fertilidad, inmune al daño normal, que solo cayó a base de balas cargadas de quintaesencia y fuego improvisado. Encontraron también un vampiro reducido a herramienta de alguien más, al que desmembraron para poder moverlo. Lo peor llegó al final: la jaula que debía contener mujeres secuestradas guardaba niños, corrompidos hasta volverse hostiles, imposibles de purificar con lo que tenían a mano. Otto salió de allí sabiendo que había que llevarle el problema a Karoline Ober antes de que se hiciera más grande.
+
+## Sesión del 13 de junio de 2024 — Los niños marcados
+
+El rastro de la cena llevó a Otto y los suyos a un búnker nazi sellado bajo el mismo hotel, con niños marcados a cuchillo haciendo guardia y un código de seguridad avisando de que la policía ya venía de camino — Otto, federal él mismo, tuvo que jugar ambos lados de esa llamada. Sometieron a los niños uno a uno para sacarlos con vida, abrieron paso a través de escombros de guerra con la fuerza de Raffela, y Otto detonó una bolsa de gas para cubrir la huida. Solo hubo tiempo para rescatar a uno; otro apareció ya muerto y parcialmente devorado. Escaparon por las cloacas guiados por Cloaka, que además entregó un vampiro capturado —Sabbat, corregido después a Tremere— a la autoridad de la noche. Otto fotografió las marcas del niño rescatado y se las mandó a Philip, con la sospecha de que el autor era un antiguo asociado de Salvador. Un ritual sobre el niño dormido terminó con un atisbo de algo que a alguien le recordó al Turco, justo antes de que la sesión se cortara en seco.
+
+## Sesión del 27 de junio de 2024 — Un solo cuerpo
+
+De vuelta en la guarida de Cloaka, con el niño rescatado sedado y vigilado por Raffela, Otto trazó un círculo y se sentó a esperar mientras Tzippi rezaba con el rosario. Una puerta imprecisa se abrió delante de él, y solo él y Jim Haus la cruzaron, hacia una imaginería de deidad hindú donde ambos compartían un único cuerpo y una única perspectiva. Su mente terminó, sin buscarlo, dentro de una pistola — y desde ahí vio llegar de nuevo a Christopher, esta vez sin discursos: mató al niño que acababan de rescatar y repitió la vieja oferta, seguirle al otro mundo o salvar a los niños que quedaban. Otto eligió a los niños otra vez, y lo maldijo con el puño en alto mientras se alejaba, sabiendo que no sería la última vez.
+
 ## Sesión del 30 de julio de 2026 — El precio de la daga
 
 Silke Willems, director del BFV (oficina de Cologne-Chorweiler), recibió a Otto en su despacho y le tendió la mano. La misión anterior, con toda la brutalidad política que generó, no fue un problema sino una carta de presentación. Otto fue promovido para dirigir una unidad especial de tres o cuatro personas que respondería directamente al director, con autorización para reclutar fuera del cuerpo policial.
@@ -7,3 +23,9 @@ Silke Willems, director del BFV (oficina de Cologne-Chorweiler), recibió a Otto
 Al volver a la calle, Otto descubrió el precio del puñal de muerte que trajo de su última operación. El Yori que emana el arma actúa como un faro para los espíritus de Berlín: le siguen a todas partes, algunos curiosos, otros inquietos, entre ellos los espíritus nazis que quedaron atrapados en la comisaría tras la última noche de violencia. Otto sabe que tendrá que visitar la Umbra para pacificarlos antes de que la situación se salga de control.
 
 Poco después, Julia le avisó desde Berlín Este: veintitrés miembros de la Hermandad Turca incapacitados, un cargamento de subfusiles y granadas abandonado en un almacén, todo listo para que la policía se lo encontrara. Otto asumió el papel de enlace entre La Dama de Hierro y las autoridades, el Gordon que toma la llamada y no hace demasiadas preguntas.
+
+## Sesión del 6 de agosto de 2026 — Recuerdos prestados
+
+En la capilla, Julia entró en la mente de Salvador para ver qué le había pasado de verdad en el búnker, y Jim Haus se ofreció como conducto para que todos vieran lo mismo a la vez. Otto dudó antes de dejar que el resto entrara también en sus propios recuerdos, pero cedió. La visión compartida le devolvió su mente metida sin querer dentro de una pistola, y con ella a Timon Sauerbeck —el eterita que el Spree se tragó hace años, presentado esa noche bajo el nombre de Christopher— apareciendo entre las alcantarillas, matando al rehén que acababan de rescatar y dándole a elegir entre seguirle al otro mundo o salvar a los niños. Otto volvió a verse maldiciéndolo con el puño en alto tras elegir a los niños.
+
+La visión también reveló, sin que nadie lo buscara, el instante exacto en que Jim Haus decidió quedarse con el cuerpo de la cazavampiros muerta. Otto salió de la sesión sabiendo bastante más de lo que había planeado compartir, con la Umbra de la comisaría, el favor pendiente al Príncipe de Berlín y la ceremonia de Roland todavía esperando turno.

@@ -37,3 +37,13 @@ La sesión del 5 de julio no fue de Gael Mouro. Los arcos eléctricos lanzados c
 Una sesión sin magia que usar. Los Espectros de Hierro pasaron con su provocación; los demás nobles recogieron sus cartas; el grupo recibió la suya. Gael escuchó la asignación — Cinturón Verde, bandidos, Puesto Comercial de Oleg como punto de partida — y procesó las implicaciones. Territorio abierto. Enemigos sin resistencia mágica conocida, a diferencia de los gigantes de la noche anterior. El ojo verde tiene más preguntas sobre quién organizó todo eso que sobre la nueva misión.
 
 En el salón con Lady Jamandi, Gael escuchó sus respuestas sobre los posibles responsables del ataque. La lista incluye a Pitax. La lista también incluye a cualquiera que no quiera ver a Rostland crecer. Es una lista demasiado larga para un solo hombre con un ojo verde.
+
+## Sesión del 2 de agosto de 2026 — El Señor de las Astas
+
+En El Cruce de N'vrapta, la hija de la posadera se fijó en él antes que en nadie más del grupo y le ofreció una cama para él solo en vez del dormitorio compartido. Laughlin se encargó de distraer al tabernero toda la noche para que la escapada saliera bien — un favor que Gael sabe que le va a cobrar tarde o temprano. Ya en el cuarto, ella le habló de un unicornio visto antes en las Marcas de Narl, desaparecido desde hace tiempo, posiblemente por culpa de los bandidos. Le pidió que, si alguna vez lo veía, se lo describiera.
+
+El ojo verde también registró, sin comentarlo en voz alta, la coincidencia que nadie más pareció notar: el noble Maegar Varn, al que conoció en el banquete de Restov detectando el peto mágico bajo su ropa, ha pasado por estas mismas tierras del oeste poco antes que ellos, y ahora corre el rumor de que está detrás del ataque a la mansión de Lady Jamandi. Gael no tiene pruebas todavía. Pero el patrón le resulta familiar.
+
+## Sesión del 9 de agosto de 2026 — La primera noche seca
+
+Gael salvó más de una cena del desastre con un poco de magia sobre la comida, mientras la lluvia no daba tregua durante toda la semana de camino. En algún punto empezó a sospechar que un tiempo tan insistente no podía ser del todo natural — le preguntó a Durgan si podía detectar magia a esa distancia, y no hubo manera de comprobarlo. La duda se quedó sin resolver. Ya en el Puesto Comercial de Oleg, presenció cómo Laughlin desplegaba su tapadera y cómo Nali terminaba de convencer a la pareja con una intervención que él no habría sabido igualar. Los bandidos vuelven en dos días.
