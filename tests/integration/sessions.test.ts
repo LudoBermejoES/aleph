@@ -179,14 +179,14 @@ describe('Session list default order (by scheduledDate, not sessionNumber)', () 
     })
   })
 
-  it('orders by scheduledDate ascending, with undated sessions last', async () => {
+  it('orders by scheduledDate descending (most recent first), with undated sessions last', async () => {
     const res = await api(`/api/campaigns/${campaignId}/sessions`, {
       method: 'GET',
       headers: { Cookie: cookie },
     })
     const body = await res.json()
     const data = (body.data ?? body) as Array<{ title: string }>
-    expect(data.map((s) => s.title)).toEqual(['First', 'Mid', 'Last', 'Undated'])
+    expect(data.map((s) => s.title)).toEqual(['Last', 'Mid', 'First', 'Undated'])
   })
 })
 
