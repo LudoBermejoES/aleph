@@ -128,6 +128,68 @@ describe('Session CRUD (integration)', () => {
   })
 })
 
+describe('Session list default order (by scheduledDate, not sessionNumber)', () => {
+  const email = `sess-order-test-${Date.now()}@example.com`
+  let cookie = ''
+  let csrfToken = ''
+  let campaignId = ''
+
+  beforeAll(async () => {
+    await api('/api/auth/sign-up/email', {
+      method: 'POST',
+      body: { name: 'Session Order Tester', email, password: 'password123' },
+    })
+    const login = await api('/api/auth/sign-in/email', {
+      method: 'POST',
+      body: { email, password: 'password123' },
+    })
+    const cookies = login.headers.get('set-cookie') || ''
+    const match = cookies.match(/better-auth\.session_token=([^;]+)/)
+    cookie = match ? `better-auth.session_token=${match[1]}` : ''
+    csrfToken = await getCsrfToken(cookie)
+    const camp = await api('/api/campaigns', {
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
+      body: { name: `Sess Order Test ${Date.now()}` },
+    })
+    campaignId = (await camp.json()).id
+
+    // sessionNumber is assigned in creation order (1, 2, 3, 4) but deliberately
+    // does NOT match scheduledDate order here, mirroring how sessionNumber can
+    // drift from real chronology in actual campaign data.
+    await api(`/api/campaigns/${campaignId}/sessions`, {
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
+      body: { title: 'Mid', scheduledDate: '2023-06-15' },
+    })
+    await api(`/api/campaigns/${campaignId}/sessions`, {
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
+      body: { title: 'Undated' },
+    })
+    await api(`/api/campaigns/${campaignId}/sessions`, {
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
+      body: { title: 'Last', scheduledDate: '2023-12-01' },
+    })
+    await api(`/api/campaigns/${campaignId}/sessions`, {
+      method: 'POST',
+      headers: withCsrf(cookie, csrfToken),
+      body: { title: 'First', scheduledDate: '2023-01-10' },
+    })
+  })
+
+  it('orders by scheduledDate ascending, with undated sessions last', async () => {
+    const res = await api(`/api/campaigns/${campaignId}/sessions`, {
+      method: 'GET',
+      headers: { Cookie: cookie },
+    })
+    const body = await res.json()
+    const data = (body.data ?? body) as Array<{ title: string }>
+    expect(data.map((s) => s.title)).toEqual(['First', 'Mid', 'Last', 'Undated'])
+  })
+})
+
 describe('Quest CRUD (integration)', () => {
   const email = `quest-test-${Date.now()}@example.com`
   let cookie = ''

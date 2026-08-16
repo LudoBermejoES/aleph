@@ -1,4 +1,4 @@
-import { eq, desc, and, sql, inArray, type SQL } from 'drizzle-orm'
+import { eq, asc, and, sql, inArray, type SQL } from 'drizzle-orm'
 import { useDb } from '../../../../utils/db'
 import { gameSessions, subCampaigns, arcs, chapters } from '../../../../db/schema/sessions'
 import { parsePagination, buildMeta } from '../../../../utils/pagination'
@@ -79,7 +79,14 @@ export default defineEventHandler((event) =>
       .leftJoin(arcs, eq(gameSessions.arcId, arcs.id))
       .leftJoin(chapters, eq(gameSessions.chapterId, chapters.id))
       .where(and(...conditions))
-      .orderBy(desc(gameSessions.sessionNumber))
+      // sessionNumber does NOT track real chronology in this campaign data (see
+      // app/utils/session-order.ts and sesiones/berlin_en_tinieblas/arcs/README.md) — the
+      // default order must be scheduledDate ascending, with undated sessions sorted last.
+      .orderBy(
+        sql`CASE WHEN ${gameSessions.scheduledDate} IS NULL THEN 1 ELSE 0 END`,
+        asc(gameSessions.scheduledDate),
+        asc(gameSessions.sessionNumber),
+      )
       .limit(pagination.limit)
       .offset(pagination.offset)
       .all()
