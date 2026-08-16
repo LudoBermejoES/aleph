@@ -745,7 +745,13 @@ export function filterSnapshotByVisibility(
   snapshot: TldrawSnapshot,
   visibleEntityIds: Set<string>,
 ): TldrawSnapshot {
-  const store = snapshot.store
+  const store = snapshot?.store
+  // The save endpoint persists whatever JSON body the client sends with no
+  // shape validation, so a stored snapshot isn't guaranteed to have a
+  // `store` key (e.g. an empty/malformed save, or a different tldraw
+  // snapshot format). Return it unchanged rather than crashing the whole
+  // "load diagram" request over a filtering step that can't apply anyway.
+  if (!store) return snapshot
 
   const hiddenShapeIds = new Set<string>()
   for (const [key, record] of Object.entries(store)) {

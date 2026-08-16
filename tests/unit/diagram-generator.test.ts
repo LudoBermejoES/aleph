@@ -478,4 +478,27 @@ describe('filterSnapshotByVisibility', () => {
     expect(filtered.store['document:document']).toBeDefined()
     expect(filtered.store['page:page']).toBeDefined()
   })
+
+  it('returns the snapshot unchanged instead of throwing when store is missing', () => {
+    // Regression test: the save endpoint persists whatever JSON body the
+    // client sends with no shape validation, so a stored snapshot isn't
+    // guaranteed to have a `store` key. This previously threw
+    // "Cannot convert undefined or null to object" from Object.entries(),
+    // 500ing every load of the affected diagram (ALEPH-QG-M).
+    const malformed = { schema: {} } as any
+    expect(() => filterSnapshotByVisibility(malformed, new Set(['e1']))).not.toThrow()
+    expect(filterSnapshotByVisibility(malformed, new Set(['e1']))).toBe(malformed)
+  })
+
+  it('returns the snapshot unchanged instead of throwing when store is null', () => {
+    const malformed = { schema: {}, store: null } as any
+    expect(() => filterSnapshotByVisibility(malformed, new Set(['e1']))).not.toThrow()
+    expect(filterSnapshotByVisibility(malformed, new Set(['e1']))).toBe(malformed)
+  })
+
+  it('returns the snapshot unchanged instead of throwing when the snapshot itself is null', () => {
+    const malformed = null as any
+    expect(() => filterSnapshotByVisibility(malformed, new Set(['e1']))).not.toThrow()
+    expect(filterSnapshotByVisibility(malformed, new Set(['e1']))).toBe(malformed)
+  })
 })
