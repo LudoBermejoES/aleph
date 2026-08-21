@@ -40,10 +40,31 @@ export function makeEntityCommand() {
     .description('Create an entity')
     .requiredOption('--campaign <id>', 'Campaign ID')
     .requiredOption('--name <name>', 'Entity name')
-    .requiredOption('--type <type>', 'Entity type (e.g. location, faction, npc)')
+    .requiredOption('--type <type>', 'Entity type; must be registered for this campaign')
     .option('--content <markdown>', 'Entity content (Markdown)')
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
+      // The type must be one the campaign declares. Without this the CLI wrote any string it was
+      // given: `--type npc` produced the only `npc` entity in a campaign whose registered types are
+      // character/event/faction/item/location/lore/note/quest/session, leaving a record the UI could
+      // not categorise and that only the generic page could reach. One request buys the whole class.
+      const types = await get(`/api/campaigns/${opts.campaign}/entity-types`)
+      const valid = (Array.isArray(types) ? types : (types?.entityTypes ?? types?.data ?? []))
+        .map((t) => t.slug)
+        .filter(Boolean)
+      if (valid.length && !valid.includes(opts.type)) {
+        process.stderr.write(
+          `Error: unknown entity type '${opts.type}' for this campaign.\n` +
+            `Registered types: ${[...new Set(valid)].sort().join(', ')}\n`,
+        )
+        // `process.exit()` here aborted the process with a libuv assertion (exit 127 on
+        // Windows) because this guard runs AFTER an await on the entity-types request and
+        // the socket handle was still open. The sibling guards exit cleanly only because
+        // they run before any network call. Setting exitCode lets node drain and exit 1.
+        process.exitCode = 1
+        return
+      }
+
       const data = await post(`/api/campaigns/${opts.campaign}/entities`, {
         name: opts.name,
         type: opts.type,

@@ -26,7 +26,7 @@
           >
             <span class="text-muted-foreground">{{ rel.label ?? rel.forwardLabel }}</span>
             <NuxtLink
-              :to="`/campaigns/${campaignId}/${rel.relatedEntityType}s/${rel.relatedEntitySlug}`"
+              :to="entityDetailPath(campaignId, rel.relatedEntityType, rel.relatedEntitySlug)"
               class="font-medium hover:underline"
             >
               {{ rel.relatedEntityName }}
@@ -206,6 +206,7 @@
 
 <script setup lang="ts">
 import { useEntityRelations } from '~/composables/useEntityRelations'
+import { entityDetailPath } from '~/utils/entity-routes'
 import type {
   EntityType,
   EntityRelationRow,

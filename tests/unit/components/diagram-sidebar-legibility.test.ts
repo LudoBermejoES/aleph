@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { readFileSync, readdirSync, statSync } from 'fs'
-import { resolve, join } from 'path'
+import { resolve, join, sep } from 'path'
 import { CAMPAIGN_THEMES } from '../../../app/utils/themes'
 
 /**
@@ -34,7 +34,9 @@ function sourceFiles(dir: string, exts = ['.vue']): string[] {
   for (const name of readdirSync(dir)) {
     const full = join(dir, name)
     if (statSync(full).isDirectory()) out.push(...sourceFiles(full, exts))
-    else if (exts.some((e) => name.endsWith(e))) out.push(full)
+    // POSIX separators: `join` yields backslashes on Windows, so the audited list — which is
+    // written with forward slashes — never matched and this test failed on Windows only.
+    else if (exts.some((e) => name.endsWith(e))) out.push(full.split(sep).join('/'))
   }
   return out
 }
