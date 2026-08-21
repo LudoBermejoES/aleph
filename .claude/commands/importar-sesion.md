@@ -5,15 +5,45 @@ category: Workflow
 tags: [aleph, session, import, ttrpg]
 ---
 
-Cuando el usuario ejecute `/importar-sesion`, documenta la sesión **completamente en Aleph** usando el aleph-cli. No se crea ningún fichero local — todo va al servidor remoto.
+Cuando el usuario ejecute `/importar-sesion`, documenta la sesión **completamente en Aleph** usando el aleph-cli.
+
+## Convención de rutas — defínela UNA vez
+
+Esta guía usaba dos rutas distintas al CLI en secciones distintas (`C:/code/aleph/...` en los pasos 1-4b y `/Users/ludo/code/aleph/...` en 4c-4d), y la segunda no existe en Windows. Resuelve la ruta una sola vez al empezar y reutilízala:
+
+```bash
+# el checkout que tengas a mano; en este equipo ambos existen
+ALEPH="node C:/code/wod20/aleph/cli/bin/aleph.js"   # submódulo dentro de wod20
+# ALEPH="$ALEPH"       # checkout independiente
+# ALEPH="node ~/code/aleph/cli/bin/aleph.js"        # macOS
+```
+
+En el resto del documento, `$ALEPH` significa esa invocación.
+
+> **Windows: no pases texto con acentos por la tubería ni por argumento del shell.** Git Bash mutila UTF-8 al hablar con node — una `í` (`0xC3 0xAD`) llega como `0xAD` sola, y `tail -n +3 fichero.md | $ALEPH ... --history-stdin` sube el historial con los acentos roto. Y lo que es peor: **leer** con `$ALEPH ... --json | python` corrompe igual, así que una verificación por esa vía no distingue un dato roto de una lectura rota. Para cualquier campo con acentos, usa un script `.mjs` que lea el fichero como `utf8` y lance el CLI con `spawn(process.execPath, [CLI, ...args], { shell: false })`, escribiendo el cuerpo en `stdin` como `Buffer`. Verifica dentro del mismo Node.
+
+No se crea ningún fichero local salvo el resumen y los historiales, que viven en el repo (pasos 2b y 4b).
 
 ## Paso 0 — Verificar configuración
 
+La credencial vive en un store global de `conf`, **fuera del repo**, y la ruta depende del sistema:
+
+| Sistema | Ruta                                                                                                      |
+| ------- | --------------------------------------------------------------------------------------------------------- |
+| macOS   | `~/Library/Preferences/aleph-nodejs/config.json`                                                          |
+| Windows | `%APPDATA%leph-nodejs\Config\config.json` (ojo: subcarpeta `Config\`, y `%APPDATA%`, no `%LOCALAPPDATA%`) |
+| Linux   | `~/.config/aleph-nodejs/config.json`                                                                      |
+
 ```bash
-cat ~/.aleph/config.json 2>/dev/null || echo "not configured"
+# macOS / Linux
+cat ~/Library/Preferences/aleph-nodejs/config.json 2>/dev/null || cat ~/.config/aleph-nodejs/config.json 2>/dev/null || echo "not configured"
+# Windows (Git Bash)
+cat "$APPDATA/aleph-nodejs/Config/config.json" 2>/dev/null || echo "not configured"
 ```
 
-Debe tener `url` apuntando a `https://aleph.ludobermejo.es` y `apiKey` presente. Si falta, pide al usuario que ejecute `node C:/code/aleph/cli/bin/aleph.js login`.
+Debe tener `url` apuntando a `https://aleph.ludobermejo.es` y `apiKey` presente. Si falta, pide al usuario que ejecute `$ALEPH login`.
+
+> `~/.aleph/config.json` **no existe**: esta guía lo dio por hecho hasta 2026-08-21 y el Paso 0 fallaba en Windows aunque la sesión estuviera perfectamente autenticada.
 
 ## Paso 1 — Identificar archivos y campaña
 
@@ -29,26 +59,60 @@ Identifica la campaña por la ruta del archivo:
 - `sesiones/kingmaker/` → **Kingmaker** (Pathfinder, tierras salvajes, personajes: Sim Sim, Laughlin, Durgan, Tark Krap, Dain)
 - `sesiones/arcadia/` → **Arcadia** (superhéroes, La Fuerza Oculta)
 - `sesiones/kult/` → **Kult** (Kult: Divinity Lost)
+- `sesiones/berlin_en_tinieblas/` → **Berlin en tinieblas** (Mundo de Tinieblas / Mago) — **tiene subcampañas, ver Paso 1b**
 
 Lista las campañas del servidor y guarda el `id` de la que corresponda:
 
 ```bash
-node C:/code/aleph/cli/bin/aleph.js campaign list --json
+$ALEPH campaign list
 ```
+
+> `campaign list --json` puede devolver texto no-JSON según la versión; si `--json` falla, usa la vista de tabla.
+
+## Paso 1b — Subcampaña (OBLIGATORIO donde exista)
+
+Una campaña puede tener varias **subcampañas**: líneas argumentales paralelas con reparto propio. `Berlin en tinieblas` tiene dos:
+
+| Subcampaña               | Slug           | Reparto                                                                                                      |
+| ------------------------ | -------------- | ------------------------------------------------------------------------------------------------------------ |
+| La capilla (por defecto) | `general`      | La cábala de magos: Roland FierBier, Julia Kirchner, Otto Von Grugger, Salvador Pacheco-König, Philip Holmes |
+| La discoteca             | `la-discoteca` | Seis estudiantes mortales: Ines Falk, Clara Böhm, Theo Brandt, Lena Vogt, Matthias Keller, Jonas Reuter      |
+
+```bash
+$ALEPH sub-campaign list --campaign <id>
+```
+
+> **`session import` ACEPTA `--subcampaign <slug>`** desde el cambio `session-import-subcampaign` (2026-08-21): pásalo en el propio import y te ahorras el segundo paso. El import imprime siempre la subcampaña resultante, así que un aterrizaje en la por defecto se ve en la salida.
+>
+> **Sin el flag**, la sesión cae en la subcampaña **por defecto** y el import informa de éxito igualmente: así es como una sesión de La discoteca acaba dentro de La capilla. Antes de este cambio no había flag y había que moverla a mano, un paso fácil de olvidar precisamente porque no fallaba.
+>
+> El flag es `--subcampaign`; `--group` sobrevive como alias **obsoleto** de cuando esto se llamaba `session-group`.
 
 ## Paso 2 — Importar la sesión
 
 Sube las notas brutas al servidor sin generar resumen automático:
 
 ```bash
-node C:/code/aleph/cli/bin/aleph.js session import \
+$ALEPH session import \
   --campaign <id> \
   [--manual <ruta>] \
   [--ai <ruta>] \
+  [--date YYYY-MM-DD] \
+  [--subcampaign <slug>] \
   --no-summarize
 ```
 
-Anota el `slug` de la sesión creada/encontrada para los pasos siguientes.
+Anota el `slug` de la sesión creada/encontrada. El slug se deriva de la fecha (`16-de-agosto-de-2026`); `--date` la fija explícitamente en lugar de deducirla del nombre del fichero, que es lo prudente cuando el fichero se llama `transcripcion-YYYY-MM-DD.md` en vez de seguir la convención esperada.
+
+El import ya imprime la subcampaña resultante, así que compruébala en su salida. **Después**, dale título y estado (y `--subcampaign` solo si no lo pasaste arriba):
+
+```bash
+$ALEPH session update <slug> --campaign <id> \
+  --title "<título narrativo>" \
+  --status completed
+```
+
+Sin el `--subcampaign` la sesión queda en la subcampaña por defecto. Compruébalo antes de seguir con `$ALEPH session show <slug> --campaign <id>` y mirando la fila `subCampaign`.
 
 ## Paso 2b — Generar el resumen de síntesis
 
@@ -60,21 +124,25 @@ Anota el `slug` de la sesión creada/encontrada para los pasos siguientes.
 - Las notas manuales son la fuente de verdad narrativa. Las notas AI completan detalles de diálogo y momentos concretos que las manuales omiten.
 - Trata a Ludo Bermejo como el narrador/DM, no como un jugador más.
 
-Guarda el resumen en el fichero local:
+Guarda el resumen en el fichero local, **dentro del repo**:
 
 ```
-C:\code\aleph\sesiones\<campaña>\summary\session-YYYY-MM-DD.md
+<repo-aleph>/sesiones/<campaña>/summary/session-YYYY-MM-DD.md
 ```
 
-El nombre del fichero debe coincidir con la fecha de la sesión (igual que en `manual-notes/` y `ai-notes/`). Si la carpeta `summary/` no existe, créala.
+El nombre del fichero debe coincidir con la fecha de la sesión. Si la carpeta `summary/` no existe, créala.
+
+> Las carpetas de origen NO son iguales en todas las campañas: `berlin_en_tinieblas` no tiene `manual-notes/` ni `ai-notes/`, solo `transcription/`. Cuando no hay notas del DM, el resumen sale íntegramente de la transcripción — que estas reglas tratan como fuente secundaria —, así que hay que separar a mano lo jugado del ruido de mesa, y conviene decirlo al entregar.
+
+> Si la campaña tiene subcampañas, imita la cabecera de los resúmenes previos de ESA subcampaña (por ejemplo la línea en cursiva que identifica "La discoteca") y respeta su grafía de nombres: el resumen previo manda sobre el nombre del fichero de historial.
 
 Una vez guardado localmente, súbelo al campo `summary` de la sesión en Aleph:
 
 ```bash
-node C:/code/aleph/cli/bin/aleph.js session content set <slug> \
+$ALEPH session content set <slug> \
   --campaign <id> \
   --type summary \
-  --file C:\code\aleph\sesiones\<campaña>\summary\session-YYYY-MM-DD.md
+  --file <repo-aleph>/sesiones/<campaña>/summary/session-YYYY-MM-DD.md
 ```
 
 Si falla (503 u otro error), informa al usuario y continúa — el fichero local ya está guardado y puede subirse después.
@@ -84,7 +152,7 @@ Si falla (503 u otro error), informa al usuario y continúa — el fichero local
 Las notas manuales suelen comenzar con una línea de asistentes (ej. "Asisten Ludo, Conchi, Pau, Xavi, Jandro, Edu"). Extrae esa lista, mapea cada nombre al slug del personaje que controla ese jugador, y registra la asistencia:
 
 ```bash
-node C:/code/aleph/cli/bin/aleph.js session attendance mark <slug> \
+$ALEPH session attendance mark <slug> \
   --campaign <id> \
   --characters <slug1,slug2,...>
 ```
@@ -112,7 +180,7 @@ Reglas de mapeo:
 Ejemplo para Kingmaker donde asisten los jugadores de Sim Sim, Laughlin y Durgan:
 
 ```bash
-node C:/code/aleph/cli/bin/aleph.js session attendance mark <slug> \
+$ALEPH session attendance mark <slug> \
   --campaign <id> \
   --characters sim-sim,laughlin,durgan
 ```
@@ -126,7 +194,7 @@ Leyendo las notas (preferentemente las manuales), extrae:
 Por cada personaje mencionado, determina:
 
 - ¿Es un PJ (jugador) o NPC?
-- ¿Ya existe en Aleph? → `node C:/code/aleph/cli/bin/aleph.js character list --campaign <id> --json`
+- ¿Ya existe en Aleph? → `$ALEPH character list --campaign <id> --json`
 - ¿Es nuevo? → créalo
 - ¿Ganó información nueva (estado, ubicación, relaciones)? → actualízalo
 
@@ -134,7 +202,7 @@ Por cada personaje mencionado, determina:
 
 Por cada elemento del worldbuilding mencionado:
 
-- ¿Ya existe como entidad? → `node C:/code/aleph/cli/bin/aleph.js entity list --campaign <id> --json`
+- ¿Ya existe como entidad? → `$ALEPH entity list --campaign <id> --json`
 - ¿Es nuevo? → créalo con el tipo correcto
 - ¿Tiene información relevante? → edítalo con `entity edit`
 
@@ -142,7 +210,7 @@ Por cada elemento del worldbuilding mencionado:
 
 Por cada facción, clan, gremio o grupo mencionado:
 
-- ¿Existe? → `node C:/code/aleph/cli/bin/aleph.js organization list --campaign <id> --json`
+- ¿Existe? → `$ALEPH organization list --campaign <id> --json`
 - ¿Es nueva? → créala
 - ¿Hay miembros nuevos? → `organization member-add`
 
@@ -150,7 +218,7 @@ Por cada facción, clan, gremio o grupo mencionado:
 
 Por cada lugar visitado o mencionado con relevancia narrativa:
 
-- ¿Existe? → `node C:/code/aleph/cli/bin/aleph.js location list --campaign <id> --json`
+- ¿Existe? → `$ALEPH location list --campaign <id> --json`
 - ¿Es nueva? → créala con el subtipo correcto (`city`, `town`, `wilderness`, `dungeon`, `building`, etc.)
 
 ## Paso 4 — Crear/actualizar entidades
@@ -160,7 +228,7 @@ Ejecuta los comandos necesarios para cada elemento identificado en el paso 3. Us
 **Personaje nuevo:**
 
 ```bash
-node C:/code/aleph/cli/bin/aleph.js character create \
+$ALEPH character create \
   --campaign <id> --name "<nombre>" --json
 ```
 
@@ -168,19 +236,19 @@ node C:/code/aleph/cli/bin/aleph.js character create \
 
 ```bash
 # Descripción física (campo "content" / pestaña Información general)
-node C:/code/aleph/cli/bin/aleph.js character update <slug> \
+$ALEPH character update <slug> \
   --campaign <id> --content "<descripción física>"
 
 # Trasfondo / origen del personaje (pestaña Historia)
-node C:/code/aleph/cli/bin/aleph.js character update <slug> \
+$ALEPH character update <slug> \
   --campaign <id> --backstory "<trasfondo y origen del personaje>"
 
 # Historial de sesiones (pestaña Historia — ACUMULATIVO, ver Paso 4a)
-node C:/code/aleph/cli/bin/aleph.js character update <slug> \
-  --campaign <id> --history-stdin < sesiones/<campaña>/histories/<slug>.md
+$ALEPH character update <slug> \
+  --campaign <id> --history-stdin < <repo-aleph>/sesiones/<campaña>/histories/<slug>.md
 
 # Estado actual tras la última sesión (pestaña Información general — se reescribe cada sesión, ver Paso 4a)
-node C:/code/aleph/cli/bin/aleph.js character update <slug> \
+$ALEPH character update <slug> \
   --campaign <id> --current-status "<situación actual del personaje>"
 ```
 
@@ -196,7 +264,7 @@ node C:/code/aleph/cli/bin/aleph.js character update <slug> \
 Tras cada sesión, actualiza el estado actual de **todos los PJs que asistieron**:
 
 ```bash
-node C:/code/aleph/cli/bin/aleph.js character update <slug> \
+$ALEPH character update <slug> \
   --campaign <id> \
   --current-status "<situación del personaje al final de la sesión: dónde está, cómo está físicamente, qué sabe o sospecha que los demás no saben, qué lleva encima de relevancia>"
 ```
@@ -211,25 +279,47 @@ node C:/code/aleph/cli/bin/aleph.js character update <slug> \
 > **CRÍTICO**: El campo `--history` es **acumulativo entre sesiones**. NUNCA lo escribas con sólo la sesión que acabas de importar — borrarías todo el historial previo. La fuente de verdad de cada historial vive en el repo, en:
 >
 > ```text
-> sesiones/<campaña>/histories/<slug-del-personaje>.md
+> <repo-aleph>/sesiones/<campaña>/histories/<slug-del-personaje>.md
 > ```
 >
 > Cada fichero contiene `# <Nombre> — Historial de sesiones` como H1 y una sección `## Sesión del DD de mes de YYYY — <título>` por cada sesión jugada, en orden cronológico de juego.
 
 **Flujo obligatorio para actualizar el historial de un personaje:**
 
-1. **Leer** `sesiones/<campaña>/histories/<slug>.md`. Si no existe, créalo con el H1 (`# <Nombre> — Historial de sesiones`) — significa que es la primera sesión del personaje.
+1. **Leer** `<repo-aleph>/sesiones/<campaña>/histories/<slug>.md`. Si no existe, créalo con el H1 (`# <Nombre> — Historial de sesiones`) — significa que es la primera sesión del personaje.
 2. **Añadir** al final del fichero una nueva sección `## Sesión del DD de mes de YYYY — <título>` con la narrativa de esta sesión desde la perspectiva del personaje (uno o dos párrafos, prosa narrativa, nombres de personajes — no de jugadores).
 3. **No reescribir** secciones de sesiones anteriores salvo error factual evidente.
 4. **Subir** el fichero a Aleph saltando el H1 (la UI ya muestra el nombre del personaje):
 
    ```bash
-   tail -n +3 sesiones/<campaña>/histories/<slug>.md | \
-     node C:/code/aleph/cli/bin/aleph.js character update <slug> \
+   tail -n +3 <repo-aleph>/sesiones/<campaña>/histories/<slug>.md | \
+     $ALEPH character update <slug> \
        --campaign <id> --history-stdin
    ```
 
    (En PowerShell: `Get-Content path | Select-Object -Skip 2 | node ... --history-stdin`.)
+
+> **En Windows, NO uses esa tubería.** Git Bash mutila UTF-8 al pasar a node: una `í`
+> (`0xC3 0xAD`) llega como `0xAD` sola, y el historial se sube con los acentos roto —
+> `## Sesión del 16 de agosto de 2026 — El maniquí en el armario` acabó como `El maniqu␡ en el
+armario`. Ocurre igual pasando el texto como argumento (`--current-status "…"`).
+>
+> Y la trampa peor: **leer** con `$ALEPH character show … --json | python` corrompe exactamente
+> igual, así que esa verificación no distingue un dato roto de una lectura rota, y puede hacerte
+> "arreglar" algo que ya estaba bien. En 2026-08-21 midió corrupción antes y después de una subida
+> limpia.
+>
+> Vía correcta en Windows: un script `.mjs` que lea el fichero como `utf8` y lance el CLI con
+> `spawn(process.execPath, [CLI, ...args], { shell: false })`, escribiendo el cuerpo en `stdin`
+> como `Buffer`, y que **verifique dentro del mismo Node**:
+>
+> ```js
+> const body = readFileSync(`${HIST}/${slug}.md`, 'utf8').split('
+> ').slice(2).join('
+> ');
+> const p = spawn(process.execPath, [CLI,'character','update',slug,'--campaign',CID,'--history-stdin'], { shell:false });
+> p.stdin.end(Buffer.from(body, 'utf8'));
+> ```
 
 **Por qué este flujo**:
 
@@ -247,7 +337,7 @@ node C:/code/aleph/cli/bin/aleph.js character update <slug> \
 **Entidad del wiki (NPC, objeto, lore, evento):**
 
 ```bash
-node C:/code/aleph/cli/bin/aleph.js entity create \
+$ALEPH entity create \
   --campaign <id> --name "<nombre>" --type <npc|item|lore|event|location|faction> \
   --content "<descripción>"
 ```
@@ -255,7 +345,7 @@ node C:/code/aleph/cli/bin/aleph.js entity create \
 **Localización:**
 
 ```bash
-node C:/code/aleph/cli/bin/aleph.js location create \
+$ALEPH location create \
   --campaign <id> --name "<nombre>" --subtype <subtipo> \
   --content "<descripción>"
 ```
@@ -263,7 +353,7 @@ node C:/code/aleph/cli/bin/aleph.js location create \
 **Organización / Facción:**
 
 ```bash
-node C:/code/aleph/cli/bin/aleph.js organization create \
+$ALEPH organization create \
   --campaign <id> --name "<nombre>" --type <faction|guild|government|other> \
   --description "<descripción>"
 ```
@@ -271,14 +361,14 @@ node C:/code/aleph/cli/bin/aleph.js organization create \
 **Añadir personaje a una organización:**
 
 ```bash
-node C:/code/aleph/cli/bin/aleph.js organization member-add <org-slug> \
+$ALEPH organization member-add <org-slug> \
   --campaign <id> --character <characterId>
 ```
 
 **Relación entre entidades:**
 
 ```bash
-node C:/code/aleph/cli/bin/aleph.js relation create \
+$ALEPH relation create \
   --campaign <id> --source <slug-A> --target <slug-B> \
   --forward "<etiqueta directa>" --reverse "<etiqueta inversa>"
 ```
@@ -286,7 +376,7 @@ node C:/code/aleph/cli/bin/aleph.js relation create \
 **Quest nueva (si la sesión abre o cierra un objetivo):**
 
 ```bash
-node C:/code/aleph/cli/bin/aleph.js quest create \
+$ALEPH quest create \
   --campaign <id> --name "<nombre>" --status active \
   --description "<descripción>"
 ```
@@ -300,7 +390,7 @@ Tras crear/actualizar las entidades, revisa las notas buscando vínculos nuevos 
 1. **Consulta las relaciones existentes** para los PJs y NPCs relevantes:
 
    ```bash
-   node /Users/ludo/code/aleph/cli/bin/aleph.js relation list \
+   $ALEPH relation list \
      --campaign <id> --json | python3 -c "
    import json, sys
    data = json.load(sys.stdin)
@@ -318,7 +408,7 @@ Tras crear/actualizar las entidades, revisa las notas buscando vínculos nuevos 
 3. **Crea solo las relaciones nuevas** — no dupliques las que ya existen:
 
    ```bash
-   node /Users/ludo/code/aleph/cli/bin/aleph.js relation create \
+   $ALEPH relation create \
      --campaign <id> \
      --source <slug-A> \
      --target <slug-B> \
@@ -361,7 +451,7 @@ La sesión actúa como `--source` (su slug es el de la sesión creada/encontrada
 2. Consulta las relaciones actuales de la sesión para no duplicar:
 
    ```bash
-   node /Users/ludo/code/aleph/cli/bin/aleph.js relation list --campaign <id> --json | node -e "
+   $ALEPH relation list --campaign <id> --json | node -e "
    const d=JSON.parse(require('fs').readFileSync(0,'utf8'));
    const items=Array.isArray(d)?d:(d.relations||d.data||[]);
    const S='<session-slug>';
@@ -373,7 +463,7 @@ La sesión actúa como `--source` (su slug es el de la sesión creada/encontrada
 3. Crea una relación de la sesión hacia cada entidad que **aún no esté enlazada**:
 
    ```bash
-   node /Users/ludo/code/aleph/cli/bin/aleph.js relation create \
+   $ALEPH relation create \
      --campaign <id> \
      --source <session-slug> \
      --target <entity-slug> \
@@ -458,7 +548,7 @@ Si quieres forzar un enlace aunque el nombre en el texto no coincida exactamente
 Ejemplo real en un campo de historial:
 
 ```bash
-node C:/code/aleph/cli/bin/aleph.js character update sim-sim \
+$ALEPH character update sim-sim \
   --campaign <id> \
   --history "Tras la batalla en :entity-link{slug=\"pueblo-del-lago\" label=\"el pueblo\"}, Sim Sim acordó una tregua con :entity-link{slug=\"familia-laughlin\" label=\"la Familia Laughlin\"}."
 ```

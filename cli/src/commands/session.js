@@ -366,6 +366,8 @@ export function makeSessionCommand() {
     .option('--manual <file>', 'Path to manual DM notes file')
     .option('--ai <file>', 'Path to AI transcription file (e.g. Gemini notes)')
     .option('--date <date>', 'Override session date (YYYY-MM-DD); default: parsed from filename')
+    .option('--subcampaign <slug>', 'Sub-campaign slug (defaults to the campaign default)')
+    .option('--group <slug>', 'Deprecated alias for --subcampaign')
     .option('--no-summarize', 'Skip auto-generating the summary after import')
     .option('--force', 'Skip confirmation prompts')
     .option('--json', 'Output result as JSON')
@@ -391,17 +393,41 @@ export function makeSessionCommand() {
 
       const title = toSpanishDate(dateStr)
 
+      // Sub-campaign, same alias handling as `session list`/`create`/`update`.
+      const subCampaignSlug = opts.subcampaign ?? opts.group
+
       // Find existing session by scheduledDate or create one
       let session = await findSessionByDate(opts.campaign, dateStr)
       if (!session) {
         session = await post(`/api/campaigns/${opts.campaign}/sessions`, {
           title,
           scheduledDate: dateStr,
+          subCampaignSlug,
         })
         process.stdout.write(`Created session: ${session.title} (${session.slug})\n`)
       } else {
         process.stdout.write(`Found session: ${session.title} (${session.slug})\n`)
+        // An existing session may sit in the default sub-campaign from an import that predates
+        // this flag. Move it, so re-importing converges instead of leaving it stranded.
+        if (subCampaignSlug && session.subCampaignSlug !== subCampaignSlug) {
+          // Do NOT reassign `session` from this response: it does not carry the same shape, so
+          // `session.slug` went undefined and every later content PUT hit a bad URL, failing
+          // with "Session not found". Mutate only the field we need for reporting.
+          await put(`/api/campaigns/${opts.campaign}/sessions/${session.slug}`, {
+            subCampaignSlug,
+          })
+          session.subCampaignSlug = subCampaignSlug
+          session.subCampaignName = undefined
+          process.stdout.write(`  moved to sub-campaign: ${subCampaignSlug}\n`)
+        }
       }
+
+      // Always report the placement. A default landing should be VISIBLE, not assumed: the old
+      // behaviour reported success loudly and placed the session silently, which is how a
+      // discoteca session ended up inside the mage cabal's storyline.
+      process.stdout.write(
+        `  sub-campaign: ${session.subCampaignName || subCampaignSlug || session.subCampaignSlug || '(default)'}\n`,
+      )
 
       // Set manual_notes
       if (opts.manual) {

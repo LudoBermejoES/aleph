@@ -4,7 +4,7 @@ description: Use the aleph CLI to manage campaigns, entities, characters, locati
 license: MIT
 metadata:
   author: aleph
-  version: '3.18'
+  version: '3.19'
 ---
 
 You have access to the `aleph` CLI tool at `node /Users/ludo/code/aleph/cli/bin/aleph.js` (or `npm run aleph -- <args>` from the project root). Use it to interact with the running Aleph server.
@@ -158,12 +158,14 @@ node /Users/ludo/code/aleph/cli/bin/aleph.js session attendance remove <slug> --
 node /Users/ludo/code/aleph/cli/bin/aleph.js session summarize <slug> --campaign <id> [--type summary|ai_notes] [--force]  # --type defaults to summary; --force skips confirmation
 
 # Import session notes from files (finds or creates session by date)
-node /Users/ludo/code/aleph/cli/bin/aleph.js session import --campaign <id> [--manual <file>] [--ai <file>] [--date <YYYY-MM-DD>] [--no-summarize] [--force] [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js session import --campaign <id> [--manual <file>] [--ai <file>] [--date <YYYY-MM-DD>] [--subcampaign <slug>] [--no-summarize] [--force] [--json]
 # At least one of --manual or --ai is required.
 # Date is parsed from filename (session-YYYY-MM-DD.md) if not provided.
 # Session title defaults to Spanish date format: "26 de abril de 2026".
 # If --manual is provided, auto-generates a summary unless --no-summarize is set.
 ```
+
+> `--subcampaign` places the session in a named sub-campaign (alias: `--group`, deprecated). WITHOUT it the session lands in the campaign's DEFAULT sub-campaign and the import still reports success — that is how a session of one storyline ends up inside another one's. The import now always prints the resulting sub-campaign, and moves an existing session when the flag names a different one.
 
 ### Sub-Campaigns
 

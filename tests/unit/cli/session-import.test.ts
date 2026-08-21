@@ -81,4 +81,50 @@ describe('CLI session import command structure', () => {
   it('skips summary generation when opts.summarize is false', () => {
     expect(source).toContain('opts.manual && opts.summarize')
   })
+  // ─── Sub-campaign placement (session-import-subcampaign) ────────────────────────────────
+  // Before this, EVERY imported session landed in the campaign's default sub-campaign and the
+  // import still printed success — a Berlin "La discoteca" session was created inside the mage
+  // cabal's "La capilla" with nothing reporting it. These pin the three branches that close it.
+
+  it('has --subcampaign option, matching list/create/update', () => {
+    expect(source).toContain("'--subcampaign <slug>'")
+  })
+
+  it('keeps --group as the deprecated alias, as the sibling subcommands do', () => {
+    expect(source).toContain("'--group <slug>'")
+    expect(source).toContain('opts.subcampaign ?? opts.group')
+  })
+
+  it('passes the slug through when CREATING the session', () => {
+    // same POST `session create` already uses, so no server change was needed
+    expect(source).toMatch(/scheduledDate: dateStr,[\s\S]*?subCampaignSlug,/)
+  })
+
+  it('MOVES an existing session that sits in another sub-campaign', () => {
+    expect(source).toContain('session.subCampaignSlug !== subCampaignSlug')
+  })
+
+  it('moves with PUT on the bare session route, not PATCH', () => {
+    // PATCH is not routed on `/sessions/:slug`: it returns the Nuxt app shell and the client then
+    // fails to JSON.parse it (verified against the live server). Note the attendance endpoint DOES
+    // use PATCH, so this must assert the shape of the MOVE call rather than the absence of `patch`.
+    expect(source).toContain('await put(`/api/campaigns/${opts.campaign}/sessions/${session.slug}`')
+  })
+
+  it('does NOT reassign `session` from the move response', () => {
+    // That response has a different shape; reassigning left `session.slug` undefined and every
+    // later content PUT failed with "Session not found".
+    expect(source).not.toContain('session = await put(')
+    expect(source).toContain('session.subCampaignSlug = subCampaignSlug')
+  })
+
+  it('always reports the resulting placement', () => {
+    expect(source).toContain('sub-campaign: ')
+  })
+
+  it('prefers the requested slug over the response when reporting', () => {
+    // The create response carries no subCampaign fields, so reporting from it alone printed
+    // "(default)" for a session that HAD been placed correctly — a false report, worse than none.
+    expect(source).toMatch(/session\.subCampaignName \|\| subCampaignSlug/)
+  })
 })
