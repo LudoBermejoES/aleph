@@ -47,3 +47,7 @@ Arrancó de cuajo una tapa de alcantarilla soldada y subió treinta metros de es
 ## Sesión del 27 de junio de 2024 — Un solo cuerpo
 
 Se quedó vigilando al niño rescatado, todavía hostil, en la guarida de Cloaka, mientras Otto cruzaba a la visión compartida con Jim Haus. No es el trabajo más glorioso que ha hecho. Es, otra vez, el que tocaba.
+
+## Sesión del 20 de agosto de 2026 — El primer número de Paradigma
+
+Raffela estaba esperando en la capilla cuando la cábala volvió de la granja, y fue derecha a por Salvador: el brazo no le está funcionando demasiado bien y el apaño que él le hizo no acaba de convencerla. La tecnología que le pusieron los tecnócratas no es la de Salvador, y él le va cambiando cosas en la circuitería poco a poco sin que ella lo sepa, con el resultado de que de vez en cuando le dan glitches. Preguntó en voz alta si le podía pegar un tiro, aceptó rebajarlo a un puñetazo de colegueo —con Roland ofreciéndose a curarlo después— y se quedó con las ganas mientras Salvador le explicaba que si cuenta ovejas eléctricas se despertará con más empatía por sus objetos. Cuando se crujió los nudillos, sonaron a metal contra metal. Terminó la noche siendo mencionada como otra de las que no tiene sitio propio en un edificio donde nadie previó discípulos.

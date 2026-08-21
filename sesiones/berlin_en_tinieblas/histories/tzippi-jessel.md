@@ -15,3 +15,7 @@ Formó parte del grupo que sometió, uno a uno, a los niños marcados a cuchillo
 ## Sesión del 27 de junio de 2024 — Un solo cuerpo
 
 Rezó con el rosario en la mano, recitando en voz baja versos sobre la Pasión, sosteniendo con su fe el ritual de Otto mientras la puerta imprecisa se abría delante de él. Comparó lo que veía con un Stargate sin dejar de rezar. Se quedó atrás, junto a Cloaka y Raffela, cuando Otto y Jim Haus cruzaron al otro lado.
+
+## Sesión del 20 de agosto de 2026 — El primer número de Paradigma
+
+Tzippi cruzó el patio de la capilla con el andar de un niño de dos años que empieza a caminar, con la cara mal colocada porque a veces se olvida de ponérsela, para anunciar que había alguien en la puerta. Era el enviado de Xu Wanqing, y Julia fue a atenderlo. Es el cuerpo que la casa usa para decir hola y para moverse, y sigue resultando desagradable de ver incluso para quienes saben perfectamente que la pobre chica está muerta.

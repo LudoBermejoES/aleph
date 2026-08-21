@@ -1,0 +1,7 @@
+# Marcus Feig — Historial de sesiones
+
+## Sesión del 20 de agosto de 2026 — El primer número de Paradigma
+
+Marcus apareció con el resto de los alumnos de Philip en la granja y lo primero que hizo fue reclamar su sitio: él también es alumno y, a diferencia de Rike, no está muerto. Cuando supo que la cábala tiene una capilla preguntó si podían visitarla, con velas y cosas así, y se llevó un no rotundo por las protecciones del edificio. Detrás del seto, con la explicación completa de Philip por delante, quedó claro que él no está en lo mismo que los demás: los magos le interesan solo en la medida en que le presenten a alguno de los suyos. Ha descubierto que es un hada y que tiene un pueblo entero que no conoce, y eso pesa más que cualquier capilla; se lo dijo a Roland directamente —lo que necesita es ayuda para encontrar a los suyos— y le costó que le escucharan.
+
+Nadie del grupo ha tratado nunca con un hada, y eso fue lo único en lo que coincidieron todos. Philip explicó su naturaleza apoyándose en un ocultismo que no le daba para mucho más que saber que las hadas existen, y comparó su naturaleza con la de la criatura metamorfa de Tezgul a la que se enfrentaron en el Berlín alternativo. Otto le ofreció lo único concreto que salió de la tarde: un ritual de búsqueda por resonancia, si comparte resonancia con los suyos y no tienen una gran capacidad de ocultación. Los magos con Conciencia lo miraron y confirmaron que en ese grupo no hay nadie normal, él incluido.
