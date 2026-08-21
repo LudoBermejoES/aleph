@@ -1,0 +1,7 @@
+# Oda Weinreich — Historial de sesiones
+
+## Sesión del 13 de agosto de 2026 — La grieta en la Madre
+
+Oda fue por primera vez a la granja de Roland, llevada por Julia, y se entretuvo cogiendo moras por el camino entre los setos cargados de zarzamoras y grosellas. Dentro de la casa, junto al árbol que Roland llamaba Madre, el suelo empezó a mecerse y las raíces bajo el césped se agitaron como tentáculos; Julia la cogió en brazos de un salto y la puso a resguardo justo frente al tronco, pero no bastó. El árbol se abrió como una flor y una figura que hablaba un gaélico arcaico —"tu carne a mi espíritu ha sido convocada"— la dejó inconsciente al desaparecer.
+
+Roland la curó de inmediato, notando que algo en su cuerpo cambiaba por dentro, como si dos cuerpos coexistieran de golpe en el mismo espacio. Cuando Oda abrió los ojos de nuevo, lo hizo con un verde que no era el suyo y una fuerza que tampoco: habló en la lengua antigua exigiendo que pararan y destruyeran a Tezgul, y cuando Julia intentó traducir con un efecto de mente, Oda respondió agarrándola de la cabeza y besándola directamente, como si el contacto fuera el verdadero vehículo del conocimiento. A través de ese contacto transmitió un torrente de visiones —Roma, una cábala marchando a la guerra, un ejército gobernado por una sombra sin nombre, la Muerte ardiendo en el pecho de Julia— antes de que Roland, con un efecto de mente propio, cortara la deriva. Justo antes de volver a ser ella misma, con la voz todavía prestada, dijo una sola frase: hay que empezar una guerra.
