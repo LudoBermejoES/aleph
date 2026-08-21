@@ -7850,4 +7850,4 @@ ago 16, 2026
 
 **Ludo Bermejo:** Vale,
 
-**Kauneda A
+\*\*Kauneda A
