@@ -200,3 +200,69 @@ export async function findMarkdownFiles(dir: string): Promise<string[]> {
 
   return files
 }
+
+/**
+ * `stripSecretBlocks` applied to EVERY string reachable from `value`, in place of the
+ * caller having to remember which fields carry prose.
+ *
+ * The defect this exists for: `stripSecretBlocks` is correct but was opt-in AT THE POINT OF
+ * USE, so a field only got filtered if whoever added it remembered to wrap it. Across the API
+ * most did not — a character's `backstory`/`history`/`currentStatus`, a session's `summary`
+ * and whole `logContent`, every `chapters`/`timelines`/`sub-campaigns` description — all
+ * served `:::secret{.dm}` verbatim to players. Walking the response instead of naming fields
+ * inverts the default: a field added tomorrow is filtered because nobody had to do anything.
+ *
+ * Idempotent, which is what makes it safe to run over already-filtered output: a second pass
+ * at the same role keeps exactly the blocks the first pass kept, and a revealed block has
+ * already lost its `:::secret` wrapper so it can never be re-hidden.
+ *
+ * Only plain objects and arrays are traversed. Dates, Buffers, Maps, Sets and class instances
+ * are returned untouched — rebuilding them would corrupt the response, and none of them carry
+ * markdown in this codebase. Object identity is preserved when nothing changed, so the common
+ * case allocates nothing.
+ */
+export function stripSecretBlocksDeep<T>(
+  value: T,
+  userRole: string,
+  revealedBlockIds?: Set<string>,
+  seen: WeakSet<object> = new WeakSet(),
+): T {
+  // A privileged reader sees everything; skip the walk entirely.
+  if ((ROLE_LEVEL[userRole] ?? 0) >= (ROLE_LEVEL['co_dm'] ?? 4)) return value
+
+  if (typeof value === 'string') {
+    // Fast path: the overwhelming majority of strings are names, ids and timestamps.
+    if (!value.includes(':::secret')) return value
+    return stripSecretBlocks(value, userRole, revealedBlockIds) as unknown as T
+  }
+
+  if (value === null || typeof value !== 'object') return value
+
+  // Cycles are not expected in a JSON response, but a hook that hangs the server is a worse
+  // failure than one that misses a field.
+  if (seen.has(value as object)) return value
+  seen.add(value as object)
+
+  if (Array.isArray(value)) {
+    let changed = false
+    const out = value.map((item) => {
+      const next = stripSecretBlocksDeep(item, userRole, revealedBlockIds, seen)
+      if (next !== item) changed = true
+      return next
+    })
+    return (changed ? out : value) as unknown as T
+  }
+
+  // Anything that is not a plain object (Date, Buffer, Map, class instance) is left alone.
+  const proto = Object.getPrototypeOf(value)
+  if (proto !== Object.prototype && proto !== null) return value
+
+  let changed = false
+  const out: Record<string, unknown> = {}
+  for (const [key, val] of Object.entries(value as Record<string, unknown>)) {
+    const next = stripSecretBlocksDeep(val, userRole, revealedBlockIds, seen)
+    if (next !== val) changed = true
+    out[key] = next
+  }
+  return (changed ? out : value) as unknown as T
+}
