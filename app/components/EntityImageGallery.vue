@@ -21,7 +21,7 @@
           <img
             :src="image.url"
             :alt="image.caption || $t('gallery.imageAlt', { name })"
-            class="w-full h-32 object-cover"
+            class="w-full h-32 object-contain bg-secondary/30"
           />
           <span
             v-if="image.isPrimary"

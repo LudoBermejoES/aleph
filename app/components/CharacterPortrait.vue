@@ -6,7 +6,7 @@
       :src="portraitUrl"
       :alt="$t('character.portraitAlt', { name })"
       :class="[
-        'rounded-lg object-cover w-full h-full',
+        'rounded-lg object-contain w-full h-full bg-secondary/30',
         editable ? 'cursor-pointer hover:opacity-80 transition-opacity' : '',
       ]"
       @click="editable && triggerUpload()"
