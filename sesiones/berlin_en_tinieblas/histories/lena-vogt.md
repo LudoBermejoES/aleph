@@ -9,3 +9,11 @@ Lena pidió la copa más fuerte de la carta sin intención de bebérsela, solo p
 Descubrió esta noche que es la única que ve a la vieja. Sacó el dibujo que había hecho a ciegas en la cola del baño y lo puso sobre la mesa esperando que los demás reconocieran la cara de la anciana del suelo; todos vieron el rostro de un maniquí calvo, y la foto que le hizo Matthias Keller también. Cuando copió el dibujo en una servilleta, los demás la vieron trazar el maniquí línea a línea mientras ella sabía perfectamente lo que estaba dibujando. Jonas Reuter apuntó lo obvio, que aquello señalaba a que la drogada era ella, y a Lena no le hizo gracia: no ha bebido ni una gota, solo pide copas fuertes para olerlas y no oler el local.
 
 Rastreó por el suelo el movimiento que arrastraba a Theo Brandt y fue quien acertó hacia dónde iba. Se guardó dos o tres botellas de aguardiente ruso en los bolsillos interiores del abrigo con la intención declarada de quemarle la cara a la vieja, y acabó usando una como mecha para prender un contenedor de basura y meterlo por la puerta de la discoteca, que es lo que por fin sacó a la gente. Dejó la botella en el suelo cuando un policía se lo pidió por favor y le informó de que ya podía detenerla; no la detuvieron, y la prensa la señaló como la heroína que evacuó el local. Pasó la noche colada en el taller de escultura de la universidad con Inés Falk.
+
+## Sesión del 24 de agosto de 2026 — Lo que Inés no recuerda haber fundido
+
+Sigue siendo la única que ve a la vieja, y sigue sin ceder. Cuando volvió a salir la discusión en el kebab describió otra vez a la anciana con nariz de bruja, con detalle, mientras los demás repetían que solo hay un maniquí liso. Ninguno de los dos bandos ha cambiado de versión desde aquella noche.
+
+Se ofreció a subir a la guardilla de Theo Brandt y ayudó a mover el armario. De noche, en Berghain, fue la que vigiló al policía de la parte de atrás: seis éxitos, y vio al agente levantarse, oler a quemado, asomarse a la esquina y distraerse con una llamada — la ventana exacta por la que entraron. Suya fue también la única teoría que explica la palabra que oyeron desde la cornisa: que la anciana y el maniquí sean los disruptores, y que estén trabajando juntos.
+
+Terminó la noche mirando, en el taller, una cara de metal que es la que ella lleva dos sesiones dibujando y que los demás por fin pueden ver.
