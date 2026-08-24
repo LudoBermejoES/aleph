@@ -4,7 +4,7 @@ description: Use the aleph CLI to manage campaigns, entities, characters, locati
 license: MIT
 metadata:
   author: aleph
-  version: '3.19'
+  version: '3.20'
 ---
 
 You have access to the `aleph` CLI tool at `node /Users/ludo/code/aleph/cli/bin/aleph.js` (or `npm run aleph -- <args>` from the project root). Use it to interact with the running Aleph server.
@@ -454,10 +454,14 @@ node /Users/ludo/code/aleph/cli/bin/aleph.js health [--json]    # check server c
 ### Search
 
 ```bash
-aleph search --campaign <id> <query> [--json]
+aleph search --campaign <id> <query> [--preview-as <role>] [--json]
 ```
 
 Returns entities, characters, and sessions matching the query. Hybrid search: combines exact/fuzzy text matching with meaning-based (semantic) matching, so a query can surface relevant entities even when it shares no words with their content. Text matching still wins for exact names; semantic matching adds recall on top. `--json` output includes each result's `score` and which arm(s) matched (`lexical`, `semantic`, or both).
+
+Matching understands Spanish inflection: `asesinar` finds `asesinó`, `correr` finds `corriendo`, `hablar` finds `hablaron`.
+
+**Results are role-scoped.** Content inside `:::secret{...}` blocks is searchable only by `co_dm` and above — for anyone below (including `editor`) such a term returns nothing at all, not a blanked excerpt, because the existence of a hit is itself the leak. Both the text and the semantic arm are scoped the same way. `--preview-as <role>` re-runs the search as that role would see it and requires `co_dm`+.
 
 ### Dice Rolls
 

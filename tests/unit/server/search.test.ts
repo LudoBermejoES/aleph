@@ -186,7 +186,15 @@ describe('FTS5 Search', () => {
 
   describe('buildFtsQuery', () => {
     it('wraps plain terms as quoted-prefix queries', () => {
-      expect(buildFtsQuery('otto busqueda')).toBe('"otto"* "busqueda"*')
+      // `otto` is its own stem, so it keeps the bare shape; `busqueda` stems to `busqued`
+      // and gains an OR'd exact clause against the `stems` column. The parentheses are
+      // load-bearing: FTS5 binds AND tighter than OR, so without them a two-word query
+      // would parse as an any-of query.
+      expect(buildFtsQuery('otto busqueda')).toBe('"otto"* AND ("busqueda"* OR "busqued")')
+    })
+
+    it('leaves a term alone when it is already its own stem', () => {
+      expect(buildFtsQuery('otto')).toBe('"otto"*')
     })
 
     it('preserves an exact phrase without a prefix wildcard', () => {

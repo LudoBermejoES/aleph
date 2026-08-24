@@ -60,6 +60,16 @@ const ROLE_LEVEL: Record<string, number> = {
 }
 
 /**
+ * Whether a role reads secret blocks as written, i.e. whether `stripSecretBlocks` is a
+ * no-op for it. The threshold is `co_dm`, so `editor` (3) is BELOW it: an editor is served
+ * filtered prose like a player. Exported so the search index can ask the question instead of
+ * restating the answer — two copies of a security threshold is how they drift apart.
+ */
+export function seesSecretContent(userRole: string): boolean {
+  return (ROLE_LEVEL[userRole] ?? 0) >= (ROLE_LEVEL['co_dm'] ?? 4)
+}
+
+/**
  * Strip :::secret{.role} blocks from markdown content based on the user's campaign role.
  * DM and Co-DM always see everything.
  *
@@ -72,7 +82,7 @@ export function stripSecretBlocks(
   userRole: string,
   revealedBlockIds?: Set<string>,
 ): string {
-  if ((ROLE_LEVEL[userRole] ?? 0) >= (ROLE_LEVEL['co_dm'] ?? 4)) return content
+  if (seesSecretContent(userRole)) return content
 
   // Match :::secret{.SPEC} or :::secret{.SPEC #id}\n...\n:::\n patterns
   return content.replace(

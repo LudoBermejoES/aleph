@@ -54,21 +54,25 @@ export interface HybridSearchOutcome {
  * fuses the two ranked lists with RRF. `semanticEnabled: false` is the
  * rollback path (see design.md Migration Plan step 6) — falls back to
  * lexical-only with no schema change.
+ *
+ * `role` reaches BOTH arms, and has to: closing the lexical door while the semantic one
+ * still answers by cosine distance would just move the leak. It defaults to `visitor` here
+ * too, so the fail-closed default is not undone by the layer in between.
  */
 export async function hybridSearchEntities(
   sqlite: Database.Database,
   campaignId: string,
   query: string,
   limit: number = 20,
-  { semanticEnabled = true }: { semanticEnabled?: boolean } = {},
+  { semanticEnabled = true, role = 'visitor' }: { semanticEnabled?: boolean; role?: string } = {},
 ): Promise<HybridSearchOutcome> {
-  const lexicalResults = searchEntities(sqlite, campaignId, query, limit)
+  const lexicalResults = searchEntities(sqlite, campaignId, query, limit, role)
   const lexicalIds = lexicalResults.map((r) => r.entityId)
   const lexicalSnippets = new Map(lexicalResults.map((r) => [r.entityId, r.snippet]))
 
   let semanticIds: string[] = []
   if (semanticEnabled) {
-    const semanticResults = await searchEntitiesSemantic(sqlite, campaignId, query, limit)
+    const semanticResults = await searchEntitiesSemantic(sqlite, campaignId, query, limit, role)
     semanticIds = semanticResults.map((r) => r.entityId)
   }
 

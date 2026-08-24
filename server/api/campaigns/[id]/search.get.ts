@@ -3,13 +3,18 @@ import { useDb, useSqlite } from '../../../utils/db'
 import { hybridSearchEntities } from '../../../services/hybrid-search'
 import { entities } from '../../../db/schema/entities'
 import { ROLE_LEVEL, VISIBILITY_MIN_ROLE } from '../../../utils/permissions'
+import { getEffectiveRole } from '../../../utils/effective-role'
 import type { CampaignRole } from '../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)
   const q = ((query.q as string) || '').trim()
   const campaignId = getRouterParam(event, 'id')!
-  const role = (event.context.campaignRole || 'visitor') as CampaignRole
+  // `getEffectiveRole`, not the raw membership: it is the same helper the response-wide
+  // secret filter uses, so a DM previewing as a player searches the index a player searches
+  // instead of getting their own results scrubbed on the way out — and `?preview_as=` stays
+  // gated on genuinely being co_dm+.
+  const role = getEffectiveRole(event) as CampaignRole
   const userId = event.context.user?.id
   const typeFilter = query.type as string | undefined
 
@@ -23,6 +28,7 @@ export default defineEventHandler(async (event) => {
 
   const { fused, lexicalSnippets } = await hybridSearchEntities(sqlite, campaignId, q, 20, {
     semanticEnabled: config.search.semanticEnabled,
+    role,
   })
 
   if (!fused.length) return { results: [], query: q }
