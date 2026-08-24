@@ -50,4 +50,9 @@
 
 - [x] 8.1 Full unit suite: 1589/1589 passing (134 files). Full integration suite: 923/925 passing on the first concurrent run; the 2 failures (`rate-limiting.test.ts`, `admin-users.test.ts`) both reproduced as passing (16/16) when re-run isolated together — pre-existing rate-limiter state pollution from running 100+ integration files concurrently, unrelated to this change (neither test touches organizations/characters/diagrams/graph). No regressions found.
 - [x] 8.2 Spot-checked manually against a local dev server (curl, DM + player accounts, mixed `members`/`dm_only` characters and organizations): player's org list excludes the `dm_only` org (DM's list shows both); fetching the hidden org's detail as player returns 404; player's character list excludes the `dm_only` character; the relationship graph excludes the hidden character's node for the player (present for DM); a generated `faction-web` diagram's snapshot shows both orgs' `factionCard` shapes to the DM but only the visible org's shape to the player — confirming the full path (list, detail, graph, diagram generation, diagram view-time filtering) end to end.
-- [ ] 8.3 Update `openspec/specs/entity-permissions/spec.md`, `openspec/specs/organization-management/spec.md`, and `openspec/specs/relationship-graph/spec.md` from this change's delta specs once archived via `/opsx:archive`
+- [x] 8.3 Update `openspec/specs/entity-permissions/spec.md`, `openspec/specs/organization-management/spec.md`, and `openspec/specs/relationship-graph/spec.md` from this change's delta specs once archived via `/opsx:archive`
+      **HECHO 2026-08-24 por el propio `openspec archive`**, que es quien aplica los deltas a los specs
+      principales — la tarea describía el paso de archivado, no trabajo previo a él. Verificado antes de
+      archivar que la implementación está viva y no solo con las casillas marcadas:
+      `buildVisibilityFilter` presente en el listado de organizaciones y en el de personajes, y el
+      endpoint responde 401 sin credenciales en producción.
