@@ -12,7 +12,6 @@
  */
 
 const MARKER_SIZE = 32
-const DOT_SIZE = 16
 const DEFAULT_DOT_COLOR = '#3b82f6'
 
 /** Zoom-scaled marker size, in px. The owner asked for 32 at the coarsest zoom growing to 96
@@ -138,7 +137,8 @@ export function buildPinMarkerHtml(pin: MarkerPin, size: number = MARKER_SIZE): 
   // 32px design (2/32 border, 18/32 glyph) so the pin looks the same at every size.
   const border = Math.max(2, Math.round(size / 16))
   const glyph = Math.round((size * 18) / 32)
-  // Tier 3 keeps its historic half-size relationship to the entity tiers (16 vs 32).
+  // Tier 3 keeps its historic half-size relationship to the entity tiers (the old
+  // DOT_SIZE/MARKER_SIZE pair was 16/32); it is a ratio now, not a constant.
   const dot = Math.max(8, Math.round(size / 2))
   if (pin.entityImageUrl) {
     const url = escapeHtml(pin.entityImageUrl)
@@ -183,8 +183,7 @@ export function buildPinMarkerHtml(pin: MarkerPin, size: number = MARKER_SIZE): 
 /** Icon size for the divIcon -- must match `buildPinMarkerHtml`'s per-tier square size for
  *  the SAME `size` argument, or Leaflet anchors the marker off-centre. */
 export function markerIconSize(pin: MarkerPin, size: number = MARKER_SIZE): [number, number] {
-  const px =
-    pin.entityImageUrl || pin.entityType ? size : Math.max(8, Math.round(size / 2))
+  const px = pin.entityImageUrl || pin.entityType ? size : Math.max(8, Math.round(size / 2))
   return [px, px]
 }
 
