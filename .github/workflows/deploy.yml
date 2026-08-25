@@ -24,6 +24,13 @@ jobs:
       - name: Check formatting
         run: npm run format:check
 
+      # `cli/node_modules` is gitignored, not vendored, so a fresh checkout cannot resolve
+      # `commander` and any unit test that IMPORTS `cli/src/**` dies with ERR_MODULE_NOT_FOUND.
+      # `integration-test` has always had this step; `test` did not, which is why
+      # tests/unit/cli/map-create.test.ts passed locally and failed in CI. Same command, verbatim.
+      - name: Install CLI dependencies
+        run: npm install --legacy-peer-deps --prefix cli
+
       - name: Run unit tests
         run: npx vitest run tests/unit/
 
