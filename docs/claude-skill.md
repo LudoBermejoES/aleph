@@ -4,7 +4,7 @@ description: Use the aleph CLI to manage campaigns, entities, characters, locati
 license: MIT
 metadata:
   author: aleph
-  version: '1.13'
+  version: '1.14'
 ---
 
 You have access to the `aleph` CLI. Run it as `aleph` if installed globally (`npm i -g aleph-cli`), or `npx aleph-cli` otherwise.
@@ -157,6 +157,7 @@ aleph session attendance set <slug> --campaign <id> --status pending|accepted|de
 aleph session attendance mark <slug> --campaign <id> --characters <slug1,slug2,...> [--absent] [--json]  # DM/co-DM: bulk-mark characters as attended (or absent with --absent)
 aleph session attendance add <slug> --campaign <id> --user <userId> [--character <id>] [--status pending|accepted|declined|tentative]  # DM/co-DM: add a campaign member as a session participant
 aleph session attendance remove <slug> --campaign <id> --user <userId>  # DM/co-DM: remove a participant from a session
+aleph session attendance xp <slug> --campaign <id> --user <userId> (--xp <n> | --clear)  # DM/co-DM: record (or clear) XP for a participant. Requires that participant's attendance to already be marked (`attended: true`) — 422 otherwise. --xp must be a whole number >= 0; --clear resets to "not recorded" (distinct from 0).
 
 # AI generation (requires AI_PROVIDER + AI_API_KEY configured on the server)
 aleph session summarize <slug> --campaign <id> [--type summary|ai_notes] [--force]  # --type defaults to summary; --force skips confirmation
@@ -316,9 +317,13 @@ aleph map pins --campaign <id> --slug <slug> [--json]
 # --lat/--lng mean different things depending on the map's type: on an image map they are
 # CRS.Simple-scaled pixel coordinates matching the uploaded image; on an OSM map they are
 # real WGS84 degrees (-90..90 / -180..180). Run `map get` to check the map's type first.
-aleph map pin-add --campaign <id> --slug <slug> --label <label> --lat <lat> --lng <lng> [--entity <slug>]
+aleph map pin-add --campaign <id> --slug <slug> --lat <lat> --lng <lng> [--label <label>] [--entity <slug>]
+# --label is optional: an un-labelled pin displays its linked entity's live name instead (add-pin-rename).
 aleph map pin-move --campaign <id> --slug <slug> --pin <pinId> --lat <lat> --lng <lng> [--json]
-# Editor+ only. Moves an existing pin -- label/colour/entity cannot be changed this way.
+# Editor+ only. Moves an existing pin -- colour/entity cannot be changed this way.
+aleph map pin-rename --campaign <id> --slug <slug> --pin <pinId> --label <label> [--json]
+# Editor+ only. Renames a pin's label via the same PATCH route pin-move uses. Pass --label ""
+# to clear it, which makes the pin display its linked entity's name again.
 aleph map pin-delete --campaign <id> --slug <slug> --pin <pinId>
 aleph map layer-update --campaign <id> --slug <slug> --layer <layerId> [--name <name>] [--opacity <n>]
 aleph map layer-delete --campaign <id> --slug <slug> --layer <layerId> [--yes]

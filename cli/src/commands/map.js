@@ -194,7 +194,10 @@ export function makeMapCommand() {
     )
     .requiredOption('--campaign <id>', 'Campaign ID')
     .requiredOption('--slug <slug>', 'Map slug')
-    .requiredOption('--label <label>', 'Pin label')
+    // add-pin-rename: no longer required. Pin creation SHALL NOT copy the entity's name into
+    // `label` (design.md), so a pin dropped with no --label is now the NORMAL case, not a
+    // gap to fill in -- its display name resolves live from the linked entity instead.
+    .option('--label <label>', 'Pin label (optional; omit to let the linked entity name show)')
     .requiredOption(
       '--lat <lat>',
       'Latitude — image map: CRS.Simple pixel Y; OSM map: WGS84 degrees',
@@ -208,7 +211,8 @@ export function makeMapCommand() {
     .option('--entity <slug>', 'Linked entity slug')
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
-      const body = { label: opts.label, lat: opts.lat, lng: opts.lng }
+      const body = { lat: opts.lat, lng: opts.lng }
+      if (opts.label !== undefined) body.label = opts.label
       // El endpoint declara `entityId` (pins/index.post.ts). Enviar `entitySlug` era un
       // no-op SILENCIOSO: zod descarta las claves que no declara, así que el pin nacía con
       // entityId null y no podía mostrar nunca la imagen de su entidad. Cuarto desajuste
@@ -249,6 +253,34 @@ export function makeMapCommand() {
         print(data, { json: true })
       } else {
         success(`Pin ${opts.pin} moved to (${data.lat}, ${data.lng}).`)
+      }
+    })
+
+  cmd
+    .command('pin-rename')
+    .description(
+      "Rename a pin's label. Pass an empty string to clear it, which makes the pin display " +
+        "its linked entity's name again instead (add-pin-rename/design.md D4). Uses the same " +
+        '`pins/:pinId` endpoint `pin-move` does, widened to also accept `label`.',
+    )
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .requiredOption('--slug <slug>', 'Map slug')
+    .requiredOption('--pin <pinId>', 'Pin ID')
+    .requiredOption('--label <label>', 'New label. Pass "" to clear it.')
+    .option('--json', 'Output as JSON')
+    .action(async (opts) => {
+      const data = await patch(
+        `/api/campaigns/${opts.campaign}/maps/${opts.slug}/pins/${opts.pin}`,
+        { label: opts.label },
+      )
+      if (opts.json) {
+        print(data, { json: true })
+      } else {
+        success(
+          data.label
+            ? `Pin ${opts.pin} renamed to "${data.label}".`
+            : `Pin ${opts.pin}'s label cleared -- it now shows its linked entity's name.`,
+        )
       }
     })
 

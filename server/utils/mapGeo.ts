@@ -29,6 +29,28 @@ export const pinCoordinatesSchema = z.object({
   lng: z.number(),
 })
 
+/**
+ * `PATCH .../pins/[pinId]`'s body (add-pin-rename/design.md D2): a partial update of ONE pin,
+ * accepting `lat`/`lng` (only as a pair, same as `pinCoordinatesSchema`) and/or `label`,
+ * independently of each other. `color`/`entityId`/anything else sent alongside is still
+ * silently dropped by `.parse()`, unchanged from before this schema existed.
+ *
+ * At least one of the two groups must be present -- an empty PATCH body doing nothing is
+ * rejected rather than accepted as a silent no-op.
+ */
+export const pinUpdateSchema = z
+  .object({
+    lat: z.number().optional(),
+    lng: z.number().optional(),
+    label: z.string().nullable().optional(),
+  })
+  .refine((data) => (data.lat === undefined) === (data.lng === undefined), {
+    message: 'lat and lng must be provided together',
+  })
+  .refine((data) => data.lat !== undefined || data.label !== undefined, {
+    message: 'At least one of lat/lng or label must be provided',
+  })
+
 const WGS84_LAT_RANGE: [number, number] = [-90, 90]
 const WGS84_LNG_RANGE: [number, number] = [-180, 180]
 

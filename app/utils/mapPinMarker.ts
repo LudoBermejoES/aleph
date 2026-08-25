@@ -187,13 +187,49 @@ export function markerIconSize(pin: MarkerPin, size: number = MARKER_SIZE): [num
   return [px, px]
 }
 
+/**
+ * El nombre que se MUESTRA de un pin: la etiqueta PROPIA del pin si alguien la puso a
+ * propósito, y si no el nombre vivo de la entidad enlazada.
+ *
+ * add-pin-rename/design.md D1: esta prioridad se invirtió a propósito respecto a la que
+ * introdujo improve-map-pin-markers-and-deletion (`entityName || label`). Aquella versión
+ * resolvía el caso real de una etiqueta que envejecía en silencio al renombrarse el lugar --
+ * cinco pines a la vez, medido -- pero solo era segura mientras NINGÚN pin pudiera
+ * renombrarse a propósito. En cuanto existe un botón de renombrar (este cambio), esa
+ * prioridad haría el renombrado invisible: el nombre vivo de la entidad seguiría ganando
+ * siempre, y el usuario vería que su cambio "no hizo nada".
+ *
+ * Lo que hace segura la vuelta a "la etiqueta manda" es que, desde este cambio, crear un pin
+ * YA NO copia el nombre de la entidad en `label` (`onPinDrop`, `pin-add --label` ahora
+ * opcional) -- así que un `label` no nulo significa, de aquí en adelante, que alguien lo
+ * escribió a propósito. Los pines que quedaron de ANTES de esta regla, cuya `label` era
+ * indistinguible de una copia envejecida, se limpian en el backfill de arranque
+ * (`server/db/backfills/pin-label-entity-match.ts`, design.md D3) para que no queden
+ * "renombrados" para siempre sin que nadie lo pidiera.
+ */
+export function pinDisplayName(
+  pin: { label?: string | null; entityName?: string | null },
+  fallback: string,
+): string {
+  return pin.label || pin.entityName || fallback
+}
+
 export interface PopupPin {
   id: string
+  entityName?: string | null
   label?: string | null
   entityId?: string | null
   entityType?: string | null
   entitySlug?: string | null
   childMapId?: string | null
+  /** The linked entity's image, joined + visibility-filtered server-side -- same source the
+   *  marker itself already draws from (`MarkerPin.entityImageUrl`), given its own field here
+   *  because the marker- and popup-building interfaces already diverge on purpose (design.md
+   *  D6 of add-pin-popup-entity-preview). */
+  entityImageUrl?: string | null
+  /** Short, plain-text excerpt of the linked entity's description, already
+   *  visibility-and-secret-filtered server-side (add-pin-popup-entity-preview/design.md). */
+  entityExcerpt?: string | null
 }
 
 /**
@@ -239,13 +275,22 @@ export interface PopupLabels {
   deletePin: string
 }
 
+/** Popup card's width bounds, in px. Bounded on BOTH ends -- narrow enough that an
+ *  image-plus-excerpt card never spills off a phone screen, wide enough that the name and the
+ *  "Ver entidad" link don't wrap into an unreadable column. Fed to Leaflet's own `bindPopup`
+ *  `maxWidth` option too (add-pin-popup-entity-preview/design.md D6) -- Leaflet's popup chrome
+ *  is what actually governs on-screen width; this container's own CSS is not enough by itself. */
+export const POPUP_MIN_WIDTH = 140
+export const POPUP_MAX_WIDTH = 220
+
 /**
  * Builds the popup's HTML. `pin.label` went into this popup unescaped before this change
- * (design.md's Risks) -- every interpolated field here is now escaped. The delete button is
- * only included when `canDelete` is true, so a role below editor gets no delete affordance in
- * the DOM at all (spec: "A viewer without permission"); its click handler is attached by the
- * caller on Leaflet's `popupopen` (a `@click` in this HTML string never binds -- design.md's
- * Risks), matched via `data-pin-delete`.
+ * (design.md's Risks) -- every interpolated field here is now escaped, including the two
+ * fields add-pin-popup-entity-preview adds (`entityImageUrl`, `entityExcerpt`). The delete
+ * button is only included when `canDelete` is true, so a role below editor gets no delete
+ * affordance in the DOM at all (spec: "A viewer without permission"); its click handler is
+ * attached by the caller on Leaflet's `popupopen` (a `@click` in this HTML string never binds
+ * -- design.md's Risks), matched via `data-pin-delete`.
  */
 export function buildPinPopupHtml(
   pin: PopupPin,
@@ -253,7 +298,17 @@ export function buildPinPopupHtml(
   labels: PopupLabels,
   canDelete: boolean,
 ): string {
-  const safeLabel = escapeHtml(pin.label || labels.pinFallback)
+  const safeLabel = escapeHtml(pinDisplayName(pin, labels.pinFallback))
+  // add-pin-popup-entity-preview/design.md D6: image -> excerpt -> the pre-existing fields, in
+  // that order. `object-fit: cover` matches the marker's own cropping rule
+  // (improve-map-pin-markers-and-deletion D2) -- a non-square portrait is cropped to fill the
+  // frame, never squashed or letterboxed.
+  const image = pin.entityImageUrl
+    ? `<img src="${escapeHtml(pin.entityImageUrl)}" alt="" style="display:block;width:100%;height:110px;object-fit:cover;border-radius:6px;margin:6px 0;">`
+    : ''
+  const excerpt = pin.entityExcerpt
+    ? `<p style="margin:4px 0;font-size:12px;color:#444;line-height:1.35;">${escapeHtml(pin.entityExcerpt)}</p>`
+    : ''
   // No slug means no addressable page, so no link at all -- better than one that 404s, which
   // is what the id-based link did.
   const href = entityHref(campaignId, pin.entityType, pin.entitySlug)
@@ -266,5 +321,8 @@ export function buildPinPopupHtml(
   const deleteButton = canDelete
     ? `<br><button type="button" data-pin-delete="${escapeHtml(pin.id)}" style="margin-top:6px;font-size:12px;color:#dc2626;background:none;border:none;padding:0;cursor:pointer;text-decoration:underline;">${escapeHtml(labels.deletePin)}</button>`
     : ''
-  return `<div style="min-width:120px;"><strong>${safeLabel}</strong>${entityLink}${exploreHint}${deleteButton}</div>`
+  return (
+    `<div style="min-width:${POPUP_MIN_WIDTH}px;max-width:${POPUP_MAX_WIDTH}px;">` +
+    `<strong>${safeLabel}</strong>${image}${excerpt}${entityLink}${exploreHint}${deleteButton}</div>`
+  )
 }

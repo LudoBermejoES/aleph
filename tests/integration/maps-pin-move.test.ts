@@ -2,11 +2,18 @@ import { describe, it, expect, beforeAll } from 'vitest'
 import { apiRaw, signUpAndLogin } from './helpers'
 
 /**
- * PATCH .../pins/[pinId] (move-pins-and-resolve-entity-images/design.md D2). There was
- * previously NO endpoint at all to move a pin -- only create (POST) and delete (DELETE)
- * existed -- so this is new coverage, not a regression fixture.
+ * PATCH .../pins/[pinId] (move-pins-and-resolve-entity-images/design.md D2, widened by
+ * add-pin-rename/design.md D2). There was previously NO endpoint at all to move a pin --
+ * only create (POST) and delete (DELETE) existed -- so this is new coverage, not a
+ * regression fixture.
+ *
+ * `add-pin-rename` widened this endpoint's schema to also accept `label`. The
+ * `'a body with label/color/entityId does not apply those fields'` test below used to assert
+ * ALL THREE were dropped; that is no longer true for `label`, which this endpoint now applies
+ * on purpose (design.md D2's recorded, honest cost -- rewritten below, not deleted, since
+ * `color`/`entityId` genuinely are still out of scope and unchanged).
  */
-describe('Move a map pin (PATCH)', () => {
+describe('Move/rename a map pin (PATCH)', () => {
   const dmEmail = `pin-move-dm-${Date.now()}@example.com`
   const playerEmail = `pin-move-player-${Date.now()}@example.com`
   let dmCookie = ''
@@ -80,18 +87,73 @@ describe('Move a map pin (PATCH)', () => {
     expect(moved.lng).toBe(84)
   })
 
-  it('a body with label/color/entityId does not apply those fields', async () => {
+  it('a body with color/entityId does not apply those fields, but label now does', async () => {
+    // add-pin-rename/design.md D2: `label` is now a deliberate part of this endpoint's
+    // contract, not an unrelated field it refuses -- so it is expected to apply here, while
+    // color/entityId remain genuinely out of scope and unchanged.
     const res = await apiRaw(`/api/campaigns/${campaignId}/maps/${mapSlug}/pins/${pinId}`, {
       method: 'PATCH',
       headers: { Cookie: dmCookie, 'X-CSRF-Token': dmCsrf },
-      body: { lat: 1, lng: 2, label: 'Hijacked label', color: '#000000', entityId: 'nope' },
+      body: { lat: 1, lng: 2, label: 'Renamed on purpose', color: '#000000', entityId: 'nope' },
     })
     expect(res.status).toBe(200)
     const data = await res.json()
     expect(data.lat).toBe(1)
     expect(data.lng).toBe(2)
-    expect(data.label).toBe('Movable Pin')
+    expect(data.label).toBe('Renamed on purpose')
     expect(data.entityId).toBeNull()
+    expect(data.color).toBeNull()
+  })
+
+  it('a label-only body renames without touching coordinates', async () => {
+    const res = await apiRaw(`/api/campaigns/${campaignId}/maps/${mapSlug}/pins/${pinId}`, {
+      method: 'PATCH',
+      headers: { Cookie: dmCookie, 'X-CSRF-Token': dmCsrf },
+      body: { label: 'Label only' },
+    })
+    expect(res.status).toBe(200)
+    const data = await res.json()
+    expect(data.label).toBe('Label only')
+    expect(data.lat).toBe(1)
+    expect(data.lng).toBe(2)
+  })
+
+  it('clearing a label stores null, not an empty string', async () => {
+    const res = await apiRaw(`/api/campaigns/${campaignId}/maps/${mapSlug}/pins/${pinId}`, {
+      method: 'PATCH',
+      headers: { Cookie: dmCookie, 'X-CSRF-Token': dmCsrf },
+      body: { label: '' },
+    })
+    expect(res.status).toBe(200)
+    const data = await res.json()
+    expect(data.label).toBeNull()
+  })
+
+  it('an empty body (no lat/lng/label) is rejected', async () => {
+    const res = await apiRaw(`/api/campaigns/${campaignId}/maps/${mapSlug}/pins/${pinId}`, {
+      method: 'PATCH',
+      headers: { Cookie: dmCookie, 'X-CSRF-Token': dmCsrf },
+      body: {},
+    })
+    expect(res.status).toBe(422)
+  })
+
+  it('lat without lng is rejected (coordinates must be given together)', async () => {
+    const res = await apiRaw(`/api/campaigns/${campaignId}/maps/${mapSlug}/pins/${pinId}`, {
+      method: 'PATCH',
+      headers: { Cookie: dmCookie, 'X-CSRF-Token': dmCsrf },
+      body: { lat: 5 },
+    })
+    expect(res.status).toBe(422)
+  })
+
+  it('a role below editor is rejected for a label-only body too', async () => {
+    const res = await apiRaw(`/api/campaigns/${campaignId}/maps/${mapSlug}/pins/${pinId}`, {
+      method: 'PATCH',
+      headers: { Cookie: playerCookie, 'X-CSRF-Token': playerCsrf },
+      body: { label: 'Should not apply' },
+    })
+    expect(res.status).toBe(403)
   })
 
   it('the returned shape matches the pin-listing endpoint', async () => {

@@ -143,19 +143,23 @@
               :title="$t('maps.focusPin')"
               @click="focusPin(pin.id)"
             >
-              {{ pin.label || $t('maps.unnamedPin') }}
+              {{ pinDisplayName(pin, $t('maps.unnamedPin')) }}
             </button>
             <span class="text-xs text-muted-foreground"
               >({{ pin.lat.toFixed(1) }}, {{ pin.lng.toFixed(1) }})</span
             >
-            <Button
-              v-if="isEditorPlus"
-              variant="ghost"
-              size="sm"
-              class="ml-auto text-destructive"
-              @click="deletePin(pin.id)"
-              >{{ $t('maps.deletePin') }}</Button
-            >
+            <div v-if="isEditorPlus" class="ml-auto flex items-center gap-1">
+              <Button variant="ghost" size="sm" @click="renamePin(pin)">{{
+                $t('maps.editPinLabel')
+              }}</Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                class="text-destructive"
+                @click="deletePin(pin.id)"
+                >{{ $t('maps.deletePin') }}</Button
+              >
+            </div>
           </div>
         </div>
       </div>
@@ -181,6 +185,7 @@
 </template>
 
 <script setup lang="ts">
+import { pinDisplayName } from '~/utils/mapPinMarker'
 import type { CampaignMap, Entity, EntityType } from '~/types/api'
 import { ENTITY_DRAG_MIME } from '~/utils/mapPinGeometry'
 
@@ -235,14 +240,14 @@ function onEntityDragStart(entity: Entity, event: DragEvent) {
 
 async function onPinDrop(payload: { lat: number; lng: number; entityId: string }) {
   try {
-    // Label the pin with the dragged entity's own name so it's identifiable in the pins
-    // list/tooltip immediately -- the drop payload only carries lat/lng/entityId.
-    const label = pickerEntities.value.find((e) => e.id === payload.entityId)?.name
+    // add-pin-rename/design.md D1-D3: a dropped pin no longer copies the entity's name into
+    // `label`. Its display name is resolved LIVE from the linked entity (`pinDisplayName`),
+    // and leaving `label` null is what makes a later, deliberate rename meaningfully
+    // override that live name instead of being indistinguishable from a stale copy.
     const created = await api.createMapPin(slug, {
       lat: payload.lat,
       lng: payload.lng,
       entityId: payload.entityId,
-      label,
     })
     // design.md D1: append the created row instead of calling load() -- load() refetches the
     // map AND the campaign inside withLoading, which unmounts MapViewer (its onUnmounted runs
@@ -321,6 +326,37 @@ async function deletePin(pinId: string) {
     }
   } catch (e: unknown) {
     alert((e as { data?: { message?: string } })?.data?.message || t('maps.pinDeleteFailed'))
+  }
+}
+
+/**
+ * Rename a pin from the pins list (add-pin-rename/design.md D5). `prompt()` pre-filled with
+ * the pin's own CUSTOM `label` -- not `pinDisplayName`'s resolved value, which may be the
+ * live entity name; editing that would make no sense, only the override is editable here.
+ * An empty result clears the label (design D4: the server normalizes '' to null, resuming
+ * "derive from the entity").
+ *
+ * `armPinsRenderSuppression()` is called BEFORE mutating `mapData.value.pins[i]`, mirroring
+ * `onPinMove`'s existing ordering constraint -- the watcher this guards is synchronous
+ * relative to the mutation, not the network request, so arming it any later would miss the
+ * very tick it exists to swallow. Without it, `MapViewer`'s deep watcher on `pins` would
+ * rebuild every marker for a change that moves nothing on screen, flickering and closing any
+ * open popup (design D5) -- this is the first caller of that suppression from OUTSIDE
+ * `MapViewer` itself.
+ */
+async function renamePin(pin: { id: string; label: string | null }) {
+  const next = prompt(t('maps.renamePinPrompt'), pin.label ?? '')
+  if (next === null) return
+  try {
+    const updated = await api.renameMapPin(slug, pin.id, next.trim() || null)
+    ;(
+      mapViewer.value as { armPinsRenderSuppression?: () => void } | null
+    )?.armPinsRenderSuppression?.()
+    const pins = mapData.value?.pins
+    const idx = pins?.findIndex((p) => p.id === pin.id) ?? -1
+    if (pins && idx !== -1) pins[idx] = updated
+  } catch (e: unknown) {
+    alert((e as { data?: { message?: string } })?.data?.message || t('maps.pinRenameFailed'))
   }
 }
 

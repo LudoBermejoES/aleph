@@ -4,7 +4,7 @@ description: Use the aleph CLI to manage campaigns, entities, characters, locati
 license: MIT
 metadata:
   author: aleph
-  version: '3.23'
+  version: '3.25'
 ---
 
 You have access to the `aleph` CLI tool at `node /Users/ludo/code/aleph/cli/bin/aleph.js` (or `npm run aleph -- <args>` from the project root). Use it to interact with the running Aleph server.
@@ -153,6 +153,7 @@ node /Users/ludo/code/aleph/cli/bin/aleph.js session attendance set <slug> --cam
 node /Users/ludo/code/aleph/cli/bin/aleph.js session attendance mark <slug> --campaign <id> --characters <slug1,slug2,...> [--absent] [--json]  # DM/co-DM: bulk-mark characters as attended (or absent with --absent)
 node /Users/ludo/code/aleph/cli/bin/aleph.js session attendance add <slug> --campaign <id> --user <userId> [--character <id>] [--status pending|accepted|declined|tentative]  # DM/co-DM: add a campaign member as a session participant
 node /Users/ludo/code/aleph/cli/bin/aleph.js session attendance remove <slug> --campaign <id> --user <userId>  # DM/co-DM: remove a participant from a session
+node /Users/ludo/code/aleph/cli/bin/aleph.js session attendance xp <slug> --campaign <id> --user <userId> (--xp <n> | --clear)  # DM/co-DM: record (or clear) XP for a participant. Requires that participant's attendance to already be marked (`attended: true`) — 422 otherwise. --xp must be a whole number >= 0; --clear resets to "not recorded" (distinct from 0).
 
 # AI generation (requires AI_PROVIDER + AI_API_KEY configured on the server)
 node /Users/ludo/code/aleph/cli/bin/aleph.js session summarize <slug> --campaign <id> [--type summary|ai_notes] [--force]  # --type defaults to summary; --force skips confirmation
@@ -300,9 +301,13 @@ node /Users/ludo/code/aleph/cli/bin/aleph.js map pins --campaign <id> --slug <sl
 # --lat/--lng mean different things depending on the map's type: on an image map they are
 # CRS.Simple-scaled pixel coordinates matching the uploaded image; on an OSM map they are
 # real WGS84 degrees (-90..90 / -180..180). Run `map get` to check the map's type first.
-node /Users/ludo/code/aleph/cli/bin/aleph.js map pin-add --campaign <id> --slug <slug> --label <label> --lat <lat> --lng <lng> [--entity <slug>]
+node /Users/ludo/code/aleph/cli/bin/aleph.js map pin-add --campaign <id> --slug <slug> --lat <lat> --lng <lng> [--label <label>] [--entity <slug>]
+# --label is optional: an un-labelled pin displays its linked entity's live name instead (add-pin-rename).
 node /Users/ludo/code/aleph/cli/bin/aleph.js map pin-move --campaign <id> --slug <slug> --pin <pinId> --lat <lat> --lng <lng> [--json]
-# Editor+ only. Moves an existing pin -- label/colour/entity cannot be changed this way.
+# Editor+ only. Moves an existing pin -- colour/entity cannot be changed this way.
+node /Users/ludo/code/aleph/cli/bin/aleph.js map pin-rename --campaign <id> --slug <slug> --pin <pinId> --label <label> [--json]
+# Editor+ only. Renames a pin's label via the same PATCH route pin-move uses. Pass --label ""
+# to clear it, which makes the pin display its linked entity's name again.
 node /Users/ludo/code/aleph/cli/bin/aleph.js map pin-delete --campaign <id> --slug <slug> --pin <pinId>
 node /Users/ludo/code/aleph/cli/bin/aleph.js map layer-update --campaign <id> --slug <slug> --layer <layerId> [--name <name>] [--opacity <n>]
 node /Users/ludo/code/aleph/cli/bin/aleph.js map layer-delete --campaign <id> --slug <slug> --layer <layerId> [--yes]

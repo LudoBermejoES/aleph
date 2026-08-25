@@ -7,6 +7,7 @@ import { backfillOrganizationImages } from '../db/backfills/organization-images'
 import { backfillQuestEntities } from '../db/backfills/quest-entities'
 import { backfillSessionEntities } from '../db/backfills/session-entities'
 import { backfillArcEntities } from '../db/backfills/arc-entities'
+import { backfillPinLabelEntityMatch } from '../db/backfills/pin-label-entity-match'
 import { join } from 'path'
 
 export default defineNitroPlugin(async () => {
@@ -66,5 +67,17 @@ export default defineNitroPlugin(async () => {
     await backfillArcEntities(db)
   } catch (error) {
     logger.error('Failed to backfill arc mirror entities', { error })
+  }
+
+  // add-pin-rename/design.md D3: pins whose label is only a copy of their entity's name must
+  // be nulled BEFORE the new "custom label overrides the live entity name" priority rule can
+  // safely apply to them, or they would be wrongly treated as deliberately renamed forever.
+  try {
+    const result = backfillPinLabelEntityMatch(db)
+    if (result.nulled > 0) {
+      logger.info('Backfilled pin labels matching their entity name', result)
+    }
+  } catch (error) {
+    logger.error('Failed to backfill pin labels matching their entity name', { error })
   }
 })

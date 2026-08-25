@@ -104,6 +104,8 @@ import {
   pinSizeForZoom,
   MARKER_SIZE_MIN,
   buildPinPopupHtml,
+  POPUP_MAX_WIDTH,
+  POPUP_MIN_WIDTH,
   type PopupLabels,
 } from '~/utils/mapPinMarker'
 
@@ -136,7 +138,11 @@ const props = defineProps<{
     /** Linked entity's image/type, joined + visibility-filtered server-side (design.md D3). */
     entityImageUrl?: string | null
     entityType?: string | null
+    entityName?: string | null
     entitySlug?: string | null
+    /** Short plain-text excerpt of the linked entity's description, already
+     *  visibility-and-secret-filtered server-side (add-pin-popup-entity-preview/design.md). */
+    entityExcerpt?: string | null
   }>
   layers?: Array<{
     id: string
@@ -448,7 +454,20 @@ function focusPin(pinId: string) {
   entry.marker.openPopup()
 }
 
-defineExpose({ focusPin })
+/**
+ * Arms the same suppression the internal `dragend` handler already arms on ITSELF before the
+ * page mutates `mapData.value.pins[i]` for a move (add-pin-rename/design.md D5). Exposed so a
+ * caller OUTSIDE this component -- the pins-list rename action in `index.vue` -- can do the
+ * same thing before mutating the SAME array for a rename, which is not a drag and so has no
+ * existing hook into this flag. Without it, the `deep: true` watcher on `props.pins` would
+ * destroy and rebuild every marker for a change that moves nothing on screen, flickering and
+ * closing any open popup.
+ */
+function armPinsRenderSuppression() {
+  suppressNextPinsRender = true
+}
+
+defineExpose({ focusPin, armPinsRenderSuppression })
 
 function renderPins(L: typeof import('leaflet')) {
   if (!map || !props.pins) return
@@ -538,7 +557,11 @@ function renderPins(L: typeof import('leaflet')) {
       props.popupLabels ?? DEFAULT_POPUP_LABELS,
       canDelete,
     )
-    marker.bindPopup(popupContent)
+    // add-pin-popup-entity-preview/design.md D6: Leaflet's own popup sizing (default
+    // maxWidth: 300, no cap on minWidth) is what actually governs on-screen width -- the
+    // container's inline CSS max-width alone does not stop Leaflet from sizing its popup
+    // chrome to fit an oversized image.
+    marker.bindPopup(popupContent, { maxWidth: POPUP_MAX_WIDTH, minWidth: POPUP_MIN_WIDTH })
 
     // The popup's HTML is a plain string Leaflet inserts on open -- a `@click` in that
     // string never binds (design.md's Risks), so the delete button's handler is wired here,

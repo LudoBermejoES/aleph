@@ -77,8 +77,32 @@ describe('map pin-add / map.js source: sends lat/lng, not x/y', () => {
   it("`pin-add`'s request body uses lat/lng keys, not x/y", () => {
     const start = source.indexOf(".command('pin-add')")
     const block = source.slice(start, source.indexOf(".command('pin-delete')"))
-    expect(block).toMatch(/\{\s*label:\s*opts\.label,\s*lat:\s*opts\.lat,\s*lng:\s*opts\.lng\s*\}/)
+    // add-pin-rename: `label` moved out of the object literal into a conditional assignment
+    // (`opts.label` is now optional -- an omitted `--label` must not send `label: undefined`
+    // as a literal key), so the literal itself is just `{ lat, lng }`.
+    expect(block).toMatch(/\{\s*lat:\s*opts\.lat,\s*lng:\s*opts\.lng\s*\}/)
     expect(block).not.toMatch(/\{\s*label:\s*opts\.label,\s*x:\s*opts\.x,\s*y:\s*opts\.y\s*\}/)
+  })
+
+  // add-pin-rename: pin creation must stop copying the entity's name into `label`, which
+  // means `--label` can no longer be required -- a pin dropped with none is the new normal
+  // case, not a gap.
+  it("`pin-add`'s --label is optional, not required", () => {
+    const start = source.indexOf(".command('pin-add')")
+    const block = source.slice(start, source.indexOf(".command('pin-delete')"))
+    const addBlock = block.slice(0, block.indexOf(".command('pin-move')"))
+    expect(addBlock).toMatch(/\.option\(\s*'--label <label>'/)
+    expect(addBlock).not.toMatch(/\.requiredOption\(\s*'--label <label>'/)
+  })
+
+  it('`pin-add` omits `label` from the request body entirely when --label is not given', async () => {
+    fetchMock = vi.fn(async () => new Response(JSON.stringify({ id: 'pin-1' }), { status: 200 }))
+    vi.stubGlobal('fetch', fetchMock)
+    await post('/api/campaigns/c1/maps/harbour/pins', { lat: 41.5, lng: 2.1 })
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit]
+    const body = JSON.parse(init.body as string)
+    expect(body).toEqual({ lat: 41.5, lng: 2.1 })
+    expect('label' in body).toBe(false)
   })
 
   it('`pins` prints lat/lng, since that is what the server actually returns', () => {
@@ -134,6 +158,52 @@ describe('map pin-move: PATCHes lat/lng only, matching the new endpoint', () => 
     const block = source.slice(start, source.indexOf(".command('pin-delete')"))
     expect(block).toMatch(
       /patch\(\s*`\/api\/campaigns\/\$\{opts\.campaign\}\/maps\/\$\{opts\.slug\}\/pins\/\$\{opts\.pin\}`/,
+    )
+    expect(block).not.toContain('put(')
+  })
+})
+
+// add-pin-rename: there was previously no way to correct a pin's label short of deleting and
+// re-creating the pin -- exactly the gap that forced five hand-repairs over SQL.
+describe('map pin-rename: PATCHes label only, matching the widened endpoint', () => {
+  let fetchMock: ReturnType<typeof vi.fn>
+
+  beforeEach(() => {
+    process.env.ALEPH_URL = 'http://localhost:9999'
+    process.env.ALEPH_TOKEN = 'aleph_test_key'
+    fetchMock = vi.fn(
+      async () => new Response(JSON.stringify({ id: 'pin-1', label: 'New Name' }), { status: 200 }),
+    )
+    vi.stubGlobal('fetch', fetchMock)
+  })
+
+  afterEach(() => {
+    delete process.env.ALEPH_URL
+    delete process.env.ALEPH_TOKEN
+    vi.unstubAllGlobals()
+  })
+
+  it('sends a PATCH with only label in the body', async () => {
+    await patch('/api/campaigns/c1/maps/harbour/pins/pin-1', { label: 'New Name' })
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit]
+    expect(url).toBe('http://localhost:9999/api/campaigns/c1/maps/harbour/pins/pin-1')
+    expect(init.method).toBe('PATCH')
+    expect(JSON.parse(init.body as string)).toEqual({ label: 'New Name' })
+  })
+
+  it('`pin-rename` is declared with --pin/--label options', () => {
+    const start = source.indexOf(".command('pin-rename')")
+    expect(start).toBeGreaterThan(-1)
+    const block = source.slice(start, source.indexOf(".command('pin-delete')"))
+    expect(block).toMatch(/requiredOption\(\s*'--pin <pinId>'/)
+    expect(block).toMatch(/requiredOption\(\s*'--label <label>'/)
+  })
+
+  it("`pin-rename`'s action calls the client `patch` function against the pins/:pinId route", () => {
+    const start = source.indexOf(".command('pin-rename')")
+    const block = source.slice(start, source.indexOf(".command('pin-delete')"))
+    expect(block).toMatch(
+      /patch\(\s*`\/api\/campaigns\/\$\{opts\.campaign\}\/maps\/\$\{opts\.slug\}\/pins\/\$\{opts\.pin\}`,\s*\{\s*label:\s*opts\.label\s*\}/,
     )
     expect(block).not.toContain('put(')
   })
@@ -286,5 +356,25 @@ describe('map.js <-> endpoint body-key parity', () => {
     const block = stripped.slice(stripped.indexOf("command('pins')"))
     const action = block.slice(0, block.indexOf('.command('))
     expect(action).not.toContain('entitySlug')
+  })
+
+  it('pin-rename sends only keys the PATCH pinUpdateSchema declares', () => {
+    // `pinUpdateSchema` lives in `mapGeo.ts` directly (unlike the POST endpoint, the PATCH
+    // route file itself declares no inline schema), so it is read directly rather than via
+    // an endpoint file's `.extend()` chain.
+    const declared = schemaKeys('server/utils/mapGeo.ts')
+    expect(declared.has('label')).toBe(true)
+    expect(declared.has('lat')).toBe(true)
+    expect(declared.has('lng')).toBe(true)
+
+    const stripped = code(source)
+    const start = stripped.indexOf("command('pin-rename')")
+    const block = stripped.slice(start, stripped.indexOf(".command('pin-delete')"))
+    const bodyLiteral = block.match(/patch\(\s*`[^`]+`,\s*\{([^}]*)\}/)
+    expect(bodyLiteral).not.toBeNull()
+    const sent = new Set([...(bodyLiteral?.[1] ?? '').matchAll(/(\w+)\s*:/g)].map((m) => m[1]))
+    expect(sent.size).toBeGreaterThan(0)
+    const undeclared = [...sent].filter((k) => !declared.has(k))
+    expect(undeclared).toEqual([])
   })
 })

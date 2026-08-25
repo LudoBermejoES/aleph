@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
     .get()
   if (!map) throw createError({ statusCode: 404, message: 'Map not found' })
 
-  const pins = getPinsWithEntity(db, map.id, role, userId)
+  const pins = await getPinsWithEntity(db, map.id, role, userId)
   const layers = db
     .select()
     .from(mapLayers)

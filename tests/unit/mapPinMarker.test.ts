@@ -9,6 +9,9 @@ import {
   pinSizeForZoom,
   MARKER_SIZE_MIN,
   MARKER_SIZE_MAX,
+  POPUP_MAX_WIDTH,
+  POPUP_MIN_WIDTH,
+  pinDisplayName,
 } from '../../app/utils/mapPinMarker'
 
 describe('escapeHtml', () => {
@@ -233,6 +236,91 @@ describe('buildPinPopupHtml', () => {
     expect(withoutDelete).not.toContain('data-pin-delete')
     expect(withoutDelete).not.toContain('Delete pin')
   })
+
+  // add-pin-popup-entity-preview: the popup grows an image and a text excerpt, both escaped
+  // like every other field this module already interpolates.
+  it("renders no image and no excerpt paragraph when neither is present (today's pin, unchanged)", () => {
+    const html = buildPinPopupHtml({ id: 'p1', label: 'Berghain' }, 'camp-1', LABELS, false)
+    expect(html).not.toContain('<img')
+    expect(html).not.toContain('<p ')
+  })
+
+  it("renders the entity's image as a cover-cropped <img>, escaping the URL", () => {
+    const html = buildPinPopupHtml(
+      { id: 'p1', label: 'Berghain', entityImageUrl: '/uploads/entities/berghain.webp' },
+      'camp-1',
+      LABELS,
+      false,
+    )
+    expect(html).toContain('<img src="/uploads/entities/berghain.webp"')
+    expect(html).toContain('object-fit:cover')
+  })
+
+  it('escapes an attacker-controlled image URL instead of injecting it', () => {
+    const html = buildPinPopupHtml(
+      { id: 'p1', label: 'Berghain', entityImageUrl: '"><script>alert(1)</script>' },
+      'camp-1',
+      LABELS,
+      false,
+    )
+    expect(html).not.toContain('"><script>alert(1)</script>')
+    expect(html).not.toContain('<script>alert(1)</script>')
+  })
+
+  it('renders the excerpt as a paragraph', () => {
+    const html = buildPinPopupHtml(
+      { id: 'p1', label: 'Berghain', entityExcerpt: 'Un club de techno berlinés.' },
+      'camp-1',
+      LABELS,
+      false,
+    )
+    expect(html).toContain('<p ')
+    expect(html).toContain('Un club de techno berlinés.')
+  })
+
+  it('escapes HTML-significant characters in the excerpt instead of injecting them', () => {
+    const html = buildPinPopupHtml(
+      { id: 'p1', label: 'Berghain', entityExcerpt: '<script>alert(1)</script> & "quoted"' },
+      'camp-1',
+      LABELS,
+      false,
+    )
+    expect(html).not.toContain('<script>alert(1)</script>')
+    expect(html).toContain('&lt;script&gt;alert(1)&lt;/script&gt; &amp; &quot;quoted&quot;')
+  })
+
+  it('orders image and excerpt before "Ver entidad", the explore hint, and the delete button', () => {
+    const html = buildPinPopupHtml(
+      {
+        id: 'pin-1',
+        label: 'Berghain',
+        entityImageUrl: '/img/b.webp',
+        entityExcerpt: 'A short excerpt.',
+        entityType: 'location',
+        entitySlug: 'berghain',
+        childMapId: 'map-2',
+      },
+      'camp-1',
+      LABELS,
+      true,
+    )
+    const imgIndex = html.indexOf('<img')
+    const excerptIndex = html.indexOf('A short excerpt.')
+    const linkIndex = html.indexOf('View Entity')
+    const hintIndex = html.indexOf('Shift+click to explore')
+    const deleteIndex = html.indexOf('data-pin-delete')
+    expect(imgIndex).toBeGreaterThan(-1)
+    expect(imgIndex).toBeLessThan(excerptIndex)
+    expect(excerptIndex).toBeLessThan(linkIndex)
+    expect(linkIndex).toBeLessThan(hintIndex)
+    expect(hintIndex).toBeLessThan(deleteIndex)
+  })
+
+  it('the container carries both a min-width and a max-width, matching the exported constants', () => {
+    const html = buildPinPopupHtml({ id: 'p1', label: 'Town' }, 'camp-1', LABELS, false)
+    expect(html).toContain(`min-width:${POPUP_MIN_WIDTH}px`)
+    expect(html).toContain(`max-width:${POPUP_MAX_WIDTH}px`)
+  })
 })
 
 describe('pinSizeForZoom / zoom-scaled markers', () => {
@@ -284,5 +372,62 @@ describe('pinSizeForZoom / zoom-scaled markers', () => {
     const small = buildPinMarkerHtml({ entityType: 'location' }, 32)
     expect(small).toContain('border:2px solid white')
     expect(small).toContain('width="18"')
+  })
+})
+
+describe('pinDisplayName / a deliberate label overrides the live entity name (add-pin-rename D1)', () => {
+  it('prefers the custom label over the live entity name', () => {
+    // El caso que este cambio existe para hacer posible: alguien renombró el pin a propósito,
+    // y ese nombre debe ganar aunque la entidad enlazada tenga otro nombre.
+    expect(pinDisplayName({ label: 'La Sala Oscura', entityName: 'Berghain' }, 'Pin')).toBe(
+      'La Sala Oscura',
+    )
+  })
+
+  it('falls back to the live entity name when there is no custom label', () => {
+    // El caso normal desde este cambio: crear un pin ya no copia el nombre de la entidad en
+    // `label`, así que un pin recién creado no tiene etiqueta propia y sigue el nombre vivo.
+    expect(pinDisplayName({ label: null, entityName: 'Berghain' }, 'Pin')).toBe('Berghain')
+  })
+
+  it('falls back to the label for a pin with no entity', () => {
+    // `entityId` es opcional: un pin suelto solo tiene su etiqueta, y es legítima.
+    expect(pinDisplayName({ label: 'Un sitio cualquiera' }, 'Pin')).toBe('Un sitio cualquiera')
+  })
+
+  it('falls back to the label when the viewer may not see the entity', () => {
+    // La visibilidad anula `entityName` igual que el resto de campos de entidad -- llega
+    // nulo, y la etiqueta (si la hay) sigue mostrándose, porque la escribió el autor del pin.
+    expect(pinDisplayName({ label: 'Algo', entityName: null }, 'Pin')).toBe('Algo')
+  })
+
+  it('falls back to the entity name when the label is empty, not the placeholder', () => {
+    expect(pinDisplayName({ label: '', entityName: 'Berghain' }, 'Pin')).toBe('Berghain')
+  })
+
+  it('falls back to the given placeholder when there is neither', () => {
+    expect(pinDisplayName({}, 'Pin sin nombre')).toBe('Pin sin nombre')
+    expect(pinDisplayName({ label: '', entityName: '' }, 'Pin sin nombre')).toBe('Pin sin nombre')
+  })
+
+  it('the popup title uses the custom label and escapes it', () => {
+    const html = buildPinPopupHtml(
+      { id: 'p1', label: 'nombre & "raro"', entityName: 'nombre de la entidad' },
+      'c1',
+      LABELS,
+      false,
+    )
+    expect(html).toContain('nombre &amp; &quot;raro&quot;')
+    expect(html).not.toContain('nombre de la entidad')
+  })
+
+  it('the popup title falls back to the entity name when there is no custom label', () => {
+    const html = buildPinPopupHtml(
+      { id: 'p1', label: null, entityName: 'nuevo & "raro"' },
+      'c1',
+      LABELS,
+      false,
+    )
+    expect(html).toContain('nuevo &amp; &quot;raro&quot;')
   })
 })

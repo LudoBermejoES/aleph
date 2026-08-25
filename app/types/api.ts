@@ -248,10 +248,17 @@ export interface MapPin {
   /** Linked entity's type slug, joined server-side (design.md D3) -- picks the marker's
    *  fallback icon when there is no image. Same visibility rule as entityImageUrl. */
   entityType: string | null
+  /** El nombre VIVO de la entidad. `label` es una copia que envejece; ver `pinDisplayName`. */
+  entityName: string | null
   /** The linked entity's slug. Needed to LINK to it: the "view entity" popup link used to
    *  address the generic entity page by ID and 404'd, because that route is keyed by slug.
    *  Same visibility rule as entityImageUrl/entityType. */
   entitySlug: string | null
+  /** Short, plain-text excerpt of the linked entity's description (location/character
+   *  markdown, secret-stripped; organization `description` column), already
+   *  visibility-filtered server-side. `null` for any other entity type, an entity with no
+   *  text, or one the viewer isn't allowed to see (add-pin-popup-entity-preview/design.md). */
+  entityExcerpt: string | null
 }
 
 export interface MapLayer {

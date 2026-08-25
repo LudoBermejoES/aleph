@@ -7,6 +7,7 @@ import {
   getPinWithEntity,
 } from '../../../server/services/maps'
 import { createTestDb, type TestDb } from '../../helpers/db'
+import { createTestContentDir, type TestContentDir } from '../../helpers/content'
 
 describe('filterPinsByVisibility', () => {
   const pins = [
@@ -176,8 +177,8 @@ describe('getPinsWithEntity / getPinWithEntity (design.md D3)', () => {
     testDb.close()
   })
 
-  it('co_dm+ sees every pin and every linked entity, including private and dm_only ones', () => {
-    const pins = getPinsWithEntity(testDb.db, 'map-1', 'dm', 'user-player')
+  it('co_dm+ sees every pin and every linked entity, including private and dm_only ones', async () => {
+    const pins = await getPinsWithEntity(testDb.db, 'map-1', 'dm', 'user-player')
     expect(pins).toHaveLength(6)
     const byId = Object.fromEntries(pins.map((p) => [p.id, p]))
     expect(byId['pin-public'].entityImageUrl).toBe('/img/hero.webp')
@@ -185,8 +186,8 @@ describe('getPinsWithEntity / getPinWithEntity (design.md D3)', () => {
     expect(byId['pin-dm-entity'].entityImageUrl).toBe('/img/cabal.webp')
   })
 
-  it("a player sees the pin but not a private entity's image/type unless they created it", () => {
-    const pins = getPinsWithEntity(testDb.db, 'map-1', 'player', 'user-player')
+  it("a player sees the pin but not a private entity's image/type unless they created it", async () => {
+    const pins = await getPinsWithEntity(testDb.db, 'map-1', 'player', 'user-player')
     // The dm_only-visibility PIN itself is excluded entirely -- unrelated to entity visibility.
     expect(pins.find((p) => p.id === 'pin-dm-only-visibility')).toBeUndefined()
     expect(pins).toHaveLength(5)
@@ -212,22 +213,21 @@ describe('getPinsWithEntity / getPinWithEntity (design.md D3)', () => {
     expect(byId['pin-no-image'].entityType).toBe('location')
   })
 
-  it("the private entity's own creator DOES see it through the join", () => {
-    const pins = getPinsWithEntity(testDb.db, 'map-1', 'player', 'user-owner')
+  it("the private entity's own creator DOES see it through the join", async () => {
+    const pins = await getPinsWithEntity(testDb.db, 'map-1', 'player', 'user-owner')
     const pin = pins.find((p) => p.id === 'pin-private')!
     expect(pin.entityImageUrl).toBe('/img/secret.webp')
   })
 
-  it('getPinWithEntity returns the same shape as getPinsWithEntity for one pin (design.md D1)', () => {
-    const single = getPinWithEntity(testDb.db, 'pin-public', 'player', 'user-player')
-    const fromList = getPinsWithEntity(testDb.db, 'map-1', 'player', 'user-player').find(
-      (p) => p.id === 'pin-public',
-    )
+  it('getPinWithEntity returns the same shape as getPinsWithEntity for one pin (design.md D1)', async () => {
+    const single = await getPinWithEntity(testDb.db, 'pin-public', 'player', 'user-player')
+    const list = await getPinsWithEntity(testDb.db, 'map-1', 'player', 'user-player')
+    const fromList = list.find((p) => p.id === 'pin-public')
     expect(single).toEqual(fromList)
   })
 
-  it('getPinWithEntity returns undefined for a nonexistent pin id', () => {
-    expect(getPinWithEntity(testDb.db, 'nonexistent', 'dm', 'user-owner')).toBeUndefined()
+  it('getPinWithEntity returns undefined for a nonexistent pin id', async () => {
+    expect(await getPinWithEntity(testDb.db, 'nonexistent', 'dm', 'user-owner')).toBeUndefined()
   })
 })
 
@@ -272,42 +272,39 @@ describe('getPinsWithEntity: image resolution across all four sources (design.md
     `)
   }
 
-  it('tier 4: a location with only entities.image_url uses it (the pre-existing, already-working path)', () => {
+  it('tier 4: a location with only entities.image_url uses it (the pre-existing, already-working path)', async () => {
     insertEntity('ent-loc', 'location', '/img/location.webp')
     insertPin('pin-loc', 'ent-loc')
-    const pin = getPinsWithEntity(testDb.db, 'map-1', 'dm', 'user-owner').find(
-      (p) => p.id === 'pin-loc',
-    )!
+    const pins = await getPinsWithEntity(testDb.db, 'map-1', 'dm', 'user-owner')
+    const pin = pins.find((p) => p.id === 'pin-loc')!
     expect(pin.entityImageUrl).toBe('/img/location.webp')
   })
 
-  it('tier 2: a character with only characters.portrait_url (no entities.image_url) uses it', () => {
+  it('tier 2: a character with only characters.portrait_url (no entities.image_url) uses it', async () => {
     insertEntity('ent-char', 'character', null)
     testDb.sqlite.exec(`
       INSERT INTO characters (id, entity_id, character_type, status, portrait_url)
       VALUES ('char-1', 'ent-char', 'npc', 'alive', '/img/portrait.webp')
     `)
     insertPin('pin-char', 'ent-char')
-    const pin = getPinsWithEntity(testDb.db, 'map-1', 'dm', 'user-owner').find(
-      (p) => p.id === 'pin-char',
-    )!
+    const pins = await getPinsWithEntity(testDb.db, 'map-1', 'dm', 'user-owner')
+    const pin = pins.find((p) => p.id === 'pin-char')!
     expect(pin.entityImageUrl).toBe('/img/portrait.webp')
   })
 
-  it('tier 3: an organization with only organizations.image_url (no entities.image_url) uses it', () => {
+  it('tier 3: an organization with only organizations.image_url (no entities.image_url) uses it', async () => {
     insertEntity('ent-org', 'organization', null)
     testDb.sqlite.exec(`
       INSERT INTO organizations (id, campaign_id, entity_id, name, slug, image_url, created_at, updated_at)
       VALUES ('org-1', 'camp-1', 'ent-org', 'The Cabal', 'the-cabal', '/img/org.webp', ${now}, ${now})
     `)
     insertPin('pin-org', 'ent-org')
-    const pin = getPinsWithEntity(testDb.db, 'map-1', 'dm', 'user-owner').find(
-      (p) => p.id === 'pin-org',
-    )!
+    const pins = await getPinsWithEntity(testDb.db, 'map-1', 'dm', 'user-owner')
+    const pin = pins.find((p) => p.id === 'pin-org')!
     expect(pin.entityImageUrl).toBe('/img/org.webp')
   })
 
-  it('tier 1: the entity_images primary row wins over everything else, including entities.image_url', () => {
+  it('tier 1: the entity_images primary row wins over everything else, including entities.image_url', async () => {
     insertEntity('ent-gallery', 'location', '/img/legacy.webp')
     testDb.sqlite.exec(`
       INSERT INTO entity_images (id, campaign_id, entity_id, filename, url, sort_order, is_primary, created_by, created_at)
@@ -316,13 +313,12 @@ describe('getPinsWithEntity: image resolution across all four sources (design.md
         ('img-primary', 'camp-1', 'ent-gallery', 'primary.webp', '/gallery/primary.webp', 1, 1, 'user-owner', ${now})
     `)
     insertPin('pin-gallery', 'ent-gallery')
-    const pin = getPinsWithEntity(testDb.db, 'map-1', 'dm', 'user-owner').find(
-      (p) => p.id === 'pin-gallery',
-    )!
+    const pins = await getPinsWithEntity(testDb.db, 'map-1', 'dm', 'user-owner')
+    const pin = pins.find((p) => p.id === 'pin-gallery')!
     expect(pin.entityImageUrl).toBe('/gallery/primary.webp')
   })
 
-  it('a pin whose entity has several gallery images still appears exactly once (fan-out guard)', () => {
+  it('a pin whose entity has several gallery images still appears exactly once (fan-out guard)', async () => {
     insertEntity('ent-many', 'location', null)
     testDb.sqlite.exec(`
       INSERT INTO entity_images (id, campaign_id, entity_id, filename, url, sort_order, is_primary, created_by, created_at)
@@ -333,10 +329,223 @@ describe('getPinsWithEntity: image resolution across all four sources (design.md
         ('img-4', 'camp-1', 'ent-many', 'd.webp', '/gallery/d.webp', 3, 0, 'user-owner', ${now})
     `)
     insertPin('pin-many', 'ent-many')
-    const all = getPinsWithEntity(testDb.db, 'map-1', 'dm', 'user-owner').filter(
-      (p) => p.id === 'pin-many',
-    )
+    const pins = await getPinsWithEntity(testDb.db, 'map-1', 'dm', 'user-owner')
+    const all = pins.filter((p) => p.id === 'pin-many')
     expect(all).toHaveLength(1)
     expect(all[0].entityImageUrl).toBe('/gallery/b.webp')
+  })
+})
+
+// add-pin-popup-entity-preview/design.md: `entityExcerpt` per entity type, with the ordering
+// rule the owner made non-negotiable -- secret stripping happens BEFORE excerpting, never
+// after. Uses REAL files on disk (via `createTestContentDir`), not simulated content, because
+// the ordering bug this guards against is specifically about how a truncated excerpt
+// interacts with `stripSecretBlocks`'s own regex.
+describe('getPinsWithEntity: entityExcerpt (add-pin-popup-entity-preview)', () => {
+  let testDb: TestDb
+  let contentDir: TestContentDir
+  const now = Date.now()
+
+  // Long enough that a NAIVE "excerpt first, strip second" implementation truncates to 200
+  // chars entirely INSIDE the secret block, before its closing `:::` -- at which point
+  // `stripSecretBlocks`'s regex (which requires the closing fence in the same string) cannot
+  // match at all, and the secret text would survive untouched in the excerpt. That is the
+  // exact defect this test exists to catch; the correct order (strip the FULL file, then
+  // excerpt) never has this problem because the closing `:::` is always present pre-truncation.
+  const secretBody =
+    'El dueño real es un infiltrado Nosferatu que vigila la cola de entrada. '.repeat(4)
+  const publicParagraph =
+    'Berghain es un club de techno berlinés con una puerta legendaria y un ambiente industrial oscuro.'
+  const secretFirstMarkdown = `:::secret{.dm}\n${secretBody}\n:::\n\n${publicParagraph}`
+
+  beforeEach(() => {
+    testDb = createTestDb()
+    contentDir = createTestContentDir()
+    testDb.sqlite.exec(`
+      INSERT INTO user (id, name, email, email_verified, created_at, updated_at)
+      VALUES ('user-owner', 'Owner', 'owner@test.com', 0, ${now}, ${now})
+    `)
+    testDb.sqlite.exec(`
+      INSERT INTO campaigns (id, name, slug, content_dir, created_by, created_at, updated_at)
+      VALUES ('camp-1', 'Test', 'test', '${contentDir.root}', 'user-owner', ${now}, ${now})
+    `)
+    testDb.sqlite.exec(`
+      INSERT INTO maps (id, campaign_id, name, slug, visibility, created_at, updated_at)
+      VALUES ('map-1', 'camp-1', 'World Map', 'world-map', 'public', ${now}, ${now})
+    `)
+  })
+
+  afterEach(() => {
+    testDb.close()
+    contentDir.cleanup()
+  })
+
+  it("a location whose FIRST paragraph is secret never leaks it to a player's excerpt, and shows the public text that follows", async () => {
+    const filePath = contentDir.writeFile('location-berghain.md', secretFirstMarkdown)
+    testDb.sqlite.exec(`
+      INSERT INTO entities (id, campaign_id, type, name, slug, file_path, visibility, created_by, created_at, updated_at)
+      VALUES ('ent-berghain', 'camp-1', 'location', 'Berghain', 'berghain', '${filePath}', 'public', 'user-owner', ${now}, ${now})
+    `)
+    testDb.sqlite.exec(`
+      INSERT INTO map_pins (id, map_id, entity_id, label, lat, lng, visibility)
+      VALUES ('pin-berghain', 'map-1', 'ent-berghain', 'Berghain', 1, 1, 'public')
+    `)
+
+    const pins = await getPinsWithEntity(testDb.db, 'map-1', 'player', 'user-owner')
+    const pin = pins.find((p) => p.id === 'pin-berghain')!
+    expect(pin.entityExcerpt).not.toContain('infiltrado Nosferatu')
+    expect(pin.entityExcerpt).toContain('Berghain es un club de techno berlinés')
+  })
+
+  it('the same location, viewed by a DM, may include the secret text', async () => {
+    const filePath = contentDir.writeFile('location-berghain-dm.md', secretFirstMarkdown)
+    testDb.sqlite.exec(`
+      INSERT INTO entities (id, campaign_id, type, name, slug, file_path, visibility, created_by, created_at, updated_at)
+      VALUES ('ent-berghain-dm', 'camp-1', 'location', 'Berghain', 'berghain-dm', '${filePath}', 'public', 'user-owner', ${now}, ${now})
+    `)
+    testDb.sqlite.exec(`
+      INSERT INTO map_pins (id, map_id, entity_id, label, lat, lng, visibility)
+      VALUES ('pin-berghain-dm', 'map-1', 'ent-berghain-dm', 'Berghain', 1, 1, 'public')
+    `)
+
+    const pins = await getPinsWithEntity(testDb.db, 'map-1', 'dm', 'user-owner')
+    const pin = pins.find((p) => p.id === 'pin-berghain-dm')!
+    expect(pin.entityExcerpt).toContain('infiltrado Nosferatu')
+  })
+
+  it('a character gets the same ordering guarantee as a location, via the same code path', async () => {
+    const filePath = contentDir.writeFile('character-npc.md', secretFirstMarkdown)
+    testDb.sqlite.exec(`
+      INSERT INTO entities (id, campaign_id, type, name, slug, file_path, visibility, created_by, created_at, updated_at)
+      VALUES ('ent-npc', 'camp-1', 'character', 'NPC', 'npc', '${filePath}', 'public', 'user-owner', ${now}, ${now})
+    `)
+    testDb.sqlite.exec(`
+      INSERT INTO map_pins (id, map_id, entity_id, label, lat, lng, visibility)
+      VALUES ('pin-npc', 'map-1', 'ent-npc', 'NPC', 1, 1, 'public')
+    `)
+
+    const playerPins = await getPinsWithEntity(testDb.db, 'map-1', 'player', 'user-owner')
+    const playerPin = playerPins.find((p) => p.id === 'pin-npc')!
+    expect(playerPin.entityExcerpt).not.toContain('infiltrado Nosferatu')
+    expect(playerPin.entityExcerpt).toContain('Berghain es un club de techno berlinés')
+
+    const dmPins = await getPinsWithEntity(testDb.db, 'map-1', 'dm', 'user-owner')
+    const dmPin = dmPins.find((p) => p.id === 'pin-npc')!
+    expect(dmPin.entityExcerpt).toContain('infiltrado Nosferatu')
+  })
+
+  it('an organization excerpt comes from its description column, unstripped, and respects entity visibility', async () => {
+    testDb.sqlite.exec(`
+      INSERT INTO entities (id, campaign_id, type, name, slug, file_path, visibility, created_by, created_at, updated_at) VALUES
+        ('ent-org-visible', 'camp-1', 'organization', 'The Cabal', 'the-cabal', '', 'public', 'user-owner', ${now}, ${now}),
+        ('ent-org-hidden', 'camp-1', 'organization', 'The Hidden Cabal', 'hidden-cabal', '', 'dm_only', 'user-owner', ${now}, ${now})
+    `)
+    testDb.sqlite.exec(`
+      INSERT INTO organizations (id, campaign_id, entity_id, name, slug, description, created_at, updated_at) VALUES
+        ('org-visible', 'camp-1', 'ent-org-visible', 'The Cabal', 'the-cabal', 'Una hermandad de coleccionistas de arte con vínculos oscuros.', ${now}, ${now}),
+        ('org-hidden', 'camp-1', 'ent-org-hidden', 'The Hidden Cabal', 'hidden-cabal', ':::secret{...} literal text, not a real secret block for this column', ${now}, ${now})
+    `)
+    testDb.sqlite.exec(`
+      INSERT INTO map_pins (id, map_id, entity_id, label, lat, lng, visibility) VALUES
+        ('pin-org-visible', 'map-1', 'ent-org-visible', 'The Cabal', 1, 1, 'public'),
+        ('pin-org-hidden', 'map-1', 'ent-org-hidden', 'The Hidden Cabal', 2, 2, 'public')
+    `)
+
+    const pins = await getPinsWithEntity(testDb.db, 'map-1', 'player', 'user-owner')
+    const byId = Object.fromEntries(pins.map((p) => [p.id, p]))
+
+    expect(byId['pin-org-visible'].entityExcerpt).toBe(
+      'Una hermandad de coleccionistas de arte con vínculos oscuros.',
+    )
+    // Not gated by stripSecretBlocks: the literal ":::secret{...}" text in a HIDDEN org's
+    // description is irrelevant here -- what matters is that a player cannot see this
+    // dm_only organization AT ALL, so its excerpt is null exactly like its image/type already are.
+    expect(byId['pin-org-hidden'].entityExcerpt).toBeNull()
+    expect(byId['pin-org-hidden'].entityType).toBeNull()
+  })
+
+  it('a DM viewing the same hidden organization gets its excerpt unstripped, literal secret-like text included', async () => {
+    testDb.sqlite.exec(`
+      INSERT INTO entities (id, campaign_id, type, name, slug, file_path, visibility, created_by, created_at, updated_at)
+      VALUES ('ent-org-hidden2', 'camp-1', 'organization', 'The Hidden Cabal', 'hidden-cabal-2', '', 'dm_only', 'user-owner', ${now}, ${now})
+    `)
+    testDb.sqlite.exec(`
+      INSERT INTO organizations (id, campaign_id, entity_id, name, slug, description, created_at, updated_at)
+      VALUES ('org-hidden2', 'camp-1', 'ent-org-hidden2', 'The Hidden Cabal', 'hidden-cabal-2', 'Texto literal ::: secret {...} sin significado especial aquí.', ${now}, ${now})
+    `)
+    testDb.sqlite.exec(`
+      INSERT INTO map_pins (id, map_id, entity_id, label, lat, lng, visibility)
+      VALUES ('pin-org-hidden2', 'map-1', 'ent-org-hidden2', 'The Hidden Cabal', 1, 1, 'public')
+    `)
+
+    const pins = await getPinsWithEntity(testDb.db, 'map-1', 'dm', 'user-owner')
+    const pin = pins.find((p) => p.id === 'pin-org-hidden2')!
+    expect(pin.entityExcerpt).toBe('Texto literal ::: secret {...} sin significado especial aquí.')
+  })
+
+  it('a missing markdown file degrades that one pin to entityExcerpt: null without failing the request', async () => {
+    testDb.sqlite.exec(`
+      INSERT INTO entities (id, campaign_id, type, name, slug, file_path, visibility, created_by, created_at, updated_at) VALUES
+        ('ent-missing', 'camp-1', 'location', 'Ghost Town', 'ghost-town', '${contentDir.root}/does-not-exist.md', 'public', 'user-owner', ${now}, ${now}),
+        ('ent-ok', 'camp-1', 'location', 'Fine Town', 'fine-town', '${contentDir.writeFile('fine-town.md', publicParagraph)}', 'public', 'user-owner', ${now}, ${now})
+    `)
+    testDb.sqlite.exec(`
+      INSERT INTO map_pins (id, map_id, entity_id, label, lat, lng, visibility) VALUES
+        ('pin-missing', 'map-1', 'ent-missing', 'Ghost Town', 1, 1, 'public'),
+        ('pin-ok', 'map-1', 'ent-ok', 'Fine Town', 2, 2, 'public')
+    `)
+
+    const pins = await getPinsWithEntity(testDb.db, 'map-1', 'player', 'user-owner')
+    const byId = Object.fromEntries(pins.map((p) => [p.id, p]))
+    expect(byId['pin-missing'].entityExcerpt).toBeNull()
+    expect(byId['pin-ok'].entityExcerpt).toBe(publicParagraph)
+  })
+
+  it('two pins linked to the SAME entity both resolve the correct excerpt (dedup cache correctness)', async () => {
+    const filePath = contentDir.writeFile('shared-location.md', publicParagraph)
+    testDb.sqlite.exec(`
+      INSERT INTO entities (id, campaign_id, type, name, slug, file_path, visibility, created_by, created_at, updated_at)
+      VALUES ('ent-shared', 'camp-1', 'location', 'Shared Spot', 'shared-spot', '${filePath}', 'public', 'user-owner', ${now}, ${now})
+    `)
+    testDb.sqlite.exec(`
+      INSERT INTO map_pins (id, map_id, entity_id, label, lat, lng, visibility) VALUES
+        ('pin-shared-a', 'map-1', 'ent-shared', 'Shared Spot A', 1, 1, 'public'),
+        ('pin-shared-b', 'map-1', 'ent-shared', 'Shared Spot B', 2, 2, 'public')
+    `)
+
+    const pins = await getPinsWithEntity(testDb.db, 'map-1', 'player', 'user-owner')
+    const byId = Object.fromEntries(pins.map((p) => [p.id, p]))
+    expect(byId['pin-shared-a'].entityExcerpt).toBe(publicParagraph)
+    expect(byId['pin-shared-b'].entityExcerpt).toBe(publicParagraph)
+  })
+
+  it('an entity type with no established text source gets entityExcerpt: null', async () => {
+    testDb.sqlite.exec(`
+      INSERT INTO entities (id, campaign_id, type, name, slug, file_path, visibility, created_by, created_at, updated_at)
+      VALUES ('ent-item', 'camp-1', 'item', 'A Sword', 'a-sword', '', 'public', 'user-owner', ${now}, ${now})
+    `)
+    testDb.sqlite.exec(`
+      INSERT INTO map_pins (id, map_id, entity_id, label, lat, lng, visibility)
+      VALUES ('pin-item', 'map-1', 'ent-item', 'A Sword', 1, 1, 'public')
+    `)
+
+    const pins = await getPinsWithEntity(testDb.db, 'map-1', 'dm', 'user-owner')
+    const pin = pins.find((p) => p.id === 'pin-item')!
+    expect(pin.entityExcerpt).toBeNull()
+  })
+
+  it('getPinWithEntity resolves the same excerpt as getPinsWithEntity for one pin', async () => {
+    const filePath = contentDir.writeFile('single-pin-location.md', publicParagraph)
+    testDb.sqlite.exec(`
+      INSERT INTO entities (id, campaign_id, type, name, slug, file_path, visibility, created_by, created_at, updated_at)
+      VALUES ('ent-single', 'camp-1', 'location', 'Single', 'single', '${filePath}', 'public', 'user-owner', ${now}, ${now})
+    `)
+    testDb.sqlite.exec(`
+      INSERT INTO map_pins (id, map_id, entity_id, label, lat, lng, visibility)
+      VALUES ('pin-single', 'map-1', 'ent-single', 'Single', 1, 1, 'public')
+    `)
+
+    const single = await getPinWithEntity(testDb.db, 'pin-single', 'player', 'user-owner')
+    expect(single?.entityExcerpt).toBe(publicParagraph)
   })
 })

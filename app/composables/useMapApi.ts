@@ -110,6 +110,20 @@ export function useMapApi(campaignId: string) {
     return $fetch<MapPin>(`${base}/maps/${slug}/pins/${pinId}`, { method: 'PATCH', body })
   }
 
+  /**
+   * Rename a pin (add-pin-rename/design.md D2) -- same PATCH route `moveMapPin` uses,
+   * widened to also accept `label`. `null` clears the label back to "derive from the linked
+   * entity" (the server normalizes an empty string to `null` too, but this composable's
+   * callers are expected to pass `null` directly for a clear rather than relying on that).
+   * Returns the full `MapPin` row, same shape as every other pin mutation here.
+   */
+  function renameMapPin(slug: string, pinId: string, label: string | null) {
+    return $fetch<MapPin>(`${base}/maps/${slug}/pins/${pinId}`, {
+      method: 'PATCH',
+      body: { label },
+    })
+  }
+
   // ─── Geocoding ──────────────────────────────────────────────────────────────
 
   /**
@@ -137,6 +151,7 @@ export function useMapApi(campaignId: string) {
     createMapPin,
     deleteMapPin,
     moveMapPin,
+    renameMapPin,
     getMapRegions,
     updateMapRegions,
     updateMapRegion,

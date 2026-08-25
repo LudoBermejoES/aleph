@@ -69,5 +69,5 @@ export default defineEventHandler(async (event) => {
   // entityImageUrl/entityType or a freshly-dropped pin would render as a plain dot until the
   // next full reload.
   const userId = event.context.user?.id || ''
-  return getPinWithEntity(db, id, role, userId)
+  return await getPinWithEntity(db, id, role, userId)
 })

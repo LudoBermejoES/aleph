@@ -18,5 +18,5 @@ export default defineEventHandler(async (event) => {
     .get()
   if (!map) throw createError({ statusCode: 404, message: 'Map not found' })
 
-  return getPinsWithEntity(db, map.id, role, userId)
+  return await getPinsWithEntity(db, map.id, role, userId)
 })
