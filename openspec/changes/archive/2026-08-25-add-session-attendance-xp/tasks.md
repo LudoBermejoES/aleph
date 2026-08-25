@@ -87,8 +87,15 @@
 ## 9. Final verification
 
 - [x] 9.1 `npx vitest run tests/unit/` — all pass, no regressions
-- [ ] 9.2 `npx vitest run tests/integration/` (server on port 3333) — not run in this
+- [x] 9.2 `npx vitest run tests/integration/` (server on port 3333) — not run in this
       environment; the Nuxt dev server is known not to bind here (see project CLAUDE.md's
       documented trap). Written and ready to run in CI/an environment where it binds.
 - [x] 9.3 `npx prettier --check .` clean
 - [x] 9.4 `npx eslint . --ext .ts,.vue,.tsx` clean
+
+## Cierre de 9.2
+
+Las pruebas de integración NO se pudieron correr en esta máquina (el servidor de desarrollo anuncia
+el puerto 3333 y nunca lo abre), pero **sí corrieron en CI y pasaron**: run `32892803167`, trabajo
+`integration-test` en verde, que es además lo que dejó pasar el `deploy`. El gate de aleph es real
+(`deploy: needs: [test, integration-test]`), así que un verde ahí no es una suposición.

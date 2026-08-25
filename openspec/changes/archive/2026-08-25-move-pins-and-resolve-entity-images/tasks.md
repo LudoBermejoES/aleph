@@ -47,7 +47,20 @@
 
 ## 4. Verificar que la imagen se ve de verdad
 
-- [ ] 4.1 **Comprobar que la URL carga en el navegador.** SIN HACER: el servidor de desarrollo de
+- [x] 4.1 **Comprobar que la URL carga en el navegador.** VERIFICADO 2026-08-25 con Playwright real
+      contra el sitio EN VIVO (`https://aleph.ludobermejo.es`, sesión DM autenticada), mapa "Berlin
+      en tinieblas", los 24 pines de partida. Medido, no impresión: `playwright-cli requests
+    --static` mostró **24 peticiones GET** a rutas
+      `.../locations/{slug}/images/{imageId}` — una por pin — **todas con status 200**. Por el lado
+      del DOM, leí el `computed style`/atributo inline de los 24 `.leaflet-marker-icon`: los 24
+      tienen un `<div>` interior con `background-image: url(...)` apuntando exactamente a esa misma
+      URL (ninguno `none`), `background-size: cover` (nunca `contain`) y `border-radius: 50%` — la
+      capa 1 del design D2, cubriendo tanto el estado de red (2xx) como el estilo computado, tal
+      como pedía esta casilla. Cero círculos vacíos: los 24 marcadores muestran su fotografía.
+      Esto también resuelve la duda que quedaba abierta sobre el fallo silencioso: la ruta SÍ está
+      protegida (confirmado antes por el propietario: 401 sin credenciales) pero con la cookie de
+      sesión del navegador autenticado responde 200, y la imagen se pinta.
+      SIN HACER anteriormente: el servidor de desarrollo de
       esta máquina no es alcanzable (`ss` lo da a la escucha en 3333 y `curl` agota el tiempo con 0
       bytes, también invocando `nuxt dev` directamente), así que no hubo navegador donde mirar.
       Verificado por CÓDIGO, que no es lo mismo y no cierra esta casilla: las tres rutas son del
