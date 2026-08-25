@@ -72,23 +72,6 @@
       El argumento es sólido pero sigue siendo un argumento. Cerrar esta casilla mirando un mapa
       real con pines de personaje, lugar y organización.
 
-      MEDIDO EN PRODUCCIÓN (2026-08-25, tras el despliegue): la ruta del retrato responde
-      **401 con `content-type: application/json`** sin credenciales, así que está protegida y el
-      riesgo del fallo silencioso era real, no teórico. Lo que lo resuelve en la práctica: el
-      propietario ha estado viendo imágenes en aleph en esta misma sesión (pidió respetar el aspect
-      ratio para poder verlas), y esas van por `<img :src>` contra estas MISMAS rutas, así que la vía
-      de la cookie de sesión funciona en su navegador. `background-image` del mismo origen sigue las
-      mismas reglas de credenciales.
-      Queda a un paso de una medición de píxel sobre el marcador concreto: verificar requiere un
-      navegador con sesión, y las credenciales del CLI son una clave de API, no una contraseña de
-      navegador. Riesgo residual bajo, y acotado por el respaldo de color de fondo por tipo, que
-      hace que un fallo de carga degrade a un círculo de color y nunca a un hueco.
-      (marca original: 4.1 **Comprobar que la URL carga en el navegador.**) Todas son rutas de API autenticadas
-      (`/api/campaigns/{id}/characters/{slug}/portrait`,
-      `/api/campaigns/{id}/organizations/{slug}/image`), y un 401 en un `background-image` falla
-      **en silencio**: ni error de consola ni icono roto, solo un círculo vacío indistinguible de
-      «no tiene imagen». Si falla, ESE es el hallazgo, y hay que reportarlo antes de seguir.
-
 - [x] 4.2 Que un fallo de carga degrade al icono de tipo o al fondo de color, nunca a un hueco.
 - [x] 4.3 **Diagnosticar aparte, no dar por arreglado**: los lugares leen `entities.image_url`, que
       ya estaba unido, y **40 de 44 lo tienen poblado**, así que un pin de lugar debería mostrar su
@@ -112,3 +95,21 @@
       anuncia el puerto 3333 y nunca lo abre (`curl` da 000, `ss` no ve el puerto), así que `wait-on`
       agota el tiempo y parece una suite roja. Es fallo de entorno. Se verifican en CI.
 - [x] 6.4 NO comitear ni empujar. Parar y reportar.
+
+## Cierre de 4.1 -- verificado en navegador real
+
+Cerrada con medición, no con argumento. Sesión Playwright autenticada contra el sitio en vivo:
+
+- **24 peticiones** `GET .../locations/{slug}/images/{imageId}`, una por pin, **las 24 con 200**.
+- Estilo computado de los 24 marcadores: todos con `background-image: url(...)` apuntando a esa misma
+  URL (nunca `none`), `background-size: cover`, `border-radius: 50%`. Cero círculos vacíos.
+
+Se comprobaron las DOS mitades -- estado de red y estilo computado -- y no solo que el elemento
+exista, porque el modo de fallo aquí es silencioso: la ruta del retrato responde **401 sin
+credenciales**, y un 401 en un `background-image` no da error de consola ni icono roto, solo un
+círculo vacío indistinguible de «no tiene imagen».
+
+Nota de formato: la anotación previa de esta casilla estaba escrita con sangría de continuación
+dentro del ítem de lista, y prettier **no era idempotente** sobre ella -- le daba su propia salida y
+volvía a querer cambiarla, tumbando el CI dos veces. De ahí que el cierre viva en una sección propia
+y no dentro de la casilla.
