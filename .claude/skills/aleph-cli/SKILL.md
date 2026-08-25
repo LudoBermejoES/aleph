@@ -4,7 +4,7 @@ description: Use the aleph CLI to manage campaigns, entities, characters, locati
 license: MIT
 metadata:
   author: aleph
-  version: '3.21'
+  version: '3.22'
 ---
 
 You have access to the `aleph` CLI tool at `node /Users/ludo/code/aleph/cli/bin/aleph.js` (or `npm run aleph -- <args>` from the project root). Use it to interact with the running Aleph server.
@@ -288,7 +288,11 @@ node /Users/ludo/code/aleph/cli/bin/aleph.js relation create --campaign <id> --s
 ```bash
 node /Users/ludo/code/aleph/cli/bin/aleph.js map list --campaign <id> [--json]
 node /Users/ludo/code/aleph/cli/bin/aleph.js map get --campaign <id> --slug <slug> [--json]
-node /Users/ludo/code/aleph/cli/bin/aleph.js map create --campaign <id> --name <name> [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js map create --campaign <id> --name <name> [--type <image|osm>] [--address <address>] [--lat <lat> --lng <lng>] [--zoom <n>] [--json]
+# --type defaults to 'image'. For an 'osm' map, set the initial center either by --address
+# (geocoded server-side via Nominatim — the resolved name + coordinates are printed before
+# the map is created, e.g. `Geocoded "Berlin, Germany" -> Berlin, Germany, Deutschland (52.52, 13.405)`)
+# or directly via --lat/--lng (must be given together; skips geocoding entirely).
 node /Users/ludo/code/aleph/cli/bin/aleph.js map update --campaign <id> --slug <slug> [--name <name>]
 node /Users/ludo/code/aleph/cli/bin/aleph.js map delete --campaign <id> --slug <slug> [--yes]
 node /Users/ludo/code/aleph/cli/bin/aleph.js map upload --campaign <id> --slug <slug> --file <path>

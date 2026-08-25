@@ -2,14 +2,26 @@
 
 ## 0. Antes de tocar código
 
-- [ ] 0.1 Confirmar con el propietario la política de teselas por defecto: usar
+- [x] 0.1 Confirmar con el propietario la política de teselas por defecto: usar
       `tile.openstreetmap.org` en desarrollo/tráfico bajo, con la URL configurable, según
       `design.md` D4 — o preferir de entrada un proveedor comercial. Es una decisión de
       producto (coste, política de uso), no técnica.
-      Sin confirmar en esta sesión (agente, no propietario). Implementado con el valor
-      público por defecto y `OSM_TILE_URL`/`OSM_ATTRIBUTION` configurables por entorno
-      (`nuxt.config.ts` `public.osmTileUrl`/`osmAttribution`), así que la decisión de
-      producto sigue abierta pero no bloquea usar el tipo de mapa hoy.
+      **CONFIRMADO POR EL PROPIETARIO (2026-08-25): teselas públicas de OpenStreetMap, sin
+      proveedor comercial.** Volumen declarado: **una persona, unos minutos al día**. La Tile
+      Usage Policy de OSM permite expresamente el uso de bajo volumen; lo que prohíbe es el
+      uso masivo y la descarga en bloque, y esta cifra queda órdenes de magnitud por debajo
+      de cualquier umbral relevante (su propia guía sugiere replantearse el servicio público
+      a partir de cientos de usuarios diarios).
+      Cumplimiento verificado en código, no supuesto: - Atribución obligatoria presente y **con el enlace exigido**:
+      `nuxt.config.ts:78-80` sirve `© <a href="…/copyright">OpenStreetMap</a> contributors`,
+      y `MapViewer.client.vue:299` lo pasa al `tileLayer` con un respaldo propio. - `maxZoom: 19` (`MapViewer.client.vue:298`) coincide con el máximo del servicio. - Las teselas las pide el NAVEGADOR, así que el `User-Agent` es el del navegador. El
+      requisito de un `User-Agent` identificable aplica a clientes que no lo son; el de
+      Nominatim, que sí lo exige, se resuelve aparte en el servidor (tarea 0.2).
+      `OSM_TILE_URL`/`OSM_ATTRIBUTION` se conservan: cambiar de proveedor más adelante es una
+      variable de entorno, no un cambio de código.
+      **Revisar esta decisión si** el tráfico deja de ser de una sola persona (varios
+      jugadores consultando mapas a la vez) o si se añade cualquier precarga de teselas —
+      la política prohíbe el prefetching en bloque.
 - [x] 0.2 Confirmar el contacto (email/URL) que identificará a Aleph en el `User-Agent` de
       las llamadas a Nominatim (`design.md` D3) — Nominatim lo pide para poder avisar antes
       de bloquear, y hace falta un valor real, no un placeholder.
@@ -121,16 +133,19 @@ defaultZoom)`; `image` sigue exactamente como hoy (`design.md` D1). Sin tocar un
 
 ## 6. CLI (`aleph-cli`) — obligatorio, toca endpoints existentes y nuevos
 
-- [ ] 6.1 `cli/src/commands/map.js`: `map create` gana `--type`, `--address`, `--lat`/`--lng`
+- [x] 6.1 `cli/src/commands/map.js`: `map create` gana `--type`, `--address`, `--lat`/`--lng`
       directos, `--zoom`; al usar `--address`, imprimir el nombre geocodificado y las
       coordenadas resueltas en la salida (`design.md` D7 — transparencia también en CLI).
-      Deliberadamente sin hacer en esta sesión: cuando empezó, `server/db/schema/maps.ts`
-      no tenía columna `type` y no existía ningún endpoint de geocodificación, así que
-      construir esto habría sido inventar un contrato. Al terminar la sesión el otro agente
-      ya tenía (sin commitear) `maps.type`/`centerLat`/`centerLng`/`defaultZoom`,
-      `server/api/campaigns/[id]/maps/geocode.post.ts`, y `create`/`update` aceptando esos
-      campos vía `mapGeoFieldsSchema` — 6.1 queda desbloqueada para una siguiente pasada,
-      pero no se ha tocado aquí para no pisar trabajo en curso.
+      Hecho en una sesión posterior, una vez el schema/endpoint ya estaban commiteados y
+      desplegados (`maps.type`/`centerLat`/`centerLng`/`defaultZoom`,
+      `POST /api/campaigns/[id]/maps/geocode`, `mapGeoFieldsSchema`): `--type` mapea a
+      `type`, `--zoom` a `defaultZoom`. Con `--address`, el comando llama primero a
+      `POST .../maps/geocode`, imprime `Geocoded "<query>" -> <displayName> (<lat>, <lng>)`
+      ANTES de crear el mapa (D7: transparencia antes de guardar) y usa el primer candidato
+      como `centerLat`/`centerLng`. Con `--lat`/`--lng` directos (deben darse juntos —
+      rechazado localmente si falta uno, sin llamada de red) no se geocodifica en absoluto,
+      igual que exige la prueba de integración 3.3 en el lado servidor. `map update` no se
+      tocó — 6.1 solo pide `map create`.
 - [x] 6.2 `map pin-add`/`map pins`: sustituir `--x`/`--y` y las claves `x`/`y` por
       `--lat`/`--lng` y `lat`/`lng`, alineado con el contrato real del endpoint (ver
       `proposal.md`, hallazgo: `pin-add` está roto hoy porque el servidor exige `lat`/`lng`
@@ -150,10 +165,15 @@ defaultZoom)`; `image` sigue exactamente como hoy (`design.md` D1). Sin tocar un
       wiring de `map.js`). Confirmado en rojo revirtiendo el fix a mano (`git stash` del
       fichero) y en verde tras restaurarlo — las 4 pruebas de integración y las 8 unitarias
       pasan.
-- [ ] 6.4 `docs/claude-skill.md` (bump de versión en la cabecera) y
+- [x] 6.4 `docs/claude-skill.md` (bump de versión en la cabecera) y
       `.claude/skills/aleph-cli/SKILL.md` (bump de versión en el frontmatter) — actualizar
       la referencia de `map create`/`map pin-add`/`map pins` A LA VEZ en los dos ficheros,
       igual que las nuevas banderas de tipo/dirección/coordenadas.
+      Hecho: ambos ficheros documentan ahora `map create`'s `--type`/`--address`/
+      `--lat`/`--lng`/`--zoom` con el mismo texto explicativo (defecto `image`, geocodificado
+      server-side vía Nominatim con impresión del resultado antes de crear, o coordenadas
+      directas sin geocodificar). Versión bump en los dos: `docs/claude-skill.md` 1.11 ->
+      1.12, `.claude/skills/aleph-cli/SKILL.md` 3.21 -> 3.22.
 
 ## 7. Verificación
 
@@ -162,7 +182,11 @@ defaultZoom)`; `image` sigue exactamente como hoy (`design.md` D1). Sin tocar un
       Unitarias: `npx vitest run tests/unit/` -- **143 ficheros / 1740 tests, todos en
       verde** (línea base antes de este cambio: 140/1708; +3 ficheros son
       `tests/unit/geocoding.test.ts`, `tests/unit/map-pin-geometry.test.ts` y el
-      `tests/unit/cli/map-pins.test.ts` del otro agente). Integración de `maps`: bloqueado
+      `tests/unit/cli/map-pins.test.ts` del otro agente). Actualización tras completar 6.1:
+      **145 ficheros / 1771 tests, todos en verde** (+1 fichero / +5 tests, sesión aparte --
+      `tests/unit/cli/map-create.test.ts`, cubriendo `--type`/`--zoom` en el cuerpo,
+      `--address` geocodificando primero e imprimiendo el resultado antes de crear, y el
+      rechazo local de `--lat` sin `--lng`). Integración de `maps`: bloqueado
       al principio por un fallo de ENTORNO no relacionado con este cambio -- ver la nota de
       abajo -- y una vez resuelto, **26/26** en `tests/integration/maps-osm.test.ts` +
       `maps.test.ts` + `maps-schema.test.ts`, **47/47** sumando además

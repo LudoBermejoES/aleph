@@ -4,7 +4,7 @@ description: Use the aleph CLI to manage campaigns, entities, characters, locati
 license: MIT
 metadata:
   author: aleph
-  version: '1.11'
+  version: '1.12'
 ---
 
 You have access to the `aleph` CLI. Run it as `aleph` if installed globally (`npm i -g aleph-cli`), or `npx aleph-cli` otherwise.
@@ -304,7 +304,11 @@ aleph relation create --campaign <id> --source el-camino-hasta-oda --target la-c
 ```bash
 aleph map list --campaign <id> [--json]
 aleph map get --campaign <id> --slug <slug> [--json]
-aleph map create --campaign <id> --name <name> [--json]
+aleph map create --campaign <id> --name <name> [--type <image|osm>] [--address <address>] [--lat <lat> --lng <lng>] [--zoom <n>] [--json]
+# --type defaults to 'image'. For an 'osm' map, set the initial center either by --address
+# (geocoded server-side via Nominatim — the resolved name + coordinates are printed before
+# the map is created, e.g. `Geocoded "Berlin, Germany" -> Berlin, Germany, Deutschland (52.52, 13.405)`)
+# or directly via --lat/--lng (must be given together; skips geocoding entirely).
 aleph map update --campaign <id> --slug <slug> [--name <name>]
 aleph map delete --campaign <id> --slug <slug> [--yes]
 aleph map upload --campaign <id> --slug <slug> --file <path>

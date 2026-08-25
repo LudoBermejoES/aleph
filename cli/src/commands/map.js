@@ -43,11 +43,58 @@ export function makeMapCommand() {
     .description('Create a map')
     .requiredOption('--campaign <id>', 'Campaign ID')
     .requiredOption('--name <name>', 'Map name')
+    .option('--type <type>', "Map type: 'image' (default) or 'osm'")
+    .option(
+      '--address <address>',
+      "Address/city to geocode for the initial view of an 'osm' map (server-side lookup " +
+        'via Nominatim; prints the resolved name and coordinates before creating the map)',
+    )
+    .option(
+      '--lat <lat>',
+      "Initial center latitude for an 'osm' map (WGS84 degrees) — alternative to --address, " +
+        'skips geocoding; must be paired with --lng',
+      parseFloat,
+    )
+    .option(
+      '--lng <lng>',
+      "Initial center longitude for an 'osm' map (WGS84 degrees) — alternative to --address, " +
+        'skips geocoding; must be paired with --lat',
+      parseFloat,
+    )
+    .option('--zoom <zoom>', "Initial zoom level for an 'osm' map", parseInt)
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
-      const data = await post(`/api/campaigns/${opts.campaign}/maps`, {
-        name: opts.name,
-      })
+      if ((opts.lat !== undefined) !== (opts.lng !== undefined)) {
+        process.stderr.write('Error: --lat and --lng must be given together.\n')
+        process.exit(2)
+      }
+
+      const body = { name: opts.name }
+      if (opts.type !== undefined) body.type = opts.type
+      if (opts.zoom !== undefined) body.defaultZoom = opts.zoom
+
+      let geocoded
+      if (opts.address) {
+        const geo = await post(`/api/campaigns/${opts.campaign}/maps/geocode`, {
+          query: opts.address,
+        })
+        const candidates = geo.candidates || []
+        if (candidates.length === 0) {
+          process.stderr.write(`Error: No geocoding results for "${opts.address}"\n`)
+          process.exit(2)
+        }
+        ;[geocoded] = candidates
+        process.stdout.write(
+          `Geocoded "${opts.address}" -> ${geocoded.displayName} (${geocoded.lat}, ${geocoded.lng})\n`,
+        )
+        body.centerLat = geocoded.lat
+        body.centerLng = geocoded.lng
+      } else if (opts.lat !== undefined) {
+        body.centerLat = opts.lat
+        body.centerLng = opts.lng
+      }
+
+      const data = await post(`/api/campaigns/${opts.campaign}/maps`, body)
       if (opts.json) {
         print(data, { json: true })
       } else {
