@@ -33,31 +33,90 @@
           <Button v-if="isDm" variant="destructive" size="sm" @click="confirmDelete">{{
             $t('common.delete')
           }}</Button>
-          <span v-if="mapData.width" class="text-sm text-muted-foreground"
+          <span
+            v-if="mapData.type === 'image' && mapData.width"
+            class="text-sm text-muted-foreground"
             >{{ mapData.width }}x{{ mapData.height }}px</span
           >
         </div>
       </div>
 
-      <!-- Leaflet Map Viewer -->
-      <ClientOnly>
-        <MapViewer
-          :image-path="mapData.imagePath"
-          :image-width="mapData.width || 1024"
-          :image-height="mapData.height || 768"
-          :pins="mapData.pins"
-          :layers="mapData.layers"
-          :groups="mapData.groups"
-          :regions="mapData.regions"
-          :is-tiled="mapData.isTiled"
-          :tile-url="`/api/campaigns/${campaignId}/maps/${slug}/tiles/{z}/{x}/{y}`"
-          :campaign-id="campaignId"
-          :height="600"
-          @pin-click="onPinClick"
-          @pin-shift-click="onPinShiftClick"
-          @region-created="onRegionCreated"
-        />
-      </ClientOnly>
+      <div class="flex gap-4 items-start flex-wrap lg:flex-nowrap">
+        <!-- Leaflet Map Viewer -->
+        <div class="flex-1 min-w-0 w-full">
+          <ClientOnly>
+            <MapViewer
+              :map-type="mapData.type"
+              :image-path="mapData.imagePath"
+              :image-width="mapData.width || 1024"
+              :image-height="mapData.height || 768"
+              :center-lat="mapData.centerLat"
+              :center-lng="mapData.centerLng"
+              :default-zoom="mapData.defaultZoom"
+              :attribution="mapData.type === 'osm' ? osmAttribution : undefined"
+              :pins="mapData.pins"
+              :layers="mapData.layers"
+              :groups="mapData.groups"
+              :regions="mapData.regions"
+              :is-tiled="mapData.isTiled"
+              :tile-url="tileUrl"
+              :campaign-id="campaignId"
+              :can-create-pins="isEditorPlus"
+              :height="600"
+              @pin-click="onPinClick"
+              @pin-shift-click="onPinShiftClick"
+              @region-created="onRegionCreated"
+              @pin-drop="onPinDrop"
+            />
+          </ClientOnly>
+        </div>
+
+        <!-- Entity picker: drag-and-drop source for creating pins (design.md D6) -->
+        <div
+          v-if="isEditorPlus"
+          data-testid="map-entities-panel"
+          class="w-full lg:w-72 shrink-0 border border-border rounded-lg p-3 max-h-[600px] overflow-y-auto"
+        >
+          <p class="text-sm font-semibold mb-1">{{ $t('maps.entitiesPanel') }}</p>
+          <p class="text-xs text-muted-foreground mb-3">{{ $t('maps.entitiesPanelHint') }}</p>
+
+          <div class="flex flex-col gap-2 mb-3">
+            <select
+              v-model="entityFilters.type"
+              class="rounded-md border border-input bg-background px-2 py-1 text-xs"
+              @change="loadEntities"
+            >
+              <option value="">{{ $t('entities.allTypes') }}</option>
+              <option v-for="et in entityTypes" :key="et.slug" :value="et.slug">
+                {{ et.name }}
+              </option>
+            </select>
+            <input
+              v-model="entityFilters.search"
+              :placeholder="$t('maps.filterEntities')"
+              class="rounded-md border border-input bg-background px-2 py-1 text-xs"
+              @input="debouncedLoadEntities"
+            />
+          </div>
+
+          <ul class="space-y-1">
+            <li
+              v-for="entity in pickerEntities"
+              :key="entity.id"
+              draggable="true"
+              :title="t('maps.dragHint')"
+              class="text-xs px-2 py-1.5 rounded border border-border cursor-grab hover:border-primary/50 flex items-center justify-between gap-2"
+              @dragstart="onEntityDragStart(entity, $event)"
+            >
+              <span class="truncate">{{ entity.name }}</span>
+              <span class="text-[10px] text-muted-foreground shrink-0">{{ entity.type }}</span>
+            </li>
+          </ul>
+          <p v-if="!pickerEntities.length" class="text-xs text-muted-foreground">
+            {{ $t('entities.empty') }}
+          </p>
+        </div>
+      </div>
 
       <!-- Pins List -->
       <div v-if="mapData.pins?.length" class="mt-6">
@@ -102,18 +161,75 @@
 </template>
 
 <script setup lang="ts">
-import type { CampaignMap } from '~/types/api'
+import type { CampaignMap, Entity, EntityType } from '~/types/api'
+import { ENTITY_DRAG_MIME } from '~/utils/mapPinGeometry'
+
 const route = useRoute()
 const router = useRouter()
 const campaignId = route.params.id as string
 const slug = route.params.slug as string
 const { t } = useI18n()
+const runtimeConfig = useRuntimeConfig()
 
 const mapData = ref<CampaignMap | null>(null)
 const campaignRole = ref('')
 const isDm = computed(() => ['dm', 'co_dm'].includes(campaignRole.value))
+// Same role gate as the server's POST .../pins (editor+) -- the server remains the source
+// of truth (design.md D6); this only decides whether the drag affordance is offered at all.
+const isEditorPlus = computed(() => ['dm', 'co_dm', 'editor'].includes(campaignRole.value))
 const api = useCampaignApi(campaignId)
 const { loading, error, withLoading } = useLoadingState()
+
+const tileUrl = computed(() =>
+  mapData.value?.type === 'osm'
+    ? (runtimeConfig.public.osmTileUrl as string)
+    : `/api/campaigns/${campaignId}/maps/${slug}/tiles/{z}/{x}/{y}`,
+)
+const osmAttribution = runtimeConfig.public.osmAttribution as string
+
+// ─── Entity picker (drag-and-drop pin creation, design.md D6) ─────────────────
+
+const entityTypes = ref<EntityType[]>([])
+const pickerEntities = ref<Entity[]>([])
+const entityFilters = reactive({ type: '', search: '' })
+
+let searchTimeout: ReturnType<typeof setTimeout>
+function debouncedLoadEntities() {
+  clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(loadEntities, 300)
+}
+
+async function loadEntities() {
+  const params: Record<string, string | number> = { page: 1, limit: 100 }
+  if (entityFilters.type) params.type = entityFilters.type
+  if (entityFilters.search) params.search = entityFilters.search
+  const result = await api.getEntities(params).catch(() => null)
+  pickerEntities.value = result?.entities ?? []
+}
+
+function onEntityDragStart(entity: Entity, event: DragEvent) {
+  event.dataTransfer?.setData(ENTITY_DRAG_MIME, entity.id)
+  if (event.dataTransfer) event.dataTransfer.effectAllowed = 'copy'
+}
+
+async function onPinDrop(payload: { lat: number; lng: number; entityId: string }) {
+  try {
+    // Label the pin with the dragged entity's own name so it's identifiable in the pins
+    // list/tooltip immediately -- the drop payload only carries lat/lng/entityId.
+    const label = pickerEntities.value.find((e) => e.id === payload.entityId)?.name
+    await api.createMapPin(slug, {
+      lat: payload.lat,
+      lng: payload.lng,
+      entityId: payload.entityId,
+      label,
+    })
+    await load()
+  } catch (e: unknown) {
+    alert((e as { data?: { message?: string } })?.data?.message || t('maps.pinCreateFailed'))
+  }
+}
+
+// ─── Map data ──────────────────────────────────────────────────────────────
 
 async function load() {
   await withLoading(async () => {
@@ -150,5 +266,14 @@ async function confirmDelete() {
   router.push(`/campaigns/${campaignId}/maps`)
 }
 
-onMounted(load)
+onMounted(async () => {
+  await load()
+  if (isEditorPlus.value) {
+    api
+      .getEntityTypes()
+      .then((types) => (entityTypes.value = types))
+      .catch(() => {})
+    loadEntities()
+  }
+})
 </script>

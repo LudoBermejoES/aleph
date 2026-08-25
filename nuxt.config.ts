@@ -56,10 +56,28 @@ export default defineNuxtConfig({
       // just falls back to lexical-only. See openspec/changes/add-semantic-search.
       semanticEnabled: process.env.SEARCH_SEMANTIC_ENABLED !== 'false',
     },
+    maps: {
+      // Server-side geocoding (Nominatim). See openspec/changes/add-osm-maps/design.md D3:
+      // this can only be called from the server, never the browser, because `fetch()` from
+      // a browser cannot set a `User-Agent` header, which Nominatim's usage policy requires.
+      nominatimUrl: process.env.NOMINATIM_URL || 'https://nominatim.openstreetmap.org/search',
+      nominatimUserAgent: process.env.NOMINATIM_USER_AGENT || '',
+      // Nominatim explicitly asks for a contact (email/URL) so they can warn before
+      // blocking a problematic client -- unset by default; the operator should set this
+      // via NOMINATIM_CONTACT before relying on 'osm' maps in production (see tasks.md 0.2).
+      nominatimContact: process.env.NOMINATIM_CONTACT || '',
+    },
     public: {
       hocuspocusUrl: 'ws://localhost:3334',
       diagramMultiplayer: false,
       sentryDsn: '',
+      // OSM tile source for 'osm'-type maps. Configurable so a commercial provider (design.md
+      // D4) can be swapped in via env var alone, with the public OSM tile service as the
+      // out-of-the-box default (see tasks.md 0.1 -- a product decision, not closed here).
+      osmTileUrl: process.env.OSM_TILE_URL || 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+      osmAttribution:
+        process.env.OSM_ATTRIBUTION ||
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     },
   },
 

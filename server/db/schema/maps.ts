@@ -12,6 +12,16 @@ export const maps = sqliteTable(
     name: text('name').notNull(),
     slug: text('slug').notNull(),
     parentMapId: text('parent_map_id'),
+    // Discriminator resolved by design.md D2: it decides what `mapPins.lat`/`.lng` mean for
+    // every pin that belongs to this map (CRS.Simple-scaled pixels for 'image', real WGS84
+    // degrees for 'osm'). Defaults to 'image' so every pre-existing row keeps its current
+    // meaning without a data migration.
+    type: text('type').notNull().default('image'),
+    // Initial view for an 'osm' map only -- resolved either via server-side geocoding
+    // (server/services/geocoding.ts) or entered directly. Unused/null for 'image' maps.
+    centerLat: real('center_lat'),
+    centerLng: real('center_lng'),
+    defaultZoom: integer('default_zoom'),
     imagePath: text('image_path'),
     width: integer('width'),
     height: integer('height'),
@@ -36,6 +46,12 @@ export const mapPins = sqliteTable('map_pins', {
   entityId: text('entity_id').references(() => entities.id),
   childMapId: text('child_map_id').references(() => maps.id),
   label: text('label'),
+  // A pin does not carry its own copy of the coordinate system -- what `lat`/`lng` mean is
+  // determined entirely by the parent map's `type` (mapPins.mapId -> maps.id -> maps.type,
+  // design.md D2): on an 'image' map they are the pin's position already scaled into the
+  // map's CRS.Simple units (as MapViewer.client.vue derives from the image's pixel
+  // dimensions); on an 'osm' map they are real WGS84 degrees (-90..90 / -180..180). The
+  // server enforces that range only for pins on an 'osm' map.
   lat: real('lat').notNull(),
   lng: real('lng').notNull(),
   icon: text('icon'),

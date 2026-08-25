@@ -4,6 +4,7 @@ import { useDb } from '../../../../../utils/db'
 import { validateBody } from '../../../../../utils/validate'
 import { maps } from '../../../../../db/schema/maps'
 import { hasMinRole } from '../../../../../utils/permissions'
+import { mapGeoFieldsSchema } from '../../../../../utils/mapGeo'
 import type { CampaignRole } from '../../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
@@ -13,11 +14,13 @@ export default defineEventHandler(async (event) => {
 
   const campaignId = getRouterParam(event, 'id')!
   const slug = getRouterParam(event, 'slug')!
-  const mapPutSchema = z.object({
-    name: z.string().min(1).optional(),
-    visibility: z.string().optional(),
-    parentMapId: z.string().nullable().optional(),
-  })
+  const mapPutSchema = z
+    .object({
+      name: z.string().min(1).optional(),
+      visibility: z.string().optional(),
+      parentMapId: z.string().nullable().optional(),
+    })
+    .extend(mapGeoFieldsSchema.shape)
   const body = await validateBody(event, mapPutSchema)
   const db = useDb()
 
@@ -32,6 +35,10 @@ export default defineEventHandler(async (event) => {
   if (body.name !== undefined) updates.name = body.name
   if (body.visibility !== undefined) updates.visibility = body.visibility
   if (body.parentMapId !== undefined) updates.parentMapId = body.parentMapId
+  if (body.type !== undefined) updates.type = body.type
+  if (body.centerLat !== undefined) updates.centerLat = body.centerLat
+  if (body.centerLng !== undefined) updates.centerLng = body.centerLng
+  if (body.defaultZoom !== undefined) updates.defaultZoom = body.defaultZoom
 
   db.update(maps).set(updates).where(eq(maps.id, map.id)).run()
   return { success: true }

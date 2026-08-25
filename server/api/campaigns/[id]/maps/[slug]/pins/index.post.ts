@@ -5,6 +5,7 @@ import { useDb } from '../../../../../../utils/db'
 import { validateBody } from '../../../../../../utils/validate'
 import { maps, mapPins } from '../../../../../../db/schema/maps'
 import { hasMinRole } from '../../../../../../utils/permissions'
+import { isWithinWgs84 } from '../../../../../../utils/mapGeo'
 import type { CampaignRole } from '../../../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
@@ -34,6 +35,15 @@ export default defineEventHandler(async (event) => {
     .where(and(eq(maps.campaignId, campaignId), eq(maps.slug, slug)))
     .get()
   if (!map) throw createError({ statusCode: 404, message: 'Map not found' })
+
+  // design.md D2: the range check only makes sense for an 'osm' map -- an 'image' map's
+  // pixel coordinates routinely exceed +/-90/+/-180 and that is expected, not an error.
+  if (map.type === 'osm' && !isWithinWgs84(body.lat, body.lng)) {
+    throw createError({
+      statusCode: 422,
+      message: 'lat/lng out of range for an OSM map (-90..90 / -180..180)',
+    })
+  }
 
   const id = randomUUID()
   db.insert(mapPins)

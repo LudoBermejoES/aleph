@@ -1,5 +1,10 @@
 <template>
-  <div class="relative" :style="{ height: height + 'px' }">
+  <div
+    class="relative"
+    :style="{ height: height + 'px' }"
+    @dragover.prevent="onDragOver"
+    @drop.prevent="onDrop"
+  >
     <div ref="mapContainer" class="w-full h-full rounded-lg border border-border"></div>
 
     <!-- Layer Toggle Panel -->
@@ -50,13 +55,33 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted, computed } from 'vue'
 import type { Map as LeafletMap, Marker } from 'leaflet'
+import {
+  buildImageMapInitOptions,
+  buildOsmMapInitOptions,
+  pinToLeafletLatLng,
+  leafletLatLngToPin,
+  ENTITY_DRAG_MIME,
+  type MapType,
+} from '~/utils/mapPinGeometry'
 
 const props = defineProps<{
   imagePath?: string
   imageWidth?: number
   imageHeight?: number
+  /**
+   * 'image' (default, current behavior: CRS.Simple + fitBounds on the image's pixel
+   * dimensions) or 'osm' (Leaflet's default Web Mercator CRS + setView on a stored
+   * center/zoom). See openspec/changes/add-osm-maps/design.md D1.
+   */
+  mapType?: MapType
+  /** 'osm' maps only -- the stored initial view (design.md's "Initial View" requirement). */
+  centerLat?: number | null
+  centerLng?: number | null
+  defaultZoom?: number | null
+  /** Attribution shown for the tile layer -- required for 'osm', unused for 'image'. */
+  attribution?: string
   pins?: Array<{
     id: string
     label?: string
@@ -92,6 +117,8 @@ const props = defineProps<{
   tileUrl?: string
   height?: number
   campaignId?: string
+  /** Gates the drop handler client-side; the server is still the source of truth (design.md D6). */
+  canCreatePins?: boolean
 }>()
 
 type MapPin = NonNullable<typeof props.pins>[number]
@@ -100,6 +127,8 @@ const emit = defineEmits<{
   pinClick: [pin: MapPin]
   regionCreated: [geojson: Record<string, unknown>]
   pinShiftClick: [pin: MapPin]
+  /** Fired on a successful entity drop, with lat/lng already converted for this map's type. */
+  pinDrop: [payload: { lat: number; lng: number; entityId: string }]
 }>()
 
 const mapContainer = ref<HTMLDivElement>()
@@ -109,48 +138,18 @@ const groupVisibility = reactive<Record<string, boolean>>({})
 let map: LeafletMap | null = null
 let markers: Marker[] = []
 
+const mapType = computed<MapType>(() => props.mapType ?? 'image')
+
 onMounted(async () => {
   if (!mapContainer.value) return
 
   const L = await import('leaflet')
   await import('leaflet/dist/leaflet.css')
 
-  const imgWidth = props.imageWidth || 1024
-  const imgHeight = props.imageHeight || 768
-  const maxDim = Math.max(imgWidth, imgHeight)
-  const maxZoom = Math.ceil(Math.log2(maxDim / 256))
-
-  // The tile generator creates a pyramid where at zoom z=0, the entire image
-  // fits in one 256px tile. At z=maxZoom-1, the image is at near-original size.
-  // Leaflet Simple CRS: 1 CRS unit = 1 pixel at zoom 0.
-  // At z=0, one tile covers 256 CRS units. The full image at z=0 is 256px wide.
-  // Scale bounds so the image spans 256 units (one tile) at z=0.
-  const scale = 256 / maxDim
-  const boundsHeight = imgHeight * scale
-  const boundsWidth = imgWidth * scale
-  // Negative lat so Y=0 tile maps to the top of the image (Leaflet Y increases upward)
-  const bounds = L.latLngBounds([-boundsHeight, 0], [0, boundsWidth])
-
-  map = L.map(mapContainer.value, {
-    crs: L.CRS.Simple,
-    minZoom: 0,
-    maxZoom,
-    maxBounds: bounds.pad(0.5),
-    zoomSnap: 0.5,
-  })
-
-  map.fitBounds(bounds)
-
-  // Always use tileLayer — all maps are tiled
-  if (props.tileUrl) {
-    L.tileLayer(props.tileUrl, {
-      tileSize: 256,
-      minZoom: 0,
-      maxZoom,
-      noWrap: true,
-    }).addTo(map)
+  if (mapType.value === 'osm') {
+    await initOsmMap(L)
   } else {
-    map.setView([-boundsHeight / 2, boundsWidth / 2], 0)
+    await initImageMap(L)
   }
 
   // Add pins
@@ -164,7 +163,7 @@ onMounted(async () => {
           typeof region.geojson === 'string' ? JSON.parse(region.geojson) : region.geojson
         L.geoJSON(geojson, {
           style: { color: region.color || '#3b82f6', fillOpacity: region.opacity ?? 0.3 },
-        }).addTo(map)
+        }).addTo(map!)
       } catch {
         /* invalid geojson */
       }
@@ -175,7 +174,7 @@ onMounted(async () => {
   try {
     await import('@geoman-io/leaflet-geoman-free')
     await import('@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css')
-    map.pm.addControls({
+    map!.pm.addControls({
       position: 'topleft',
       drawMarker: false,
       drawCircleMarker: false,
@@ -187,7 +186,7 @@ onMounted(async () => {
       removalMode: true,
     })
 
-    map.on('pm:create', (e: { layer: { toGeoJSON: () => Record<string, unknown> } }) => {
+    map!.on('pm:create', (e: { layer: { toGeoJSON: () => Record<string, unknown> } }) => {
       const geojson = e.layer.toGeoJSON()
       emit('regionCreated', geojson)
     })
@@ -203,6 +202,69 @@ onMounted(async () => {
     groupVisibility[g.id] = g.visibleDefault
   })
 })
+
+/**
+ * 'image' maps (design.md D1): CRS.Simple, bounds/zoom derived from the image's pixel
+ * dimensions, tiles served locally by this app. Unchanged from before this component
+ * supported a second map type.
+ */
+async function initImageMap(L: typeof import('leaflet')) {
+  if (!mapContainer.value) return
+
+  const imgWidth = props.imageWidth || 1024
+  const imgHeight = props.imageHeight || 768
+  const { maxZoom, boundsHeight, boundsWidth } = buildImageMapInitOptions(imgWidth, imgHeight)
+  const bounds = L.latLngBounds([-boundsHeight, 0], [0, boundsWidth])
+
+  map = L.map(mapContainer.value, {
+    crs: L.CRS.Simple,
+    minZoom: 0,
+    maxZoom,
+    maxBounds: bounds.pad(0.5),
+    zoomSnap: 0.5,
+  })
+
+  map.fitBounds(bounds)
+
+  // Always use tileLayer — all image maps are tiled
+  if (props.tileUrl) {
+    L.tileLayer(props.tileUrl, {
+      tileSize: 256,
+      minZoom: 0,
+      maxZoom,
+      noWrap: true,
+    }).addTo(map)
+  } else {
+    map.setView([-boundsHeight / 2, boundsWidth / 2], 0)
+  }
+}
+
+/**
+ * 'osm' maps (design.md D1/D3): Leaflet's default Web Mercator CRS (EPSG:3857), a stored
+ * center/zoom instead of fitBounds on a pixel box, and a real tile source that requires
+ * attribution.
+ */
+async function initOsmMap(L: typeof import('leaflet')) {
+  if (!mapContainer.value) return
+
+  const { center, zoom } = buildOsmMapInitOptions(
+    props.centerLat,
+    props.centerLng,
+    props.defaultZoom,
+  )
+
+  map = L.map(mapContainer.value, {
+    // No `crs` option -- Leaflet defaults to EPSG:3857, which is what real OSM tiles need.
+  })
+  map.setView(center, zoom)
+
+  if (props.tileUrl) {
+    L.tileLayer(props.tileUrl, {
+      maxZoom: 19,
+      attribution: props.attribution || '&copy; OpenStreetMap contributors',
+    }).addTo(map)
+  }
+}
 
 function renderPins(L: typeof import('leaflet')) {
   if (!map || !props.pins) return
@@ -221,9 +283,8 @@ function renderPins(L: typeof import('leaflet')) {
       iconAnchor: [8, 8],
     })
 
-    // Scale pin coordinates from image pixels to CRS units (negative lat = top-down Y)
-    const pinScale = 256 / Math.max(props.imageWidth || 1024, props.imageHeight || 768)
-    const marker = L.marker([-pin.lat * pinScale, pin.lng * pinScale], { icon: divIcon }).addTo(map)
+    const [lat, lng] = pinToLeafletLatLng(pin, mapType.value, props.imageWidth, props.imageHeight)
+    const marker = L.marker([lat, lng], { icon: divIcon }).addTo(map)
 
     const popupContent = `
       <div style="min-width:120px;">
@@ -256,6 +317,35 @@ function toggleGroup(groupId: string) {
   if (map) {
     import('leaflet').then((L) => renderPins(L))
   }
+}
+
+/**
+ * Drag-and-drop pin creation (design.md D6): available for BOTH map types, same event
+ * shape, only the lat/lng conversion differs. The entity picker panel that originates the
+ * drag lives on the map detail page, not here.
+ */
+function onDragOver(event: DragEvent) {
+  if (!props.canCreatePins) return
+  if (event.dataTransfer) event.dataTransfer.dropEffect = 'copy'
+}
+
+function onDrop(event: DragEvent) {
+  if (!props.canCreatePins) return
+  if (!map) return
+  const entityId = event.dataTransfer?.getData(ENTITY_DRAG_MIME)
+  if (!entityId) return
+
+  // Leaflet computes this from the container's own coordinate space, which is already
+  // CRS.Simple-scaled units for an 'image' map and real WGS84 degrees for an 'osm' map.
+  const latlng = map.mouseEventToLatLng(event)
+  const { lat, lng } = leafletLatLngToPin(
+    latlng,
+    mapType.value,
+    props.imageWidth,
+    props.imageHeight,
+  )
+
+  emit('pinDrop', { lat, lng, entityId })
 }
 
 onUnmounted(() => {

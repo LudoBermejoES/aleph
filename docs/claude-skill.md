@@ -4,7 +4,7 @@ description: Use the aleph CLI to manage campaigns, entities, characters, locati
 license: MIT
 metadata:
   author: aleph
-  version: '1.10'
+  version: '1.11'
 ---
 
 You have access to the `aleph` CLI. Run it as `aleph` if installed globally (`npm i -g aleph-cli`), or `npx aleph-cli` otherwise.
@@ -304,12 +304,15 @@ aleph relation create --campaign <id> --source el-camino-hasta-oda --target la-c
 ```bash
 aleph map list --campaign <id> [--json]
 aleph map get --campaign <id> --slug <slug> [--json]
-aleph map create --campaign <id> --name <name> [--description <desc>] [--json]
-aleph map update --campaign <id> --slug <slug> [--name <name>] [--description <desc>]
+aleph map create --campaign <id> --name <name> [--json]
+aleph map update --campaign <id> --slug <slug> [--name <name>]
 aleph map delete --campaign <id> --slug <slug> [--yes]
 aleph map upload --campaign <id> --slug <slug> --file <path>
 aleph map pins --campaign <id> --slug <slug> [--json]
-aleph map pin-add --campaign <id> --slug <slug> --label <label> --x <x> --y <y> [--entity <slug>]
+# --lat/--lng mean different things depending on the map's type: on an image map they are
+# CRS.Simple-scaled pixel coordinates matching the uploaded image; on an OSM map they are
+# real WGS84 degrees (-90..90 / -180..180). Run `map get` to check the map's type first.
+aleph map pin-add --campaign <id> --slug <slug> --label <label> --lat <lat> --lng <lng> [--entity <slug>]
 aleph map pin-delete --campaign <id> --slug <slug> --pin <pinId>
 aleph map layer-update --campaign <id> --slug <slug> --layer <layerId> [--name <name>] [--opacity <n>]
 aleph map layer-delete --campaign <id> --slug <slug> --layer <layerId> [--yes]

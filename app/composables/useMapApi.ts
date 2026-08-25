@@ -64,6 +64,42 @@ export function useMapApi(campaignId: string) {
     return $fetch(`${base}/maps/${mapSlug}/regions/${regionId}`, { method: 'DELETE' })
   }
 
+  // ─── Pins ───────────────────────────────────────────────────────────────────
+
+  /**
+   * Create a pin via drag-and-drop (design.md D6) or any other UI path -- there was
+   * previously no client-side function for the already-existing `POST .../pins` endpoint.
+   */
+  function createMapPin(
+    slug: string,
+    body: {
+      lat: number
+      lng: number
+      entityId?: string
+      childMapId?: string
+      label?: string
+      icon?: string
+      color?: string
+      visibility?: string
+      groupId?: string
+    },
+  ) {
+    return $fetch<{ id: string }>(`${base}/maps/${slug}/pins`, { method: 'POST', body })
+  }
+
+  // ─── Geocoding ──────────────────────────────────────────────────────────────
+
+  /**
+   * Server-side geocoding for an 'osm' map's initial view (design.md D3). Never call this
+   * per-keystroke -- the caller is responsible for an explicit search action or a debounce.
+   */
+  function geocodeAddress(query: string) {
+    return $fetch<{ candidates: { displayName: string; lat: number; lng: number }[] }>(
+      `${base}/maps/geocode`,
+      { method: 'POST', body: { query } },
+    )
+  }
+
   return {
     getMaps,
     getMap,
@@ -75,9 +111,11 @@ export function useMapApi(campaignId: string) {
     updateMapLayer,
     deleteMapLayer,
     getMapPins,
+    createMapPin,
     getMapRegions,
     updateMapRegions,
     updateMapRegion,
     deleteMapRegion,
+    geocodeAddress,
   }
 }

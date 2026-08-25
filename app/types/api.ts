@@ -213,6 +213,12 @@ export interface CampaignMap {
   name: string
   slug: string
   parentMapId: string | null
+  /** 'image' (uploaded/tiled image, CRS.Simple) or 'osm' (OpenStreetMap tiles, WGS84). */
+  type: 'image' | 'osm'
+  /** Initial view for an 'osm' map only -- null/unused for 'image' maps. */
+  centerLat: number | null
+  centerLng: number | null
+  defaultZoom: number | null
   imagePath: string | null
   width: number | null
   height: number | null

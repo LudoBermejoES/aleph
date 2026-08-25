@@ -14,6 +14,7 @@
     <MapForm
       ref="mapFormRef"
       v-model="form"
+      :campaign-id="campaignId"
       :submit-label="$t('common.create')"
       :submitting="submitting"
       @submit="create"

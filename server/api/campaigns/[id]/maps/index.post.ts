@@ -5,6 +5,7 @@ import { validateBody } from '../../../../utils/validate'
 import { maps } from '../../../../db/schema/maps'
 import { hasMinRole } from '../../../../utils/permissions'
 import { slugify } from '../../../../services/content'
+import { mapGeoFieldsSchema } from '../../../../utils/mapGeo'
 import type { CampaignRole } from '../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
@@ -14,11 +15,13 @@ export default defineEventHandler(async (event) => {
   }
 
   const campaignId = getRouterParam(event, 'id')!
-  const mapSchema = z.object({
-    name: z.string().min(1),
-    parentMapId: z.string().optional(),
-    visibility: z.string().optional(),
-  })
+  const mapSchema = z
+    .object({
+      name: z.string().min(1),
+      parentMapId: z.string().optional(),
+      visibility: z.string().optional(),
+    })
+    .extend(mapGeoFieldsSchema.shape)
   const body = await validateBody(event, mapSchema)
   const db = useDb()
   const now = new Date()
@@ -31,6 +34,10 @@ export default defineEventHandler(async (event) => {
       name: body.name,
       slug: slugify(body.name),
       parentMapId: body.parentMapId || null,
+      type: body.type || 'image',
+      centerLat: body.centerLat ?? null,
+      centerLng: body.centerLng ?? null,
+      defaultZoom: body.defaultZoom ?? null,
       visibility: body.visibility || 'members',
       createdAt: now,
       updatedAt: now,

@@ -73,6 +73,38 @@ describe('Map Schema Tests', () => {
     expect(layers[2].name).toBe('Climate')
   })
 
+  it('maps.type defaults to image when not specified (task 1.3 non-regression)', () => {
+    const now = Date.now()
+    testDb.sqlite.exec(`
+      INSERT INTO maps (id, campaign_id, name, slug, visibility, created_at, updated_at)
+      VALUES ('map-1', 'camp-1', 'World', 'world', 'public', ${now}, ${now})
+    `)
+    const map = testDb.sqlite.prepare("SELECT * FROM maps WHERE id = 'map-1'").get() as Record<
+      string,
+      unknown
+    >
+    expect(map.type).toBe('image')
+    expect(map.center_lat).toBeNull()
+    expect(map.center_lng).toBeNull()
+    expect(map.default_zoom).toBeNull()
+  })
+
+  it('maps.type can be set to osm with a center and zoom', () => {
+    const now = Date.now()
+    testDb.sqlite.exec(`
+      INSERT INTO maps (id, campaign_id, name, slug, type, center_lat, center_lng, default_zoom, visibility, created_at, updated_at)
+      VALUES ('map-osm', 'camp-1', 'Berlin', 'berlin', 'osm', 52.52, 13.405, 12, 'public', ${now}, ${now})
+    `)
+    const map = testDb.sqlite.prepare("SELECT * FROM maps WHERE id = 'map-osm'").get() as Record<
+      string,
+      unknown
+    >
+    expect(map.type).toBe('osm')
+    expect(map.center_lat).toBeCloseTo(52.52)
+    expect(map.center_lng).toBeCloseTo(13.405)
+    expect(map.default_zoom).toBe(12)
+  })
+
   it('map_regions stores GeoJSON as text', () => {
     const now = Date.now()
     testDb.sqlite.exec(`

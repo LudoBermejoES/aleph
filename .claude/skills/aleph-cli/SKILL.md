@@ -4,7 +4,7 @@ description: Use the aleph CLI to manage campaigns, entities, characters, locati
 license: MIT
 metadata:
   author: aleph
-  version: '3.20'
+  version: '3.21'
 ---
 
 You have access to the `aleph` CLI tool at `node /Users/ludo/code/aleph/cli/bin/aleph.js` (or `npm run aleph -- <args>` from the project root). Use it to interact with the running Aleph server.
@@ -288,12 +288,15 @@ node /Users/ludo/code/aleph/cli/bin/aleph.js relation create --campaign <id> --s
 ```bash
 node /Users/ludo/code/aleph/cli/bin/aleph.js map list --campaign <id> [--json]
 node /Users/ludo/code/aleph/cli/bin/aleph.js map get --campaign <id> --slug <slug> [--json]
-node /Users/ludo/code/aleph/cli/bin/aleph.js map create --campaign <id> --name <name> [--description <desc>] [--json]
-node /Users/ludo/code/aleph/cli/bin/aleph.js map update --campaign <id> --slug <slug> [--name <name>] [--description <desc>]
+node /Users/ludo/code/aleph/cli/bin/aleph.js map create --campaign <id> --name <name> [--json]
+node /Users/ludo/code/aleph/cli/bin/aleph.js map update --campaign <id> --slug <slug> [--name <name>]
 node /Users/ludo/code/aleph/cli/bin/aleph.js map delete --campaign <id> --slug <slug> [--yes]
 node /Users/ludo/code/aleph/cli/bin/aleph.js map upload --campaign <id> --slug <slug> --file <path>
 node /Users/ludo/code/aleph/cli/bin/aleph.js map pins --campaign <id> --slug <slug> [--json]
-node /Users/ludo/code/aleph/cli/bin/aleph.js map pin-add --campaign <id> --slug <slug> --label <label> --x <x> --y <y> [--entity <slug>]
+# --lat/--lng mean different things depending on the map's type: on an image map they are
+# CRS.Simple-scaled pixel coordinates matching the uploaded image; on an OSM map they are
+# real WGS84 degrees (-90..90 / -180..180). Run `map get` to check the map's type first.
+node /Users/ludo/code/aleph/cli/bin/aleph.js map pin-add --campaign <id> --slug <slug> --label <label> --lat <lat> --lng <lng> [--entity <slug>]
 node /Users/ludo/code/aleph/cli/bin/aleph.js map pin-delete --campaign <id> --slug <slug> --pin <pinId>
 node /Users/ludo/code/aleph/cli/bin/aleph.js map layer-update --campaign <id> --slug <slug> --layer <layerId> [--name <name>] [--opacity <n>]
 node /Users/ludo/code/aleph/cli/bin/aleph.js map layer-delete --campaign <id> --slug <slug> --layer <layerId> [--yes]

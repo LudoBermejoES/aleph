@@ -19,6 +19,7 @@
       v-if="loaded"
       ref="mapFormRef"
       v-model="form"
+      :campaign-id="campaignId"
       :submit-label="$t('common.save')"
       :submitting="submitting"
       @submit="save"
@@ -48,7 +49,14 @@ const api = useCampaignApi(campaignId)
 onMounted(async () => {
   try {
     const map = await api.getMap(slug)
-    form.value = { name: map.name || '', visibility: map.visibility || 'members' }
+    form.value = {
+      name: map.name || '',
+      visibility: map.visibility || 'members',
+      type: map.type || 'image',
+      centerLat: map.centerLat ?? undefined,
+      centerLng: map.centerLng ?? undefined,
+      defaultZoom: map.defaultZoom ?? undefined,
+    }
     loaded.value = true
   } catch {
     alert(t('errors.failedLoad'))

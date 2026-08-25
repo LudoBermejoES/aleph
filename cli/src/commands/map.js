@@ -43,12 +43,10 @@ export function makeMapCommand() {
     .description('Create a map')
     .requiredOption('--campaign <id>', 'Campaign ID')
     .requiredOption('--name <name>', 'Map name')
-    .option('--description <desc>', 'Map description')
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
       const data = await post(`/api/campaigns/${opts.campaign}/maps`, {
         name: opts.name,
-        description: opts.description,
       })
       if (opts.json) {
         print(data, { json: true })
@@ -63,11 +61,9 @@ export function makeMapCommand() {
     .requiredOption('--campaign <id>', 'Campaign ID')
     .requiredOption('--slug <slug>', 'Map slug')
     .option('--name <name>', 'New name')
-    .option('--description <desc>', 'New description')
     .action(async (opts) => {
       const body = {}
       if (opts.name !== undefined) body.name = opts.name
-      if (opts.description !== undefined) body.description = opts.description
       await put(`/api/campaigns/${opts.campaign}/maps/${opts.slug}`, body)
       success('Map updated.')
     })
@@ -107,7 +103,7 @@ export function makeMapCommand() {
       await postMultipart(
         `/api/campaigns/${opts.campaign}/maps/${opts.slug}/upload`,
         opts.file,
-        'file',
+        'image',
       )
       success('Map image uploaded.')
     })
@@ -126,8 +122,8 @@ export function makeMapCommand() {
           : data.map((p) => ({
               id: p.id,
               label: p.label || '',
-              x: p.x,
-              y: p.y,
+              lat: p.lat,
+              lng: p.lng,
               entity: p.entitySlug || '',
             })),
         { json: opts.json },
@@ -136,16 +132,29 @@ export function makeMapCommand() {
 
   cmd
     .command('pin-add')
-    .description('Add a pin to a map')
+    .description(
+      "Add a pin to a map. --lat/--lng mean different things depending on the parent map's " +
+        'type: on an image map they are CRS.Simple-scaled pixel coordinates matching the ' +
+        'uploaded image (not real-world coordinates); on an OSM map they are real WGS84 ' +
+        "degrees (-90..90 / -180..180). Run `map get` to check the map's type first.",
+    )
     .requiredOption('--campaign <id>', 'Campaign ID')
     .requiredOption('--slug <slug>', 'Map slug')
     .requiredOption('--label <label>', 'Pin label')
-    .requiredOption('--x <x>', 'X coordinate', parseFloat)
-    .requiredOption('--y <y>', 'Y coordinate', parseFloat)
+    .requiredOption(
+      '--lat <lat>',
+      'Latitude — image map: CRS.Simple pixel Y; OSM map: WGS84 degrees',
+      parseFloat,
+    )
+    .requiredOption(
+      '--lng <lng>',
+      'Longitude — image map: CRS.Simple pixel X; OSM map: WGS84 degrees',
+      parseFloat,
+    )
     .option('--entity <slug>', 'Linked entity slug')
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
-      const body = { label: opts.label, x: opts.x, y: opts.y }
+      const body = { label: opts.label, lat: opts.lat, lng: opts.lng }
       if (opts.entity) body.entitySlug = opts.entity
       const data = await post(`/api/campaigns/${opts.campaign}/maps/${opts.slug}/pins`, body)
       if (opts.json) {
