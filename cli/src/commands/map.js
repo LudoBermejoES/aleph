@@ -1,5 +1,5 @@
 import { Command } from 'commander'
-import { get, post, put, patch, del, postMultipart } from '../lib/client.js'
+import { get, post, put, patch, del, postMultipart, resolveEntitySlug } from '../lib/client.js'
 import { print, success } from '../lib/output.js'
 import { confirm } from '@inquirer/prompts'
 import { existsSync } from 'fs'
@@ -163,6 +163,11 @@ export function makeMapCommand() {
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
       const data = await get(`/api/campaigns/${opts.campaign}/maps/${opts.slug}/pins`)
+      // La columna `entity` imprimía `p.entitySlug`, un campo que el GET no devolvía, así que
+      // salía siempre vacía: el mismo no-op silencioso que en pin-add, en este mismo fichero.
+      // Ahora se muestran los campos que el endpoint sí manda, e `image` de propina, que es
+      // lo que hace falta para diagnosticar un marcador que sale como icono genérico en vez
+      // de como la imagen de su entidad.
       print(
         opts.json
           ? data
@@ -171,7 +176,9 @@ export function makeMapCommand() {
               label: p.label || '',
               lat: p.lat,
               lng: p.lng,
-              entity: p.entitySlug || '',
+              entityId: p.entityId || '',
+              entityType: p.entityType || '',
+              image: p.entityImageUrl ? 'yes' : 'no',
             })),
         { json: opts.json },
       )
@@ -202,7 +209,13 @@ export function makeMapCommand() {
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
       const body = { label: opts.label, lat: opts.lat, lng: opts.lng }
-      if (opts.entity) body.entitySlug = opts.entity
+      // El endpoint declara `entityId` (pins/index.post.ts). Enviar `entitySlug` era un
+      // no-op SILENCIOSO: zod descarta las claves que no declara, así que el pin nacía con
+      // entityId null y no podía mostrar nunca la imagen de su entidad. Cuarto desajuste
+      // CLI<->endpoint de esta misma forma (x/y, `file` vs `image`, --description).
+      // `resolveEntitySlug` ya existe y sale con código 2 si el slug no existe, así que un
+      // slug mal escrito falla ruidosamente en vez de crear un pin suelto.
+      if (opts.entity) body.entityId = await resolveEntitySlug(opts.campaign, opts.entity)
       const data = await post(`/api/campaigns/${opts.campaign}/maps/${opts.slug}/pins`, body)
       if (opts.json) {
         print(data, { json: true })

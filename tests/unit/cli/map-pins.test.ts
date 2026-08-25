@@ -191,3 +191,100 @@ describe('map create / update: no dead --description option', () => {
     expect(block).not.toContain('opts.description')
   })
 })
+
+/**
+ * add-entity-link-parity — the guard for a RECURRING bug family, not for one bug.
+ *
+ * Four times now a `map` CLI command has sent a body key the endpoint's zod schema does not
+ * declare, and zod strips unknown keys SILENTLY, so each one was a no-op that reported
+ * success: `x`/`y` instead of `lat`/`lng`, the multipart field `file` instead of `image`, a
+ * `--description` no endpoint ever accepted, and — found in production on 2026-08-25 —
+ * `entitySlug` instead of `entityId`, which created every CLI pin with `entityId: null` and
+ * therefore no entity image, ever.
+ *
+ * The reason the first three were fixed and the fourth still shipped is that their tests
+ * asserted THE BODY THE CLI SENDS. That can never catch this family: a test written from the
+ * CLI's own source agrees with the CLI by construction. This suite compares the two sides —
+ * the keys `map.js` assigns onto a request body against the keys the endpoint's schema
+ * declares — so a key that exists on only one side fails the build.
+ *
+ * Source-text comparison, deliberately: importing the endpoint would pull Nitro's h3 context
+ * into a unit test, and the failure mode being guarded is a NAME mismatch, which is visible
+ * in the text. `map-pins.test.ts` already reads `map.js` this way.
+ */
+describe('map.js <-> endpoint body-key parity', () => {
+  /** Strips line and block comments, so an assertion never matches prose ABOUT the code.
+   *  Learned the hard way writing this suite: the first draft failed because a comment
+   *  naming the offending key counted as a use of it. */
+  function code(src: string): string {
+    return src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '')
+  }
+
+  /** Keys a zod object schema declares, read from source — INCLUDING the ones it inherits
+   *  from a shared schema via `.extend()`. Missing that was this guard's own first bug:
+   *  `lat`/`lng` live in `server/utils/mapGeo.ts`'s `pinCoordinatesSchema`, so parsing only
+   *  the endpoint file reported them as undeclared and would have failed a correct CLI. */
+  function schemaKeys(relPath: string): Set<string> {
+    const src = code(readFileSync(resolve(__dirname, '../../../', relPath), 'utf-8'))
+    const keys = new Set<string>()
+    const collect = (text: string) => {
+      for (const m of text.matchAll(/^\s{2,}(\w+):\s*(?:z\.|\w+Schema\b)/gm)) keys.add(m[1])
+    }
+    collect(src)
+    // follow `<name>Schema.extend(` / `.merge(` into the shared module it was imported from
+    for (const m of src.matchAll(/(\w+Schema)\.(?:extend|merge)\(/g)) {
+      const imp = src.match(new RegExp(`import \\{[^}]*\\b${m[1]}\\b[^}]*\\} from '([^']+)'`))
+      if (!imp) continue
+      const rel = imp[1].replace(/^.*?\/(server\/.*)$/, '$1').replace(/^~\//, '')
+      for (const cand of [rel, `server/utils/${rel.split('/').pop()}`]) {
+        try {
+          collect(code(readFileSync(resolve(__dirname, '../../../', `${cand}.ts`), 'utf-8')))
+          break
+        } catch {
+          /* try the next candidate path */
+        }
+      }
+    }
+    return keys
+  }
+
+  it('pin-add sends only keys the pins POST schema declares', () => {
+    const declared = schemaKeys('server/api/campaigns/[id]/maps/[slug]/pins/index.post.ts')
+    // Sanity on the PARSER itself: if these three are not found the comparison below is
+    // vacuous and would pass no matter what the CLI sends. `lat` proves the `.extend()`
+    // base schema was followed; `entityId` proves the inline keys were read.
+    expect(declared.has('lat')).toBe(true)
+    expect(declared.has('lng')).toBe(true)
+    expect(declared.has('entityId')).toBe(true)
+
+    // the body pin-add builds, read from its own action block
+    const stripped = code(source)
+    const block = stripped.slice(stripped.indexOf("command('pin-add')"))
+    const action = block.slice(0, block.indexOf('.command('))
+    const sent = new Set([...action.matchAll(/\bbody\.(\w+)\s*=/g)].map((m) => m[1]))
+    // the object literal `const body = { label: ..., lat: ..., lng: ... }`
+    const literal = action.match(/const body = \{([^}]*)\}/)
+    if (literal) {
+      for (const m of literal[1].matchAll(/(\w+)\s*:/g)) sent.add(m[1])
+    }
+
+    expect(sent.size).toBeGreaterThan(0)
+    const undeclared = [...sent].filter((k) => !declared.has(k))
+    expect(undeclared).toEqual([])
+  })
+
+  it('pin-add resolves --entity to an id and never sends entitySlug', () => {
+    // `entitySlug` is the exact key that silently did nothing in production.
+    expect(code(source)).not.toContain('body.entitySlug')
+    expect(code(source)).toContain('body.entityId = await resolveEntitySlug(')
+  })
+
+  it('the pins list renders only fields the GET actually returns', () => {
+    // `entitySlug` was printed as the `entity` column and was always blank: the GET returns
+    // entityId/entityType/entityImageUrl (server/services/maps.ts), never a slug.
+    const stripped = code(source)
+    const block = stripped.slice(stripped.indexOf("command('pins')"))
+    const action = block.slice(0, block.indexOf('.command('))
+    expect(action).not.toContain('entitySlug')
+  })
+})
