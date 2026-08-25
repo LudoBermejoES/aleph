@@ -558,7 +558,11 @@
     "confirmDeletePinMessage": "Delete this pin? This action cannot be undone.",
     "pinDeleteFailed": "Failed to delete pin",
     "pinMoveFailed": "Failed to move pin",
-    "focusPin": "Zoom to this pin"
+    "focusPin": "Zoom to this pin",
+    "pinsLocked": "Pins locked",
+    "pinsUnlocked": "Pins unlocked",
+    "pinsLockedHint": "Pin positions are locked. Click the padlock to move them by dragging.",
+    "pinsUnlockedHint": "Careful: dragging a pin now moves it and saves the new position. Click the padlock to lock them again."
   },
   "timelines": {
     "title": "Timelines",

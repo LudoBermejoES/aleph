@@ -558,7 +558,11 @@
     "confirmDeletePinMessage": "¿Eliminar este pin? Esta acción no se puede deshacer.",
     "pinDeleteFailed": "Error al eliminar el pin",
     "pinMoveFailed": "Error al mover el pin",
-    "focusPin": "Ir a este pin"
+    "focusPin": "Ir a este pin",
+    "pinsLocked": "Pines bloqueados",
+    "pinsUnlocked": "Pines desbloqueados",
+    "pinsLockedHint": "La posición de los pines está bloqueada. Pulsa el candado para poder moverlos arrastrándolos.",
+    "pinsUnlockedHint": "Cuidado: ahora arrastrar un pin lo mueve y guarda la posición nueva. Pulsa el candado para volver a bloquearlos."
   },
   "timelines": {
     "title": "Cronologías",

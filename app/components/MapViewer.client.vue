@@ -7,6 +7,39 @@
   >
     <div ref="mapContainer" class="w-full h-full rounded-lg border border-border"></div>
 
+    <!--
+      Candado de posición de los pines. Solo se ofrece a quien puede moverlos.
+
+      CERRADO POR DEFECTO, y a propósito: el defecto que lo motivó fue mover un pin sin querer
+      1,5 km, y la causa era que arrastrar estaba disponible sin que NADA lo indicara. Un
+      modificador oculto (Ctrl+arrastrar) sube el listón pero sigue siendo invisible: no puedes
+      saber que existe ni saber en qué estado estás. Un candado hace el estado visible y exige
+      dos actos deliberados. Es además el idioma que el resto del proyecto ya usa (las hojas de
+      Foundry tienen este mismo bloqueo), y `Ctrl+clic` en macOS emula el botón derecho, así que
+      sería una mala elección multiplataforma.
+
+      NO se recuerda entre visitas: se vuelve a cerrar cada vez que se abre el mapa, así que es
+      imposible encontrarse un mapa desbloqueado de una sesión anterior.
+    -->
+    <div v-if="canCreatePins" class="absolute bottom-3 left-3 z-[1000] max-w-[16rem]">
+      <button
+        type="button"
+        class="flex items-center gap-2 rounded-lg border border-border bg-background px-2 py-1 text-xs shadow-lg"
+        :class="pinsUnlocked ? 'text-amber-600 border-amber-500' : 'text-muted-foreground'"
+        :aria-pressed="pinsUnlocked"
+        @click="togglePinLock"
+      >
+        <span aria-hidden="true">{{ pinsUnlocked ? '🔓' : '🔒' }}</span>
+        {{ pinsUnlocked ? $t('maps.pinsUnlocked') : $t('maps.pinsLocked') }}
+      </button>
+      <p
+        class="mt-1 rounded-lg border border-border bg-background/95 px-2 py-1 text-[11px] leading-snug shadow-lg"
+        :class="pinsUnlocked ? 'text-amber-700' : 'text-muted-foreground'"
+      >
+        {{ pinsUnlocked ? $t('maps.pinsUnlockedHint') : $t('maps.pinsLockedHint') }}
+      </p>
+    </div>
+
     <!-- Layer Toggle Panel -->
     <div
       v-if="layers.length"
@@ -55,7 +88,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, computed, watch } from 'vue'
+import { onMounted, onUnmounted, computed, ref, watch } from 'vue'
 import type { Map as LeafletMap, Marker, LatLng as LeafletLatLng } from 'leaflet'
 import {
   buildImageMapInitOptions,
@@ -344,6 +377,27 @@ async function initOsmMap(L: typeof import('leaflet')) {
   }
 }
 
+/**
+ * ¿Se pueden arrastrar los pines ahora mismo? Empieza SIEMPRE en `false`, y es estado de
+ * componente, no persistido: al volver al mapa está cerrado otra vez.
+ */
+const pinsUnlocked = ref(false)
+
+/**
+ * Conmuta el candado activando o desactivando el arrastre de los marcadores YA CREADOS
+ * (`marker.dragging`), en lugar de volver a renderizarlos. Un `renderPins` aquí destruiría y
+ * recrearía cada marcador, lo que cierra el popup abierto -- la misma razón por la que ni un
+ * movimiento correcto ni un cambio de zoom re-renderizan.
+ */
+function togglePinLock() {
+  pinsUnlocked.value = !pinsUnlocked.value
+  for (const { marker } of markerPins) {
+    if (!marker.dragging) continue
+    if (pinsUnlocked.value) marker.dragging.enable()
+    else marker.dragging.disable()
+  }
+}
+
 /** El tamaño que le toca a un pin con el zoom actual del mapa. */
 function currentPinSize(): number {
   if (!map) return MARKER_SIZE_MIN
@@ -419,8 +473,17 @@ function renderPins(L: typeof import('leaflet')) {
     // Draggable gated on the same role check the drop handler uses (design.md D1) -- the
     // server remains the authority on the PATCH itself, this only offers/withholds the
     // affordance.
+    // `canDrag` es el PERMISO; `pinsUnlocked` es el modo. Se crea arrastrable solo si se tienen
+    // los dos, así que un marcador que aparece con el candado cerrado (crear un pin, o el
+    // re-render que eso provoca) nace inmóvil y no reabre la puerta que el candado cerró.
+    // Los manejadores de arrastre se registran con el PERMISO, no con el modo: el candado
+    // habilita y deshabilita `marker.dragging` sobre marcadores existentes, y un manejador que
+    // solo existiera al desbloquear no volvería a engancharse nunca.
     const canDrag = !!props.canCreatePins
-    const marker = L.marker([lat, lng], { icon: divIcon, draggable: canDrag }).addTo(map)
+    const marker = L.marker([lat, lng], {
+      icon: divIcon,
+      draggable: canDrag && pinsUnlocked.value,
+    }).addTo(map)
 
     if (canDrag) {
       let dragStartLatLng: LeafletLatLng | null = null
