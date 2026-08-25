@@ -24,6 +24,15 @@ jobs:
       - name: Check formatting
         run: npm run format:check
 
+      # ESLint lived ONLY in `.husky/pre-push`, and every push in this project goes out with
+      # `--no-verify` (the hook costs ~3 min of ESLint over a 9p mount and reads as a hang).
+      # So lint was running nowhere at all: bypassing the hook was not skipping a slow
+      # duplicate of a CI step, it was skipping the only linter there was. Same reasoning the
+      # rest of this project applies to Foundry's deploy gates -- a guarantee that must hold
+      # has to live inside the workflow, not in a local hook anyone can skip.
+      - name: Lint
+        run: npx eslint . --ext .ts,.vue,.tsx
+
       # `cli/node_modules` is gitignored, not vendored, so a fresh checkout cannot resolve
       # `commander` and any unit test that IMPORTS `cli/src/**` dies with ERR_MODULE_NOT_FOUND.
       # `integration-test` has always had this step; `test` did not, which is why
