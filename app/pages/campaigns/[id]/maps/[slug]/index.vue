@@ -46,6 +46,7 @@
         <div class="flex-1 min-w-0 w-full">
           <ClientOnly>
             <MapViewer
+              ref="mapViewer"
               :map-type="mapData.type"
               :image-path="mapData.imagePath"
               :image-width="mapData.width || 1024"
@@ -136,7 +137,14 @@
               :style="{ backgroundColor: pin.color }"
               class="w-3 h-3 rounded-full"
             ></span>
-            <span class="text-sm">{{ pin.label || $t('maps.unnamedPin') }}</span>
+            <button
+              type="button"
+              class="text-sm text-left hover:underline text-primary"
+              :title="$t('maps.focusPin')"
+              @click="focusPin(pin.id)"
+            >
+              {{ pin.label || $t('maps.unnamedPin') }}
+            </button>
             <span class="text-xs text-muted-foreground"
               >({{ pin.lat.toFixed(1) }}, {{ pin.lng.toFixed(1) }})</span
             >
@@ -184,6 +192,7 @@ const { t } = useI18n()
 const runtimeConfig = useRuntimeConfig()
 
 const mapData = ref<CampaignMap | null>(null)
+const mapViewer = ref<unknown>(null)
 const campaignRole = ref('')
 const isDm = computed(() => ['dm', 'co_dm'].includes(campaignRole.value))
 // Same role gate as the server's POST .../pins (editor+) -- the server remains the source
@@ -256,6 +265,18 @@ async function onPinDrop(payload: { lat: number; lng: number; entityId: string }
  * MapViewer's own watcher would rebuild every marker, which is exactly what the drag must
  * not cause (it already set its own suppression flag before emitting this event).
  */
+/**
+ * Pinchar el nombre de un pin en la lista centra y acerca el mapa sobre él.
+ *
+ * Va contra el método que `MapViewer` expone, no contra una prop: es una ACCIÓN puntual, y
+ * una prop obligaría a mantener un "pin enfocado" que hay que limpiar para poder volver a
+ * enfocar el mismo. `MapViewer` es `.client.vue`, así que el ref puede ser null en el primer
+ * render del servidor -- de ahí el encadenamiento opcional en vez de una aserción.
+ */
+function focusPin(pinId: string) {
+  ;(mapViewer.value as { focusPin?: (id: string) => void } | null)?.focusPin?.(pinId)
+}
+
 async function onPinMove(payload: {
   pinId: string
   lat: number

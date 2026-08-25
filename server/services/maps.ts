@@ -70,6 +70,7 @@ interface JoinedPinRow {
   visibility: string
   groupId: string | null
   entityType: string | null
+  entitySlug: string | null
   entityImageUrl: string | null
   entityVisibility: string | null
   entityCreatedBy: string | null
@@ -88,6 +89,7 @@ export interface PinWithEntity {
   visibility: string
   groupId: string | null
   entityType: string | null
+  entitySlug: string | null
   entityImageUrl: string | null
 }
 
@@ -106,6 +108,7 @@ function selectJoinedPins(db: BetterSQLite3Database) {
       visibility: mapPins.visibility,
       groupId: mapPins.groupId,
       entityType: entities.type,
+      entitySlug: entities.slug,
       // design.md D3: COALESCE walks the priority list in order, stopping at the first
       // non-null source. Every joined table's row is at most one per entity (entity_images
       // constrained to is_primary = 1; characters/organizations joined by their own unique
@@ -136,7 +139,7 @@ function withEntityVisibility(
     !pin.entityId ||
     (entityVisibility != null &&
       isEntityVisibleTo(role, userId, entityVisibility, entityCreatedBy ?? ''))
-  return canSeeEntity ? pin : { ...pin, entityType: null, entityImageUrl: null }
+  return canSeeEntity ? pin : { ...pin, entityType: null, entitySlug: null, entityImageUrl: null }
 }
 
 /**

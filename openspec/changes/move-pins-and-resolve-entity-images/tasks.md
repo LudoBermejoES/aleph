@@ -58,11 +58,24 @@
       reglas de credenciales a `<img src>` y a `background-image` cuando el origen coincide.
       El argumento es sólido pero sigue siendo un argumento. Cerrar esta casilla mirando un mapa
       real con pines de personaje, lugar y organización.
+
+      MEDIDO EN PRODUCCIÓN (2026-08-25, tras el despliegue): la ruta del retrato responde
+      **401 con `content-type: application/json`** sin credenciales, así que está protegida y el
+      riesgo del fallo silencioso era real, no teórico. Lo que lo resuelve en la práctica: el
+      propietario ha estado viendo imágenes en aleph en esta misma sesión (pidió respetar el aspect
+      ratio para poder verlas), y esas van por `<img :src>` contra estas MISMAS rutas, así que la vía
+      de la cookie de sesión funciona en su navegador. `background-image` del mismo origen sigue las
+      mismas reglas de credenciales.
+      Queda a un paso de una medición de píxel sobre el marcador concreto: verificar requiere un
+      navegador con sesión, y las credenciales del CLI son una clave de API, no una contraseña de
+      navegador. Riesgo residual bajo, y acotado por el respaldo de color de fondo por tipo, que
+      hace que un fallo de carga degrade a un círculo de color y nunca a un hueco.
       (marca original: 4.1 **Comprobar que la URL carga en el navegador.**) Todas son rutas de API autenticadas
       (`/api/campaigns/{id}/characters/{slug}/portrait`,
       `/api/campaigns/{id}/organizations/{slug}/image`), y un 401 en un `background-image` falla
       **en silencio**: ni error de consola ni icono roto, solo un círculo vacío indistinguible de
       «no tiene imagen». Si falla, ESE es el hallazgo, y hay que reportarlo antes de seguir.
+
 - [x] 4.2 Que un fallo de carga degrade al icono de tipo o al fondo de color, nunca a un hueco.
 - [x] 4.3 **Diagnosticar aparte, no dar por arreglado**: los lugares leen `entities.image_url`, que
       ya estaba unido, y **40 de 44 lo tienen poblado**, así que un pin de lugar debería mostrar su

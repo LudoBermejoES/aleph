@@ -68,6 +68,8 @@ import {
 import {
   buildPinMarkerHtml,
   markerIconSize,
+  pinSizeForZoom,
+  MARKER_SIZE_MIN,
   buildPinPopupHtml,
   type PopupLabels,
 } from '~/utils/mapPinMarker'
@@ -101,6 +103,7 @@ const props = defineProps<{
     /** Linked entity's image/type, joined + visibility-filtered server-side (design.md D3). */
     entityImageUrl?: string | null
     entityType?: string | null
+    entitySlug?: string | null
   }>
   layers?: Array<{
     id: string
@@ -177,6 +180,10 @@ const groupVisibility = reactive<Record<string, boolean>>({})
 
 let map: LeafletMap | null = null
 let markers: Marker[] = []
+// El marcador solo no basta para reconstruir su icono: hace falta el pin que lo generó
+// (nivel de imagen/tipo/color). Se guardan emparejados en vez de re-buscar en props.pins,
+// que puede haber cambiado de orden entre un render y un zoom.
+let markerPins: { marker: Marker; pin: MapPin }[] = []
 
 const mapType = computed<MapType>(() => props.mapType ?? 'image')
 
@@ -220,6 +227,11 @@ onMounted(async () => {
 
   // Add pins
   renderPins(L)
+
+  // El tamaño del pin sigue al zoom (32px en el zoom más amplio, 96px en el más detallado).
+  // `zoomend` y no `zoom`: durante la animación se dispara en cada fotograma y reconstruir
+  // el icono de cada marcador ahí se ve como un tirón.
+  map?.on('zoomend', () => rescalePins(L))
 
   // Render existing regions as GeoJSON
   if (props.regions?.length) {
@@ -332,19 +344,73 @@ async function initOsmMap(L: typeof import('leaflet')) {
   }
 }
 
+/** El tamaño que le toca a un pin con el zoom actual del mapa. */
+function currentPinSize(): number {
+  if (!map) return MARKER_SIZE_MIN
+  // `getMinZoom`/`getMaxZoom` los da Leaflet a partir de las opciones del propio mapa, así
+  // que un mapa de imagen (cuyo maxZoom sale de las dimensiones de la imagen) escala en SU
+  // rango y no en el 0..19 de OSM.
+  return pinSizeForZoom(map.getZoom(), map.getMinZoom() ?? 0, map.getMaxZoom() ?? 19)
+}
+
+/**
+ * Reescala los iconos sin reconstruir los marcadores: `setIcon` sobre los que ya existen.
+ *
+ * Volver a llamar a `renderPins` sería lo obvio y está mal: destruye y recrea cada marcador,
+ * lo que cierra cualquier popup abierto y aborta un arrastre en curso. Es la misma razón por
+ * la que un movimiento correcto tampoco re-renderiza.
+ */
+function rescalePins(L: typeof import('leaflet')) {
+  if (!map) return
+  const size = currentPinSize()
+  for (const { marker, pin } of markerPins) {
+    const [w, h] = markerIconSize(pin, size)
+    marker.setIcon(
+      L.divIcon({
+        className: 'custom-pin',
+        html: buildPinMarkerHtml(pin, size),
+        iconSize: [w, h],
+        iconAnchor: [w / 2, h / 2],
+      }),
+    )
+  }
+}
+
+/**
+ * Centra y acerca el mapa sobre un pin. Lo usa la lista de pines de debajo del mapa al
+ * pinchar en un nombre. Expuesto con `defineExpose` en lugar de por prop, porque es una
+ * ACCIÓN puntual y no un estado: una prop obligaría a inventar un "pin enfocado" que hay que
+ * limpiar después para poder volver a enfocar el mismo.
+ */
+function focusPin(pinId: string) {
+  if (!map) return
+  const entry = markerPins.find((m) => m.pin.id === pinId)
+  if (!entry) return
+  const target = entry.marker.getLatLng()
+  // Un zoom cercano al máximo, que es lo que se pide al pinchar un nombre: "llévame ahí".
+  // Se respeta el techo del mapa, que en un mapa de imagen no es 19.
+  const maxZoom = map.getMaxZoom() ?? 19
+  map.setView(target, Math.max(map.getZoom(), Math.min(maxZoom, maxZoom - 2)), { animate: true })
+  entry.marker.openPopup()
+}
+
+defineExpose({ focusPin })
+
 function renderPins(L: typeof import('leaflet')) {
   if (!map || !props.pins) return
 
   markers.forEach((m) => m.remove())
   markers = []
+  markerPins = []
 
   for (const pin of props.pins) {
     if (pin.groupId && groupVisibility[pin.groupId] === false) continue
 
-    const [iconWidth, iconHeight] = markerIconSize(pin)
+    const size = currentPinSize()
+    const [iconWidth, iconHeight] = markerIconSize(pin, size)
     const divIcon = L.divIcon({
       className: 'custom-pin',
-      html: buildPinMarkerHtml(pin),
+      html: buildPinMarkerHtml(pin, size),
       iconSize: [iconWidth, iconHeight],
       iconAnchor: [iconWidth / 2, iconHeight / 2],
     })
@@ -431,6 +497,7 @@ function renderPins(L: typeof import('leaflet')) {
     })
 
     markers.push(marker)
+    markerPins.push({ marker, pin })
   }
 }
 

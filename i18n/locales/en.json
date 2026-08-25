@@ -557,7 +557,8 @@
     "deletePin": "Delete pin",
     "confirmDeletePinMessage": "Delete this pin? This action cannot be undone.",
     "pinDeleteFailed": "Failed to delete pin",
-    "pinMoveFailed": "Failed to move pin"
+    "pinMoveFailed": "Failed to move pin",
+    "focusPin": "Zoom to this pin"
   },
   "timelines": {
     "title": "Timelines",

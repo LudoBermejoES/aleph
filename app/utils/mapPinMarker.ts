@@ -15,6 +15,32 @@ const MARKER_SIZE = 32
 const DOT_SIZE = 16
 const DEFAULT_DOT_COLOR = '#3b82f6'
 
+/** Zoom-scaled marker size, in px. The owner asked for 32 at the coarsest zoom growing to 96
+ *  at the most detailed, so a pin is a dot when you are looking at a country and a readable
+ *  portrait when you are looking at a street. */
+export const MARKER_SIZE_MIN = 32
+export const MARKER_SIZE_MAX = 96
+
+/**
+ * Linear interpolation from a map's own zoom range onto [MARKER_SIZE_MIN, MARKER_SIZE_MAX].
+ *
+ * Takes the range as arguments rather than assuming OSM's 0..19, because an `image` map's
+ * `maxZoom` is computed from the uploaded image's dimensions (`buildImageMapInitOptions`) and
+ * is nothing like 19 -- hardcoding a range would make image maps jump straight to 96.
+ *
+ * Degenerate ranges (min >= max, or a non-finite zoom) return the minimum rather than
+ * dividing by zero: a too-small pin is a cosmetic disappointment, a NaN size is an invisible
+ * marker.
+ */
+export function pinSizeForZoom(zoom: number, minZoom: number, maxZoom: number): number {
+  if (!Number.isFinite(zoom) || !Number.isFinite(minZoom) || !Number.isFinite(maxZoom)) {
+    return MARKER_SIZE_MIN
+  }
+  if (maxZoom <= minZoom) return MARKER_SIZE_MIN
+  const t = Math.min(1, Math.max(0, (zoom - minZoom) / (maxZoom - minZoom)))
+  return Math.round(MARKER_SIZE_MIN + t * (MARKER_SIZE_MAX - MARKER_SIZE_MIN))
+}
+
 /**
  * Escapes text for safe interpolation into an HTML string built by hand (Leaflet's
  * `L.divIcon`/`bindPopup` both take raw HTML, not a template the framework escapes for us).
@@ -106,7 +132,14 @@ export interface MarkerPin {
  * and `entityType` come pre-filtered by the server for visibility (D3) -- this function only
  * chooses how to render whatever it is given.
  */
-export function buildPinMarkerHtml(pin: MarkerPin): string {
+export function buildPinMarkerHtml(pin: MarkerPin, size: number = MARKER_SIZE): string {
+  // The border and the glyph scale WITH the circle: a 2px border on a 96px pin reads as a
+  // hairline, and an 18px glyph inside it as a speck. Ratios are taken from the original
+  // 32px design (2/32 border, 18/32 glyph) so the pin looks the same at every size.
+  const border = Math.max(2, Math.round(size / 16))
+  const glyph = Math.round((size * 18) / 32)
+  // Tier 3 keeps its historic half-size relationship to the entity tiers (16 vs 32).
+  const dot = Math.max(8, Math.round(size / 2))
   if (pin.entityImageUrl) {
     const url = escapeHtml(pin.entityImageUrl)
     // move-pins-and-resolve-entity-images/design.md's Risks: every image URL here is an
@@ -120,20 +153,20 @@ export function buildPinMarkerHtml(pin: MarkerPin): string {
       ENTITY_TYPE_MARKER_STYLES.default
     ).color
     return (
-      `<div style="width:${MARKER_SIZE}px;height:${MARKER_SIZE}px;border-radius:50%;` +
+      `<div style="width:${size}px;height:${size}px;border-radius:50%;` +
       `background-color:${fallbackColor};background-image:url(&quot;${url}&quot;);` +
       `background-size:cover;background-position:center;` +
-      `border:2px solid white;box-shadow:0 1px 3px rgba(0,0,0,0.3);"></div>`
+      `border:${border}px solid white;box-shadow:0 1px 3px rgba(0,0,0,0.3);"></div>`
     )
   }
 
   if (pin.entityType) {
     const style = ENTITY_TYPE_MARKER_STYLES[pin.entityType] ?? ENTITY_TYPE_MARKER_STYLES.default
     return (
-      `<div style="width:${MARKER_SIZE}px;height:${MARKER_SIZE}px;border-radius:50%;` +
-      `background:${style.color};border:2px solid white;box-shadow:0 1px 3px rgba(0,0,0,0.3);` +
+      `<div style="width:${size}px;height:${size}px;border-radius:50%;` +
+      `background:${style.color};border:${border}px solid white;box-shadow:0 1px 3px rgba(0,0,0,0.3);` +
       `display:flex;align-items:center;justify-content:center;">` +
-      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="white">` +
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="${glyph}" height="${glyph}" fill="white">` +
       `<path d="${style.svgPath}"/></svg></div>`
     )
   }
@@ -141,22 +174,63 @@ export function buildPinMarkerHtml(pin: MarkerPin): string {
   // Tier 3, unchanged from before this change: a plain coloured dot for a pin with no entity.
   const color = pin.color || DEFAULT_DOT_COLOR
   return (
-    `<div style="width:${DOT_SIZE}px;height:${DOT_SIZE}px;border-radius:50%;background:${color};` +
-    `border:2px solid white;box-shadow:0 1px 3px rgba(0,0,0,0.3);"></div>`
+    `<div style="width:${dot}px;height:${dot}px;border-radius:50%;background:${color};` +
+    `border:${Math.max(2, Math.round(dot / 8))}px solid white;` +
+    `box-shadow:0 1px 3px rgba(0,0,0,0.3);"></div>`
   )
 }
 
-/** Icon size for the divIcon -- must match `buildPinMarkerHtml`'s per-tier square size. */
-export function markerIconSize(pin: MarkerPin): [number, number] {
-  const size = pin.entityImageUrl || pin.entityType ? MARKER_SIZE : DOT_SIZE
-  return [size, size]
+/** Icon size for the divIcon -- must match `buildPinMarkerHtml`'s per-tier square size for
+ *  the SAME `size` argument, or Leaflet anchors the marker off-centre. */
+export function markerIconSize(pin: MarkerPin, size: number = MARKER_SIZE): [number, number] {
+  const px =
+    pin.entityImageUrl || pin.entityType ? size : Math.max(8, Math.round(size / 2))
+  return [px, px]
 }
 
 export interface PopupPin {
   id: string
   label?: string | null
   entityId?: string | null
+  entityType?: string | null
+  entitySlug?: string | null
   childMapId?: string | null
+}
+
+/**
+ * Where "view entity" must go, per entity type. Reported from production: the link pointed at
+ * `/campaigns/{id}/entities/{entityId}` and did not load -- that route exists but is keyed by
+ * SLUG, so it was being handed the wrong identifier, and the owner wants the type's own page
+ * anyway (`/characters/karoline-ober`, `/locations/bosque-de-tegel`,
+ * `/organizations/sabbat-incursion`).
+ *
+ * Every segment here was CHECKED to have a `[slug]` page. `item` is deliberately absent:
+ * `app/pages/campaigns/[id]/items/` is keyed `[itemId]`, not `[slug]`, so `/items/{slug}`
+ * would 404 -- the same class of broken link this map exists to fix.
+ *
+ * Only the types with a dedicated page are listed. Anything else -- including a campaign's
+ * custom entity types -- falls through to the generic `/entities/{slug}` page, which does
+ * exist (`app/pages/campaigns/[id]/entities/[slug]`). A type is never guessed into a route
+ * that may 404.
+ */
+const ENTITY_ROUTE_SEGMENT: Record<string, string> = {
+  character: 'characters',
+  location: 'locations',
+  organization: 'organizations',
+  session: 'sessions',
+  quest: 'quests',
+  arc: 'arcs',
+}
+
+/** The path "view entity" links to, or null when there is no slug to address it by. */
+export function entityHref(
+  campaignId: string | undefined,
+  entityType: string | null | undefined,
+  entitySlug: string | null | undefined,
+): string | null {
+  if (!campaignId || !entitySlug) return null
+  const segment = (entityType && ENTITY_ROUTE_SEGMENT[entityType]) || 'entities'
+  return `/campaigns/${campaignId}/${segment}/${entitySlug}`
 }
 
 export interface PopupLabels {
@@ -181,8 +255,11 @@ export function buildPinPopupHtml(
   canDelete: boolean,
 ): string {
   const safeLabel = escapeHtml(pin.label || labels.pinFallback)
-  const entityLink = pin.entityId
-    ? `<br><a href="/campaigns/${escapeHtml(campaignId ?? '')}/entities/${escapeHtml(pin.entityId)}" style="color:#3b82f6;text-decoration:underline;font-size:12px;">${escapeHtml(labels.viewEntity)}</a>`
+  // No slug means no addressable page, so no link at all -- better than one that 404s, which
+  // is what the id-based link did.
+  const href = entityHref(campaignId, pin.entityType, pin.entitySlug)
+  const entityLink = href
+    ? `<br><a href="${escapeHtml(href)}" style="color:#3b82f6;text-decoration:underline;font-size:12px;">${escapeHtml(labels.viewEntity)}</a>`
     : ''
   const exploreHint = pin.childMapId
     ? `<br><span style="font-size:12px;color:#666;">${escapeHtml(labels.exploreHint)}</span>`
