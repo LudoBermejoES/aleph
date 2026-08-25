@@ -1,0 +1,1 @@
+ALTER TABLE `session_attendance` ADD `xp` integer;

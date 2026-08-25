@@ -318,6 +318,39 @@ export function makeSessionCommand() {
       success('Participant removed.')
     })
 
+  attendance
+    .command('xp <slug>')
+    .description(
+      'Record XP for a participant who attended a session — DM/co-DM only. Requires the ' +
+        "participant's attendance to already be marked (see `session attendance mark`).",
+    )
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .requiredOption('--user <userId>', 'User ID of the participant')
+    .option('--xp <n>', 'XP to award (whole number, >= 0)')
+    .option('--clear', 'Clear a previously recorded XP value instead of setting one')
+    .action(async (slug, opts) => {
+      if (opts.clear === undefined && opts.xp === undefined) {
+        process.stderr.write('Error: provide --xp <n> or --clear\n')
+        process.exit(1)
+      }
+      if (opts.clear && opts.xp !== undefined) {
+        process.stderr.write('Error: --xp and --clear are mutually exclusive\n')
+        process.exit(1)
+      }
+      let xp = null
+      if (!opts.clear) {
+        xp = Number(opts.xp)
+        if (!Number.isInteger(xp) || xp < 0) {
+          process.stderr.write('Error: --xp must be a whole number >= 0\n')
+          process.exit(1)
+        }
+      }
+      await patch(`/api/campaigns/${opts.campaign}/sessions/${slug}/attendance/${opts.user}`, {
+        xp,
+      })
+      success(opts.clear ? 'XP cleared.' : `XP set to ${xp}.`)
+    })
+
   cmd.addCommand(attendance)
 
   // ─── Summarize subcommand ──────────────────────────────────────────────────

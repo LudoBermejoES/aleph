@@ -253,6 +253,13 @@
       "when": 1787641457805,
       "tag": "0035_add_osm_map_type",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "6",
+      "when": 1787685077576,
+      "tag": "0036_normal_speed",
+      "breakpoints": true
     }
   ]
 }

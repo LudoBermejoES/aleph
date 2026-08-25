@@ -72,6 +72,7 @@ export default defineEventHandler((event) =>
         characterId: sessionAttendance.characterId,
         rsvpStatus: sessionAttendance.rsvpStatus,
         attended: sessionAttendance.attended,
+        xp: sessionAttendance.xp,
       })
       .from(sessionAttendance)
       .innerJoin(user, eq(sessionAttendance.userId, user.id))

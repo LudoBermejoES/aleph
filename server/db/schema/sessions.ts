@@ -99,6 +99,11 @@ export const sessionAttendance = sqliteTable(
     characterId: text('character_id'),
     rsvpStatus: text('rsvp_status').notNull().default('pending'), // pending, accepted, declined, tentative
     attended: integer('attended', { mode: 'boolean' }).default(false),
+    // Experience points the DM awarded this user for this session. No default and nullable on
+    // purpose: NULL means "not recorded yet", 0 means "recorded, awarded nothing" — collapsing
+    // those (e.g. a DEFAULT 0) would make a per-user XP total silently count every un-awarded
+    // session as zero. See openspec/changes/add-session-attendance-xp/design.md decision 2.
+    xp: integer('xp'),
   },
   (table) => [index('idx_attendance_session_user').on(table.sessionId, table.userId)],
 )

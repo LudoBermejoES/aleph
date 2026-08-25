@@ -111,6 +111,15 @@ export function useSessionApi(campaignId: string) {
     })
   }
 
+  // xp: null clears a previously-recorded value; a number awards that many XP. The server
+  // requires the target's attendance row to already have attended: true for any non-null value.
+  function setSessionAttendanceXp(slug: string, userId: string, xp: number | null) {
+    return $fetch<{ success: boolean; xp: number | null }>(
+      `${base}/sessions/${slug}/attendance/${userId}`,
+      { method: 'PATCH', body: { xp } },
+    )
+  }
+
   function getSessionRolls(slug: string) {
     return $fetch<Record<string, unknown>[]>(`${base}/sessions/${slug}/rolls`)
   }
@@ -203,6 +212,7 @@ export function useSessionApi(campaignId: string) {
     patchAttendance,
     addSessionParticipant,
     removeSessionParticipant,
+    setSessionAttendanceXp,
     getSessionRolls,
     getCampaignArcs,
     getArcs,

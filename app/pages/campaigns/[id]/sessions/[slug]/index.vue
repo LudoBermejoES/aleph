@@ -93,6 +93,7 @@
         :members="campaignMembers"
         @set-rsvp="setRsvp"
         @set-attended="setAttended"
+        @set-xp="setAttendanceXp"
         @add-participant="addParticipant"
         @remove-participant="removeParticipant"
       />
@@ -368,6 +369,15 @@ async function setRsvp(status: string) {
 async function setAttended(userId: string, attended: boolean) {
   try {
     await api.patchAttendance(slug, { userId, attended })
+    await load()
+  } catch (e: unknown) {
+    alert((e as { data?: { message?: string } })?.data?.message || t('errors.failedSave'))
+  }
+}
+
+async function setAttendanceXp(userId: string, xp: number | null) {
+  try {
+    await api.setSessionAttendanceXp(slug, userId, xp)
     await load()
   } catch (e: unknown) {
     alert((e as { data?: { message?: string } })?.data?.message || t('errors.failedSave'))
