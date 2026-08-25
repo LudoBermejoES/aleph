@@ -6,6 +6,7 @@ import { validateBody } from '../../../../../../utils/validate'
 import { maps, mapPins } from '../../../../../../db/schema/maps'
 import { hasMinRole } from '../../../../../../utils/permissions'
 import { isWithinWgs84 } from '../../../../../../utils/mapGeo'
+import { getPinWithEntity } from '../../../../../../services/maps'
 import type { CampaignRole } from '../../../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
@@ -62,5 +63,10 @@ export default defineEventHandler(async (event) => {
     })
     .run()
 
-  return { id }
+  // Return the same shape the GET endpoints return (design.md D1): the client appends this
+  // straight onto mapData.value.pins instead of refetching, so it must already carry
+  // entityImageUrl/entityType or a freshly-dropped pin would render as a plain dot until the
+  // next full reload.
+  const userId = event.context.user?.id || ''
+  return getPinWithEntity(db, id, role, userId)
 })

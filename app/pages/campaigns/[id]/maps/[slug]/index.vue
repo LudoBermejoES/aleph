@@ -62,11 +62,14 @@
               :tile-url="tileUrl"
               :campaign-id="campaignId"
               :can-create-pins="isEditorPlus"
+              :can-delete-pins="isEditorPlus"
+              :popup-labels="popupLabels"
               :height="600"
               @pin-click="onPinClick"
               @pin-shift-click="onPinShiftClick"
               @region-created="onRegionCreated"
               @pin-drop="onPinDrop"
+              @pin-delete="deletePin"
             />
           </ClientOnly>
         </div>
@@ -135,6 +138,14 @@
             <span class="text-sm">{{ pin.label || $t('maps.unnamedPin') }}</span>
             <span class="text-xs text-muted-foreground"
               >({{ pin.lat.toFixed(1) }}, {{ pin.lng.toFixed(1) }})</span
+            >
+            <Button
+              v-if="isEditorPlus"
+              variant="ghost"
+              size="sm"
+              class="ml-auto text-destructive"
+              @click="deletePin(pin.id)"
+              >{{ $t('maps.deletePin') }}</Button
             >
           </div>
         </div>
@@ -217,15 +228,47 @@ async function onPinDrop(payload: { lat: number; lng: number; entityId: string }
     // Label the pin with the dragged entity's own name so it's identifiable in the pins
     // list/tooltip immediately -- the drop payload only carries lat/lng/entityId.
     const label = pickerEntities.value.find((e) => e.id === payload.entityId)?.name
-    await api.createMapPin(slug, {
+    const created = await api.createMapPin(slug, {
       lat: payload.lat,
       lng: payload.lng,
       entityId: payload.entityId,
       label,
     })
-    await load()
+    // design.md D1: append the created row instead of calling load() -- load() refetches the
+    // map AND the campaign inside withLoading, which unmounts MapViewer (its onUnmounted runs
+    // map.remove()) and rebuilds Leaflet from scratch, snapping the viewport back to the
+    // map's default centre/zoom. The POST now returns the same shape the GET endpoints do
+    // (entityImageUrl/entityType included), so the new marker renders correctly on first
+    // paint with no second request.
+    if (mapData.value) {
+      mapData.value.pins = [...(mapData.value.pins ?? []), created]
+    }
   } catch (e: unknown) {
     alert((e as { data?: { message?: string } })?.data?.message || t('maps.pinCreateFailed'))
+  }
+}
+
+const popupLabels = computed(() => ({
+  pinFallback: t('maps.unnamedPin'),
+  viewEntity: t('maps.viewEntity'),
+  exploreHint: t('maps.exploreHint'),
+  deletePin: t('maps.deletePin'),
+}))
+
+/**
+ * Shared by both places a pin can be deleted from (design.md D4): the marker's popup button
+ * and the pins list below the map. Same rule as D1 -- remove from mapData.value.pins in
+ * place, never load(), so the map is never rebuilt.
+ */
+async function deletePin(pinId: string) {
+  if (!confirm(t('maps.confirmDeletePinMessage'))) return
+  try {
+    await api.deleteMapPin(slug, pinId)
+    if (mapData.value) {
+      mapData.value.pins = (mapData.value.pins ?? []).filter((p) => p.id !== pinId)
+    }
+  } catch (e: unknown) {
+    alert((e as { data?: { message?: string } })?.data?.message || t('maps.pinDeleteFailed'))
   }
 }
 

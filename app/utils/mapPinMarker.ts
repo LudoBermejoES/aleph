@@ -1,0 +1,183 @@
+/**
+ * Pure, dependency-free HTML building for a pin's Leaflet marker and popup, shared by
+ * MapViewer.client.vue. Kept out of the component (mapPinGeometry.ts's rationale applies
+ * here too) so the three marker tiers and the escaping rules are testable without mounting
+ * Leaflet.
+ *
+ * openspec/changes/improve-map-pin-markers-and-deletion/design.md D2: three tiers, in order
+ * -- the linked entity's image (circular, cropped to fill), else an icon chosen by the
+ * entity's type, else today's plain coloured dot (unchanged). D3's data (`entityImageUrl`/
+ * `entityType`) arrives already visibility-filtered by the server; this module only decides
+ * how to draw it.
+ */
+
+const MARKER_SIZE = 32
+const DOT_SIZE = 16
+const DEFAULT_DOT_COLOR = '#3b82f6'
+
+/**
+ * Escapes text for safe interpolation into an HTML string built by hand (Leaflet's
+ * `L.divIcon`/`bindPopup` both take raw HTML, not a template the framework escapes for us).
+ * `pin.label` already went into `bindPopup` unescaped before this change -- this closes that
+ * hole for every field this module touches, without widening it elsewhere.
+ */
+export function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
+/**
+ * The entity types that really exist in the schema (server/services/entity-types.ts's
+ * `BUILTIN_TYPES`, seeded into every campaign) -- not invented. A campaign can also define
+ * custom types beyond these ten; a custom type falls back to `default`, which still renders
+ * a distinct, legible glyph, just not one unique to that custom type (out of scope: that
+ * would need joining the per-campaign `entity_types` table for its `icon`, not just the
+ * entity's own `type` column).
+ */
+export const ENTITY_TYPE_MARKER_STYLES: Record<string, { color: string; svgPath: string }> = {
+  character: {
+    color: '#3b82f6',
+    svgPath:
+      'M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z',
+  },
+  location: {
+    color: '#10b981',
+    svgPath:
+      'M12 2C7.6 2 4 5.6 4 10c0 5.4 6.4 11.2 7.3 12a1 1 0 0 0 1.4 0C13.6 21.2 20 15.4 20 10c0-4.4-3.6-8-8-8zm0 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6z',
+  },
+  faction: {
+    color: '#f59e0b',
+    svgPath:
+      'M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3zm0 2.2 6 2.3v4.5c0 3.9-2.6 7.4-6 8.8-3.4-1.4-6-4.9-6-8.8V6.5l6-2.3z',
+  },
+  item: {
+    color: '#8b5cf6',
+    svgPath:
+      'M12 2 3 6v12l9 4 9-4V6l-9-4zm0 2.2 6.5 2.9L12 10l-6.5-2.9L12 4.2zM5 8.3l6 2.7v8.7l-6-2.7V8.3zm8 11.4v-8.7l6-2.7v8.7l-6 2.7z',
+  },
+  event: {
+    color: '#ef4444',
+    svgPath:
+      'M7 2v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zM5 9h14v9H5V9z',
+  },
+  lore: {
+    color: '#06b6d4',
+    svgPath:
+      'M12 6.5C10.3 5 7.8 4 5 4c-.6 0-1 .4-1 1v13c0 .6.4 1 1 1 2.5 0 4.8.9 6.4 2.3.3.3.9.3 1.2 0C14.2 19.9 16.5 19 19 19c.6 0 1-.4 1-1V5c0-.6-.4-1-1-1-2.8 0-5.3 1-7 2.5zM11 8.4C9.6 7.5 7.8 7 6 6.9v10.1c1.7.1 3.4.6 5 1.5V8.4zm2 10.1c1.6-.9 3.3-1.4 5-1.5V6.9c-1.8.1-3.6.6-5 1.5v10.1z',
+  },
+  quest: {
+    color: '#f97316',
+    svgPath: 'M6 2v20h2v-7h9l-2-4 2-4H8V2H6z',
+  },
+  note: {
+    color: '#84cc16',
+    svgPath:
+      'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H15a2 2 0 0 1-2-2V3.5zM8 13h8v2H8v-2zm0 4h8v2H8v-2zm0-8h4v2H8V9z',
+  },
+  session: {
+    color: '#ec4899',
+    svgPath:
+      'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 2a8 8 0 1 1 0 16 8 8 0 0 1 0-16zm-1 2v6.4l4.6 2.7 1-1.7-3.6-2.1V6h-2z',
+  },
+  arc: {
+    color: '#6366f1',
+    svgPath:
+      'M6 2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-1a1 1 0 0 1 1-1h13V4H5a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2zm-1 15v3h13v-3H5z',
+  },
+  default: {
+    color: '#6b7280',
+    svgPath:
+      'M20.6 11.1 12.9 3.4A2 2 0 0 0 11.5 3H5a2 2 0 0 0-2 2v6.5c0 .5.2 1 .6 1.4l7.7 7.7a2 2 0 0 0 2.8 0l6.5-6.5a2 2 0 0 0 0-2.8zM7 8a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z',
+  },
+}
+
+export interface MarkerPin {
+  entityImageUrl?: string | null
+  entityType?: string | null
+  color?: string | null
+}
+
+/**
+ * Builds the `L.divIcon` HTML for a pin, per design.md D2's three tiers. `entityImageUrl`
+ * and `entityType` come pre-filtered by the server for visibility (D3) -- this function only
+ * chooses how to render whatever it is given.
+ */
+export function buildPinMarkerHtml(pin: MarkerPin): string {
+  if (pin.entityImageUrl) {
+    const url = escapeHtml(pin.entityImageUrl)
+    return (
+      `<div style="width:${MARKER_SIZE}px;height:${MARKER_SIZE}px;border-radius:50%;` +
+      `background-image:url(&quot;${url}&quot;);background-size:cover;background-position:center;` +
+      `border:2px solid white;box-shadow:0 1px 3px rgba(0,0,0,0.3);"></div>`
+    )
+  }
+
+  if (pin.entityType) {
+    const style = ENTITY_TYPE_MARKER_STYLES[pin.entityType] ?? ENTITY_TYPE_MARKER_STYLES.default
+    return (
+      `<div style="width:${MARKER_SIZE}px;height:${MARKER_SIZE}px;border-radius:50%;` +
+      `background:${style.color};border:2px solid white;box-shadow:0 1px 3px rgba(0,0,0,0.3);` +
+      `display:flex;align-items:center;justify-content:center;">` +
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="white">` +
+      `<path d="${style.svgPath}"/></svg></div>`
+    )
+  }
+
+  // Tier 3, unchanged from before this change: a plain coloured dot for a pin with no entity.
+  const color = pin.color || DEFAULT_DOT_COLOR
+  return (
+    `<div style="width:${DOT_SIZE}px;height:${DOT_SIZE}px;border-radius:50%;background:${color};` +
+    `border:2px solid white;box-shadow:0 1px 3px rgba(0,0,0,0.3);"></div>`
+  )
+}
+
+/** Icon size for the divIcon -- must match `buildPinMarkerHtml`'s per-tier square size. */
+export function markerIconSize(pin: MarkerPin): [number, number] {
+  const size = pin.entityImageUrl || pin.entityType ? MARKER_SIZE : DOT_SIZE
+  return [size, size]
+}
+
+export interface PopupPin {
+  id: string
+  label?: string | null
+  entityId?: string | null
+  childMapId?: string | null
+}
+
+export interface PopupLabels {
+  pinFallback: string
+  viewEntity: string
+  exploreHint: string
+  deletePin: string
+}
+
+/**
+ * Builds the popup's HTML. `pin.label` went into this popup unescaped before this change
+ * (design.md's Risks) -- every interpolated field here is now escaped. The delete button is
+ * only included when `canDelete` is true, so a role below editor gets no delete affordance in
+ * the DOM at all (spec: "A viewer without permission"); its click handler is attached by the
+ * caller on Leaflet's `popupopen` (a `@click` in this HTML string never binds -- design.md's
+ * Risks), matched via `data-pin-delete`.
+ */
+export function buildPinPopupHtml(
+  pin: PopupPin,
+  campaignId: string | undefined,
+  labels: PopupLabels,
+  canDelete: boolean,
+): string {
+  const safeLabel = escapeHtml(pin.label || labels.pinFallback)
+  const entityLink = pin.entityId
+    ? `<br><a href="/campaigns/${escapeHtml(campaignId ?? '')}/entities/${escapeHtml(pin.entityId)}" style="color:#3b82f6;text-decoration:underline;font-size:12px;">${escapeHtml(labels.viewEntity)}</a>`
+    : ''
+  const exploreHint = pin.childMapId
+    ? `<br><span style="font-size:12px;color:#666;">${escapeHtml(labels.exploreHint)}</span>`
+    : ''
+  const deleteButton = canDelete
+    ? `<br><button type="button" data-pin-delete="${escapeHtml(pin.id)}" style="margin-top:6px;font-size:12px;color:#dc2626;background:none;border:none;padding:0;cursor:pointer;text-decoration:underline;">${escapeHtml(labels.deletePin)}</button>`
+    : ''
+  return `<div style="min-width:120px;"><strong>${safeLabel}</strong>${entityLink}${exploreHint}${deleteButton}</div>`
+}

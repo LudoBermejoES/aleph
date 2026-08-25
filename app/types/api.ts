@@ -242,6 +242,12 @@ export interface MapPin {
   color: string | null
   visibility: string
   groupId: string | null
+  /** Linked entity's image, joined server-side (design.md D3). Null if there is no linked
+   *  entity, it has no image, or the viewer isn't allowed to see it. */
+  entityImageUrl: string | null
+  /** Linked entity's type slug, joined server-side (design.md D3) -- picks the marker's
+   *  fallback icon when there is no image. Same visibility rule as entityImageUrl. */
+  entityType: string | null
 }
 
 export interface MapLayer {

@@ -69,6 +69,10 @@ export function useMapApi(campaignId: string) {
   /**
    * Create a pin via drag-and-drop (design.md D6) or any other UI path -- there was
    * previously no client-side function for the already-existing `POST .../pins` endpoint.
+   *
+   * Returns the full `MapPin` row (design.md D1) -- the same shape `getMapPins`/`getMap`
+   * return, entityImageUrl/entityType included -- so the caller can append it directly to
+   * its pins array instead of refetching.
    */
   function createMapPin(
     slug: string,
@@ -84,7 +88,16 @@ export function useMapApi(campaignId: string) {
       groupId?: string
     },
   ) {
-    return $fetch<{ id: string }>(`${base}/maps/${slug}/pins`, { method: 'POST', body })
+    return $fetch<MapPin>(`${base}/maps/${slug}/pins`, { method: 'POST', body })
+  }
+
+  /**
+   * Delete a pin (improve-map-pin-markers-and-deletion) -- the endpoint already existed and
+   * the CLI already reached it (`aleph map pin-delete`); this was the missing client method
+   * for the UI's delete affordance.
+   */
+  function deleteMapPin(slug: string, pinId: string) {
+    return $fetch(`${base}/maps/${slug}/pins/${pinId}`, { method: 'DELETE' })
   }
 
   // ─── Geocoding ──────────────────────────────────────────────────────────────
@@ -112,6 +125,7 @@ export function useMapApi(campaignId: string) {
     deleteMapLayer,
     getMapPins,
     createMapPin,
+    deleteMapPin,
     getMapRegions,
     updateMapRegions,
     updateMapRegion,

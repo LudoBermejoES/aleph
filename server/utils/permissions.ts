@@ -81,6 +81,24 @@ export function buildVisibilityFilter(
 }
 
 /**
+ * Single-row equivalent of `buildVisibilityFilter`'s rule, for callers that already have one
+ * entity row in hand (e.g. a map pin's LEFT JOINed entity) rather than a query to filter.
+ * Mirrors the same three cases: co_dm+ sees everything, a 'private' entity is visible only to
+ * its creator, everything else is a role-level comparison against `VISIBILITY_MIN_ROLE`.
+ */
+export function isEntityVisibleTo(
+  role: CampaignRole,
+  userId: string,
+  visibility: string,
+  createdBy: string,
+): boolean {
+  if (hasMinRole(role, 'co_dm')) return true
+  if (visibility === 'private') return createdBy === userId
+  const userLevel = ROLE_LEVEL[role] ?? 0
+  return userLevel >= (VISIBILITY_MIN_ROLE[visibility] ?? 99)
+}
+
+/**
  * Every entity id (of any type — sessions/quests/arcs/organizations are all
  * mirror entities sharing their id with an `entities` row) the given role
  * may currently view, per `buildVisibilityFilter`'s rules. Used anywhere a

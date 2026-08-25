@@ -551,7 +551,12 @@
     "dragHint": "Arrastra al mapa",
     "pinCreated": "Pin creado",
     "pinCreateFailed": "Error al crear el pin",
-    "filterEntities": "Filtrar entidades"
+    "filterEntities": "Filtrar entidades",
+    "viewEntity": "Ver entidad",
+    "exploreHint": "Mayús+clic para explorar",
+    "deletePin": "Eliminar pin",
+    "confirmDeletePinMessage": "¿Eliminar este pin? Esta acción no se puede deshacer.",
+    "pinDeleteFailed": "Error al eliminar el pin"
   },
   "timelines": {
     "title": "Cronologías",

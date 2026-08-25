@@ -7,6 +7,7 @@ import {
   setCachedPermission,
   invalidatePermissionCache,
   hasNamedPermission,
+  isEntityVisibleTo,
 } from '../../../server/utils/permissions'
 
 describe('Role Hierarchy', () => {
@@ -30,6 +31,36 @@ describe('Role Hierarchy', () => {
   it('co_dm outranks editor but not dm', () => {
     expect(hasMinRole('co_dm', 'editor')).toBe(true)
     expect(hasMinRole('co_dm', 'dm')).toBe(false)
+  })
+})
+
+// Single-row equivalent of buildVisibilityFilter's rule (design.md D3 of
+// improve-map-pin-markers-and-deletion): used by the map pins join so a pin's linked entity's
+// image/type aren't leaked to a viewer who couldn't see that entity through the entities list.
+describe('isEntityVisibleTo', () => {
+  it('co_dm and above see every visibility, including private entities they did not create', () => {
+    expect(isEntityVisibleTo('co_dm', 'viewer', 'private', 'someone-else')).toBe(true)
+    expect(isEntityVisibleTo('dm', 'viewer', 'dm_only', 'someone-else')).toBe(true)
+  })
+
+  it('a private entity is visible only to its creator, regardless of role', () => {
+    expect(isEntityVisibleTo('editor', 'creator-1', 'private', 'creator-1')).toBe(true)
+    expect(isEntityVisibleTo('editor', 'viewer', 'private', 'creator-1')).toBe(false)
+    expect(isEntityVisibleTo('player', 'creator-1', 'private', 'creator-1')).toBe(true)
+  })
+
+  it('mirrors VISIBILITY_MIN_ROLE for the non-private visibilities', () => {
+    expect(isEntityVisibleTo('visitor', 'viewer', 'public', '')).toBe(true)
+    expect(isEntityVisibleTo('visitor', 'viewer', 'members', '')).toBe(false)
+    expect(isEntityVisibleTo('player', 'viewer', 'members', '')).toBe(true)
+    expect(isEntityVisibleTo('player', 'viewer', 'editors', '')).toBe(false)
+    expect(isEntityVisibleTo('editor', 'viewer', 'editors', '')).toBe(true)
+    expect(isEntityVisibleTo('editor', 'viewer', 'dm_only', '')).toBe(false)
+  })
+
+  it('an unknown visibility string defaults closed, same as VISIBILITY_MIN_ROLE ?? 99', () => {
+    expect(isEntityVisibleTo('dm', 'viewer', 'something_invented', '')).toBe(true) // dm is co_dm+
+    expect(isEntityVisibleTo('editor', 'viewer', 'something_invented', '')).toBe(false)
   })
 })
 

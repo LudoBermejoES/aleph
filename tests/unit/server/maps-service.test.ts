@@ -3,6 +3,8 @@ import {
   filterPinsByVisibility,
   validateMapImage,
   computeBreadcrumb,
+  getPinsWithEntity,
+  getPinWithEntity,
 } from '../../../server/services/maps'
 import { createTestDb, type TestDb } from '../../helpers/db'
 
@@ -127,5 +129,104 @@ describe('computeBreadcrumb', () => {
   it('returns empty for nonexistent map', () => {
     const breadcrumb = computeBreadcrumb(testDb.sqlite, 'nonexistent')
     expect(breadcrumb).toHaveLength(0)
+  })
+})
+
+// design.md D3 (improve-map-pin-markers-and-deletion): the pins GET join must not leak an
+// entity the viewer cannot see. These exercise the real LEFT JOIN + visibility strip against
+// an in-memory DB, not just the pure isEntityVisibleTo predicate.
+describe('getPinsWithEntity / getPinWithEntity (design.md D3)', () => {
+  let testDb: TestDb
+
+  beforeEach(() => {
+    testDb = createTestDb()
+    const now = Date.now()
+    testDb.sqlite.exec(`
+      INSERT INTO user (id, name, email, email_verified, created_at, updated_at) VALUES
+        ('user-owner', 'Owner', 'owner@test.com', 0, ${now}, ${now}),
+        ('user-player', 'Player', 'player@test.com', 0, ${now}, ${now})
+    `)
+    testDb.sqlite.exec(`
+      INSERT INTO campaigns (id, name, slug, content_dir, created_by, created_at, updated_at)
+      VALUES ('camp-1', 'Test', 'test', '/content', 'user-owner', ${now}, ${now})
+    `)
+    testDb.sqlite.exec(`
+      INSERT INTO maps (id, campaign_id, name, slug, visibility, created_at, updated_at)
+      VALUES ('map-1', 'camp-1', 'World Map', 'world-map', 'public', ${now}, ${now})
+    `)
+    testDb.sqlite.exec(`
+      INSERT INTO entities (id, campaign_id, type, name, slug, file_path, visibility, image_url, created_by, created_at, updated_at) VALUES
+        ('ent-public', 'camp-1', 'character', 'Public Hero', 'public-hero', '/f1', 'public', '/img/hero.webp', 'user-owner', ${now}, ${now}),
+        ('ent-no-image', 'camp-1', 'location', 'Bare Location', 'bare-location', '/f2', 'public', NULL, 'user-owner', ${now}, ${now}),
+        ('ent-private', 'camp-1', 'character', 'Owner Secret', 'owner-secret', '/f3', 'private', '/img/secret.webp', 'user-owner', ${now}, ${now}),
+        ('ent-dm-only', 'camp-1', 'faction', 'DM Only Cabal', 'dm-only-cabal', '/f4', 'dm_only', '/img/cabal.webp', 'user-owner', ${now}, ${now})
+    `)
+    testDb.sqlite.exec(`
+      INSERT INTO map_pins (id, map_id, entity_id, label, lat, lng, visibility) VALUES
+        ('pin-public', 'map-1', 'ent-public', 'Public pin', 1, 1, 'public'),
+        ('pin-no-image', 'map-1', 'ent-no-image', 'No image pin', 2, 2, 'public'),
+        ('pin-private', 'map-1', 'ent-private', 'Private-entity pin', 3, 3, 'public'),
+        ('pin-dm-entity', 'map-1', 'ent-dm-only', 'DM-only-entity pin', 4, 4, 'public'),
+        ('pin-no-entity', 'map-1', NULL, 'No entity pin', 5, 5, 'public'),
+        ('pin-dm-only-visibility', 'map-1', 'ent-public', 'Hidden pin itself', 6, 6, 'dm_only')
+    `)
+  })
+
+  afterEach(() => {
+    testDb.close()
+  })
+
+  it('co_dm+ sees every pin and every linked entity, including private and dm_only ones', () => {
+    const pins = getPinsWithEntity(testDb.db, 'map-1', 'dm', 'user-player')
+    expect(pins).toHaveLength(6)
+    const byId = Object.fromEntries(pins.map((p) => [p.id, p]))
+    expect(byId['pin-public'].entityImageUrl).toBe('/img/hero.webp')
+    expect(byId['pin-private'].entityImageUrl).toBe('/img/secret.webp')
+    expect(byId['pin-dm-entity'].entityImageUrl).toBe('/img/cabal.webp')
+  })
+
+  it("a player sees the pin but not a private entity's image/type unless they created it", () => {
+    const pins = getPinsWithEntity(testDb.db, 'map-1', 'player', 'user-player')
+    // The dm_only-visibility PIN itself is excluded entirely -- unrelated to entity visibility.
+    expect(pins.find((p) => p.id === 'pin-dm-only-visibility')).toBeUndefined()
+    expect(pins).toHaveLength(5)
+
+    const byId = Object.fromEntries(pins.map((p) => [p.id, p]))
+    // Public entity: visible.
+    expect(byId['pin-public'].entityImageUrl).toBe('/img/hero.webp')
+    expect(byId['pin-public'].entityType).toBe('character')
+    // Private entity owned by someone else: pin present, entity fields stripped -- never omit
+    // the pin (design.md D3).
+    expect(byId['pin-private']).toBeDefined()
+    expect(byId['pin-private'].entityImageUrl).toBeNull()
+    expect(byId['pin-private'].entityType).toBeNull()
+    // dm_only entity: a player's role level doesn't clear it.
+    expect(byId['pin-dm-entity'].entityImageUrl).toBeNull()
+    expect(byId['pin-dm-entity'].entityType).toBeNull()
+    // No linked entity at all: both null, pin still present.
+    expect(byId['pin-no-entity'].entityId).toBeNull()
+    expect(byId['pin-no-entity'].entityImageUrl).toBeNull()
+    expect(byId['pin-no-entity'].entityType).toBeNull()
+    // Entity with no image: type still surfaces (tier 2 fallback icon), image stays null.
+    expect(byId['pin-no-image'].entityImageUrl).toBeNull()
+    expect(byId['pin-no-image'].entityType).toBe('location')
+  })
+
+  it("the private entity's own creator DOES see it through the join", () => {
+    const pins = getPinsWithEntity(testDb.db, 'map-1', 'player', 'user-owner')
+    const pin = pins.find((p) => p.id === 'pin-private')!
+    expect(pin.entityImageUrl).toBe('/img/secret.webp')
+  })
+
+  it('getPinWithEntity returns the same shape as getPinsWithEntity for one pin (design.md D1)', () => {
+    const single = getPinWithEntity(testDb.db, 'pin-public', 'player', 'user-player')
+    const fromList = getPinsWithEntity(testDb.db, 'map-1', 'player', 'user-player').find(
+      (p) => p.id === 'pin-public',
+    )
+    expect(single).toEqual(fromList)
+  })
+
+  it('getPinWithEntity returns undefined for a nonexistent pin id', () => {
+    expect(getPinWithEntity(testDb.db, 'nonexistent', 'dm', 'user-owner')).toBeUndefined()
   })
 })

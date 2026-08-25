@@ -55,7 +55,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, computed } from 'vue'
+import { onMounted, onUnmounted, computed, watch } from 'vue'
 import type { Map as LeafletMap, Marker } from 'leaflet'
 import {
   buildImageMapInitOptions,
@@ -65,6 +65,12 @@ import {
   ENTITY_DRAG_MIME,
   type MapType,
 } from '~/utils/mapPinGeometry'
+import {
+  buildPinMarkerHtml,
+  markerIconSize,
+  buildPinPopupHtml,
+  type PopupLabels,
+} from '~/utils/mapPinMarker'
 
 const props = defineProps<{
   imagePath?: string
@@ -92,6 +98,9 @@ const props = defineProps<{
     entityId?: string
     childMapId?: string
     groupId?: string
+    /** Linked entity's image/type, joined + visibility-filtered server-side (design.md D3). */
+    entityImageUrl?: string | null
+    entityType?: string | null
   }>
   layers?: Array<{
     id: string
@@ -119,6 +128,11 @@ const props = defineProps<{
   campaignId?: string
   /** Gates the drop handler client-side; the server is still the source of truth (design.md D6). */
   canCreatePins?: boolean
+  /** Gates whether the popup's delete button renders at all (design.md D4) -- same role gate
+   *  as canCreatePins, the server remains the authority on the DELETE request itself. */
+  canDeletePins?: boolean
+  /** i18n strings for the popup -- kept out of mapPinMarker.ts, which must stay framework-free. */
+  popupLabels?: PopupLabels
 }>()
 
 type MapPin = NonNullable<typeof props.pins>[number]
@@ -129,7 +143,16 @@ const emit = defineEmits<{
   pinShiftClick: [pin: MapPin]
   /** Fired on a successful entity drop, with lat/lng already converted for this map's type. */
   pinDrop: [payload: { lat: number; lng: number; entityId: string }]
+  /** Fired when the popup's delete button is clicked (design.md D4). */
+  pinDelete: [pinId: string]
 }>()
+
+const DEFAULT_POPUP_LABELS: PopupLabels = {
+  pinFallback: 'Pin',
+  viewEntity: 'View Entity',
+  exploreHint: 'Shift+click to explore',
+  deletePin: 'Delete pin',
+}
 
 const mapContainer = ref<HTMLDivElement>()
 const layerVisibility = reactive<Record<string, boolean>>({})
@@ -139,6 +162,18 @@ let map: LeafletMap | null = null
 let markers: Marker[] = []
 
 const mapType = computed<MapType>(() => props.mapType ?? 'image')
+
+// design.md D1: appending/removing a pin (index.vue no longer calls load() for either) must
+// re-render markers in place without rebuilding the map. `deep` because the parent mutates
+// the SAME array (push/splice) rather than replacing it with a new reference.
+watch(
+  () => props.pins,
+  () => {
+    if (!map) return
+    import('leaflet').then((L) => renderPins(L))
+  },
+  { deep: true },
+)
 
 onMounted(async () => {
   if (!mapContainer.value) return
@@ -275,25 +310,36 @@ function renderPins(L: typeof import('leaflet')) {
   for (const pin of props.pins) {
     if (pin.groupId && groupVisibility[pin.groupId] === false) continue
 
-    const color = pin.color || '#3b82f6'
+    const [iconWidth, iconHeight] = markerIconSize(pin)
     const divIcon = L.divIcon({
       className: 'custom-pin',
-      html: `<div style="width:16px;height:16px;border-radius:50%;background:${color};border:2px solid white;box-shadow:0 1px 3px rgba(0,0,0,0.3);"></div>`,
-      iconSize: [16, 16],
-      iconAnchor: [8, 8],
+      html: buildPinMarkerHtml(pin),
+      iconSize: [iconWidth, iconHeight],
+      iconAnchor: [iconWidth / 2, iconHeight / 2],
     })
 
     const [lat, lng] = pinToLeafletLatLng(pin, mapType.value, props.imageWidth, props.imageHeight)
     const marker = L.marker([lat, lng], { icon: divIcon }).addTo(map)
 
-    const popupContent = `
-      <div style="min-width:120px;">
-        <strong>${pin.label || 'Pin'}</strong>
-        ${pin.entityId ? `<br><a href="/campaigns/${props.campaignId}/entities/${pin.entityId}" style="color:#3b82f6;text-decoration:underline;font-size:12px;">View Entity</a>` : ''}
-        ${pin.childMapId ? `<br><span style="font-size:12px;color:#666;">Shift+click to explore</span>` : ''}
-      </div>
-    `
+    const canDelete = !!props.canDeletePins
+    const popupContent = buildPinPopupHtml(
+      pin,
+      props.campaignId,
+      props.popupLabels ?? DEFAULT_POPUP_LABELS,
+      canDelete,
+    )
     marker.bindPopup(popupContent)
+
+    // The popup's HTML is a plain string Leaflet inserts on open -- a `@click` in that
+    // string never binds (design.md's Risks), so the delete button's handler is wired here,
+    // after Leaflet has actually put the DOM node in the document.
+    if (canDelete) {
+      marker.on('popupopen', () => {
+        const popupEl = marker.getPopup()?.getElement()
+        const deleteBtn = popupEl?.querySelector<HTMLButtonElement>('[data-pin-delete]')
+        deleteBtn?.addEventListener('click', () => emit('pinDelete', pin.id))
+      })
+    }
 
     marker.on('click', (e) => {
       if ((e.originalEvent as MouseEvent).shiftKey && pin.childMapId) {
