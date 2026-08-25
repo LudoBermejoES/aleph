@@ -1,10 +1,13 @@
 import type Database from 'better-sqlite3'
-import { eq } from 'drizzle-orm'
+import { eq, and, sql } from 'drizzle-orm'
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 import { hasMinRole, isEntityVisibleTo } from '../utils/permissions'
 import type { CampaignRole } from '../utils/permissions'
 import { mapPins } from '../db/schema/maps'
 import { entities } from '../db/schema/entities'
+import { characters } from '../db/schema/characters'
+import { organizations } from '../db/schema/organizations'
+import { entityImages } from '../db/schema/entity-images'
 
 // --- Visibility Filtering ---
 
@@ -42,6 +45,17 @@ export function filterPinsByVisibility<T extends { visibility: string }>(
 // The join must not leak an entity the viewer cannot see -- `withEntityVisibility` strips
 // `entityImageUrl`/`entityType` (never the pin itself) for an entity the viewer's role/user
 // cannot view, mirroring the same rule `buildVisibilityFilter` applies to entity lists.
+//
+// move-pins-and-resolve-entity-images/design.md D3: an entity's main image lives in one of
+// FOUR places depending on its type, and a switch on `entities.type` is explicitly rejected
+// (a location can have both a gallery image AND `entities.image_url`; custom campaign types
+// match no branch). Priority, most specific first:
+//   1. entity_images.url WHERE is_primary = 1 (the canonical "main image" -- the partial
+//      unique index `entity_images_one_primary` guarantees at most one row per entity, so
+//      this join cannot fan out a pin into several rows)
+//   2. characters.portrait_url (characters.entity_id -> entities.id, unique per entity)
+//   3. organizations.image_url (organizations.entity_id -> entities.id)
+//   4. entities.image_url (the locations' home, already working before this change)
 
 interface JoinedPinRow {
   id: string
@@ -92,12 +106,24 @@ function selectJoinedPins(db: BetterSQLite3Database) {
       visibility: mapPins.visibility,
       groupId: mapPins.groupId,
       entityType: entities.type,
-      entityImageUrl: entities.imageUrl,
+      // design.md D3: COALESCE walks the priority list in order, stopping at the first
+      // non-null source. Every joined table's row is at most one per entity (entity_images
+      // constrained to is_primary = 1; characters/organizations joined by their own unique
+      // entity_id), so this can never multiply a pin.
+      entityImageUrl: sql<
+        string | null
+      >`COALESCE(${entityImages.url}, ${characters.portraitUrl}, ${organizations.imageUrl}, ${entities.imageUrl})`,
       entityVisibility: entities.visibility,
       entityCreatedBy: entities.createdBy,
     })
     .from(mapPins)
     .leftJoin(entities, eq(mapPins.entityId, entities.id))
+    .leftJoin(
+      entityImages,
+      and(eq(entityImages.entityId, entities.id), eq(entityImages.isPrimary, true)),
+    )
+    .leftJoin(characters, eq(characters.entityId, entities.id))
+    .leftJoin(organizations, eq(organizations.entityId, entities.id))
 }
 
 function withEntityVisibility(

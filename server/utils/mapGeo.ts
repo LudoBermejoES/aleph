@@ -19,6 +19,16 @@ export const mapGeoFieldsSchema = z.object({
   defaultZoom: z.number().int().min(0).optional(),
 })
 
+/**
+ * The coordinate pair shared by pin creation (`POST .../pins`) and pin movement
+ * (`PATCH .../pins/[pinId]`), so a value the POST would refuse cannot arrive through the
+ * PATCH (openspec/changes/move-pins-and-resolve-entity-images/design.md D2).
+ */
+export const pinCoordinatesSchema = z.object({
+  lat: z.number(),
+  lng: z.number(),
+})
+
 const WGS84_LAT_RANGE: [number, number] = [-90, 90]
 const WGS84_LNG_RANGE: [number, number] = [-180, 180]
 

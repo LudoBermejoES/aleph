@@ -5,7 +5,7 @@ import { useDb } from '../../../../../../utils/db'
 import { validateBody } from '../../../../../../utils/validate'
 import { maps, mapPins } from '../../../../../../db/schema/maps'
 import { hasMinRole } from '../../../../../../utils/permissions'
-import { isWithinWgs84 } from '../../../../../../utils/mapGeo'
+import { isWithinWgs84, pinCoordinatesSchema } from '../../../../../../utils/mapGeo'
 import { getPinWithEntity } from '../../../../../../services/maps'
 import type { CampaignRole } from '../../../../../../utils/permissions'
 
@@ -16,9 +16,10 @@ export default defineEventHandler(async (event) => {
 
   const campaignId = getRouterParam(event, 'id')!
   const slug = getRouterParam(event, 'slug')!
-  const pinSchema = z.object({
-    lat: z.number(),
-    lng: z.number(),
+  // design.md D2 (move-pins-and-resolve-entity-images): lat/lng come from the SAME schema
+  // piece the PATCH move endpoint validates with, so a value this POST would refuse can't
+  // arrive through the PATCH either.
+  const pinSchema = pinCoordinatesSchema.extend({
     entityId: z.string().optional(),
     childMapId: z.string().optional(),
     label: z.string().optional(),

@@ -100,6 +100,16 @@ export function useMapApi(campaignId: string) {
     return $fetch(`${base}/maps/${slug}/pins/${pinId}`, { method: 'DELETE' })
   }
 
+  /**
+   * Move a pin to new coordinates (move-pins-and-resolve-entity-images/design.md D2) -- a
+   * PATCH, not a PUT, and it accepts only `{ lat, lng }`. Returns the full `MapPin` row (the
+   * same shape `getMapPins`/`createMapPin` return) so the caller can update
+   * `mapData.value.pins[i]` in place instead of refetching.
+   */
+  function moveMapPin(slug: string, pinId: string, body: { lat: number; lng: number }) {
+    return $fetch<MapPin>(`${base}/maps/${slug}/pins/${pinId}`, { method: 'PATCH', body })
+  }
+
   // ─── Geocoding ──────────────────────────────────────────────────────────────
 
   /**
@@ -126,6 +136,7 @@ export function useMapApi(campaignId: string) {
     getMapPins,
     createMapPin,
     deleteMapPin,
+    moveMapPin,
     getMapRegions,
     updateMapRegions,
     updateMapRegion,

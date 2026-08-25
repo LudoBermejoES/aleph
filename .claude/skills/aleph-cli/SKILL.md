@@ -4,7 +4,7 @@ description: Use the aleph CLI to manage campaigns, entities, characters, locati
 license: MIT
 metadata:
   author: aleph
-  version: '3.22'
+  version: '3.23'
 ---
 
 You have access to the `aleph` CLI tool at `node /Users/ludo/code/aleph/cli/bin/aleph.js` (or `npm run aleph -- <args>` from the project root). Use it to interact with the running Aleph server.
@@ -301,6 +301,8 @@ node /Users/ludo/code/aleph/cli/bin/aleph.js map pins --campaign <id> --slug <sl
 # CRS.Simple-scaled pixel coordinates matching the uploaded image; on an OSM map they are
 # real WGS84 degrees (-90..90 / -180..180). Run `map get` to check the map's type first.
 node /Users/ludo/code/aleph/cli/bin/aleph.js map pin-add --campaign <id> --slug <slug> --label <label> --lat <lat> --lng <lng> [--entity <slug>]
+node /Users/ludo/code/aleph/cli/bin/aleph.js map pin-move --campaign <id> --slug <slug> --pin <pinId> --lat <lat> --lng <lng> [--json]
+# Editor+ only. Moves an existing pin -- label/colour/entity cannot be changed this way.
 node /Users/ludo/code/aleph/cli/bin/aleph.js map pin-delete --campaign <id> --slug <slug> --pin <pinId>
 node /Users/ludo/code/aleph/cli/bin/aleph.js map layer-update --campaign <id> --slug <slug> --layer <layerId> [--name <name>] [--opacity <n>]
 node /Users/ludo/code/aleph/cli/bin/aleph.js map layer-delete --campaign <id> --slug <slug> --layer <layerId> [--yes]

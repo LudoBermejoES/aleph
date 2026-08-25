@@ -38,6 +38,18 @@ describe('buildPinMarkerHtml', () => {
     expect(html).not.toContain('<svg')
   })
 
+  it('tier 1: carries a background-color fallback keyed by entity type, so a failed image load never renders as a hole', () => {
+    const character = buildPinMarkerHtml({ entityImageUrl: '/img.png', entityType: 'character' })
+    expect(character).toContain(`background-color:${ENTITY_TYPE_MARKER_STYLES.character.color}`)
+    const location = buildPinMarkerHtml({ entityImageUrl: '/img.png', entityType: 'location' })
+    expect(location).toContain(`background-color:${ENTITY_TYPE_MARKER_STYLES.location.color}`)
+  })
+
+  it('tier 1: falls back to the default glyph colour when there is an image but no entity type', () => {
+    const html = buildPinMarkerHtml({ entityImageUrl: '/img.png' })
+    expect(html).toContain(`background-color:${ENTITY_TYPE_MARKER_STYLES.default.color}`)
+  })
+
   it('tier 1 escapes the image URL', () => {
     const html = buildPinMarkerHtml({ entityImageUrl: '"><img src=x onerror=alert(1)>' })
     expect(html).not.toContain('"><img')

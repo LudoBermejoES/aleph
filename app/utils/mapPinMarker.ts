@@ -109,9 +109,20 @@ export interface MarkerPin {
 export function buildPinMarkerHtml(pin: MarkerPin): string {
   if (pin.entityImageUrl) {
     const url = escapeHtml(pin.entityImageUrl)
+    // move-pins-and-resolve-entity-images/design.md's Risks: every image URL here is an
+    // authenticated API route, and a 401 on a background-image fails SILENTLY -- no console
+    // error, no broken-image icon, just an empty circle. `background-color` is set
+    // underneath as the type-icon's own colour (or the default grey), so a failed load
+    // degrades to a solid, visible circle rather than a hole; a successful load simply
+    // paints over it.
+    const fallbackColor = (
+      (pin.entityType && ENTITY_TYPE_MARKER_STYLES[pin.entityType]) ||
+      ENTITY_TYPE_MARKER_STYLES.default
+    ).color
     return (
       `<div style="width:${MARKER_SIZE}px;height:${MARKER_SIZE}px;border-radius:50%;` +
-      `background-image:url(&quot;${url}&quot;);background-size:cover;background-position:center;` +
+      `background-color:${fallbackColor};background-image:url(&quot;${url}&quot;);` +
+      `background-size:cover;background-position:center;` +
       `border:2px solid white;box-shadow:0 1px 3px rgba(0,0,0,0.3);"></div>`
     )
   }

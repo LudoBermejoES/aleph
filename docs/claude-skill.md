@@ -4,7 +4,7 @@ description: Use the aleph CLI to manage campaigns, entities, characters, locati
 license: MIT
 metadata:
   author: aleph
-  version: '1.12'
+  version: '1.13'
 ---
 
 You have access to the `aleph` CLI. Run it as `aleph` if installed globally (`npm i -g aleph-cli`), or `npx aleph-cli` otherwise.
@@ -317,6 +317,8 @@ aleph map pins --campaign <id> --slug <slug> [--json]
 # CRS.Simple-scaled pixel coordinates matching the uploaded image; on an OSM map they are
 # real WGS84 degrees (-90..90 / -180..180). Run `map get` to check the map's type first.
 aleph map pin-add --campaign <id> --slug <slug> --label <label> --lat <lat> --lng <lng> [--entity <slug>]
+aleph map pin-move --campaign <id> --slug <slug> --pin <pinId> --lat <lat> --lng <lng> [--json]
+# Editor+ only. Moves an existing pin -- label/colour/entity cannot be changed this way.
 aleph map pin-delete --campaign <id> --slug <slug> --pin <pinId>
 aleph map layer-update --campaign <id> --slug <slug> --layer <layerId> [--name <name>] [--opacity <n>]
 aleph map layer-delete --campaign <id> --slug <slug> --layer <layerId> [--yes]

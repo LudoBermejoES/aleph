@@ -1,5 +1,5 @@
 import { Command } from 'commander'
-import { get, post, put, del, postMultipart } from '../lib/client.js'
+import { get, post, put, patch, del, postMultipart } from '../lib/client.js'
 import { print, success } from '../lib/output.js'
 import { confirm } from '@inquirer/prompts'
 import { existsSync } from 'fs'
@@ -208,6 +208,34 @@ export function makeMapCommand() {
         print(data, { json: true })
       } else {
         success(`Pin added: ${data.id}`)
+      }
+    })
+
+  cmd
+    .command('pin-move')
+    .description(
+      "Move a pin to new coordinates. Accepts only --lat/--lng -- label/colour/entity can't " +
+        'be changed this way. Same coordinate-space rule as `pin-add`: image map = ' +
+        'CRS.Simple pixels, OSM map = WGS84 degrees.',
+    )
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .requiredOption('--slug <slug>', 'Map slug')
+    .requiredOption('--pin <pinId>', 'Pin ID')
+    .requiredOption('--lat <lat>', 'New latitude', parseFloat)
+    .requiredOption('--lng <lng>', 'New longitude', parseFloat)
+    .option('--json', 'Output as JSON')
+    .action(async (opts) => {
+      const data = await patch(
+        `/api/campaigns/${opts.campaign}/maps/${opts.slug}/pins/${opts.pin}`,
+        {
+          lat: opts.lat,
+          lng: opts.lng,
+        },
+      )
+      if (opts.json) {
+        print(data, { json: true })
+      } else {
+        success(`Pin ${opts.pin} moved to (${data.lat}, ${data.lng}).`)
       }
     })
 

@@ -30,7 +30,7 @@ vi.mock('../../../cli/src/lib/config.js', () => ({
   }),
 }))
 
-const { post, postMultipart } = await import('../../../cli/src/lib/client.js')
+const { post, patch, postMultipart } = await import('../../../cli/src/lib/client.js')
 
 const source = readFileSync(resolve(__dirname, '../../../cli/src/commands/map.js'), 'utf-8')
 
@@ -88,6 +88,54 @@ describe('map pin-add / map.js source: sends lat/lng, not x/y', () => {
     expect(block).toContain('lng: p.lng')
     expect(block).not.toContain('x: p.x')
     expect(block).not.toContain('y: p.y')
+  })
+})
+
+// move-pins-and-resolve-entity-images: there was previously NO endpoint at all to move a
+// pin (only pin-add/pin-delete existed), so this is new coverage, not a regression fixture.
+describe('map pin-move: PATCHes lat/lng only, matching the new endpoint', () => {
+  let fetchMock: ReturnType<typeof vi.fn>
+
+  beforeEach(() => {
+    process.env.ALEPH_URL = 'http://localhost:9999'
+    process.env.ALEPH_TOKEN = 'aleph_test_key'
+    fetchMock = vi.fn(
+      async () =>
+        new Response(JSON.stringify({ id: 'pin-1', lat: 41.5, lng: 2.1 }), { status: 200 }),
+    )
+    vi.stubGlobal('fetch', fetchMock)
+  })
+
+  afterEach(() => {
+    delete process.env.ALEPH_URL
+    delete process.env.ALEPH_TOKEN
+    vi.unstubAllGlobals()
+  })
+
+  it('sends a PATCH with only lat/lng in the body', async () => {
+    await patch('/api/campaigns/c1/maps/harbour/pins/pin-1', { lat: 41.5, lng: 2.1 })
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit]
+    expect(url).toBe('http://localhost:9999/api/campaigns/c1/maps/harbour/pins/pin-1')
+    expect(init.method).toBe('PATCH')
+    expect(JSON.parse(init.body as string)).toEqual({ lat: 41.5, lng: 2.1 })
+  })
+
+  it('`pin-move` is declared with --lat/--lng/--pin options', () => {
+    const start = source.indexOf(".command('pin-move')")
+    expect(start).toBeGreaterThan(-1)
+    const block = source.slice(start, source.indexOf(".command('pin-delete')"))
+    expect(block).toMatch(/requiredOption\(\s*'--pin <pinId>'/)
+    expect(block).toMatch(/requiredOption\(\s*'--lat <lat>'/)
+    expect(block).toMatch(/requiredOption\(\s*'--lng <lng>'/)
+  })
+
+  it("`pin-move`'s action calls the client `patch` function against the pins/:pinId route", () => {
+    const start = source.indexOf(".command('pin-move')")
+    const block = source.slice(start, source.indexOf(".command('pin-delete')"))
+    expect(block).toMatch(
+      /patch\(\s*`\/api\/campaigns\/\$\{opts\.campaign\}\/maps\/\$\{opts\.slug\}\/pins\/\$\{opts\.pin\}`/,
+    )
+    expect(block).not.toContain('put(')
   })
 })
 

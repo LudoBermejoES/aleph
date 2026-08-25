@@ -556,7 +556,8 @@
     "exploreHint": "Shift+click to explore",
     "deletePin": "Delete pin",
     "confirmDeletePinMessage": "Delete this pin? This action cannot be undone.",
-    "pinDeleteFailed": "Failed to delete pin"
+    "pinDeleteFailed": "Failed to delete pin",
+    "pinMoveFailed": "Failed to move pin"
   },
   "timelines": {
     "title": "Timelines",

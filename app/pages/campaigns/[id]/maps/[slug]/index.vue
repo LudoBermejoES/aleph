@@ -70,6 +70,7 @@
               @region-created="onRegionCreated"
               @pin-drop="onPinDrop"
               @pin-delete="deletePin"
+              @pin-move="onPinMove"
             />
           </ClientOnly>
         </div>
@@ -245,6 +246,36 @@ async function onPinDrop(payload: { lat: number; lng: number; entityId: string }
     }
   } catch (e: unknown) {
     alert((e as { data?: { message?: string } })?.data?.message || t('maps.pinCreateFailed'))
+  }
+}
+
+/**
+ * A pin was dragged to a new position (move-pins-and-resolve-entity-images/design.md D1/D2).
+ * PATCH the new coordinates and update `mapData.value.pins[i]` IN PLACE -- never `load()`,
+ * for the same reason as `onPinDrop`/`deletePin`, and never a manual `renderPins` either:
+ * MapViewer's own watcher would rebuild every marker, which is exactly what the drag must
+ * not cause (it already set its own suppression flag before emitting this event).
+ */
+async function onPinMove(payload: {
+  pinId: string
+  lat: number
+  lng: number
+  previousLatLng: [number, number]
+  onSuccess: () => void
+  onError: () => void
+}) {
+  try {
+    const updated = await api.moveMapPin(slug, payload.pinId, {
+      lat: payload.lat,
+      lng: payload.lng,
+    })
+    const pins = mapData.value?.pins
+    const idx = pins?.findIndex((p) => p.id === payload.pinId) ?? -1
+    if (pins && idx !== -1) pins[idx] = updated
+    payload.onSuccess()
+  } catch (e: unknown) {
+    payload.onError()
+    alert((e as { data?: { message?: string } })?.data?.message || t('maps.pinMoveFailed'))
   }
 }
 

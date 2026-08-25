@@ -556,7 +556,8 @@
     "exploreHint": "Mayús+clic para explorar",
     "deletePin": "Eliminar pin",
     "confirmDeletePinMessage": "¿Eliminar este pin? Esta acción no se puede deshacer.",
-    "pinDeleteFailed": "Error al eliminar el pin"
+    "pinDeleteFailed": "Error al eliminar el pin",
+    "pinMoveFailed": "Error al mover el pin"
   },
   "timelines": {
     "title": "Cronologías",

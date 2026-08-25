@@ -230,3 +230,113 @@ describe('getPinsWithEntity / getPinWithEntity (design.md D3)', () => {
     expect(getPinWithEntity(testDb.db, 'nonexistent', 'dm', 'user-owner')).toBeUndefined()
   })
 })
+
+// move-pins-and-resolve-entity-images/design.md D3: an entity's main image lives in one of
+// four places depending on its type. These exercise the join against a real in-memory DB,
+// one source at a time, plus the declared precedence and the fan-out guard.
+describe('getPinsWithEntity: image resolution across all four sources (design.md D3)', () => {
+  let testDb: TestDb
+  const now = Date.now()
+
+  beforeEach(() => {
+    testDb = createTestDb()
+    testDb.sqlite.exec(`
+      INSERT INTO user (id, name, email, email_verified, created_at, updated_at)
+      VALUES ('user-owner', 'Owner', 'owner@test.com', 0, ${now}, ${now})
+    `)
+    testDb.sqlite.exec(`
+      INSERT INTO campaigns (id, name, slug, content_dir, created_by, created_at, updated_at)
+      VALUES ('camp-1', 'Test', 'test', '/content', 'user-owner', ${now}, ${now})
+    `)
+    testDb.sqlite.exec(`
+      INSERT INTO maps (id, campaign_id, name, slug, visibility, created_at, updated_at)
+      VALUES ('map-1', 'camp-1', 'World Map', 'world-map', 'public', ${now}, ${now})
+    `)
+  })
+
+  afterEach(() => {
+    testDb.close()
+  })
+
+  function insertEntity(id: string, type: string, imageUrl: string | null) {
+    testDb.sqlite.exec(`
+      INSERT INTO entities (id, campaign_id, type, name, slug, file_path, visibility, image_url, created_by, created_at, updated_at)
+      VALUES ('${id}', 'camp-1', '${type}', '${id}', '${id}', '/f-${id}', 'public', ${imageUrl ? `'${imageUrl}'` : 'NULL'}, 'user-owner', ${now}, ${now})
+    `)
+  }
+
+  function insertPin(id: string, entityId: string) {
+    testDb.sqlite.exec(`
+      INSERT INTO map_pins (id, map_id, entity_id, label, lat, lng, visibility)
+      VALUES ('${id}', 'map-1', '${entityId}', '${id}', 1, 1, 'public')
+    `)
+  }
+
+  it('tier 4: a location with only entities.image_url uses it (the pre-existing, already-working path)', () => {
+    insertEntity('ent-loc', 'location', '/img/location.webp')
+    insertPin('pin-loc', 'ent-loc')
+    const pin = getPinsWithEntity(testDb.db, 'map-1', 'dm', 'user-owner').find(
+      (p) => p.id === 'pin-loc',
+    )!
+    expect(pin.entityImageUrl).toBe('/img/location.webp')
+  })
+
+  it('tier 2: a character with only characters.portrait_url (no entities.image_url) uses it', () => {
+    insertEntity('ent-char', 'character', null)
+    testDb.sqlite.exec(`
+      INSERT INTO characters (id, entity_id, character_type, status, portrait_url)
+      VALUES ('char-1', 'ent-char', 'npc', 'alive', '/img/portrait.webp')
+    `)
+    insertPin('pin-char', 'ent-char')
+    const pin = getPinsWithEntity(testDb.db, 'map-1', 'dm', 'user-owner').find(
+      (p) => p.id === 'pin-char',
+    )!
+    expect(pin.entityImageUrl).toBe('/img/portrait.webp')
+  })
+
+  it('tier 3: an organization with only organizations.image_url (no entities.image_url) uses it', () => {
+    insertEntity('ent-org', 'organization', null)
+    testDb.sqlite.exec(`
+      INSERT INTO organizations (id, campaign_id, entity_id, name, slug, image_url, created_at, updated_at)
+      VALUES ('org-1', 'camp-1', 'ent-org', 'The Cabal', 'the-cabal', '/img/org.webp', ${now}, ${now})
+    `)
+    insertPin('pin-org', 'ent-org')
+    const pin = getPinsWithEntity(testDb.db, 'map-1', 'dm', 'user-owner').find(
+      (p) => p.id === 'pin-org',
+    )!
+    expect(pin.entityImageUrl).toBe('/img/org.webp')
+  })
+
+  it('tier 1: the entity_images primary row wins over everything else, including entities.image_url', () => {
+    insertEntity('ent-gallery', 'location', '/img/legacy.webp')
+    testDb.sqlite.exec(`
+      INSERT INTO entity_images (id, campaign_id, entity_id, filename, url, sort_order, is_primary, created_by, created_at)
+      VALUES
+        ('img-other', 'camp-1', 'ent-gallery', 'other.webp', '/gallery/other.webp', 0, 0, 'user-owner', ${now}),
+        ('img-primary', 'camp-1', 'ent-gallery', 'primary.webp', '/gallery/primary.webp', 1, 1, 'user-owner', ${now})
+    `)
+    insertPin('pin-gallery', 'ent-gallery')
+    const pin = getPinsWithEntity(testDb.db, 'map-1', 'dm', 'user-owner').find(
+      (p) => p.id === 'pin-gallery',
+    )!
+    expect(pin.entityImageUrl).toBe('/gallery/primary.webp')
+  })
+
+  it('a pin whose entity has several gallery images still appears exactly once (fan-out guard)', () => {
+    insertEntity('ent-many', 'location', null)
+    testDb.sqlite.exec(`
+      INSERT INTO entity_images (id, campaign_id, entity_id, filename, url, sort_order, is_primary, created_by, created_at)
+      VALUES
+        ('img-1', 'camp-1', 'ent-many', 'a.webp', '/gallery/a.webp', 0, 0, 'user-owner', ${now}),
+        ('img-2', 'camp-1', 'ent-many', 'b.webp', '/gallery/b.webp', 1, 1, 'user-owner', ${now}),
+        ('img-3', 'camp-1', 'ent-many', 'c.webp', '/gallery/c.webp', 2, 0, 'user-owner', ${now}),
+        ('img-4', 'camp-1', 'ent-many', 'd.webp', '/gallery/d.webp', 3, 0, 'user-owner', ${now})
+    `)
+    insertPin('pin-many', 'ent-many')
+    const all = getPinsWithEntity(testDb.db, 'map-1', 'dm', 'user-owner').filter(
+      (p) => p.id === 'pin-many',
+    )
+    expect(all).toHaveLength(1)
+    expect(all[0].entityImageUrl).toBe('/gallery/b.webp')
+  })
+})

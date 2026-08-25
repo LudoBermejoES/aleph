@@ -56,7 +56,7 @@
 
 <script setup lang="ts">
 import { onMounted, onUnmounted, computed, watch } from 'vue'
-import type { Map as LeafletMap, Marker } from 'leaflet'
+import type { Map as LeafletMap, Marker, LatLng as LeafletLatLng } from 'leaflet'
 import {
   buildImageMapInitOptions,
   buildOsmMapInitOptions,
@@ -145,6 +145,23 @@ const emit = defineEmits<{
   pinDrop: [payload: { lat: number; lng: number; entityId: string }]
   /** Fired when the popup's delete button is clicked (design.md D4). */
   pinDelete: [pinId: string]
+  /**
+   * Fired on a successful drag-end, with lat/lng already converted for this map's type
+   * (move-pins-and-resolve-entity-images/design.md D1). `onSuccess`/`onError` let the page
+   * update `mapData.value.pins[i]` in place without a re-render on success, and snap the
+   * marker back to `previousLatLng` on a rejected PATCH -- both without this component
+   * needing to know anything about the API call itself.
+   */
+  pinMove: [
+    payload: {
+      pinId: string
+      lat: number
+      lng: number
+      previousLatLng: [number, number]
+      onSuccess: () => void
+      onError: () => void
+    },
+  ]
 }>()
 
 const DEFAULT_POPUP_LABELS: PopupLabels = {
@@ -163,12 +180,26 @@ let markers: Marker[] = []
 
 const mapType = computed<MapType>(() => props.mapType ?? 'image')
 
-// design.md D1: appending/removing a pin (index.vue no longer calls load() for either) must
-// re-render markers in place without rebuilding the map. `deep` because the parent mutates
-// the SAME array (push/splice) rather than replacing it with a new reference.
+// move-pins-and-resolve-entity-images/design.md D1: set right before a successful drag's
+// caller is expected to write the new coordinates into `mapData.value.pins[i]` (the SAME
+// array this watcher observes), so that ONE resulting watcher tick is swallowed instead of
+// rebuilding every marker -- the marker's own position is already correct on screen from
+// Leaflet's native drag, and a full renderPins() here would flicker and close an open popup.
+// Reset on a failed move too, since no mutation will follow it and the flag must not linger
+// to swallow some later, unrelated pins change (a create/delete elsewhere).
+let suppressNextPinsRender = false
+
+// design.md D1 (improve-map-pin-markers-and-deletion): appending/removing a pin (index.vue
+// no longer calls load() for either) must re-render markers in place without rebuilding the
+// map. `deep` because the parent mutates the SAME array (push/splice/index-assignment)
+// rather than replacing it with a new reference.
 watch(
   () => props.pins,
   () => {
+    if (suppressNextPinsRender) {
+      suppressNextPinsRender = false
+      return
+    }
     if (!map) return
     import('leaflet').then((L) => renderPins(L))
   },
@@ -319,7 +350,57 @@ function renderPins(L: typeof import('leaflet')) {
     })
 
     const [lat, lng] = pinToLeafletLatLng(pin, mapType.value, props.imageWidth, props.imageHeight)
-    const marker = L.marker([lat, lng], { icon: divIcon }).addTo(map)
+    // Draggable gated on the same role check the drop handler uses (design.md D1) -- the
+    // server remains the authority on the PATCH itself, this only offers/withholds the
+    // affordance.
+    const canDrag = !!props.canCreatePins
+    const marker = L.marker([lat, lng], { icon: divIcon, draggable: canDrag }).addTo(map)
+
+    if (canDrag) {
+      let dragStartLatLng: LeafletLatLng | null = null
+      marker.on('dragstart', () => {
+        dragStartLatLng = marker.getLatLng()
+      })
+      marker.on('dragend', () => {
+        const newLatLng = marker.getLatLng()
+        // design.md Risks: `dragend` can fire on a click with no real movement -- skip the
+        // request entirely rather than send a harmless-but-noisy no-op PATCH.
+        if (dragStartLatLng && newLatLng.equals(dragStartLatLng)) return
+
+        const previousLatLng: [number, number] = dragStartLatLng
+          ? [dragStartLatLng.lat, dragStartLatLng.lng]
+          : [lat, lng]
+        const converted = leafletLatLngToPin(
+          newLatLng,
+          mapType.value,
+          props.imageWidth,
+          props.imageHeight,
+        )
+        // Arm the suppression BEFORE emitting: the page's handler mutates
+        // `mapData.value.pins[i]` asynchronously (after the PATCH resolves), and this flag
+        // must already be set by the time that mutation lands, however long the request
+        // takes.
+        suppressNextPinsRender = true
+        emit('pinMove', {
+          pinId: pin.id,
+          lat: converted.lat,
+          lng: converted.lng,
+          previousLatLng,
+          onSuccess: () => {
+            /* mapData.value.pins[i] is updated by the caller -- nothing to do here (D1:
+             * no re-render on success, or every marker would be destroyed and rebuilt). */
+          },
+          // On a rejected PATCH, put the marker back so the screen never shows a position
+          // the database does not hold (design.md D1) -- renderPins won't run because
+          // nothing changed in `pins`. No mutation follows a failed move, so disarm the
+          // suppression rather than leave it to swallow some later, unrelated pins change.
+          onError: () => {
+            suppressNextPinsRender = false
+            marker.setLatLng(previousLatLng)
+          },
+        })
+      })
+    }
 
     const canDelete = !!props.canDeletePins
     const popupContent = buildPinPopupHtml(
