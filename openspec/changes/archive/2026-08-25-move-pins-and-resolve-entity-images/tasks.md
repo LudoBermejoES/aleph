@@ -50,7 +50,7 @@
 - [x] 4.1 **Comprobar que la URL carga en el navegador.** VERIFICADO 2026-08-25 con Playwright real
       contra el sitio EN VIVO (`https://aleph.ludobermejo.es`, sesión DM autenticada), mapa "Berlin
       en tinieblas", los 24 pines de partida. Medido, no impresión: `playwright-cli requests
-    --static` mostró **24 peticiones GET** a rutas
+--static` mostró **24 peticiones GET** a rutas
       `.../locations/{slug}/images/{imageId}` — una por pin — **todas con status 200**. Por el lado
       del DOM, leí el `computed style`/atributo inline de los 24 `.leaflet-marker-icon`: los 24
       tienen un `<div>` interior con `background-image: url(...)` apuntando exactamente a esa misma

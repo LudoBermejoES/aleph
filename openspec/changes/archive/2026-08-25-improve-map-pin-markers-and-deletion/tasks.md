@@ -64,16 +64,16 @@
       Viermetz"), lo renombré a `ZZZ-PRUEBA-PLAYWRIGHT`, hice clic en el marcador (abrió el
       popup con "View Entity" / "Delete pin"), pulsé "Delete pin", confirmé el diálogo nativo
       ("Delete this pin? This action cannot be undone."). Red de red: `DELETE
-      .../maps/berlin/pins/a9d96700-...` → 200. Marcadores en el DOM: 25 → 24. - Borrado desde la LISTA bajo el mapa: creé un segundo pin de prueba (arrastrando "Elsa
+  .../maps/berlin/pins/a9d96700-...` → 200. Marcadores en el DOM: 25 → 24. - Borrado desde la LISTA bajo el mapa: creé un segundo pin de prueba (arrastrando "Elsa
       Hettich"), lo renombré igual, y pulsé el botón "Delete pin" de esa fila en la lista de
       Pins (no el popup). Mismo diálogo de confirmación, `DELETE
-      .../maps/berlin/pins/e816afdd-...` → 200. Marcadores: 25 → 24. - Tras ambas pruebas, recargué la página: 24 marcadores, ningún pin de prueba sobrevive.
+  .../maps/berlin/pins/e816afdd-...` → 200. Marcadores: 25 → 24. - Tras ambas pruebas, recargué la página: 24 marcadores, ningún pin de prueba sobrevive.
       NO VERIFICADO: "que a un rol por debajo de editor no se le ofrece". La única cuenta
       disponible en esta sesión es DM (rol `dm`, por encima de `editor`), que es precisamente el
       rol que SÍ ve el borrado, así que esta cuenta no puede probar la mitad negativa. Miré la
       página de Members de esta campaña (solo lectura, sin tocar nada): existen miembros reales
       con rol `player` (por debajo de `editor` en la jerarquía `dm > co_dm > editor > player >
-    visitor`, leída de las `<option>` del propio `<select>` de rol), pero no tengo credenciales
+visitor`, leída de las `<option>` del propio `<select>` de rol), pero no tengo credenciales
       de ninguno, y las reglas de esta pasada prohíben crear, invitar o descender a nadie para
       conseguirlas. Sigue cubierto solo a nivel de función pura (como ya constaba: `canDelete=false`
       no emite el botón, y la lista usa el mismo `v-if="isEditorPlus"`), no en un navegador real.
