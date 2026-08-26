@@ -1,4 +1,11 @@
-import type { Entity, EntityListResult, EntityType, Tag, Mention } from '~/types/api'
+import type {
+  Entity,
+  EntityListResult,
+  EntityType,
+  Tag,
+  Mention,
+  EntityMapPlacement,
+} from '~/types/api'
 
 export function useEntityApi(campaignId: string) {
   const base = `/api/campaigns/${campaignId}`
@@ -45,6 +52,15 @@ export function useEntityApi(campaignId: string) {
     return $fetch<Mention[]>(`${base}/mentions`, { params })
   }
 
+  /**
+   * show-entity-map-pins: the maps an entity is pinned on, per D1. `slug` is the ENTITY's own
+   * slug -- for a location or a character that is the page's own route param; for an
+   * organization it is `org.entitySlug` (which can differ from the org's own slug), not `slug`.
+   */
+  function getEntityMapPins(slug: string) {
+    return $fetch<EntityMapPlacement[]>(`${base}/entities/${slug}/map-pins`)
+  }
+
   return {
     getEntities,
     getEntity,
@@ -56,5 +72,6 @@ export function useEntityApi(campaignId: string) {
     deleteEntityType,
     getTags,
     getMentions,
+    getEntityMapPins,
   }
 }

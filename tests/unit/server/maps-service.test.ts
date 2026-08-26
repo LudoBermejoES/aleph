@@ -5,6 +5,7 @@ import {
   computeBreadcrumb,
   getPinsWithEntity,
   getPinWithEntity,
+  getMapPinsForEntity,
 } from '../../../server/services/maps'
 import { createTestDb, type TestDb } from '../../helpers/db'
 import { createTestContentDir, type TestContentDir } from '../../helpers/content'
@@ -547,5 +548,142 @@ describe('getPinsWithEntity: entityExcerpt (add-pin-popup-entity-preview)', () =
 
     const single = await getPinWithEntity(testDb.db, 'pin-single', 'player', 'user-owner')
     expect(single?.entityExcerpt).toBe(publicParagraph)
+  })
+})
+
+// show-entity-map-pins/design.md D1/D2: the reverse of getPinsWithEntity -- entityId -> its
+// placements across every map, filtered by the viewer's access to the MAP (not the entity,
+// which the caller already sees by construction: they're on its own detail page).
+describe('getMapPinsForEntity (show-entity-map-pins/design.md D1/D2)', () => {
+  let testDb: TestDb
+  const now = Date.now()
+
+  beforeEach(() => {
+    testDb = createTestDb()
+    testDb.sqlite.exec(`
+      INSERT INTO user (id, name, email, email_verified, created_at, updated_at)
+      VALUES ('user-owner', 'Owner', 'owner@test.com', 0, ${now}, ${now})
+    `)
+    testDb.sqlite.exec(`
+      INSERT INTO campaigns (id, name, slug, content_dir, created_by, created_at, updated_at)
+      VALUES ('camp-1', 'Test', 'test', '/content', 'user-owner', ${now}, ${now})
+    `)
+    testDb.sqlite.exec(`
+      INSERT INTO entities (id, campaign_id, type, name, slug, file_path, visibility, created_by, created_at, updated_at)
+      VALUES ('ent-1', 'camp-1', 'location', 'Berghain', 'berghain', '/f1', 'public', 'user-owner', ${now}, ${now})
+    `)
+  })
+
+  afterEach(() => {
+    testDb.close()
+  })
+
+  it('returns a LIST even for a single placement, with the map name/slug and the pin id/label/coords', () => {
+    testDb.sqlite.exec(`
+      INSERT INTO maps (id, campaign_id, name, slug, visibility, created_at, updated_at)
+      VALUES ('map-1', 'camp-1', 'Berlin', 'berlin', 'public', ${now}, ${now})
+    `)
+    testDb.sqlite.exec(`
+      INSERT INTO map_pins (id, map_id, entity_id, label, lat, lng, visibility)
+      VALUES ('pin-1', 'map-1', 'ent-1', NULL, 12.5, 34.5, 'public')
+    `)
+
+    const placements = getMapPinsForEntity(testDb.db, 'ent-1', 'player')
+    expect(placements).toEqual([
+      {
+        pinId: 'pin-1',
+        mapId: 'map-1',
+        mapName: 'Berlin',
+        mapSlug: 'berlin',
+        label: null,
+        lat: 12.5,
+        lng: 34.5,
+      },
+    ])
+  })
+
+  it('an entity pinned twice on the SAME map returns both placements', () => {
+    testDb.sqlite.exec(`
+      INSERT INTO maps (id, campaign_id, name, slug, visibility, created_at, updated_at)
+      VALUES ('map-1', 'camp-1', 'Berlin', 'berlin', 'public', ${now}, ${now})
+    `)
+    testDb.sqlite.exec(`
+      INSERT INTO map_pins (id, map_id, entity_id, label, lat, lng, visibility) VALUES
+        ('pin-1', 'map-1', 'ent-1', 'Front entrance', 1, 1, 'public'),
+        ('pin-2', 'map-1', 'ent-1', 'Back entrance', 2, 2, 'public')
+    `)
+
+    const placements = getMapPinsForEntity(testDb.db, 'ent-1', 'player')
+    expect(placements).toHaveLength(2)
+    expect(placements.map((p) => p.pinId).sort()).toEqual(['pin-1', 'pin-2'])
+  })
+
+  it('an entity has no placements at all returns an empty list', () => {
+    expect(getMapPinsForEntity(testDb.db, 'ent-1', 'player')).toEqual([])
+  })
+
+  // Task 2.3: two maps, one visible and one not, for the same entity.
+  it('omits a placement on a map the viewer may not see, keeping the one they may (task 2.3)', () => {
+    testDb.sqlite.exec(`
+      INSERT INTO maps (id, campaign_id, name, slug, visibility, created_at, updated_at) VALUES
+        ('map-visible', 'camp-1', 'Public Map', 'public-map', 'public', ${now}, ${now}),
+        ('map-hidden', 'camp-1', 'Secret War Room', 'secret-war-room', 'dm_only', ${now}, ${now})
+    `)
+    testDb.sqlite.exec(`
+      INSERT INTO map_pins (id, map_id, entity_id, label, lat, lng, visibility) VALUES
+        ('pin-visible', 'map-visible', 'ent-1', NULL, 1, 1, 'public'),
+        ('pin-hidden', 'map-hidden', 'ent-1', NULL, 2, 2, 'public')
+    `)
+
+    const placements = getMapPinsForEntity(testDb.db, 'ent-1', 'player')
+    expect(placements).toHaveLength(1)
+    expect(placements[0].pinId).toBe('pin-visible')
+    // Never a blanked/null slug for the hidden one -- it must be OMITTED, not disclosed.
+    expect(placements.find((p) => p.mapSlug === null)).toBeUndefined()
+  })
+
+  it('a co_dm+ sees a placement on a dm_only map', () => {
+    testDb.sqlite.exec(`
+      INSERT INTO maps (id, campaign_id, name, slug, visibility, created_at, updated_at)
+      VALUES ('map-hidden', 'camp-1', 'Secret War Room', 'secret-war-room', 'dm_only', ${now}, ${now})
+    `)
+    testDb.sqlite.exec(`
+      INSERT INTO map_pins (id, map_id, entity_id, label, lat, lng, visibility)
+      VALUES ('pin-hidden', 'map-hidden', 'ent-1', NULL, 2, 2, 'public')
+    `)
+
+    expect(getMapPinsForEntity(testDb.db, 'ent-1', 'co_dm')).toHaveLength(1)
+    expect(getMapPinsForEntity(testDb.db, 'ent-1', 'dm')).toHaveLength(1)
+  })
+
+  it('a placement whose PIN itself is dm_only-visible is omitted for a lower role even on a public map', () => {
+    testDb.sqlite.exec(`
+      INSERT INTO maps (id, campaign_id, name, slug, visibility, created_at, updated_at)
+      VALUES ('map-1', 'camp-1', 'Berlin', 'berlin', 'public', ${now}, ${now})
+    `)
+    testDb.sqlite.exec(`
+      INSERT INTO map_pins (id, map_id, entity_id, label, lat, lng, visibility)
+      VALUES ('pin-secret', 'map-1', 'ent-1', NULL, 1, 1, 'dm_only')
+    `)
+
+    expect(getMapPinsForEntity(testDb.db, 'ent-1', 'player')).toEqual([])
+    expect(getMapPinsForEntity(testDb.db, 'ent-1', 'dm')).toHaveLength(1)
+  })
+
+  it("does not return another entity's placements", () => {
+    testDb.sqlite.exec(`
+      INSERT INTO entities (id, campaign_id, type, name, slug, file_path, visibility, created_by, created_at, updated_at)
+      VALUES ('ent-other', 'camp-1', 'location', 'Other Place', 'other-place', '/f2', 'public', 'user-owner', ${now}, ${now})
+    `)
+    testDb.sqlite.exec(`
+      INSERT INTO maps (id, campaign_id, name, slug, visibility, created_at, updated_at)
+      VALUES ('map-1', 'camp-1', 'Berlin', 'berlin', 'public', ${now}, ${now})
+    `)
+    testDb.sqlite.exec(`
+      INSERT INTO map_pins (id, map_id, entity_id, label, lat, lng, visibility)
+      VALUES ('pin-other', 'map-1', 'ent-other', NULL, 1, 1, 'public')
+    `)
+
+    expect(getMapPinsForEntity(testDb.db, 'ent-1', 'player')).toEqual([])
   })
 })

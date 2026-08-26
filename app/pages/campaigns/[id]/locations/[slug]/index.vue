@@ -70,6 +70,13 @@
         <MDC :value="location.content as string" />
       </div>
 
+      <!-- Map placements (show-entity-map-pins) -->
+      <EntityMapPlacements
+        :campaign-id="campaignId"
+        :entity-slug="slug"
+        :entity-name="location.name"
+      />
+
       <!-- Secret Notes (DM only) -->
       <SecretNotes
         v-if="isDm"

@@ -146,6 +146,13 @@
             class="mb-6"
           />
 
+          <!-- Map placements (show-entity-map-pins) -->
+          <EntityMapPlacements
+            :campaign-id="campaignId"
+            :entity-slug="character.slug"
+            :entity-name="character.name"
+          />
+
           <!-- Public notes (any member who can read the character) -->
           <CharacterNotesPanel
             :campaign-id="campaignId"

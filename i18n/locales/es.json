@@ -345,6 +345,9 @@
       "remove": "Eliminar apodo",
       "failedAdd": "Error al añadir el apodo",
       "failedRemove": "Error al eliminar el apodo"
+    },
+    "mapPlacements": {
+      "title": "En el mapa"
     }
   },
   "sessions": {

@@ -67,6 +67,13 @@
         :field-values="org.fields || {}"
       />
 
+      <!-- Map placements (show-entity-map-pins) -->
+      <EntityMapPlacements
+        :campaign-id="campaignId"
+        :entity-slug="org.entitySlug"
+        :entity-name="org.name"
+      />
+
       <!-- Image gallery -->
       <EntityImageGallery
         :images-url="`/api/campaigns/${campaignId}/organizations/${slug}/images`"
@@ -186,6 +193,8 @@ const isDm = computed(() => ['dm', 'co_dm'].includes(campaignRole.value))
 interface OrgData {
   id: string
   entityId?: string | null
+  /** The linked entity's own slug -- can differ from `org.slug` (show-entity-map-pins). */
+  entitySlug?: string | null
   name: string
   slug: string
   members?: { characterId: string; role?: string | null }[]

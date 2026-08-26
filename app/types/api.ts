@@ -261,6 +261,21 @@ export interface MapPin {
   entityExcerpt: string | null
 }
 
+/**
+ * One of an entity's placements on a map (show-entity-map-pins), the reverse of `MapPin`:
+ * where `MapPin` is "everything on a map", this is "everywhere one entity is pinned". Already
+ * filtered server-side to maps and pins the viewer may see (design.md D2).
+ */
+export interface EntityMapPlacement {
+  pinId: string
+  mapId: string
+  mapName: string
+  mapSlug: string
+  label: string | null
+  lat: number
+  lng: number
+}
+
 export interface MapLayer {
   id: string
   mapId: string

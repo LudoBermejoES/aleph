@@ -282,6 +282,30 @@ function focusPin(pinId: string) {
   ;(mapViewer.value as { focusPin?: (id: string) => void } | null)?.focusPin?.(pinId)
 }
 
+/**
+ * show-entity-map-pins/design.md D3: `?pin=<id>` in this page's OWN url -- how a placement
+ * link from an entity's detail page (or a shared link) opens the map centred on a specific
+ * pin, with its popup open.
+ *
+ * Watches `mapViewer` rather than calling this once in `onMounted`, because `MapViewer` is
+ * `.client.vue` behind `<ClientOnly>`: it does not exist as a mounted child yet at the moment
+ * THIS page's own `onMounted` runs (`ClientOnly` flips visibility on an extra tick), so
+ * `mapViewer.value` is still null then. `{ immediate: true }` covers the (never actually
+ * true, since MapViewer is always client-only) case where it is already truthy; the real
+ * work happens the first time the watcher sees it go from null to a component instance. The
+ * INNER race -- Leaflet/markers loading inside that instance -- is `focusPinFromUrl`'s own
+ * job via `pinFocusGate` (MapViewer.client.vue), not this page's.
+ */
+const pinIdFromQuery = route.query.pin as string | undefined
+watch(
+  mapViewer,
+  (viewer) => {
+    if (!viewer || !pinIdFromQuery) return
+    ;(viewer as { focusPinFromUrl?: (id: string) => void }).focusPinFromUrl?.(pinIdFromQuery)
+  },
+  { immediate: true },
+)
+
 async function onPinMove(payload: {
   pinId: string
   lat: number

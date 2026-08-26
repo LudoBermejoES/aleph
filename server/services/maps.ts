@@ -3,7 +3,7 @@ import { eq, and, sql } from 'drizzle-orm'
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 import { hasMinRole, isEntityVisibleTo } from '../utils/permissions'
 import type { CampaignRole } from '../utils/permissions'
-import { mapPins } from '../db/schema/maps'
+import { mapPins, maps } from '../db/schema/maps'
 import { entities } from '../db/schema/entities'
 import { characters } from '../db/schema/characters'
 import { organizations } from '../db/schema/organizations'
@@ -30,15 +30,24 @@ const ROLE_LEVEL: Record<string, number> = {
 }
 
 /**
+ * Single-row form of `filterPinsByVisibility`'s rule (same two tables, same short-circuit for
+ * co_dm+). Pulled out so the reverse lookup below (show-entity-map-pins) can apply the exact
+ * same predicate to a MAP's own `visibility` column without duplicating the level comparison.
+ */
+function isVisibleToRole(role: string, visibility: string): boolean {
+  if (hasMinRole(role as CampaignRole, 'co_dm')) return true
+  const level = ROLE_LEVEL[role] ?? 0
+  return level >= (VISIBILITY_MIN_ROLE[visibility] ?? 99)
+}
+
+/**
  * Filter pins by visibility based on user role.
  */
 export function filterPinsByVisibility<T extends { visibility: string }>(
   pins: T[],
   role: string,
 ): T[] {
-  if (hasMinRole(role as CampaignRole, 'co_dm')) return pins
-  const level = ROLE_LEVEL[role] ?? 0
-  return pins.filter((p) => level >= (VISIBILITY_MIN_ROLE[p.visibility] ?? 99))
+  return pins.filter((p) => isVisibleToRole(role, p.visibility))
 }
 
 // --- Pins + linked entity (design.md D3) ---
@@ -296,6 +305,75 @@ export async function getPinWithEntity(
   const resolved = withEntityVisibility(row, role, userId)
   const [withExcerpt] = await attachExcerpts([resolved], role)
   return withExcerpt
+}
+
+// --- Reverse lookup: an entity's own placements (show-entity-map-pins) ---
+//
+// Every query above goes mapId -> pins. Nothing previously queried entityId -> pins, which is
+// what an entity's OWN detail page needs to show where it is pinned (design.md D1). Returns a
+// LIST always: an entity can be pinned on more than one map, and more than once on the same
+// map (design.md D1) -- the singular case is never assumed.
+
+export interface EntityMapPlacement {
+  pinId: string
+  mapId: string
+  mapName: string
+  mapSlug: string
+  label: string | null
+  lat: number
+  lng: number
+}
+
+interface JoinedPlacementRow extends EntityMapPlacement {
+  pinVisibility: string
+  mapVisibility: string
+}
+
+/**
+ * All the placements of one entity across the campaign's maps, visible to `role`.
+ *
+ * design.md D2: the direction of the visibility check is INVERTED from every other function
+ * in this file. Elsewhere a viewer who can see the MAP is filtered on whether they may see the
+ * linked ENTITY. Here the viewer already sees the entity (they are on its own detail page) --
+ * what must not leak is a MAP they aren't allowed to see, so the placement is filtered on the
+ * MAP's own `visibility`, via `isVisibleToRole`, the exact predicate `filterPinsByVisibility`
+ * already applies to a pin's own visibility elsewhere in this file. The pin's own `visibility`
+ * is checked too (same predicate) for the same reason a low-role viewer never sees a
+ * `dm_only` pin in the forward direction (`getPinsWithEntity`): a placement invisible on the
+ * map itself must not become visible merely by looking from the entity's side. A placement
+ * that fails either check is OMITTED ENTIRELY -- never returned with a null/blank map slug,
+ * which would itself reveal that a hidden map or a hidden pin exists (design.md D2).
+ */
+export function getMapPinsForEntity(
+  db: BetterSQLite3Database,
+  entityId: string,
+  role: CampaignRole,
+): EntityMapPlacement[] {
+  const rows = db
+    .select({
+      pinId: mapPins.id,
+      pinVisibility: mapPins.visibility,
+      label: mapPins.label,
+      lat: mapPins.lat,
+      lng: mapPins.lng,
+      mapId: maps.id,
+      mapName: maps.name,
+      mapSlug: maps.slug,
+      mapVisibility: maps.visibility,
+    })
+    .from(mapPins)
+    .innerJoin(maps, eq(mapPins.mapId, maps.id))
+    .where(eq(mapPins.entityId, entityId))
+    .orderBy(maps.name)
+    .all() as JoinedPlacementRow[]
+
+  return rows
+    .filter(
+      (row) => isVisibleToRole(role, row.pinVisibility) && isVisibleToRole(role, row.mapVisibility),
+    )
+    .map(
+      ({ pinVisibility: _pinVisibility, mapVisibility: _mapVisibility, ...placement }) => placement,
+    )
 }
 
 // --- Image Validation ---

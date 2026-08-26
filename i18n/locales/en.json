@@ -345,6 +345,9 @@
       "remove": "Remove nickname",
       "failedAdd": "Failed to add nickname",
       "failedRemove": "Failed to remove nickname"
+    },
+    "mapPlacements": {
+      "title": "On the map"
     }
   },
   "sessions": {

@@ -108,6 +108,7 @@ import {
   POPUP_MIN_WIDTH,
   type PopupLabels,
 } from '~/utils/mapPinMarker'
+import { createPinFocusGate } from '~/utils/pinFocusQueue'
 
 const props = defineProps<{
   imagePath?: string
@@ -266,6 +267,11 @@ onMounted(async () => {
 
   // Add pins
   renderPins(L)
+  // show-entity-map-pins/design.md D3: markerPins is populated (renderPins just ran,
+  // synchronously) -- this is the exact point "guaranteed to be after markers exist" the
+  // design calls for. Any `focusPinFromUrl` request made before this line was queued, not
+  // lost; this replays it now instead of it silently finding nothing.
+  pinFocusGate.markReady()
 
   // El tamaño del pin sigue al zoom (32px en el zoom más amplio, 96px en el más detallado).
   // `zoomend` y no `zoom`: durante la animación se dispara en cada fotograma y reconstruir
@@ -445,6 +451,8 @@ function rescalePins(L: typeof import('leaflet')) {
 function focusPin(pinId: string) {
   if (!map) return
   const entry = markerPins.find((m) => m.pin.id === pinId)
+  // design.md D3's "the pin no longer exists" scenario: deleted, or simply on another map.
+  // Degrades to doing nothing -- the map is already open and showing normally, never an error.
   if (!entry) return
   const target = entry.marker.getLatLng()
   // Un zoom cercano al máximo, que es lo que se pide al pinchar un nombre: "llévame ahí".
@@ -452,6 +460,20 @@ function focusPin(pinId: string) {
   const maxZoom = map.getMaxZoom() ?? 19
   map.setView(target, Math.max(map.getZoom(), Math.min(maxZoom, maxZoom - 2)), { animate: true })
   entry.marker.openPopup()
+}
+
+/**
+ * show-entity-map-pins/design.md D3: the race-safe entry point for a pin addressed in the
+ * map's OWN URL (`?pin=<id>`), as opposed to `focusPin`, which the pins list below the map
+ * calls directly -- safe there because a click can only happen well after markers exist.
+ * Reading the query string runs on a completely different, unpredictable timeline relative to
+ * Leaflet's async load, so this goes through `pinFocusGate` instead of calling `focusPin`
+ * immediately: a request made before markers are ready is queued and replayed once
+ * `pinFocusGate.markReady()` fires in `onMounted`, rather than silently finding nothing.
+ */
+const pinFocusGate = createPinFocusGate(focusPin)
+function focusPinFromUrl(pinId: string) {
+  pinFocusGate.request(pinId)
 }
 
 /**
@@ -467,7 +489,7 @@ function armPinsRenderSuppression() {
   suppressNextPinsRender = true
 }
 
-defineExpose({ focusPin, armPinsRenderSuppression })
+defineExpose({ focusPin, focusPinFromUrl, armPinsRenderSuppression })
 
 function renderPins(L: typeof import('leaflet')) {
   if (!map || !props.pins) return

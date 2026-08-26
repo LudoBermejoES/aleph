@@ -65,5 +65,17 @@ export default defineEventHandler(async (event) => {
 
   const fields = org.fieldsJson ? (JSON.parse(org.fieldsJson) as Record<string, unknown>) : {}
 
-  return { ...org, visibility: entity?.visibility, fields, members }
+  // show-entity-map-pins: `organizations.slug` can differ from `entities.slug` (the entity
+  // slug falls back to `<slug>-org` on a collision, `createOrganizationWithEntity`) -- the map
+  // placements lookup is keyed by the ENTITY's slug (server/api/.../entities/[slug]/map-pins),
+  // so the org page needs this to call it. Null exactly when `org.entityId` is null (the
+  // entity row was deleted out from under the org, `onDelete: 'set null'`); the page treats
+  // that the same as "no placements" rather than querying with a null id.
+  return {
+    ...org,
+    visibility: entity?.visibility,
+    entitySlug: entity?.slug ?? null,
+    fields,
+    members,
+  }
 })
