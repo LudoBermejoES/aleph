@@ -1,5 +1,6 @@
 import type Database from 'better-sqlite3'
-import { eq, and, sql } from 'drizzle-orm'
+import { eq, and, sql, inArray } from 'drizzle-orm'
+import type { SQL } from 'drizzle-orm'
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 import { hasMinRole, isEntityVisibleTo } from '../utils/permissions'
 import type { CampaignRole } from '../utils/permissions'
@@ -48,6 +49,55 @@ export function filterPinsByVisibility<T extends { visibility: string }>(
   role: string,
 ): T[] {
   return pins.filter((p) => isVisibleToRole(role, p.visibility))
+}
+
+// --- Map-level visibility (enforce-map-visibility) ---
+//
+// Everything above enforces a PIN's own visibility. Nothing previously enforced the MAP's own
+// `maps.visibility` column at all -- every one of the seven map read routes fetched the row and
+// returned it regardless of role. `getMapForRole` is design.md D1's single seam: every route
+// that needs a map by slug goes through here instead of running its own
+// `db.select().from(maps).where(...)`, so a route added later cannot forget the check by
+// omission. It returns `undefined` both when the slug does not exist AND when it exists but the
+// viewer's role is below the map's `visibility` (design.md D2: a denial is indistinguishable
+// from absence -- every call site turns `undefined` into the same 404 an unknown slug gets).
+//
+// Reuses `isVisibleToRole`, the exact predicate already applied to a map's visibility elsewhere
+// in this file (`getMapPinsForEntity`'s reverse lookup) -- no new comparison, per design.md's
+// "no new predicate".
+export function getMapForRole(
+  db: BetterSQLite3Database,
+  campaignId: string,
+  slug: string,
+  role: CampaignRole,
+) {
+  const map = db
+    .select()
+    .from(maps)
+    .where(and(eq(maps.campaignId, campaignId), eq(maps.slug, slug)))
+    .get()
+  if (!map) return undefined
+  if (!isVisibleToRole(role, map.visibility)) return undefined
+  return map
+}
+
+/**
+ * List-query equivalent of `getMapForRole`, for `maps/index.get.ts`: appends a WHERE condition
+ * that restricts the result to rows `role` may see, rather than filtering an already-fetched
+ * array (the listing paginates in SQL, so filtering after the fact would desync `total`/limit
+ * from what's actually returned). Mirrors `buildVisibilityFilter` in `utils/permissions.ts`
+ * (same co_dm+ short-circuit, same level comparison) but WITHOUT that function's
+ * private-creator exception: `maps` has no `createdBy` column, so 'private' is simply co_dm+
+ * only here, same as `isVisibleToRole` already treats it above. No-op (sees everything) for
+ * co_dm and above.
+ */
+export function buildMapVisibilityFilter(role: CampaignRole, conditions: SQL[]): void {
+  if (hasMinRole(role, 'co_dm')) return
+  const level = ROLE_LEVEL[role] ?? 0
+  const visibleLevels = Object.entries(VISIBILITY_MIN_ROLE)
+    .filter(([, minLevel]) => level >= minLevel)
+    .map(([vis]) => vis)
+  conditions.push(inArray(maps.visibility, visibleLevels))
 }
 
 // --- Pins + linked entity (design.md D3) ---

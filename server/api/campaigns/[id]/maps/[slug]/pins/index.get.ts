@@ -1,7 +1,5 @@
-import { eq, and } from 'drizzle-orm'
 import { useDb } from '../../../../../../utils/db'
-import { maps } from '../../../../../../db/schema/maps'
-import { getPinsWithEntity } from '../../../../../../services/maps'
+import { getPinsWithEntity, getMapForRole } from '../../../../../../services/maps'
 import type { CampaignRole } from '../../../../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
@@ -11,11 +9,7 @@ export default defineEventHandler(async (event) => {
   const userId = event.context.user?.id || ''
   const db = useDb()
 
-  const map = db
-    .select()
-    .from(maps)
-    .where(and(eq(maps.campaignId, campaignId), eq(maps.slug, slug)))
-    .get()
+  const map = getMapForRole(db, campaignId, slug, role)
   if (!map) throw createError({ statusCode: 404, message: 'Map not found' })
 
   return await getPinsWithEntity(db, map.id, role, userId)

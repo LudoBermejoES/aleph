@@ -1,4 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { eq, and } from 'drizzle-orm'
+import type { SQL } from 'drizzle-orm'
 import {
   filterPinsByVisibility,
   validateMapImage,
@@ -6,7 +8,11 @@ import {
   getPinsWithEntity,
   getPinWithEntity,
   getMapPinsForEntity,
+  getMapForRole,
+  buildMapVisibilityFilter,
 } from '../../../server/services/maps'
+import { maps } from '../../../server/db/schema/maps'
+import type { CampaignRole } from '../../../server/utils/permissions'
 import { createTestDb, type TestDb } from '../../helpers/db'
 import { createTestContentDir, type TestContentDir } from '../../helpers/content'
 
@@ -685,5 +691,147 @@ describe('getMapPinsForEntity (show-entity-map-pins/design.md D1/D2)', () => {
     `)
 
     expect(getMapPinsForEntity(testDb.db, 'ent-1', 'player')).toEqual([])
+  })
+})
+
+// enforce-map-visibility/design.md D1/D2: the single seam every read route resolves its map
+// through. `maps.visibility` was previously never checked anywhere -- these prove the two new
+// exports directly against a real in-memory DB, not just the shared `isVisibleToRole`
+// predicate (already covered above via getMapPinsForEntity).
+describe('getMapForRole (enforce-map-visibility, design.md D1/D2)', () => {
+  let testDb: TestDb
+  const now = Date.now()
+
+  beforeEach(() => {
+    testDb = createTestDb()
+    testDb.sqlite.exec(`
+      INSERT INTO user (id, name, email, email_verified, created_at, updated_at)
+      VALUES ('user-owner', 'Owner', 'owner@test.com', 0, ${now}, ${now})
+    `)
+    testDb.sqlite.exec(`
+      INSERT INTO campaigns (id, name, slug, content_dir, created_by, created_at, updated_at)
+      VALUES ('camp-1', 'Test', 'test', '/content', 'user-owner', ${now}, ${now})
+    `)
+    testDb.sqlite.exec(`
+      INSERT INTO maps (id, campaign_id, name, slug, visibility, created_at, updated_at) VALUES
+        ('map-public', 'camp-1', 'Public Map', 'public-map', 'public', ${now}, ${now}),
+        ('map-members', 'camp-1', 'Members Map', 'members-map', 'members', ${now}, ${now}),
+        ('map-dm', 'camp-1', 'DM Map', 'dm-map', 'dm_only', ${now}, ${now})
+    `)
+  })
+
+  afterEach(() => {
+    testDb.close()
+  })
+
+  it('returns the map when the role clears its visibility (the positive path -- task 6.2)', () => {
+    const map = getMapForRole(testDb.db, 'camp-1', 'members-map', 'player')
+    expect(map?.slug).toBe('members-map')
+  })
+
+  it('a dm on their own dm_only map is not locked out (task 6.2: the risk is in the wiring)', () => {
+    expect(getMapForRole(testDb.db, 'camp-1', 'dm-map', 'dm')?.slug).toBe('dm-map')
+  })
+
+  it('returns undefined -- indistinguishable from a missing slug -- when the role does not clear it', () => {
+    expect(getMapForRole(testDb.db, 'camp-1', 'dm-map', 'player')).toBeUndefined()
+  })
+
+  it('returns undefined for a slug that does not exist at all, same shape as a denial (design D2)', () => {
+    expect(getMapForRole(testDb.db, 'camp-1', 'nonexistent', 'dm')).toBeUndefined()
+  })
+
+  it('co_dm+ sees every map, including dm_only', () => {
+    expect(getMapForRole(testDb.db, 'camp-1', 'dm-map', 'co_dm')).toBeDefined()
+    expect(getMapForRole(testDb.db, 'camp-1', 'dm-map', 'dm')).toBeDefined()
+  })
+
+  it('does not leak a map from a different campaign, even with a role that would otherwise see it', () => {
+    testDb.sqlite.exec(`
+      INSERT INTO campaigns (id, name, slug, content_dir, created_by, created_at, updated_at)
+      VALUES ('camp-2', 'Other', 'other', '/content', 'user-owner', ${now}, ${now})
+    `)
+    expect(getMapForRole(testDb.db, 'camp-2', 'public-map', 'dm')).toBeUndefined()
+  })
+
+  it("a nested map's visibility is its own -- not inferred from the parent (design D5 / tasks 5.3)", () => {
+    testDb.sqlite.exec(`
+      INSERT INTO maps (id, campaign_id, name, slug, parent_map_id, visibility, created_at, updated_at) VALUES
+        ('map-child-visible', 'camp-1', 'Visible Child', 'visible-child', 'map-dm', 'public', ${now}, ${now}),
+        ('map-child-hidden', 'camp-1', 'Hidden Child', 'hidden-child', 'map-public', 'dm_only', ${now}, ${now})
+    `)
+    // Parent is dm_only, child is public -> a player still reaches the visible child.
+    expect(getMapForRole(testDb.db, 'camp-1', 'visible-child', 'player')).toBeDefined()
+    // Parent is public, child is dm_only -> a player is still refused the hidden child.
+    expect(getMapForRole(testDb.db, 'camp-1', 'hidden-child', 'player')).toBeUndefined()
+    // And a dm reaches both regardless.
+    expect(getMapForRole(testDb.db, 'camp-1', 'visible-child', 'dm')).toBeDefined()
+    expect(getMapForRole(testDb.db, 'camp-1', 'hidden-child', 'dm')).toBeDefined()
+  })
+})
+
+// The listing's SQL-level equivalent of getMapForRole (design D2: "the listing simply omits
+// the row"). Filters in the query itself, not after fetching, so pagination stays consistent.
+describe('buildMapVisibilityFilter (enforce-map-visibility)', () => {
+  let testDb: TestDb
+  const now = Date.now()
+
+  beforeEach(() => {
+    testDb = createTestDb()
+    testDb.sqlite.exec(`
+      INSERT INTO user (id, name, email, email_verified, created_at, updated_at)
+      VALUES ('user-owner', 'Owner', 'owner@test.com', 0, ${now}, ${now})
+    `)
+    testDb.sqlite.exec(`
+      INSERT INTO campaigns (id, name, slug, content_dir, created_by, created_at, updated_at)
+      VALUES ('camp-1', 'Test', 'test', '/content', 'user-owner', ${now}, ${now})
+    `)
+    testDb.sqlite.exec(`
+      INSERT INTO maps (id, campaign_id, name, slug, visibility, created_at, updated_at) VALUES
+        ('map-public', 'camp-1', 'Public', 'public-map', 'public', ${now}, ${now}),
+        ('map-members', 'camp-1', 'Members', 'members-map', 'members', ${now}, ${now}),
+        ('map-dm', 'camp-1', 'DM', 'dm-map', 'dm_only', ${now}, ${now})
+    `)
+  })
+
+  afterEach(() => {
+    testDb.close()
+  })
+
+  function slugsFor(role: CampaignRole): string[] {
+    const conditions: SQL[] = [eq(maps.campaignId, 'camp-1')]
+    buildMapVisibilityFilter(role, conditions)
+    return testDb.db
+      .select({ slug: maps.slug })
+      .from(maps)
+      .where(and(...conditions))
+      .all()
+      .map((r) => r.slug)
+      .sort()
+  }
+
+  it('a visitor sees only public maps', () => {
+    expect(slugsFor('visitor')).toEqual(['public-map'])
+  })
+
+  it('a player sees public and members maps, not dm_only', () => {
+    expect(slugsFor('player')).toEqual(['members-map', 'public-map'])
+  })
+
+  it('an editor still does not see dm_only', () => {
+    expect(slugsFor('editor')).toEqual(['members-map', 'public-map'])
+  })
+
+  it('co_dm+ sees every map with no filter applied at all', () => {
+    expect(slugsFor('co_dm')).toEqual(['dm-map', 'members-map', 'public-map'])
+    expect(slugsFor('dm')).toEqual(['dm-map', 'members-map', 'public-map'])
+  })
+
+  it('nothing indicates how many were withheld -- the filter just narrows the WHERE, no count is exposed', () => {
+    // A visitor's condition set excludes 2 of 3 maps; the function's contract is silent
+    // narrowing, not a count -- this asserts a condition was appended, nothing more.
+    const conditions: SQL[] = [eq(maps.campaignId, 'camp-1')]
+    buildMapVisibilityFilter('visitor', conditions)
+    expect(conditions).toHaveLength(2)
   })
 })

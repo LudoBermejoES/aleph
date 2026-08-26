@@ -1,10 +1,11 @@
-import { eq, and } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import { useDb, useSqlite } from '../../../../../utils/db'
-import { maps, mapLayers, mapGroups, mapRegions } from '../../../../../db/schema/maps'
+import { mapLayers, mapGroups, mapRegions } from '../../../../../db/schema/maps'
 import {
   filterPinsByVisibility,
   computeBreadcrumb,
   getPinsWithEntity,
+  getMapForRole,
 } from '../../../../../services/maps'
 import type { CampaignRole } from '../../../../../utils/permissions'
 
@@ -16,11 +17,7 @@ export default defineEventHandler(async (event) => {
   const db = useDb()
   const sqlite = useSqlite()
 
-  const map = db
-    .select()
-    .from(maps)
-    .where(and(eq(maps.campaignId, campaignId), eq(maps.slug, slug)))
-    .get()
+  const map = getMapForRole(db, campaignId, slug, role)
   if (!map) throw createError({ statusCode: 404, message: 'Map not found' })
 
   const pins = await getPinsWithEntity(db, map.id, role, userId)
