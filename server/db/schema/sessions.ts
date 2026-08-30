@@ -1,5 +1,6 @@
-import { sqliteTable, text, integer, unique, index } from 'drizzle-orm/sqlite-core'
+import { sqliteTable, text, integer, unique, index, uniqueIndex } from 'drizzle-orm/sqlite-core'
 import { campaigns } from './campaigns'
+import { characters } from './characters'
 import { user } from './auth'
 
 export const subCampaigns = sqliteTable(
@@ -99,13 +100,44 @@ export const sessionAttendance = sqliteTable(
     characterId: text('character_id'),
     rsvpStatus: text('rsvp_status').notNull().default('pending'), // pending, accepted, declined, tentative
     attended: integer('attended', { mode: 'boolean' }).default(false),
-    // Experience points the DM awarded this user for this session. No default and nullable on
-    // purpose: NULL means "not recorded yet", 0 means "recorded, awarded nothing" — collapsing
-    // those (e.g. a DEFAULT 0) would make a per-user XP total silently count every un-awarded
-    // session as zero. See openspec/changes/add-session-attendance-xp/design.md decision 2.
-    xp: integer('xp'),
   },
   (table) => [index('idx_attendance_session_user').on(table.sessionId, table.userId)],
+)
+
+/**
+ * Experience awarded per (session, character).
+ *
+ * XP belongs to a CHARACTER, not to the person holding the dice — the same player carries
+ * different characters across sessions and can field two in one evening, neither of which
+ * `session_attendance`'s `(session_id, user_id)` key can express. Attendance stays keyed by
+ * person on purpose: a guest, or a player between characters, still has to appear on the roster
+ * (live data has attendance rows with no `character_id` at all), so the character cannot be the
+ * attendance key without losing rows. Two facts, two natural keys, two tables.
+ *
+ * `xp` is NOT NULL and row presence means "recorded": a row says this character was awarded this
+ * much (possibly `0`), no row says nothing was recorded. That replaces the NULL-vs-0 convention
+ * the dropped `session_attendance.xp` column needed a paragraph to explain, and makes a future
+ * `SUM` over this table simply correct instead of correct-only-if-you-remember-to-filter.
+ *
+ * `character_id` cascades: deleting a character removes its awards rather than orphaning them.
+ * See openspec/changes/add-per-character-session-xp/design.md decisions 1 and 2.
+ */
+export const sessionCharacterXp = sqliteTable(
+  'session_character_xp',
+  {
+    id: text('id').primaryKey(),
+    sessionId: text('session_id')
+      .notNull()
+      .references(() => gameSessions.id, { onDelete: 'cascade' }),
+    characterId: text('character_id')
+      .notNull()
+      .references(() => characters.id, { onDelete: 'cascade' }),
+    xp: integer('xp').notNull(),
+  },
+  (table) => [
+    uniqueIndex('session_character_xp_session_character').on(table.sessionId, table.characterId),
+    index('idx_session_character_xp_character').on(table.characterId),
+  ],
 )
 
 export const quests = sqliteTable(

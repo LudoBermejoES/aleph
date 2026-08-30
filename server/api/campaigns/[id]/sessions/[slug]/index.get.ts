@@ -11,6 +11,7 @@ import {
 import { user } from '../../../../../db/schema/auth'
 import { readEntityFile } from '../../../../../services/content'
 import { withApiHandler } from '../../../../../utils/api-handler'
+import { listSessionXpAwards } from '../../../../../utils/session-xp'
 
 export default defineEventHandler((event) =>
   withApiHandler(event, async () => {
@@ -72,12 +73,16 @@ export default defineEventHandler((event) =>
         characterId: sessionAttendance.characterId,
         rsvpStatus: sessionAttendance.rsvpStatus,
         attended: sessionAttendance.attended,
-        xp: sessionAttendance.xp,
       })
       .from(sessionAttendance)
       .innerJoin(user, eq(sessionAttendance.userId, user.id))
       .where(eq(sessionAttendance.sessionId, session.id))
       .all()
+
+    // Per-character XP. Alongside `attendance`, not inside it: the two are keyed differently on
+    // purpose (a roster row is about a person and may carry no character at all; an award is
+    // about a character and needs no roster row). Joined here so the panel needs no second call.
+    const xpAwards = listSessionXpAwards(db, session.id)
 
     // hasContent flags
     const contentRows = db
@@ -109,6 +114,7 @@ export default defineEventHandler((event) =>
       arcSlug,
       chapterName,
       attendance,
+      xpAwards,
       hasContent,
       logContent: log.content,
     }

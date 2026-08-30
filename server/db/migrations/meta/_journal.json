@@ -260,6 +260,13 @@
       "when": 1787685077576,
       "tag": "0036_normal_speed",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "6",
+      "when": 1788095857826,
+      "tag": "0037_panoramic_supreme_intelligence",
+      "breakpoints": true
     }
   ]
 }
