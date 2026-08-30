@@ -31,7 +31,18 @@ const newKeys = [
   ['editor', 'toolbar', 'insertLink'],
   ['editor', 'toolbar', 'insertTable'],
   ['editor', 'toolbar', 'insertImage'],
+  ['sessions', 'xpAwards'],
+  ['sessions', 'xpAddCharacter'],
+  ['sessions', 'xpNoAwards'],
+  ['sessions', 'xpUnknownCharacter'],
 ]
+
+/**
+ * Keys whose feature is gone. XP is awarded per CHARACTER now and never requires attendance
+ * (add-per-character-session-xp, design decision 4), so this string has no caller left; keeping
+ * it would invite a template to point at a rule the server no longer enforces.
+ */
+const removedKeys = [['sessions', 'xpRequiresAttendance']]
 
 function getKey(obj: Record<string, unknown>, path: string[]): string | undefined {
   return path.reduce((acc, k) => acc?.[k], obj)
@@ -53,6 +64,18 @@ describe('i18n locale keys', () => {
       expect(value, `es.json missing key: ${key}`).toBeDefined()
       expect(typeof value).toBe('string')
       expect((value as string).trim()).not.toBe('')
+    })
+  }
+
+  for (const path of removedKeys) {
+    const key = path.join('.')
+
+    it(`en.json no longer defines: ${key}`, () => {
+      expect(getKey(en, path), `en.json still defines removed key: ${key}`).toBeUndefined()
+    })
+
+    it(`es.json no longer defines: ${key}`, () => {
+      expect(getKey(es, path), `es.json still defines removed key: ${key}`).toBeUndefined()
     })
   }
 })

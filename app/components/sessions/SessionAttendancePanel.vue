@@ -55,30 +55,6 @@
           />
           {{ $t('sessions.attended') }}
         </label>
-        <!-- XP can only be recorded once attendance is marked — the server enforces the same
-             rule, this just avoids offering a control that would come back a 422. -->
-        <label
-          v-if="canManage && a.attended"
-          class="flex items-center gap-1 text-xs text-muted-foreground"
-        >
-          {{ $t('sessions.xp') }}
-          <input
-            type="number"
-            min="0"
-            step="1"
-            :value="a.xp ?? ''"
-            :placeholder="$t('sessions.xpNotRecorded')"
-            :aria-label="$t('sessions.xp') + ' — ' + a.userName"
-            class="w-14 rounded border border-input bg-background px-1 py-0.5 text-xs"
-            @change="onXpChange(a, $event)"
-          />
-        </label>
-        <span v-else-if="canManage" class="text-xs text-muted-foreground/60 italic">{{
-          $t('sessions.xpRequiresAttendance')
-        }}</span>
-        <span v-else-if="a.xp !== null && a.xp !== undefined" class="text-xs text-muted-foreground">
-          {{ $t('sessions.xp') }}: {{ a.xp }}
-        </span>
         <button
           v-if="canManage"
           class="text-xs text-destructive hover:text-destructive/80 transition-colors ml-1"
@@ -122,8 +98,6 @@ interface AttendanceEntry {
   characterId: string | null
   rsvpStatus: string
   attended: boolean
-  // null = not recorded yet; 0 = recorded, awarded nothing. Never coalesce these.
-  xp?: number | null
 }
 
 interface CampaignMember {
@@ -144,18 +118,9 @@ const emit = defineEmits<{
   'set-attended': [userId: string, attended: boolean]
   'add-participant': [userId: string]
   'remove-participant': [userId: string]
-  // xp is null when the input is cleared — that's a distinct action from "0", handled by the
-  // caller/server, not collapsed here.
-  'set-xp': [userId: string, xp: number | null]
 }>()
 
 const showPicker = ref(false)
-
-function onXpChange(entry: AttendanceEntry, event: Event) {
-  const raw = (event.target as HTMLInputElement).value
-  const xp = raw === '' ? null : Number(raw)
-  emit('set-xp', entry.userId, xp)
-}
 
 const attendingUserIds = computed(() => new Set(props.attendance.map((a) => a.userId)))
 

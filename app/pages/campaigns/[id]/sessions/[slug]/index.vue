@@ -93,9 +93,19 @@
         :members="campaignMembers"
         @set-rsvp="setRsvp"
         @set-attended="setAttended"
-        @set-xp="setAttendanceXp"
         @add-participant="addParticipant"
         @remove-participant="removeParticipant"
+      />
+
+      <!-- XP belongs to a character, not to the player holding the dice: this panel seeds the
+           roster's characters and lets the DM add any other campaign character. -->
+      <SessionXpPanel
+        :attendance="(session.attendance as any[]) ?? []"
+        :xp-awards="(session.xpAwards as any[]) ?? []"
+        :characters="campaignCharacters"
+        :can-manage="canDelete"
+        :saving="savingXp"
+        @save="saveXpAwards"
       />
 
       <!-- Preview role switcher (DM only) -->
@@ -205,6 +215,10 @@ const canGenerate = ref(false)
 const myRsvp = ref('pending')
 const campaignRole = ref<string>('')
 const campaignMembers = ref<{ userId: string; name: string }[]>([])
+// Feeds the XP panel's picker and its row labels — attendance rows carry a characterId and no
+// name, so the campaign's character list is what turns an id into something readable.
+const campaignCharacters = ref<{ id: string; name: string }[]>([])
+const savingXp = ref(false)
 const previewContent = ref<string | null>(null)
 const contentRef = ref<HTMLElement>()
 const api = useCampaignApi(campaignId)
@@ -252,6 +266,13 @@ async function load() {
         userId: string
         name: string
       }[]
+      // The list endpoint answers either an array or a paginated { data, meta } envelope.
+      const chars: unknown = await api.getCharacters().catch(() => [])
+      const list = Array.isArray(chars) ? chars : ((chars as { data?: unknown[] })?.data ?? [])
+      campaignCharacters.value = list.map((c) => {
+        const character = c as { id: string; name: string }
+        return { id: character.id, name: character.name }
+      })
     }
     decisions.value = await api.getSessionDecisions(slug).catch(() => [])
     await loadContent()
@@ -375,12 +396,18 @@ async function setAttended(userId: string, attended: boolean) {
   }
 }
 
-async function setAttendanceXp(userId: string, xp: number | null) {
+// One PUT with the WHOLE list the panel wants to survive, then a refresh. The endpoint replaces
+// rather than merges, so a character the panel dropped loses its award here — that is what the
+// panel's remove button means.
+async function saveXpAwards(awards: { characterId: string; xp: number }[]) {
+  savingXp.value = true
   try {
-    await api.setSessionAttendanceXp(slug, userId, xp)
+    await api.setSessionXpAwards(slug, awards)
     await load()
   } catch (e: unknown) {
     alert((e as { data?: { message?: string } })?.data?.message || t('errors.failedSave'))
+  } finally {
+    savingXp.value = false
   }
 }
 

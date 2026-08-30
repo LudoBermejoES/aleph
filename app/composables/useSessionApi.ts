@@ -111,13 +111,16 @@ export function useSessionApi(campaignId: string) {
     })
   }
 
-  // xp: null clears a previously-recorded value; a number awards that many XP. The server
-  // requires the target's attendance row to already have attended: true for any non-null value.
-  function setSessionAttendanceXp(slug: string, userId: string, xp: number | null) {
-    return $fetch<{ success: boolean; xp: number | null }>(
-      `${base}/sessions/${slug}/attendance/${userId}`,
-      { method: 'PATCH', body: { xp } },
-    )
+  /**
+   * Records the session's XP awards, per CHARACTER. This REPLACES the whole set: a character
+   * absent from `awards` loses its award, and `awards: []` clears every award for the session.
+   * Always send the complete list of what should survive — never a partial patch.
+   */
+  function setSessionXpAwards(slug: string, awards: { characterId: string; xp: number }[]) {
+    return $fetch<{ success: boolean; xpAwards: unknown[] }>(`${base}/sessions/${slug}/xp`, {
+      method: 'PUT',
+      body: { awards },
+    })
   }
 
   function getSessionRolls(slug: string) {
@@ -212,7 +215,7 @@ export function useSessionApi(campaignId: string) {
     patchAttendance,
     addSessionParticipant,
     removeSessionParticipant,
-    setSessionAttendanceXp,
+    setSessionXpAwards,
     getSessionRolls,
     getCampaignArcs,
     getArcs,

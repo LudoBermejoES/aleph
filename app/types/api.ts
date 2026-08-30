@@ -174,6 +174,19 @@ export interface GameSession {
   // Detail view only (session GET by slug)
   logContent?: string
   attendance?: unknown[]
+  /**
+   * Per-character XP for this session, joined into the session read so the XP panel needs no
+   * second call. Empty when nothing is recorded; an entry's existence IS the record, so there is
+   * no null xp — see openspec/changes/add-per-character-session-xp/design.md decision 2.
+   */
+  xpAwards?: SessionXpAwardEntry[]
+}
+
+export interface SessionXpAwardEntry {
+  characterId: string
+  characterName: string | null
+  characterSlug: string | null
+  xp: number
 }
 
 export interface SessionDecision {
