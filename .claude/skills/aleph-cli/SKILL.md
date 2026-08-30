@@ -4,7 +4,7 @@ description: Use the aleph CLI to manage campaigns, entities, characters, locati
 license: MIT
 metadata:
   author: aleph
-  version: '3.25'
+  version: '3.26'
 ---
 
 You have access to the `aleph` CLI tool at `node /Users/ludo/code/aleph/cli/bin/aleph.js` (or `npm run aleph -- <args>` from the project root). Use it to interact with the running Aleph server.
@@ -153,7 +153,13 @@ node /Users/ludo/code/aleph/cli/bin/aleph.js session attendance set <slug> --cam
 node /Users/ludo/code/aleph/cli/bin/aleph.js session attendance mark <slug> --campaign <id> --characters <slug1,slug2,...> [--absent] [--json]  # DM/co-DM: bulk-mark characters as attended (or absent with --absent)
 node /Users/ludo/code/aleph/cli/bin/aleph.js session attendance add <slug> --campaign <id> --user <userId> [--character <id>] [--status pending|accepted|declined|tentative]  # DM/co-DM: add a campaign member as a session participant
 node /Users/ludo/code/aleph/cli/bin/aleph.js session attendance remove <slug> --campaign <id> --user <userId>  # DM/co-DM: remove a participant from a session
-node /Users/ludo/code/aleph/cli/bin/aleph.js session attendance xp <slug> --campaign <id> --user <userId> (--xp <n> | --clear)  # DM/co-DM: record (or clear) XP for a participant. Requires that participant's attendance to already be marked (`attended: true`) — 422 otherwise. --xp must be a whole number >= 0; --clear resets to "not recorded" (distinct from 0).
+
+# Session XP (per CHARACTER, not per player)
+node /Users/ludo/code/aleph/cli/bin/aleph.js session xp <slug> --campaign <id> --list [--json]  # print the session's current awards
+node /Users/ludo/code/aleph/cli/bin/aleph.js session xp <slug> --campaign <id> --character <slug> --xp <n>  # DM/co-DM: award one character. Read-modify-write: every OTHER character's award is preserved. --xp must be a whole number >= 0, and 0 is a real award ("recorded, awarded nothing"), distinct from no award at all.
+node /Users/ludo/code/aleph/cli/bin/aleph.js session xp <slug> --campaign <id> --character <slug> --clear  # DM/co-DM: remove one character's award (404 if nothing was recorded)
+# --character takes a CHARACTER slug: XP belongs to the character, not to the player holding the dice, so one player fielding two characters gets two awards, and a character needs no attendance row to be awarded.
+# --character with neither --xp nor --clear is refused before any request is sent; --list cannot be combined with the write flags.
 
 # AI generation (requires AI_PROVIDER + AI_API_KEY configured on the server)
 node /Users/ludo/code/aleph/cli/bin/aleph.js session summarize <slug> --campaign <id> [--type summary|ai_notes] [--force]  # --type defaults to summary; --force skips confirmation

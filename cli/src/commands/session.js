@@ -318,40 +318,114 @@ export function makeSessionCommand() {
       success('Participant removed.')
     })
 
-  attendance
+  cmd.addCommand(attendance)
+
+  // ─── XP subcommand ─────────────────────────────────────────────────────────
+
+  cmd
     .command('xp <slug>')
     .description(
-      'Record XP for a participant who attended a session — DM/co-DM only. Requires the ' +
-        "participant's attendance to already be marked (see `session attendance mark`).",
+      'Record per-character XP for a session — DM/co-DM only. XP belongs to a character, not ' +
+        'to the player holding the dice, so an award is keyed by character slug and a player ' +
+        'fielding two characters gets two awards.',
     )
     .requiredOption('--campaign <id>', 'Campaign ID')
-    .requiredOption('--user <userId>', 'User ID of the participant')
-    .option('--xp <n>', 'XP to award (whole number, >= 0)')
-    .option('--clear', 'Clear a previously recorded XP value instead of setting one')
+    .option('--character <slug>', 'Character slug to award or clear')
+    .option('--xp <n>', 'XP to award to --character (whole number, >= 0)')
+    .option('--clear', "Remove --character's award for this session")
+    .option('--list', "Print the session's current awards")
+    .option('--json', 'Output as JSON')
     .action(async (slug, opts) => {
-      if (opts.clear === undefined && opts.xp === undefined) {
-        process.stderr.write('Error: provide --xp <n> or --clear\n')
+      // Every check below runs BEFORE the first request. A call the CLI already knows it cannot
+      // carry out must not reach the server, and must never be accepted while doing nothing --
+      // "accepted and silently a no-op" is the failure mode this project keeps rediscovering.
+      if (opts.list && (opts.character || opts.xp !== undefined || opts.clear)) {
+        process.stderr.write('Error: --list cannot be combined with --character/--xp/--clear\n')
+        process.exit(1)
+      }
+      if (!opts.list && !opts.character) {
+        process.stderr.write(
+          'Error: provide --list, or --character <slug> with --xp <n> or --clear\n',
+        )
+        process.exit(1)
+      }
+      if (opts.character && opts.xp === undefined && !opts.clear) {
+        process.stderr.write('Error: provide --xp <n> or --clear alongside --character\n')
         process.exit(1)
       }
       if (opts.clear && opts.xp !== undefined) {
         process.stderr.write('Error: --xp and --clear are mutually exclusive\n')
         process.exit(1)
       }
+
+      // Parsed here rather than after the reads, so a bad --xp costs no request either.
+      // `--xp 0` is a legal award (recorded, awarded nothing), which is why every test above
+      // compares against `undefined` instead of relying on truthiness.
       let xp = null
-      if (!opts.clear) {
+      if (opts.xp !== undefined) {
         xp = Number(opts.xp)
-        if (!Number.isInteger(xp) || xp < 0) {
+        if (!/^\d+$/.test(String(opts.xp).trim()) || !Number.isInteger(xp) || xp < 0) {
           process.stderr.write('Error: --xp must be a whole number >= 0\n')
           process.exit(1)
         }
       }
-      await patch(`/api/campaigns/${opts.campaign}/sessions/${slug}/attendance/${opts.user}`, {
-        xp,
-      })
-      success(opts.clear ? 'XP cleared.' : `XP set to ${xp}.`)
-    })
 
-  cmd.addCommand(attendance)
+      const base = `/api/campaigns/${opts.campaign}/sessions/${slug}`
+
+      if (opts.list) {
+        const session = await get(base)
+        const awards = session?.xpAwards ?? []
+        if (opts.json) {
+          print(awards, { json: true })
+          return
+        }
+        print(awards.map((a) => ({ character: a.characterName, slug: a.characterSlug, xp: a.xp })))
+        return
+      }
+
+      // The awards API speaks character IDs; the operator speaks slugs. `resolveEntitySlug`
+      // is the wrong resolver here -- it answers the ENTITY id, and an award references
+      // `characters.id`, a different column.
+      const character = await get(`/api/campaigns/${opts.campaign}/characters/${opts.character}`)
+      if (!character?.id) {
+        process.stderr.write(`Error: Character not found: ${opts.character}\n`)
+        // `process.exit()` here aborted the process with a libuv assertion on Windows, because
+        // this guard runs AFTER an await and the request's socket is still open -- the same
+        // trap `entity create`'s type guard hit. Setting exitCode lets node drain and exit 2.
+        process.exitCode = 2
+        return
+      }
+      const characterId = character.id
+
+      if (opts.clear) {
+        await del(`${base}/xp/${characterId}`)
+        success(`XP cleared for ${opts.character}.`)
+        return
+      }
+
+      // READ-MODIFY-WRITE, and it is load-bearing: `PUT .../xp` REPLACES the session's whole
+      // award list (design decision 5), so sending only the character named on the command line
+      // would delete everyone else's award. Read the current list, apply this one change, write
+      // the whole list back.
+      const session = await get(base)
+      const awards = (session?.xpAwards ?? []).map((a) => ({
+        characterId: a.characterId,
+        xp: a.xp,
+      }))
+      // Only `characterId` and `xp` survive the round trip on purpose: the endpoint's zod schema
+      // is a `strictObject`, so echoing back the `characterName`/`characterSlug` the GET adds
+      // would be rejected with a 422.
+      const existing = awards.find((a) => a.characterId === characterId)
+      if (existing) existing.xp = xp
+      else awards.push({ characterId, xp })
+
+      const result = await put(`${base}/xp`, { awards })
+      if (opts.json) {
+        print(result?.xpAwards ?? [], { json: true })
+        return
+      }
+      success(`XP set to ${xp} for ${opts.character}.`)
+    })
 
   // ─── Summarize subcommand ──────────────────────────────────────────────────
 

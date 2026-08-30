@@ -40,12 +40,12 @@
 
 ## 4. CLI
 
-- [ ] 4.1 `aleph session xp <slug> --campaign <id>` with `--character`, `--xp`, `--clear`, `--list`.
-- [ ] 4.2 Single-character writes are **read-modify-write** against the current award list, per
+- [x] 4.1 `aleph session xp <slug> --campaign <id>` with `--character`, `--xp`, `--clear`, `--list`.
+- [x] 4.2 Single-character writes are **read-modify-write** against the current award list, per
       spec — a `--character X --xp N` call must not clear the other characters.
-- [ ] 4.3 Refuse `--character` with neither `--xp` nor `--clear`, non-zero exit, no request sent.
-- [ ] 4.4 Remove `aleph session attendance xp`.
-- [ ] 4.5 Update the endpoint-parity check and `cli/README.md`.
+- [x] 4.3 Refuse `--character` with neither `--xp` nor `--clear`, non-zero exit, no request sent.
+- [x] 4.4 Remove `aleph session attendance xp`.
+- [x] 4.5 Update the endpoint-parity check and `cli/README.md`.
 
 ## 5. Frontend
 
