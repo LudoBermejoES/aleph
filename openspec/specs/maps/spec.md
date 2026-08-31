@@ -841,3 +841,252 @@ SHALL remain visible beneath it.
 
 - **WHEN** the viewer may not see a pin's linked entity
 - **THEN** the pin is returned with no image and no type
+
+### Requirement: El visor de mapas SHALL ofrecer un control para verlo a ventana completa
+
+El visor de mapas SHALL incluir un control que hace que el mapa ocupe la ventana entera, y que
+lo devuelve al hueco que le da la página.
+
+El control SHALL estar visible en los dos estados, y en particular en el estado reducido, que
+es el único con el que se abre un mapa: un control que solo apareciera con el mapa ya expandido
+sería inalcanzable.
+
+El control SHALL decir en qué estado está -- su rótulo nombra la acción disponible y su
+`aria-pressed` refleja el estado -- SHALL ser un botón alcanzable con el tabulador y accionable
+con el teclado, y SHALL tener foco visible.
+
+El mapa SHALL abrirse siempre reducido. El estado no se recuerda entre visitas.
+
+#### Scenario: El control está ahí desde el principio
+
+- **WHEN** un usuario abre la página de detalle de un mapa
+- **THEN** el visor muestra el control de ventana completa
+- **AND** el mapa se muestra reducido, con la altura que le da la página
+
+#### Scenario: Expandir
+
+- **WHEN** el usuario acciona el control
+- **THEN** el mapa pasa a ocupar la ventana entera
+- **AND** el control pasa a ofrecer la acción de reducirlo
+
+#### Scenario: Reducir con el mismo control
+
+- **WHEN** el usuario acciona el control con el mapa ya expandido
+- **THEN** el mapa vuelve exactamente al tamaño que tenía antes de expandirse
+
+#### Scenario: Solo con el teclado
+
+- **WHEN** el usuario lleva el foco al control con el tabulador y pulsa Intro
+- **THEN** el mapa se expande igual que al pulsarlo con el ratón
+
+### Requirement: Escape SHALL salir del modo de ventana completa
+
+Con el mapa expandido, pulsar `Escape` SHALL reducirlo, además del botón.
+
+Con el mapa reducido, `Escape` NO SHALL ser consumido por el visor: no hay nada de lo que
+salir, y el evento debe seguir llegando a quien sí lo espera -- un diálogo abierto encima del
+mapa.
+
+#### Scenario: Salir con Escape
+
+- **WHEN** el usuario pulsa `Escape` con el mapa ocupando la ventana
+- **THEN** el mapa vuelve al tamaño que tenía
+
+#### Scenario: Escape con el mapa reducido
+
+- **WHEN** el usuario pulsa `Escape` con el mapa ya reducido
+- **THEN** el visor no hace nada y no consume la pulsación
+
+### Requirement: El mapa SHALL avisar a Leaflet de cada cambio de tamaño de su contenedor
+
+Cada transición entre reducido y expandido -- en los DOS sentidos, y sea disparada por el
+botón o por `Escape` -- SHALL notificar a Leaflet que su contenedor ha cambiado de tamaño
+(`invalidateSize()`), después de que el nuevo tamaño esté aplicado en el DOM.
+
+Una no-transición (pedir reducir un mapa ya reducido, o expandir uno ya expandido) NO SHALL
+notificar nada: el contenedor no ha cambiado de tamaño.
+
+Esta es la regla cuyo incumplimiento es MUDO. Leaflet guarda el tamaño de su contenedor en
+caché y traduce coordenadas a píxeles con ese valor: sin el aviso no hay ningún error, el mapa
+simplemente pinta bandas grises y coloca los pines lejos de donde el puntero dice que están.
+
+#### Scenario: Un pin no se mueve de su sitio al expandir
+
+- **GIVEN** un mapa con un pin colocado exactamente en el centro que ese mapa declara, cuyo
+  marcador se pinta por tanto en el centro del contenedor
+- **WHEN** el usuario expande el mapa a ventana completa
+- **THEN** el marcador sigue pintándose en el centro del contenedor, ahora más grande
+
+#### Scenario: Ni al volver
+
+- **WHEN** el usuario reduce el mapa, con el botón o con `Escape`
+- **THEN** el marcador vuelve a pintarse en el centro del contenedor reducido
+
+#### Scenario: Los dos tipos de mapa
+
+- **WHEN** el mapa es de tipo `image` (CRS.Simple, coordenadas en píxeles) o de tipo `osm`
+  (WGS84)
+- **THEN** el control y la ausencia de desplazamiento se comportan igual en los dos
+
+### Requirement: La vista SHALL sobrevivir a las dos transiciones
+
+El centro y el nivel de zoom que el mapa tiene al expandirse SHALL ser los que tiene expandido,
+y SHALL ser los que recupera al volver. Expandir el mapa no SHALL llevar al usuario a otro
+sitio ni a otra escala.
+
+La reposición de la vista SHALL ocurrir después de notificar el cambio de tamaño, nunca antes:
+reponerla sobre un encuadre viejo la deja mal.
+
+#### Scenario: Se expande donde se estaba mirando
+
+- **GIVEN** un usuario que ha desplazado y acercado el mapa hasta una zona concreta
+- **WHEN** expande el mapa a ventana completa
+- **THEN** sigue viendo la misma zona, a la misma escala, con más superficie alrededor
+
+#### Scenario: Y se vuelve al mismo sitio
+
+- **WHEN** reduce el mapa
+- **THEN** vuelve a ver la zona en la que estaba
+
+### Requirement: A map's visibility SHALL be enforced on every read surface
+
+Every route that reads a map or anything belonging to a map SHALL authorise the viewer against the
+map's own `visibility`, using the campaign's existing visibility levels and role comparison. No map
+read SHALL be reachable without that check.
+
+The check SHALL be applied at a single shared point through which every route obtains its map, so that
+a route added later cannot omit it by default.
+
+#### Scenario: The listing
+
+- **WHEN** a viewer lists the campaign's maps
+- **THEN** maps whose visibility is above their role are absent from the result
+- **AND** nothing indicates how many were withheld
+
+#### Scenario: A map the viewer may not see
+
+- **WHEN** a viewer requests a map whose visibility is above their role
+- **THEN** the response is the same as for a map that does not exist
+
+#### Scenario: A map the viewer may see
+
+- **WHEN** a viewer requests a map at or below their role's level
+- **THEN** it is returned as before
+
+#### Scenario: A new read route
+
+- **WHEN** a new route that reads a map is added
+- **THEN** it obtains the map through the shared authorising lookup rather than querying it directly
+
+### Requirement: A map's sub-resources SHALL authorise the parent map
+
+The pins, layers, regions, image and tiles of a map SHALL be refused to a viewer who may not see that
+map, whatever their own visibility says. Addressing a sub-resource directly SHALL NOT be a route into a
+map the viewer cannot open.
+
+#### Scenario: Tiles of a hidden map
+
+- **WHEN** a viewer requests a tile of a map they may not see
+- **THEN** it is refused as though the map did not exist
+- **AND** no imagery is served
+
+#### Scenario: Pins, layers and regions of a hidden map
+
+- **WHEN** a viewer requests the pins, layers or regions of a map they may not see
+- **THEN** each is refused as though the map did not exist
+
+#### Scenario: A visible map containing hidden pins
+
+- **WHEN** a viewer may see a map that contains pins above their role
+- **THEN** the map is returned and those individual pins remain hidden
+
+### Requirement: Enforcement SHALL NOT change what a permitted viewer can reach
+
+Introducing the check SHALL leave every currently-permitted read permitted. The change SHALL be
+verified against the real data of every campaign before it ships, and any map that will become hidden
+to viewers who can see it today SHALL be reported.
+
+#### Scenario: The owner's own access
+
+- **WHEN** the campaign's owner or a dm-level role reads any map, its pins, layers, regions, image or
+  tiles
+- **THEN** everything is returned exactly as before the change
+
+#### Scenario: A map that will change hands
+
+- **WHEN** an existing map's visibility is above some current viewers' role
+- **THEN** that map is reported before the change ships, rather than silently disappearing for them
+
+### Requirement: An entity's detail page SHALL show where it is pinned on a map
+
+The detail page of a location, an organization and a character SHALL show the map placements of that
+entity, naming the map each one is on. An entity with no placements SHALL show nothing — no empty
+section and no residual loading state.
+
+Placements SHALL be a list: an entity may be pinned on more than one map, and more than once on the
+same map, and every placement SHALL be shown.
+
+#### Scenario: A location that is on the map
+
+- **WHEN** a user opens the detail page of a location that has a pin
+- **THEN** the page shows that placement, naming the map it is on
+
+#### Scenario: A character and an organization
+
+- **WHEN** the entity is a character or an organization rather than a location
+- **THEN** its placements are shown the same way
+
+#### Scenario: Several placements
+
+- **WHEN** an entity is pinned on two maps, or twice on one map
+- **THEN** every placement is listed, each identifying its map
+
+#### Scenario: No placement
+
+- **WHEN** an entity has no pin anywhere
+- **THEN** the page shows no placement section at all
+
+### Requirement: A placement SHALL open the map focused on that pin
+
+Following a placement SHALL open its map and centre, zoom and open the popup of that specific pin,
+using the same focus behaviour the map's own pin list already provides.
+
+The pin SHALL be addressable in the map's URL, so a placement is a shareable link rather than an
+in-page action.
+
+#### Scenario: Following a placement
+
+- **WHEN** a user follows a placement from an entity's page
+- **THEN** the map opens centred and zoomed on that pin with its popup open
+
+#### Scenario: The address is shared
+
+- **WHEN** a map URL identifying a pin is opened directly
+- **THEN** the map opens focused on that pin
+
+#### Scenario: The focus is requested before the markers exist
+
+- **WHEN** the map is still loading its markers at the moment the focus is requested
+- **THEN** the pin is still focused once the markers exist, rather than the request being silently lost
+
+#### Scenario: The pin no longer exists
+
+- **WHEN** the URL identifies a pin that has been deleted or is not on that map
+- **THEN** the map opens normally, with no error
+
+### Requirement: A placement on a map the viewer may not see SHALL NOT be revealed
+
+Placements SHALL be filtered server-side by the viewer's access to the MAP, using the same rule that
+governs which maps they may list. A placement they cannot reach SHALL be omitted entirely, not
+returned with its identifying fields blanked.
+
+#### Scenario: A hidden map
+
+- **WHEN** an entity is pinned on a map the viewer may not see
+- **THEN** that placement does not appear on the entity's page
+- **AND** nothing on the page indicates that such a map or placement exists
+
+#### Scenario: A visible and a hidden map
+
+- **WHEN** an entity is pinned on one map the viewer may see and one they may not
+- **THEN** only the visible placement is shown
