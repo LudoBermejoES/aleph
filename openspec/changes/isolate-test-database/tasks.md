@@ -81,8 +81,8 @@
 ## 8. Evidencia de cierre (2026-08-31)
 
 - [x] 8.1 **La aceptación falló DOS veces antes de pasar, y las dos por lo mismo: abridores de la
-  base que no estaban inventariados.** Sin la prueba de comparar `data/aleph.db` antes y después
-  habría dado esto por terminado dos veces.
+      base que no estaban inventariados.** Sin la prueba de comparar `data/aleph.db` antes y después
+      habría dado esto por terminado dos veces.
   - **Primer fallo**: había un servidor viejo en el 3333 y `start-server-and-test` lo reutilizó
     («Another Nuxt dev server is already running» en el log). Las **1.077** pruebas corrieron contra
     la base de desarrollo, que ganó **170 campañas y 355 MB**. Nada falló; el aislamiento
@@ -95,18 +95,18 @@
     **`server/db/index.ts`**, un tercer abridor a nivel de módulo. Con sesiones en una base y
     campañas en otra, **475 tests** reventaron.
 - [x] 8.2 **Aceptación superada a la tercera**: bytes, campañas, usuarios y entidades **idénticos**
-  antes y después, temporal limpiado, 1.034 tests en verde y los 43 fallos restantes **43 timeouts y
-  cero aserciones**, todos en suites que lanzan el CLI.
+      antes y después, temporal limpiado, 1.034 tests en verde y los 43 fallos restantes **43 timeouts y
+      cero aserciones**, todos en suites que lanzan el CLI.
 - [x] 8.3 **Y en el checkout nuevo esos 43 desaparecen**: `1.077 de 1.077`, cero timeouts, cero
-  aserciones, **83 s** en vez de 362. La unitaria, **2.182 de 2.182 en 35 s** en vez de 285. Es la
-  predicción de `move-checkout-to-ext4` cumplida.
+      aserciones, **83 s** en vez de 362. La unitaria, **2.182 de 2.182 en 35 s** en vez de 285. Es la
+      predicción de `move-checkout-to-ext4` cumplida.
 - [x] 8.4 **Un fichero vacío es semilla completa, verificado**: 95 tablas sobre un fichero recién
-  creado, sin ninguna fixture.
+      creado, sin ninguna fixture.
 - [x] 8.5 **La reducción, en el orden medido y no en el intuitivo**: copia previa (171 s), vaciar las
-  ocho tablas sombra excluyendo las dos virtuales `vec0` por nombre, `VACUUM` 46 s. **4,392 GB →
-  0,180 GB**, con 2.085 campañas, 12.203 entidades, 3.233 usuarios y 4.089 personajes intactos.
-  Borrar filas recuperaba **14 MB de 4,4 GB**.
+      ocho tablas sombra excluyendo las dos virtuales `vec0` por nombre, `VACUUM` 46 s. **4,392 GB →
+      0,180 GB**, con 2.085 campañas, 12.203 entidades, 3.233 usuarios y 4.089 personajes intactos.
+      Borrar filas recuperaba **14 MB de 4,4 GB**.
 - [x] 8.6 **Un riesgo latente declarado y no cerrado**: `server/tasks/backup/restore.ts` compone la
-  ruta viva a mano, así que una restauración con la base redirigida sobreescribiría el fichero real.
-  Ningún test la dispara — los de backup solo comprueban 401 y 403 — así que se deja documentado en
-  vez de arreglado dentro de este cambio.
+      ruta viva a mano, así que una restauración con la base redirigida sobreescribiría el fichero real.
+      Ningún test la dispara — los de backup solo comprueban 401 y 403 — así que se deja documentado en
+      vez de arreglado dentro de este cambio.
