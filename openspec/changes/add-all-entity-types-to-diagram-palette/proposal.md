@@ -2,7 +2,7 @@
 
 The diagram's entity palette cannot add an object, a piece of lore, an event, a note, a session
 or an arc to a canvas. It offers characters, locations, organizations and quests, and nothing
-else — which is exactly what a DM sees and reports: *"veo personajes y lugares, pero no objetos"*.
+else — which is exactly what a DM sees and reports: _"veo personajes y lugares, pero no objetos"_.
 
 The cause is one clause in `server/api/campaigns/[id]/diagrams/entities/index.get.ts`. Four of the
 five groups it returns are queried by name; the fifth, `wiki`, is queried as:
@@ -20,22 +20,22 @@ defect is invisible: the palette looks complete rather than broken.
 
 Measured on `berlin-en-tinieblas` (372 entities, all 8 pages walked):
 
-| type | entities | in the palette |
-|---|---:|---|
-| character | 166 | yes |
-| session | 99 | **no** |
-| location | 45 | yes |
-| organization | 31 | yes |
-| arc | 13 | **no** |
-| quest | 10 | yes |
-| lore | 5 | **no** |
-| item | 3 | **no** |
+| type         | entities | in the palette |
+| ------------ | -------: | -------------- |
+| character    |      166 | yes            |
+| session      |       99 | **no**         |
+| location     |       45 | yes            |
+| organization |       31 | yes            |
+| arc          |       13 | **no**         |
+| quest        |       10 | yes            |
+| lore         |        5 | **no**         |
+| item         |        3 | **no**         |
 
 **120 of 372 entities — a third of the campaign — cannot be placed on a diagram**, including all
 three objects and all five pieces of lore.
 
 The existing integration test does not catch it because it asserts only that the five keys are
-*present* (`expect(data).toHaveProperty('wiki')`), never that any of them holds a row. An
+_present_ (`expect(data).toHaveProperty('wiki')`), never that any of them holds a row. An
 always-empty array satisfies it.
 
 Half of the feature already works and needs no change: the hydration endpoint
@@ -69,7 +69,7 @@ canvas would render and survive a reload today — there is simply no way to pla
   `app/components/diagrams/EntityPanel.vue`, `app/utils/diagram-shapes.ts` (comment only),
   `i18n/locales/{en,es}.json`
 - **aleph-cli: no impact**, but not because the CLI is unaware of diagrams — it has four
-  `diagram` commands. None of them reads *this* endpoint: `grep -rn 'diagrams/entities' cli/src/`
+  `diagram` commands. None of them reads _this_ endpoint: `grep -rn 'diagrams/entities' cli/src/`
   is empty, while a looser `grep -rn diagrams cli/src/` matches
   `list`/`create`/`delete`/`generate` and would read as impact where there is none.
 - Migrations: none. No schema change.

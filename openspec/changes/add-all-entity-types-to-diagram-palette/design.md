@@ -34,7 +34,12 @@ already indexes it that way, the integration test asserts those keys, and a chan
 break both for no gain. It gains one key per extra type and a sibling:
 
 ```ts
-groups: { key: string; label: string; builtin: boolean }[]
+groups: {
+  key: string
+  label: string
+  builtin: boolean
+}
+;[]
 ```
 
 `builtin: true` marks the four groups whose label is UI text (`diagrams.panel.characters` …) and
@@ -72,5 +77,5 @@ loads with a blank card looks like a rendering bug, not a hydration filter.
 
 The existing integration test passes against the broken endpoint, because
 `expect(data).toHaveProperty('wiki')` is satisfied by `[]`. The new tests are written from the
-rule — *the palette offers every entity type the campaign declares* — and each is mutation-checked
+rule — _the palette offers every entity type the campaign declares_ — and each is mutation-checked
 by restoring the `or(eq(type,'entity'), eq(type,'wiki'))` clause and requiring red.

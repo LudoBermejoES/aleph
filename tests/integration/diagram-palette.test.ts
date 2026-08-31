@@ -34,7 +34,8 @@ async function apiRaw(url: string, opts?: ApiOpts) {
 
 async function api(url: string, opts?: ApiOpts) {
   const res = await apiRaw(url, opts)
-  if (!res.ok) throw new Error(`${opts?.method ?? 'GET'} ${url} → ${res.status}: ${await res.text()}`)
+  if (!res.ok)
+    throw new Error(`${opts?.method ?? 'GET'} ${url} → ${res.status}: ${await res.text()}`)
   if (res.status === 204) return null
   return res.json()
 }
@@ -256,10 +257,9 @@ describe('Diagram entity palette (integration)', () => {
   // ─── Hydration was already type-agnostic (design D5) ──────────────────────
 
   it('batch rehydrates an object by id, so a placed card is not blank after a reload', async () => {
-    const data = await api(
-      `/api/campaigns/${campaignId}/diagrams/entities/batch?ids=${itemId}`,
-      { headers: key(dmApiKey) },
-    )
+    const data = await api(`/api/campaigns/${campaignId}/diagrams/entities/batch?ids=${itemId}`, {
+      headers: key(dmApiKey),
+    })
     expect(data[itemId]).toBeDefined()
     expect(data[itemId].name).toBe('El traje de oro')
     expect(data[itemId].type).toBe('item')

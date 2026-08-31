@@ -106,10 +106,7 @@ export function buildPaletteGroups(
 }
 
 /** The entity-type slugs the fan-out should query, in group order. */
-export function fanoutTypeSlugs(
-  declared: CampaignEntityType[],
-  present: string[] = [],
-): string[] {
+export function fanoutTypeSlugs(declared: CampaignEntityType[], present: string[] = []): string[] {
   return buildPaletteGroups(declared, present)
     .filter((g) => !g.builtin)
     .map((g) => g.key)

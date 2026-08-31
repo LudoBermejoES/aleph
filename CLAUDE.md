@@ -43,13 +43,13 @@ diagnosis down and skipped their integration tests over it. **Wait on a real req
 `➜ Local:` banner as "Vite is up", not "the API is up". Full table of env vars and the reasoning:
 `docs/development.md`.
 
-**`nuxt dev` does NOT hot-reload `server/api/**` — a mutation check against a running server is
-worthless.** Measured 2026-08-31: the original bug was restored in a route handler, the integration
-suite was re-run twice (8s and 38s after the edit) and reported **15/15 green**, which reads as
-"the tests do not catch this bug" and is false. After a server **restart** the same suite went
-**6/15 red**. So when breaking something on purpose to prove a guard bites, restart the server
-between the edit and the run, or you are testing the old code and will conclude the opposite of
-the truth.
+**A server route is NOT hot-reloaded by `nuxt dev`, so a mutation check against a running server is
+worthless.** Measured 2026-08-31: the original bug was restored in a handler under `server/api/`,
+the integration suite was re-run twice (8s and 38s after the edit) and reported 15/15 green — which
+reads as "the tests do not catch this bug" and is false. After a server **restart** the same suite
+went 6/15 red. So when breaking something on purpose to prove a guard bites, restart the server
+between the edit and the run, or you are testing the old code and will conclude the opposite of the
+truth.
 
 **And the FIRST Playwright run after a restart fails on cold page compilation, whatever the code
 says.** In dev, a page is compiled on first request, so `/api/health` answering 200 says nothing
