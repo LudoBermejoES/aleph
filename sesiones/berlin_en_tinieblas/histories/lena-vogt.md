@@ -17,3 +17,13 @@ Sigue siendo la única que ve a la vieja, y sigue sin ceder. Cuando volvió a sa
 Se ofreció a subir a la guardilla de Theo Brandt y ayudó a mover el armario. De noche, en Berghain, fue la que vigiló al policía de la parte de atrás: seis éxitos, y vio al agente levantarse, oler a quemado, asomarse a la esquina y distraerse con una llamada — la ventana exacta por la que entraron. Suya fue también la única teoría que explica la palabra que oyeron desde la cornisa: que la anciana y el maniquí sean los disruptores, y que estén trabajando juntos.
 
 Terminó la noche mirando, en el taller, una cara de metal que es la que ella lleva dos sesiones dibujando y que los demás por fin pueden ver.
+
+## Sesión del 30 de agosto de 2026 — El traje de oro
+
+Estaba soñando cuando le entró el mensaje. Soñaba con una casa infinita: algo la perseguía por sus pasillos mientras ella llevaba a Clara Böhm de la mano, y no la cazaba porque no quería cazarla — quería divertirse con su angustia, como un gato con un ratón. En el mismo instante en que sonó el móvil, aquello le arañó la espalda. Se llevó la mano atrás y la sacó con sangre.
+
+Cuando sus compañeros le miraron la espalda vieron el zarpazo de un gato del tamaño de una persona: líneas muy finas y muy profundas desde la base del cuello hasta la cadera. Le pusieron media caja de tiritas del botiquín del taller y fueron todos juntos a buscar a Theo. Es la segunda prueba física de que no está loca, y es mucho peor que la primera: esta la trajo de dentro de un sueño.
+
+En el hospital, un domingo por la mañana, contestó a la pregunta obvia con la verdad —«no lo sé, me he despertado así»— y le saltó encima el protocolo de agresión sexual. Se le fue media mañana en salas de espera y entrevistas, con Theo dándole la matraca hasta el infinito para que se dejara mirar. Le cerraron el zarpazo con puntos de aproximación y antibióticos, y salió sin el magullado pero con la espalda molestando todo el día.
+
+De ahí en adelante fue el día de Theo y del traje: kilo y medio de oro cosido a su medida y un pescador llamado Klaus en la orilla del Spree. Por la tarde, en la cafetería, oyó cómo la mujer que tomaba notas para el Nachtkurier cogía la mano de Theo, se le ponían los ojos en blanco y hablaba del sendero de plata. Ella, que lleva desde julio siendo la única que ve cosas que los demás no ven, no dijo nada. No hacía falta: por una vez todos lo oyeron.
