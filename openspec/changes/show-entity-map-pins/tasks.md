@@ -59,7 +59,13 @@
       repo, leyendo el **código de salida real** y no a través de una tubería (`cmd | tail` devuelve el
       de `tail`, y eso ya ocultó un fallo real). Ambos EXIT:0 confirmados por separado (prettier tras
       corregir un `design.md` de este mismo cambio que ya venía sin formatear).
-- [x] 5.3 NO ejecutado `npm run test:integration` en esta máquina: el servidor de desarrollo anuncia el
-      puerto 3333 y nunca lo abre, así que `wait-on` agota el tiempo y parece una suite roja. Es fallo
-      de entorno; se verifica en CI. Se escribió `tests/integration/entity-map-pins.test.ts` siguiendo
-      el patrón de `maps-visibility.test.ts`, sin ejecutar.
+- [x] 5.3 NO ejecutado `npm run test:integration` en esta máquina; se verificó en CI. Se escribió
+      `tests/integration/entity-map-pins.test.ts` siguiendo el patrón de `maps-visibility.test.ts`,
+      sin ejecutar. **El diagnóstico de esta nota era falso y quedó corregido el 2026-08-30**: el
+      servidor de desarrollo SÍ abre el 3333. Era, en realidad, (a) `onnxruntime-node` cargado dos
+      veces en el mismo proceso, que hacía que toda ruta de API respondiese
+      `500 Module did not self-register`, y (b) el `await` de los backfills de `watcher.ts`, que sobre
+      una copia de la base real bloquea el arranque durante minutos y agota el `wait-on`. Los dos
+      están arreglados; el segundo se sortea con `STARTUP_BACKFILLS_ENABLED=false` (ver
+      `docs/development.md`). No era «fallo de entorno»: era un defecto del repositorio que se llevaba
+      rodeando desde al menos dos cambios.

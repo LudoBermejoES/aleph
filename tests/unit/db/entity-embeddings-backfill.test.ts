@@ -66,12 +66,23 @@ describe('backfillEntityEmbeddings', () => {
     rmSync(join(process.cwd(), contentDir), { recursive: true, force: true })
   })
 
-  function seedEntity(slug: string, name: string, body: string, withFile = true) {
+  /**
+   * `withFile: 'missing'` is the shape this project's own database actually contains: an
+   * entity row whose `filePath` points at a file nobody deleted on purpose (`ENOENT
+   * entities/the-tavern.md`). It is the only input that makes the backfill FAIL rather than
+   * skip, so it is the one the convergence rule is about.
+   */
+  function seedEntity(
+    slug: string,
+    name: string,
+    body: string,
+    withFile: boolean | 'missing' = true,
+  ) {
     const id = randomUUID()
     const now = new Date()
-    const filePath = withFile ? join(contentDir, 'character', `${slug}.md`) : ''
+    const filePath = withFile === false ? '' : join(contentDir, 'character', `${slug}.md`)
 
-    if (withFile) {
+    if (withFile === true) {
       const dir = join(process.cwd(), contentDir, 'character')
       mkdirSync(dir, { recursive: true })
       writeFileSync(
@@ -168,6 +179,136 @@ describe('backfillEntityEmbeddings', () => {
     },
     MODEL_LOAD_TIMEOUT,
   )
+
+  describe('convergence — an entity that cannot be embedded is not retried for ever', () => {
+    it(
+      'a missing content file is a failure the first time, and is retried the next run',
+      async () => {
+        seedEntity('ghost-file', 'Entity With A Missing File', '', 'missing')
+
+        const first = await backfillEntityEmbeddings(db, testDb.sqlite)
+        expect(first.failed).toBe(1)
+        expect(first.skippedFailedPermanently).toBe(0)
+
+        const second = await backfillEntityEmbeddings(db, testDb.sqlite)
+        expect(second.failed).toBe(1)
+        expect(second.skippedFailedPermanently).toBe(0)
+      },
+      MODEL_LOAD_TIMEOUT,
+    )
+
+    it(
+      'stops attempting it after MAX_ATTEMPTS runs — the run reports nothing left to do',
+      async () => {
+        seedEntity('ghost-file', 'Entity With A Missing File', '', 'missing')
+
+        for (let run = 1; run <= 3; run++) {
+          const result = await backfillEntityEmbeddings(db, testDb.sqlite)
+          expect(result.failed).toBe(1)
+        }
+
+        const fourth = await backfillEntityEmbeddings(db, testDb.sqlite)
+        expect(fourth.failed).toBe(0)
+        expect(fourth.skippedFailedPermanently).toBe(1)
+
+        const fifth = await backfillEntityEmbeddings(db, testDb.sqlite)
+        expect(fifth.failed).toBe(0)
+        expect(fifth.skippedFailedPermanently).toBe(1)
+      },
+      MODEL_LOAD_TIMEOUT,
+    )
+
+    it(
+      'giving up on one entity does not stop the others being embedded',
+      async () => {
+        seedEntity('ghost-file', 'Entity With A Missing File', '', 'missing')
+
+        for (let run = 1; run <= 3; run++) await backfillEntityEmbeddings(db, testDb.sqlite)
+
+        const goodId = seedEntity('strahd', 'Strahd von Zarovich', 'A powerful vampire lord.')
+        const result = await backfillEntityEmbeddings(db, testDb.sqlite)
+
+        expect(result.skippedFailedPermanently).toBe(1)
+        expect(result.migrated).toBe(1)
+        const row = testDb.sqlite
+          .prepare('SELECT rowid FROM entity_vec_map WHERE entity_id = ?')
+          .get(goodId)
+        expect(row).toBeDefined()
+      },
+      MODEL_LOAD_TIMEOUT,
+    )
+
+    it(
+      'records the error and the attempt count, so the give-up is inspectable',
+      async () => {
+        const id = seedEntity('ghost-file', 'Entity With A Missing File', '', 'missing')
+
+        await backfillEntityEmbeddings(db, testDb.sqlite)
+        await backfillEntityEmbeddings(db, testDb.sqlite)
+
+        const record = testDb.sqlite
+          .prepare(
+            'SELECT attempts, last_error, last_attempt_at FROM entity_embedding_failures WHERE entity_id = ?',
+          )
+          .get(id) as { attempts: number; last_error: string; last_attempt_at: string }
+        expect(record.attempts).toBe(2)
+        expect(record.last_error).toMatch(/ENOENT|no such file/i)
+        expect(Number.isNaN(Date.parse(record.last_attempt_at))).toBe(false)
+      },
+      MODEL_LOAD_TIMEOUT,
+    )
+
+    it(
+      'clearing the failure record makes the backfill try again — the documented recovery',
+      async () => {
+        const id = seedEntity('ghost-file', 'Entity With A Missing File', '', 'missing')
+
+        for (let run = 1; run <= 3; run++) await backfillEntityEmbeddings(db, testDb.sqlite)
+        expect((await backfillEntityEmbeddings(db, testDb.sqlite)).skippedFailedPermanently).toBe(1)
+
+        // The operator restores the file and clears the record.
+        mkdirSync(join(process.cwd(), contentDir, 'character'), { recursive: true })
+        writeFileSync(
+          join(process.cwd(), contentDir, 'character', 'ghost-file.md'),
+          `---\nid: ${id}\ntype: character\nname: Entity With A Missing File\n---\nBack again.\n`,
+        )
+        testDb.sqlite.prepare('DELETE FROM entity_embedding_failures WHERE entity_id = ?').run(id)
+
+        const result = await backfillEntityEmbeddings(db, testDb.sqlite)
+        expect(result.migrated).toBe(1)
+        expect(result.skippedFailedPermanently).toBe(0)
+      },
+      MODEL_LOAD_TIMEOUT,
+    )
+
+    it(
+      'a success clears any failure record left over from an earlier run',
+      async () => {
+        const id = seedEntity('ghost-file', 'Entity With A Missing File', '', 'missing')
+
+        await backfillEntityEmbeddings(db, testDb.sqlite)
+        expect(
+          testDb.sqlite
+            .prepare('SELECT attempts FROM entity_embedding_failures WHERE entity_id = ?')
+            .get(id),
+        ).toBeDefined()
+
+        mkdirSync(join(process.cwd(), contentDir, 'character'), { recursive: true })
+        writeFileSync(
+          join(process.cwd(), contentDir, 'character', 'ghost-file.md'),
+          `---\nid: ${id}\ntype: character\nname: Entity With A Missing File\n---\nBack again.\n`,
+        )
+
+        await backfillEntityEmbeddings(db, testDb.sqlite)
+        expect(
+          testDb.sqlite
+            .prepare('SELECT attempts FROM entity_embedding_failures WHERE entity_id = ?')
+            .get(id),
+        ).toBeUndefined()
+      },
+      MODEL_LOAD_TIMEOUT,
+    )
+  })
 
   it(
     'leaves other entity fields untouched',

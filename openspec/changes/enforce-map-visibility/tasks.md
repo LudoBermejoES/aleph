@@ -66,6 +66,14 @@
       CPU; comprobar aislando antes de llamarlo regresión.
 - [x] 7.2 `npx prettier --check .` **y** `npx eslint . --ext .ts,.vue,.tsx`, limpios en todo el repo,
       leyendo el **código de salida real** y no a través de una tubería.
-- [x] 7.3 NO ejecutar `npm run test:integration` aquí: el servidor de desarrollo anuncia el puerto
-      3333 y nunca lo abre, así que `wait-on` agota el tiempo y parece una suite roja. Se verifica en
-      CI.
+- [x] 7.3 NO ejecutado `npm run test:integration` aquí; se verificó en CI. **La causa que esta nota
+      daba era falsa y quedó corregida el 2026-08-30**: el servidor de desarrollo SÍ abre el 3333
+      (medido: `ss -ltn` lo muestra escuchando, y `curl` recibe respuesta). Lo que fallaba eran dos
+      cosas distintas, ninguna de ellas el puerto. (a) `onnxruntime-node` se cargaba dos veces en el
+      mismo proceso, así que TODA ruta de API devolvía `500 Module did not self-register` — arreglado
+      difiriendo el `import` de `@huggingface/transformers` a su primer uso. (b) `watcher.ts` hace
+      `await` de sus backfills antes de que Nitro acepte peticiones, y sobre una copia de la base real
+      eso son minutos, que es lo que agotaba el `wait-on`. Hoy se salta con
+      `STARTUP_BACKFILLS_ENABLED=false` (ver `docs/development.md`). El anuncio del 3000 en vez del
+      3333 que se llegó a ver es lo que hace `nuxt dev` cuando el 3333 ya está ocupado, no un fallo
+      del arranque.

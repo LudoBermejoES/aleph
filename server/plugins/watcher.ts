@@ -5,6 +5,7 @@ import { initVecTable, findVectorParityGaps, backfillFilteredVectors } from '../
 import { backfillEntityEmbeddings } from '../db/backfills/entity-embeddings'
 import { backfillEntityFtsIndex } from '../db/backfills/entity-fts-index'
 import { logger } from '../utils/logger'
+import { startupBackfillsEnabled } from '../utils/startup-backfills'
 import { join } from 'path'
 import { entities } from '../db/schema/entities'
 import { readEntityFile } from '../services/content'
@@ -37,6 +38,17 @@ export default defineNitroPlugin(async () => {
   const sqlite = useSqlite()
   const db = useDb()
 
+  // Escape hatch for local development -- see server/utils/startup-backfills.ts. It gates the
+  // BACKFILLS only: `initFTS5`/`initVecTable` below still run, so the tables and the
+  // role-scoped lexical split are always correct, and a boot with this set differs from a
+  // normal one only in that an index which was already incomplete stays incomplete.
+  const runBackfills = startupBackfillsEnabled()
+  if (!runBackfills) {
+    logger.warn(
+      'STARTUP_BACKFILLS_ENABLED=false -- skipping the one-time index backfills for this process',
+    )
+  }
+
   // Initialize FTS5 tables. An index from before the role-scoped split is migrated IN
   // PLACE, out of its own stored text — no filesystem pass, so this stays a startup step
   // rather than an outage.
@@ -62,7 +74,7 @@ export default defineNitroPlugin(async () => {
   // vector table is only PARTIALLY populated, so a player's semantic arm returns FEWER
   // results, never more. It cannot leak — the lexical index, which is what actually
   // enforces the split for the common query, is already correct before the first request.
-  if (vec.needsFilteredBackfill) {
+  if (runBackfills && vec.needsFilteredBackfill) {
     void (async () => {
       try {
         const result = await backfillFilteredVectors(sqlite, entityBodyLookup(db))
@@ -77,27 +89,29 @@ export default defineNitroPlugin(async () => {
     })()
   }
 
-  // One-time (idempotent, resumable) FTS5 backfill for entities that were
-  // never indexed at all (session/quest/arc/organization mirror entities —
-  // see server/db/backfills/entity-fts-index.ts).
-  try {
-    const result = await backfillEntityFtsIndex(db, sqlite)
-    if (result.migrated > 0 || result.failed > 0) {
-      logger.info('Entity FTS index backfill complete', result)
+  if (runBackfills) {
+    // One-time (idempotent, resumable) FTS5 backfill for entities that were
+    // never indexed at all (session/quest/arc/organization mirror entities —
+    // see server/db/backfills/entity-fts-index.ts).
+    try {
+      const result = await backfillEntityFtsIndex(db, sqlite)
+      if (result.migrated > 0 || result.failed > 0) {
+        logger.info('Entity FTS index backfill complete', result)
+      }
+    } catch (error) {
+      logger.error('Failed to backfill entity FTS index', { error })
     }
-  } catch (error) {
-    logger.error('Failed to backfill entity FTS index', { error })
-  }
 
-  // One-time (idempotent, resumable) embedding backfill for entities that
-  // predate semantic search — see server/db/backfills/entity-embeddings.ts.
-  try {
-    const result = await backfillEntityEmbeddings(db, sqlite)
-    if (result.migrated > 0 || result.failed > 0) {
-      logger.info('Entity embedding backfill complete', result)
+    // One-time (idempotent, resumable) embedding backfill for entities that
+    // predate semantic search — see server/db/backfills/entity-embeddings.ts.
+    try {
+      const result = await backfillEntityEmbeddings(db, sqlite)
+      if (result.migrated > 0 || result.failed > 0) {
+        logger.info('Entity embedding backfill complete', result)
+      }
+    } catch (error) {
+      logger.error('Failed to backfill entity embeddings', { error })
     }
-  } catch (error) {
-    logger.error('Failed to backfill entity embeddings', { error })
   }
 
   // The two role-scoped copies of each index must hold the SAME entities — one holding an

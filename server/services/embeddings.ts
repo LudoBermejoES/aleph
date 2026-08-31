@@ -1,6 +1,6 @@
 import type Database from 'better-sqlite3'
 import * as sqliteVec from 'sqlite-vec'
-import { pipeline, env, type FeatureExtractionPipeline } from '@huggingface/transformers'
+import type { FeatureExtractionPipeline } from '@huggingface/transformers'
 import { join } from 'path'
 import { stripSecretBlocks } from './content'
 import { indexVariantForRole, FILTERED_INDEX_ROLE, FTS_TABLES, type IndexVariant } from './search'
@@ -44,20 +44,6 @@ const SEMANTIC_MAX_DISTANCE = 0.15
 
 const MODEL_ID = 'Xenova/multilingual-e5-small'
 
-// transformers.js defaults cacheDir to a path relative to its own package
-// inside node_modules, which `npm ci` wipes on every deploy. Point it at a
-// project-root directory instead so `scripts/download-embedding-model.mjs`
-// (run during CI, see deploy.yml) can vendor the model into the deploy
-// artifact and it survives dependency reinstalls.
-env.cacheDir = join(process.cwd(), 'models')
-
-// In production, fail loudly on a missing vendored model rather than
-// silently falling back to a first-request network download — the deploy
-// server's egress isn't something this app should depend on at runtime.
-if (process.env.NODE_ENV === 'production') {
-  env.allowRemoteModels = false
-}
-
 /**
  * Rough character budget kept well under the model's ~512 token window.
  * Character-based, not token-based, to avoid a separate tokenizer pass just
@@ -68,9 +54,43 @@ const MAX_INPUT_CHARS = 2000
 
 let embedderPromise: Promise<FeatureExtractionPipeline> | null = null
 
-function getEmbedder(): Promise<FeatureExtractionPipeline> {
+/**
+ * Load transformers.js — and with it `onnxruntime-node`'s native addon — ON FIRST USE, never
+ * at module-evaluation time.
+ *
+ * This import is deliberately dynamic. `onnxruntime_binding.node` is not context-aware, so
+ * Node refuses a SECOND `dlopen` of it in the same process with
+ * `Module did not self-register`. A static top-level import put it in the module graph of
+ * everything that touches this file — including `server/plugins/watcher.ts`, which every boot
+ * evaluates — so in `nuxt dev` the Nitro bundle loaded it once and the request-time handler
+ * graph loaded it again, and from then on EVERY api route answered 500, semantic search or
+ * not. Deferring it means the addon is loaded by whichever graph first needs an embedding,
+ * exactly once.
+ *
+ * Production is unaffected in behaviour: the pipeline was already lazy, so this only moves
+ * the `import` to the same moment the model was already being loaded.
+ */
+async function getEmbedder(): Promise<FeatureExtractionPipeline> {
   if (!embedderPromise) {
-    embedderPromise = pipeline('feature-extraction', MODEL_ID, { dtype: 'q8' })
+    embedderPromise = (async () => {
+      const { pipeline, env } = await import('@huggingface/transformers')
+
+      // transformers.js defaults cacheDir to a path relative to its own package
+      // inside node_modules, which `npm ci` wipes on every deploy. Point it at a
+      // project-root directory instead so `scripts/download-embedding-model.mjs`
+      // (run during CI, see deploy.yml) can vendor the model into the deploy
+      // artifact and it survives dependency reinstalls.
+      env.cacheDir = join(process.cwd(), 'models')
+
+      // In production, fail loudly on a missing vendored model rather than
+      // silently falling back to a first-request network download — the deploy
+      // server's egress isn't something this app should depend on at runtime.
+      if (process.env.NODE_ENV === 'production') {
+        env.allowRemoteModels = false
+      }
+
+      return pipeline('feature-extraction', MODEL_ID, { dtype: 'q8' })
+    })()
   }
   return embedderPromise
 }
