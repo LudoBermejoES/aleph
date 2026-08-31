@@ -1167,7 +1167,7 @@
       "locations": "Locations",
       "organizations": "Organizations",
       "quests": "Quests",
-      "wiki": "Wiki",
+      "wiki": "Other entities",
       "collapse": "Collapse panel",
       "expand": "Expand panel"
     },
@@ -1211,7 +1211,7 @@
       "locations": "Locations",
       "organizations": "Organizations",
       "quests": "Quests",
-      "wiki": "Wiki"
+      "wiki": "Other entities"
     },
     "multiplayer": {
       "connected": "Connected",

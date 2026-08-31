@@ -1167,7 +1167,7 @@
       "locations": "Lugares",
       "organizations": "Organizaciones",
       "quests": "Misiones",
-      "wiki": "Wiki",
+      "wiki": "Otras entidades",
       "collapse": "Colapsar panel",
       "expand": "Expandir panel"
     },
@@ -1211,7 +1211,7 @@
       "locations": "Lugares",
       "organizations": "Organizaciones",
       "quests": "Misiones",
-      "wiki": "Wiki"
+      "wiki": "Otras entidades"
     },
     "multiplayer": {
       "connected": "Conectado",

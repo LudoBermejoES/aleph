@@ -247,10 +247,13 @@ describe('Diagram API (integration)', () => {
     const data = await api(`/api/campaigns/${campaignId}/diagrams/entities?q=xyzxyzxyz999`, {
       headers: baseHeaders(dmApiKey),
     })
-    const total = Object.values(data as Record<string, unknown[]>).reduce(
-      (sum, arr) => sum + arr.length,
-      0,
-    )
+    // The rule is unchanged — an unmatched query returns no ENTITIES. What changed is that the
+    // response now also carries `groups`, metadata describing which groups to render, which is
+    // present whether or not anything matched. Summing every value in the payload counted it as
+    // four entities. Excluding the metadata keeps the original assertion honest instead of
+    // relaxing it to a number that happens to pass.
+    const { groups: _groups, ...entityGroups } = data as Record<string, unknown[]>
+    const total = Object.values(entityGroups).reduce((sum, arr) => sum + arr.length, 0)
     expect(total).toBe(0)
   })
 

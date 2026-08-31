@@ -1,6 +1,9 @@
 <template>
   <div class="mb-2">
-    <div class="px-3 py-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+    <div
+      :data-testid="`entity-group-${groupKey ?? label}`"
+      class="px-3 py-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider"
+    >
       {{ label }}
     </div>
     <div
@@ -40,6 +43,13 @@
 <script setup lang="ts">
 const props = defineProps<{
   label: string
+  /**
+   * The group's stable machine key (`item`, `lore`, `characters`…), used for the test hook. The
+   * LABEL cannot serve as one: it is translated for built-in groups and is the DM's own editable
+   * `entity_types.name` for the rest, so a selector built on it breaks on a language switch or a
+   * rename.
+   */
+  groupKey?: string
   entities: { id: string; name: string; type: string; slug?: string; [key: string]: unknown }[]
   placedEntityIds?: Map<string, number>
 }>()

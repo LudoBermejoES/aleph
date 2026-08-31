@@ -26,6 +26,40 @@ Run unit tests: `npx vitest run tests/unit/`
 Run integration tests: `npx vitest run tests/integration/` (server must be running)
 Run E2E tests: `npx playwright test`
 
+### Starting the dev server — `STARTUP_BACKFILLS_ENABLED=false` is not optional locally
+
+```bash
+STARTUP_BACKFILLS_ENABLED=false npm run dev                 # port 3000
+STARTUP_BACKFILLS_ENABLED=false npm run test:integration    # starts :3333 for you
+```
+
+Without that variable the boot-time index backfills run first, and a Nitro plugin's `await`
+happens **before the server accepts a request** — on this project's own database that is over a
+thousand entities to embed, so every route answers 503 (or, before `fix-dev-boot-native-addon`,
+`500 Module did not self-register`) for minutes. The port is open the whole time, which is why the
+failure reads as "the server never came up" and why two archived changes wrote that same wrong
+diagnosis down and skipped their integration tests over it. **Wait on a real request
+(`/api/health`), never on the port** — `curl` the health route until it answers, and treat the
+`➜ Local:` banner as "Vite is up", not "the API is up". Full table of env vars and the reasoning:
+`docs/development.md`.
+
+**`nuxt dev` does NOT hot-reload `server/api/**` — a mutation check against a running server is
+worthless.** Measured 2026-08-31: the original bug was restored in a route handler, the integration
+suite was re-run twice (8s and 38s after the edit) and reported **15/15 green**, which reads as
+"the tests do not catch this bug" and is false. After a server **restart** the same suite went
+**6/15 red**. So when breaking something on purpose to prove a guard bites, restart the server
+between the edit and the run, or you are testing the old code and will conclude the opposite of
+the truth.
+
+**And the FIRST Playwright run after a restart fails on cold page compilation, whatever the code
+says.** In dev, a page is compiled on first request, so `/api/health` answering 200 says nothing
+about `/register` being ready — three runs in a row failed on `waitForSelector('form')` at
+`helpers.ts:51` and on `entity-search-input`, none of them for the reason under test, and the same
+suite passed 2/2 immediately afterwards with no code change. Warm the pages first
+(`curl -s -o /dev/null http://localhost:3333/register`) or discard the first run. When a test fails,
+read WHICH LINE failed before concluding anything: a failure on the setup helper and a failure on
+the assertion look identical in the summary and mean opposite things.
+
 ## aleph-cli — always check for impact
 
 The `cli/` directory is a standalone Node.js CLI (`aleph-cli`) that talks to the server via `X-API-Key` headers.
