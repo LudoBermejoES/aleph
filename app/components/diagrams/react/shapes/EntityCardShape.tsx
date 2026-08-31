@@ -12,6 +12,7 @@ export type EntityCardShape = TLBaseShape<
     entityName: string
     entityType: string
     portraitUrl?: string
+    imageOverrideId?: string
     slug: string
   }
 >
@@ -27,6 +28,10 @@ export class EntityCardShapeUtil extends BaseBoxShapeUtil<EntityCardShape> {
     entityName: T.string,
     entityType: T.string,
     portraitUrl: T.optional(T.string),
+    // Per-shape image override: the id of one of the entity's gallery images.
+    // OPTIONAL on purpose -- a required prop rejects every snapshot saved
+    // before this feature existed and the diagram stops opening.
+    imageOverrideId: T.optional(T.string),
     slug: T.string,
   }
 
@@ -39,6 +44,7 @@ export class EntityCardShapeUtil extends BaseBoxShapeUtil<EntityCardShape> {
       entityName: '',
       entityType: 'entity',
       portraitUrl: undefined,
+      imageOverrideId: undefined,
       slug: '',
     }
   }
@@ -50,6 +56,7 @@ export class EntityCardShapeUtil extends BaseBoxShapeUtil<EntityCardShape> {
           entityId: shape.props.entityId,
           campaignId: shape.props.campaignId,
           slug: shape.props.slug,
+          shapeId: shape.id,
           x: 200,
           y: 200,
         },

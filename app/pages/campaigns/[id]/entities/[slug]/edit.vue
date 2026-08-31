@@ -26,6 +26,15 @@
         @uploaded="(url) => (entityImageUrl = url)"
       />
     </div>
+    <!-- Image gallery (always shown once loaded, as on the character edit page) -->
+    <EntityImageGallery
+      v-if="loaded"
+      :images-url="`/api/campaigns/${campaignId}/entities/${slug}/images`"
+      :name="form.name"
+      :editable="true"
+      class="mb-8"
+      @changed="onGalleryChanged"
+    />
     <EntityForm
       v-if="loaded"
       ref="entityForm"
@@ -88,6 +97,11 @@ const documentName = computed(() =>
   isCollaborative.value ? `campaign:${campaignId}:entity:${slug}` : undefined,
 )
 const { userName, userColor } = useCollaborationUser()
+
+function onGalleryChanged(images: { isPrimary: boolean; url: string }[]) {
+  const primary = images.find((i) => i.isPrimary)
+  if (primary) entityImageUrl.value = primary.url
+}
 
 const api = useCampaignApi(campaignId)
 const entityForm = ref<{ clearDraft: () => void } | null>(null)

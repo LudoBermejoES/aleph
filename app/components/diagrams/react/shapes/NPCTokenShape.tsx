@@ -13,6 +13,7 @@ export type NPCTokenShape = TLBaseShape<
     campaignId: string
     characterName: string
     portraitUrl?: string
+    imageOverrideId?: string
     slug: string
     statusBadge?: string
     tags?: string[]
@@ -65,6 +66,10 @@ export class NPCTokenShapeUtil extends BaseBoxShapeUtil<NPCTokenShape> {
     campaignId: T.string,
     characterName: T.string,
     portraitUrl: T.optional(T.string),
+    // Per-shape image override: the id of one of the entity's gallery images.
+    // OPTIONAL on purpose -- a required prop rejects every snapshot saved
+    // before this feature existed and the diagram stops opening.
+    imageOverrideId: T.optional(T.string),
     slug: T.string,
     statusBadge: T.optional(T.string),
     tags: T.optional(T.arrayOf(T.string)),
@@ -79,6 +84,7 @@ export class NPCTokenShapeUtil extends BaseBoxShapeUtil<NPCTokenShape> {
       campaignId: '',
       characterName: '',
       portraitUrl: undefined,
+      imageOverrideId: undefined,
       slug: '',
       statusBadge: undefined,
       tags: [] as string[],
@@ -97,6 +103,7 @@ export class NPCTokenShapeUtil extends BaseBoxShapeUtil<NPCTokenShape> {
           entityId: shape.props.entityId,
           campaignId: shape.props.campaignId,
           slug: shape.props.slug,
+          shapeId: shape.id,
           x: 200,
           y: 200,
         },

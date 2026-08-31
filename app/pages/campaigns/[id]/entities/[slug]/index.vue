@@ -148,6 +148,17 @@
         </div>
       </div>
 
+      <!-- Image gallery: an entity (object, lore, arc...) can hold several
+           photographs, one of them the main one. Same component the character
+           and organization pages mount, pointed at the entity routes. -->
+      <EntityImageGallery
+        :images-url="`/api/campaigns/${campaignId}/entities/${slug}/images`"
+        :name="entity.name"
+        :editable="canEdit"
+        class="mt-6"
+        @changed="onGalleryChanged"
+      />
+
       <!-- Nicknames -->
       <NicknamesPanel :campaign-id="campaignId" :entity-slug="slug" :editable="canEdit" />
 
@@ -263,6 +274,14 @@ function onGraphNodeClick(_nodeId: string) {
 
 // Secret block reveal composable
 const isDm = computed(() => ['dm', 'co_dm'].includes(campaignRole.value))
+
+// The gallery's primary image is mirrored into entities.image_url server-side;
+// reflect it here so the header image follows without a reload.
+function onGalleryChanged(images: { isPrimary: boolean; url: string }[]) {
+  if (!entity.value) return
+  const primary = images.find((i) => i.isPrimary)
+  if (primary) entity.value.imageUrl = primary.url
+}
 const { loadRevealedBlocks, injectRevealButtons } = useSecretReveals(
   contentRef,
   campaignId,

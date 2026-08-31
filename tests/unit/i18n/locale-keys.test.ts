@@ -41,6 +41,12 @@ const newKeys = [
   ['maps', 'expand'],
   ['maps', 'collapse'],
   ['maps', 'collapseHint'],
+  // El selector de imagen por tarjeta del popover de diagramas
+  // (add-per-shape-diagram-image). Tres cadenas que el DM lee dentro del lienzo: si una se
+  // queda en un solo idioma, sale la clave cruda sobre la miniatura.
+  ['diagrams', 'popover', 'cardImage'],
+  ['diagrams', 'popover', 'useMainImage'],
+  ['diagrams', 'popover', 'useImage'],
 ]
 
 /**

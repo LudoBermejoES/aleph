@@ -67,7 +67,22 @@
 - [ ] 7.1 `npm test` and the integration suite green — aleph's deploy is gated on both
       (`deploy: needs: [test, integration-test]`), so a red suite blocks the rsync.
 - [ ] 7.2 `openspec validate add-per-character-session-xp --strict`.
-- [ ] 7.3 Live smoke test against a real session: award two characters, read them back through
-      `GET`, clear one through the CLI, confirm the other survives.
+- [x] 7.3 **Done 2026-08-31 against production (`https://aleph.ludobermejo.es`), campaign
+      `Berlin en tinieblas` (`4b2adca6-fa7e-47b9-87f9-b0a0e9c6e1e4`).** Everything through
+      `node cli/bin/aleph.js`; the feature is deployed (`origin/master..master` is empty, so
+      `b015614` is live, and `aleph session xp --help` lists all four flags).
+      Control query first, because "0 awards" is indistinguishable from "wrong key": session
+      `27-de-agosto-de-2026` answered **7 awards / 8 XP total** (Julia Kirchner 1, Liandra 1, Oda
+      Weinreich 2, …) — real data, so the read path works.
+      Target chosen for having an EMPTY baseline: session `30-de-agosto-de-2026` («El traje de oro»),
+      `--list --json` → `[]`. 1. `session xp 30-de-agosto-de-2026 --character matthias-keller --xp 3` → «XP set to 3». 2. `session xp … --character jonas-reuter --xp 5` → «XP set to 5». **Read-modify-write proven
+      live (§4.2): the second write did NOT clear the first** — `--list --json` returns BOTH,
+      `Jonas Reuter 5` and `Matthias Keller 3`. 3. Read back through the **session `GET`**, not just the xp listing:
+      `session show 30-de-agosto-de-2026 --json` carries `xpAwards` (the only `xp`-named key on the
+      payload) with both rows complete — `characterId`, `characterName`, `characterSlug`, `xp` —
+      so §2.4's "the UI needs no second call" holds against the real server. 4. `session xp … --character jonas-reuter --clear` → «XP cleared». `--list --json` → **only
+      `Matthias Keller 3` survives**: the clear is per character, not per session. 5. **Baseline restored** (it is the user's real campaign): `--character matthias-keller --clear`
+      → `--list --json` returns `[]`, exactly as found. Control re-checked afterwards:
+      `27-de-agosto-de-2026` still 7 awards / 8 XP, untouched.
 - [ ] 7.4 Confirm the branch is `master`, not `main`, before expecting CI (`gh run list --branch main`
       returns empty here and reads as "CI never ran").

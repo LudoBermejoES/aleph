@@ -13,6 +13,7 @@ export type LocationPinShape = TLBaseShape<
     locationName: string
     slug: string
     locationImageUrl?: string
+    imageOverrideId?: string
     aspectRatio?: number
   }
 >
@@ -34,6 +35,10 @@ export class LocationPinShapeUtil extends BaseBoxShapeUtil<LocationPinShape> {
     locationName: T.string,
     slug: T.string,
     locationImageUrl: T.optional(T.string),
+    // Per-shape image override: the id of one of the entity's gallery images.
+    // OPTIONAL on purpose -- a required prop rejects every snapshot saved
+    // before this feature existed and the diagram stops opening.
+    imageOverrideId: T.optional(T.string),
     aspectRatio: T.optional(T.number),
   }
 
@@ -46,6 +51,7 @@ export class LocationPinShapeUtil extends BaseBoxShapeUtil<LocationPinShape> {
       locationName: '',
       slug: '',
       locationImageUrl: undefined,
+      imageOverrideId: undefined,
       aspectRatio: undefined,
     }
   }
@@ -61,6 +67,7 @@ export class LocationPinShapeUtil extends BaseBoxShapeUtil<LocationPinShape> {
           entityId: shape.props.entityId,
           campaignId: shape.props.campaignId,
           slug: shape.props.slug,
+          shapeId: shape.id,
           x: 200,
           y: 200,
         },

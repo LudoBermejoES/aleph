@@ -1,7 +1,7 @@
 import { and, asc, eq, max, sql } from 'drizzle-orm'
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 import { randomUUID } from 'crypto'
-import { mkdir, unlink, writeFile } from 'fs/promises'
+import { mkdir, readFile, unlink, writeFile } from 'fs/promises'
 import { join } from 'path'
 import { entities } from '../db/schema/entities'
 import { entityImages } from '../db/schema/entity-images'
@@ -9,7 +9,7 @@ import { characters } from '../db/schema/characters'
 import { organizations } from '../db/schema/organizations'
 import { logger } from '../utils/logger'
 
-export type EntityKind = 'location' | 'character' | 'organization'
+export type EntityKind = 'location' | 'character' | 'organization' | 'entity'
 
 export interface EntityImageDTO {
   id: string
@@ -53,9 +53,24 @@ export function orgGalleryImageUrl(campaignId: string, slug: string, imageId: st
   return `/api/campaigns/${campaignId}/organizations/${slug}/images/${imageId}`
 }
 
+/**
+ * Directory holding a generic entity's gallery files.
+ *
+ * A sibling of the pre-gallery single file `<contentDir>/entities/<slug>/image.<ext>` that
+ * `entities/[slug]/image.post.ts` still writes — the two never collide.
+ */
+export function entityGalleryDir(contentDir: string, slug: string): string {
+  return join(process.cwd(), contentDir, 'entities', slug, 'images')
+}
+
+export function entityGalleryImageUrl(campaignId: string, slug: string, imageId: string): string {
+  return `/api/campaigns/${campaignId}/entities/${slug}/images/${imageId}`
+}
+
 export function resolveGalleryDir(kind: EntityKind, contentDir: string, slug: string): string {
   if (kind === 'character') return characterGalleryDir(contentDir, slug)
   if (kind === 'organization') return orgGalleryDir(contentDir, slug)
+  if (kind === 'entity') return entityGalleryDir(contentDir, slug)
   return galleryDir(contentDir, slug)
 }
 
@@ -67,6 +82,7 @@ export function resolveGalleryImageUrl(
 ): string {
   if (kind === 'character') return characterGalleryImageUrl(campaignId, slug, imageId)
   if (kind === 'organization') return orgGalleryImageUrl(campaignId, slug, imageId)
+  if (kind === 'entity') return entityGalleryImageUrl(campaignId, slug, imageId)
   return galleryImageUrl(campaignId, slug, imageId)
 }
 
@@ -105,6 +121,7 @@ export function getImage(db: Db, entityId: string, imageId: string) {
  * Sync the primary image URL to the entity-type-specific mirror column.
  *
  * - location  → entities.imageUrl  (read by graph builder, export, map pins)
+ * - entity    → entities.imageUrl  (same column; the generic gallery's mirror target)
  * - character → characters.portraitUrl
  * - organization → organizations.imageUrl
  *
@@ -302,6 +319,105 @@ export async function deleteImage(db: Db, input: DeleteImageInput): Promise<bool
     logger.warn(`[entity-images] could not unlink ${filePath}`, { error: String(err) })
   }
   return true
+}
+
+/**
+ * Which mirror column an entity's gallery must keep in sync.
+ *
+ * The generic `entities/:slug/images` routes serve entities of ANY type, and three types already
+ * own a gallery whose primary mirrors into a different column (`characters.portrait_url`,
+ * `organizations.image_url`). Resolving the kind from the row that actually exists — not from the
+ * `entities.type` string, which is per-campaign DATA and spelled `faction` in `entity_types` while
+ * `entities.type` reads `organization` — keeps the generic route byte-identical to the dedicated
+ * one for those types instead of creating a second writer that disagrees with the first.
+ */
+export function resolveEntityImageKind(db: Db, entity: { id: string; type: string }): EntityKind {
+  if (entity.type === 'location') return 'location'
+  if (
+    db
+      .select({ id: characters.id })
+      .from(characters)
+      .where(eq(characters.entityId, entity.id))
+      .get()
+  )
+    return 'character'
+  if (
+    db
+      .select({ id: organizations.id })
+      .from(organizations)
+      .where(eq(organizations.entityId, entity.id))
+      .get()
+  )
+    return 'organization'
+  return 'entity'
+}
+
+/** The extensions `entities/[slug]/image.post.ts` can have written, in its own probe order. */
+const LEGACY_ENTITY_IMAGE_EXTS = ['.png', '.jpg', '.jpeg', '.webp']
+
+/**
+ * True when `imageUrl` is the pre-gallery single-file entity image route
+ * (`/api/campaigns/<id>/entities/<slug>/image`) rather than a gallery URL.
+ */
+export function isLegacyEntityImageUrl(
+  imageUrl: string | null | undefined,
+  campaignId: string,
+  slug: string,
+): boolean {
+  return imageUrl === `/api/campaigns/${campaignId}/entities/${slug}/image`
+}
+
+export interface AdoptLegacyEntityImageInput {
+  campaignId: string
+  entityId: string
+  slug: string
+  contentDir: string
+  imageUrl: string | null
+  userId: string
+}
+
+/**
+ * Lazily fold a pre-gallery `entities.image_url` into the gallery as its first (primary) row.
+ *
+ * `entity upload-image` writes one file at `<contentDir>/entities/<slug>/image.<ext>` and sets the
+ * column directly, with no `entity_images` row — and it still does, so that state keeps being
+ * produced after this change. Without this, the FIRST gallery upload would move `image_url` to the
+ * new photograph and the older one would become unreachable: an image the owner had before the
+ * gallery existed, silently dropped.
+ *
+ * Deliberately called only from the gallery POST, never from a read: a GET that writes is worse
+ * than an empty list. Returns null (a no-op) when the gallery is already non-empty, when the column
+ * is empty or is not the legacy URL, or when the file is missing — a dangling column must not turn
+ * an upload into a 500.
+ */
+export async function adoptLegacyEntityImage(
+  db: Db,
+  input: AdoptLegacyEntityImageInput,
+): Promise<EntityImageDTO | null> {
+  if (hasImages(db, input.entityId)) return null
+  if (!isLegacyEntityImageUrl(input.imageUrl, input.campaignId, input.slug)) return null
+
+  const legacyDir = join(process.cwd(), input.contentDir, 'entities', input.slug)
+  for (const ext of LEGACY_ENTITY_IMAGE_EXTS) {
+    let data: Buffer
+    try {
+      data = await readFile(join(legacyDir, `image${ext}`))
+    } catch {
+      continue
+    }
+    return addImage(db, {
+      campaignId: input.campaignId,
+      entityId: input.entityId,
+      slug: input.slug,
+      contentDir: input.contentDir,
+      data,
+      ext,
+      caption: null,
+      userId: input.userId,
+      entityKind: 'entity',
+    })
+  }
+  return null
 }
 
 /** True when the entity has at least one gallery image. */

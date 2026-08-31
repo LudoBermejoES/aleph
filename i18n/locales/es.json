@@ -1203,7 +1203,10 @@
     },
     "popover": {
       "openFullPage": "Abrir",
-      "openInNewTab": "Nueva pestaña"
+      "openInNewTab": "Nueva pestaña",
+      "cardImage": "Imagen de la tarjeta",
+      "useMainImage": "Usar la imagen principal",
+      "useImage": "Imagen {index}"
     },
     "filter": {
       "all": "Todo",

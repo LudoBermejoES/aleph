@@ -54,6 +54,7 @@ export class QuestNodeShapeUtil extends BaseBoxShapeUtil<QuestNodeShape> {
           entityId: shape.props.entityId,
           campaignId: shape.props.campaignId,
           slug: shape.props.slug,
+          shapeId: shape.id,
           x: 200,
           y: 200,
         },

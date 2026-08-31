@@ -14,6 +14,7 @@ export type FactionCardShape = TLBaseShape<
     slug: string
     factionName: string
     crestUrl?: string
+    imageOverrideId?: string
     alignment?: string
     memberCount?: number
     aspectRatio?: number
@@ -60,6 +61,10 @@ export class FactionCardShapeUtil extends BaseBoxShapeUtil<FactionCardShape> {
     slug: T.string,
     factionName: T.string,
     crestUrl: T.optional(T.string),
+    // Per-shape image override: the id of one of the entity's gallery images.
+    // OPTIONAL on purpose -- a required prop rejects every snapshot saved
+    // before this feature existed and the diagram stops opening.
+    imageOverrideId: T.optional(T.string),
     alignment: T.optional(T.string),
     memberCount: T.optional(T.number),
     aspectRatio: T.optional(T.number),
@@ -74,6 +79,7 @@ export class FactionCardShapeUtil extends BaseBoxShapeUtil<FactionCardShape> {
       slug: '',
       factionName: '',
       crestUrl: undefined,
+      imageOverrideId: undefined,
       alignment: undefined,
       memberCount: undefined,
       aspectRatio: undefined,
@@ -91,6 +97,7 @@ export class FactionCardShapeUtil extends BaseBoxShapeUtil<FactionCardShape> {
           entityId: shape.props.entityId,
           campaignId: shape.props.campaignId,
           slug: shape.props.slug,
+          shapeId: shape.id,
           x: 200,
           y: 200,
         },

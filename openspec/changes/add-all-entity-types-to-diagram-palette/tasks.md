@@ -67,6 +67,21 @@
 - [ ] 4.2 Confirm against the LIVE campaign in a browser that the three real objects appear, that
       `el-traje-de-oro` shows its uploaded image on the card, and that a reload keeps it. Covered by
       the e2e test on a seeded campaign; not yet eyeballed on production data.
+      **BLOCKED 2026-08-31 — declared gap, not a skipped check.** There is no way to reach the
+      production UI from this environment: the only stored credential is an **API key**
+      (`~/.config/aleph-nodejs/config.json`), and the app's page routes are gated **client-side**
+      (`server/middleware/01.auth.ts:16` — _"Skip non-API routes (pages are handled by client-side
+      middleware)"_), so the key authenticates `/api/*` and nothing else. Measured with headless
+      Chromium against
+      `/campaigns/4b2adca6-fa7e-47b9-87f9-b0a0e9c6e1e4/diagrams/ef061e4b-05da-4918-bb77-6baf0f02acd2`,
+      twice: with **no** header and with `X-API-Key` set as a context-wide `extraHTTPHeaders`. Both
+      ended at `https://aleph.ludobermejo.es/login` with `document.title` «Aleph — TTRPG Campaign
+      Manager» and a 137-character body reading «Sign In / Enter your credentials…». The API key
+      cannot help here by design: `/api/auth/*` is explicitly skipped by the API-key branch, so
+      `useSession()` is null and the page middleware redirects.
+      **What is still missing is only the RENDER**, and it needs an email+password login that this
+      environment does not hold. The API side of 4.2 was already measured in 4.1; re-measuring it
+      would not close this task and is not offered as if it did.
 
 ## 5. Docs
 

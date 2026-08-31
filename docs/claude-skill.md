@@ -78,6 +78,20 @@ aleph entity type-delete <typeId> --campaign <id> [--yes]
 aleph entity nickname list <slug> --campaign <id> [--json]
 aleph entity nickname add <slug> <nickname> --campaign <id> [--json]
 aleph entity nickname remove <slug> <nickname> --campaign <id>
+
+# Entity images (gallery) — works on an entity of ANY type, so an object, a piece of lore or an arc
+# can hold several photographs and name one main image.
+aleph entity images <slug> --campaign <id> [--json]
+aleph entity image-add <slug> --campaign <id> --file <path> [--caption <text>] [--json]
+aleph entity image-update <slug> <imageId> --campaign <id> [--caption <text>] [--order <n>]
+aleph entity image-set-primary <slug> <imageId> --campaign <id>
+aleph entity image-remove <slug> <imageId> --campaign <id>
+#   The main image is mirrored into the entity's `imageUrl`, which the diagram cards, the graph and
+#   the map pins read. Deleting it promotes the next one; emptying the gallery clears `imageUrl`.
+#   Reached on a character, a location or an organization, these commands drive that type's OWN
+#   gallery (same rows, same mirror column) instead of creating a second one.
+#   `upload-image` above is the older single-image command and still works: the first `image-add`
+#   on such an entity folds that older image in as the main one rather than replacing it.
 ```
 
 Entity types: `location`, `faction`, `npc`, `creature`, `item`, `lore`, `event`, or any custom string.

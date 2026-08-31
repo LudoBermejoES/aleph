@@ -164,8 +164,12 @@
           :slug="popoverSlug"
           :x="popoverX"
           :y="popoverY"
+          :shape-id="popoverShapeId"
+          :current-image-id="popoverImageOverrideId"
+          :can-pick-image="popoverCanPickImage"
           @close="popoverVisible = false"
           @expand="onPopoverExpand"
+          @select-image="onPopoverSelectImage"
         />
       </div>
     </div>
@@ -204,7 +208,11 @@ import { useEditorSelection } from '~/composables/useEditorSelection'
 import { useArrowDimming } from '~/composables/useArrowDimming'
 import { useSyncRelations } from '~/composables/useSyncRelations'
 import { useEntityExpansion } from '~/composables/useEntityExpansion'
-import { buildShapeCreateArgs } from '~/utils/diagram-shapes'
+import {
+  buildShapeCreateArgs,
+  getShapeImagePropKey,
+  supportsImageOverride,
+} from '~/utils/diagram-shapes'
 import { convertToWebP } from '~/utils/convert-to-webp'
 
 definePageMeta({ layout: 'empty' })
@@ -307,6 +315,19 @@ const popoverEntityId = ref('')
 const popoverSlug = ref('')
 const popoverX = ref(200)
 const popoverY = ref(200)
+// The SHAPE the preview was raised from: one entity can be placed many times and
+// the image override belongs to one card, not to the entity (design D4).
+const popoverShapeId = ref('')
+const popoverShapeType = ref('')
+const popoverImageOverrideId = ref<string | null>(null)
+// A viewer is never offered the picker, and the flag is explicit rather than
+// inherited from the read-only branch below (design D5).
+const popoverCanPickImage = computed(
+  () =>
+    !readOnly.value &&
+    Boolean(popoverShapeId.value) &&
+    supportsImageOverride(popoverShapeType.value),
+)
 let lastPointerX = 200
 let lastPointerY = 200
 
@@ -473,6 +494,48 @@ function onExpandClick() {
   expandRelatedEntities(selectedEntityId.value, selectedEntityType.value)
 }
 
+/** The one place a shape is read back out of the editor by id. */
+function findShape(
+  shapeId: string,
+): { id: string; type: string; props?: Record<string, unknown> } | null {
+  const ed = editorInstance as {
+    getShape?: (
+      id: string,
+    ) => { id: string; type: string; props?: Record<string, unknown> } | undefined
+    getCurrentPageShapes: () => { id: string; type: string; props?: Record<string, unknown> }[]
+  } | null
+  if (!ed) return null
+  const direct = ed.getShape?.(shapeId)
+  if (direct) return direct
+  return ed.getCurrentPageShapes().find((sh) => sh.id === shapeId) ?? null
+}
+
+/**
+ * A card image was picked in the popover. The page owns the editor handle, so
+ * the write happens here (design D4): the override id is stored on the shape and
+ * the visible image prop is set at the same time, so the card changes now rather
+ * than on the next load. Hydration then resolves the same override on every
+ * later load instead of overwriting it.
+ */
+function onPopoverSelectImage(
+  shapeId: string,
+  imageId: string | null,
+  imageUrl: string | undefined,
+) {
+  if (readOnly.value || !shapeId) return
+  const shape = findShape(shapeId)
+  if (!shape) return
+  const imageKey = getShapeImagePropKey(shape.type)
+  if (!imageKey) return
+
+  const props: Record<string, unknown> = { imageOverrideId: imageId ?? undefined }
+  props[imageKey] = imageUrl ?? undefined
+  ;(editorInstance as { updateShapes: (s: object[]) => void }).updateShapes([
+    { id: shapeId, type: shape.type, props },
+  ])
+  popoverImageOverrideId.value = imageId
+}
+
 function onPopoverExpand(entityId: string, entityType: string) {
   popoverVisible.value = false
   expandRelatedEntities(entityId, entityType)
@@ -509,6 +572,10 @@ function handleEntityDrop(entityDataStr: string, event: DragEvent) {
     entityType,
     entity as {
       id: string
+      // Organizations and quests come out of the palette with their own table's id
+      // in `id` and the entities-row id here; the drag payload is the whole item,
+      // so this field really does arrive. Declared or the cast erases it.
+      entityId?: string | null
       name: string
       slug: string
       portraitUrl?: string | null
@@ -591,9 +658,15 @@ function onAlephEntityPreview(e: Event) {
     entityId: string
     campaignId: string
     slug: string
+    shapeId?: string
   }
   popoverEntityId.value = detail.entityId
   popoverSlug.value = detail.slug
+  popoverShapeId.value = detail.shapeId ?? ''
+  const shape = detail.shapeId ? findShape(detail.shapeId) : null
+  popoverShapeType.value = shape?.type ?? ''
+  const override = shape?.props?.imageOverrideId
+  popoverImageOverrideId.value = typeof override === 'string' && override ? override : null
   // Position near the double-click point, clamped within viewport
   popoverX.value = Math.min(lastPointerX + 16, window.innerWidth - 300)
   popoverY.value = Math.min(lastPointerY + 16, window.innerHeight - 420)
