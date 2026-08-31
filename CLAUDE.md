@@ -102,6 +102,27 @@ a test failing on a 15 s cold compile was nearly filed as an intermittent produc
 way to finding it, ~900 MB was reclaimed from an **orphaned Chromium tree alive 4 h 50 m** left by a
 killed run, which was real garbage and was not the cause.
 
+### 43 e2e flaky con una causa NO confirmada — no subas el timeout todavía
+
+En `~/code/wod20` la suite e2e completa da **275 passed / 43 flaky / 0 failed** (1 h, exit 0): los
+43 pasan al reintentar. El primer intento falla abrumadoramente en un solo sitio —
+**`helpers.ts:105`, 88 apariciones**, la espera de `button:has-text("New Campaign")` — con 47
+`Timeout 15000ms exceeded`.
+
+**La explicación obvia es falsa y está medida.** La hipótesis era compilación en frío de la página,
+como en el mount viejo. En ext4, `/register` monta su `form` **en 1,0 s** (contra 21,6 s en
+`/mnt/c`), así que ahí no está el problema.
+
+Y la medición que lo habría "confirmado" era inválida: una sonda a `/` **sin sesión** no ve nunca ese
+botón, porque solo existe logueado — esperó 240 s y no apareció. Eso NO es un timeout lento, es la
+página correcta sin la precondición.
+
+Sospecha viva, sin confirmar: una **carrera de establecimiento de sesión** entre `registerAndLogin`
+y `createCampaign`. Para confirmarla hace falta una sonda **con sesión** que cronometre la aparición
+del botón tras el login. Hasta entonces **no se sube el timeout de `helpers.ts`**: subirlo sobre un
+diagnóstico sin confirmar es la jugada de "arreglar el test", y si es una carrera, un timeout más
+largo la esconde en vez de cerrarla.
+
 ### CI's `test` job is format + lint + unit, in that order
 
 `npm run format:check` runs **before** the tests and fails the whole job, and `deploy` sits behind
