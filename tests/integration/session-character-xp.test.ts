@@ -530,15 +530,18 @@ describe('Per-character session XP (integration)', () => {
   /**
    * Task 3.4 — the old per-user route's deletion is covered, not merely assumed.
    *
-   * The task says "404/405", and MEASUREMENT SAYS OTHERWISE: this app has no 404 for an
-   * unmatched API route at all. Nitro falls through to the SPA shell, so ANY unknown endpoint
-   * answers `200 text/html` — verified against a control path that has never existed. Asserting
-   * `[404, 405]` here would have pinned a behaviour the server does not have.
+   * This test was written the day before `server/api/[...].ts` existed, and it PINNED THE BUG:
+   * at the time an unmatched API path fell through to the SPA shell and answered
+   * `200 text/html`, so the assertion read "the removed route no longer answers
+   * application/json" — which is satisfied by an HTML skeleton with a 200 on it. It is the ninth
+   * instance in this project of a green test asserting a defect, and it is recorded here rather
+   * than quietly rewritten.
    *
-   * So the rule is expressed as it actually reads: the removed route now behaves EXACTLY like a
-   * path that was never routed, and in particular no longer answers with an API handler's JSON.
-   * Restoring `attendance/[userId].patch.ts` breaks this immediately — the response becomes
-   * `application/json` while the control stays HTML.
+   * The rule the task actually wanted is now the rule the server has: an unmatched API path is a
+   * 404 with JSON. The control path is kept, because "behaves exactly like a route that was
+   * never there" is the real requirement; the `Unknown API route` marker is what tells a
+   * catch-all 404 apart from a 404 a real handler raised, so restoring
+   * `attendance/[userId].patch.ts` still breaks this immediately.
    */
   it('the removed per-user XP route no longer exists', async () => {
     const removed = await apiRaw(
@@ -550,9 +553,13 @@ describe('Per-character session XP (integration)', () => {
       { method: 'PATCH', headers: { 'X-API-Key': dmApiKey }, body: { xp: 2 } },
     )
 
-    expect(removed.headers.get('content-type')).not.toContain('application/json')
+    expect(removed.status).toBe(404)
+    expect(removed.headers.get('content-type')).toContain('application/json')
     expect(removed.status).toBe(neverExisted.status)
     expect(removed.headers.get('content-type')).toBe(neverExisted.headers.get('content-type'))
+
+    // Answered by the catch-all, not by a handler that still exists.
+    expect((await removed.json()).message).toContain('Unknown API route')
   })
 
   it('no XP was written by the removed route either', async () => {
