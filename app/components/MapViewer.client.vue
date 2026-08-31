@@ -1,7 +1,9 @@
 <template>
   <div
-    class="relative"
-    :style="{ height: height + 'px' }"
+    :class="wrapperClass"
+    :style="wrapperStyle"
+    data-testid="map-viewport"
+    :data-expanded="viewportExpanded ? 'true' : 'false'"
     @dragover.prevent="onDragOver"
     @drop.prevent="onDrop"
   >
@@ -40,29 +42,64 @@
       </p>
     </div>
 
-    <!-- Layer Toggle Panel -->
-    <div
-      v-if="layers.length"
-      class="absolute top-3 right-3 z-[1000] bg-background border border-border rounded-lg shadow-lg p-2 max-w-48"
-    >
-      <p class="text-xs font-semibold mb-1 text-muted-foreground">Layers</p>
-      <label
-        v-for="layer in layers"
-        :key="layer.id"
-        class="flex items-center gap-2 text-xs py-0.5 cursor-pointer"
+    <!--
+      Columna superior derecha. El conmutador de ventana completa y el panel de capas viven en
+      el MISMO contenedor de flujo en vez de estar posicionados los dos en la esquina: eran dos
+      `absolute top-3 right-3` y se tapaban entre sí. Aquí se apilan y ninguno depende de la
+      altura del otro.
+
+      Y va arriba a la derecha, no abajo: la esquina inferior derecha es donde Leaflet pinta la
+      atribución de los mosaicos, obligatoria en un mapa `osm`.
+    -->
+    <div class="absolute top-3 right-3 z-[1000] flex flex-col items-end gap-2 max-w-[16rem]">
+      <!--
+        Ver el mapa a ventana completa. Visible SIEMPRE, también -- y sobre todo -- en el estado
+        reducido, que es el único con el que se abre un mapa: un control que solo apareciera ya
+        expandido no lo encontraría nadie.
+      -->
+      <button
+        type="button"
+        data-testid="map-viewport-toggle"
+        class="flex items-center gap-2 rounded-lg border border-border bg-background px-2 py-1 text-xs shadow-lg text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        :aria-pressed="viewportExpanded"
+        :title="viewportExpanded ? $t('maps.collapse') : $t('maps.expand')"
+        @click="toggleViewport"
       >
-        <input
-          type="checkbox"
-          :checked="layerVisibility[layer.id] ?? layer.visibleDefault"
-          @change="toggleLayer(layer.id)"
-        />
-        {{ layer.name }}
-      </label>
+        <span aria-hidden="true">{{ viewportExpanded ? '⤡' : '⤢' }}</span>
+        {{ viewportExpanded ? $t('maps.collapse') : $t('maps.expand') }}
+      </button>
+      <p
+        v-if="viewportExpanded"
+        data-testid="map-viewport-hint"
+        class="rounded-lg border border-border bg-background/95 px-2 py-1 text-[11px] leading-snug text-muted-foreground shadow-lg"
+      >
+        {{ $t('maps.collapseHint') }}
+      </p>
+
+      <!-- Layer Toggle Panel -->
+      <div
+        v-if="layers?.length"
+        class="bg-background border border-border rounded-lg shadow-lg p-2 max-w-48 w-full"
+      >
+        <p class="text-xs font-semibold mb-1 text-muted-foreground">Layers</p>
+        <label
+          v-for="layer in layers"
+          :key="layer.id"
+          class="flex items-center gap-2 text-xs py-0.5 cursor-pointer"
+        >
+          <input
+            type="checkbox"
+            :checked="layerVisibility[layer.id] ?? layer.visibleDefault"
+            @change="toggleLayer(layer.id)"
+          />
+          {{ layer.name }}
+        </label>
+      </div>
     </div>
 
     <!-- Group Toggle Panel -->
     <div
-      v-if="groups.length"
+      v-if="groups?.length"
       class="absolute top-3 left-3 z-[1000] bg-background border border-border rounded-lg shadow-lg p-2 max-w-48"
     >
       <p class="text-xs font-semibold mb-1 text-muted-foreground">Groups</p>
@@ -88,7 +125,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, computed, ref, watch } from 'vue'
+import { onMounted, onUnmounted, computed, nextTick, reactive, ref, watch } from 'vue'
 import type { Map as LeafletMap, Marker, LatLng as LeafletLatLng } from 'leaflet'
 import {
   buildImageMapInitOptions,
@@ -109,6 +146,11 @@ import {
   type PopupLabels,
 } from '~/utils/mapPinMarker'
 import { createPinFocusGate } from '~/utils/pinFocusQueue'
+import {
+  createMapViewport,
+  mapViewportWrapperClass,
+  mapViewportWrapperStyle,
+} from '~/utils/mapViewport'
 
 const props = defineProps<{
   imagePath?: string
@@ -227,6 +269,98 @@ let markerPins: { marker: Marker; pin: MapPin }[] = []
 
 const mapType = computed<MapType>(() => props.mapType ?? 'image')
 
+// ─── Ver el mapa a ventana completa ──────────────────────────────────────────
+
+/**
+ * El estado, duplicado en un `ref` para que el template reaccione. La verdad la tiene
+ * `viewport` (`utils/mapViewport.ts`), que es quien garantiza que cada transición avise UNA
+ * vez; este `ref` es solo su reflejo en Vue.
+ */
+const viewportExpanded = ref(false)
+
+/**
+ * Se ocupa la ventana con `position: fixed`, no con `element.requestFullscreen()`.
+ *
+ * La razón de fondo es que la API del navegador saca el mapa de la aplicación: la barra
+ * lateral, la ruta de migas y el panel de entidades desaparecen, el modo se pierde en cuanto
+ * el usuario cambia de pestaña y el navegador impone su propio aviso encima. Con `fixed` el
+ * mapa sigue siendo un nodo de la página, así que los popups de Leaflet, el candado de pines
+ * y el arrastre desde el panel de entidades siguen funcionando sin tocar nada.
+ *
+ * La razón práctica es que `requestFullscreen()` solo se concede dentro de un gesto del
+ * usuario y devuelve una promesa que puede ser rechazada sin motivo visible (iframes,
+ * políticas de permisos), de modo que el control podría no hacer NADA y no habría forma de
+ * saberlo desde el propio botón. `fixed` no puede fallar.
+ */
+const viewport = createMapViewport({
+  onChange: (expanded) => {
+    viewportExpanded.value = expanded
+    lockBodyScroll(expanded)
+    void applyViewportResize()
+  },
+})
+
+const wrapperClass = computed(() => mapViewportWrapperClass(viewportExpanded.value))
+const wrapperStyle = computed(() => mapViewportWrapperStyle(viewportExpanded.value, props.height))
+
+function toggleViewport() {
+  viewport.toggle()
+}
+
+/**
+ * Le dice a Leaflet que su contenedor mide otra cosa, y le devuelve la vista que tenía.
+ *
+ * Sin `invalidateSize()` no hay ningún error: Leaflet tiene el tamaño del contenedor en
+ * caché y sigue traduciendo píxeles a coordenadas con el tamaño viejo, así que aparecen
+ * bandas grises donde no ha pedido mosaicos y los pines quedan desplazados respecto al
+ * puntero. Es un fallo mudo, y por eso el aviso no es opcional en ninguna de las dos
+ * transiciones -- también al reducir.
+ *
+ * `nextTick()` y no un `setTimeout`: Vue ya ha escrito la clase en el DOM cuando resuelve, y
+ * `invalidateSize()` lee `clientWidth`/`clientHeight`, que fuerzan el cálculo de estilo en
+ * ese mismo instante. No hay transición CSS sobre el tamaño del contenedor, a propósito: una
+ * la haría medir a mitad de camino.
+ *
+ * El centro y el zoom se capturan ANTES de que el DOM cambie y se reponen después. En la
+ * práctica `invalidateSize()` ya conserva el centro (su opción `pan` vale `true` por
+ * defecto), pero eso es un detalle de Leaflet, y la regla que importa aquí -- «se vuelve del
+ * modo expandido al mismo sitio» -- no debe depender de un valor por defecto ajeno.
+ */
+async function applyViewportResize() {
+  // `getCenter()` lanza si el mapa aún no tiene vista; en ese caso no hay nada que reponer.
+  let view: { center: LeafletLatLng; zoom: number } | null = null
+  try {
+    if (map) view = { center: map.getCenter(), zoom: map.getZoom() }
+  } catch {
+    view = null
+  }
+
+  await nextTick()
+  if (!map) return
+
+  map.invalidateSize()
+  if (view) map.setView(view.center, view.zoom, { animate: false })
+}
+
+/**
+ * Con el mapa ocupando la ventana, la página de debajo no debe poder desplazarse: el mapa
+ * captura la rueda para hacer zoom y el resto del gesto movería una página que no se ve.
+ * Solo se suelta el bloqueo si lo puso este componente, para no pisar el de otro.
+ */
+function lockBodyScroll(locked: boolean) {
+  if (typeof document === 'undefined') return
+  document.body.style.overflow = locked ? 'hidden' : ''
+}
+
+/**
+ * Salir con `Escape`, además del botón. El escuchador está siempre puesto y es el propio
+ * `viewport` quien decide: estando reducido devuelve `false` y el evento sigue su camino, de
+ * modo que este mapa nunca le roba `Escape` a un diálogo abierto encima.
+ */
+function onDocumentKeydown(event: KeyboardEvent) {
+  if (viewport.handleKey(event.key)) event.preventDefault()
+}
+
 // move-pins-and-resolve-entity-images/design.md D1: set right before a successful drag's
 // caller is expected to write the new coordinates into `mapData.value.pins[i]` (the SAME
 // array this watcher observes), so that ONE resulting watcher tick is swallowed instead of
@@ -254,6 +388,7 @@ watch(
 )
 
 onMounted(async () => {
+  document.addEventListener('keydown', onDocumentKeydown)
   if (!mapContainer.value) return
 
   const L = await import('leaflet')
@@ -651,6 +786,10 @@ function onDrop(event: DragEvent) {
 }
 
 onUnmounted(() => {
+  document.removeEventListener('keydown', onDocumentKeydown)
+  // Solo si el bloqueo es nuestro: salir de la página con el mapa expandido no debe dejar el
+  // `body` sin desplazamiento, pero tampoco debe soltar el de otro componente.
+  if (viewport.expanded) lockBodyScroll(false)
   map?.remove()
   map = null
 })

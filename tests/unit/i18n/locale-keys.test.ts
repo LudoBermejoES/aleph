@@ -35,6 +35,12 @@ const newKeys = [
   ['sessions', 'xpAddCharacter'],
   ['sessions', 'xpNoAwards'],
   ['sessions', 'xpUnknownCharacter'],
+  // El control de ventana completa del visor de mapas (add-map-fullscreen-toggle). Tres
+  // cadenas que un usuario lee en el propio mapa: si una se queda en un solo idioma, el botón
+  // muestra la clave cruda.
+  ['maps', 'expand'],
+  ['maps', 'collapse'],
+  ['maps', 'collapseHint'],
 ]
 
 /**
