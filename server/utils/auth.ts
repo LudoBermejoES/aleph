@@ -2,14 +2,14 @@ import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import Database from 'better-sqlite3'
 import { drizzle } from 'drizzle-orm/better-sqlite3'
-import { join } from 'path'
-import { mkdirSync } from 'fs'
 import * as authSchema from '../db/schema/auth'
+import { ensureDbPath } from './db-path'
 
-const DB_DIR = join(process.cwd(), 'data')
-mkdirSync(DB_DIR, { recursive: true })
-
-const sqlite = new Database(join(DB_DIR, 'aleph.db'))
+// better-auth opens its OWN connection, so it needs the resolver too. Missing this is not a
+// theoretical risk: a test run pointed at a throwaway database still wrote its 220 sign-ups into
+// `data/aleph.db` while every campaign went to the temp file, so sessions and campaigns lived in
+// different databases and 475 tests failed. See openspec/changes/isolate-test-database/.
+const sqlite = new Database(ensureDbPath())
 sqlite.pragma('journal_mode = WAL')
 sqlite.pragma('foreign_keys = ON')
 

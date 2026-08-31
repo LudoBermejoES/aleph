@@ -1,13 +1,16 @@
 /// <reference types="node" />
 import { describe, it, expect, beforeAll } from 'vitest'
 import Database from 'better-sqlite3'
-import { join } from 'path'
+import { resolveDbPath } from '../../server/utils/db-path'
 import { apiRaw, signUpAndLogin, signUpAndGetApiKey } from './helpers'
 
 // Mismo mecanismo que `admin-users.test.ts:7`: el rol no es asignable desde el registro
 // (`auth.ts` declara `role` con `input: false`), así que se promueve escribiendo en la BD.
 function promoteToAdmin(email: string) {
-  const db = new Database(join(process.cwd(), 'data', 'aleph.db'))
+  const db = // The SAME file the server opened. Composing the path here instead would read the DEVELOPMENT
+    // database while the server under test reads the throwaway one — two databases in one run, with
+    // assertions that keep passing.
+    new Database(resolveDbPath())
   db.prepare('UPDATE user SET role = ? WHERE email = ?').run('admin', email)
   db.close()
 }

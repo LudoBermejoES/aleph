@@ -26,6 +26,37 @@ Run unit tests: `npx vitest run tests/unit/`
 Run integration tests: `npx vitest run tests/integration/` (server must be running)
 Run E2E tests: `npx playwright test`
 
+### The test suites do NOT use `data/aleph.db` any more
+
+`test:integration`, `test:e2e` and `test:all` go through `scripts/with-test-db.mjs`, which mints an
+empty database under the OS temp dir (ext4 here, not the v9fs repo mount), exports
+`ALEPH_DB_PATH`, runs the suite, and deletes the file — on failure and on Ctrl-C too.
+
+**An empty file is a complete seed.** The boot plugins apply every migration and initialise the
+lexical and vector indexes unconditionally, so there is no fixture to maintain and none to go stale.
+
+Why it exists: the suites had grown `data/aleph.db` to **4.36 GB across 1,915 campaigns** — 4 real,
+the rest leftovers — against production's **171 MB** with the same four. And the intuitive cleanup
+does not work: deleting 1,729 leftover campaigns one at a time took 107 s and reclaimed **14 MB**,
+while emptying the eight `entity_vectors*` **shadow** tables reclaimed **3.45 GB in 2.8 s**. **97% of
+that file is `sqlite-vec` chunks**, allocated 1,024 slots at a time and never freed on delete, so the
+growth is monotonic. To reduce a bloated one: empty those shadow tables (**excluding the two `vec0`
+virtual tables by name** — `DROP`/`DELETE` on them fails with `no such module: vec0` without the
+extension loaded), `VACUUM`, then let the boot backfill re-embed.
+
+Two consequences worth knowing:
+
+- **`resolveDbPath()` (`server/utils/db-path.ts`) is the only place that answers "which file".** Two
+  integration tests used to compose the path by hand; left alone they would have read the
+  development database while the server read the throwaway one — two databases in one run, with the
+  assertions still passing.
+- **It deliberately ignores `NODE_ENV`.** A rule like "temp database when `NODE_ENV=test`" means a
+  stray variable in a shell silently points `npm run dev` at an empty database, which on a campaign
+  wiki is indistinguishable from total data loss. Unset `ALEPH_DB_PATH` always means the real one.
+- **A row count over "the database" measures the test fixtures, not the campaign.** Two agents got
+  different answers to the same question on one afternoon (150 → 170 → 190 multi-image entities)
+  because the suite was writing while they counted. Scope every count to a named campaign.
+
 ### Starting the dev server — `STARTUP_BACKFILLS_ENABLED=false` is not optional locally
 
 ```bash
@@ -53,12 +84,23 @@ truth.
 
 **And the FIRST Playwright run after a restart fails on cold page compilation, whatever the code
 says.** In dev, a page is compiled on first request, so `/api/health` answering 200 says nothing
-about `/register` being ready — three runs in a row failed on `waitForSelector('form')` at
-`helpers.ts:51` and on `entity-search-input`, none of them for the reason under test, and the same
-suite passed 2/2 immediately afterwards with no code change. Warm the pages first
-(`curl -s -o /dev/null http://localhost:3333/register`) or discard the first run. When a test fails,
-read WHICH LINE failed before concluding anything: a failure on the setup helper and a failure on
-the assertion look identical in the summary and mean opposite things.
+about `/register` being ready — runs failed on `waitForSelector('form')` at `helpers.ts:51` and on
+`entity-search-input`, none of them for the reason under test, and the same suite passed
+immediately afterwards with no code change.
+
+**`curl` does NOT warm a page, and this file said it did.** `/register` serves **3,461 bytes with
+zero `<form>`** — it is client-rendered, so the form exists only once the client bundle runs, and
+`curl` fetches the shell and never requests the chunks. Measured with a real browser: the form
+appears after **21.6 s**, against the 15 s `waitForSelector` in `helpers.ts`. That gap is the whole
+failure. Warm it by driving a browser (a throwaway `chromium.launch()` that visits `/register` and
+waits for `form` with a long timeout — and run the script from inside the repo, or
+`@playwright/test` will not resolve), then run the suite.
+
+When a test fails, read WHICH LINE failed before concluding anything: a failure in the setup helper
+and a failure in the assertion look identical in the summary and mean opposite things. That is how
+a test failing on a 15 s cold compile was nearly filed as an intermittent product bug — and, on the
+way to finding it, ~900 MB was reclaimed from an **orphaned Chromium tree alive 4 h 50 m** left by a
+killed run, which was real garbage and was not the cause.
 
 ### CI's `test` job is format + lint + unit, in that order
 

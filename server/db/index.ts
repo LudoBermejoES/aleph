@@ -1,14 +1,11 @@
 import Database from 'better-sqlite3'
 import { drizzle } from 'drizzle-orm/better-sqlite3'
-import { join } from 'path'
-import { mkdirSync } from 'fs'
+import { ensureDbPath } from '../utils/db-path'
 
-const DB_DIR = join(process.cwd(), 'data')
-const DB_PATH = join(DB_DIR, 'aleph.db')
-
-mkdirSync(DB_DIR, { recursive: true })
-
-const sqlite = new Database(DB_PATH)
+// The third module-level opener in this codebase, after `server/utils/db.ts` and
+// `server/utils/auth.ts`. All three must resolve the path the same way or a redirected run reads
+// two different databases at once.
+const sqlite = new Database(ensureDbPath())
 
 sqlite.pragma('journal_mode = WAL')
 sqlite.pragma('foreign_keys = ON')

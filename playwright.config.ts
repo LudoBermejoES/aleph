@@ -21,7 +21,12 @@ export default defineConfig({
   webServer: {
     command: `npx nuxt dev --port ${PORT}`,
     port: PORT,
-    reuseExistingServer: !process.env.CI, // in CI always start fresh, locally reuse if running
+    // Reuse a running server locally — EXCEPT when the database has been redirected. A server
+    // already up on this port is pointed at whatever database it was started with, almost certainly
+    // `data/aleph.db`; reusing it would run the whole suite against the development database while
+    // every test passed, which is precisely what the isolation exists to prevent. See
+    // openspec/changes/isolate-test-database/ task 3.4.
+    reuseExistingServer: !process.env.CI && !process.env.ALEPH_DB_PATH,
     timeout: 120000, // 2 min for first Nuxt build
   },
 })

@@ -1,7 +1,6 @@
 import Database from 'better-sqlite3'
 import { drizzle, type BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
-import { mkdirSync } from 'fs'
-import { join } from 'path'
+import { ensureDbPath } from './db-path'
 
 let _db: BetterSQLite3Database | null = null
 let _sqlite: Database.Database | null = null
@@ -12,9 +11,10 @@ let _sqlite: Database.Database | null = null
  */
 export function useDb(): BetterSQLite3Database {
   if (!_db) {
-    const dbDir = join(process.cwd(), 'data')
-    const dbPath = join(dbDir, 'aleph.db')
-    mkdirSync(dbDir, { recursive: true })
+    // `ALEPH_DB_PATH` when set, otherwise `<cwd>/data/aleph.db` — see server/utils/db-path.ts.
+    // A test run points this at a throwaway file so the suites stop writing into the development
+    // database, which they had grown to 3.6 GB across 1,729 leftover campaigns.
+    const dbPath = ensureDbPath()
 
     _sqlite = new Database(dbPath)
     _sqlite.pragma('journal_mode = WAL')
