@@ -60,6 +60,59 @@ suite passed 2/2 immediately afterwards with no code change. Warm the pages firs
 read WHICH LINE failed before concluding anything: a failure on the setup helper and a failure on
 the assertion look identical in the summary and mean opposite things.
 
+### CI's `test` job is format + lint + unit, in that order
+
+`npm run format:check` runs **before** the tests and fails the whole job, and `deploy` sits behind
+`needs: [test, integration-test]`. A green `npx eslint` proves nothing about it — that is how a
+correct change was blocked on 2026-08-31. Run `npm run format:check` before pushing.
+
+Prettier will also rewrite prose it thinks is malformed: a `**` glob (`server/api/**`) inside a
+**bold** span came back as `red\*\*`. Keep globs out of emphasis in Markdown.
+
+### A red CLI integration suite on `/mnt/c` is usually the mount, not the code
+
+Every `tests/integration/cli/**` test spawns `node cli/bin/aleph.js`. Measured on this WSL checkout:
+**4.8 s, 8.0 s and 4.9 s for three consecutive bare `--version` calls**, against vitest's 5000 ms
+per-test timeout. So those suites are a coin flip here and a full-suite run reported **37 failures**
+that were all timeouts. Before believing any of it, **re-run the failing file alone** — the two
+non-CLI files in that batch went 25/25 green in isolation, and two unit failures went 22/22.
+
+## Entity types are per-campaign DATA, not a list in the code
+
+There is no fixed set of entity types. `entity_types` holds one row per campaign
+(`slug`, `name`, `icon`, `sortOrder`, `isBuiltin`), a DM can rename them through
+`entity type-update`, and there is **no unique index on `(campaign_id, slug)`**. Any feature that
+writes a type name into a query or a component drifts from the data the moment a campaign changes.
+That is exactly how the diagram palette shipped a group queried as
+`entities.type IN ('entity','wiki')` — two values no campaign has ever used, so it was empty for
+the whole life of the feature while looking complete.
+
+Three facts that bite anyone deriving from these types, all measured on `berlin-en-tinieblas`:
+
+- **The declared set and the used set disagree in BOTH directions.** Declared and unused:
+  `faction`, `event`, `note`. Used and never declared: `organization`, `arc` (13 real entities).
+  Deriving from `entity_types` alone silently drops the second group.
+- **Organizations have two spellings.** The `entity_types` slug is `faction`; the `entities.type`
+  those rows carry is `organization`. Excluding one and not the other lists every organization twice.
+- **Characters, organizations and quests have their own tables**; everything else — locations
+  included — is just `entities` with a `type`. So "make X first-class like a location" means giving
+  it UI treatment, not a table.
+
+## Reading a list endpoint: check the envelope key, every time
+
+They are not consistent, and the wrong key returns a plausible empty answer rather than an error:
+
+| endpoint                      | rows live under | notes                    |
+| ----------------------------- | --------------- | ------------------------ |
+| `GET .../entities`            | `entities`      | plus `pagination`        |
+| `GET .../characters`, `/maps` | `data`          | plus `meta`, 50 per page |
+| `GET .../entity-types`        | bare array      |                          |
+
+This cost real time three times in one session: `data` on `/entities` answered "0 entities" about a
+campaign holding **372**; `?type=Item` (the display name) and `?type=item` both answered 0 because
+that endpoint takes no such filter. **Always run a control query** — ask for something you know is
+there — before reporting that something is absent.
+
 ## aleph-cli — always check for impact
 
 The `cli/` directory is a standalone Node.js CLI (`aleph-cli`) that talks to the server via `X-API-Key` headers.

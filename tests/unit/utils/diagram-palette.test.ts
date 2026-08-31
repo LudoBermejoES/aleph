@@ -89,9 +89,12 @@ describe('buildPaletteGroups', () => {
     expect(group).toEqual({ key: 'item', label: 'Reliquias', builtin: false })
   })
 
-  it('labels an undeclared type with its slug, since no DM ever named it', () => {
+  it('labels an undeclared type with its capitalised slug, since no DM ever named it', () => {
+    // The KEY stays the raw slug — it addresses the response's entity array and must not be
+    // prettified. Only the label is capitalised, so a heading reads "Arc" beside "Item" and "Lore"
+    // instead of a lowercase odd one out.
     const group = buildPaletteGroups(DECLARED, PRESENT).find((g) => g.key === 'arc')
-    expect(group).toEqual({ key: 'arc', label: 'arc', builtin: false })
+    expect(group).toEqual({ key: 'arc', label: 'Arc', builtin: false })
   })
 
   it('collapses a duplicated type row instead of rendering the same entities twice', () => {

@@ -99,8 +99,11 @@ export function buildPaletteGroups(
     push(type.slug, type.name)
   }
 
-  // Undeclared but in use. No DM-given name exists, so the slug itself is the label.
-  for (const slug of present) push(slug, slug)
+  // Undeclared but in use. No DM-given name exists, so the slug is the label — capitalised, so a
+  // group heading reads "Arc" rather than "arc" beside the declared types' proper names. It is
+  // deliberately NOT translated: there is no way to know what a slug nobody declared means, and
+  // inventing a label would misname it with more confidence than a raw slug does.
+  for (const slug of present) push(slug, slug.charAt(0).toUpperCase() + slug.slice(1))
 
   return groups
 }
