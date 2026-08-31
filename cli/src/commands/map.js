@@ -11,20 +11,36 @@ export function makeMapCommand() {
     .command('list')
     .description('List maps in a campaign')
     .requiredOption('--campaign <id>', 'Campaign ID')
+    .option('--page <n>', 'Page number', '1')
+    .option('--limit <n>', 'Results per page (0 = all)', '50')
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
-      const data = await get(`/api/campaigns/${opts.campaign}/maps`)
-      print(
-        opts.json
-          ? data
-          : data.map((m) => ({
-              name: m.name,
-              slug: m.slug,
-              width: m.width || '',
-              height: m.height || '',
-            })),
-        { json: opts.json },
-      )
+      const params = new URLSearchParams()
+      params.set('page', opts.page)
+      params.set('pageSize', opts.limit)
+      const res = await get(`/api/campaigns/${opts.campaign}/maps?${params.toString()}`)
+      // `GET .../maps` answers the paginated envelope `{ data, meta }`, like every other list
+      // endpoint. This command used to hand the envelope straight to `.map()`, so the human
+      // output died with `TypeError: data.map is not a function` while `--json` kept working
+      // (it prints the raw response). A listing that throws is at least honest; what made it
+      // costly is that the JSON path looked fine, so the command read as "the campaign has no
+      // maps" to anything parsing it. Unwrapped here the same way `location.js` does.
+      const data = Array.isArray(res) ? res : res.data
+      const meta = Array.isArray(res) ? null : res.meta
+      if (opts.json) {
+        print(res, { json: true })
+      } else {
+        print(
+          data.map((m) => ({
+            name: m.name,
+            slug: m.slug,
+            type: m.type || '',
+            width: m.width || '',
+            height: m.height || '',
+          })),
+        )
+        if (meta) console.error(`Page ${meta.page}/${meta.totalPages} (${meta.total} total)`)
+      }
     })
 
   cmd
