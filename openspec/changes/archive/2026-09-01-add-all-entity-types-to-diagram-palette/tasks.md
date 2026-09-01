@@ -64,7 +64,7 @@
       Note the measurement itself took three attempts: `?type=<display name>` and `?type=<slug>` both
       answered 0 for every type, and the list endpoint returns its rows under `entities`, not `data` —
       reading the wrong key answered "0 entities" about a campaign holding 372.
-- [ ] 4.2 Confirm against the LIVE campaign in a browser that the three real objects appear, that
+- [x] 4.2 Confirm against the LIVE campaign in a browser that the three real objects appear, that
       `el-traje-de-oro` shows its uploaded image on the card, and that a reload keeps it. Covered by
       the e2e test on a seeded campaign; not yet eyeballed on production data.
       **BLOCKED 2026-08-31 — declared gap, not a skipped check.** There is no way to reach the
@@ -82,6 +82,27 @@
       **What is still missing is only the RENDER**, and it needs an email+password login that this
       environment does not hold. The API side of 4.2 was already measured in 4.1; re-measuring it
       would not close this task and is not offered as if it did.
+
+      **UNBLOCKED AND CLOSED 2026-09-01 — the owner did the eyeballing this environment could not.**
+      The gap above was never a tooling problem that could be worked around; it was a missing
+      credential, and the owner supplied the missing half by looking at the live campaign himself.
+      What he saw first was a DEFECT, which is exactly what an e2e test on a seeded campaign could
+      not have caught: `el-traje-de-oro` rendered as a 48x48 thumbnail beside a title in a mostly
+      empty box, while the `location` cards next to it (`La buhardilla de Theo`, `Donde apareció
+      Theo`) rendered the image full-bleed under a caption strip. Cause: `EntityCardShape.tsx`'s
+      `component()` never got the stacked/full-bleed treatment `LocationPinShape`/`FactionCardShape`/
+      `NPCTokenShape` share via `useImageAspectFit`. Fixed in commit `86e82c9`, deployed to
+      `aleph.ludobermejo.es` in run `33485561623` (test + integration-test + deploy all green;
+      `.output` written 08:38:26, process restarted 08:40:13, chunk verified over HTTPS), and the
+      owner confirmed the result: the object card now reads like the rest.
+      Measured blast radius before shipping, against production snapshots across all 4 campaigns:
+      **35 `entityCard` shapes** change appearance -- 1 `item`, 33 `session`, 1 `lore`, zero
+      `wiki`/`entity`. So the visible change lands mostly on SESSION cards, not on the one reported.
+      **What this checkbox does NOT certify**: the clause "and that a reload keeps it" is signed off
+      only for the entity's own card image. The **per-shape image override** (choosing a non-primary
+      image in the popover) still reverts on reload in production, and that is a SEPARATE defect
+      tracked in `fix-diagram-image-override-autosave-race` -- do not read this box as evidence that
+      it works.
 
       **2026-09-01 — the block lifted, and it found a real defect.** The user has an active
       session and looked at `berlin-en-tinieblas` in a real browser, which is exactly what this
