@@ -136,3 +136,17 @@ summarized here as tasks.
       `rate-limiting.test.ts`) are pre-existing and reproduce identically with 6.3/6.4 reverted,
       confirmed by re-running them against the unmodified files.
 - [x] 6.10 `npm run format:check` and `npx eslint` clean on every touched/added file.
+- [x] 6.11 **Verified IN PRODUCTION by the owner, 2026-09-01** — the only check that counts for this
+      change, because it was signed off once before on local evidence and was still broken. Deployed
+      in run `33494738005` (`test` + `integration-test` + `deploy` all green; the repo's gate is
+      `deploy: needs: [test, integration-test]`, so a red suite would have blocked the rsync).
+      Deploy verified against the artifact, not the workflow's word: `.output/server/index.mjs`
+      written 10:03:12, the node process started 10:04:58 — 1m46s LATER, so the running process is
+      the new build — site answering 200 on `/` and `/api/health`, and `/var/www/aleph/.env` still
+      reading `NUXT_PUBLIC_DIAGRAM_MULTIPLAYER=true`, which is the condition that made the defect
+      real and that D3 had assumed away. The owner then re-ran the exact reproduction that had
+      failed twice — pick the non-primary image in the popover, reload — and reported it works.
+      Note for whoever reads this next: if it ever regresses, the rejection is now OBSERVABLE.
+      Before 6.4 the socket stayed open with no close event and the UI kept claiming "conectado";
+      now a rejected record closes it with code 4099 and logs `INVALID_RECORD` to
+      `/var/www/aleph/logs/pm2-error.log`.
