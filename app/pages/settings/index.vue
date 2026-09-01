@@ -32,6 +32,7 @@ import { useCurrentUser } from '~/composables/useAuth'
 
 const { isAdmin } = useCurrentUser()
 const { fetchApiKeys, revokeApiKey } = useApiKeys()
+const { t } = useI18n()
 const keys = ref<ApiKey[]>([])
 
 async function refresh() {
@@ -39,7 +40,7 @@ async function refresh() {
 }
 
 async function handleRevoke(id: string) {
-  if (!confirm(useI18n().t('apiKeys.revokeConfirm'))) return
+  if (!confirm(t('apiKeys.revokeConfirm'))) return
   await revokeApiKey(id)
   await refresh()
 }

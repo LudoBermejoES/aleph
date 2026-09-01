@@ -123,6 +123,30 @@ del botón tras el login. Hasta entonces **no se sube el timeout de `helpers.ts`
 diagnóstico sin confirmar es la jugada de "arreglar el test", y si es una carrera, un timeout más
 largo la esconde en vez de cerrarla.
 
+**Corrección 2026-09-01: el "0 failed" de arriba era la medición equivocada, no las 8
+observaciones de fallo del mismo día sobre `relations-panel-*.spec.ts`.** Un triaje de specs
+archivadas midió, en el código SIN TOCAR, **4 failed / 9 passed** en
+`npx playwright test relations-panel-*.spec.ts` (más `icons.spec.ts`), los 4 fallos deterministas
+(fallan en el intento Y en el reintento) sobre la misma aserción en las tres páginas —
+`expect(page.locator('[role="alertdialog"]')).toBeVisible()` tras pulsar "Delete". Esto NO puede
+reconciliarse con "0 failed" el 2026-08-31 leyendo el número de arriba como si describiera el
+mismo código: `app/components/ui/dialog/DialogContent.vue` es byte-idéntico entre `HEAD` y el
+commit que registró esa cifra (`9ac91c8`), y su patrón sin reenviar `$attrs` al `<DialogContent>`
+interno viene del PRIMER commit del proyecto (`bf402f5`, scaffold inicial) — un defecto
+determinista en código que no ha cambiado no puede haber pasado un día y fallado otro. La cifra
+"0 failed" no se rederivó de estos 4 tests en esa corrida concreta; es la misma familia de error
+que las otras trampas de medición de este fichero (la media acumulada de `tqdm`, `pgrep`
+casándose consigo mismo): un número escrito con confianza y nunca vuelto a comprobar contra el
+código real. Arreglado y verificado en
+`openspec/changes/fix-relations-panel-alertdialog-and-apikey-revoke/` — `DialogContent.vue` ahora
+reenvía `$attrs` (mismo patrón que `SheetContent.vue`), y dos corridas posteriores al arreglo
+dieron **cero** apariciones de "alertdialog" en la salida de fallos (los fallos restantes son
+exactamente la carrera de `helpers.ts:105`/"New Campaign" descrita arriba, agravada por
+contención real de máquina — otra sesión de Claude Code corriendo al 100%+ CPU durante la
+verificación). La suite e2e COMPLETA no se ha vuelto a correr desde entonces; no se escribe aquí
+un nuevo "N passed / M flaky / 0 failed" porque no se ha medido — solo que la cifra de 2026-08-31
+para estos 4 tests concretos era errónea.
+
 ### CI's `test` job is format + lint + unit, in that order
 
 `npm run format:check` runs **before** the tests and fails the whole job, and `deploy` sits behind

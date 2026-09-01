@@ -12,6 +12,10 @@ import {
 } from 'reka-ui'
 import { cn } from '@/lib/utils'
 
+defineOptions({
+  inheritAttrs: false,
+})
+
 const props = defineProps<DialogContentProps & { class?: HTMLAttributes['class'] }>()
 const emits = defineEmits<DialogContentEmits>()
 
@@ -30,8 +34,14 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
          only `color` declaration (nothing here sets `color` on html/body). Unpaired, every
          dialog child without its own `text-*` token inherits the UA default black onto a
          themed dark surface — 1.06–1.28:1 in the eight dark campaign themes. -->
+    <!-- `inheritAttrs: false` + explicit `$attrs` forwarding here (mirrors SheetContent.vue):
+         this component's template root is <DialogPortal>, a Teleport wrapper with no element
+         of its own, so Vue's automatic single-root attr fallthrough has nowhere real to land.
+         Anything passed to <DialogContent role="..."> here (e.g. `role="alertdialog"` from a
+         destructive-confirmation dialog) needs to be forwarded to the reka-ui <DialogContent>
+         below by hand, or it is silently dropped. -->
     <DialogContent
-      v-bind="forwarded"
+      v-bind="{ ...forwarded, ...$attrs }"
       :class="
         cn(
           'fixed left-1/2 top-1/2 z-50 grid w-full max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 border bg-background text-foreground p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg',

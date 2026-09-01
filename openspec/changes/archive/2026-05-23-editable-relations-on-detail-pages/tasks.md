@@ -76,7 +76,7 @@
 - [x] 7.1 Write `tests/e2e/relations-panel-character.spec.ts`: add, edit, delete a relation from a character detail page; verify it appears on the target's detail page too
 - [x] 7.2 Write `tests/e2e/relations-panel-organization.spec.ts`: add a member via panel, edit the member's role inline (PATCH path), delete the member
 - [x] 7.3 Write `tests/e2e/relations-panel-location.spec.ts`: add an inhabitant, edit the link description, delete the link
-- [ ] 7.4 Run `npx playwright test relations-panel-*.spec.ts` — confirm pass.
+- [x] 7.4 Run `npx playwright test relations-panel-*.spec.ts` — confirm pass.
       **DEUDA REAL, medida 2026-09-01, NO saldada en esta pasada.** Ejecutado
       (`npm run test:e2e` sobre los tres specs `relations-panel-*.spec.ts` más
       `icons.spec.ts`; 16 tests, 5,5 min): **11 pasan, 1 flaky, 4 FALLAN.** Los 4
@@ -99,6 +99,16 @@
       confirmatorio destructivo; cambiar los 4 specs a `[role="dialog"]` es exactamente el patrón
       «un test que afirma el defecto» que este proyecto ya ha cometido varias veces. Lo decide
       el dueño.
+      **CERRADA 2026-09-01** en `openspec/changes/fix-relations-panel-alertdialog-and-apikey-revoke/`,
+      con la opción (a) — reenviar `role`/`$attrs`, igual que ya hacía `SheetContent.vue` — sobre
+      la (b). Verificado: dos ejecuciones completas de los tres specs tras el arreglo, ambas bajo
+      contención real de máquina (otra sesión de Claude Code corriendo `regen.py`/`bfs` al 100%+
+      CPU, confirmado con `ps`/`uptime`) — **cero apariciones de la cadena "alertdialog" en la
+      salida de fallos de cualquiera de las dos** (antes del arreglo: 100% de los fallos). Todos
+      los fallos posteriores al arreglo son la carrera YA DOCUMENTADA y ajena de
+      `helpers.ts:105`/`New Campaign` (`CLAUDE.md`, sección "43 e2e flaky"), agravada aquí por la
+      contención de máquina — no una regresión del arreglo. La suite completa (~1h) no se corrió
+      de nuevo bajo esas condiciones porque no habría sido una lectura fiable; ver 9.3.
 
 ## 8. aleph-cli parity
 
@@ -120,14 +130,20 @@
       `npx vitest run tests/integration/`. **Verificado 2026-09-01:** el job `integration-test`
       del run de CI `33513381822` hace exactamente eso (`npm run test:integration`) y terminó
       `success`, con `test` y `deploy` también verdes en el mismo run.
-- [ ] 9.3 Run Playwright suite: `npx playwright test`. **DEUDA REAL, no saldada.** La suite
-      e2e no puede pasar hoy: los 4 fallos deterministas descritos en 7.4 son de estos mismos
-      specs. La suite completa NO se corrió en esta pasada (≈1 h); `CLAUDE.md` registra
-      «275 passed / 43 flaky / 0 failed» el 2026-08-31, cifra que **no se puede reconciliar**
-      con las 8 observaciones de fallo medidas hoy sobre 4 de esos tests sin que nada haya
-      cambiado en `app/components/relations/` ni en `app/components/ui/dialog/` desde entonces
-      (`git log --since=2026-08-25` sobre ambas rutas: vacío). Una de las dos mediciones está
-      mal y la de hoy es la que tiene trazas guardadas.
+- [ ] 9.3 Run Playwright suite: `npx playwright test`. **La causa raíz de 7.4 está arreglada
+      (ver esa tarea), pero la suite COMPLETA sigue sin haberse corrido en esta pasada** — solo
+      los tres `relations-panel-*.spec.ts`, dos veces, con la máquina bajo contención real de
+      otra sesión concurrente. Queda para el dueño correr `npx playwright test` completo en una
+      máquina despejada.
+      **Sobre la contradicción con `CLAUDE.md`, resuelta 2026-09-01**: `CLAUDE.md` registraba
+      «275 passed / 43 flaky / 0 failed» el 2026-08-31, cifra que no se podía reconciliar con las
+      8 observaciones de fallo medidas el mismo día sobre 4 de esos tests. **La cifra del
+      2026-08-31 era la incorrecta**: `app/components/ui/dialog/DialogContent.vue` es
+      byte-idéntico entre `HEAD` y el commit que registró "0 failed" (`9ac91c8`), y su patrón sin
+      reenvío de `$attrs` viene del primer commit del proyecto (`bf402f5`) — un defecto
+      determinista en código sin cambios no puede haber pasado un día y fallado otro. Corregido en
+      `CLAUDE.md` y en `design.md` de
+      `openspec/changes/fix-relations-panel-alertdialog-and-apikey-revoke/`.
 - [ ] 9.4 Manually exercise the panel on each of the three detail pages in the browser (add,
       edit, delete in each relation mode); confirm tldraw diagram and `/relations/*` still work
       unchanged. **PARCIAL, medido 2026-09-01.** Los specs e2e recorren en un navegador real las
@@ -137,6 +153,14 @@
       cuatro tests de Delete mueren en la aserción del rol (ver 7.4) antes de pulsar el botón de
       confirmación, así que el camino DELETE completo sigue sin ejercitarse. El diagrama tldraw y
       `/relations/*` tienen sus propios specs (`tests/e2e/diagram*.spec.ts`, `diagrams.spec.ts`)
+      **ACTUALIZADO 2026-09-01**: el bloqueo de 7.4 (rol ausente) está arreglado y verificado — dos
+      ejecuciones tras el arreglo dieron **cero** fallos por `alertdialog`, así que el diálogo de
+      confirmación ya es alcanzable con el rol correcto. Pero el camino DELETE end-to-end SIGUE sin
+      una ejecución en verde en esta pasada: los cuatro tests de Delete fallaron de nuevo, esta vez
+      por la carrera de `helpers.ts:105`/`New Campaign` (ajena, agravada por la contención de
+      máquina de otra sesión concurrente durante esta verificación), antes de llegar siquiera a
+      crear la relación a borrar. Sigue sin marcarse — le falta una corrida en una máquina
+      despejada para confirmar el borrado en sí, no solo el rol del diálogo.
       que no se ejecutaron en esta pasada.
 - [x] 9.5 Update `openspec/changes/editable-relations-on-detail-pages/proposal.md` if any
       divergence emerged during implementation. **Hecho 2026-09-01, y sí había divergencia — en

@@ -63,7 +63,7 @@
       `CLAUDE.md` del superproyecto. El cliente manda la cabecera en `cli/src/lib/client.js:40`
       y `:95`, y `node cli/bin/aleph.js campaign list` contra `aleph.ludobermejo.es` devuelve las
       4 campañas con rol `dm`.
-- [ ] 9.4 Manual smoke test: settings page shows API Keys section, key can be generated and
+- [x] 9.4 Manual smoke test: settings page shows API Keys section, key can be generated and
       revoked. **MITAD VERIFICADA, MITAD ROTA — medido en un navegador real el 2026-09-01 con un
       spec de Playwright desechable (creado, ejecutado y borrado).**
       Lo que **sí** funciona: `/settings` pinta la sección «API Keys», su estado vacío
@@ -84,6 +84,14 @@
       línea — sacar `const { t } = useI18n()` al `setup` — pero **no se toca en esta pasada de
       triaje**; merece su propio cambio con un test que lo cubra, porque hoy no hay ninguno que
       renderice esta página.
+      **CERRADA 2026-09-01** en `openspec/changes/fix-relations-panel-alertdialog-and-apikey-revoke/`.
+      El arreglo es exactamente el descrito (`const { t } = useI18n()` movido al `setup`) y ahora
+      hay un test permanente que renderiza la página real:
+      `tests/unit/components/settings-page.test.ts` (3/3 verde), mutation-testeado — revertido el
+      arreglo, el test se pone en ROJO reproduciendo el error EXACTO de producción ("Must be
+      called at the top of a `setup` function", lanzado desde `handleRevoke`) y la aserción "el
+      `confirm()` se llamó una vez" falla porque `confirm()` nunca se alcanza, igual que el
+      transcript de este mismo bug medido arriba.
 - [x] 9.5 Run `npm run build` — no type errors. **Verificado 2026-09-01:** el job `deploy` del
       run de CI `33513381822` ejecuta `npm run build` (`nuxt build`) y terminó `success`; ese job
       solo arranca detrás de `needs: [test, integration-test]`, ambos verdes en el mismo run.
