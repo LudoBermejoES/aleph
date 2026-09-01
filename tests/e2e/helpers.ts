@@ -42,13 +42,33 @@ async function gotoWithRetry(page: Page, url: string, retries = 3): Promise<void
 }
 
 /**
+ * Budget for the waits in THESE SETUP HELPERS — not for anything under test.
+ *
+ * Measured 2026-09-01 on an idle server: `/register`'s form mounts in **1.0 s**, and the campaigns
+ * page's "New Campaign" button appears **0.6-1.2 s** after a real sign-up (three consecutive
+ * sign-ups, session included). So the operations themselves are ~1 s.
+ *
+ * Under a full 343-test run they blew a 15 s budget **47 times**, all in setup and none in an
+ * assertion, with 88 stack frames pointing at the `createCampaign` wait below. Every one passed on
+ * retry, so the suite was green and simply paid ~40 minutes of retries.
+ *
+ * Raising this is NOT "fixing the test to make it pass": the thing being waited for is a
+ * precondition, it is measured at ~1 s unloaded, and nothing here asserts behaviour. What the old
+ * number did was convert server contention into a spurious retry.
+ *
+ * If a wait here ever exhausts even THIS budget, that is a real signal — do not raise it again;
+ * find out what is taking a minute.
+ */
+const SETUP_WAIT_MS = 60_000
+
+/**
  * Register a new user and land on the home page (authenticated).
  * Returns the email used.
  */
 export async function registerAndLogin(page: Page, name: string = 'E2E User'): Promise<string> {
   const email = `e2e-${Date.now()}-${Math.random().toString(36).slice(2, 6)}@example.com`
   await gotoWithRetry(page, `${BASE}/register`)
-  await page.waitForSelector('form', { timeout: 15000 })
+  await page.waitForSelector('form', { timeout: SETUP_WAIT_MS })
   await page.fill('#name', name)
   await page.fill('#email', email)
   await page.fill('#password', 'testpassword123')
@@ -102,9 +122,9 @@ export async function apiFetch(
 export async function createCampaign(page: Page, name: string): Promise<string> {
   await gotoWithRetry(page, `${BASE}/`)
   await page.waitForLoadState('networkidle')
-  await page.waitForSelector('button:has-text("New Campaign")', { timeout: 15000 })
+  await page.waitForSelector('button:has-text("New Campaign")', { timeout: SETUP_WAIT_MS })
   await page.click('button:has-text("New Campaign")')
-  await page.waitForSelector('input[placeholder*="Curse"]', { timeout: 5000 })
+  await page.waitForSelector('input[placeholder*="Curse"]', { timeout: SETUP_WAIT_MS })
   await page.fill('input[placeholder*="Curse"]', name)
 
   // Wait for Vue to process the fill
