@@ -230,7 +230,7 @@ The system SHALL support full create / edit / delete management of relations dir
 
 ### Requirement: Graph and diagram nodes respect entity visibility
 
-The system SHALL exclude any entity (character, organization, or location) whose visibility the requesting/viewing user's role does not meet from appearing as a node in the relationship graph or in a generated/viewed diagram — distinct from the existing per-connection "Connection visibility" requirement, which governs edges, not node/entity inclusion. This applies both when a diagram is generated and, independently, whenever an already-generated diagram is subsequently viewed, since a diagram is a persisted artifact that can outlive the visibility settings in effect at generation time.
+The system SHALL exclude any entity (character, organization, or location) whose visibility the requesting/viewing user's role does not meet from appearing as a node in the relationship graph or in a generated/viewed diagram — distinct from the existing per-connection "Connection visibility" requirement, which governs edges, not node/entity inclusion. This applies both when a diagram is generated and, independently, whenever an already-generated diagram is subsequently viewed, since a diagram is a persisted artifact that can outlive the visibility settings in effect at generation time. This filtering SHALL be applied regardless of which persistence format the diagram's stored snapshot is in — a snapshot saved through the single-user REST autosave path and one saved through the real-time sync room persist a structurally different JSON shape for the same logical document, and a viewer's role-based visibility MUST be enforced identically against either.
 
 #### Scenario: Relationship graph excludes a dm_only character node for a player
 
@@ -267,3 +267,18 @@ The system SHALL exclude any entity (character, organization, or location) whose
 - **WHEN** a DM changes that organization's visibility to `members`
 - **AND** a player who previously could not see it re-fetches the same diagram
 - **THEN** the organization's shape is now included in what the player receives, without the diagram having been regenerated
+
+#### Scenario: Viewing a diagram whose latest snapshot was persisted by the real-time sync room, not by REST autosave
+
+- **GIVEN** a diagram whose latest snapshot row was written by the sync room's own persistence (i.e. shaped as `{documents: [{state, lastChangedClock}], tombstones, schema}`, what `TLSocketRoom.getCurrentSnapshot()` produces — not `{schema, store}`)
+- **AND** that snapshot contains a shape referencing a character whose visibility is `dm_only`
+- **WHEN** a player fetches the diagram (`GET /api/campaigns/:id/diagrams/:diagramId/snapshot`)
+- **THEN** the response is normalized to `{schema, store}` before filtering, so the shape for the `dm_only` character is omitted from the returned snapshot exactly as it would be for a REST-persisted snapshot
+- **AND** a DM fetching the same diagram still sees the shape included, and every other shape/page/document record from the sync-persisted snapshot is still present and addressable by id under `store`
+
+#### Scenario: A sync-persisted snapshot round-trips through the REST GET endpoint with its shapes addressable by id
+
+- **GIVEN** a diagram edited through the real-time sync websocket, whose latest snapshot row is therefore in the room's own persisted shape
+- **WHEN** any member fetches the diagram (`GET /api/campaigns/:id/diagrams/:diagramId/snapshot`)
+- **THEN** the response is `200`, not the room's raw persisted shape
+- **AND** `snapshot.store` is an object keyed by record id, and the shape that was written is present under its id with its original `props` intact

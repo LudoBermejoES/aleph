@@ -75,7 +75,12 @@ integration-test]`.
 - [x] 4.5 Run `npm run format:check` and read its output before considering this done — do not
       trust a green eslint run alone.
 
-## 5. Do not archive
+## 5. Archivado
 
-- [ ] 5.1 Leave this change open. Per the standing project rule, production verification comes
-      after deploy, and deploy is the launching agent's decision, not this session's.
+- [x] 5.1 Esta tarea decía «no archivar» porque el despliegue era decisión de quien lanzó la
+      sesión, no de aquella. Esa decisión ya se ha tomado: el dueño ordena archivar el 2026-09-01,
+      y se archiva. Lo que hay que saber al leerlo después: el gate de este repo es real
+      (`deploy: needs: [test, integration-test]`), así que la cobertura de la sección 4 sí bloquea
+      un despliegue rojo; lo que NO se ha hecho en esta sesión es una comprobación contra el
+      diagrama vivo de producción tras el despliegue. Se archiva IMPLEMENTADO Y GATEADO, no
+      verificado en producción.
