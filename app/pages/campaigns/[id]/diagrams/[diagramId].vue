@@ -517,7 +517,7 @@ function findShape(
  * than on the next load. Hydration then resolves the same override on every
  * later load instead of overwriting it.
  */
-function onPopoverSelectImage(
+async function onPopoverSelectImage(
   shapeId: string,
   imageId: string | null,
   imageUrl: string | undefined,
@@ -530,10 +530,46 @@ function onPopoverSelectImage(
 
   const props: Record<string, unknown> = { imageOverrideId: imageId ?? undefined }
   props[imageKey] = imageUrl ?? undefined
-  ;(editorInstance as { updateShapes: (s: object[]) => void }).updateShapes([
-    { id: shapeId, type: shape.type, props },
-  ])
+  const ed = editorInstance as {
+    updateShapes: (s: object[]) => void
+    store: unknown
+  }
+  ed.updateShapes([{ id: shapeId, type: shape.type, props }])
   popoverImageOverrideId.value = imageId
+
+  // Flush immediately instead of waiting on the generic 1s autosave debounce
+  // (`onCanvasChange`). That debounce exists to coalesce a STREAM of edits (dragging,
+  // resizing); a picker choice is one discrete, deliberate write, and in REST mode
+  // (the default) nothing else persists it.
+  //
+  // MEASURED, not assumed: `lastSnapshot` (populated by `TldrawWrapper`'s
+  // `store.listen(..., { source: 'user' })`) is NOT updated synchronously by
+  // `updateShapes` above — the listener notification is batched, so reading
+  // `lastSnapshot` right here still returns the PRE-pick snapshot. A first version of
+  // this fix called `saveNow()` (which reads `lastSnapshot`) directly after
+  // `updateShapes` and it silently persisted the OLD image every time — reproduced
+  // against a real dev server, `imageOverrideId` came back `undefined` immediately
+  // after the click even though the PUT request itself completed successfully. So
+  // this reads the store DIRECTLY with tldraw's own `getSnapshot(store)` (a pure,
+  // synchronous reader — see `@tldraw/editor`'s `TLEditorSnapshot.js`), which cannot
+  // be stale, instead of trusting the listener-fed snapshot.
+  //
+  // Without this, a refresh inside the debounce's ~1s window reverted the choice with
+  // NO visible indicator at all (`saveStatus` stays 'idle' the whole time a save is
+  // merely scheduled, not in flight): hydration correctly fell back to the primary
+  // because `imageOverrideId` was genuinely never sent to the server, and the
+  // popover's "use the main image" button correctly disappeared on the next open,
+  // because there was genuinely nothing to reset. See
+  // `openspec/changes/fix-diagram-image-override-autosave-race/design.md`.
+  if (multiplayerActive.value) return // the sync room persists this on its own
+  const { getSnapshot } = await import('tldraw')
+  const freshSnapshot = getSnapshot(ed.store) as unknown as Record<string, unknown>
+  lastSnapshot = freshSnapshot
+  if (saveTimer) {
+    clearTimeout(saveTimer)
+    saveTimer = null
+  }
+  await autoSave(freshSnapshot)
 }
 
 function onPopoverExpand(entityId: string, entityType: string) {

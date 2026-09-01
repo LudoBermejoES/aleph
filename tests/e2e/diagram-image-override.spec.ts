@@ -638,6 +638,88 @@ test.describe('Per-shape diagram card image', () => {
     await expect(cardImage(page, 'shape:cardone')).toHaveAttribute('src', imageB.url)
   })
 
+  /**
+   * Regression for `fix-diagram-image-override-autosave-race`.
+   *
+   * Every OTHER reload-after-pick assertion in this file calls `saveDiagramNow()` first — a
+   * deliberate flush of the debounce, done for test reliability. That is reasonable for a test,
+   * but it means none of them ever exercised what a real user actually does: pick a thumbnail,
+   * see the card change, and refresh — without knowing a manual "Guardar" button exists to flush
+   * anything. `onPopoverSelectImage` used to leave persistence entirely to the generic 1-second
+   * autosave debounce, so a reload inside that window silently discarded the choice: reproduced
+   * against a real dev server, the persisted `imageOverrideId` was `undefined` immediately after
+   * the click, with the PUT request having already completed successfully — the picker looked
+   * like it worked and the write amounted to nothing.
+   *
+   * This test therefore does the OPPOSITE of every sibling above: no `saveDiagramNow()`, and no
+   * wait beyond what the click and the reload themselves take.
+   */
+  test('3.8 a picked image survives an immediate reload with no manual save', async ({ page }) => {
+    const campaignId = await setupDmCampaign(page, 'SinGuardarManual')
+    const item = await createItem(page, campaignId, `El farol sin guardar ${uid()}`)
+
+    await page.goto(`${BASE}/campaigns/${campaignId}/entities/${item.slug}`, {
+      waitUntil: 'domcontentloaded',
+    })
+    await page.waitForLoadState('networkidle')
+    await expect(page.getByTestId('gallery-upload')).toBeVisible({ timeout: 90000 })
+    await uploadViaGalleryUi(page, 'farol-a.png')
+    await expect(page.getByTestId('gallery-item')).toHaveCount(1)
+    await uploadViaGalleryUi(page, 'farol-b.png')
+    await expect(page.getByTestId('gallery-item')).toHaveCount(2)
+
+    const gallery = await listGallery(page, campaignId, item.slug)
+    const primary = gallery.find((g) => g.isPrimary)!
+    const other = gallery.find((g) => !g.isPrimary)!
+
+    const diagram = await createDiagram(page, campaignId, 'Farol sin guardar')
+    await putSnapshot(
+      page,
+      campaignId,
+      diagram.id,
+      snapshotWithCards(campaignId, [
+        {
+          shapeId: 'shape:farolcard',
+          entityId: item.id,
+          slug: item.slug,
+          name: item.name,
+          x: 260,
+          y: 160,
+        },
+      ]),
+    )
+
+    await openDiagram(page, campaignId, diagram.id)
+    await expect(cardImage(page, 'shape:farolcard')).toHaveAttribute('src', primary.url, {
+      timeout: 30000,
+    })
+
+    await openCardPreview(page, 'shape:farolcard')
+    await expect(picker(page)).toBeVisible({ timeout: 15000 })
+    await pickerOption(page, other.id).click()
+    await expect(cardImage(page, 'shape:farolcard')).toHaveAttribute('src', other.url, {
+      timeout: 15000,
+    })
+
+    // No saveDiagramNow(). No wait. Straight to the reload — exactly what the report described.
+    await openDiagram(page, campaignId, diagram.id)
+    await expect(cardImage(page, 'shape:farolcard')).toHaveAttribute('src', other.url, {
+      timeout: 30000,
+    })
+
+    // The persisted snapshot itself must carry the override, not just the render — a stale
+    // client-side render before hydration re-applies is exactly the trap this file's own
+    // `openDiagram` helper exists to avoid (see its docstring).
+    await expectPersistedOverride(page, campaignId, diagram.id, 'shape:farolcard', other.id)
+
+    // And the popover must agree: the reset control is offered, and the chosen image is marked.
+    await openCardPreview(page, 'shape:farolcard')
+    await expect(picker(page)).toBeVisible({ timeout: 15000 })
+    await expect(page.locator('[data-testid="entity-popover-image-reset"]')).toBeVisible()
+    await expect(pickerOption(page, other.id)).toHaveAttribute('data-selected', 'true')
+    await expect(pickerOption(page, primary.id)).toHaveAttribute('data-selected', 'false')
+  })
+
   test('3.2 a card whose overridden image was deleted falls back to the primary', async ({
     page,
   }) => {
