@@ -45,4 +45,8 @@
 
 - [x] 10.1 Run `npm run build` — confirm no missing import errors
 - [x] 10.2 Run `npx vitest run tests/unit/utils/icons.test.ts`
-- [ ] 10.3 Run `npx playwright test tests/e2e/icons.spec.ts`
+- [x] 10.3 Run `npx playwright test tests/e2e/icons.spec.ts`. **Ejecutado y verde el
+      2026-09-01** (`npm run test:e2e`, base de datos desechable): los 3 tests del fichero pasan a
+      la primera — `13.1 sidebar nav links each contain an svg icon`,
+      `13.2 nav group headers each contain an svg icon`,
+      `13.3 campaign dashboard cards each contain an svg icon`.

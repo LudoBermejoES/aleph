@@ -122,5 +122,13 @@
 - [x] 17.1 Run `npx vitest run tests/unit/` — all unit tests pass
 - [x] 17.2 Run `npx vitest run tests/integration/` — all integration tests pass (server on port 3333)
 - [x] 17.3 Run `npx playwright test` — all E2E tests pass
-- [ ] 17.4 Run `npx nuxi build` — build succeeds with no type errors
-- [ ] 17.5 Run `npx eslint .` — no new lint errors introduced
+- [x] 17.4 Run `npx nuxi build` — build succeeds with no type errors. **Verificado 2026-09-01
+      por el equivalente que sí corre:** el job `deploy` del run de CI `33513381822` ejecuta
+      `npm run build` (= `nuxt build`, el mismo comando que `nuxi build` invoca) y terminó
+      `success`. `npx nuxi typecheck` NO es ejecutable en este repo — ver la nota de la tarea 4.6
+      de `2026-04-04-component-refactoring`.
+- [x] 17.5 Run `npx eslint .` — no new lint errors introduced. **Verificado 2026-09-01:** el
+      job `test` del run de CI `33513381822` tiene un paso `Lint` que corre
+      `npx eslint . --ext .ts,.vue,.tsx` sobre todo el repo y terminó `success`. Ese paso se
+      añadió precisamente porque ESLint vivía solo en `.husky/pre-push` y todos los push iban con
+      `--no-verify`, así que no se ejecutaba en ningún sitio.

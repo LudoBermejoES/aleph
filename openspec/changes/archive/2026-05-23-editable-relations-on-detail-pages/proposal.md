@@ -35,3 +35,30 @@ Additionally, organization-member roles and location-link metadata are not edita
 - **aleph-cli impact**: YES — the new PATCH endpoints for org member and location link edits should be exposed via the CLI (`organization member update`, `location inhabitant update`, `location org update`) and reflected in `docs/claude-skill.md` and `.claude/skills/aleph-cli/SKILL.md`.
 - **Tests**: unit tests for the new panel logic; integration tests for the new PATCH endpoints; E2E tests for the add/edit/delete flow on each of the three detail pages.
 - **i18n**: new keys in `i18n/locales/en.json` and `i18n/locales/es.json` for panel labels, dialog text, and confirmation messages.
+
+## Divergencias respecto a lo implementado (añadido en el triaje del 2026-09-01, tarea 9.5)
+
+Esta sección se escribe **después** de archivar el cambio, midiendo el árbol contra lo que este
+`proposal.md` prometía. Lo que hay en él arriba se deja intacto: es lo que se propuso, no lo que se
+entregó.
+
+- **De los tres endpoints PATCH prometidos, se entregaron dos.**
+  `PATCH /api/campaigns/:id/organizations/:slug/members/:characterId` existe
+  (`server/api/campaigns/[id]/organizations/[slug]/members/[characterId]/index.patch.ts`) y tiene
+  test de integración. `PATCH /api/campaigns/:id/locations/:slug/organizations/:organizationId`
+  **también existe** (`.../locations/[slug]/organizations/[organizationId].patch.ts`, guarda
+  `editor+`, cuerpo `{ description: string }`), aunque las tareas 1.2/1.5/1.8 lo dieran por
+  imposible — lo que sí es cierto es que **no tiene ningún test de integración**: ningún fichero
+  bajo `tests/` hace un PATCH a esa ruta, así que su matriz de autorización nunca se ha ejercitado
+  por HTTP. `PATCH /api/campaigns/:id/locations/:slug/inhabitants/:characterId` **no existe**: esa
+  tabla no tiene columna editable y el enlace es solo alta/baja.
+
+- **La paridad de CLI quedó incompleta y no por imposibilidad.** Se añadió
+  `organization member update`; `location organization update` **no** se añadió, pese a que su
+  endpoint sí existe. `location inhabitant update` sí es imposible, por lo anterior.
+
+- **Los E2E se escribieron pero nunca se ejecutaron.** Las tareas 7.1–7.3 crearon
+  `tests/e2e/relations-panel-{character,organization,location}.spec.ts`; la 7.4 («correrlos») se
+  quedó sin marcar. Al ejecutarlos por primera vez el 2026-09-01, **4 de 16 fallan de forma
+  determinista** en la misma aserción (`[role="alertdialog"]` tras pulsar Delete). El detalle y la
+  causa localizada están en la tarea 7.4 de `tasks.md`.

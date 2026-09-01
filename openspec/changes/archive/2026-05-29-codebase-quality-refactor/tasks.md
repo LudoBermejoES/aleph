@@ -4,7 +4,14 @@
 - [x] 1.2 In `server/api/campaigns/[id]/inventories/index.get.ts`, fetch inventory items for all inventories via a single `inArray` join query, then group by `inventoryId`
 - [x] 1.3 In `server/api/campaigns/[id]/sessions/[slug]/decisions/index.get.ts`, fetch consequences for all decisions via one `inArray` query, then apply role-based revelation filtering in memory
 - [x] 1.4 Add/update integration tests asserting response content is unchanged for calendars, inventories, and decisions endpoints
-- [ ] 1.5 (Optional) Add a query-count assertion or log to demonstrate the N+1 is gone
+- [ ] 1.5 (Optional) Add a query-count assertion or log to demonstrate the N+1 is gone.
+      **DESCARTADA en el triaje del 2026-09-01, no pendiente.** Nunca se hizo y no hay
+      infraestructura para hacerlo: `grep -rl 'queryCount\|countQueries\|__queryLog' server/ tests/`
+      no devuelve nada, así que exigirla implica primero instrumentar Drizzle. Lo que la tarea
+      quería demostrar ya está cubierto de otra forma: 1.1–1.3 sustituyeron las consultas por fila
+      por un `inArray` único —- se lee en el propio código— y 1.4 fija que la respuesta de los tres
+      endpoints no cambió. Si alguien la retoma, que sea como cambio propio con la instrumentación
+      dentro.
 
 ## 2. N+1 Query Fix — Genealogy Service
 

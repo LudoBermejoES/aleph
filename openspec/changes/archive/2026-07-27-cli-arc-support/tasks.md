@@ -25,6 +25,13 @@
       HTTP in `tests/integration/session-arc-slug.test.ts` — see 5.1–5.15. Left
       unchecked deliberately: the helper has no direct unit test, so a future caller of
       `resolveArcChapterSlugs` outside the sessions endpoints would be untested.
+      **Triaje 2026-09-01: se confirma como deuda DECLARADA, no olvidada.** Verificado contra el
+      árbol: `resolveArcSlug` y `findCampaignChapters` siguen sin `export`
+      (`server/utils/arc-chapter.ts`), y `resolveArcChapterSlugs` no aparece fuera de
+      `server/api/campaigns/[id]/sessions/`. Mientras eso siga así, la cobertura por HTTP de
+      `tests/integration/session-arc-slug.test.ts` es suficiente; el día que aparezca un segundo
+      llamante, el test unitario pasa a ser obligatorio. La casilla se deja SIN marcar a
+      propósito: marcarla afirmaría un test que no existe.
 
 ## 2. Sessions PUT accepts arcSlug / chapterSlug
 
@@ -208,3 +215,9 @@ slug, not (undefined)` (`:89`) create a real campaign and drive the real CLI
       task as written asserts something untrue, and because the proposal's "Frontend
       (`app/`): none" and "`arcs-chapters-ui`: no delta" are now inaccurate: the session
       page's arc badge is UI behaviour that no requirement describes.
+      **Triaje 2026-09-01: se confirma OBSOLETA en su enunciado y ya resuelta en el fondo.** Los
+      dos ficheros que cita existen (`tests/e2e/arc-detail-sessions.spec.ts`,
+      `tests/unit/components/arc-detail-sessions.test.ts`), así que la cobertura prometida está.
+      Lo único que queda vivo es lo documental: el `proposal.md` de este cambio sigue diciendo
+      «Frontend (`app/`): none». La casilla se deja SIN marcar porque marcarla afirmaría la frase
+      que la propia tarea declara falsa.

@@ -54,6 +54,36 @@
 
 - [x] 9.1 Run `npm run test:unit` — all unit tests pass (472 pass)
 - [x] 9.2 Run `npm run test:integration` — all integration tests pass (requires server on port 3333)
-- [ ] 9.3 Manual smoke test: `aleph login` → stores `apiKey` in `~/.aleph/config.json` → `aleph campaign list` succeeds using `X-API-Key` header
-- [ ] 9.4 Manual smoke test: settings page shows API Keys section, key can be generated and revoked
-- [ ] 9.5 Run `npm run build` — no type errors
+- [x] 9.3 Manual smoke test: `aleph login` → stores `apiKey` in `~/.aleph/config.json` →
+      `aleph campaign list` succeeds using `X-API-Key` header. **Verificado 2026-09-01 contra el
+      servidor real, con una corrección de ruta:** el almacén ya NO es `~/.aleph/config.json`
+      (esa ruta no existe) sino el de `conf`, que en Linux es
+      `~/.config/aleph-nodejs/config.json` — 127 bytes, permisos `600`, dos claves: `url` y
+      `apiKey` (70 caracteres, prefijo `aleph_`). En macOS y Windows la ruta es distinta, ver
+      `CLAUDE.md` del superproyecto. El cliente manda la cabecera en `cli/src/lib/client.js:40`
+      y `:95`, y `node cli/bin/aleph.js campaign list` contra `aleph.ludobermejo.es` devuelve las
+      4 campañas con rol `dm`.
+- [ ] 9.4 Manual smoke test: settings page shows API Keys section, key can be generated and
+      revoked. **MITAD VERIFICADA, MITAD ROTA — medido en un navegador real el 2026-09-01 con un
+      spec de Playwright desechable (creado, ejecutado y borrado).**
+      Lo que **sí** funciona: `/settings` pinta la sección «API Keys», su estado vacío
+      («No API keys yet. Generate one below.») y, tras escribir un nombre y pulsar
+      «Generate Key», muestra el modal «Your New API Key» con una clave de **70** caracteres
+      (`aleph_…`) y la deja listada en la tabla.
+      Lo que **NO** funciona: **el botón «Revoke» no revoca nada.**
+      `app/pages/settings/index.vue:42` llama a `useI18n()` DENTRO del manejador asíncrono
+      `handleRevoke`, fuera del `setup`. Medido: al pulsar Revoke la página lanza
+      `PAGEERROR: Must be called at the top of a 'setup' function`, Vue avisa de
+      `Unhandled error during execution of component event handler at <ApiKeyList …>`, se ven
+      **0** diálogos `confirm` (la excepción ocurre ANTES del `confirm`), no sale petición
+      `DELETE` y la fila sigue en la tabla 4 s después. El endpoint
+      `server/api/apikeys/[id].delete.ts` y el servicio están bien y tienen tests unitarios
+      (`tests/unit/api/apikeys.test.ts:107-158`): lo que está muerto es el camino de UI.
+      **Es un defecto real y con carga de seguridad** (un usuario no puede retirar una clave
+      filtrada desde la interfaz; solo le queda `aleph logout` o la API). El arreglo es de una
+      línea — sacar `const { t } = useI18n()` al `setup` — pero **no se toca en esta pasada de
+      triaje**; merece su propio cambio con un test que lo cubra, porque hoy no hay ninguno que
+      renderice esta página.
+- [x] 9.5 Run `npm run build` — no type errors. **Verificado 2026-09-01:** el job `deploy` del
+      run de CI `33513381822` ejecuta `npm run build` (`nuxt build`) y terminó `success`; ese job
+      solo arranca detrás de `needs: [test, integration-test]`, ambos verdes en el mismo run.

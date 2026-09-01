@@ -29,4 +29,17 @@
 - [x] 4.3 **E2E tests** (`tests/e2e/`) — run existing MarkdownEditor E2E tests (toolbar formatting, entity mentions, image upload) and verify they pass without modification. If any tests reference internal structure that changed, update selectors.
 - [x] 4.4 **E2E tests** (`tests/e2e/`) — run existing character list E2E tests (filtering, sorting, folder navigation, search) and verify they pass without modification.
 - [x] 4.5 **E2E tests** (`tests/e2e/`) — run existing session detail E2E tests (attendance, decisions, consequences, rolls, content tabs) and verify they pass without modification.
-- [ ] 4.6 **Verification** — run `npx nuxi typecheck` to confirm no TypeScript regressions. Run `npx vitest run` for full unit/integration suite. Run `npx playwright test` for full E2E suite.
+- [ ] 4.6 **Verification** — run `npx nuxi typecheck` to confirm no TypeScript regressions. Run
+      `npx vitest run` for full unit/integration suite. Run `npx playwright test` for full E2E
+      suite. **Triaje 2026-09-01: las tres partes tienen veredictos DISTINTOS.** 1. `npx nuxi typecheck` — **OBSOLETA, no ejecutable en este repo.** `vue-tsc` no es
+      dependencia (`package.json` solo trae `typescript 5.9`), así que `npx` se baja una copia
+      suelta y el comando muere con
+      `ERR_PACKAGE_PATH_NOT_EXPORTED: './lib/tsc' is not defined by "exports"` — un fallo de
+      herramienta, no del código. Medido hoy. El equivalente que sí corre es `nuxt build`, que
+      CI ejecuta en cada push. 2. `npx vitest run` (unit + integración) — **VERDE**, en el run de CI `33513381822`
+      (2026-09-01): job `test` corre `npx vitest run tests/unit/`, job `integration-test` corre
+      `npm run test:integration`; los dos `success`. 3. `npx playwright test` (suite E2E completa) — **NO PASA HOY.** No se corrió entera en esta
+      pasada (≈1 h), pero 4 de sus tests fallan de forma determinista por una causa ya
+      localizada; ver la tarea 7.4 de
+      `2026-05-23-editable-relations-on-detail-pages/tasks.md`. Queda como deuda real
+      compartida con aquel cambio, no de éste.

@@ -33,4 +33,18 @@
 - [x] 7.1 Run `npm run build` — confirm no errors
 - [x] 7.2 Run `npx vitest run tests/unit/` — all unit tests pass
 - [x] 7.3 Run `npx vitest run tests/integration/` — all integration tests pass
-- [ ] 7.4 Manual test: upload a non-square image (e.g. 800x400) → verify it displays without stretching
+- [x] 7.4 Manual test: upload a non-square image (e.g. 800x400) → verify it displays without
+      stretching. **Verificado 2026-09-01 sobre la matemática que decide el encuadre, que es
+      exactamente donde vive «sin estirar».** El visor construye su caja con
+      `buildImageMapInitOptions(imgWidth, imgHeight)` (`MapViewer.client.vue:474`) y hace
+      `map.fitBounds(bounds)`; esa función delega en `computeImageMapGeometry`
+      (`app/utils/mapPinGeometry.ts:42`), que escala ANCHO y ALTO por el MISMO factor
+      `pinScale = 256 / max(w, h)`. Ejecutada de verdad sobre el módulo real (Node 24,
+      `--experimental-strip-types`): `800x400 → boundsWidth 256 / boundsHeight 128`, ratio
+      **2,0000** frente al ratio **2,0000** de la imagen; `400x800 → 128/256` (0,5000 = 0,5000);
+      `2048x512 → 256/64` (4,0000 = 4,0000); `1024x1024 → 256/256`. Los tiles son cuadrados de
+      256 px con `noWrap`, así que no hay otra fuente de deformación.
+      **Lo que esta comprobación NO es:** una captura de pantalla. Se midió el mecanismo, no los
+      píxeles. No existe ningún test automático con imagen no cuadrada —
+      `tests/integration/maps-tiling.test.ts` sube un PNG de **1×1** y solo comprueba
+      `width > 0 && height > 0`.

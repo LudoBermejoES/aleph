@@ -1,14 +1,37 @@
 ## 1. Server: new PATCH endpoints (TDD)
 
 - [x] 1.1 Write integration test in `tests/integration/organization-members-patch.test.ts` covering `PATCH /api/campaigns/:id/organizations/:slug/members/:characterId` (200 success updates role, 401 unauthenticated, 403 player, 404 unknown member)
-- [x] 1.2 ~~Write integration tests in `tests/integration/location-link-patch.test.ts`~~ — skipped: `organizationLocations` and character `locationEntityId` have no description column; location links are add/delete-only in the panel covering `PATCH /api/campaigns/:id/locations/:slug/inhabitants/:characterId` and `PATCH /api/campaigns/:id/locations/:slug/organizations/:organizationId` (same auth matrix as 1.1, plus body validation)
+- [x] 1.2 ~~Write integration tests in `tests/integration/location-link-patch.test.ts`~~ — skipped: `organizationLocations` and character `locationEntityId` have no description column; location links are add/delete-only in the panel covering `PATCH /api/campaigns/:id/locations/:slug/inhabitants/:characterId` and `PATCH /api/campaigns/:id/locations/:slug/organizations/:organizationId` (same auth matrix as 1.1, plus body validation).
+      **CORRECCIÓN 2026-09-01: la mitad de organizaciones de esta justificación es falsa.**
+      `organizationLocations` **sí** tiene columna editable y el endpoint existe
+      (`server/api/campaigns/[id]/locations/[slug]/organizations/[organizationId].patch.ts`,
+      commit `6ed16de`, el mismo de este cambio). Sigue **sin test de integración**: ningún
+      fichero de `tests/` hace un PATCH a esa ruta, así que su matriz de autorización
+      (403 editor+, 404 localización desconocida, validación de cuerpo) no está probada por
+      HTTP. Solo la mitad de inhabitants es cierta: ahí únicamente hay
+      `[characterId].delete.ts`.
 - [x] 1.3 Write unit tests in `tests/unit/server/organization-members-service.test.ts` (location-link-service skipped — no editable fields) for the underlying service functions (`updateMemberRole`, `updateInhabitantLink`, `updateLocationOrganizationLink`)
 - [x] 1.4 Implement `updateMemberRole` in `server/services/organization-members.ts` (or membership service)
-- [x] 1.5 ~~Implement `updateInhabitantLink` / `updateLocationOrganizationLink`~~ — skipped: no description column on those tables
+- [x] 1.5 ~~Implement `updateInhabitantLink` / `updateLocationOrganizationLink`~~ — skipped: no description column on those tables.
+      **CORRECCIÓN 2026-09-01:** el segundo SÍ se implementó, con otro nombre:
+      `updateLocationOrgDescription` (`server/services/organization-members.ts:41`), y tiene test
+      unitario (`tests/unit/server/organization-members-service.test.ts:84`, 4 casos). Solo
+      `updateInhabitantLink` no existe.
 - [x] 1.6 Implement endpoint `server/api/campaigns/[id]/organizations/[slug]/members/[characterId]/index.patch.ts` (editor+ guard, body validation, calls service)
 - [x] 1.7 ~~Implement inhabitants PATCH~~ — skipped (no schema fields)
-- [x] 1.8 ~~Implement org-location PATCH~~ — skipped (no schema fields)
-- [ ] 1.9 Run integration tests — deferred to task 9.2 (server must be running on port 3333)
+- [x] 1.8 ~~Implement org-location PATCH~~ — skipped (no schema fields).
+      **CORRECCIÓN 2026-09-01: se implementó.** El fichero está en el árbol desde el commit de
+      este mismo cambio (`6ed16de`):
+      `server/api/campaigns/[id]/locations/[slug]/organizations/[organizationId].patch.ts`,
+      con guarda `editor+`, `bodySchema = z.object({ description: z.string() })` y 404 si la
+      localización no existe.
+- [x] 1.9 Run integration tests — deferred to task 9.2 (server must be running on port 3333).
+      **Verificado 2026-09-01 contra el artefacto:** la suite de integración completa está
+      VERDE en el run de CI `33513381822` (2026-09-01, jobs `test` / `integration-test` /
+      `deploy`, los tres `success`). Ese `integration-test` es `npm run test:integration`, que
+      levanta `nuxt dev` en :3333 sobre una base de datos desechable y corre
+      `vitest run tests/integration/`, directorio que contiene
+      `tests/integration/organization-members-patch.test.ts` (tarea 1.1).
 
 ## 2. Composable: useEntityRelations
 
@@ -40,19 +63,51 @@
 
 - [x] 6.1 Add keys to `i18n/locales/en.json`: `relations.panel.title`, `relations.panel.empty`, `relations.panel.addButton`, `relations.panel.editButton`, `relations.panel.deleteButton`, `relations.panel.deleteConfirm`, `relations.panel.groupHeaders.*`, dialog labels, success/error toasts
 - [x] 6.2 Add the same keys to `i18n/locales/es.json` with Spanish translations
-- [ ] 6.3 Verify no untranslated keys appear in the UI in either locale (manual smoke check)
+- [x] 6.3 Verify no untranslated keys appear in the UI in either locale (manual smoke check).
+      **Verificado 2026-09-01 midiendo, no mirando:** las **33** claves `relations.*` que usan
+      `app/components/relations/EntityRelationsPanel.vue`, `RelationFormDialog.vue` y
+      `app/composables/useEntityRelations.ts` resuelven a una cadena en `i18n/locales/en.json`
+      Y en `i18n/locales/es.json` — **0 ausentes en cada lado**. El único valor idéntico entre
+      los dos locales es `relations.neutral` («Neutral»), que es la misma palabra en ambos
+      idiomas, no una clave sin traducir.
 
 ## 7. E2E tests
 
 - [x] 7.1 Write `tests/e2e/relations-panel-character.spec.ts`: add, edit, delete a relation from a character detail page; verify it appears on the target's detail page too
 - [x] 7.2 Write `tests/e2e/relations-panel-organization.spec.ts`: add a member via panel, edit the member's role inline (PATCH path), delete the member
 - [x] 7.3 Write `tests/e2e/relations-panel-location.spec.ts`: add an inhabitant, edit the link description, delete the link
-- [ ] 7.4 Run `npx playwright test relations-panel-*.spec.ts` — confirm pass
+- [ ] 7.4 Run `npx playwright test relations-panel-*.spec.ts` — confirm pass.
+      **DEUDA REAL, medida 2026-09-01, NO saldada en esta pasada.** Ejecutado
+      (`npm run test:e2e` sobre los tres specs `relations-panel-*.spec.ts` más
+      `icons.spec.ts`; 16 tests, 5,5 min): **11 pasan, 1 flaky, 4 FALLAN.** Los 4
+      fallos son el MISMO en las tres páginas —
+      `expect(page.locator('[role="alertdialog"]')).toBeVisible()` tras pulsar Delete
+      (`relations-panel-character.spec.ts:113`, `relations-panel-location.spec.ts:114` y `:148`,
+      `relations-panel-organization.spec.ts:113`)— y cada uno falló DOS veces (intento +
+      reintento), así que no es intermitencia. El flaky restante es el conocido
+      `helpers.ts:105` (`button:has-text("New Campaign")`), que pasó al reintentar.
+      **El diálogo SÍ se abre; lo que falta es el rol.** El snapshot de accesibilidad del fallo
+      muestra `- dialog "This action cannot be undone."` con sus botones Cancel/Delete/Close.
+      El `role="alertdialog"` que pide `EntityRelationsPanel.vue:190` no llega al DOM:
+      `app/components/ui/dialog/DialogContent.vue` declara
+      `defineProps<DialogContentProps & { class }>`, `role` no está en `DialogContentProps`, así
+      que cae a `$attrs`, y el único nodo raíz de ese componente es `<DialogPortal>` (un Teleport
+      de reka-ui 2.9.8) — donde el atributo se pierde. El elemento renderizado sale con
+      `role="dialog"`.
+      **Los dos arreglos posibles no son equivalentes**: reenviar `role` al `DialogContent`
+      interno (`inheritAttrs: false` + bind explícito) entrega la semántica de a11y que merece un
+      confirmatorio destructivo; cambiar los 4 specs a `[role="dialog"]` es exactamente el patrón
+      «un test que afirma el defecto» que este proyecto ya ha cometido varias veces. Lo decide
+      el dueño.
 
 ## 8. aleph-cli parity
 
 - [x] 8.1 Add `organization member update` command in `cli/src/commands/organization.js` invoking the new PATCH endpoint
-- [x] 8.2 ~~Add `location inhabitant update` and `location organization update` subcommands~~ — skipped: no editable fields on those endpoints
+- [x] 8.2 ~~Add `location inhabitant update` and `location organization update` subcommands~~ — skipped: no editable fields on those endpoints.
+      **CORRECCIÓN 2026-09-01: `location organization update` sí tendría qué llamar** (el PATCH
+      existe, ver 1.8) y sigue sin existir en el CLI: `grep` sobre `cli/src/` no encuentra
+      ninguna invocación a esa ruta. Es un hueco REAL de paridad CLI↔endpoint, no una
+      imposibilidad. `location inhabitant update` sí es imposible.
 - [x] 8.3 `patch` already existed in `cli/src/lib/client.js`; no changes needed
 - [x] 8.4 ~~CLI unit tests~~ — skipped: no CLI test suite exists in this project; thin wrapper verified by integration test
 - [x] 8.5 Update `docs/claude-skill.md` with the new commands and example usage
@@ -61,7 +116,32 @@
 ## 9. Final verification
 
 - [x] 9.1 Run full unit test suite: `npx vitest run tests/unit/` — 1192 passed
-- [ ] 9.2 Start dev server on port 3333 and run full integration suite: `npx vitest run tests/integration/`
-- [ ] 9.3 Run Playwright suite: `npx playwright test`
-- [ ] 9.4 Manually exercise the panel on each of the three detail pages in the browser (add, edit, delete in each relation mode); confirm tldraw diagram and `/relations/*` still work unchanged
-- [ ] 9.5 Update `openspec/changes/editable-relations-on-detail-pages/proposal.md` if any divergence emerged during implementation
+- [x] 9.2 Start dev server on port 3333 and run full integration suite:
+      `npx vitest run tests/integration/`. **Verificado 2026-09-01:** el job `integration-test`
+      del run de CI `33513381822` hace exactamente eso (`npm run test:integration`) y terminó
+      `success`, con `test` y `deploy` también verdes en el mismo run.
+- [ ] 9.3 Run Playwright suite: `npx playwright test`. **DEUDA REAL, no saldada.** La suite
+      e2e no puede pasar hoy: los 4 fallos deterministas descritos en 7.4 son de estos mismos
+      specs. La suite completa NO se corrió en esta pasada (≈1 h); `CLAUDE.md` registra
+      «275 passed / 43 flaky / 0 failed» el 2026-08-31, cifra que **no se puede reconciliar**
+      con las 8 observaciones de fallo medidas hoy sobre 4 de esos tests sin que nada haya
+      cambiado en `app/components/relations/` ni en `app/components/ui/dialog/` desde entonces
+      (`git log --since=2026-08-25` sobre ambas rutas: vacío). Una de las dos mediciones está
+      mal y la de hoy es la que tiene trazas guardadas.
+- [ ] 9.4 Manually exercise the panel on each of the three detail pages in the browser (add,
+      edit, delete in each relation mode); confirm tldraw diagram and `/relations/*` still work
+      unchanged. **PARCIAL, medido 2026-09-01.** Los specs e2e recorren en un navegador real las
+      tres páginas: renderizado y estado vacío, alta de relación, propagación a la ficha destino,
+      secciones Inhabitants/Organizations/Members y edición del rol de un miembro — todo eso
+      **pasa**. Lo que NO queda verificado es el **borrado** en ninguno de los tres modos: los
+      cuatro tests de Delete mueren en la aserción del rol (ver 7.4) antes de pulsar el botón de
+      confirmación, así que el camino DELETE completo sigue sin ejercitarse. El diagrama tldraw y
+      `/relations/*` tienen sus propios specs (`tests/e2e/diagram*.spec.ts`, `diagrams.spec.ts`)
+      que no se ejecutaron en esta pasada.
+- [x] 9.5 Update `openspec/changes/editable-relations-on-detail-pages/proposal.md` if any
+      divergence emerged during implementation. **Hecho 2026-09-01, y sí había divergencia — en
+      las dos direcciones.** Ver la sección «Divergencias respecto a lo implementado» añadida al
+      final de `proposal.md`: el `proposal.md` prometía tres endpoints PATCH nuevos y dos
+      subcomandos de CLI; de los tres, el de inhabitants NO existe (esa tabla no tiene columna
+      editable) y el de organizaciones de una localización **SÍ se implementó**, contra lo que
+      afirman las tareas 1.5/1.8/8.2 de este mismo fichero (corregidas ahí mismo).
