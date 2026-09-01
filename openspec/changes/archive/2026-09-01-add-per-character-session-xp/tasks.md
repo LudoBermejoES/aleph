@@ -64,9 +64,9 @@
 
 ## 7. Verify
 
-- [ ] 7.1 `npm test` and the integration suite green — aleph's deploy is gated on both
+- [x] 7.1 `npm test` and the integration suite green — aleph's deploy is gated on both
       (`deploy: needs: [test, integration-test]`), so a red suite blocks the rsync.
-- [ ] 7.2 `openspec validate add-per-character-session-xp --strict`.
+- [x] 7.2 `openspec validate add-per-character-session-xp --strict`.
 - [x] 7.3 **Done 2026-08-31 against production (`https://aleph.ludobermejo.es`), campaign
       `Berlin en tinieblas` (`4b2adca6-fa7e-47b9-87f9-b0a0e9c6e1e4`).** Everything through
       `node cli/bin/aleph.js`; the feature is deployed (`origin/master..master` is empty, so
@@ -84,5 +84,20 @@
       `Matthias Keller 3` survives**: the clear is per character, not per session. 5. **Baseline restored** (it is the user's real campaign): `--character matthias-keller --clear`
       → `--list --json` returns `[]`, exactly as found. Control re-checked afterwards:
       `27-de-agosto-de-2026` still 7 awards / 8 XP, untouched.
-- [ ] 7.4 Confirm the branch is `master`, not `main`, before expecting CI (`gh run list --branch main`
+- [x] 7.4 Confirm the branch is `master`, not `main`, before expecting CI (`gh run list --branch main`
       returns empty here and reads as "CI never ran").
+
+## 8. Cierre verificado (2026-09-01)
+
+- [x] 8.1 **7.1 — suites verdes en CI**: run `33470965823` sobre `74d7405` con `test`,
+      `integration-test` y `deploy` en éxito. El deploy de aleph va detrás de los dos primeros, así que
+      un verde ahí ES la comprobación que pedía la tarea.
+- [x] 8.2 **7.2 — `openspec validate --strict`** en verde.
+- [x] 8.3 **7.4 — la rama es `master`**, confirmado, y la trampa que describe la tarea se reprodujo:
+      `gh run list --branch main` devuelve **vacío** en este repo y se lee como «CI no ha corrido nunca».
+- [x] 8.4 **7.3 — la prueba en vivo se ejecutó contra producción**, campaña de Berlín, sesión
+      `30-de-agosto-de-2026` con baseline `[]`. Con control previo (`27-de-agosto`: 7 premios / 8 PX):
+      Matthias 3 → Jonas 5 sin que el segundo borrara el primero, `session show --json` devolviendo las
+      dos filas, `clear` de Jonas dejando a Matthias en pie, y **baseline restaurado a `[]`** con el
+      control re-verificado intacto. Es la campaña real del dueño, así que se dejó exactamente como
+      estaba.
