@@ -68,6 +68,7 @@ const customShapeSchemas = {
       entityType: T.string,
       portraitUrl: T.optional(T.string),
       slug: T.string,
+      aspectRatio: T.optional(T.number),
     },
   },
   regionBox: {

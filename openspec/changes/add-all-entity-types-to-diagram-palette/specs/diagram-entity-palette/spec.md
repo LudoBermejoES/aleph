@@ -95,3 +95,31 @@ SHALL name that bucket generically rather than naming one type.
 - **GIVEN** an object has been dropped onto a diagram and the diagram saved
 - **WHEN** the diagram is reopened
 - **THEN** the card shows the object's name and image, not a blank card
+
+### Requirement: The generic entityCard shares the other card shapes' visual language
+
+The `entityCard` shape SHALL render an entity's image full-bleed across its own image area, with
+the entity's name shown in a label bar beneath that image area — the same layout every other
+card-style shape (`locationPin`, `factionCard`, `npcToken`) already uses — rather than a small
+fixed-size thumbnail placed beside the title with the rest of the card left blank.
+
+This requirement governs presentation only. It does not change which shape type an entity type
+maps to (`getShapeType()`'s fallback to `entityCard` for any type with no dedicated shape is
+unchanged), and it MUST NOT change the rendering of `npcToken`, `locationPin`, `questNode` or
+`factionCard`.
+
+#### Scenario: an Item card looks like the rest of the board
+
+- **GIVEN** an entity of a type with no dedicated shape (e.g. an Item) is placed on a diagram and
+  carries an image
+- **WHEN** the diagram renders that card
+- **THEN** the image fills the card's image area edge-to-edge, not a small fixed-size square
+- **AND** the entity's name appears in a label bar below the image area, not beside a thumbnail
+
+#### Scenario: a placed object with no image yet shows a placeholder, not a broken layout
+
+- **GIVEN** an entity of a type with no dedicated shape has been placed on a diagram and carries
+  no image
+- **WHEN** the diagram renders that card
+- **THEN** the image area shows a centered placeholder icon
+- **AND** the card's layout (image area above name bar) is unchanged from the case with an image

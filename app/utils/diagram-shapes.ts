@@ -163,8 +163,11 @@ export function buildShapeCreateArgs(
         type: 'entityCard',
         props: {
           ...baseProps,
-          w: 200,
-          h: 80,
+          // Matches the other card shapes' default footprint (npcToken/factionCard: 140x160)
+          // now that the card renders a full-bleed image with a name bar underneath, rather
+          // than the old fixed 200x80 horizontal strip built around a tiny fixed thumbnail.
+          w: 140,
+          h: 160,
           entityName: entity.name,
           entityType: entityType,
           portraitUrl: entity.portraitUrl ?? entity.image ?? undefined,
