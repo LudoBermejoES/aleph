@@ -330,6 +330,68 @@ describe('alephTLSchema', () => {
     })
   })
 
+  /**
+   * Regression for `fix-diagram-image-override-autosave-race` (D4, corrected): production runs
+   * with `NUXT_PUBLIC_DIAGRAM_MULTIPLAYER=true` (confirmed on the live server's `.env`, not
+   * assumed from this repo's local default of `false`), so every `updateShapes` call goes over
+   * the `@tldraw/sync` socket into `TLSocketRoom`, which validates against exactly this schema —
+   * `alephTLSchema`, the real production object, not a re-implementation of its rules. Before this
+   * fix, picking a non-primary card image threw `TLSyncError: At shape(type = locationPin).props
+   * .imageOverrideId: Unexpected property` — `diffAndValidateRecord`'s default
+   * `shouldAllowUnknownProperties = false` — which `TLSyncRoom.handleMessage` turns into
+   * `rejectSession`, closing that client's socket. 20 occurrences of exactly this, all
+   * `locationPin`, were read from `/var/www/aleph/logs/pm2-error.log` on the live server between
+   * 07:01 and 08:49 on 2026-09-01 — both before AND after the autosave-race fix deployed at 08:08,
+   * proving this is a second, independent gap the first fix's own investigation found and
+   * (incorrectly, per its D4) judged out of scope because it believed sync mode was off in
+   * production. It is the four shapes that actually carry the prop client-side
+   * (`app/components/diagrams/react/shapes/{EntityCard,FactionCard,LocationPin,NPCToken}Shape.tsx`)
+   * — enumerated from that code, not from memory, alongside `genealogyNode` and `questNode` as
+   * negative controls that do NOT carry it and must keep rejecting it.
+   */
+  describe('imageOverrideId (per-shape card image override)', () => {
+    it.each(['npcToken', 'locationPin', 'factionCard', 'entityCard'])(
+      'accepts imageOverrideId on %s',
+      (type) => {
+        const props = { w: 100, h: 100, ...minimalPropsFor(type), imageOverrideId: 'img-123' }
+        expect(() => shapeValidator.validate(makeShape(type, props))).not.toThrow()
+      },
+    )
+
+    it.each(['npcToken', 'locationPin', 'factionCard', 'entityCard'])(
+      'accepts %s with imageOverrideId entirely absent (a snapshot saved before this feature existed)',
+      (type) => {
+        const props = { w: 100, h: 100, ...minimalPropsFor(type) }
+        expect(() => shapeValidator.validate(makeShape(type, props))).not.toThrow()
+      },
+    )
+
+    it.each(['questNode', 'genealogyNode'])(
+      'still rejects imageOverrideId on %s (negative control: this shape never carries it)',
+      (type) => {
+        const props = { w: 100, h: 100, ...minimalPropsFor(type), imageOverrideId: 'img-123' }
+        expect(() => shapeValidator.validate(makeShape(type, props))).toThrow(/Unexpected property/)
+      },
+    )
+  })
+
+  /**
+   * `aspectRatio` landed on the same four shapes in the same client-side files, from a different,
+   * concurrent change. Checked here because the mechanism that produced the `imageOverrideId` gap
+   * (a prop added to the client shape's `RecordProps` but not to this server-side duplicate) is
+   * generic, not specific to one prop — and this one was already declared correctly on all four,
+   * verified by these tests rather than assumed.
+   */
+  describe('aspectRatio (per-shape image fit, from a separate change)', () => {
+    it.each(['npcToken', 'locationPin', 'factionCard', 'entityCard'])(
+      'accepts aspectRatio on %s',
+      (type) => {
+        const props = { w: 100, h: 100, ...minimalPropsFor(type), aspectRatio: 1.5 }
+        expect(() => shapeValidator.validate(makeShape(type, props))).not.toThrow()
+      },
+    )
+  })
+
   it('registers all 11 custom shape types', () => {
     const customTypes = [
       'npcToken',

@@ -24,6 +24,19 @@ const peerContexts = new WeakMap<Peer, SessionContext>()
  * Wrap a crossws Peer as a WebSocketMinimal for TLSocketRoom.
  * We use the handleSocketMessage/handleSocketClose/handleSocketError
  * pattern (like Bun/Cloudflare) instead of addEventListener.
+ *
+ * `close` is NOT optional on `WebSocketMinimal` (`tsc -p .nuxt/tsconfig.server.json` reports
+ * TS2741 without it — this project runs no typecheck in CI, so that error was invisible). Its
+ * absence here was silent and consequential: `TLSyncRoom.removeSession` calls
+ * `session.socket.close(code, reason)` on every fatal rejection (e.g. `INVALID_RECORD`, the
+ * production `imageOverrideId` schema gap this room's schema used to have), wrapped in a bare
+ * `try {} catch {}`. With no `close` method the call threw and was swallowed, so the room forgot
+ * the session internally while the underlying WebSocket to the browser stayed open — no close
+ * event, no error frame, nothing for `useSync`'s status to react to. `multiplayerActive` and the
+ * "conectado" indicator kept reading true, and every future push from that tab silently went
+ * nowhere: `handleMessage` looks the session up by id and does nothing when it's not found. That
+ * turned an already-bad schema rejection into an invisible one — the only way anyone found out
+ * their edit didn't survive was reloading the page.
  */
 function wrapPeer(peer: Peer): WebSocketMinimal {
   return {
@@ -32,6 +45,13 @@ function wrapPeer(peer: Peer): WebSocketMinimal {
         peer.send(data)
       } catch {
         /* peer may be closing */
+      }
+    },
+    close(code, reason) {
+      try {
+        peer.close(code, reason)
+      } catch {
+        /* peer may already be closing */
       }
     },
     readyState: 1, // assume open when wrapping
