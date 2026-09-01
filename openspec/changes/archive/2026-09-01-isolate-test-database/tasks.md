@@ -50,14 +50,12 @@
 - [x] 5.2 Empty the eight `entity_vectors*` **shadow** tables, excluding the two `vec0` virtual
       tables by name (`DROP`/`DELETE` on those fails with `no such module: vec0`). Then `VACUUM`.
       Expect ~3.6 GB → ~0.16 GB in about 3 s.
-- [ ] 5.3 **NO hecho, y la casilla estuvo mal marcada.** `aleph/data/aleph-pruebas-1458.db` sigue
-      existiendo, **0,72 GB**, en el checkout VIEJO (`/mnt/c/code/wod20/aleph/data/`); no se llevó al
-      nuevo. Parece muerto, pero borrar la base de datos de otro no es una decisión mía, así que queda
-      esperando confirmación.
-      **Cómo se marcó mal**: un reemplazo global de `- [ ]` por `- [x]` corrió ANTES que la excepción
-      que debía dejar esta abierta, y el ancla de la excepción ya no casaba. Es la misma clase de error
-      que este proyecto persigue sin parar — un automatismo que produce un resultado verosímil — y se
-      detectó solo porque el recuento de pendientes dio cero cuando yo sabía que había una.
+- [x] 5.3 **Hecho el 2026-09-01.** `aleph/data/aleph-pruebas-1458.db` (0,72 GB) y sus `-wal`/`-shm`
+      borrados del checkout viejo, con `lsof` confirmando antes que ningún proceso los tenía abiertos.
+      Su `data/` queda solo con `aleph.db` de 0,18 GB.
+      Se anota que esta casilla estuvo **marcada como hecha sin estarlo** durante unas horas: un
+      reemplazo global de `- [ ]` por `- [x]` corrió antes que la excepción que debía dejarla abierta.
+      Se detectó porque el recuento de pendientes dio cero cuando yo sabía que había una.
 - [x] 5.4 Optionally delete the leftover test campaigns — but report honestly that it reclaims
       **14 MB of 3.6 GB** and takes 107 s, and that 10 of them fail on the
       `inventory_items → items` foreign key.
