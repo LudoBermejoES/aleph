@@ -113,7 +113,9 @@ The system SHALL let editors+ modify an existing relation's metadata directly fr
 
 ### Requirement: Delete relation from detail page
 
-The system SHALL let editors+ delete an existing relation involving the current entity from the panel, with confirmation.
+The system SHALL let editors+ delete an existing relation involving the current entity from the
+panel, with confirmation. The confirmation prompt SHALL be exposed to assistive technology as an
+alert dialog (`role="alertdialog"`), because it warns of a destructive, irreversible action.
 
 #### Scenario: Editor confirms deletion of an entity-relation
 
@@ -122,6 +124,15 @@ The system SHALL let editors+ delete an existing relation involving the current 
 - **THEN** `DELETE /api/campaigns/:id/relations/:relationId` is called
 - **AND** the row is removed from the panel on success
 - **AND** a success notification is shown
+
+#### Scenario: The confirmation prompt is reachable as an alert dialog
+
+- **GIVEN** the editor clicked "Delete" and the confirmation prompt is open
+- **WHEN** the rendered DOM is inspected (or queried by a screen reader / accessibility tree)
+- **THEN** the confirmation prompt's root element carries `role="alertdialog"`, not merely
+  `role="dialog"` — a caller passing `role="alertdialog"` to the shared dialog wrapper SHALL have
+  that attribute actually reach the rendered element, not silently fall through to `$attrs` on a
+  Teleport root with nothing to receive it
 
 #### Scenario: Editor cancels deletion
 

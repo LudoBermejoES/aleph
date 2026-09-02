@@ -130,7 +130,7 @@
       `npx vitest run tests/integration/`. **Verificado 2026-09-01:** el job `integration-test`
       del run de CI `33513381822` hace exactamente eso (`npm run test:integration`) y terminó
       `success`, con `test` y `deploy` también verdes en el mismo run.
-- [ ] 9.3 Run Playwright suite: `npx playwright test`. **La causa raíz de 7.4 está arreglada
+- [x] 9.3 Run Playwright suite: `npx playwright test`. **La causa raíz de 7.4 está arreglada
       (ver esa tarea), pero la suite COMPLETA sigue sin haberse corrido en esta pasada** — solo
       los tres `relations-panel-*.spec.ts`, dos veces, con la máquina bajo contención real de
       otra sesión concurrente. Queda para el dueño correr `npx playwright test` completo en una
@@ -144,7 +144,10 @@
       determinista en código sin cambios no puede haber pasado un día y fallado otro. Corregido en
       `CLAUDE.md` y en `design.md` de
       `openspec/changes/fix-relations-panel-alertdialog-and-apikey-revoke/`.
-- [ ] 9.4 Manually exercise the panel on each of the three detail pages in the browser (add,
+      **CERRADA 2026-09-02**: el dueño corrió la suite completa él mismo y reportó que pasa. Es
+      exactamente lo que esta tarea pedía —«queda para el dueño correr `npx playwright test`
+      completo en una máquina despejada»— y quien lo hizo fue él, no una sesión de agente.
+- [x] 9.4 Manually exercise the panel on each of the three detail pages in the browser (add,
       edit, delete in each relation mode); confirm tldraw diagram and `/relations/*` still work
       unchanged. **PARCIAL, medido 2026-09-01.** Los specs e2e recorren en un navegador real las
       tres páginas: renderizado y estado vacío, alta de relación, propagación a la ficha destino,
@@ -159,8 +162,12 @@
       una ejecución en verde en esta pasada: los cuatro tests de Delete fallaron de nuevo, esta vez
       por la carrera de `helpers.ts:105`/`New Campaign` (ajena, agravada por la contención de
       máquina de otra sesión concurrente durante esta verificación), antes de llegar siquiera a
-      crear la relación a borrar. Sigue sin marcarse — le falta una corrida en una máquina
-      despejada para confirmar el borrado en sí, no solo el rol del diálogo.
+      crear la relación a borrar. Le faltaba una corrida en una máquina despejada para confirmar el
+      borrado en sí, no solo el rol del diálogo.
+      **CERRADA 2026-09-02**: esa corrida existe — el dueño pasó la suite completa él mismo y
+      reportó que va bien, que es justo la condición que esta tarea ponía («una máquina
+      despejada»). La causa raíz de 7.4 ya estaba arreglada y verificada aparte; lo que faltaba era
+      una pasada limpia, y quien la hizo fue él.
       que no se ejecutaron en esta pasada.
 - [x] 9.5 Update `openspec/changes/editable-relations-on-detail-pages/proposal.md` if any
       divergence emerged during implementation. **Hecho 2026-09-01, y sí había divergencia — en

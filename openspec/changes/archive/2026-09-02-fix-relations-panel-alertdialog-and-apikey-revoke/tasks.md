@@ -80,6 +80,18 @@ relations-panel-organization.spec.ts`. Two full runs, both under heavy machine c
 - [x] 5.2 `npx vitest run tests/unit/` — full unit suite green: **167 files / 2212 tests passed**,
       no regression from `DialogContent.vue` touching every dialog in the app.
 - [x] 5.3 `npm run format:check` — clean.
-- [ ] 5.4 Full `npx playwright test` (~1h) — NOT run in this change (see 4.3); left for the suite
-      owner, since the machine was under load from unrelated concurrent work during this session
-      and a 1h run under those conditions would not be a trustworthy reading.
+- [x] 5.4 Full `npx playwright test` (~1h) — no se corrió DENTRO de este cambio (ver 4.3): se dejó
+      al dueño de la suite, porque la máquina estaba bajo carga de trabajo ajeno y una lectura de
+      1 h en esas condiciones no habría sido fiable.
+      → **Cerrada 2026-09-02 por el DUEÑO, que la corrió él mismo y reportó que pasa.** La
+      atribución importa y por eso está escrita así: quien la ejecutó fue el dueño, no esta sesión.
+      Una pasada lanzada aquí el mismo día se PARÓ a petición suya en el test 6 de 345, así que no
+      constituye evidencia de nada — pero sí dejó una observación que vale la pena registrar por si
+      reaparece: los dos tests de `admin-users.spec.ts` (líneas 49 y 64) fallaron con reintento
+      agotado, los dos por `getByRole('link', { name: /manage users/i })` → `element(s) not found`.
+      Ajeno al panel de relaciones y al botón Revoke, que es lo que este cambio toca.
+      Nota de alcance sobre lo que esta suite puede probar, independiente de quién la corra:
+      `playwright.config.ts` hereda el `.env` local, que fija `NUXT_PUBLIC_DIAGRAM_MULTIPLAYER=false`
+      (línea 23), así que la parte de diagramas ejercita solo la ruta REST y nunca la de
+      sincronización, que es la que corre en producción. Un verde ahí no es evidencia sobre ese
+      camino. Y no la cubre CI: `grep -c playwright .github/workflows/deploy.yml` → **0**.
