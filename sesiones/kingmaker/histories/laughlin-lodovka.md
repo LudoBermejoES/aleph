@@ -34,7 +34,7 @@ Laughlin mantuvo el canto bárdico durante todo el combate contra Los Lágrimas 
 
 ## Sesión del 19 de julio de 2025 — La barda que miraba atrás
 
-Laughlin reconoció al Barón Haron Drelet antes de que abriera la boca: noble con experiencia, rodeado de veteranos y diplomáticos, el tipo de hombre que recoge una carta con una inclinación de cabeza y no necesita nada más. Cuando fue el turno del grupo, Laughlin escuchó la asignación — Cinturón Verde, Marcas de Narl, los bandidos, el Puesto Comercial de Oleg — y empezó a calcular lo que implicaba.
+Laughlin reconoció al Barón Hannis Drelev antes de que abriera la boca: noble con experiencia, rodeado de veteranos y diplomáticos, el tipo de hombre que recoge una carta con una inclinación de cabeza y no necesita nada más. Cuando fue el turno del grupo, Laughlin escuchó la asignación — Cinturón Verde, Marcas de Narl, los bandidos, el Puesto Comercial de Oleg — y empezó a calcular lo que implicaba.
 
 Linzi vaciló entre Tartuccio y el grupo. Laughlin no necesitó pensarlo: la halfling tenía talento, y un bardo solo canta mejor si hay algo que valga la pena cantar. Linzi se quedó. Después, en el salón vacío con Lady Jamandi, Laughlin habló de la diosa y del templo del ala este. No fue hacer la pelota — o no solo eso. Fue establecer que el grupo no era solo espadas: tenían a alguien a quien la diosa había bendecido en el peor momento. Lady Jamandi lo escuchó y dijo que estaba segura de que conseguirían sus objetivos. Laughlin tomó nota.
 
