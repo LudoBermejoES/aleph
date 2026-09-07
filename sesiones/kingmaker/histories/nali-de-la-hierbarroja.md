@@ -35,3 +35,9 @@ En el salón con Lady Jamandi, Nali guardó silencio mientras Durgan preguntaba 
 ## Sesión del 9 de agosto de 2026 — La primera noche seca
 
 Nali se turnó con Gael en los fogones durante la semana de lluvia, y una noche, tras varios intentos fallidos, consiguió un banquete de verdad que levantó el ánimo de todo el grupo. En el Puesto Comercial de Oleg, cuando la oferta de Laughlin necesitaba algo más que una carta y una tapadera, Nali tomó la palabra: invocó a la guía de la manada y la idea de que una casa empieza cuando alguien enciende un fuego y otro decide sentarse a su lado. Caló. Oleg sacó licor como gesto y Svetlana confirmó que contarían con ellos. Los bandidos del tributo vuelven en dos días.
+
+## Sesión del 6 de septiembre de 2026 — Dos días para montar una trampa
+
+Cuando Laughlin tendió una sábana para darles intimidad a ella y a Linzi, contestó que no tenía inconveniente ni en que la pusiera ni en que no, y se cambió de ropa allí mismo. Del licor de las tierras de los lagos dio buena cuenta, que para eso ha sido pirata y está acostumbrada a los alcoholes fuertes.
+
+En la planificación aportó dos cosas y defendió una tercera hasta el final. Propuso, medio en broma, darles a beber fuego alquímico — y al revisar el inventario común confirmó que no tienen nada que sirva. Propuso usar las verjas del corral de compost como abrojos improvisados para cerrarle la salida al carro sin tener que fabricar nada. Y repitió una y otra vez, sin conseguir que le hicieran caso, que Sim Sim y Dain deberían esconderse más cerca del portón para poder cerrarlo antes. Ella se subirá de un salto al centro del tejado, desde donde ve todo el patio, tiene cobertura y puede curar a quien lo necesite.

@@ -43,3 +43,9 @@ En El Cruce de N'vrapta tiró de su formación de anticuario y confirmó, por se
 ## Sesión del 9 de agosto de 2026 — La primera noche seca
 
 Durgan quería desviarse a examinar las ruinas élficas de las que tanto se había hablado en El Cruce de N'vrapta — la curiosidad de anticuario no se le pasa nunca — pero aceptó el argumento de que no había días de sobra que gastar. Por el camino cazó lo que pudo bajo una lluvia que no daba tregua, con setas, ciervo y alguna rata cuando no había más. Al llegar a las cascadas del Alcaudón pensó en voz alta que la confluencia con el río Torcido sería un buen sitio para fundar algo — una idea que dejó ahí, sin más. En el Puesto Comercial de Oleg confirmó, por costumbre, que las torres de vigilancia eran de construcción humana, sin nada élfico ni enano debajo. Sigue con la sospecha de Gael de que la semana de lluvia no fue del todo natural rondándole la cabeza, sin haber podido comprobarlo.
+
+## Sesión del 6 de septiembre de 2026 — Dos días para montar una trampa
+
+Por fin pudo colgar de unas cuerdas las hierbas que llevaba recogiendo todo el viaje sin haber conseguido secarlas ni una vez; con la chimenea de la casa a mano, esta vez se secarán. Durmió desnudo envuelto en su propia manta, por no dormir en el olor de otros, y a la mañana siguiente cruzó el patio en pelotas detrás del monje buscando esa misma chimenea.
+
+Cuando Laughlin le preguntó por hierbas que adormecieran, respondió lo que sabía y no más: que con herboristería quizá pudiera encontrar la planta, pero que destilarla es alquimia, que él no la ha practicado nunca y que con la prisa que tienen no lo ve. Propuso a cambio una idea distinta — hacerse pasar por compradores y pedir que les llevaran ante su jefe —, que quedó guardada como alternativa. En la emboscada se colocará tumbado contra la empalizada con la ballesta, y antes fue a hacer pruebas de puntería sobre el terreno y recogió las marcas para no dejar rastro.

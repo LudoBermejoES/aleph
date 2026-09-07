@@ -47,3 +47,9 @@ En el pueblo, un gnoll se le acercó a solas. Cara de perro, dos piernas, trabaj
 ## Sesión del 9 de agosto de 2026 — La primera noche seca
 
 El camuflaje del campamento corrió de su cuenta, con resultados que fueron mejorando muy despacio: la primera noche, un palo clavado en el suelo y el trabajo dado por terminado; más adelante, dos palos y una lona tendida entre ellos, todo un progreso. Aguantó la semana de lluvia sin quejarse más que los demás. Al llegar al Puesto Comercial de Oleg, lo primero que preguntó fue por un sitio donde bañarse con agua caliente — el establo habría sido lo más templado, pero está vacío desde que los bandidos se llevaron los animales. Se quedó, con el resto, a esperar la emboscada contra los bandidos del tributo dentro de dos días.
+
+## Sesión del 6 de septiembre de 2026 — Dos días para montar una trampa
+
+Lo primero que hizo al llegar bajo techo fue comerse media pastilla de jabón y pedir un cubo de agua caliente con la otra. Pidió a Laughlin un trago de su licor con los ojos brillando en la penumbra, y luego se lo fue ofreciendo a todos los demás uno por uno. Al acostarse se tumbó contra la puerta a modo de alarma viviente, con la manta encima como un perro, y avisó de que aunque duerme profundo gritará si alguien intenta abrirla.
+
+La idea que vertebra toda la emboscada es suya, y la planteó levantando la manita: dejarles entrar a todos, cerrar detrás, masacrar dentro mientras los arqueros barren fuera, y seguir a los que huyan. Le tocará esperar debajo de una mesa para salir en medio de ellos. También fue el único que insistió en algo que nadie más había dicho: que hay que asegurarse de que Oleg y Svetlana desaparezcan antes del ataque, porque si no los usarán de escudo.

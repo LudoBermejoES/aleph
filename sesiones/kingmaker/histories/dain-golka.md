@@ -39,3 +39,9 @@ El resto de la mañana fue escuchar, procesar y subir de nivel. La asignación d
 ## Sesión del 2 de agosto de 2026 — El Señor de las Astas
 
 Diez días de camino hasta El Cruce de N'vrapta no le dieron mucho que hacer más allá de aguantar la lluvia y el cansancio acumulado, que soportó sin quejarse mientras escuchaba a Durgan quejarse por los dos. En el pueblo, un par de enanos lo recibieron a él y a Durgan como a hermanos — preguntaron qué hacían tan lejos de casa, advirtieron sin dar detalles de que hacia el oeste solo hay mal rollo, y confirmaron que las montañas que se ven en la distancia son tan peligrosas como parecen. Dain guardó la advertencia igual que guarda todo: sin comentarios, pero sin olvidarla. También oyó, de segunda mano, el rumor de unas ruinas élficas al oeste cargadas de tesoro y espíritus dispuestos a defenderlas.
+
+## Sesión del 6 de septiembre de 2026 — Dos días para montar una trampa
+
+Le cedió su cama a Linzi y durmió en el suelo con su saco, que después de semanas a la intemperie con lluvia le pareció un lujo. Al alba salió detrás del monje a ejercitarse bajo el agua, porque hay que acostumbrarse. Engrasó sus armas mientras los demás cenaban.
+
+En el reparto de posiciones le tocó la tarea de la que depende todo lo demás: esconderse bajo una tela detrás de unas cajas junto al portón, y cuando estén todos dentro salir, cerrarlo y atrancarlo, y avanzar desde ahí con el escudo cerrando el espacio para que nadie llegue al carro ni a la salida. Preguntó por las alturas, los ángulos y los accesos hasta tener el mapa claro, señaló que él y Sim Sim son los que se van a tragar todo el castigo al estar abajo, y aun así aceptó el sitio sin discutirlo.

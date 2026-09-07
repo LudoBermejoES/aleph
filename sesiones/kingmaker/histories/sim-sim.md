@@ -41,3 +41,9 @@ Cuando llegó el turno de leer el texto de la carta, Sim Sim no entendía por qu
 Diez días de camino hacia el oeste, la mayor parte bajo lluvia, no cambiaron mucho su rutina: se levantó antes que nadie cada mañana para sus ejercicios, incluso el último día, a las cuatro, ganándose el comentario de Dain sobre caminar "hacia la iluminación". No dijo nada al respecto. Tampoco dijo nada cuando Sim Sim quemó los conejos que Tark había cazado — simplemente dejó que Gael y Durgan arreglaran lo que pudieron del desastre.
 
 En la posada de El Cruce de N'vrapta se impuso el reto de no beber ni una gota, y aguantó más de lo esperado antes de ceder al vino local — infame, cambió a cerveza — y, más tarde, a un brindis por Davik Nettles, el guardés de un puente asesinado por bandidos cuyo fantasma sigue rondando las ruinas al sur. No fue hipocresía: algunas cosas merecen una excepción.
+
+## Sesión del 6 de septiembre de 2026 — Dos días para montar una trampa
+
+Durmió en el suelo, arrebujado en su túnica como manda la costumbre, y salió al alba a hacer sus ejercicios bajo la lluvia pasando con cuidado por encima del goblin que dormía atravesado en la puerta. La disciplina se cumple llueva o no, aunque por dentro pensara que estaba cansado de ser monje. Después vino el episodio de la chimenea: no había ninguna en el almacén que les habían dejado, y acabó buscando una por la casa de los anfitriones hasta que Svetlana le recordó, sin acritud, que aquello no era una posada. Se disculpó como hombre santo que es. La noche anterior había resistido veinte minutos el licor de Laughlin antes de aceptarlo.
+
+En el plan de la emboscada le tocó el establo y el objetivo más concreto de todos: el conductor del carro, con un ataque aturdidor. Antes de eso dejó dicha su objeción moral, que nadie recogió — que primero había que darles ocasión de rendirse, y que lo correcto sería llevarlos ante un juez en vez de matarlos.

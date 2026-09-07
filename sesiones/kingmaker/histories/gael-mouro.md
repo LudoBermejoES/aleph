@@ -47,3 +47,9 @@ El ojo verde también registró, sin comentarlo en voz alta, la coincidencia que
 ## Sesión del 9 de agosto de 2026 — La primera noche seca
 
 Gael salvó más de una cena del desastre con un poco de magia sobre la comida, mientras la lluvia no daba tregua durante toda la semana de camino. En algún punto empezó a sospechar que un tiempo tan insistente no podía ser del todo natural — le preguntó a Durgan si podía detectar magia a esa distancia, y no hubo manera de comprobarlo. La duda se quedó sin resolver. Ya en el Puesto Comercial de Oleg, presenció cómo Laughlin desplegaba su tapadera y cómo Nali terminaba de convencer a la pareja con una intervención que él no habría sabido igualar. Los bandidos vuelven en dos días.
+
+## Sesión del 6 de septiembre de 2026 — Dos días para montar una trampa
+
+Limpió con prestidigitación la ropa de medio grupo, empezando por el noble y acabando por Nali, que se plantó delante de él con los brazos abiertos y le dijo «haz lo tuyo». Amenazó en broma con montar una lavandería.
+
+En la planificación fue el que empujó por evitar el combate del todo: si se les puede envenenar y no tener que cargárselos a todos, mejor. Cuando quedó claro que no hay con qué, pasó a defender la emboscada y fue quien puso la condición que ordena el plan entero — hay que dejar a uno vivo, porque sin prisionero no hay campamento y sin campamento el problema vuelve. Nadie se lo discutió. Se colocará arriba, oculto entre las catapultas rotas de la parte trasera que los bandidos nunca miran, asumiendo que para lanzar tendrá que asomarse y volver a esconderse.
