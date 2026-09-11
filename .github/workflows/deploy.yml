@@ -44,7 +44,14 @@ jobs:
         run: npx vitest run tests/unit/
 
   integration-test:
-    needs: test
+    # SIN `needs: test` a proposito (2026-09-11). Este job hace su propio
+    # checkout y su propio `npm install`, y no lee ningun artefacto ni salida de
+    # `test`: la dependencia solo serializaba dos trabajos independientes.
+    # Medido sobre las 6 ultimas ejecuciones: test 3.9 min + integration 3.4 min
+    # en fila = 7.3 min antes de que `deploy` pudiera empezar. En paralelo la
+    # barrera es el mas largo de los dos, ~3.9 min.
+    # `deploy` sigue con `needs: [test, integration-test]`, asi que la garantia
+    # no cambia: no se despliega nada sin que pasen LOS DOS.
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
