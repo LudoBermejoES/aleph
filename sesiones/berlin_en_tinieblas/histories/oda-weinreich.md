@@ -18,6 +18,12 @@ Julia se la llevó a preguntarle al espíritu de la casa si notaba algo distinto
 
 Liandra había vuelto, y esta vez habló largo: reveló el resto de lo que sabe sobre los veintidós basanos y la guerra que se acerca, y ofreció el suyo primero a Roland y después a Otto y Julia. Cuando por fin cedió el cuerpo de vuelta, Oda se descubrió consciente por primera vez de todo lo que Liandra había dicho por su boca, con solo un vago olor a galletas de la abuela como rastro de la otra mente.
 
+## Sesión del 4 de septiembre de 2026 — La casa de Helekar
+
+Oda llevaba días queriendo bajar de noche al río a ver con sus propios ojos el aquelarre del que hablaba el periódico, y la tarde se le fue en otra cosa. Cuando se oyó a alguien despotricar al otro lado de una puerta de la capilla no la abrió sin más: puso la mano en el pomo y le preguntó antes a Jim Haus, el espíritu de la casa, quién había al otro lado. En la discusión sobre el túmulo garou que resultó estar bajo el huerto de Roland fue la única que planteó devolver algo —la localización antigua, al menos—, aunque Otto le explicó por qué a los garou eso no les serviría de nada: lo que les importa es el túmulo y lo que representa.
+
+Por la noche asistió el ritual de Otto desde el sitio que mejor conoce. Encendió los inciensos y se tomó un sedante que le bajó las pulsaciones hasta dejarla en un estado cercano a la muerte, porque así funciona su práctica: acercarse a la muerte para hablar con los muertos. Le bajó a Otto un punto de dificultad. Ella y Roland, que se quedaron fuera del trance, fueron los primeros en notar el frío —primero como en las películas de fantasmas y después en serio, con cristales de hielo creciendo en el suelo a su alrededor y un rostro empezando a dibujarse en la escarcha—. Vio a la figura acercarse a Otto sin llegar a tocarlo y saltar en mil pedazos cuando él la bloqueó, y se quedó de pie entre los trocitos de hielo oyéndole decir tres palabras que no parecían suyas.
+
 ## Sesión del 10 de septiembre de 2026 — Vuestra realidad
 
 Oda pasó la reunión sentada con los demás, escuchando cómo la mentora de Otto desmontaba treinta años de historia eutánata, hasta que Otto preguntó si existe alguna forma de purificar un Avatar corrompido sin destruirlo. Antes de que nadie pudiera responder fue ella quien habló, con los ojos cambiados y una voz que no era la suya: «En esta realidad mataron a mi marido y le practicaron el Gilgul porque no encontraron una forma.» Se quedó descolocada al oírse, como quien despierta a mitad de un movimiento que su propio cuerpo ya había empezado.
