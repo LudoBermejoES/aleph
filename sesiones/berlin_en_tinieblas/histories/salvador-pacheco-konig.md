@@ -21,3 +21,11 @@ De vuelta en la capilla le esperaba Raffela con el brazo funcionando peor de lo 
 ## Sesión del 27 de agosto de 2026 — El basano de la muerte
 
 Cuando Liandra tomó el cuerpo de Oda para hablar de los veintidós basanos, lo reconoció a él directamente —no como hermético, aclaró ella, sino de los Hijos del Éter— y recordó haber combatido codo con codo con alguien de su tradición contra Tezgul, mano a mano, sin terminar el trabajo. Le preguntaron por su punto débil y respondió que cambia cada vez, como una serpiente; no recuerda cómo acabó aquello, solo que si sigue aquí es porque quedó pendiente. Poco después, cuando el grupo ató cabos sobre la daga negra de Otto y su verdadero origen tanatoi, Salvador se ofreció a fabricarle una armadura de huesos como la suya para que cargara con la resonancia de muerte en su lugar.
+
+## Sesión del 10 de septiembre de 2026 — Vuestra realidad
+
+Mientras el resto retomaba la tarde, Salvador se encerró con el ordenador centralizado de la capilla —el que dejó montado la cábala anterior— a terminar lo que había empezado: el listado de accesos autorizados, quién sabe dónde viven y quién tiene permiso de entrada. Confirmó lo que ya sospechaban. Timón estaba en la lista, y también V10, con una anotación entre paréntesis que alguien había dejado hacía años: «el gilipollas».
+
+Y sin que nadie se lo pidiera, le entró un correo de una dirección imposible de rastrear, con una VPN que hizo reír a toda la mesa. V10 se presentaba como miembro de una facción que hasta entonces nadie tenía apuntada, declaraba que WhatsApp no le parecía seguro y proponía un canal alternativo. Salvador le contestó citándole en el Rincón del Espía, el sitio de encuentro de la comunidad de contrainteligencia de la ciudad, y V10 zanjó la conversación anunciando que enviaba un pincho USB a la dirección de la capilla: enchufarlo permitiría hablar con él de forma segura. Salvador no se hizo ninguna ilusión sobre lo que eso significaría para el ordenador que lo recibiera.
+
+Estuvo después en la sala de reuniones mientras la mentora de Otto contaba lo de la Casa de Helekar, y fue él quien insinuó que la daga negra podría ser un basano más. La respuesta de Liandra fue tajante: no hace falta fabricar algo así para hacer daño y ganar poder. Siguen sin resolverse su contador Geiger y la carta a _Paradigma_.
