@@ -208,27 +208,89 @@ describe('a :::secret{.player:<id>} block reaches only the listed user, over the
     })
   })
 
-  describe('the campaign search endpoint never surfaces it, not even to Alice', () => {
-    // `/search` returns `{ results, query }`, each result keyed by the entity's DB id, with the
-    // human-readable `slug` alongside it — search by slug, not by the (unrelated) `entityId`.
-    it('Alice cannot find it by searching for the needle', async () => {
-      const res = await api(
-        `/api/campaigns/${campaignId}/search?q=${encodeURIComponent(ALICE_NEEDLE)}`,
-        { headers: asAlice() },
-      )
+  /**
+   * `/search` returns `{ results, query }`, each result keyed by the entity's DB id, with the
+   * human-readable `slug` alongside it — search by slug, not by the (unrelated) `entityId`.
+   *
+   * **What these assert, and why it is NOT "the entity must be absent from the results".**
+   *
+   * The rule, from `openspec/specs/entity-search/spec.md`, is that a term living only inside a
+   * secret block must not return a result for that entity **on account of that term**, and that
+   * no excerpt may quote the block. It is NOT that the ENTITY becomes invisible: the note here
+   * is an ordinary `members`-visible sheet that both players can already list and open; only the
+   * block inside it is restricted, and Alice is even allowed to read that.
+   *
+   * An earlier version asserted `results.some(r => r.slug === entitySlug) === false` for Alice,
+   * which is a different — and untrue — claim. `/search` is HYBRID: the lexical arm queries
+   * `entities_fts_filtered` (provably free of the needle) and the semantic arm queries
+   * `entity_vectors_filtered`, a KNN over the entity's PUBLIC text. KNN always has a nearest
+   * neighbour, so whether this entity appears at all is decided by `SEMANTIC_MAX_DISTANCE`
+   * (0.15, `server/services/embeddings.ts`) — a cutoff that comment already documents as
+   * uncalibratable across architectures.
+   *
+   * Measured 2026-09-13 on arm64 with the real pipeline: the needle sits at **0.15974** against
+   * this entity's filtered text — outside by 0.0097 — while invented strings that appear nowhere
+   * in the campaign land at 0.16054–0.17227, i.e. the SAME band. So the needle is not special;
+   * the proximity is noise over the public line. And the distance moves with the `Date.now()`
+   * baked into the fixture's name: **0.15562–0.17490** across six timestamps, a 0.0193 spread
+   * against a 0.0097 margin. That assertion was therefore a coin flip re-tossed every run, and
+   * x64 CI (which `embeddings.ts` records as computing systematically LOWER distances than ARM)
+   * called it the other way. A green run of it was never evidence that the rule held.
+   *
+   * What IS deterministic, and is what the rule actually says:
+   *   - no result may come from the LEXICAL arm, because the filtered index cannot contain the
+   *     needle — that is the arm a secret term would have to travel through;
+   *   - no excerpt may carry any part of the block;
+   *   - and the Narrator keeps both.
+   * A semantic-only hit carries `arms: ['semantic']` and an EMPTY snippet (verified against the
+   * real services: the player gets `{entityId, arms:['semantic']}`, nothing else), so it hands
+   * over the entity's public name and slug and no syllable of the secret.
+   */
+  describe('the campaign search endpoint never surfaces the SECRET, in either arm', () => {
+    type SearchResult = { slug?: string; snippet?: string; arms?: string[] }
+    const search = async (needle: string, headers: Record<string, string>) => {
+      const res = await api(`/api/campaigns/${campaignId}/search?q=${encodeURIComponent(needle)}`, {
+        headers,
+      })
       expect(res.status).toBe(200)
-      const { results } = (await res.json()) as { results: Array<{ slug?: string }> }
-      expect(results.some((r) => r.slug === entitySlug)).toBe(false)
+      return ((await res.json()) as { results: SearchResult[] }).results
+    }
+
+    // The anti-false-green control, and it is not optional: every assertion below is of the form
+    // "nothing came back through this channel", which an EMPTY INDEX satisfies just as well as a
+    // correct one. This proves the entity really is in the copy of the index Alice queries at the
+    // moment she queries it — so a timing hole in indexing would fail HERE, loudly, instead of
+    // making the leak checks pass for the wrong reason.
+    it("the note IS in the player's index, reachable by its public line", async () => {
+      const results = await search(PUBLIC_LINE, asAlice())
+      const hit = results.find((r) => r.slug === entitySlug)
+      expect(hit, 'the note is not in the filtered index at all').toBeDefined()
+      expect(hit!.arms).toContain('lexical')
     })
 
-    it('the DM can find it', async () => {
-      const res = await api(
-        `/api/campaigns/${campaignId}/search?q=${encodeURIComponent(ALICE_NEEDLE)}`,
-        { headers: asDm() },
-      )
-      expect(res.status).toBe(200)
-      const { results } = (await res.json()) as { results: Array<{ slug?: string }> }
-      expect(results.some((r) => r.slug === entitySlug)).toBe(true)
+    it('no player reaches it through the lexical arm, and no excerpt quotes the block', async () => {
+      for (const [who, headers] of [
+        ['Alice (the addressed user)', asAlice()],
+        ['Bob (not addressed)', asBob()],
+      ] as const) {
+        const results = await search(ALICE_NEEDLE, headers)
+        for (const r of results) {
+          expect(r.arms, `${who} matched a secret-only term lexically on ${r.slug}`).not.toContain(
+            'lexical',
+          )
+          expect(r.snippet ?? '', `${who} got the secret quoted back on ${r.slug}`).not.toContain(
+            ALICE_NEEDLE,
+          )
+        }
+      }
+    })
+
+    it('the DM finds it, through the lexical arm, with the block quoted', async () => {
+      const results = await search(ALICE_NEEDLE, asDm())
+      const hit = results.find((r) => r.slug === entitySlug)
+      expect(hit, 'the Narrator lost their own search').toBeDefined()
+      expect(hit!.arms).toContain('lexical')
+      expect(hit!.snippet).toContain(ALICE_NEEDLE)
     })
   })
 })

@@ -181,6 +181,43 @@ describe('the semantic index is split by role, like the lexical one', () => {
     MODEL_LOAD_TIMEOUT,
   )
 
+  /**
+   * The `:::secret{.player:<id>}` form on the VECTOR side — the lexical half of this already
+   * has one (`search-secrets.test.ts`, "the lexical index treats a user-listed secret exactly
+   * like a .dm one"), and the semantic half had none.
+   *
+   * It matters because the two arms fail differently and only one of them is visible in a
+   * response. A leak into `entities_fts_filtered` shows up as a lexical hit with the block
+   * quoted in the excerpt; a leak into `entity_vectors_filtered` shows up as nothing at all
+   * except the entity being RETURNED — the semantic arm carries no snippet — so the only
+   * signal is a cosine distance, and `SEMANTIC_MAX_DISTANCE` is documented at the top of
+   * `embeddings.ts` as not calibratable across architectures. Measured 2026-09-13: with the
+   * block stripped, a query for the needle sits at 0.15974 against this entity; with the full
+   * text embedded by mistake it sits at 0.07471. No threshold-based assertion can tell those
+   * apart reliably on every runner, so the guard has to be here, on the stored vector, where
+   * it is exact.
+   */
+  it(
+    'strips a user-listed block before embedding, exactly like a .dm one',
+    async () => {
+      freshDb()
+      const name = 'Sala del Tesoro'
+      const needle = 'trapdoor-solo-para-el-jugador-listado'
+      const publicText = 'La sala del tesoro brilla con oro.'
+      const body = `${publicText}\n\n:::secret{.player:user-listed-id}\nExiste una ${needle} bajo la alfombra.\n:::\n`
+
+      await indexEntityEmbedding(sqlite, 'e1', 'c1', name, body)
+
+      // The filtered vector IS the embedding of the stripped text — not merely "different from
+      // the full one", which a half-applied strip would also satisfy.
+      const stripped = await embedText(`${name}\n${publicText}\n\n`, 'passage')
+      expect(vecOf(VEC_TABLES.filtered, 1)).toBe(Buffer.from(stripped.buffer).toString('base64'))
+      expect(vecOf(VEC_TABLES.full, 1)).not.toBe(vecOf(VEC_TABLES.filtered, 1))
+      expect(findVectorParityGaps(sqlite)).toEqual([])
+    },
+    MODEL_LOAD_TIMEOUT,
+  )
+
   it(
     'reuses the one vector when there is no secret to strip — the common case costs nothing extra',
     async () => {
