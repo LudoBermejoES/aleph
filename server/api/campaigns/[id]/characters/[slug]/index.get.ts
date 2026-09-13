@@ -122,7 +122,7 @@ export default defineEventHandler((event) =>
     const autoLink = (text: string | null) =>
       text ? autoLinkContent(text, campaignId, entity.id, db) : null
 
-    const description = autoLink(stripSecretBlocks(file.content, role).trim()) ?? ''
+    const description = autoLink(stripSecretBlocks(file.content, role, userId).trim()) ?? ''
     return {
       ...entity,
       ...character,

@@ -78,6 +78,34 @@ describe('stripSecretBlocksDeep — roles', () => {
   })
 })
 
+describe('stripSecretBlocksDeep — user-specific blocks propagate the userId argument', () => {
+  const ALICE = 'user-alice'
+  const CHARLIE = 'user-charlie'
+  const userListed = `${PUBLIC}\n\n:::secret{.player:${ALICE}}\n${NEEDLE}\n:::\n`
+
+  it('the listed user sees it, reached through a nested field', () => {
+    const out = stripSecretBlocksDeep(
+      { sessions: [{ notes: [{ body: userListed }] }] },
+      'player',
+      ALICE,
+    )
+    expect(JSON.stringify(out)).toContain(NEEDLE)
+  })
+
+  it('a different player at the same role does not, reached through the same nesting', () => {
+    const out = stripSecretBlocksDeep(
+      { sessions: [{ notes: [{ body: userListed }] }] },
+      'player',
+      CHARLIE,
+    )
+    expect(JSON.stringify(out)).not.toContain(NEEDLE)
+  })
+
+  it('with no userId passed at all, nobody below co_dm sees it', () => {
+    expect(stripSecretBlocksDeep({ x: userListed }, 'player').x).not.toContain(NEEDLE)
+  })
+})
+
 describe('stripSecretBlocksDeep — safe to run over already-filtered output', () => {
   /**
    * The response hook runs after handlers that already stripped. Both properties below are
@@ -90,7 +118,7 @@ describe('stripSecretBlocksDeep — safe to run over already-filtered output', (
 
   it('cannot re-hide a revealed block, because a reveal removes the wrapper', () => {
     const withId = `${PUBLIC}\n\n:::secret{.dm #blk1}\n${NEEDLE}\n:::\n`
-    const revealed = stripSecretBlocksDeep({ x: withId }, 'player', new Set(['blk1']))
+    const revealed = stripSecretBlocksDeep({ x: withId }, 'player', undefined, new Set(['blk1']))
     expect(revealed.x).toContain(NEEDLE)
     // Second pass, no reveal set at all — the wrapper is gone, so there is nothing to strip.
     expect(stripSecretBlocksDeep(revealed, 'player').x).toContain(NEEDLE)

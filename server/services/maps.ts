@@ -257,10 +257,14 @@ function withEntityVisibility(row: JoinedPinRow, role: CampaignRole, userId: str
  * already stops at, and deliberately never through `autoLinkContent` (design D3: that
  * function emits HTML links an excerpt has no use for).
  */
-async function excerptFromFile(filePath: string, role: CampaignRole): Promise<string | null> {
+async function excerptFromFile(
+  filePath: string,
+  role: CampaignRole,
+  userId: string,
+): Promise<string | null> {
   const file = await safeReadEntityFile(filePath)
   if (!file) return null
-  const visible = stripSecretBlocks(file.content, role)
+  const visible = stripSecretBlocks(file.content, role, userId)
   const text = buildExcerpt(visible, EXCERPT_MAX_LENGTH)
   return text || null
 }
@@ -274,13 +278,14 @@ async function excerptFromFile(filePath: string, role: CampaignRole): Promise<st
 function resolveExcerpt(
   pin: ResolvedPin,
   role: CampaignRole,
+  userId: string,
   fileCache: Map<string, Promise<string | null>>,
 ): Promise<string | null> {
   if (pin.entityType === 'location' || pin.entityType === 'character') {
     if (!pin.entityFilePath) return Promise.resolve(null)
     let cached = fileCache.get(pin.entityFilePath)
     if (!cached) {
-      cached = excerptFromFile(pin.entityFilePath, role)
+      cached = excerptFromFile(pin.entityFilePath, role, userId)
       fileCache.set(pin.entityFilePath, cached)
     }
     return cached
@@ -301,7 +306,11 @@ function resolveExcerpt(
   return Promise.resolve(null)
 }
 
-async function attachExcerpts(pins: ResolvedPin[], role: CampaignRole): Promise<PinWithEntity[]> {
+async function attachExcerpts(
+  pins: ResolvedPin[],
+  role: CampaignRole,
+  userId: string,
+): Promise<PinWithEntity[]> {
   const fileCache = new Map<string, Promise<string | null>>()
   return Promise.all(
     pins.map(async (pin) => {
@@ -310,7 +319,7 @@ async function attachExcerpts(pins: ResolvedPin[], role: CampaignRole): Promise<
         organizationDescription: _organizationDescription,
         ...rest
       } = pin
-      const entityExcerpt = await resolveExcerpt(pin, role, fileCache)
+      const entityExcerpt = await resolveExcerpt(pin, role, userId, fileCache)
       return { ...rest, entityExcerpt }
     }),
   )
@@ -335,7 +344,7 @@ export async function getPinsWithEntity(
   const rows = selectJoinedPins(db).where(eq(mapPins.mapId, mapId)).all() as JoinedPinRow[]
   const visible = filterPinsByVisibility(rows, role)
   const resolved = visible.map((row) => withEntityVisibility(row, role, userId))
-  return attachExcerpts(resolved, role)
+  return attachExcerpts(resolved, role, userId)
 }
 
 /**
@@ -353,7 +362,7 @@ export async function getPinWithEntity(
   const row = selectJoinedPins(db).where(eq(mapPins.id, pinId)).get() as JoinedPinRow | undefined
   if (!row) return undefined
   const resolved = withEntityVisibility(row, role, userId)
-  const [withExcerpt] = await attachExcerpts([resolved], role)
+  const [withExcerpt] = await attachExcerpts([resolved], role, userId)
   return withExcerpt
 }
 

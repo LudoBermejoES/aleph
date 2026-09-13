@@ -97,6 +97,6 @@ export default defineEventHandler(async (event) => {
     primaryImageUrl: entity.imageUrl ?? null,
     frontmatter: file.frontmatter,
     fields: (file.frontmatter as Record<string, unknown>).fields || {},
-    content: stripSecretBlocks(file.content, role),
+    content: stripSecretBlocks(file.content, role, userId),
   }
 })

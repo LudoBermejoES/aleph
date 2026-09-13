@@ -14,6 +14,7 @@ export default defineEventHandler(async (event) => {
   const slug = getRouterParam(event, 'slug')!
   const db = useDb()
   const actualRole = (event.context.campaignRole || 'visitor') as CampaignRole
+  const userId = event.context.user?.id
 
   const session = db
     .select()
@@ -57,7 +58,7 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  const strippedContent = stripSecretBlocks(rawContent, effectiveRole)
+  const strippedContent = stripSecretBlocks(rawContent, effectiveRole, userId)
   const renderedContent = autoLinkContent(strippedContent, campaignId, session.id, db)
 
   return {

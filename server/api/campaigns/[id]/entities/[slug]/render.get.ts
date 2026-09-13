@@ -71,7 +71,7 @@ export default defineEventHandler(async (event) => {
     file = { frontmatter: {}, content: '', contentHash: '' }
   }
 
-  const strippedContent = stripSecretBlocks(file.content, effectiveRole, revealedBlockIds)
+  const strippedContent = stripSecretBlocks(file.content, effectiveRole, userId, revealedBlockIds)
   const renderedContent = autoLinkContent(strippedContent, campaignId, entity.id, db)
 
   return {

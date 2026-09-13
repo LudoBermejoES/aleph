@@ -70,9 +70,25 @@ export function seesSecretContent(userRole: string): boolean {
 }
 
 /**
- * Strip :::secret{.role} blocks from markdown content based on the user's campaign role.
+ * Strip :::secret{.role} and :::secret{.role:user1,user2} blocks from markdown content based
+ * on the user's campaign role — and, for the user-list form, on WHO is asking.
  * DM and Co-DM always see everything.
  *
+ * The three forms match `remark-strip-secrets.ts`'s doc comment exactly, because this is the
+ * function every API response actually goes through (the remark plugin is unused elsewhere):
+ *   :::secret{.dm}                -- DM/Co-DM only
+ *   :::secret{.editor}            -- Editor+
+ *   :::secret{.player:alice,bob}  -- only the listed user ids, plus DM/Co-DM
+ *
+ * For a user-list block, the role prefix (`player` in the example) is parsed but NOT used to
+ * decide visibility — membership in the list is the only thing that grants access, exactly as
+ * `remarkStripSecrets` already did. A caller with no `userId` (the shared search index, which
+ * has no per-request user) can therefore never match a user-list block: it fails closed rather
+ * than falling back to a role comparison, which is what silently leaked this before.
+ *
+ * @param userId - The id of the user the response is being rendered for. Omit it for a
+ *   context with no single reader — e.g. the FILTERED search index, which is shared by every
+ *   viewer and must treat every user-list block as invisible.
  * @param revealedBlockIds - Optional set of block IDs that have been explicitly revealed.
  *   If a block has an ID in this set, its content is shown without the secret wrapper
  *   (regardless of the user's role).
@@ -80,24 +96,43 @@ export function seesSecretContent(userRole: string): boolean {
 export function stripSecretBlocks(
   content: string,
   userRole: string,
+  userId?: string,
   revealedBlockIds?: Set<string>,
 ): string {
   if (seesSecretContent(userRole)) return content
 
-  // Match :::secret{.SPEC} or :::secret{.SPEC #id}\n...\n:::\n patterns
+  // Match :::secret{.SPEC} or :::secret{.SPEC #id}\n...\n:::\n patterns. SPEC may contain
+  // internal whitespace (a DM typing ".player:alice, bob") — only `}` and `#` bound it, so the
+  // greedy match backtracks to leave the `\s+#id` group its required leading space.
   return content.replace(
-    /:::secret\{\.([^}#\s]+)(?:\s+#([^}]+))?\}\s*\n([\s\S]*?):::\s*\n?/g,
-    (_match, spec: string, blockId: string | undefined, body: string) => {
+    /:::secret\{\.([^}#]+)(?:\s+#([^}]+))?\}\s*\n([\s\S]*?):::\s*\n?/g,
+    (_match, rawSpec: string, blockId: string | undefined, body: string) => {
+      const spec = rawSpec.trim()
       const colonIndex = spec.indexOf(':')
-      const requiredRole = colonIndex !== -1 ? spec.substring(0, colonIndex) : spec || 'dm'
-      const requiredLevel = ROLE_LEVEL[requiredRole] ?? 5
-      const userLevel = ROLE_LEVEL[userRole] ?? 0
+      const requiredRole = colonIndex !== -1 ? spec.substring(0, colonIndex).trim() : spec || 'dm'
+      const allowedUsers =
+        colonIndex !== -1
+          ? spec
+              .substring(colonIndex + 1)
+              .split(',')
+              .map((s) => s.trim())
+              .filter(Boolean)
+          : []
 
       // If explicitly revealed, show content without the wrapper
       if (blockId && revealedBlockIds?.has(blockId)) {
         return body + '\n'
       }
 
+      if (allowedUsers.length > 0) {
+        // User-specific secret: visibility is membership in the list, full stop — the role
+        // prefix is not a fallback. DM/co_dm already returned above, so this is reached only
+        // by someone who is NOT one of them.
+        return userId && allowedUsers.includes(userId) ? _match : ''
+      }
+
+      const requiredLevel = ROLE_LEVEL[requiredRole] ?? 5
+      const userLevel = ROLE_LEVEL[userRole] ?? 0
       if (userLevel >= requiredLevel) return _match // keep the block with wrapper
       return '' // strip the block entirely
     },
@@ -234,6 +269,7 @@ export async function findMarkdownFiles(dir: string): Promise<string[]> {
 export function stripSecretBlocksDeep<T>(
   value: T,
   userRole: string,
+  userId?: string,
   revealedBlockIds?: Set<string>,
   seen: WeakSet<object> = new WeakSet(),
 ): T {
@@ -243,7 +279,7 @@ export function stripSecretBlocksDeep<T>(
   if (typeof value === 'string') {
     // Fast path: the overwhelming majority of strings are names, ids and timestamps.
     if (!value.includes(':::secret')) return value
-    return stripSecretBlocks(value, userRole, revealedBlockIds) as unknown as T
+    return stripSecretBlocks(value, userRole, userId, revealedBlockIds) as unknown as T
   }
 
   if (value === null || typeof value !== 'object') return value
@@ -256,7 +292,7 @@ export function stripSecretBlocksDeep<T>(
   if (Array.isArray(value)) {
     let changed = false
     const out = value.map((item) => {
-      const next = stripSecretBlocksDeep(item, userRole, revealedBlockIds, seen)
+      const next = stripSecretBlocksDeep(item, userRole, userId, revealedBlockIds, seen)
       if (next !== item) changed = true
       return next
     })
@@ -270,7 +306,7 @@ export function stripSecretBlocksDeep<T>(
   let changed = false
   const out: Record<string, unknown> = {}
   for (const [key, val] of Object.entries(value as Record<string, unknown>)) {
-    const next = stripSecretBlocksDeep(val, userRole, revealedBlockIds, seen)
+    const next = stripSecretBlocksDeep(val, userRole, userId, revealedBlockIds, seen)
     if (next !== val) changed = true
     out[key] = next
   }

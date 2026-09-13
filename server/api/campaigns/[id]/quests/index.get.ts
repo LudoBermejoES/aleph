@@ -10,6 +10,7 @@ import type { CampaignRole } from '../../../../utils/permissions'
 export default defineEventHandler(async (event) => {
   const campaignId = getRouterParam(event, 'id')!
   const actualRole = event.context.campaignRole as CampaignRole
+  const userId = event.context.user?.id
   const db = useDb()
 
   const previewAs = getQuery(event).preview_as as string | undefined
@@ -47,6 +48,6 @@ export default defineEventHandler(async (event) => {
 
   return results.map((q) => ({
     ...q,
-    description: q.description ? stripSecretBlocks(q.description, role) : q.description,
+    description: q.description ? stripSecretBlocks(q.description, role, userId) : q.description,
   }))
 })

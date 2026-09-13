@@ -10,6 +10,7 @@ export default defineEventHandler(async (event) => {
   const slug = getRouterParam(event, 'slug')!
   const db = useDb()
   const actualRole = (event.context.campaignRole || 'visitor') as CampaignRole
+  const userId = event.context.user?.id
 
   const previewAs = getQuery(event).preview_as as string | undefined
   let role = actualRole
@@ -30,6 +31,8 @@ export default defineEventHandler(async (event) => {
 
   return {
     ...quest,
-    description: quest.description ? stripSecretBlocks(quest.description, role) : quest.description,
+    description: quest.description
+      ? stripSecretBlocks(quest.description, role, userId)
+      : quest.description,
   }
 })

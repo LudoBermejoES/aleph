@@ -73,7 +73,12 @@ export default defineEventHandler((event) =>
       ...entity,
       imageUrl,
       frontmatter: file.frontmatter,
-      content: autoLinkContent(stripSecretBlocks(file.content, role), campaignId, entity.id, db),
+      content: autoLinkContent(
+        stripSecretBlocks(file.content, role, userId),
+        campaignId,
+        entity.id,
+        db,
+      ),
       fields: file.frontmatter.fields || {},
     }
   }),

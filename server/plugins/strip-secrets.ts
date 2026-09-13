@@ -36,6 +36,12 @@ import { hasMinRole } from '../utils/permissions'
  *    and a revealed block comes out of that pass with its wrapper already removed — so there
  *    is nothing left here for a second pass to re-hide. Stripping is idempotent, so running
  *    over already-filtered content is a no-op.
+ *  - **User-specific blocks (`:::secret{.player:alice,bob}`) need the caller's id, not just
+ *    their role**, or a block addressed to one player reads as an ordinary `.player` block and
+ *    every other player keeps it. `event.context.user?.id` is passed through for exactly that
+ *    — it is the authenticated caller, unaffected by `preview_as` (a DM previewing as a player
+ *    is filtered with the DM's OWN id, same as every handler that supports this block already
+ *    does; there is no "id to preview as").
  *
  * What this does NOT cover, on purpose: the FTS5 search index, which stores raw markdown in
  * `entities_fts.body` and returns a 30-token snippet window that usually contains no
@@ -65,6 +71,7 @@ export default defineNitroPlugin((nitroApp) => {
     const role = getEffectiveRole(event)
     if (hasMinRole(role, 'co_dm')) return
 
-    response.body = stripSecretBlocksDeep(response.body, role)
+    const userId = event.context.user?.id as string | undefined
+    response.body = stripSecretBlocksDeep(response.body, role, userId)
   })
 })

@@ -119,3 +119,58 @@ describe('the lexical index does not hand Narrator-only content to a player', ()
     ])
   })
 })
+
+/**
+ * The index-side half of the `:::secret{.player:id1,id2}` fix.
+ *
+ * `writeIndexRow` (and, through it, `indexEntity`) builds the FILTERED copy by calling
+ * `stripSecretBlocks(body, FILTERED_INDEX_ROLE)` with NO userId, because the index is shared
+ * by every viewer — there is no single reader to check a user list against. A user-list block
+ * must therefore never survive into that copy for ANYONE below co_dm, including the very user
+ * it names: the index has no way to scope a result to one specific reader, so the only safe
+ * answer is to treat the block exactly like `.dm`.
+ */
+describe('the lexical index treats a user-listed secret exactly like a .dm one', () => {
+  let sqlite: Database.Database
+  const ADDRESSED_USER = 'user-listed-id'
+  const LISTED_NEEDLE = 'trapdoor-solo-para-el-jugador-listado'
+
+  const bodyWithUserList = [
+    'La sala del tesoro brilla con oro.',
+    '',
+    `:::secret{.player:${ADDRESSED_USER}}`,
+    `Existe una ${LISTED_NEEDLE} escondida bajo la alfombra.`,
+    ':::',
+    '',
+    'El cofre está cerrado con llave.',
+  ].join('\n')
+
+  beforeEach(() => {
+    sqlite = new Database(':memory:')
+    initFTS5(sqlite)
+    indexEntity(sqlite, 'e2', 'c1', 'Sala del Tesoro', [], [], bodyWithUserList)
+  })
+
+  afterEach(() => sqlite.close())
+
+  it('a player finds nothing for the user-addressed needle', () => {
+    expect(searchEntities(sqlite, 'c1', LISTED_NEEDLE, 20, 'player')).toEqual([])
+  })
+
+  it('the search index has no concept of "the addressed user" — it is role-scoped only, so it stays hidden even conceptually for them', () => {
+    // searchEntities only ever takes a ROLE, never a userId — there is no call this test could
+    // make on behalf of ADDRESSED_USER specifically. That absence of a parameter IS the
+    // guarantee: the shared index cannot single out one reader, so it must fail closed for the
+    // whole role instead of guessing.
+    expect(searchEntities(sqlite, 'c1', LISTED_NEEDLE, 20, 'visitor')).toEqual([])
+  })
+
+  it('the Narrator still finds it', () => {
+    expect(searchEntities(sqlite, 'c1', LISTED_NEEDLE, 20, 'dm')).toHaveLength(1)
+    expect(searchEntities(sqlite, 'c1', LISTED_NEEDLE, 20, 'co_dm')).toHaveLength(1)
+  })
+
+  it('public text around the block is still searchable by everyone', () => {
+    expect(searchEntities(sqlite, 'c1', 'cofre', 20, 'player')).toHaveLength(1)
+  })
+})

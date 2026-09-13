@@ -13,6 +13,7 @@ export default defineEventHandler(async (event) => {
   const campaignId = getRouterParam(event, 'id')!
   const db = useDb()
   const actualRole = (event.context.campaignRole || 'visitor') as CampaignRole
+  const userId = event.context.user?.id
 
   const previewAs = getQuery(event).preview_as as string | undefined
   let role = actualRole
@@ -60,12 +61,12 @@ export default defineEventHandler(async (event) => {
     return {
       ...arc,
       description: arc.description
-        ? applyAutolink(stripSecretBlocks(arc.description, role), null, autolinkContext)
+        ? applyAutolink(stripSecretBlocks(arc.description, role, userId), null, autolinkContext)
         : arc.description,
       chapters: chapterList.map((ch) => ({
         ...ch,
         description: ch.description
-          ? applyAutolink(stripSecretBlocks(ch.description, role), null, autolinkContext)
+          ? applyAutolink(stripSecretBlocks(ch.description, role, userId), null, autolinkContext)
           : ch.description,
       })),
     }
