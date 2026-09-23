@@ -43,11 +43,11 @@ Everything from §3 onwards is independent and can land in any order.
 
 ## 4. Chapters join the concept
 
-- [ ] 4.1 `chapters/index.get.ts` — list campaign-wide when unparameterised instead of the current hard 400, add `subCampaignSlug`, and **scope `arc_id` to the route's campaign** (today it returns another campaign's chapters verbatim).
-- [ ] 4.2 Project `subCampaignId`/`subCampaignName`/`subCampaignSlug` through the arc join, on list and detail.
-- [ ] 4.3 Reject `subCampaignSlug`/`subCampaignId` on chapter POST/PUT with 422 naming the arc as the route. Assert it is **refused**, not accepted-and-discarded.
-- [ ] 4.4 `chapters/index.post.ts:18` — validate that `arcId` belongs to the route's campaign before inserting.
-- [ ] 4.5 `aleph chapter list --subcampaign`, plus the sub-campaign column and the no-argument listing.
+- [x] 4.1 `chapters/index.get.ts` — list campaign-wide when unparameterised instead of the current hard 400, add `subCampaignSlug`, and **scope `arc_id` to the route's campaign** (today it returns another campaign's chapters verbatim).
+- [x] 4.2 Project `subCampaignId`/`subCampaignName`/`subCampaignSlug` through the arc join, on list and detail.
+- [x] 4.3 Reject `subCampaignSlug`/`subCampaignId` on chapter POST/PUT with 422 naming the arc as the route. Assert it is **refused**, not accepted-and-discarded.
+- [x] 4.4 `chapters/index.post.ts:18` — validate that `arcId` belongs to the route's campaign before inserting.
+- [x] 4.5 `aleph chapter list --subcampaign`, plus the sub-campaign column and the no-argument listing.
 
 ## 5. Stop hiding the sub-campaign in responses
 

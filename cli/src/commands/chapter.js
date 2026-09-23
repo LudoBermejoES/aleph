@@ -9,16 +9,23 @@ export function makeChapterCommand() {
 
   cmd
     .command('list')
-    .description('List chapters in a campaign (optionally narrowed to one arc)')
+    .description('List chapters in a campaign (optionally narrowed by arc or sub-campaign)')
     .requiredOption('--campaign <id>', 'Campaign ID')
     .option('--arc <slug>', 'Only chapters of this arc (arc slug or id)')
+    .option('--subcampaign <slug>', 'Only chapters whose arc is in this sub-campaign')
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
-      // GET /arcs already nests each arc's chapters in sortOrder — one request instead of
-      // one per arc, and it yields the arc name rather than a raw arcId. The chapters
-      // endpoint itself hard-requires arc_id, so it cannot serve a campaign-wide listing.
-      const arcList = await get(`/api/campaigns/${opts.campaign}/arcs`)
-      const rows = flattenChapters(arcList, opts.arc)
+      // Was walking GET /arcs because the chapters endpoint hard-required `arc_id` and so could
+      // not serve a campaign-wide listing. It can now, and it carries the arc AND the derived
+      // sub-campaign by name, so the detour is gone.
+      const params = new URLSearchParams()
+      if (opts.subcampaign) params.set('subCampaignSlug', opts.subcampaign)
+      const qs = params.toString() ? `?${params}` : ''
+      const all = await get(`/api/campaigns/${opts.campaign}/chapters${qs}`)
+      // `--arc` still accepts a slug OR an id, as it always did.
+      const rows = opts.arc
+        ? all.filter((c) => c.arcSlug === opts.arc || c.arcId === opts.arc)
+        : all
       print(
         opts.json
           ? rows
@@ -26,6 +33,7 @@ export function makeChapterCommand() {
               slug: c.slug,
               name: c.name,
               arc: c.arcName,
+              subCampaign: c.subCampaignName,
               sortOrder: c.sortOrder,
             })),
         { json: opts.json },

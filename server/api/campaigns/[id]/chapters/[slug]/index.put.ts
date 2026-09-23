@@ -4,6 +4,23 @@ import { arcs, chapters } from '../../../../../db/schema/sessions'
 import { hasMinRole } from '../../../../../utils/permissions'
 import type { CampaignRole } from '../../../../../utils/permissions'
 
+/**
+ * A chapter's sub-campaign is derived from its arc and cannot be written here.
+ *
+ * REFUSED rather than stripped by zod: an unknown key silently discarded is the "accepted and
+ * does nothing" shape this codebase keeps paying for — the caller believes it moved the chapter.
+ * The message names the real route.
+ */
+function refuseSubCampaignWrite(body: Record<string, unknown>): void {
+  if (body.subCampaignSlug === undefined && body.subCampaignId === undefined) return
+  throw createError({
+    statusCode: 422,
+    message:
+      "A chapter's sub-campaign is derived from its arc and cannot be set directly. " +
+      'Move the arc instead (PUT /arcs/:slug with subCampaignSlug), and its chapters follow.',
+  })
+}
+
 export default defineEventHandler(async (event) => {
   const role = event.context.campaignRole as CampaignRole
   if (!hasMinRole(role, 'editor')) {
@@ -13,6 +30,7 @@ export default defineEventHandler(async (event) => {
   const campaignId = getRouterParam(event, 'id')!
   const slug = getRouterParam(event, 'slug')!
   const body = await readBody(event)
+  refuseSubCampaignWrite(body as Record<string, unknown>)
   const db = useDb()
 
   // Scoped to the campaign through the arc join in the same query. Looking the slug up

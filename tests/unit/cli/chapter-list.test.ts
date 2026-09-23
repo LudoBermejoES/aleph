@@ -117,9 +117,21 @@ describe('findArcRef', () => {
 })
 
 describe('chapter list command wiring', () => {
-  it('reads the arcs endpoint instead of the chapters endpoint (which requires arc_id)', () => {
-    expect(source).toContain('await get(`/api/campaigns/${opts.campaign}/arcs`)')
-    expect(source).not.toContain('/chapters?arc_id')
+  // This used to assert the OPPOSITE — that the command read `/arcs`, because the chapters
+  // endpoint hard-required `arc_id` and could not serve a campaign-wide listing. That constraint
+  // is gone (`server/api/campaigns/[id]/chapters/index.get.ts` now lists the campaign and takes a
+  // `subCampaignSlug`), so the old assertion pinned a workaround rather than a rule. The rule is:
+  // read the chapters endpoint, and never re-introduce the `arc_id`-per-arc detour.
+  it('reads the chapters endpoint, which now serves a campaign-wide listing', () => {
+    expect(source).toContain('/chapters${qs}')
+    expect(source).not.toContain(
+      'await get(`/api/campaigns/${opts.campaign}/arcs`)\n      const rows',
+    )
+  })
+
+  it('passes the sub-campaign filter to the server instead of filtering locally', () => {
+    expect(source).toContain("params.set('subCampaignSlug', opts.subcampaign)")
+    expect(source).toContain("'--subcampaign <slug>'")
   })
 
   it('has no required --arc option on list', () => {
@@ -127,8 +139,9 @@ describe('chapter list command wiring', () => {
     expect(source).not.toContain("requiredOption('--arc")
   })
 
-  it('shows slug, name, arc name and sort order', () => {
+  it('shows slug, name, arc name, sub-campaign and sort order', () => {
     expect(source).toContain('arc: c.arcName')
+    expect(source).toContain('subCampaign: c.subCampaignName')
     expect(source).toContain('sortOrder: c.sortOrder')
     expect(source).not.toContain('arc: c.arcId')
   })
