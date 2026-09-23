@@ -47,3 +47,9 @@ En la posada de El Cruce de N'vrapta se impuso el reto de no beber ni una gota, 
 Durmió en el suelo, arrebujado en su túnica como manda la costumbre, y salió al alba a hacer sus ejercicios bajo la lluvia pasando con cuidado por encima del goblin que dormía atravesado en la puerta. La disciplina se cumple llueva o no, aunque por dentro pensara que estaba cansado de ser monje. Después vino el episodio de la chimenea: no había ninguna en el almacén que les habían dejado, y acabó buscando una por la casa de los anfitriones hasta que Svetlana le recordó, sin acritud, que aquello no era una posada. Se disculpó como hombre santo que es. La noche anterior había resistido veinte minutos el licor de Laughlin antes de aceptarlo.
 
 En el plan de la emboscada le tocó el establo y el objetivo más concreto de todos: el conductor del carro, con un ataque aturdidor. Antes de eso dejó dicha su objeción moral, que nadie recogió — que primero había que darles ocasión de rendirse, y que lo correcto sería llevarlos ante un juez en vez de matarlos.
+
+## Sesión del 20 de septiembre de 2026 — Me como a los gatos
+
+Su puesto era el establo y su objetivo el conductor del carro, porque quien conduce sabe de dónde viene. Con el plan ya roto se dedicó a lo que mejor sabe hacer: salir, pegar y volver a meterse detrás de la puerta. Cinco de daño la primera vez, otros cinco y un fallo la segunda.
+
+Cuando entró donde quedaban dos, atacó deliberadamente para dejarlos inconscientes y no matarlos, y cuando el Narrador dio la muerte por hecha fue el grupo entero el que insistió en que no, que quedaban vivos. Cerró la puerta para dejarlos encerrados — y Tark se la reventó de una patada poco después. Salió de la mañana con cinco puntos de daño, el segundo más tocado de los siete, que en esta sesión no es decir gran cosa.

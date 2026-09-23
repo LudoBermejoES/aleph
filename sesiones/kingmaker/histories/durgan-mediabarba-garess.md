@@ -49,3 +49,11 @@ Durgan quería desviarse a examinar las ruinas élficas de las que tanto se hab�
 Por fin pudo colgar de unas cuerdas las hierbas que llevaba recogiendo todo el viaje sin haber conseguido secarlas ni una vez; con la chimenea de la casa a mano, esta vez se secarán. Durmió desnudo envuelto en su propia manta, por no dormir en el olor de otros, y a la mañana siguiente cruzó el patio en pelotas detrás del monje buscando esa misma chimenea.
 
 Cuando Laughlin le preguntó por hierbas que adormecieran, respondió lo que sabía y no más: que con herboristería quizá pudiera encontrar la planta, pero que destilarla es alquimia, que él no la ha practicado nunca y que con la prisa que tienen no lo ve. Propuso a cambio una idea distinta — hacerse pasar por compradores y pedir que les llevaran ante su jefe —, que quedó guardada como alternativa. En la emboscada se colocará tumbado contra la empalizada con la ballesta, y antes fue a hacer pruebas de puntería sobre el terreno y recogió las marcas para no dejar rastro.
+
+## Sesión del 20 de septiembre de 2026 — Me como a los gatos
+
+El día empezó con él a cuatro patas cavando. El tronco de la trampa no estaba sujeto por ninguna cuerda que se pudiera cortar sino apoyado en un desfiladero, y hacía falta vaciarle la tierra de debajo para que bastara con empujarlo; la tirada de Artesanía sólo la tenía él. La sacó, aunque cavar no sea exactamente lo suyo —eso se lo deja a sus primos—, y se llevó de propina la pega de que quien tirara el tronco tendría que saltar al lado expuesto de la empalizada.
+
+En el combate marcó con perseguir presa, metió un ballestazo de seis, recargó en movimiento y acabó matando a la presa que había marcado. Se pasó media pelea gritándole avisos a Svetlana hasta que Linzi le corrigió a voces que era en el edificio de al lado, idiota.
+
+Y fue el único que se acordó a tiempo de lo que de verdad importaba. Cuando ya sólo quedaba rematar, sacó a Tark de la casa a tirones gritando que necesitaba prisioneros — sin éxito, porque a Tark lo agarraron de la cabeza y lo echaron atrás. Terminó la sesión arrodillado sobre un caído, aplicándole la medicina de combate que acababa de aprender.

@@ -53,3 +53,9 @@ Gael salvó más de una cena del desastre con un poco de magia sobre la comida, 
 Limpió con prestidigitación la ropa de medio grupo, empezando por el noble y acabando por Nali, que se plantó delante de él con los brazos abiertos y le dijo «haz lo tuyo». Amenazó en broma con montar una lavandería.
 
 En la planificación fue el que empujó por evitar el combate del todo: si se les puede envenenar y no tener que cargárselos a todos, mejor. Cuando quedó claro que no hay con qué, pasó a defender la emboscada y fue quien puso la condición que ordena el plan entero — hay que dejar a uno vivo, porque sin prisionero no hay campamento y sin campamento el problema vuelve. Nadie se lo discutió. Se colocará arriba, oculto entre las catapultas rotas de la parte trasera que los bandidos nunca miran, asumiendo que para lanzar tendrá que asomarse y volver a esconderse.
+
+## Sesión del 20 de septiembre de 2026 — Me como a los gatos
+
+Le tocó la peor mano de la sesión: escondido arriba entre las catapultas rotas, con los bandidos a ochenta o noventa pies y unos conjuros que llegan a treinta o sesenta. Es decir, fuera de alcance de principio a fin.
+
+Lo resolvió como pudo. Lanzó una ilusión fantasmal de un orco grande con hacha a dos manos y cara de asesino, puesta ahí para que le dispararan a ella en vez de a los que estaban abajo. El único conjuro que llegó a tocar a alguien, un arco eléctrico, se lo salvó el bandido con un 20 natural. Cuando intentó bajar saltando por las cajas sacó 11 en Acrobacias contra una dificultad de 12, y se cayó sin hacerse nada y sin turno — aunque el Narrador le concedió caer con muchísima elegancia, porque carisma le sobra. Cuando le preguntaron si había recibido daño, la respuesta fue en la dignidad.

@@ -45,3 +45,9 @@ Diez días de camino hasta El Cruce de N'vrapta no le dieron mucho que hacer má
 Le cedió su cama a Linzi y durmió en el suelo con su saco, que después de semanas a la intemperie con lluvia le pareció un lujo. Al alba salió detrás del monje a ejercitarse bajo el agua, porque hay que acostumbrarse. Engrasó sus armas mientras los demás cenaban.
 
 En el reparto de posiciones le tocó la tarea de la que depende todo lo demás: esconderse bajo una tela detrás de unas cajas junto al portón, y cuando estén todos dentro salir, cerrarlo y atrancarlo, y avanzar desde ahí con el escudo cerrando el espacio para que nadie llegue al carro ni a la salida. Preguntó por las alturas, los ángulos y los accesos hasta tener el mapa claro, señaló que él y Sim Sim son los que se van a tragar todo el castigo al estar abajo, y aun así aceptó el sitio sin discutirlo.
+
+## Sesión del 20 de septiembre de 2026 — Me como a los gatos
+
+Le tocaba la tarea de la que dependía todo —esconderse bajo una tela junto al portón y cerrarlo en cuanto estuvieran todos dentro— y fue justo la que no hizo. Con la sorpresa ya perdida y un bandido al lado, atacó en vez de cerrar, y lo mató de un martillazo. Levantó el escudo y aguantó dos flechas: la primera falló y la segunda dio en el escudo alzado y hizo plank. Flanqueando al siguiente sacó un 19, crítico, diecinueve puntos, y lo mató también.
+
+Sólo cuando ya no quedaba nadie a quien encerrar salió y cerró la puerta, que era lo que tenía que haber hecho al principio. No lo comentó. Terminó la mañana sin un rasguño, igual que casi todos.

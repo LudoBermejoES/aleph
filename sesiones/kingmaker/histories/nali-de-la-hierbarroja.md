@@ -41,3 +41,11 @@ Nali se turnó con Gael en los fogones durante la semana de lluvia, y una noche,
 Cuando Laughlin tendió una sábana para darles intimidad a ella y a Linzi, contestó que no tenía inconveniente ni en que la pusiera ni en que no, y se cambió de ropa allí mismo. Del licor de las tierras de los lagos dio buena cuenta, que para eso ha sido pirata y está acostumbrada a los alcoholes fuertes.
 
 En la planificación aportó dos cosas y defendió una tercera hasta el final. Propuso, medio en broma, darles a beber fuego alquímico — y al revisar el inventario común confirmó que no tienen nada que sirva. Propuso usar las verjas del corral de compost como abrojos improvisados para cerrarle la salida al carro sin tener que fabricar nada. Y repitió una y otra vez, sin conseguir que le hicieran caso, que Sim Sim y Dain deberían esconderse más cerca del portón para poder cerrarlo antes. Ella se subirá de un salto al centro del tejado, desde donde ve todo el patio, tiene cobertura y puede curar a quien lo necesite.
+
+## Sesión del 20 de septiembre de 2026 — Me como a los gatos
+
+Aportó el mechón de pelo —con su abalorio rojo— con el que Tark se fabricó el talismán, y después se pasó la pelea fallando con el arco una vez detrás de otra, que es el chiste permanente de la mesa porque el arco es el arma predilecta de su dios.
+
+Su momento llegó por el otro lado: una lanza divina con 20 natural, 28 en total, crítico, daño doble, diez puntos y un bandido muerto. Volvió a acertar a −10 pero sin daño suficiente, y el Narrador le tuvo tanta lástima que le regaló una segunda tirada como si no hubiera gastado la acción — su dios la recompensaba, dijo — y también falló. Acabó saltando al tejado.
+
+Y fue suya la idea que deja abierta la próxima sesión: ir a curar al jefe caído, no por piedad sino porque un prisionero vivo es la única forma de encontrar el campamento. La tirada quedó aplazada.

@@ -53,3 +53,13 @@ El camuflaje del campamento corrió de su cuenta, con resultados que fueron mejo
 Lo primero que hizo al llegar bajo techo fue comerse media pastilla de jabón y pedir un cubo de agua caliente con la otra. Pidió a Laughlin un trago de su licor con los ojos brillando en la penumbra, y luego se lo fue ofreciendo a todos los demás uno por uno. Al acostarse se tumbó contra la puerta a modo de alarma viviente, con la manta encima como un perro, y avisó de que aunque duerme profundo gritará si alguien intenta abrirla.
 
 La idea que vertebra toda la emboscada es suya, y la planteó levantando la manita: dejarles entrar a todos, cerrar detrás, masacrar dentro mientras los arqueros barren fuera, y seguir a los que huyan. Le tocará esperar debajo de una mesa para salir en medio de ellos. También fue el único que insistió en algo que nadie más había dicho: que hay que asegurarse de que Oleg y Svetlana desaparezcan antes del ataque, porque si no los usarán de escudo.
+
+## Sesión del 20 de septiembre de 2026 — Me como a los gatos
+
+Se gastó cuatro de sus diez monedas de oro en fabricarse su primer talismán de potencia: le pidió a Nali un mechón de pelo de los que llevan el abalorio rojo, lo trenzó al hacha nueva con cuerda de cuero y le fundió el oro por encima. Un +1 al ataque y un +2 al daño durante todo el turno, activándolo antes de tirar. No llegó a usarlo ni una vez en toda la pelea.
+
+Hizo la guardia de las seis envuelto en una manta, cagándose en todo y dándole lingotazos al licor goblin, hasta que Oleg subió a la empalizada con un puchero de gachas sólo para él. En cuanto el hombre bajó, vio el movimiento a dos kilómetros y dio el aviso. Luego lo enterraron a medias bajo una mesa con el hacha en el suelo, lo que le valió cinco puntos de bonificación a Sigilo y una tirada oculta que salió.
+
+Salió de debajo de la mesa y pilló al primero desprevenido: once de daño, y el hombre girando como una peonza. Se parapetó detrás del caballo y aun así se llevó doce puntos, el único daño serio de toda la sesión. Respondió con una carga repentina de catorce que mató al segundo. Más tarde reventó de una patada la misma puerta que Sim Sim acababa de cerrar para encerrar a los últimos dos, y remató al que quedaba dentro. El Narrador dijo que el hombre le miraba con ojitos del gato con botas.
+
+«Me como a los gatos.»
