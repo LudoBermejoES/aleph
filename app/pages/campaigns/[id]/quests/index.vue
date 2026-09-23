@@ -105,7 +105,18 @@
               {{ questStatusLabel(q.status) }}
             </span>
           </div>
-          <p v-if="q.description" class="text-sm text-muted-foreground mt-1">{{ q.description }}</p>
+          <!-- A LIST shows an excerpt, never the raw field: quest descriptions are full markdown
+               (headings, bullets, **bold**, blank lines between paragraphs) and a bare `{{ }}`
+               inside a <p> prints the asterisks literally while HTML collapses every newline,
+               so a long one rendered as an unreadable wall. `buildExcerpt` flattens the markdown
+               to prose; `line-clamp-2` caps the card, as the arcs and organizations lists
+               already do. The full text renders properly through <MDC> on the detail page. -->
+          <p
+            v-if="questExcerpt(q.description)"
+            class="text-sm text-muted-foreground mt-1 line-clamp-2"
+          >
+            {{ questExcerpt(q.description) }}
+          </p>
         </div>
         <!-- Sub-quests -->
         <div
@@ -155,6 +166,13 @@
 <script setup lang="ts">
 import { ICONS } from '~/utils/icons'
 import type { Quest } from '~/types/api'
+import { buildExcerpt } from '#shared/utils/text-excerpt'
+
+// 240 chars is about two lines at this card width, which is what `line-clamp-2` shows anyway --
+// excerpting to roughly the visible length keeps the DOM honest instead of clipping a 2,900-char
+// string with CSS and leaving the rest for a text search to find.
+const questExcerpt = (description: string | null) =>
+  description ? buildExcerpt(description, 240) : ''
 const { t } = useI18n()
 const route = useRoute()
 const campaignId = route.params.id as string

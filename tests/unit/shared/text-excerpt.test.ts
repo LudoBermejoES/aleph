@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { flattenToPlainText, buildExcerpt } from '../../../server/services/text-excerpt'
+import { flattenToPlainText, buildExcerpt } from '../../../shared/utils/text-excerpt'
 
 describe('flattenToPlainText', () => {
   it('strips fenced code blocks entirely', () => {
@@ -99,5 +99,51 @@ describe('buildExcerpt', () => {
     const long = 'x'.repeat(500)
     const result = buildExcerpt(long)
     expect(result.length).toBeLessThanOrEqual(201)
+  })
+})
+
+/**
+ * Regression: the quests list printed `{{ q.description }}` raw inside a <p>, so a real quest
+ * description rendered as a wall of text with literal `**` and every newline collapsed by HTML.
+ * The sample below is the opening of «Las guardas de la capilla y la tercera planta» as stored
+ * in the Berlín en tinieblas campaign -- blank-line paragraphs, bold spans and a bullet list,
+ * which is the exact combination that broke, rather than a fixture clean enough to pass anyway.
+ */
+describe('buildExcerpt on a real quest description', () => {
+  const QUEST_DESCRIPTION = [
+    'El 20 de agosto, en el patio, cayó del cielo un periódico enrollado.',
+    '',
+    'Lo importante no fue el periódico. Fue que **un objeto entró en la capilla, atravesó sus',
+    'protecciones sin provocar una sola fluctuación**. Nadie del grupo notó nada.',
+    '',
+    'De ahí salió la lista entera de lo que no habían pensado:',
+    '- **Timon Sauerbeck sabe su dirección.**',
+    '- El portal sigue sin sellar.',
+  ].join('\n')
+
+  it('leaves no markdown syntax for the browser to print literally', () => {
+    const result = buildExcerpt(QUEST_DESCRIPTION, 240)
+    expect(result).not.toContain('**')
+    expect(result).not.toContain('\n')
+    expect(result).not.toMatch(/^\s*-\s/m)
+  })
+
+  it('keeps the words, so the excerpt still reads as prose', () => {
+    const result = buildExcerpt(QUEST_DESCRIPTION, 240)
+    expect(result.startsWith('El 20 de agosto, en el patio, cayó del cielo')).toBe(true)
+    expect(result).toContain('un objeto entró en la capilla')
+  })
+
+  it('truncates on a word boundary and marks the cut', () => {
+    const result = buildExcerpt(QUEST_DESCRIPTION, 240)
+    expect(result.length).toBeLessThanOrEqual(241)
+    expect(result.endsWith('…')).toBe(true)
+
+    // Not merely "it ends with an ellipsis": the last word before it must be a WHOLE word of
+    // the source, which is what distinguishes a word-boundary cut from a mid-word slice that
+    // also ends in an ellipsis.
+    const lastWord = result.slice(0, -1).trimEnd().split(' ').pop() as string
+    const flattened = flattenToPlainText(QUEST_DESCRIPTION)
+    expect(flattened.split(' ')).toContain(lastWord)
   })
 })

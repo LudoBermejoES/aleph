@@ -71,3 +71,63 @@ test.describe('Quests', () => {
     await expect(page.locator('main >> text=Done Quest')).toBeVisible({ timeout: 5000 })
   })
 })
+
+/**
+ * A quest description is full markdown, and the list card used to print it raw inside a <p>:
+ * the asterisks showed literally, HTML collapsed every newline, and a long description filled
+ * the card with an unreadable wall of text. The detail page was always fine (it renders through
+ * <MDC>), which is why this only ever broke on the list.
+ *
+ * Asserted here rather than in a unit test because the defect was the PAGE choosing raw
+ * interpolation over the excerpt helper -- `buildExcerpt` itself was correct and tested the
+ * whole time.
+ */
+test('the quests list shows an excerpt, not raw markdown', async ({ page }) => {
+  await registerAndLogin(page, 'Markdown Quest')
+  await createCampaign(page, `Markdown Camp ${uid()}`)
+
+  const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
+  await apiFetch(page, `/api/campaigns/${campaignId}/quests`, {
+    method: 'POST',
+    body: {
+      name: 'Las guardas de la capilla',
+      description: [
+        'El 20 de agosto cayó del cielo un periódico enrollado.',
+        '',
+        'Lo importante fue que **un objeto atravesó las protecciones**.',
+        '',
+        'La lista de lo que no habían pensado:',
+        '- **Timon Sauerbeck sabe su dirección.**',
+        '- El portal sigue sin sellar.',
+      ].join('\n'),
+    },
+  })
+
+  await page.click('aside >> text=Quests')
+  await page.waitForLoadState('networkidle')
+  await expect(page.locator('main >> text=Las guardas de la capilla')).toBeVisible({
+    timeout: 10000,
+  })
+
+  const card = page.locator('main').getByText('El 20 de agosto cayó del cielo')
+  await expect(card).toBeVisible()
+
+  // The whole point: no markdown syntax survives into what the reader sees.
+  const shown = (await card.innerText()).trim()
+  expect(shown).not.toContain('**')
+  expect(shown).not.toMatch(/^\s*-\s/m)
+
+  // And the card is an excerpt, not the whole field -- the last bullet must not be in it.
+  expect(shown).not.toContain('El portal sigue sin sellar')
+
+  // Control: the detail page DOES show the full text, with the bold rendered as an element
+  // rather than as asterisks. Without this, hiding the description entirely would pass above.
+  await page.click('main >> text=Las guardas de la capilla')
+  await page.waitForLoadState('networkidle')
+  await expect(page.locator('main >> text=El portal sigue sin sellar')).toBeVisible({
+    timeout: 10000,
+  })
+  await expect(
+    page.locator('main strong', { hasText: 'un objeto atravesó las protecciones' }),
+  ).toBeVisible()
+})

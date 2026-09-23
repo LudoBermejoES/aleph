@@ -11,7 +11,7 @@ import { organizations } from '../db/schema/organizations'
 import { entityImages } from '../db/schema/entity-images'
 import { stripSecretBlocks } from './content'
 import { safeReadEntityFile } from '../utils/content-helpers'
-import { buildExcerpt } from './text-excerpt'
+import { buildExcerpt } from '#shared/utils/text-excerpt'
 
 // --- Visibility Filtering ---
 

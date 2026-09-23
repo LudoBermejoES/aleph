@@ -1,4 +1,6 @@
 import { describe, it, expect } from 'vitest'
+import { readFileSync } from 'fs'
+import { resolve } from 'path'
 
 /**
  * Test quest list component with nesting logic (8.27)
@@ -79,5 +81,38 @@ describe('Quest list nesting logic (8.27)', () => {
         expect(childQuests(sampleQuests, child.id)).toHaveLength(0)
       }
     }
+  })
+})
+
+/**
+ * Guard for the regression where the list printed `{{ q.description }}` raw inside a <p>.
+ *
+ * This one reads the PAGE, unlike the block above, which re-implements `rootQuests` /
+ * `childQuests` in the test file and therefore cannot notice if the page stops matching it.
+ * It is here rather than only in Playwright because `tests/e2e/` does NOT run in CI --
+ * `.github/workflows` runs format, eslint, `vitest run tests/unit/`, the integration suite and
+ * the build, and nothing else. A guard that only exists in the e2e suite is observed by
+ * whoever remembers to run it, never enforced.
+ */
+describe('the quests list renders descriptions as excerpts', () => {
+  const page = readFileSync(
+    resolve(__dirname, '../../../app/pages/campaigns/[id]/quests/index.vue'),
+    'utf-8',
+  )
+
+  it('never interpolates a quest description raw', () => {
+    // Quest descriptions are markdown: raw interpolation prints `**` literally and lets HTML
+    // collapse every newline, which is what turned a long description into a wall of text.
+    expect(page).not.toMatch(/\{\{\s*q\.description\s*\}\}/)
+  })
+
+  it('routes the description through the shared excerpt helper', () => {
+    expect(page).toContain("from '#shared/utils/text-excerpt'")
+    expect(page).toMatch(/buildExcerpt\(/)
+  })
+
+  it('caps the card height so one long quest cannot push the rest off screen', () => {
+    const descriptionBlock = page.slice(page.indexOf('questExcerpt(q.description)'))
+    expect(descriptionBlock).toMatch(/line-clamp-\d/)
   })
 })
