@@ -501,7 +501,10 @@
     "manageArcs": "Manage Arcs",
     "sessions": "Linked Sessions",
     "confirmDelete": "Delete this arc? All chapters will also be deleted.",
-    "confirmDeleteChapter": "Delete this chapter?"
+    "confirmDeleteChapter": "Delete this chapter?",
+    "chaptersInheritSubCampaign": "These chapters belong to {subCampaign}, inherited from this arc. To move them, move the arc.",
+    "moveCarriesSessions": "Moving this arc also moves every session in it.",
+    "sessionsMoved": "{count} session(s) moved with the arc."
   },
   "templates": {
     "title": "Entity Templates",
@@ -854,7 +857,8 @@
       "economy": "Economy",
       "campaign": "Campaign"
     },
-    "diagrams": "Diagrams"
+    "diagrams": "Diagrams",
+    "subCampaigns": "Sub-campaigns"
   },
   "pagination": {
     "showing": "Showing {from}–{to} of {total}"

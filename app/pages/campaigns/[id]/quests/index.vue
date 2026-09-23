@@ -15,6 +15,41 @@
       </NuxtLink>
     </div>
 
+    <!-- Sub-campaign chips, mirroring the sessions list. They COMPOSE with the status filter
+         below rather than replacing it: the endpoint ANDs both predicates. -->
+    <div v-if="subCampaigns.length > 1" class="flex gap-2 mb-3 flex-wrap">
+      <button
+        :class="[
+          'flex items-center gap-2 px-3 py-1.5 rounded-full text-sm border transition-colors',
+          activeSubCampaignSlug === null
+            ? 'bg-primary text-primary-foreground border-primary'
+            : 'border-border hover:border-primary/50',
+        ]"
+        @click="setSubCampaign(null)"
+      >
+        {{ $t('sessions.allSubCampaigns') }}
+      </button>
+      <button
+        v-for="sc in subCampaigns"
+        :key="sc.id"
+        :class="[
+          'flex items-center gap-2 px-3 py-1.5 rounded-full text-sm border transition-colors',
+          activeSubCampaignSlug === sc.slug
+            ? 'bg-primary text-primary-foreground border-primary'
+            : 'border-border hover:border-primary/50',
+        ]"
+        @click="setSubCampaign(sc.slug)"
+      >
+        <img
+          v-if="sc.imageUrl"
+          :src="sc.imageUrl"
+          :alt="sc.name"
+          class="w-4 h-4 rounded-full object-cover"
+        />
+        {{ sc.name }}
+      </button>
+    </div>
+
     <div class="flex gap-2 mb-6">
       <Button :variant="filter === '' ? 'default' : 'outline'" size="sm" @click="setFilter('')">{{
         $t('characters.all')
@@ -133,6 +168,15 @@ function questStatusLabel(status?: string | null): string {
 
 const questList = ref<Quest[]>([])
 const filter = ref('')
+interface SubCampaignRow {
+  id: string
+  slug: string
+  name: string
+  isDefault: boolean
+  imageUrl?: string | null
+}
+const subCampaigns = ref<SubCampaignRow[]>([])
+const activeSubCampaignSlug = ref<string | null>(null)
 const api = useCampaignApi(campaignId)
 const { loading, error, withLoading, dismissError } = useLoadingState()
 
@@ -146,11 +190,24 @@ function setFilter(value: string) {
   load()
 }
 
+// Changing one filter must not clear the other: both live in their own ref and both go into the
+// same query string.
+function setSubCampaign(slug: string | null) {
+  activeSubCampaignSlug.value = slug
+  load()
+}
+
 async function load() {
   await withLoading(async () => {
     const params: Record<string, string> = {}
     if (filter.value) params.status = filter.value
-    questList.value = await api.getQuests(params)
+    if (activeSubCampaignSlug.value) params.subCampaignSlug = activeSubCampaignSlug.value
+    const [quests, subs] = await Promise.all([
+      api.getQuests(params),
+      $fetch<SubCampaignRow[]>(`/api/campaigns/${campaignId}/sub-campaigns`),
+    ])
+    questList.value = quests
+    subCampaigns.value = subs
   })
 }
 

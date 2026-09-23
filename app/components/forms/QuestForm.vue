@@ -32,6 +32,17 @@
           <option v-for="q in quests" :key="q.id" :value="q.id">{{ q.name }}</option>
         </select>
       </div>
+      <!-- Without this the web could only create quests in the default sub-campaign, and moving
+           one afterwards needed the CLI. Hidden when the campaign has only its default. -->
+      <div v-if="subCampaigns.length > 1">
+        <label class="text-sm font-medium">{{ $t('sessions.subCampaign') }}</label>
+        <select
+          v-model="form.subCampaignSlug"
+          class="w-full mt-1 px-3 py-2 rounded border border-input bg-background"
+        >
+          <option v-for="sc in subCampaigns" :key="sc.id" :value="sc.slug">{{ sc.name }}</option>
+        </select>
+      </div>
       <div class="col-span-2">
         <label class="text-sm font-medium flex items-center gap-2">
           <input v-model="form.isSecret" type="checkbox" />
@@ -72,6 +83,7 @@ const props = defineProps<{
     parentQuestId: string
     isSecret: boolean
     content: string
+    subCampaignSlug?: string
   }
   campaignId: string
   questSlug?: string
@@ -83,9 +95,19 @@ const props = defineProps<{
   userColor?: string
 }>()
 
-defineEmits<{ 'update:modelValue': [value: typeof props.modelValue]; submit: [] }>()
+const emit = defineEmits<{
+  'update:modelValue': [value: typeof props.modelValue]
+  submit: []
+}>()
 
 const quests = ref<Quest[]>([])
+interface SubCampaignRow {
+  id: string
+  slug: string
+  name: string
+  isDefault: boolean
+}
+const subCampaigns = ref<SubCampaignRow[]>([])
 
 const form = computed({
   get: () => props.modelValue,
@@ -109,6 +131,20 @@ onMounted(async () => {
     quests.value = await useCampaignApi(props.campaignId).getQuests()
   } catch {
     quests.value = []
+  }
+  try {
+    const subs = await $fetch<SubCampaignRow[]>(`/api/campaigns/${props.campaignId}/sub-campaigns`)
+    subCampaigns.value = subs
+    // Pre-selected to the campaign default on create, as SessionForm does, so a quest never
+    // lands somewhere the author did not see.
+    if (!props.modelValue.subCampaignSlug) {
+      const fallback = subs.find((sc) => sc.isDefault)?.slug ?? subs[0]?.slug
+      // Emitted, not mutated in place: the prop object is the parent's and writing through it
+      // works by accident of reference sharing, which is what `vue/no-mutating-props` is for.
+      if (fallback) emit('update:modelValue', { ...props.modelValue, subCampaignSlug: fallback })
+    }
+  } catch {
+    subCampaigns.value = []
   }
 })
 </script>

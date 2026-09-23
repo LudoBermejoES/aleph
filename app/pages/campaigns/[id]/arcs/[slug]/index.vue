@@ -23,6 +23,11 @@
             :class="['inline-flex text-xs px-2 py-0.5 rounded mt-1', arcStatusClass(arc.status)]"
             >{{ arcStatusLabel(arc.status) }}</span
           >
+          <span
+            v-if="arc.subCampaignName"
+            class="ml-2 inline-flex text-xs px-2 py-0.5 rounded mt-1 bg-secondary text-secondary-foreground"
+            >{{ arc.subCampaignName }}</span
+          >
         </div>
         <div v-if="canEdit" class="flex gap-2 shrink-0">
           <Button variant="outline" size="sm" @click="startEditArc">{{ $t('common.edit') }}</Button>
@@ -31,6 +36,13 @@
           }}</Button>
         </div>
       </div>
+
+      <p
+        v-if="movedNotice"
+        class="mb-4 text-sm px-3 py-2 rounded border border-border bg-secondary/50"
+      >
+        {{ $t('arcs.sessionsMoved', { count: movedNotice }) }}
+      </p>
 
       <!-- Edit arc inline -->
       <div v-if="editingArc" class="mb-6 p-4 rounded-lg border border-border space-y-3">
@@ -57,6 +69,18 @@
             <option value="completed">{{ $t('arcs.statusCompleted') }}</option>
             <option value="paused">{{ $t('arcs.statusPaused') }}</option>
           </select>
+        </div>
+        <div v-if="subCampaigns.length > 1">
+          <label class="text-sm font-medium">{{ $t('sessions.subCampaign') }}</label>
+          <select
+            v-model="editArcForm.subCampaignSlug"
+            class="w-full mt-1 px-3 py-1.5 rounded border border-input bg-background text-sm"
+          >
+            <option v-for="sc in subCampaigns" :key="sc.id" :value="sc.slug">{{ sc.name }}</option>
+          </select>
+          <p class="text-xs text-muted-foreground mt-1">
+            {{ $t('arcs.moveCarriesSessions') }}
+          </p>
         </div>
         <div class="flex gap-2">
           <Button size="sm" @click="saveArc">{{ $t('common.save') }}</Button>
@@ -157,6 +181,15 @@
           }}</Button>
         </div>
 
+        <!-- A chapter's sub-campaign is derived from this arc and cannot be edited here — the
+             server refuses a direct write with a 422. Stated once, above the list, rather than
+             repeated on every row. -->
+        <p
+          v-if="arc.subCampaignName && arc.chapters?.length"
+          class="text-xs text-muted-foreground mb-2"
+        >
+          {{ $t('arcs.chaptersInheritSubCampaign', { subCampaign: arc.subCampaignName }) }}
+        </p>
         <div v-if="arc.chapters?.length === 0" class="text-sm text-muted-foreground">
           {{ $t('arcs.noChapters') }}
         </div>
@@ -253,7 +286,15 @@ interface Arc {
   name: string
   description: string | null
   status: string
+  subCampaignSlug?: string | null
+  subCampaignName?: string | null
   chapters?: Chapter[]
+}
+interface SubCampaignRow {
+  id: string
+  slug: string
+  name: string
+  isDefault: boolean
 }
 
 const route = useRoute()
@@ -273,7 +314,9 @@ const contentRef = ref<HTMLElement>()
 
 // Arc editing
 const editingArc = ref(false)
-const editArcForm = reactive({ name: '', description: '', status: '' })
+const editArcForm = reactive({ name: '', description: '', status: '', subCampaignSlug: '' })
+const subCampaigns = ref<SubCampaignRow[]>([])
+const movedNotice = ref(0)
 
 // Chapter state
 const showAddChapter = ref(false)
@@ -312,11 +355,13 @@ async function load() {
     // every session past the 50th — which, with sessions ordered by number descending,
     // hid the whole of the earliest arcs — and the paginated `{data, meta}` envelope is
     // not an array, so the filter threw and killed the rest of load().
-    const [arcs, campaign, sessionsRes] = await Promise.all([
+    const [arcs, campaign, sessionsRes, subs] = await Promise.all([
       api.getArcs(arcParams),
       api.getCampaign(),
       api.getSessions({ arcSlug: slug, pageSize: '0' }),
+      $fetch<SubCampaignRow[]>(`/api/campaigns/${campaignId}/sub-campaigns`),
     ])
+    subCampaigns.value = subs
     const found = arcs.find((a: Arc) => a.slug === slug)
     if (!found) {
       await router.push(`/campaigns/${campaignId}/arcs`)
@@ -342,16 +387,21 @@ function startEditArc() {
   editArcForm.name = arc.value.name
   editArcForm.description = arc.value.description ?? ''
   editArcForm.status = arc.value.status
+  editArcForm.subCampaignSlug = arc.value.subCampaignSlug ?? ''
   editingArc.value = true
 }
 
 async function saveArc() {
-  await api.updateArc(slug, {
+  const res = (await api.updateArc(slug, {
     name: editArcForm.name,
     description: editArcForm.description,
     status: editArcForm.status,
-  })
+    ...(editArcForm.subCampaignSlug ? { subCampaignSlug: editArcForm.subCampaignSlug } : {}),
+  })) as { movedSessions?: number } | undefined
   editingArc.value = false
+  // One edit can rewrite many rows. Saying so at the moment it happens is the whole mitigation —
+  // the alternative is the Narrator discovering it later from a list that changed under them.
+  movedNotice.value = res?.movedSessions ? res.movedSessions : 0
   await load()
 }
 

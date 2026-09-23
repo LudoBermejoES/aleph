@@ -34,7 +34,15 @@ const router = useRouter()
 const campaignId = route.params.id as string
 const submitting = ref(false)
 const { t } = useI18n()
-const form = ref({ name: '', status: 'active', parentQuestId: '', isSecret: false, content: '' })
+const form = ref({
+  name: '',
+  status: 'active',
+  parentQuestId: '',
+  isSecret: false,
+  content: '',
+  // Filled by QuestForm from the campaign default once the sub-campaigns load.
+  subCampaignSlug: '',
+})
 
 const api = useCampaignApi(campaignId)
 const questForm = ref<{ clearDraft: () => void } | null>(null)

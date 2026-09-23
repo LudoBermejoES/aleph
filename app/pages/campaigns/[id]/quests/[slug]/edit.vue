@@ -46,7 +46,14 @@ const submitting = ref(false)
 const loaded = ref(false)
 const error = ref('')
 const { t } = useI18n()
-const form = ref({ name: '', status: 'active', parentQuestId: '', isSecret: false, content: '' })
+const form = ref({
+  name: '',
+  status: 'active',
+  parentQuestId: '',
+  isSecret: false,
+  content: '',
+  subCampaignSlug: '',
+})
 
 const isCollaborative = computed(() => route.query.collab === 'true')
 const documentName = computed(() =>
@@ -66,6 +73,9 @@ onMounted(async () => {
       parentQuestId: q.parentQuestId || '',
       isSecret: q.isSecret || false,
       content: q.content || '',
+      // The quest detail now names its sub-campaign, so the picker opens on the real one instead
+      // of snapping the quest back to the default on every save.
+      subCampaignSlug: q.subCampaignSlug || '',
     }
     loaded.value = true
   } catch {

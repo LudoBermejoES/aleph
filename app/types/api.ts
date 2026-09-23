@@ -216,6 +216,63 @@ export interface Quest {
   logFilePath: string | null
   createdAt: Date
   updatedAt: Date
+  subCampaignId?: string | null
+  // Resolved by the same join the sessions list uses, on both the list and the detail.
+  subCampaignName?: string | null
+  subCampaignSlug?: string | null
+}
+
+// ─── Sub-campaigns, arcs and chapters ─────────────────────────────────────────
+
+/**
+ * A named storyline inside a campaign. Every campaign has exactly one with `isDefault`, seeded at
+ * creation, and every arc/session/quest always points at one — there is no unassigned state.
+ *
+ * Purely organizational: it is NOT an access-control dimension. Every campaign member sees every
+ * sub-campaign; what hides prose is `visibility` plus `:::secret` blocks.
+ */
+export interface SubCampaign {
+  id: string
+  campaignId: string
+  name: string
+  slug: string
+  description: string | null
+  imageUrl: string | null
+  sortOrder: number
+  isDefault: boolean
+}
+
+export interface Arc {
+  id: string
+  campaignId: string
+  subCampaignId: string
+  name: string
+  slug: string
+  description: string | null
+  sortOrder: number
+  status: string
+  subCampaignName?: string | null
+  subCampaignSlug?: string | null
+  chapters?: Chapter[]
+}
+
+/**
+ * A chapter has NO `subCampaignId` column: it belongs to exactly one arc and its sub-campaign is
+ * derived from that arc on read, so the two can never disagree. The fields below are therefore
+ * read-only — moving a chapter between storylines means moving its arc.
+ */
+export interface Chapter {
+  id: string
+  arcId: string
+  name: string
+  slug: string
+  description: string | null
+  sortOrder: number
+  arcName?: string | null
+  arcSlug?: string | null
+  subCampaignId?: string | null
+  subCampaignName?: string | null
+  subCampaignSlug?: string | null
 }
 
 // ─── Maps ─────────────────────────────────────────────────────────────────────

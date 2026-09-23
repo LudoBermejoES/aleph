@@ -12,6 +12,41 @@
       <h1 class="text-2xl font-bold">{{ $t('arcs.title') }}</h1>
     </div>
 
+    <!-- Sub-campaign filter, mirroring the sessions list. Hidden with a single sub-campaign so
+         the concept stays invisible to campaigns that do not use it. -->
+    <div v-if="subCampaigns.length > 1" class="flex gap-2 mb-6 flex-wrap">
+      <button
+        :class="[
+          'flex items-center gap-2 px-3 py-1.5 rounded-full text-sm border transition-colors',
+          activeSubCampaignSlug === null
+            ? 'bg-primary text-primary-foreground border-primary'
+            : 'border-border hover:border-primary/50',
+        ]"
+        @click="activeSubCampaignSlug = null"
+      >
+        {{ $t('sessions.allSubCampaigns') }}
+      </button>
+      <button
+        v-for="sc in subCampaigns"
+        :key="sc.id"
+        :class="[
+          'flex items-center gap-2 px-3 py-1.5 rounded-full text-sm border transition-colors',
+          activeSubCampaignSlug === sc.slug
+            ? 'bg-primary text-primary-foreground border-primary'
+            : 'border-border hover:border-primary/50',
+        ]"
+        @click="activeSubCampaignSlug = sc.slug"
+      >
+        <img
+          v-if="sc.imageUrl"
+          :src="sc.imageUrl"
+          :alt="sc.name"
+          class="w-4 h-4 rounded-full object-cover"
+        />
+        {{ sc.name }}
+      </button>
+    </div>
+
     <LoadingSkeleton v-if="loading" :rows="3" />
     <div v-else-if="arcList.length" class="space-y-3">
       <div
@@ -27,6 +62,11 @@
             </p>
           </NuxtLink>
           <div class="flex items-center gap-2 shrink-0">
+            <span
+              v-if="subCampaigns.length > 1 && arc.subCampaignName"
+              class="text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground"
+              >{{ arc.subCampaignName }}</span
+            >
             <span :class="['text-xs px-2 py-0.5 rounded', arcStatusClass(arc.status)]">{{
               arc.status
             }}</span>
@@ -47,14 +87,24 @@
     <!-- Create arc form (DM only) -->
     <div v-if="canCreate" class="mt-6 p-4 rounded-lg border border-dashed border-border">
       <h2 class="text-sm font-semibold mb-3">{{ $t('arcs.new') }}</h2>
-      <div class="flex gap-2">
+      <div class="flex gap-2 flex-wrap">
         <input
           v-model="newName"
           type="text"
           :placeholder="$t('arcs.namePlaceholder')"
-          class="flex-1 px-3 py-1.5 rounded border border-input bg-background text-sm"
+          class="flex-1 min-w-0 px-3 py-1.5 rounded border border-input bg-background text-sm"
           @keydown.enter="createArc"
         />
+        <!-- Without this the web could only ever create arcs in the default sub-campaign, and
+             moving one afterwards needed the CLI. `min-w-0` because a select is as wide as its
+             longest option and will not shrink otherwise. -->
+        <select
+          v-if="subCampaigns.length > 1"
+          v-model="newSubCampaignSlug"
+          class="min-w-0 px-3 py-1.5 rounded border border-input bg-background text-sm"
+        >
+          <option v-for="sc in subCampaigns" :key="sc.id" :value="sc.slug">{{ sc.name }}</option>
+        </select>
         <Button size="sm" :disabled="!newName.trim() || creating" @click="createArc">
           {{ $t('common.create') }}
         </Button>
@@ -77,10 +127,21 @@ interface Arc {
   slug: string
   name: string
   status: string
+  subCampaignName?: string | null
+}
+interface SubCampaignRow {
+  id: string
+  slug: string
+  name: string
+  isDefault: boolean
+  imageUrl?: string | null
 }
 
 const arcList = ref<Arc[]>([])
+const subCampaigns = ref<SubCampaignRow[]>([])
+const activeSubCampaignSlug = ref<string | null>(null)
 const newName = ref('')
+const newSubCampaignSlug = ref('')
 const creating = ref(false)
 const canCreate = ref(false)
 
@@ -99,17 +160,35 @@ function arcStatusClass(status: string) {
 
 async function load() {
   await withLoading(async () => {
-    const [arcs, campaign] = await Promise.all([api.getArcs(), api.getCampaign()])
+    // Filtered in SQL by the endpoint, not with a `.filter()` here: the server already accepts
+    // `subCampaignSlug`, and client-side filtering would lie the moment the list paginates.
+    const params = activeSubCampaignSlug.value
+      ? { subCampaignSlug: activeSubCampaignSlug.value }
+      : undefined
+    const [arcs, campaign, subs] = await Promise.all([
+      api.getArcs(params),
+      api.getCampaign(),
+      $fetch<SubCampaignRow[]>(`/api/campaigns/${campaignId}/sub-campaigns`),
+    ])
     arcList.value = arcs
+    subCampaigns.value = subs
+    if (!newSubCampaignSlug.value) {
+      newSubCampaignSlug.value = subs.find((sc) => sc.isDefault)?.slug ?? subs[0]?.slug ?? ''
+    }
     canCreate.value = ['dm', 'co_dm'].includes((campaign as { role?: string }).role ?? '')
   })
 }
+
+watch(activeSubCampaignSlug, load)
 
 async function createArc() {
   if (!newName.value.trim()) return
   creating.value = true
   try {
-    const arc = await api.createArc({ name: newName.value.trim() })
+    const arc = await api.createArc({
+      name: newName.value.trim(),
+      ...(newSubCampaignSlug.value ? { subCampaignSlug: newSubCampaignSlug.value } : {}),
+    })
     newName.value = ''
     await router.push(`/campaigns/${campaignId}/arcs/${arc.slug ?? arc.id}`)
   } finally {

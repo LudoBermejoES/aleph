@@ -173,6 +173,13 @@ const campaignLinkGroups = computed(() => {
         { to: `/campaigns/${id}/sessions`, label: t('layout.sessions'), icon: ICONS.sessions },
         { to: `/campaigns/${id}/quests`, label: t('layout.quests'), icon: ICONS.quests },
         { to: `/campaigns/${id}/arcs`, label: t('layout.arcs'), icon: ICONS.arcs },
+        // Was reachable only from a button on the sessions list, so a Narrator who never opened
+        // that page had no way of discovering sub-campaigns existed at all.
+        {
+          to: `/campaigns/${id}/sub-campaigns`,
+          label: t('layout.subCampaigns'),
+          icon: ICONS.arcs,
+        },
         { to: `/campaigns/${id}/templates`, label: t('layout.templates'), icon: ICONS.templates },
         { to: `/campaigns/${id}/calendars`, label: t('layout.calendars'), icon: ICONS.calendars },
       ],

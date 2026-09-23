@@ -33,6 +33,11 @@
           >
             {{ $t('quests.secret') }}
           </span>
+          <span
+            v-if="quest.subCampaignName"
+            class="ml-2 inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground"
+            >{{ quest.subCampaignName }}</span
+          >
         </div>
         <div class="flex gap-2 shrink-0">
           <NuxtLink :to="`/campaigns/${campaignId}/quests/${slug}/edit`">

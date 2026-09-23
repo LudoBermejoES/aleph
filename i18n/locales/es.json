@@ -501,7 +501,10 @@
     "manageArcs": "Gestionar arcos",
     "sessions": "Sesiones vinculadas",
     "confirmDelete": "¿Eliminar este arco? También se eliminarán todos los capítulos.",
-    "confirmDeleteChapter": "¿Eliminar este capítulo?"
+    "confirmDeleteChapter": "¿Eliminar este capítulo?",
+    "chaptersInheritSubCampaign": "Estos capítulos pertenecen a {subCampaign}, heredado de este arco. Para moverlos, mueve el arco.",
+    "moveCarriesSessions": "Mover este arco mueve también todas sus sesiones.",
+    "sessionsMoved": "{count} sesión(es) se movieron con el arco."
   },
   "templates": {
     "title": "Plantillas de entidad",
@@ -854,7 +857,8 @@
       "economy": "Economía",
       "campaign": "Campaña"
     },
-    "diagrams": "Diagramas"
+    "diagrams": "Diagramas",
+    "subCampaigns": "Subcampañas"
   },
   "pagination": {
     "showing": "Mostrando {from}–{to} de {total}"

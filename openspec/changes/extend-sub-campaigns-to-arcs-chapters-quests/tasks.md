@@ -58,20 +58,20 @@ Everything from §3 onwards is independent and can land in any order.
 
 ## 6. Types
 
-- [ ] 6.1 Add `SubCampaign`, `Arc` and `Chapter` to `app/types/api.ts`; all sub-campaign client code currently runs on `Record<string, unknown>`.
-- [ ] 6.2 Add `subCampaignId`/`subCampaignName` to `Quest` (`app/types/api.ts:205`) — the server already returns it.
+- [x] 6.1 Add `SubCampaign`, `Arc` and `Chapter` to `app/types/api.ts`; all sub-campaign client code currently runs on `Record<string, unknown>`.
+- [x] 6.2 Add `subCampaignId`/`subCampaignName` to `Quest` (`app/types/api.ts:205`) — the server already returns it.
 
 ## 7. UI — the filter is the point
 
-- [ ] 7.1 Extract the sessions chip filter into a reusable component **only if** the arcs and quests call sites genuinely want the same markup once written; two call sites is not yet proof. Otherwise mirror it.
-- [ ] 7.2 Arcs list: chip filter driving `subCampaignSlug` (server-side, not a client `.filter()`), hidden when the campaign has one sub-campaign, plus a badge per row.
-- [ ] 7.3 Quests list: the same chip filter, **composing** with the existing status filter rather than replacing it.
-- [ ] 7.4 Arc form: sub-campaign picker defaulting to the campaign default; today `arcs/index.vue:108` sends only `{ name }`.
-- [ ] 7.5 Quest form: the same in `QuestForm.vue`, plus the sub-campaign on the quest detail page.
-- [ ] 7.6 Arc detail: show the arc's sub-campaign, and the inherited one on each inline chapter, read-only, naming the arc as the way to change it.
-- [ ] 7.7 Surface the moved-session count in the arc edit flow.
-- [ ] 7.8 Put the sub-campaigns page in the sidebar — it is currently reachable only from a button on the sessions list.
-- [ ] 7.9 i18n keys for every new string, in `i18n/locales/en.json` AND `i18n/locales/es.json` (the canonical directory — never `locales/` or `app/i18n/locales/`).
+- [x] 7.1 **Decided: mirrored, not extracted.** Three chip rows now exist (sessions, arcs, quests) and they are identical, so the abstraction is tempting — but extracting means refactoring the working sessions page inside a UI change, and the markup may still diverge (the quests one sits above a second filter it has to compose with). Revisit when a fourth appears.
+- [x] 7.2 Arcs list: chip filter driving `subCampaignSlug` (server-side, not a client `.filter()`), hidden when the campaign has one sub-campaign, plus a badge per row.
+- [x] 7.3 Quests list: the same chip filter, **composing** with the existing status filter rather than replacing it.
+- [x] 7.4 Arc form: sub-campaign picker defaulting to the campaign default; today `arcs/index.vue:108` sends only `{ name }`.
+- [x] 7.5 Quest form: the same in `QuestForm.vue`, plus the sub-campaign on the quest detail page.
+- [x] 7.6 Arc detail: show the arc's sub-campaign, and the inherited one on each inline chapter, read-only, naming the arc as the way to change it.
+- [x] 7.7 Surface the moved-session count in the arc edit flow.
+- [x] 7.8 Put the sub-campaigns page in the sidebar — it is currently reachable only from a button on the sessions list.
+- [x] 7.9 i18n keys for every new string, in `i18n/locales/en.json` AND `i18n/locales/es.json` (the canonical directory — never `locales/` or `app/i18n/locales/`).
 
 ## 8. Close the pre-existing test gaps this touches
 
