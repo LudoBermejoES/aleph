@@ -24,7 +24,8 @@
     "pm2:status": "pm2 status",
     "pm2:logs": "pm2 logs aleph",
     "aleph": "node cli/bin/aleph.js",
-    "download-embedding-model": "node scripts/download-embedding-model.mjs"
+    "download-embedding-model": "node scripts/download-embedding-model.mjs",
+    "eval:search": "tsx scripts/eval-search.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1058.0",

@@ -1,0 +1,146 @@
+{
+  "_doc": "Conjunto de oro para medir la búsqueda de aleph. Cada caso es una consulta que alguien escribiría de verdad, con el conjunto de entidades que DEBERÍA devolver. Se mide contra el código real (hybrid-search.ts + embeddings.ts), no contra una reimplementación. Los negativos no tienen respuesta correcta: existen para medir el otro lado del umbral, que es donde se decide SEMANTIC_MAX_DISTANCE.",
+  "_metodo": "Las respuestas esperadas salen de contenido leído, no inventado: sesiones de la subcampaña 'La discoteca', el Número 342 de Der Nachtkurier y las entidades de la campaña. Un caso sólo entra aquí si su respuesta es defendible ante alguien que conozca la campaña. Si una consulta admite varias entidades legítimas, se listan todas y acierta con cualquiera (`expectAny`).",
+  "_como_ampliarlo": "Añade casos cuando una búsqueda real te falle en la mesa: ésa es la mejor fuente de casos que existe. Anota la consulta TAL CUAL la escribiste, no una versión limpia.",
+  "campaignId": "4b2adca6-fa7e-47b9-87f9-b0a0e9c6e1e4",
+  "campaignName": "Berlín en tinieblas",
+  "cases": [
+    {
+      "id": "nombre-berghain",
+      "query": "Berghain",
+      "expectAny": ["berghain"],
+      "kind": "nombre",
+      "note": "Línea base. Si el brazo léxico falla aquí, hay algo roto en FTS5."
+    },
+    {
+      "id": "nombre-nachtkurier",
+      "query": "Der Nachtkurier",
+      "expectAny": ["der-nachtkurier"],
+      "kind": "nombre"
+    },
+    {
+      "id": "nombre-clara",
+      "query": "Clara Böhm",
+      "expectAny": ["clara-bohm"],
+      "kind": "nombre"
+    },
+    {
+      "id": "nombre-sin-dieresis",
+      "query": "Clara Bohm",
+      "expectAny": ["clara-bohm"],
+      "kind": "nombre",
+      "note": "Mismo nombre sin diéresis: mide si la normalización de acentos funciona. Un jugador escribe así."
+    },
+    {
+      "id": "desc-taxista",
+      "query": "el taxista que apunta en un cuaderno a los hombres de abrigo",
+      "expectAny": ["manfred-ozturk"],
+      "kind": "descriptiva",
+      "note": "Ni 'taxista' ni 'cuaderno' están en el nombre de la entidad. Es el caso que el brazo semántico existe para resolver."
+    },
+    {
+      "id": "desc-taxista-vago",
+      "query": "quién lleva la cuenta de la gente rara que ve por la noche",
+      "expectAny": ["manfred-ozturk"],
+      "kind": "descriptiva",
+      "note": "Versión aún más vaga, sin una sola palabra compartida con la ficha. Si esto acierta, el brazo semántico vale su peso."
+    },
+    {
+      "id": "desc-discoteca",
+      "query": "la discoteca donde desapareció una estudiante",
+      "expectAny": ["berghain", "el-paso-del-berghain"],
+      "kind": "descriptiva"
+    },
+    {
+      "id": "desc-traje",
+      "query": "el traje dorado del siglo XVIII que apareció sin explicación",
+      "expectAny": ["el-traje-de-oro"],
+      "kind": "descriptiva"
+    },
+    {
+      "id": "desc-cara-maniqui",
+      "query": "la cara que una sola persona ve como una anciana y los demás como un maniquí",
+      "expectAny": ["la-vieja-del-maniqui", "el-rostro-de-la-anciana"],
+      "kind": "descriptiva",
+      "note": "Dos entidades cubren esto legítimamente; acierta con cualquiera."
+    },
+    {
+      "id": "desc-buhardilla",
+      "query": "el piso de un octavo sin ascensor en un bloque de hormigón del este",
+      "expectAny": ["la-guardilla-de-theo"],
+      "kind": "descriptiva"
+    },
+    {
+      "id": "desc-isleta",
+      "query": "dónde apareció Theo después de estar desaparecido un día",
+      "expectAny": ["donde-aparecio-theo"],
+      "kind": "descriptiva"
+    },
+    {
+      "id": "desc-periodico",
+      "query": "el periódico sensacionalista que publica cosas inexplicables",
+      "expectAny": ["der-nachtkurier"],
+      "kind": "descriptiva"
+    },
+    {
+      "id": "desc-sendero",
+      "query": "la frase que dijo la mujer con los ojos en blanco sobre dónde está Clara",
+      "expectAny": ["el-sendero-de-plata"],
+      "kind": "descriptiva"
+    },
+    {
+      "id": "desc-disruptores",
+      "query": "la palabra que usaron los dueños del local para referirse a algo que ya no estaba",
+      "expectAny": ["los-disruptores"],
+      "kind": "descriptiva"
+    },
+    {
+      "id": "concepto-escultura",
+      "query": "la pieza de metal fundido que alguien hizo sin recordarlo",
+      "expectAny": ["la-escultura-de-la-anciana"],
+      "kind": "descriptiva"
+    },
+    {
+      "id": "concepto-caballeros",
+      "query": "los vigilantes con armadura que salen de ronda por los barrios",
+      "expectAny": [
+        "los-caballeros-de-acero",
+        "caballeros-del-acero-los-idealistas",
+        "caballeros-del-acero-la-deriva-radical"
+      ],
+      "kind": "descriptiva"
+    },
+    {
+      "id": "concepto-fabrica",
+      "query": "la gente que se traga la fábrica",
+      "expectAny": ["los-que-se-traga-la-fabrica"],
+      "kind": "concepto"
+    },
+    {
+      "id": "neg-gibberish",
+      "query": "asdkjh qwleirj zxcvbnm poiuyt",
+      "expectAny": [],
+      "kind": "negativa",
+      "note": "No debe devolver nada. Su distancia semántica mínima es la cota inferior del ruido."
+    },
+    {
+      "id": "neg-coche",
+      "query": "cómo cambiar el aceite de un Renault Clio del 98",
+      "expectAny": [],
+      "kind": "negativa",
+      "note": "Español correcto y coherente, pero totalmente ajeno a la campaña. Es el negativo difícil: comparte idioma y registro."
+    },
+    {
+      "id": "neg-receta",
+      "query": "receta de tarta de queso japonesa esponjosa",
+      "expectAny": [],
+      "kind": "negativa"
+    },
+    {
+      "id": "neg-marte",
+      "query": "cultivo hidropónico de zanahorias en Marte",
+      "expectAny": [],
+      "kind": "negativa"
+    }
+  ]
+}
