@@ -95,5 +95,47 @@ export function makeSubCampaignCommand() {
       }
     })
 
+  cmd
+    .command('audit')
+    .description(
+      'Report sessions whose arc belongs to a different sub-campaign (read-only unless --fix)',
+    )
+    .requiredOption('--campaign <id>', 'Campaign ID')
+    .option('--fix', 'Reassign each reported session to its arc sub-campaign')
+    .option('--json', 'Output as JSON')
+    .action(async (opts) => {
+      const report = await get(`/api/campaigns/${opts.campaign}/sub-campaigns/audit`)
+
+      if (!opts.fix) {
+        if (opts.json) {
+          print(report, { json: true })
+        } else if (report.total === 0) {
+          success('No incoherent sessions: every session agrees with its arc.')
+        } else {
+          print(
+            report.incoherent.map((r) => ({
+              session: r.sessionSlug,
+              'session sub-campaign': r.sessionSubCampaignName,
+              arc: r.arcSlug,
+              'arc sub-campaign': r.arcSubCampaignName,
+            })),
+          )
+        }
+        // Non-zero so this can gate a script. Reporting a problem and exiting 0 would make the
+        // command useless in CI, which is the only place it will ever run unattended.
+        if (report.total > 0) process.exitCode = 1
+        return
+      }
+
+      const fixed = await post(`/api/campaigns/${opts.campaign}/sub-campaigns/audit-fix`, {})
+      if (opts.json) {
+        print(fixed, { json: true })
+      } else if (fixed.total === 0) {
+        success('Nothing to repair.')
+      } else {
+        success(`Repaired ${fixed.total} session(s): ${fixed.repaired.join(', ')}`)
+      }
+    })
+
   return cmd
 }

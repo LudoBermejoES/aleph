@@ -6,10 +6,20 @@ Everything from §3 onwards is independent and can land in any order.
 
 ## 1. Audit and repair first (read-only, ships alone)
 
-- [ ] 1.1 Add `GET /api/campaigns/:id/sub-campaigns/audit` reporting every session whose arc's `subCampaignId` differs from its own, projecting session slug, both sub-campaign names, and the arc. Read-only: assert in the test that no row changed.
-- [ ] 1.2 Add `aleph sub-campaign audit --campaign <id>`, non-zero exit when it finds anything, with `--fix` applying the repair.
-- [ ] 1.3 **Run it against production** (`berlin-en-tinieblas` and every other campaign) and record the counts here before touching §2. A zero is a result worth writing down.
-- [ ] 1.4 Repair what it found, with the Narrator's sign-off on any row where the arc's sub-campaign is not obviously the intended one.
+- [x] 1.1 Add `GET /api/campaigns/:id/sub-campaigns/audit` reporting every session whose arc's `subCampaignId` differs from its own, projecting session slug, both sub-campaign names, and the arc. Read-only: assert in the test that no row changed.
+- [x] 1.2 Add `aleph sub-campaign audit --campaign <id>`, non-zero exit when it finds anything, with `--fix` applying the repair.
+- [x] 1.3 **Run it against production.** Measured 2026-09-23 across all four campaigns, computing the audit's own query from the existing `/arcs` and `/sessions` endpoints so it could run _before_ the endpoint was deployed:
+
+  | Campaign            | Arcs | Sessions | With an arc | Incoherent |
+  | ------------------- | ---- | -------- | ----------- | ---------- |
+  | Arcadia             | 1    | 116      | 0           | 0          |
+  | Kult                | 0    | 3        | 0           | 0          |
+  | Kingmaker           | 2    | 14       | 10          | **0**      |
+  | Berlin en tinieblas | 14   | 102      | 90          | **0**      |
+
+  **Total: 0.** The zero is meaningful rather than vacuous: Berlín contributes 90 sessions with an arc and Kingmaker 10, so there was somewhere for incoherence to hide. Arcadia and Kult are vacuous (no session points at an arc) and prove nothing either way. §2 can therefore ship its 422 without it ever firing on pre-existing data.
+
+- [x] 1.4 Nothing to repair — 1.3 found zero. The repair path stays shipped and tested for the rows that a future mistake creates.
 
 ## 2. The coherence invariant
 
