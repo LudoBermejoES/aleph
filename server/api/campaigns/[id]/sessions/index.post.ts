@@ -38,11 +38,16 @@ export default defineEventHandler(async (event) => {
   const db = useDb()
   const campaign = event.context.campaign
 
-  // Resolved before the log file is written so an unresolvable/ambiguous slug does not
+  // Resolved BEFORE the arc, not after: the arc check needs the sub-campaign this session is
+  // about to land in, and resolving it later would make the outcome depend on statement order.
+  const subCampaignId = resolveSubCampaignIdForCreate(db, campaignId, body.subCampaignSlug)
+
+  // Resolved before the log file is written so an unresolvable/ambiguous/incoherent slug does not
   // leave an orphan session .md behind.
   const bySlug = resolveArcChapterSlugs(db, campaignId, {
     arcSlug: body.arcSlug,
     chapterSlug: body.chapterSlug,
+    effectiveSubCampaignId: subCampaignId,
   })
 
   // Auto-increment session number
@@ -76,8 +81,6 @@ export default defineEventHandler(async (event) => {
     frontmatter,
     body.content || `# ${title}\n\nSession notes...`,
   )
-
-  const subCampaignId = resolveSubCampaignIdForCreate(db, campaignId, body.subCampaignSlug)
 
   db.insert(entities)
     .values({

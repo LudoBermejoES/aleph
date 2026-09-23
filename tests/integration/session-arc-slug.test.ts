@@ -468,22 +468,33 @@ describe('Session list arc filter and name projection (integration)', () => {
       return (await res.json()) as Row
     }
 
-    const a = await mk('arcs', { name: 'Act I' })
+    // The sub-campaign comes FIRST because Act I now belongs to it. A session and the arc it
+    // points at must name the same storyline (`server/utils/arc-chapter.ts`), so the earlier
+    // arrangement — Act I in the default sub-campaign holding a session in `Main Table` — is a
+    // state the API now refuses. It was never what this suite set out to test: what it needs is a
+    // session matching arc + sub-campaign + status + chapter at once, and that still holds.
+    const grp = await mk('sub-campaigns', { name: 'Main Table' })
+    subCampaignSlug = grp.slug as string
+
+    const a = await mk('arcs', { name: 'Act I', subCampaignSlug })
     filterArc = { id: a.id as string, slug: a.slug as string }
     const b = await mk('arcs', { name: 'Act II' })
     otherArc = { id: b.id as string, slug: b.slug as string }
     const ch = await mk('chapters', { name: MARKET_LIST, arcId: filterArc.id })
     namedChapter = { id: ch.id as string, slug: ch.slug as string }
-    const grp = await mk('sub-campaigns', { name: 'Main Table' })
-    subCampaignSlug = grp.slug as string
 
-    // 3 sessions in Act I (one of them also in a sub-campaign + completed + chaptered), 2 elsewhere.
+    // 3 sessions in Act I — all in `Main Table` with it — of which ONE is also completed and
+    // chaptered, so the composed filter still narrows to exactly one row. 2 sessions elsewhere,
+    // in the default sub-campaign, so the sub-campaign filter still discriminates.
     for (let i = 0; i < 3; i++) {
       const extra =
-        i === 0
-          ? { subCampaignSlug, status: 'completed', chapterSlug: namedChapter.slug }
-          : { status: 'planned' }
-      const s = await mk('sessions', { title: `In Arc ${i} ${ts}`, arcSlug: 'act-i', ...extra })
+        i === 0 ? { status: 'completed', chapterSlug: namedChapter.slug } : { status: 'planned' }
+      const s = await mk('sessions', {
+        title: `In Arc ${i} ${ts}`,
+        arcSlug: 'act-i',
+        subCampaignSlug,
+        ...extra,
+      })
       inArcIds.push(s.id as string)
       if (i === 0) {
         tripleMatchId = s.id as string

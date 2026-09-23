@@ -178,6 +178,119 @@ describe('sub-campaign coherence: a session and its arc', () => {
     })
   })
 
+  describe('a session and its arc must name the same storyline', () => {
+    // Its OWN arcs. The audit block above MOVES `arcInGeneral` between sub-campaigns as its
+    // fixture, so depending on it here would make these tests read state an earlier test mutated
+    // — green or red depending on execution order, which is not a property worth asserting.
+    let ownArcGeneral = ''
+    let ownArcMortales = ''
+
+    beforeAll(async () => {
+      const mk = async (name: string, sub: string) =>
+        (
+          await (
+            await api(`/api/campaigns/${campaignId}/arcs`, {
+              method: 'POST',
+              headers: auth,
+              body: { name: `${name} ${Date.now()}`, subCampaignSlug: sub },
+            })
+          ).json()
+        ).slug
+      ownArcGeneral = await mk('Propio General', generalSlug)
+      ownArcMortales = await mk('Propio Mortales', mortalesSlug)
+    })
+
+    it('refuses an arc from another sub-campaign, on update, without writing', async () => {
+      const s = await makeSession(mortalesSlug)
+      expect(s.status, JSON.stringify(s.body)).toBe(200)
+
+      const res = await api(`/api/campaigns/${campaignId}/sessions/${s.body.slug}`, {
+        method: 'PUT',
+        headers: auth,
+        body: { arcSlug: ownArcGeneral },
+      })
+      expect(res.status).toBe(422)
+      const msg = (await res.json()).message as string
+      // The message has to name BOTH, or the fix is not obvious from the error alone.
+      expect(msg).toContain('Mortales')
+      expect(msg).toContain('General')
+
+      const after = await (
+        await api(`/api/campaigns/${campaignId}/sessions/${s.body.slug}`, {
+          headers: { Cookie: cookie },
+        })
+      ).json()
+      expect(after.arcId ?? null, 'the refused request still wrote the arc').toBeNull()
+    })
+
+    it('refuses it on create, and creates nothing', async () => {
+      const before = await (
+        await api(`/api/campaigns/${campaignId}/sessions?pageSize=0`, {
+          headers: { Cookie: cookie },
+        })
+      ).json()
+      const count = (Array.isArray(before) ? before : before.data).length
+
+      const res = await api(`/api/campaigns/${campaignId}/sessions`, {
+        method: 'POST',
+        headers: auth,
+        body: {
+          title: `Nope ${Date.now()}`,
+          subCampaignSlug: mortalesSlug,
+          arcSlug: ownArcGeneral,
+        },
+      })
+      expect(res.status).toBe(422)
+
+      const after = await (
+        await api(`/api/campaigns/${campaignId}/sessions?pageSize=0`, {
+          headers: { Cookie: cookie },
+        })
+      ).json()
+      expect((Array.isArray(after) ? after : after.data).length).toBe(count)
+    })
+
+    it('ACCEPTS moving the session and assigning the arc in one request', async () => {
+      // The case the naive implementation gets wrong: checking the arc against the STORED
+      // sub-campaign refuses this, because of an intermediate state that never existed.
+      const s = await makeSession(mortalesSlug)
+      const res = await api(`/api/campaigns/${campaignId}/sessions/${s.body.slug}`, {
+        method: 'PUT',
+        headers: auth,
+        body: { subCampaignSlug: generalSlug, arcSlug: ownArcGeneral },
+      })
+      expect(res.status, JSON.stringify(await res.clone().json())).toBe(200)
+
+      const after = await (
+        await api(`/api/campaigns/${campaignId}/sessions/${s.body.slug}`, {
+          headers: { Cookie: cookie },
+        })
+      ).json()
+      expect(after.subCampaignSlug).toBe(generalSlug)
+      expect(after.arcName).toBeTruthy()
+    })
+
+    it('accepts an arc from the session own sub-campaign', async () => {
+      const s = await makeSession(mortalesSlug)
+      const res = await api(`/api/campaigns/${campaignId}/sessions/${s.body.slug}`, {
+        method: 'PUT',
+        headers: auth,
+        body: { arcSlug: ownArcMortales },
+      })
+      expect(res.status, JSON.stringify(await res.clone().json())).toBe(200)
+    })
+
+    it('a session with no arc can move freely', async () => {
+      const s = await makeSession(generalSlug)
+      const res = await api(`/api/campaigns/${campaignId}/sessions/${s.body.slug}`, {
+        method: 'PUT',
+        headers: auth,
+        body: { subCampaignSlug: mortalesSlug },
+      })
+      expect(res.status).toBe(200)
+    })
+  })
+
   describe('repair adopts the arc sub-campaign', () => {
     it('repairs, and a re-run reports nothing', async () => {
       const before = await (

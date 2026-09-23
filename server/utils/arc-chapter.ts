@@ -1,7 +1,7 @@
 import { and, eq } from 'drizzle-orm'
 import { createError } from 'h3'
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
-import { arcs, chapters } from '../db/schema/sessions'
+import { arcs, chapters, subCampaigns } from '../db/schema/sessions'
 
 /**
  * Slug-addressed arc/chapter assignment for sessions.
@@ -26,6 +26,17 @@ import { arcs, chapters } from '../db/schema/sessions'
 export interface ArcChapterSlugInput {
   arcSlug?: string | null
   chapterSlug?: string | null
+  /**
+   * The sub-campaign the session will HAVE once this request is applied — from the body when it
+   * carries `subCampaignSlug`, otherwise the stored one. Required, with no skip-if-absent branch:
+   * an arc check that silently does nothing when a caller forgets to pass it is the "accepted and
+   * ignored" shape this codebase keeps paying for.
+   *
+   * It is the EFFECTIVE value and not the stored one so that moving a session and assigning it an
+   * arc from the destination storyline, in one request, is coherent as a whole instead of being
+   * refused over an intermediate state that never existed.
+   */
+  effectiveSubCampaignId: string
 }
 
 /** Columns to apply to `game_sessions`. A key is present only if it must change. */
@@ -95,7 +106,7 @@ function findCampaignChapters(db: BetterSQLite3Database, campaignId: string, cha
  *
  * Throws H3 errors: 404 unresolvable, 409 ambiguous, 422 inconsistent pair.
  */
-export function resolveArcChapterSlugs(
+function resolveArcChapterCore(
   db: BetterSQLite3Database,
   campaignId: string,
   input: ArcChapterSlugInput,
@@ -163,4 +174,52 @@ export function resolveArcChapterSlugs(
 
   const chapter = scoped[0]!
   return { arcId: chapter.arcId, chapterId: chapter.id }
+}
+
+/**
+ * The sub-campaign rung of the same ladder as the chapter/arc check above: a session and the arc
+ * it points at must name the same storyline.
+ *
+ * Checked on the RESOLVED arc rather than on `input.arcSlug`, because an arc can arrive by two
+ * routes — named directly, or derived from a chapter — and both have to be covered. Checking the
+ * input would leave the chapter-only path open, which is exactly the kind of half-closed gate this
+ * file already warns about.
+ */
+function assertArcInSubCampaign(
+  db: BetterSQLite3Database,
+  arcId: string,
+  effectiveSubCampaignId: string,
+): void {
+  const arc = db
+    .select({ subCampaignId: arcs.subCampaignId, slug: arcs.slug })
+    .from(arcs)
+    .where(eq(arcs.id, arcId))
+    .get()
+  if (!arc || arc.subCampaignId === effectiveSubCampaignId) return
+
+  const nameOf = (id: string) =>
+    db.select({ name: subCampaigns.name }).from(subCampaigns).where(eq(subCampaigns.id, id)).get()
+      ?.name ?? id
+
+  throw createError({
+    statusCode: 422,
+    message:
+      `Arc "${arc.slug}" belongs to sub-campaign "${nameOf(arc.subCampaignId)}", ` +
+      `but the session is in "${nameOf(effectiveSubCampaignId)}". ` +
+      `Move the session with subCampaignSlug in the same request, or pick an arc from its own sub-campaign.`,
+  })
+}
+
+export function resolveArcChapterSlugs(
+  db: BetterSQLite3Database,
+  campaignId: string,
+  input: ArcChapterSlugInput,
+  current?: ArcChapterCurrentState,
+): ArcChapterAssignment {
+  const assignment = resolveArcChapterCore(db, campaignId, input, current)
+  // Only a resolved, non-null arc can disagree. Clearing it, or not touching it, cannot.
+  if (assignment.arcId) {
+    assertArcInSubCampaign(db, assignment.arcId, input.effectiveSubCampaignId)
+  }
+  return assignment
 }

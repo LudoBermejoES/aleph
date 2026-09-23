@@ -57,17 +57,23 @@ export default defineEventHandler(async (event) => {
   // value it is about to replace.
   const effectiveChapterId =
     body.chapterId !== undefined ? body.chapterId || null : session.chapterId
+  // The sub-campaign the session will HAVE after this request — the same reasoning the line above
+  // applies to the chapter. Resolved first so the arc can be checked against the destination, not
+  // against the value it is about to replace. `!== undefined` rather than truthy, matching the arc
+  // and quest handlers: an empty string is a caller error worth a 404, not something to swallow.
+  if (body.subCampaignSlug !== undefined) {
+    updates.subCampaignId = resolveSubCampaignSlug(db, campaignId, body.subCampaignSlug)
+  }
+  const effectiveSubCampaignId = (updates.subCampaignId ?? session.subCampaignId) as string
+
   const bySlug = resolveArcChapterSlugs(
     db,
     campaignId,
-    { arcSlug: body.arcSlug, chapterSlug: body.chapterSlug },
+    { arcSlug: body.arcSlug, chapterSlug: body.chapterSlug, effectiveSubCampaignId },
     { chapterId: effectiveChapterId },
   )
   if (bySlug.arcId !== undefined) updates.arcId = bySlug.arcId
   if (bySlug.chapterId !== undefined) updates.chapterId = bySlug.chapterId
-  if (body.subCampaignSlug) {
-    updates.subCampaignId = resolveSubCampaignSlug(db, campaignId, body.subCampaignSlug)
-  }
 
   db.update(gameSessions).set(updates).where(eq(gameSessions.id, session.id)).run()
 

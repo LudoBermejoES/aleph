@@ -23,16 +23,16 @@ Everything from §3 onwards is independent and can land in any order.
 
 ## 2. The coherence invariant
 
-- [ ] 2.1 Give `resolveArcChapterSlugs` (`server/utils/arc-chapter.ts`) the **effective** sub-campaign — from the body when `subCampaignSlug` is present, else the stored one — and refuse a cross-sub-campaign arc with 422 naming both. Keep the existing chapter/arc 422 untouched.
-- [ ] 2.2 Pass it through from `sessions/index.post.ts` and `sessions/[slug]/index.put.ts`.
-- [ ] 2.3 Integration tests: the refusal on create and on update; the single-request move that must SUCCEED (`subCampaignSlug` + `arcSlug` together); a session with no arc unaffected; and that a refused request modified nothing.
-- [ ] 2.4 **Mutate it**: drop the comparison and require 2.3 to go red. Then restore, and `grep -rn 'DISABLED\|MUTATION\|MUTANT'` the tree before committing.
+- [x] 2.1 Give `resolveArcChapterSlugs` (`server/utils/arc-chapter.ts`) the **effective** sub-campaign — from the body when `subCampaignSlug` is present, else the stored one — and refuse a cross-sub-campaign arc with 422 naming both. Keep the existing chapter/arc 422 untouched.
+- [x] 2.2 Pass it through from `sessions/index.post.ts` and `sessions/[slug]/index.put.ts`.
+- [x] 2.3 Integration tests: the refusal on create and on update; the single-request move that must SUCCEED (`subCampaignSlug` + `arcSlug` together); a session with no arc unaffected; and that a refused request modified nothing.
+- [x] 2.4 **Mutate it**: drop the comparison and require 2.3 to go red. Then restore, and `grep -rn 'DISABLED\|MUTATION\|MUTANT'` the tree before committing.
 
 ## 3. Arc move cascades to its sessions
 
 - [ ] 3.1 In `arcs/[slug]/index.put.ts`, when `subCampaignSlug` changes the arc's sub-campaign, reassign its sessions in the same transaction and return `movedSessions`.
 - [ ] 3.2 Give that handler a zod schema — it is the only one of the three using bare `readBody` (`index.put.ts:19`), so `subCampaignSlug: 123` currently reaches the query unvalidated.
-- [ ] 3.3 Align the truthiness divergence: sessions uses `if (body.subCampaignSlug)` where arcs/quests use `!== undefined`, so an empty string is silently ignored in one and a 404 in the others. Pick `!== undefined` and cover the empty string with a test.
+- [x] 3.3 Align the truthiness divergence: sessions uses `if (body.subCampaignSlug)` where arcs/quests use `!== undefined`, so an empty string is silently ignored in one and a 404 in the others. Pick `!== undefined` and cover the empty string with a test. **Done in §2**, since the same line had to move above the arc resolution anyway.
 - [ ] 3.4 Tests: 12 sessions follow; a no-op reports 0; the chapters report the new sub-campaign with no chapter row written; rollback leaves both sides untouched.
 - [ ] 3.5 `aleph arc update` prints the moved-session count.
 
