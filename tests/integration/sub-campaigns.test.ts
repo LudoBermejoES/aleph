@@ -204,19 +204,57 @@ describe('Sub-Campaigns + Session Content (integration)', () => {
     expect(res.status).toBe(422)
   })
 
-  it('DELETE /sub-campaigns/:slug (non-default) reassigns sessions to the default', async () => {
+  // The spec has always required arcs, sessions AND quests to be reassigned — its scenario says
+  // "3 arcs, 12 sessions, and 2 quests" — and the handler does all three in one transaction. Only
+  // the session half was ever asserted, so two thirds of a requirement rode on nobody checking.
+  it('DELETE /sub-campaigns/:slug (non-default) reassigns sessions, arcs AND quests', async () => {
+    const arc = await (
+      await api(`/api/campaigns/${campaignId}/arcs`, {
+        method: 'POST',
+        headers: withCsrf(cookie, csrfToken),
+        body: { name: `Arco a reasignar ${Date.now()}`, subCampaignSlug },
+      })
+    ).json()
+    const quest = await (
+      await api(`/api/campaigns/${campaignId}/quests`, {
+        method: 'POST',
+        headers: withCsrf(cookie, csrfToken),
+        body: { name: `Misión a reasignar ${Date.now()}`, subCampaignSlug },
+      })
+    ).json()
+
+    // Control: all three really are in the doomed sub-campaign before it is deleted, or the
+    // assertions below would pass on rows that were in the default all along.
+    const arcsBefore = (await (
+      await api(`/api/campaigns/${campaignId}/arcs?subCampaignSlug=${subCampaignSlug}`, {
+        headers: { Cookie: cookie },
+      })
+    ).json()) as Array<{ slug: string }>
+    expect(arcsBefore.some((a) => a.slug === arc.slug)).toBe(true)
+
     const del = await api(`/api/campaigns/${campaignId}/sub-campaigns/${subCampaignSlug}`, {
       method: 'DELETE',
       headers: withCsrf(cookie, csrfToken),
     })
     expect(del.status).toBe(200)
 
-    const res = await api(`/api/campaigns/${campaignId}/sessions/${sessionSlug}`, {
-      method: 'GET',
-      headers: { Cookie: cookie },
-    })
-    const data = await res.json()
-    expect(data.subCampaignId).toBeTruthy()
-    expect(data.subCampaignSlug).toBe(defaultSlug)
+    const session = await (
+      await api(`/api/campaigns/${campaignId}/sessions/${sessionSlug}`, {
+        headers: { Cookie: cookie },
+      })
+    ).json()
+    expect(session.subCampaignSlug).toBe(defaultSlug)
+
+    const arcsAfter = (await (
+      await api(`/api/campaigns/${campaignId}/arcs`, { headers: { Cookie: cookie } })
+    ).json()) as Array<{ slug: string; subCampaignSlug?: string }>
+    expect(arcsAfter.find((a) => a.slug === arc.slug)?.subCampaignSlug).toBe(defaultSlug)
+
+    const questAfter = await (
+      await api(`/api/campaigns/${campaignId}/quests/${quest.slug}`, {
+        headers: { Cookie: cookie },
+      })
+    ).json()
+    expect(questAfter.subCampaignSlug).toBe(defaultSlug)
   })
 })

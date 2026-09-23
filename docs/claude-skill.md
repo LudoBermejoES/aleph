@@ -201,10 +201,23 @@ on campaign creation; arcs/sessions/quests fall back to it when `--subcampaign` 
 
 ```bash
 aleph sub-campaign list --campaign <id> [--json]   # shows name, slug, and whether it's the default
+aleph sub-campaign audit --campaign <id> [--fix] [--json]
+# Reports every session whose ARC belongs to a different sub-campaign than the session itself.
+# READ-ONLY unless --fix, and exits NON-ZERO when it finds anything, so it can gate a script.
+# --fix makes each reported session adopt its arc's sub-campaign (the arc is the organizing unit).
+# Normally reports nothing: the API refuses to create that state (422), and moving an arc carries
+# its sessions with it. It exists for rows predating those rules, or that a future bug creates.
 aleph sub-campaign create --campaign <id> --name <name> [--description <desc>] [--json]
 aleph sub-campaign update <slug> --campaign <id> [--name <name>] [--description <desc>]   # the default sub-campaign can be renamed but not deleted
 aleph sub-campaign delete <slug> --campaign <id> [--yes]  # --yes skips confirmation; arcs/sessions/quests move to the default; deleting the default itself returns 422
 ```
+
+**A chapter's sub-campaign is DERIVED from its arc** — there is no column for it, so the two can
+never disagree. `chapter list` can filter by it, but a chapter's sub-campaign cannot be SET: the
+server answers 422 naming the arc as the route. Move the arc and its chapters follow.
+
+**Moving an arc between sub-campaigns carries its sessions.** `arc update --subcampaign <slug>`
+reports how many moved, so a single edit rewriting many rows is never silent.
 
 ### Members
 
@@ -354,7 +367,7 @@ aleph map region-delete --campaign <id> --slug <slug> --region <regionId> [--yes
 ### Quests
 
 ```bash
-aleph quest list --campaign <id> [--status <status>] [--subcampaign <slug>] [--json]
+aleph quest list --campaign <id> [--status <status>] [--subcampaign <slug>] [--json]   # the table now carries a sub-campaign column
 aleph quest create --campaign <id> --name <name> [--status <status>] [--description <desc>] [--subcampaign <slug>] [--json]   # omit --subcampaign to use the campaign's default sub-campaign
 aleph quest update --campaign <id> --slug <slug> [--name <name>] [--status <status>] [--description <desc>] [--subcampaign <slug>]
 aleph quest delete --campaign <id> --slug <slug> [--yes]
@@ -469,7 +482,7 @@ aleph tag delete --campaign <id> --id <tagId> [--yes]
 ### Arcs
 
 ```bash
-aleph arc list --campaign <id> [--subcampaign <slug>] [--json]
+aleph arc list --campaign <id> [--subcampaign <slug>] [--json]   # the table now carries a sub-campaign column
 aleph arc create --campaign <id> --name <name> [--status <status>] [--description <desc>] [--sort-order <n>] [--subcampaign <slug>] [--json]   # omit --subcampaign to use the campaign's default sub-campaign
 aleph arc update --campaign <id> --slug <slug> [--name <name>] [--status <status>] [--description <desc>] [--sort-order <n>] [--subcampaign <slug>]   # --sort-order reorders the arc; must be numeric
 aleph arc delete --campaign <id> --slug <slug> [--yes]
@@ -478,7 +491,7 @@ aleph arc delete --campaign <id> --slug <slug> [--yes]
 ### Chapters
 
 ```bash
-aleph chapter list --campaign <id> [--arc <slug>] [--json]   # campaign-wide (reads the arcs endpoint); shows the arc name, not the arcId
+aleph chapter list --campaign <id> [--arc <slug>] [--subcampaign <slug>] [--json]   # campaign-wide; shows the arc AND the sub-campaign it inherits from that arc
 aleph chapter create --campaign <id> --name <name> --arc <arcSlug|arcId> [--description <desc>] [--sort-order <n>] [--json]
 aleph chapter update --campaign <id> --slug <slug> [--name <name>] [--description <desc>] [--sort-order <n>]
 aleph chapter delete --campaign <id> --slug <slug> [--yes]

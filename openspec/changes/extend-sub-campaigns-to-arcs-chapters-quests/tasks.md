@@ -75,13 +75,18 @@ Everything from §3 onwards is independent and can land in any order.
 
 ## 8. Close the pre-existing test gaps this touches
 
-- [ ] 8.1 The delete-reassignment test covers only sessions (`tests/integration/sub-campaigns.test.ts:207`) while the spec demands arcs and quests too. Extend it to all three.
-- [ ] 8.2 An e2e that creates a sub-campaign **through the UI** — the one that exists creates it by API and only then looks at the page.
-- [ ] 8.3 Component/e2e for the two new filters. Check what `playwright.config.ts` inherits from `.env` before trusting a green run as coverage.
+- [x] 8.1 Extended to all three. **Finding from mutating it:** removing the arc/quest reassignment makes the DELETE return **500, not a failed assertion** — the FK refuses to drop a sub-campaign arcs still point at. So the reassignment's _existence_ was already guaranteed by the database; what the new assertions add is that the destination is the **default** specifically.
+- [x] 8.2 An e2e that creates a sub-campaign **through the UI** — the one that exists creates it by API and only then looks at the page.
+- [x] 8.3 Component/e2e for the two new filters. Check what `playwright.config.ts` inherits from `.env` before trusting a green run as coverage.
 
 ## 9. Ship
 
-- [ ] 9.1 `npm run format:check` — it runs before the tests in CI and fails the whole job.
-- [ ] 9.2 Unit + integration green; note any red that belongs to the documented CLI-timeout family rather than to this change.
-- [ ] 9.3 Update `docs/claude-skill.md` and `.claude/skills/aleph-cli/SKILL.md` **together**, and bump the skill's frontmatter version.
+- [x] 9.1 `npm run format:check` — it runs before the tests in CI and fails the whole job.
+- [x] 9.2 **2243 unit / 169 files green. 97/97 across the six integration suites this touches. 4/4 e2e** (one needed a retry on the documented `helpers.ts:125` "New Campaign" race, not on anything here).
+
+  Two reds that are NOT this change, verified rather than assumed: `backup-api` fails 2 admin-permission tests **identically with these changes stashed**, and a full-suite run reports ~35 red files with only ~6 red tests — suite-level failures from contention, since every file involved passes in isolation and together.
+
+  `npx eslint .` reports 7 errors, all in `scripts/eval-search.ts` — an UNTRACKED search bench from 2026-09-18 that is not part of this change and blocks the pre-push hook for any push. Left untouched.
+
+- [x] 9.3 Update `docs/claude-skill.md` and `.claude/skills/aleph-cli/SKILL.md` **together**, and bump the skill's frontmatter version.
 - [ ] 9.4 Push, confirm the gated deploy went green, and bump the `aleph` pin in mago20.

@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { registerAndLogin, createCampaign } from './helpers'
+import { registerAndLogin, createCampaign, apiFetch } from './helpers'
 
 /**
  * The sub-campaign filter on the arcs and quests lists.
@@ -22,29 +22,18 @@ test.describe('sub-campaign filters', () => {
     await page.goto(`/campaigns/${campaignId}`)
 
     // Fixture through the API: this test is about the list page, not about creation forms.
-    // Writes need the CSRF token the app itself sends; without the header the POST is rejected
-    // and the fixture silently never exists, which surfaces as "the list is empty" three
-    // assertions later rather than as a failed setup.
-    const mk = async (path: string, body: Record<string, unknown>) =>
-      await page.evaluate(
-        async ([p, b]) => {
-          const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] ?? ''
-          const res = await fetch(p as string, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
-            body: JSON.stringify(b),
-          })
-          if (!res.ok) throw new Error(`fixture POST ${p} -> ${res.status} ${await res.text()}`)
-          return await res.json()
-        },
-        [path, body] as const,
-      )
 
-    await mk(`/api/campaigns/${campaignId}/sub-campaigns`, { name: 'Mortales' })
-    await mk(`/api/campaigns/${campaignId}/arcs`, { name: 'Arco general' })
-    await mk(`/api/campaigns/${campaignId}/arcs`, {
-      name: 'Arco mortal',
-      subCampaignSlug: 'mortales',
+    await apiFetch(page, `/api/campaigns/${campaignId}/sub-campaigns`, {
+      method: 'POST',
+      body: { name: 'Mortales' },
+    })
+    await apiFetch(page, `/api/campaigns/${campaignId}/arcs`, {
+      method: 'POST',
+      body: { name: 'Arco general' },
+    })
+    await apiFetch(page, `/api/campaigns/${campaignId}/arcs`, {
+      method: 'POST',
+      body: { name: 'Arco mortal', subCampaignSlug: 'mortales' },
     })
 
     await page.goto(`/campaigns/${campaignId}/arcs`)
@@ -68,36 +57,22 @@ test.describe('sub-campaign filters', () => {
     const campaignId = idOf(await createCampaign(page, `Misiones ${Date.now()}`))
     await page.goto(`/campaigns/${campaignId}`)
 
-    // Writes need the CSRF token the app itself sends; without the header the POST is rejected
-    // and the fixture silently never exists, which surfaces as "the list is empty" three
-    // assertions later rather than as a failed setup.
-    const mk = async (path: string, body: Record<string, unknown>) =>
-      await page.evaluate(
-        async ([p, b]) => {
-          const csrf = document.cookie.match(/csrf_token=([^;]+)/)?.[1] ?? ''
-          const res = await fetch(p as string, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
-            body: JSON.stringify(b),
-          })
-          if (!res.ok) throw new Error(`fixture POST ${p} -> ${res.status} ${await res.text()}`)
-          return await res.json()
-        },
-        [path, body] as const,
-      )
-
-    await mk(`/api/campaigns/${campaignId}/sub-campaigns`, { name: 'Mortales' })
-    await mk(`/api/campaigns/${campaignId}/quests`, {
-      name: 'Mision mortal activa',
-      subCampaignSlug: 'mortales',
-      status: 'active',
+    await apiFetch(page, `/api/campaigns/${campaignId}/sub-campaigns`, {
+      method: 'POST',
+      body: { name: 'Mortales' },
     })
-    await mk(`/api/campaigns/${campaignId}/quests`, {
-      name: 'Mision mortal completada',
-      subCampaignSlug: 'mortales',
-      status: 'completed',
+    await apiFetch(page, `/api/campaigns/${campaignId}/quests`, {
+      method: 'POST',
+      body: { name: 'Mision mortal activa', subCampaignSlug: 'mortales', status: 'active' },
     })
-    await mk(`/api/campaigns/${campaignId}/quests`, { name: 'Mision general activa' })
+    await apiFetch(page, `/api/campaigns/${campaignId}/quests`, {
+      method: 'POST',
+      body: { name: 'Mision mortal completada', subCampaignSlug: 'mortales', status: 'completed' },
+    })
+    await apiFetch(page, `/api/campaigns/${campaignId}/quests`, {
+      method: 'POST',
+      body: { name: 'Mision general activa' },
+    })
 
     await page.goto(`/campaigns/${campaignId}/quests`)
     await expect(page.getByText('Mision general activa')).toBeVisible()
@@ -114,5 +89,33 @@ test.describe('sub-campaign filters', () => {
     await expect(page.getByText('Mision mortal completada')).toBeVisible()
     await expect(page.getByText('Mision mortal activa')).toHaveCount(0)
     await expect(page.getByText('Mision general activa')).toHaveCount(0)
+  })
+
+  // The only e2e that touched sub-campaigns created them by API and then looked at a tab, so the
+  // management page itself — the form, the save, the list — had never been exercised by anything.
+  test('a sub-campaign can be created through the UI, not only by API', async ({ page }) => {
+    await registerAndLogin(page, 'UI SubCampaign User')
+    const campaignId = idOf(await createCampaign(page, `UI subcampañas ${Date.now()}`))
+
+    await page.goto(`/campaigns/${campaignId}/sub-campaigns`)
+    const name = `Creada en la UI ${Date.now()}`
+
+    await page
+      .getByRole('button', { name: /New|Nueva|Crear|Create/ })
+      .first()
+      .click()
+    await page.locator('input[type="text"]').first().fill(name)
+    await page
+      .getByRole('button', { name: /Save|Create|Guardar|Crear/ })
+      .last()
+      .click()
+
+    await expect(page.getByText(name)).toBeVisible({ timeout: 10000 })
+
+    // And it is real, not just painted: the server lists it too.
+    const subs = (await apiFetch(page, `/api/campaigns/${campaignId}/sub-campaigns`)) as Array<{
+      name: string
+    }>
+    expect(subs.some((s) => s.name === name)).toBe(true)
   })
 })
