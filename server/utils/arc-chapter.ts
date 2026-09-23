@@ -180,12 +180,14 @@ function resolveArcChapterCore(
  * The sub-campaign rung of the same ladder as the chapter/arc check above: a session and the arc
  * it points at must name the same storyline.
  *
- * Checked on the RESOLVED arc rather than on `input.arcSlug`, because an arc can arrive by two
- * routes — named directly, or derived from a chapter — and both have to be covered. Checking the
- * input would leave the chapter-only path open, which is exactly the kind of half-closed gate this
- * file already warns about.
+ * Checked on the RESOLVED arc rather than on `input.arcSlug`, because an arc can arrive by THREE
+ * routes — named by slug, derived from a chapter, or passed as a raw `arcId` that never reaches
+ * this resolver at all — and all three have to be covered. Exported for that third one: the
+ * session handlers accept `arcId` directly and bypass every slug path, so they call this on the
+ * final value themselves. Checking only `input.arcSlug` would leave two of the three open, which
+ * is exactly the kind of half-closed gate this file already warns about.
  */
-function assertArcInSubCampaign(
+export function assertArcInSubCampaign(
   db: BetterSQLite3Database,
   arcId: string,
   effectiveSubCampaignId: string,

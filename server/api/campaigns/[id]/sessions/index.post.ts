@@ -6,7 +6,7 @@ import { validateBody } from '../../../../utils/validate'
 import { gameSessions } from '../../../../db/schema/sessions'
 import { entities } from '../../../../db/schema/entities'
 import { hasMinRole } from '../../../../utils/permissions'
-import { resolveArcChapterSlugs } from '../../../../utils/arc-chapter'
+import { resolveArcChapterSlugs, assertArcInSubCampaign } from '../../../../utils/arc-chapter'
 import { resolveSubCampaignIdForCreate } from '../../../../utils/sub-campaign'
 import { writeEntityFile, resolveEntityPath } from '../../../../services/content'
 import { ensureUniqueSlug } from '../../../../utils/content-helpers'
@@ -49,6 +49,11 @@ export default defineEventHandler(async (event) => {
     chapterSlug: body.chapterSlug,
     effectiveSubCampaignId: subCampaignId,
   })
+
+  // Same as the PUT: `arcId` sent directly never reaches the resolver, so the final value is
+  // checked here. Before any write, so a refusal leaves no orphan session .md behind.
+  const finalArcId = bySlug.arcId !== undefined ? bySlug.arcId : body.arcId || null
+  if (finalArcId) assertArcInSubCampaign(db, finalArcId, subCampaignId)
 
   // Auto-increment session number
   const maxNum = db
@@ -108,7 +113,7 @@ export default defineEventHandler(async (event) => {
       scheduledDate: body.scheduledDate || null,
       status: body.status || 'planned',
       summary: body.summary || null,
-      arcId: bySlug.arcId !== undefined ? bySlug.arcId : body.arcId || null,
+      arcId: finalArcId,
       chapterId: bySlug.chapterId !== undefined ? bySlug.chapterId : body.chapterId || null,
       subCampaignId,
       logFilePath: logPath,
@@ -129,7 +134,7 @@ export default defineEventHandler(async (event) => {
     sessionNumber,
     status: body.status || 'planned',
     subCampaignId,
-    arcId: bySlug.arcId !== undefined ? bySlug.arcId : body.arcId || null,
+    arcId: finalArcId,
     chapterId: bySlug.chapterId !== undefined ? bySlug.chapterId : body.chapterId || null,
   }
 })

@@ -5,7 +5,7 @@ import { validateBody } from '../../../../../utils/validate'
 import { gameSessions } from '../../../../../db/schema/sessions'
 import { entities } from '../../../../../db/schema/entities'
 import { hasMinRole } from '../../../../../utils/permissions'
-import { resolveArcChapterSlugs } from '../../../../../utils/arc-chapter'
+import { resolveArcChapterSlugs, assertArcInSubCampaign } from '../../../../../utils/arc-chapter'
 import { resolveSubCampaignSlug } from '../../../../../utils/sub-campaign'
 import { writeEntityFile, readEntityFile } from '../../../../../services/content'
 import { indexEntity } from '../../../../../services/search'
@@ -74,6 +74,12 @@ export default defineEventHandler(async (event) => {
   )
   if (bySlug.arcId !== undefined) updates.arcId = bySlug.arcId
   if (bySlug.chapterId !== undefined) updates.chapterId = bySlug.chapterId
+
+  // The raw `arcId` form never passes through the resolver, so the check has to be repeated on the
+  // FINAL value. Without this the invariant is a fiction: a caller sending `arcId` instead of
+  // `arcSlug` walks straight past it.
+  const finalArcId = (updates.arcId !== undefined ? updates.arcId : session.arcId) as string | null
+  if (finalArcId) assertArcInSubCampaign(db, finalArcId, effectiveSubCampaignId)
 
   db.update(gameSessions).set(updates).where(eq(gameSessions.id, session.id)).run()
 

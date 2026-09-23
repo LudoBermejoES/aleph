@@ -30,11 +30,16 @@ Everything from §3 onwards is independent and can land in any order.
 
 ## 3. Arc move cascades to its sessions
 
-- [ ] 3.1 In `arcs/[slug]/index.put.ts`, when `subCampaignSlug` changes the arc's sub-campaign, reassign its sessions in the same transaction and return `movedSessions`.
-- [ ] 3.2 Give that handler a zod schema — it is the only one of the three using bare `readBody` (`index.put.ts:19`), so `subCampaignSlug: 123` currently reaches the query unvalidated.
+> **Surfaced while doing this:** closing the slug path in §2 left the **raw `arcId`** form wide open
+> — it never reaches `resolveArcChapterSlugs`. Found because the audit fixture still managed to
+> build an incoherent row after §2 shipped. Now checked on the FINAL arc id in both handlers,
+> whichever field named it, with its own test. Without it the invariant was a fiction.
+
+- [x] 3.1 In `arcs/[slug]/index.put.ts`, when `subCampaignSlug` changes the arc's sub-campaign, reassign its sessions in the same transaction and return `movedSessions`.
+- [x] 3.2 Give that handler a zod schema — it is the only one of the three using bare `readBody` (`index.put.ts:19`), so `subCampaignSlug: 123` currently reaches the query unvalidated.
 - [x] 3.3 Align the truthiness divergence: sessions uses `if (body.subCampaignSlug)` where arcs/quests use `!== undefined`, so an empty string is silently ignored in one and a 404 in the others. Pick `!== undefined` and cover the empty string with a test. **Done in §2**, since the same line had to move above the arc resolution anyway.
-- [ ] 3.4 Tests: 12 sessions follow; a no-op reports 0; the chapters report the new sub-campaign with no chapter row written; rollback leaves both sides untouched.
-- [ ] 3.5 `aleph arc update` prints the moved-session count.
+- [x] 3.4 Tests: 12 sessions follow; a no-op reports 0; the chapters report the new sub-campaign with no chapter row written; rollback leaves both sides untouched.
+- [x] 3.5 `aleph arc update` prints the moved-session count.
 
 ## 4. Chapters join the concept
 

@@ -32,7 +32,6 @@ describe('sub-campaign coherence: a session and its arc', () => {
   let campaignId = ''
   let mortalesSlug = ''
   let generalSlug = ''
-  let arcInGeneral = ''
 
   beforeAll(async () => {
     await api('/api/auth/sign-up/email', {
@@ -70,15 +69,6 @@ describe('sub-campaign coherence: a session and its arc', () => {
       })
     ).json()
     mortalesSlug = mortales.slug
-
-    const arc = await (
-      await api(`/api/campaigns/${campaignId}/arcs`, {
-        method: 'POST',
-        headers: auth,
-        body: { name: 'Acto II', subCampaignSlug: generalSlug },
-      })
-    ).json()
-    arcInGeneral = arc.slug
   })
 
   async function makeSession(subCampaignSlug: string, extra: Record<string, unknown> = {}) {
@@ -90,49 +80,22 @@ describe('sub-campaign coherence: a session and its arc', () => {
     return { status: res.status, body: await res.json().catch(() => null) }
   }
 
-  describe('the audit reports and changes nothing', () => {
-    it('finds a session whose arc is in another sub-campaign', async () => {
-      // Manufactured the only way the product still allows: create coherent, then move the ARC,
-      // which today leaves its sessions behind. That is the very gap being closed.
-      const s = await makeSession(generalSlug, { arcSlug: arcInGeneral })
+  describe('the audit, over the real API', () => {
+    // The "it finds an incoherent row" half lives in tests/unit/server/sub-campaign-audit.test.ts
+    // and CANNOT live here: with the 422 and the arc-move cascade in place, no route can create
+    // that state any more, so the setup would be impossible. What is worth asserting over HTTP is
+    // the endpoint's shape, that it is read-only, and that a healthy campaign comes back clean.
+    it('reports a coherent campaign as clean', async () => {
+      const s = await makeSession(mortalesSlug)
       expect(s.status, JSON.stringify(s.body)).toBe(200)
-      expect(s.body.slug).toBeTruthy()
 
-      await api(`/api/campaigns/${campaignId}/arcs/${arcInGeneral}`, {
-        method: 'PUT',
-        headers: auth,
-        body: { subCampaignSlug: mortalesSlug },
-      })
-
-      const audit = await api(`/api/campaigns/${campaignId}/sub-campaigns/audit`, {
+      const res = await api(`/api/campaigns/${campaignId}/sub-campaigns/audit`, {
         headers: { Cookie: cookie },
       })
-      expect(audit.status).toBe(200)
-      const report = await audit.json()
-
-      const hit = report.incoherent.find(
-        (r: { sessionSlug: string }) => r.sessionSlug === s.body.slug,
-      )
-      expect(hit, 'the incoherent session was not reported').toBeDefined()
-      expect(hit.sessionSubCampaignSlug).toBe(generalSlug)
-      expect(hit.arcSubCampaignSlug).toBe(mortalesSlug)
-      expect(hit.arcSlug).toBe(arcInGeneral)
-
-      // The half that pins the comparison itself: a report that listed EVERY session with an arc
-      // would satisfy the assertions above and be useless. A coherent session must be absent.
-      const coherent = await makeSession(mortalesSlug, { arcSlug: arcInGeneral })
-      expect(coherent.status, JSON.stringify(coherent.body)).toBe(200)
-      const reread = await (
-        await api(`/api/campaigns/${campaignId}/sub-campaigns/audit`, {
-          headers: { Cookie: cookie },
-        })
-      ).json()
-      expect(
-        reread.incoherent.some(
-          (r: { sessionSlug: string }) => r.sessionSlug === coherent.body.slug,
-        ),
-        'a session that agrees with its arc was reported as incoherent',
-      ).toBe(false)
+      expect(res.status).toBe(200)
+      const report = await res.json()
+      expect(report.total).toBe(0)
+      expect(report.incoherent).toEqual([])
     })
 
     // `?pageSize=0` answers with a BARE ARRAY here, not the `{data, meta}` envelope the paginated
@@ -153,7 +116,7 @@ describe('sub-campaign coherence: a session and its arc', () => {
       return rows.map((s) => `${s.slug}|${s.subCampaignName}|${s.arcName}`).sort()
     }
 
-    it('does not modify the session it reports', async () => {
+    it('is read-only', async () => {
       const before = await sessionFingerprints()
       // The control: a snapshot of nothing would make the comparison below vacuous.
       expect(before.length, 'no sessions to compare').toBeGreaterThan(0)
@@ -164,17 +127,13 @@ describe('sub-campaign coherence: a session and its arc', () => {
       expect(await sessionFingerprints()).toEqual(before)
     })
 
-    it('a session with no arc is never reported', async () => {
-      const s = await makeSession(mortalesSlug)
-      expect(s.status, JSON.stringify(s.body)).toBe(200)
-      const report = await (
-        await api(`/api/campaigns/${campaignId}/sub-campaigns/audit`, {
-          headers: { Cookie: cookie },
-        })
-      ).json()
-      expect(
-        report.incoherent.some((r: { sessionSlug: string }) => r.sessionSlug === s.body.slug),
-      ).toBe(false)
+    it('repairing a clean campaign is a no-op, not an error', async () => {
+      const fix = await api(`/api/campaigns/${campaignId}/sub-campaigns/audit-fix`, {
+        method: 'POST',
+        headers: auth,
+      })
+      expect(fix.status).toBe(200)
+      expect((await fix.json()).total).toBe(0)
     })
   })
 
@@ -280,6 +239,34 @@ describe('sub-campaign coherence: a session and its arc', () => {
       expect(res.status, JSON.stringify(await res.clone().json())).toBe(200)
     })
 
+    it('closes the raw arcId route too, not only the slug one', async () => {
+      // `arcId` never reaches `resolveArcChapterSlugs`, so a check written only against `arcSlug`
+      // leaves this wide open — and the invariant would be a fiction. Found by the audit fixture
+      // still managing to build an incoherent row after the slug path was closed.
+      const arcRow = await (
+        await api(`/api/campaigns/${campaignId}/arcs`, {
+          method: 'POST',
+          headers: auth,
+          body: { name: `Crudo ${Date.now()}`, subCampaignSlug: generalSlug },
+        })
+      ).json()
+      const s = await makeSession(mortalesSlug)
+
+      const res = await api(`/api/campaigns/${campaignId}/sessions/${s.body.slug}`, {
+        method: 'PUT',
+        headers: auth,
+        body: { arcId: arcRow.id },
+      })
+      expect(res.status, 'the raw id form walked past the invariant').toBe(422)
+
+      const after = await (
+        await api(`/api/campaigns/${campaignId}/sessions/${s.body.slug}`, {
+          headers: { Cookie: cookie },
+        })
+      ).json()
+      expect(after.arcId ?? null).toBeNull()
+    })
+
     it('a session with no arc can move freely', async () => {
       const s = await makeSession(generalSlug)
       const res = await api(`/api/campaigns/${campaignId}/sessions/${s.body.slug}`, {
@@ -291,37 +278,94 @@ describe('sub-campaign coherence: a session and its arc', () => {
     })
   })
 
-  describe('repair adopts the arc sub-campaign', () => {
-    it('repairs, and a re-run reports nothing', async () => {
-      const before = await (
-        await api(`/api/campaigns/${campaignId}/sub-campaigns/audit`, {
-          headers: { Cookie: cookie },
+  describe('moving an arc carries its sessions', () => {
+    it('moves them, reports the count, and leaves the campaign coherent', async () => {
+      const arc = await (
+        await api(`/api/campaigns/${campaignId}/arcs`, {
+          method: 'POST',
+          headers: auth,
+          body: { name: `Arrastre ${Date.now()}`, subCampaignSlug: generalSlug },
         })
       ).json()
-      expect(before.total).toBeGreaterThan(0)
 
-      const fix = await api(`/api/campaigns/${campaignId}/sub-campaigns/audit-fix`, {
-        method: 'POST',
+      for (let i = 0; i < 3; i++) {
+        const s = await makeSession(generalSlug, { arcSlug: arc.slug })
+        expect(s.status, JSON.stringify(s.body)).toBe(200)
+      }
+
+      const res = await api(`/api/campaigns/${campaignId}/arcs/${arc.slug}`, {
+        method: 'PUT',
         headers: auth,
+        body: { subCampaignSlug: mortalesSlug },
       })
-      expect(fix.status).toBe(200)
-      expect((await fix.json()).total).toBe(before.total)
+      expect(res.status).toBe(200)
+      expect((await res.json()).movedSessions).toBe(3)
 
-      const after = await (
+      // The point of the cascade: the campaign stays coherent, which the audit is the judge of.
+      const audit = await (
         await api(`/api/campaigns/${campaignId}/sub-campaigns/audit`, {
           headers: { Cookie: cookie },
         })
       ).json()
-      expect(after.total, 'the repair left incoherent rows behind').toBe(0)
+      expect(
+        audit.incoherent.some((r: { arcSlug: string }) => r.arcSlug === arc.slug),
+        'the move left its own sessions behind',
+      ).toBe(false)
     })
 
-    it('repairing a clean campaign is a no-op, not an error', async () => {
-      const fix = await api(`/api/campaigns/${campaignId}/sub-campaigns/audit-fix`, {
-        method: 'POST',
+    it('reports zero when the sub-campaign does not change', async () => {
+      const arc = await (
+        await api(`/api/campaigns/${campaignId}/arcs`, {
+          method: 'POST',
+          headers: auth,
+          body: { name: `Quieto ${Date.now()}`, subCampaignSlug: generalSlug },
+        })
+      ).json()
+      await makeSession(generalSlug, { arcSlug: arc.slug })
+
+      const res = await api(`/api/campaigns/${campaignId}/arcs/${arc.slug}`, {
+        method: 'PUT',
         headers: auth,
+        body: { subCampaignSlug: generalSlug },
       })
-      expect(fix.status).toBe(200)
-      expect((await fix.json()).total).toBe(0)
+      expect(res.status).toBe(200)
+      expect((await res.json()).movedSessions).toBe(0)
+    })
+
+    it('renaming an arc moves nothing', async () => {
+      const arc = await (
+        await api(`/api/campaigns/${campaignId}/arcs`, {
+          method: 'POST',
+          headers: auth,
+          body: { name: `Renombrable ${Date.now()}`, subCampaignSlug: generalSlug },
+        })
+      ).json()
+      await makeSession(generalSlug, { arcSlug: arc.slug })
+
+      const res = await api(`/api/campaigns/${campaignId}/arcs/${arc.slug}`, {
+        method: 'PUT',
+        headers: auth,
+        body: { name: `Renombrado ${Date.now()}` },
+      })
+      expect(res.status).toBe(200)
+      expect((await res.json()).movedSessions).toBe(0)
+    })
+
+    it('rejects a non-string subCampaignSlug instead of passing it to the query', async () => {
+      const arc = await (
+        await api(`/api/campaigns/${campaignId}/arcs`, {
+          method: 'POST',
+          headers: auth,
+          body: { name: `Zod ${Date.now()}`, subCampaignSlug: generalSlug },
+        })
+      ).json()
+      const res = await api(`/api/campaigns/${campaignId}/arcs/${arc.slug}`, {
+        method: 'PUT',
+        headers: auth,
+        body: { subCampaignSlug: 123 },
+      })
+      expect(res.status).toBeGreaterThanOrEqual(400)
+      expect(res.status).toBeLessThan(500)
     })
   })
 })

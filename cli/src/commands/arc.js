@@ -73,8 +73,13 @@ export function makeArcCommand() {
       if (opts.description !== undefined) body.description = opts.description
       if (opts.sortOrder !== undefined) body.sortOrder = sortOrderOrExit(opts.sortOrder)
       if (opts.subcampaign !== undefined) body.subCampaignSlug = opts.subcampaign
-      await put(`/api/campaigns/${opts.campaign}/arcs/${opts.slug}`, body)
-      success('Arc updated.')
+      const res = await put(`/api/campaigns/${opts.campaign}/arcs/${opts.slug}`, body)
+      // Moving an arc carries its sessions. One edit rewriting many rows has to say so.
+      if (res?.movedSessions > 0) {
+        success(`Arc updated. ${res.movedSessions} session(s) moved with it.`)
+      } else {
+        success('Arc updated.')
+      }
     })
 
   cmd
