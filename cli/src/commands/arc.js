@@ -24,6 +24,7 @@ export function makeArcCommand() {
           : data.map((a) => ({
               slug: a.slug,
               name: a.name,
+              subCampaign: a.subCampaignName || '',
               status: a.status || '',
               sortOrder: a.sortOrder ?? 0,
             })),

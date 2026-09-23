@@ -1,6 +1,6 @@
 import { and, eq } from 'drizzle-orm'
 import { useDb } from '../../../../utils/db'
-import { quests } from '../../../../db/schema/sessions'
+import { quests, subCampaigns } from '../../../../db/schema/sessions'
 import { filterSecretQuests } from '../../../../services/sessions'
 import { stripSecretBlocks } from '../../../../services/content'
 import { hasMinRole } from '../../../../utils/permissions'
@@ -35,9 +35,29 @@ export default defineEventHandler(async (event) => {
   const conditions = [eq(quests.campaignId, campaignId)]
   if (subCampaignId) conditions.push(eq(quests.subCampaignId, subCampaignId))
 
+  // Joined so a row NAMES its sub-campaign rather than carrying a bare id: the list could
+  // already be FILTERED by sub-campaign while never showing which one a quest belonged to.
   const allQuests = db
-    .select()
+    .select({
+      id: quests.id,
+      campaignId: quests.campaignId,
+      subCampaignId: quests.subCampaignId,
+      name: quests.name,
+      slug: quests.slug,
+      description: quests.description,
+      status: quests.status,
+      parentQuestId: quests.parentQuestId,
+      entityId: quests.entityId,
+      isSecret: quests.isSecret,
+      assignedCharacterIdsJson: quests.assignedCharacterIdsJson,
+      logFilePath: quests.logFilePath,
+      createdAt: quests.createdAt,
+      updatedAt: quests.updatedAt,
+      subCampaignName: subCampaigns.name,
+      subCampaignSlug: subCampaigns.slug,
+    })
     .from(quests)
+    .innerJoin(subCampaigns, eq(quests.subCampaignId, subCampaigns.id))
     .where(and(...conditions))
     .all()
 

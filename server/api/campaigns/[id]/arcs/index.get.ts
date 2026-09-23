@@ -1,6 +1,6 @@
 import { and, eq } from 'drizzle-orm'
 import { useDb } from '../../../../utils/db'
-import { arcs, chapters } from '../../../../db/schema/sessions'
+import { arcs, chapters, subCampaigns } from '../../../../db/schema/sessions'
 import { stripSecretBlocks } from '../../../../services/content'
 import { buildAutolinkContext, applyAutolink } from '../../../../services/autolink-render'
 import { hasMinRole } from '../../../../utils/permissions'
@@ -37,9 +37,24 @@ export default defineEventHandler(async (event) => {
   const conditions = [eq(arcs.campaignId, campaignId)]
   if (subCampaignId) conditions.push(eq(arcs.subCampaignId, subCampaignId))
 
+  // Joined so a row NAMES its sub-campaign instead of carrying a bare id. Filtering by a
+  // dimension the response never shows made a filtered list indistinguishable from an
+  // unfiltered one. Inner, not left: `sub_campaign_id` is NOT NULL with an FK.
   const arcList = db
-    .select()
+    .select({
+      id: arcs.id,
+      campaignId: arcs.campaignId,
+      subCampaignId: arcs.subCampaignId,
+      name: arcs.name,
+      slug: arcs.slug,
+      description: arcs.description,
+      sortOrder: arcs.sortOrder,
+      status: arcs.status,
+      subCampaignName: subCampaigns.name,
+      subCampaignSlug: subCampaigns.slug,
+    })
     .from(arcs)
+    .innerJoin(subCampaigns, eq(arcs.subCampaignId, subCampaigns.id))
     .where(and(...conditions))
     .orderBy(arcs.sortOrder)
     .all()

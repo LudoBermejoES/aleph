@@ -194,6 +194,59 @@ describe('chapters and the sub-campaign they inherit', () => {
     expect((await list()).length).toBe(3)
   })
 
+  it('arcs, quests and chapters all NAME their sub-campaign, never a bare id', async () => {
+    // The three used to be filterable by a dimension none of them displayed, so a filtered list
+    // was indistinguishable from an unfiltered one.
+    const arcRows = (await (
+      await api(`/api/campaigns/${campaignId}/arcs`, { headers: { Cookie: cookie } })
+    ).json()) as Array<Record<string, string>>
+    expect(arcRows.length).toBeGreaterThan(0)
+    expect(arcRows.every((a) => a.subCampaignName && a.subCampaignSlug)).toBe(true)
+
+    const quest = await (
+      await api(`/api/campaigns/${campaignId}/quests`, {
+        method: 'POST',
+        headers: auth,
+        body: { name: `Misión ${Date.now()}`, subCampaignSlug: mortalesSlug },
+      })
+    ).json()
+
+    const questRows = (await (
+      await api(`/api/campaigns/${campaignId}/quests`, { headers: { Cookie: cookie } })
+    ).json()) as Array<Record<string, string>>
+    expect(questRows.find((q) => q.slug === quest.slug)!.subCampaignName).toBe('Mortales')
+
+    const detail = await (
+      await api(`/api/campaigns/${campaignId}/quests/${quest.slug}`, {
+        headers: { Cookie: cookie },
+      })
+    ).json()
+    expect(detail.subCampaignName, 'the quest detail still returns the raw row').toBe('Mortales')
+    expect(detail.subCampaignSlug).toBe(mortalesSlug)
+  })
+
+  it('creating an arc echoes where it landed, including the default', async () => {
+    const explicit = await (
+      await api(`/api/campaigns/${campaignId}/arcs`, {
+        method: 'POST',
+        headers: auth,
+        body: { name: `Eco ${Date.now()}`, subCampaignSlug: mortalesSlug },
+      })
+    ).json()
+    expect(explicit.subCampaignName).toBe('Mortales')
+
+    // The case that actually needs the echo: the caller said nothing, so without it there is no
+    // way to learn where the arc went short of a second request.
+    const implicit = await (
+      await api(`/api/campaigns/${campaignId}/arcs`, {
+        method: 'POST',
+        headers: auth,
+        body: { name: `Eco por defecto ${Date.now()}` },
+      })
+    ).json()
+    expect(implicit.subCampaignSlug).toBe(generalSlug)
+  })
+
   it('never discloses another campaign chapters through arc_id', async () => {
     const res = await api(`/api/campaigns/${campaignId}/chapters?arc_id=${arcM.id}`, {
       headers: { Cookie: cookie },

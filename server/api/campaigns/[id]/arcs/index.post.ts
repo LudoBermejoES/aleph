@@ -1,8 +1,9 @@
 import { z } from 'zod'
 import { randomUUID } from 'crypto'
+import { eq } from 'drizzle-orm'
 import { useDb, useSqlite } from '../../../../utils/db'
 import { validateBody } from '../../../../utils/validate'
-import { arcs } from '../../../../db/schema/sessions'
+import { arcs, subCampaigns } from '../../../../db/schema/sessions'
 import { entities } from '../../../../db/schema/entities'
 import { hasMinRole } from '../../../../utils/permissions'
 import { ensureUniqueSlug } from '../../../../utils/content-helpers'
@@ -71,5 +72,20 @@ export default defineEventHandler(async (event) => {
 
   // `slug` is what every other arc endpoint is addressed by, so the caller needs it
   // straight away — without it a client can only print `(undefined)` and must re-list.
-  return { id, name: body.name, slug }
+  // The sub-campaign rides along for the same reason: it may have come from the campaign
+  // default rather than from the request, so echoing it is the only way a caller learns
+  // where the arc actually landed without a second round trip.
+  const sub = db
+    .select({ name: subCampaigns.name, slug: subCampaigns.slug })
+    .from(subCampaigns)
+    .where(eq(subCampaigns.id, subCampaignId))
+    .get()
+  return {
+    id,
+    name: body.name,
+    slug,
+    subCampaignId,
+    subCampaignName: sub?.name,
+    subCampaignSlug: sub?.slug,
+  }
 })

@@ -51,10 +51,10 @@ Everything from §3 onwards is independent and can land in any order.
 
 ## 5. Stop hiding the sub-campaign in responses
 
-- [ ] 5.1 Left-join in `arcs/index.get.ts` and `quests/index.get.ts` for `subCampaignName`/`subCampaignSlug`, as `sessions/index.get.ts:78` already does.
-- [ ] 5.2 `quests/[slug]/index.get.ts` returns the raw row — project the sub-campaign name and slug.
-- [ ] 5.3 `arcs/index.post.ts` returns `{id,name,slug}` only; echo the sub-campaign, as the sessions POST does.
-- [ ] 5.4 Sub-campaign column in `aleph arc list` and `aleph quest list`.
+- [x] 5.1 Left-join in `arcs/index.get.ts` and `quests/index.get.ts` for `subCampaignName`/`subCampaignSlug`, as `sessions/index.get.ts:78` already does.
+- [x] 5.2 `quests/[slug]/index.get.ts` returns the raw row — project the sub-campaign name and slug.
+- [x] 5.3 `arcs/index.post.ts` returns `{id,name,slug}` only; echo the sub-campaign, as the sessions POST does.
+- [x] 5.4 Sub-campaign column in `aleph arc list` and `aleph quest list`.
 
 ## 6. Types
 

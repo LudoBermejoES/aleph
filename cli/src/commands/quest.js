@@ -25,6 +25,7 @@ export function makeQuestCommand() {
           : data.map((q) => ({
               name: q.name,
               slug: q.slug,
+              subCampaign: q.subCampaignName || '',
               status: q.status,
               secret: q.isSecret ? 'yes' : '',
             })),
