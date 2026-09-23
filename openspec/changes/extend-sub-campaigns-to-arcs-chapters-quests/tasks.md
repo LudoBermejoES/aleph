@@ -89,4 +89,8 @@ Everything from §3 onwards is independent and can land in any order.
   `npx eslint .` reports 7 errors, all in `scripts/eval-search.ts` — an UNTRACKED search bench from 2026-09-18 that is not part of this change and blocks the pre-push hook for any push. Left untouched.
 
 - [x] 9.3 Update `docs/claude-skill.md` and `.claude/skills/aleph-cli/SKILL.md` **together**, and bump the skill's frontmatter version.
-- [ ] 9.4 Push, confirm the gated deploy went green, and bump the `aleph` pin in mago20.
+- [x] 9.4 Pushed; the gated deploy went green on all three jobs (`test`, `integration-test`, `deploy`) and the `aleph` pin in mago20 is bumped.
+
+  **Verified against production after the deploy, not just assumed:**
+  - `aleph sub-campaign audit` answers **0 incoherent** on all four campaigns, matching what 1.3 measured beforehand from the raw endpoints.
+  - `chapter list` returns nothing for every campaign — and that is CORRECT, not a broken endpoint: a control against the chapters nested inside `/arcs` shows production holds **zero chapters** anywhere. So the chapter work is deployed and self-consistent but has no real data exercising it yet.
