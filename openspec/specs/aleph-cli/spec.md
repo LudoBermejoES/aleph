@@ -175,6 +175,21 @@ The CLI SHALL provide commands to list, view, create, and update quests within a
 - THEN the server updates the quest status
 - AND the CLI prints a success message
 
+#### Scenario: Reopen a completed quest
+
+- GIVEN the user is authenticated and has editor or higher role
+- AND a quest exists whose status is `completed`
+- WHEN the user runs `aleph quest update --campaign <id> --slug <slug> --status active`
+- THEN the server accepts the change
+- AND reading the quest back shows status `active`
+
+#### Scenario: Abandon a quest
+
+- GIVEN the user is authenticated and has editor or higher role
+- AND a quest exists whose status is `active`
+- WHEN the user runs `aleph quest update --campaign <id> --slug <slug> --status abandoned`
+- THEN the server accepts the change rather than rejecting `abandoned` as an invalid option
+
 ### Requirement: Calendar & Timeline CLI Commands
 
 The CLI SHALL provide commands to manage calendars (list, get, create, update, advance, manage events) and timelines (list, get, create, add events).

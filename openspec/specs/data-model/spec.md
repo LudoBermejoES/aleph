@@ -119,7 +119,8 @@ The system SHALL store session scheduling, adventure logs, story structure, and 
   - `quests` (id, campaign_id, name, description, status, parent_quest_id, visibility, assigned_to_json, created_at, updated_at)
 - AND `status` for sessions is one of: 'scheduled', 'in_progress', 'completed', 'cancelled'
 - AND `status` for arcs/chapters is one of: 'planned', 'active', 'completed', 'skipped'
-- AND `status` for quests is one of: 'active', 'completed', 'failed', 'abandoned'
+- AND `status` for quests is one of: 'active', 'completed', 'failed', 'abandoned', declared in
+  exactly one shared module that the validation schemas and the transition rules both read
 - AND `decision_type` is one of: 'choice', 'role', 'count', 'destiny' (inspired by Amsel Tome Arcana)
 - AND session content/notes live in `.md` files, not in the database
 
