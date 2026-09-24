@@ -40,6 +40,7 @@ const form = ref({
   parentQuestId: '',
   isSecret: false,
   content: '',
+  shortDescription: '',
   // Filled by QuestForm from the campaign default once the sub-campaigns load.
   subCampaignSlug: '',
 })

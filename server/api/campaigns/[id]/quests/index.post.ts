@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { QUEST_SHORT_DESCRIPTION_MAX_LENGTH } from '#shared/utils/quest-short-description'
 import { randomUUID } from 'crypto'
 import { useDb, useSqlite } from '../../../../utils/db'
 import { validateBody } from '../../../../utils/validate'
@@ -24,6 +25,7 @@ export default defineEventHandler(async (event) => {
     name: z.string().min(1),
     content: z.string().optional(),
     description: z.string().optional(),
+    shortDescription: z.string().max(QUEST_SHORT_DESCRIPTION_MAX_LENGTH).nullable().optional(),
     status: z.enum(['active', 'completed', 'failed', 'on_hold']).optional(),
     tags: z.array(z.string()).optional(),
     isSecret: z.boolean().optional(),
@@ -87,6 +89,7 @@ export default defineEventHandler(async (event) => {
       name: body.name,
       slug,
       description: body.description || null,
+      shortDescription: body.shortDescription || null,
       status: body.status || 'active',
       parentQuestId: body.parentQuestId || null,
       entityId: body.entityId || null,

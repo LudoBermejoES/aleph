@@ -26,6 +26,7 @@ export function makeQuestCommand() {
               name: q.name,
               slug: q.slug,
               subCampaign: q.subCampaignName || '',
+              'short description': q.shortDescription || '',
               status: q.status,
               secret: q.isSecret ? 'yes' : '',
             })),
@@ -40,6 +41,10 @@ export function makeQuestCommand() {
     .requiredOption('--name <name>', 'Quest name')
     .option('--status <status>', 'Status (default: active)')
     .option('--description <desc>', 'Quest description')
+    .option(
+      '--short-description <text>',
+      'One-line summary shown in full on the quests list (max 200 chars, plain text)',
+    )
     .option('--subcampaign <slug>', 'Sub-campaign slug (defaults to the campaign default)')
     .option('--json', 'Output as JSON')
     .action(async (opts) => {
@@ -47,6 +52,7 @@ export function makeQuestCommand() {
         name: opts.name,
         status: opts.status || 'active',
         description: opts.description,
+        shortDescription: opts.shortDescription,
         subCampaignSlug: opts.subcampaign,
       })
       if (opts.json) {
@@ -64,12 +70,19 @@ export function makeQuestCommand() {
     .option('--name <name>', 'New name')
     .option('--status <status>', 'New status')
     .option('--description <desc>', 'New description')
+    .option(
+      '--short-description <text>',
+      'New one-line summary (max 200 chars, plain text); pass "" to clear it',
+    )
     .option('--subcampaign <slug>', 'Move to a different sub-campaign (by slug)')
     .action(async (opts) => {
       const body = {}
       if (opts.name !== undefined) body.name = opts.name
       if (opts.status !== undefined) body.status = opts.status
       if (opts.description !== undefined) body.description = opts.description
+      // `--short-description ""` CLEARS the field, so the empty string has to survive as an
+      // explicit null rather than being skipped -- same shape as `--board-summary` on entities.
+      if (opts.shortDescription !== undefined) body.shortDescription = opts.shortDescription || null
       if (opts.subcampaign !== undefined) body.subCampaignSlug = opts.subcampaign
       await put(`/api/campaigns/${opts.campaign}/quests/${opts.slug}`, body)
       success('Quest updated.')

@@ -208,6 +208,8 @@ export interface Quest {
   name: string
   slug: string
   description: string | null
+  /** Hand-written one-liner shown IN FULL on the quests list; capped at 200 chars server-side. */
+  shortDescription: string | null
   status: string
   parentQuestId: string | null
   entityId: string | null

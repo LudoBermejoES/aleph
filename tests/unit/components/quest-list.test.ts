@@ -116,3 +116,52 @@ describe('the quests list renders descriptions as excerpts', () => {
     expect(descriptionBlock).toMatch(/line-clamp-\d/)
   })
 })
+
+/**
+ * add-quest-short-description, design D4. The list has two branches and the DIFFERENT CSS CLASSES
+ * are the whole point: the hand-written short description is capped at 200 chars server-side and
+ * is therefore shown whole, with NO clamp; the excerpt of the long description has no guaranteed
+ * length and IS clamped.
+ *
+ * Merging them — putting `line-clamp-2` on both "just in case" — is the regression this guards.
+ * It would trim a short description at narrow widths, which is exactly the promise the field was
+ * added to make, and nothing else in the suite would notice.
+ */
+describe('the quests list distinguishes the short description from the excerpt', () => {
+  const page = readFileSync(
+    resolve(__dirname, '../../../app/pages/campaigns/[id]/quests/index.vue'),
+    'utf-8',
+  )
+
+  /** The `<p>` block for a branch, from its `v-if`/`v-else-if` to the closing tag. */
+  function branch(marker: string): string {
+    const start = page.indexOf(marker)
+    expect(start, `branch not found: ${marker}`).toBeGreaterThan(-1)
+    const open = page.lastIndexOf('<p', start)
+    const close = page.indexOf('</p>', start)
+    return page.slice(open, close)
+  }
+
+  it('renders the short description before falling back to the excerpt', () => {
+    const short = page.indexOf('q.shortDescription')
+    const excerpt = page.indexOf('questExcerpt(q.description)')
+    expect(short).toBeGreaterThan(-1)
+    expect(excerpt).toBeGreaterThan(-1)
+    expect(short).toBeLessThan(excerpt)
+    // The fallback must be an `v-else-if`, not a second independent `v-if`, or a quest holding
+    // both fields would print two paragraphs.
+    expect(page).toMatch(/v-else-if="questExcerpt\(q\.description\)"/)
+  })
+
+  it('never clamps the short description', () => {
+    expect(branch('q.shortDescription')).not.toMatch(/line-clamp-\d/)
+  })
+
+  it('still clamps the excerpt, whose length is not guaranteed', () => {
+    expect(branch('questExcerpt(q.description)')).toMatch(/line-clamp-\d/)
+  })
+
+  it('lets a long unbroken short description wrap instead of overflowing', () => {
+    expect(branch('q.shortDescription')).toMatch(/break-words|break-all|wrap-anywhere/)
+  })
+})

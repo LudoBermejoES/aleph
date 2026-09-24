@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { randomUUID } from 'crypto'
+import { eq } from 'drizzle-orm'
 import { readFileSync, existsSync, rmSync, mkdirSync } from 'fs'
 import { join, resolve, dirname } from 'path'
 import { zipSync } from 'fflate'
@@ -19,7 +20,7 @@ import { campaigns } from '../../../server/db/schema/campaigns'
 import { entities } from '../../../server/db/schema/entities'
 import { characters } from '../../../server/db/schema/characters'
 import { campaignMembers } from '../../../server/db/schema/campaign-members'
-import { subCampaigns, gameSessions, arcs } from '../../../server/db/schema/sessions'
+import { subCampaigns, gameSessions, arcs, quests } from '../../../server/db/schema/sessions'
 import { entityRelations } from '../../../server/db/schema/relations'
 import { user } from '../../../server/db/schema/auth'
 import {
@@ -807,5 +808,93 @@ describe('importCampaignFromZip', () => {
     }
     expect(caught).not.toBeNull()
     expect(caught!.statusCode).toBe(422)
+  })
+})
+
+/**
+ * add-quest-short-description §7.2.
+ *
+ * The exporter does `db.select().from(quests)`, which carries every column, so it is tempting to
+ * conclude the round trip is free. It is not: THIS importer enumerates the quest columns by hand,
+ * so a field missing from that list is dropped in total silence — the import reports success,
+ * creates every quest, and the summary is simply gone. That is exactly how this shipped broken
+ * for the first draft of the change, and the only thing that caught it was writing this test
+ * instead of reading the exporter.
+ */
+describe('quest short description survives an import', () => {
+  function exportWithQuests(rows: Array<Record<string, unknown>>) {
+    const base = makeMinimalExport()
+    const subCampaignId = randomUUID()
+    return {
+      ...base,
+      subCampaigns: [
+        {
+          id: subCampaignId,
+          campaignId: base.campaign.id,
+          name: 'General',
+          slug: 'general',
+          description: '',
+          sortOrder: 0,
+          isDefault: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ],
+      quests: rows.map((r) => ({
+        campaignId: base.campaign.id,
+        subCampaignId,
+        status: 'active',
+        description: null,
+        shortDescription: null,
+        parentQuestId: null,
+        entityId: null,
+        isSecret: false,
+        assignedCharacterIdsJson: null,
+        logFilePath: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        ...r,
+      })),
+    } as unknown as CampaignExport
+  }
+
+  it('carries the short description through unchanged', () => {
+    const text = 'Symcha Landau reclama juzgar el Avatar de Otto.'
+    const payload = exportWithQuests([
+      { id: randomUUID(), name: 'El juicio', slug: 'el-juicio', shortDescription: text },
+    ])
+    const result = importCampaign(testDb.db, { payload, importingUserId: userId })
+
+    const rows = testDb.db.select().from(quests).where(eq(quests.campaignId, result.id)).all()
+    expect(rows).toHaveLength(1)
+    expect(rows[0]!.shortDescription).toBe(text)
+  })
+
+  it('imports a quest with no short description as null rather than failing', () => {
+    const payload = exportWithQuests([
+      { id: randomUUID(), name: 'Sin corta', slug: 'sin-corta', shortDescription: null },
+    ])
+    const result = importCampaign(testDb.db, { payload, importingUserId: userId })
+
+    const rows = testDb.db.select().from(quests).where(eq(quests.campaignId, result.id)).all()
+    expect(rows).toHaveLength(1)
+    expect(rows[0]!.shortDescription).toBeNull()
+  })
+
+  it('keeps the short description independent of the long one', () => {
+    const payload = exportWithQuests([
+      {
+        id: randomUUID(),
+        name: 'Ambas',
+        slug: 'ambas',
+        shortDescription: 'La corta.',
+        description: 'La larga, con **markdown**.',
+      },
+    ])
+    const result = importCampaign(testDb.db, { payload, importingUserId: userId })
+
+    const row = testDb.db.select().from(quests).where(eq(quests.campaignId, result.id)).get()
+    expect(row!.shortDescription).toBe('La corta.')
+    expect(row!.description).toBe('La larga, con **markdown**.')
   })
 })

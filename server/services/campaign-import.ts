@@ -621,6 +621,11 @@ export function importCampaign(
           name: q.name as string,
           slug: q.slug as string,
           description: (q.description as string) ?? null,
+          // The exporter does `select()` and carries every column, but THIS side enumerates them
+          // by hand: a field missing here is dropped in silence, with the import reporting full
+          // success. That is why add-quest-short-description verified the round trip instead of
+          // reading the exporter and assuming.
+          shortDescription: (q.shortDescription as string) ?? null,
           status: (q.status as string) ?? 'active',
           parentQuestId: remap(idMap, q.parentQuestId as string),
           entityId: remap(idMap, q.entityId as string),

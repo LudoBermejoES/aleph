@@ -50,6 +50,30 @@
         </label>
       </div>
     </div>
+    <!-- The standfirst. It sits ABOVE the long description because that is the reading order on
+         the list and on the detail page, and because a writer who meets the long editor first
+         tends to pour everything into it and leave this empty. Plain <input>, not MarkdownEditor:
+         the list renders this verbatim, so there is deliberately no syntax to write here. -->
+    <div>
+      <label class="text-sm font-medium" for="quest-short-description">{{
+        $t('quests.shortDescription')
+      }}</label>
+      <input
+        id="quest-short-description"
+        v-model="form.shortDescription"
+        type="text"
+        :maxlength="QUEST_SHORT_DESCRIPTION_MAX_LENGTH"
+        class="w-full mt-1 px-3 py-2 rounded border border-input bg-background"
+        :placeholder="$t('quests.shortDescriptionPlaceholder')"
+      />
+      <p class="mt-1 flex justify-between gap-4 text-xs text-muted-foreground">
+        <span>{{ $t('quests.shortDescriptionHelp') }}</span>
+        <!-- A courtesy, not the guarantee: the server is what enforces the cap (design D3). -->
+        <span :class="shortDescriptionAtLimit ? 'text-destructive font-medium' : ''"
+          >{{ shortDescriptionLength }}/{{ QUEST_SHORT_DESCRIPTION_MAX_LENGTH }}</span
+        >
+      </p>
+    </div>
     <div>
       <label class="text-sm font-medium">{{ $t('quests.description') }}</label>
       <MarkdownEditor
@@ -75,6 +99,7 @@
 
 <script setup lang="ts">
 import type { Quest } from '~/types/api'
+import { QUEST_SHORT_DESCRIPTION_MAX_LENGTH } from '#shared/utils/quest-short-description'
 
 const props = defineProps<{
   modelValue: {
@@ -83,6 +108,7 @@ const props = defineProps<{
     parentQuestId: string
     isSecret: boolean
     content: string
+    shortDescription: string
     subCampaignSlug?: string
   }
   campaignId: string
@@ -113,6 +139,11 @@ const form = computed({
   get: () => props.modelValue,
   set: (_val) => {},
 })
+
+const shortDescriptionLength = computed(() => (props.modelValue.shortDescription || '').length)
+const shortDescriptionAtLimit = computed(
+  () => shortDescriptionLength.value >= QUEST_SHORT_DESCRIPTION_MAX_LENGTH,
+)
 
 const draftKey = computed(() => `aleph:draft:${props.campaignId}:quest:${props.questSlug ?? 'new'}`)
 

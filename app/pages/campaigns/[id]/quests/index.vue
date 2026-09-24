@@ -105,14 +105,20 @@
               {{ questStatusLabel(q.status) }}
             </span>
           </div>
-          <!-- A LIST shows an excerpt, never the raw field: quest descriptions are full markdown
-               (headings, bullets, **bold**, blank lines between paragraphs) and a bare `{{ }}`
-               inside a <p> prints the asterisks literally while HTML collapses every newline,
-               so a long one rendered as an unreadable wall. `buildExcerpt` flattens the markdown
-               to prose; `line-clamp-2` caps the card, as the arcs and organizations lists
-               already do. The full text renders properly through <MDC> on the detail page. -->
+          <!-- TWO BRANCHES, AND THE DIFFERENT CLASSES ARE THE POINT (design D4).
+               1. A hand-written short description is shown WHOLE: no truncation, no ellipsis and
+                  deliberately NO `line-clamp`. It is capped at 200 chars server-side, so it always
+                  fits -- clamping it "just in case" would trim it at narrow widths and quietly
+                  void the promise the field exists to make.
+               2. Otherwise we fall back to a flattened excerpt of the long markdown description,
+                  which has no guaranteed length and therefore IS clamped. Raw interpolation here
+                  would print `**` literally and let HTML collapse every newline.
+               Reordering or merging these two is how this screen regresses. -->
+          <p v-if="q.shortDescription" class="text-sm text-muted-foreground mt-1 break-words">
+            {{ q.shortDescription }}
+          </p>
           <p
-            v-if="questExcerpt(q.description)"
+            v-else-if="questExcerpt(q.description)"
             class="text-sm text-muted-foreground mt-1 line-clamp-2"
           >
             {{ questExcerpt(q.description) }}

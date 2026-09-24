@@ -52,6 +52,7 @@ const form = ref({
   parentQuestId: '',
   isSecret: false,
   content: '',
+  shortDescription: '',
   subCampaignSlug: '',
 })
 
@@ -73,6 +74,7 @@ onMounted(async () => {
       parentQuestId: q.parentQuestId || '',
       isSecret: q.isSecret || false,
       content: q.content || '',
+      shortDescription: q.shortDescription || '',
       // The quest detail now names its sub-campaign, so the picker opens on the real one instead
       // of snapping the quest back to the default on every save.
       subCampaignSlug: q.subCampaignSlug || '',

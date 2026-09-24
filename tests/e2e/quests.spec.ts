@@ -131,3 +131,61 @@ test('the quests list shows an excerpt, not raw markdown', async ({ page }) => {
     page.locator('main strong', { hasText: 'un objeto atravesó las protecciones' }),
   ).toBeVisible()
 })
+
+/**
+ * add-quest-short-description §8.1.
+ *
+ * NOTE: `tests/e2e/` DOES NOT RUN IN CI. `.github/workflows` runs format, eslint,
+ * `vitest run tests/unit/`, the integration suite and the build — no Playwright. What actually
+ * enforces this behaviour is `tests/unit/components/quest-list.test.ts` (the branch classes) plus
+ * the integration suite (persistence). This spec is a local tool, not a gate; treating it as one
+ * is how this project has been fooled before.
+ */
+test('the quests list shows the short description whole, and falls back when absent', async ({
+  page,
+}) => {
+  await registerAndLogin(page, 'Short Desc User')
+  await createCampaign(page, `Short Desc Camp ${uid()}`)
+
+  const campaignId = page.url().split('/campaigns/')[1]?.split('/')[0]
+
+  // 200 characters exactly: the cap, so it must survive whole with no ellipsis.
+  const shortText = `Symcha Landau ha llegado a Berlín para juzgar el Avatar de Otto y ${'x'.repeat(
+    200 - 66,
+  )}`
+  await apiFetch(page, `/api/campaigns/${campaignId}/quests`, {
+    method: 'POST',
+    body: {
+      name: 'Con descripción corta',
+      shortDescription: shortText,
+      description: 'Una descripción larga con **markdown** que NO debe verse en el listado.',
+    },
+  })
+  await apiFetch(page, `/api/campaigns/${campaignId}/quests`, {
+    method: 'POST',
+    body: {
+      name: 'Sin descripción corta',
+      description: 'Solo la larga, con **markdown** y\n\nvarios párrafos que deben resumirse.',
+    },
+  })
+
+  await page.click('aside >> text=Quests')
+  await page.waitForLoadState('networkidle')
+  await expect(page.locator('main >> text=Con descripción corta')).toBeVisible({ timeout: 10000 })
+
+  // 1. The short description is shown IN FULL, with nothing trimmed.
+  const withShort = page.locator('main p', { hasText: 'Symcha Landau ha llegado a Berlín' })
+  const shownShort = (await withShort.innerText()).trim()
+  expect(shownShort).toBe(shortText)
+  expect(shownShort).not.toContain('…')
+
+  // And the long description is NOT what the card shows.
+  expect(shownShort).not.toContain('NO debe verse')
+
+  // 2. The control: a quest without one still shows the excerpt, flattened and clamped. Without
+  // this, a list that simply hid every description would pass the assertions above.
+  const withoutShort = page.locator('main p', { hasText: 'Solo la larga' })
+  const shownExcerpt = (await withoutShort.innerText()).trim()
+  expect(shownExcerpt).not.toContain('**')
+  expect(shownExcerpt).toContain('varios párrafos')
+})

@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { QUEST_SHORT_DESCRIPTION_MAX_LENGTH } from '#shared/utils/quest-short-description'
 import { eq, and } from 'drizzle-orm'
 import { useDb, useSqlite } from '../../../../../utils/db'
 import { validateBody } from '../../../../../utils/validate'
@@ -23,6 +24,7 @@ export default defineEventHandler(async (event) => {
   const questPutSchema = z.object({
     name: z.string().min(1).optional(),
     description: z.string().optional(),
+    shortDescription: z.string().max(QUEST_SHORT_DESCRIPTION_MAX_LENGTH).nullable().optional(),
     status: z.enum(['active', 'completed', 'failed', 'on_hold']).optional(),
     isSecret: z.boolean().optional(),
     subCampaignSlug: z.string().optional(),
@@ -51,6 +53,9 @@ export default defineEventHandler(async (event) => {
   const updates: Record<string, unknown> = { updatedAt: now }
   if (body.name !== undefined) updates.name = body.name
   if (body.description !== undefined) updates.description = body.description
+  // `!== undefined`, never truthiness: an empty string and null are how the field is
+  // CLEARED, and `if (body.shortDescription)` would silently treat both as 'not sent'.
+  if (body.shortDescription !== undefined) updates.shortDescription = body.shortDescription || null
   if (body.status !== undefined) updates.status = body.status
   if (body.isSecret !== undefined) updates.isSecret = body.isSecret
   if (body.subCampaignSlug !== undefined) {

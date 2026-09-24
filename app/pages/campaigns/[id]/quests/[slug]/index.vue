@@ -58,6 +58,17 @@
         class="mb-4"
       />
 
+      <!-- Standfirst: the hand-written one-liner, above the body and typographically distinct.
+           Interpolated as PLAIN TEXT on purpose (design D2) -- this field is never markdown, so it
+           must not go through <MDC>, or a stray `*` would silently become emphasis here while
+           rendering literally on the list. -->
+      <p
+        v-if="quest.shortDescription"
+        class="text-lg leading-relaxed text-muted-foreground mb-4 border-l-2 border-border pl-4"
+      >
+        {{ quest.shortDescription }}
+      </p>
+
       <!-- Description -->
       <div
         v-if="quest.description"

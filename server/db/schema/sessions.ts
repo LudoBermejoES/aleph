@@ -153,6 +153,10 @@ export const quests = sqliteTable(
     name: text('name').notNull(),
     slug: text('slug').notNull(),
     description: text('description'),
+    // A hand-written one-liner, shown IN FULL on the quests list (add-quest-short-description).
+    // Plain text, capped server-side at QUEST_SHORT_DESCRIPTION_MAX_LENGTH -- the cap is what makes
+    // "shown whole, never trimmed" true, so it is enforced, not advisory.
+    shortDescription: text('short_description'),
     status: text('status').notNull().default('active'), // active, completed, failed, abandoned
     parentQuestId: text('parent_quest_id'),
     entityId: text('entity_id'),

@@ -45,6 +45,7 @@ export default defineEventHandler(async (event) => {
       name: quests.name,
       slug: quests.slug,
       description: quests.description,
+      shortDescription: quests.shortDescription,
       status: quests.status,
       parentQuestId: quests.parentQuestId,
       entityId: quests.entityId,
