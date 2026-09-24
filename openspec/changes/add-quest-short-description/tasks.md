@@ -99,7 +99,7 @@
       `better-sqlite3` is built for ABI 141 and a Node 24 shell turns ~35 files red for a reason
       that has nothing to do with this change.
 - [x] 8.4 Integration suite with the server running.
-- [ ] 8.5 Push to `master` and confirm all three jobs (`test`, `integration-test`, `deploy`), citing
+- [x] 8.5 Push to `master` and confirm all three jobs (`test`, `integration-test`, `deploy`), citing
       the run id. Green observed is not green enforced: this repo cannot have branch protection.
-- [ ] 8.6 Check against the deployed server that a real quest accepts and returns the field, then
+- [x] 8.6 Check against the deployed server that a real quest accepts and returns the field, then
       bump the `aleph` pin in mago20.
