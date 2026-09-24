@@ -91,13 +91,21 @@ test('the quests list shows an excerpt, not raw markdown', async ({ page }) => {
     method: 'POST',
     body: {
       name: 'Las guardas de la capilla',
+      // Long enough that `buildExcerpt` genuinely truncates at 240: the flattened text runs to
+      // ~430 characters, so the last bullet CANNOT survive into the card. An earlier version of
+      // this fixture flattened to 214 — under the limit — so nothing was trimmed and the
+      // "is an excerpt" assertion below was false. It never showed because CI does not run
+      // Playwright, which is exactly the hazard this file's header warns about.
       description: [
-        'El 20 de agosto cayó del cielo un periódico enrollado.',
+        'El 20 de agosto cayó del cielo un periódico enrollado que iba a aterrizar justo en la',
+        'cabeza de Salvador, y Philip lo desvió con un efecto de Fuerzas descaradamente vulgar.',
         '',
-        'Lo importante fue que **un objeto atravesó las protecciones**.',
+        'Lo importante fue que **un objeto atravesó las protecciones** de la capilla sin provocar',
+        'una sola fluctuación, y nadie del grupo notó absolutamente nada mientras ocurría.',
         '',
-        'La lista de lo que no habían pensado:',
+        'La lista de lo que no habían pensado, y que salió entera de ese golpe en la cabeza:',
         '- **Timon Sauerbeck sabe su dirección.**',
+        '- Los protocolos los escribió una compañera que ahora está muerta.',
         '- El portal sigue sin sellar.',
       ].join('\n'),
     },
@@ -117,7 +125,10 @@ test('the quests list shows an excerpt, not raw markdown', async ({ page }) => {
   expect(shown).not.toContain('**')
   expect(shown).not.toMatch(/^\s*-\s/m)
 
-  // And the card is an excerpt, not the whole field -- the last bullet must not be in it.
+  // And the card is an EXCERPT, not the whole field: the text is truncated with an ellipsis and
+  // the last bullet does not survive. Both halves matter -- asserting only the missing bullet
+  // would also pass if the description were simply never rendered.
+  expect(shown).toMatch(/…$/)
   expect(shown).not.toContain('El portal sigue sin sellar')
 
   // Control: the detail page DOES show the full text, with the bold rendered as an element
