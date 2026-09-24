@@ -12,14 +12,14 @@
       </div>
       <div>
         <label class="text-sm font-medium">{{ $t('characters.status') }}</label>
+        <!-- Generated from the shared vocabulary, never typed out. A hard-coded list here was a
+             THIRD declaration of the statuses, and it is the one that shipped a visible, enabled
+             option (`abandoned`) that the server rejected for months. -->
         <select
           v-model="form.status"
           class="w-full mt-1 px-3 py-2 rounded border border-input bg-background"
         >
-          <option value="active">{{ $t('sessions.statusActive') }}</option>
-          <option value="completed">{{ $t('quests.statusCompleted') }}</option>
-          <option value="failed">{{ $t('quests.statusFailed') }}</option>
-          <option value="abandoned">{{ $t('quests.statusAbandoned') }}</option>
+          <option v-for="s in QUEST_STATUSES" :key="s" :value="s">{{ questStatusLabel(s) }}</option>
         </select>
       </div>
       <div>
@@ -100,6 +100,7 @@
 <script setup lang="ts">
 import type { Quest } from '~/types/api'
 import { QUEST_SHORT_DESCRIPTION_MAX_LENGTH } from '#shared/utils/quest-short-description'
+import { QUEST_STATUSES } from '#shared/utils/quest-status'
 
 const props = defineProps<{
   modelValue: {
@@ -126,6 +127,7 @@ const emit = defineEmits<{
   submit: []
 }>()
 
+const { t } = useI18n()
 const quests = ref<Quest[]>([])
 interface SubCampaignRow {
   id: string
@@ -139,6 +141,12 @@ const form = computed({
   get: () => props.modelValue,
   set: (_val) => {},
 })
+
+// Same helper shape the quest detail page uses: `quests.status<Capitalised>`, falling back to the
+// raw value so a missing translation renders the status rather than an empty option.
+function questStatusLabel(status: string): string {
+  return t(`quests.status${status.charAt(0).toUpperCase()}${status.slice(1)}`, status)
+}
 
 const shortDescriptionLength = computed(() => (props.modelValue.shortDescription || '').length)
 const shortDescriptionAtLimit = computed(

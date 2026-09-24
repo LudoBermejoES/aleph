@@ -39,7 +39,7 @@ export function makeQuestCommand() {
     .description('Create a quest')
     .requiredOption('--campaign <id>', 'Campaign ID')
     .requiredOption('--name <name>', 'Quest name')
-    .option('--status <status>', 'Status (default: active)')
+    .option('--status <status>', 'Status (active|completed|failed|abandoned; default: active)')
     .option('--description <desc>', 'Quest description')
     .option(
       '--short-description <text>',
@@ -68,7 +68,7 @@ export function makeQuestCommand() {
     .requiredOption('--campaign <id>', 'Campaign ID')
     .requiredOption('--slug <slug>', 'Quest slug')
     .option('--name <name>', 'New name')
-    .option('--status <status>', 'New status')
+    .option('--status <status>', 'New status (active|completed|failed|abandoned)')
     .option('--description <desc>', 'New description')
     .option(
       '--short-description <text>',

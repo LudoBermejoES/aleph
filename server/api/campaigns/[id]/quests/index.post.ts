@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { QUEST_STATUSES, DEFAULT_QUEST_STATUS } from '#shared/utils/quest-status'
 import { QUEST_SHORT_DESCRIPTION_MAX_LENGTH } from '#shared/utils/quest-short-description'
 import { randomUUID } from 'crypto'
 import { useDb, useSqlite } from '../../../../utils/db'
@@ -26,7 +27,7 @@ export default defineEventHandler(async (event) => {
     content: z.string().optional(),
     description: z.string().optional(),
     shortDescription: z.string().max(QUEST_SHORT_DESCRIPTION_MAX_LENGTH).nullable().optional(),
-    status: z.enum(['active', 'completed', 'failed', 'on_hold']).optional(),
+    status: z.enum(QUEST_STATUSES).optional(),
     tags: z.array(z.string()).optional(),
     isSecret: z.boolean().optional(),
     parentQuestId: z.string().optional(),
@@ -57,7 +58,7 @@ export default defineEventHandler(async (event) => {
     aliases: [] as string[],
     tags: body.tags || [],
     visibility,
-    fields: { status: body.status || 'active' },
+    fields: { status: body.status || DEFAULT_QUEST_STATUS },
   }
   const hash = await writeEntityFile(
     logPath,
@@ -90,7 +91,7 @@ export default defineEventHandler(async (event) => {
       slug,
       description: body.description || null,
       shortDescription: body.shortDescription || null,
-      status: body.status || 'active',
+      status: body.status || DEFAULT_QUEST_STATUS,
       parentQuestId: body.parentQuestId || null,
       entityId: body.entityId || null,
       isSecret: body.isSecret || false,
@@ -108,5 +109,5 @@ export default defineEventHandler(async (event) => {
   indexEntity(sqlite, id, campaignId, body.name, [], body.tags || [], questContent)
   await indexEntityEmbedding(sqlite, id, campaignId, body.name, questContent)
 
-  return { id, slug, name: body.name, status: body.status || 'active' }
+  return { id, slug, name: body.name, status: body.status || DEFAULT_QUEST_STATUS }
 })

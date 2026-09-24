@@ -166,3 +166,100 @@ describe('CLI quest --short-description (integration)', () => {
     expect((await readQuest(slug)).shortDescription).toBeNull()
   })
 })
+
+/**
+ * fix-quest-status-vocabulary §5.2. The CLI's own `--status` help has always named `abandoned`;
+ * until this change the server answered that same value with a validation error.
+ */
+describe('CLI quest --status (integration)', () => {
+  const email = `cli-qst-${Date.now()}@example.com`
+  let cookie = ''
+  let csrfToken = ''
+  let campaignId = ''
+  let apiKey = ''
+  let cliEnv: Record<string, string>
+
+  beforeAll(async () => {
+    await api('/api/auth/sign-up/email', {
+      method: 'POST',
+      body: { name: 'CLI Status Tester', email, password: 'password123' },
+    })
+    const login = await api('/api/auth/sign-in/email', {
+      method: 'POST',
+      body: { email, password: 'password123' },
+    })
+    const cookies = login.headers.get('set-cookie') || ''
+    const match = cookies.match(/better-auth\.session_token=([^;]+)/)
+    const sessionCookie = match ? `better-auth.session_token=${match[1]}` : ''
+    const campList = await api('/api/campaigns', { headers: { Cookie: sessionCookie } })
+    const setCookie = campList.headers.get('set-cookie') || ''
+    const csrfMatch = setCookie.match(/csrf_token=([^;]+)/)
+    csrfToken = csrfMatch?.[1] || ''
+    cookie = csrfToken ? `${sessionCookie}; csrf_token=${csrfToken}` : sessionCookie
+
+    const camp = await api('/api/campaigns', {
+      method: 'POST',
+      headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
+      body: { name: `CLI Status Test ${Date.now()}` },
+    })
+    campaignId = (await camp.json()).id
+
+    const keyRes = await api('/api/apikeys', {
+      method: 'POST',
+      headers: { Cookie: cookie, 'X-CSRF-Token': csrfToken },
+      body: { name: 'cli-qst-key' },
+    })
+    apiKey = (await keyRes.json()).key
+    cliEnv = { ALEPH_URL: BASE_URL, ALEPH_TOKEN: apiKey }
+  })
+
+  async function statusOf(slug: string) {
+    const res = await api(`/api/campaigns/${campaignId}/quests/${slug}`, {
+      headers: { 'X-API-Key': apiKey },
+    })
+    return (await res.json()).status
+  }
+
+  function newQuest(name: string) {
+    const { stdout } = cliExec(
+      `quest create --campaign ${campaignId} --name "${name}" --json`,
+      cliEnv,
+    )
+    return JSON.parse(stdout).slug as string
+  }
+
+  it('abandons a quest', async () => {
+    const slug = newQuest(`CLI Abandonada ${Date.now()}`)
+    const { code } = cliExec(
+      `quest update --campaign ${campaignId} --slug ${slug} --status abandoned`,
+      cliEnv,
+    )
+    expect(code).toBe(0)
+    expect(await statusOf(slug)).toBe('abandoned')
+  })
+
+  it('reopens a completed quest', async () => {
+    const slug = newQuest(`CLI Reabierta ${Date.now()}`)
+    expect(
+      cliExec(`quest update --campaign ${campaignId} --slug ${slug} --status completed`, cliEnv)
+        .code,
+    ).toBe(0)
+    expect(await statusOf(slug)).toBe('completed')
+
+    expect(
+      cliExec(`quest update --campaign ${campaignId} --slug ${slug} --status active`, cliEnv).code,
+    ).toBe(0)
+    expect(await statusOf(slug)).toBe('active')
+  })
+
+  it('fails loudly on a status outside the vocabulary', async () => {
+    const slug = newQuest(`CLI Invalida ${Date.now()}`)
+    const { code, stdout, stderr } = cliExec(
+      `quest update --campaign ${campaignId} --slug ${slug} --status on_hold`,
+      cliEnv,
+    )
+    expect(code).not.toBe(0)
+    expect(`${stdout}${stderr}`).toMatch(/error|invalid|validation/i)
+    expect(await statusOf(slug)).toBe('active')
+  })
+})

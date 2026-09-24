@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
+import { QUEST_STATUSES } from '../../../shared/utils/quest-status'
 
 /**
  * Test quest list component with nesting logic (8.27)
@@ -163,5 +164,44 @@ describe('the quests list distinguishes the short description from the excerpt',
 
   it('lets a long unbroken short description wrap instead of overflowing', () => {
     expect(branch('q.shortDescription')).toMatch(/break-words|break-all|wrap-anywhere/)
+  })
+})
+
+/**
+ * fix-quest-status-vocabulary §4.3. The form's dropdown used to be a third hand-written copy of
+ * the status vocabulary, and it is the copy that shipped a visible, enabled `abandoned` option
+ * that the server refused for months. Generating it is the fix; this guards the generation.
+ */
+describe('the quest form offers exactly the declared statuses', () => {
+  const form = readFileSync(
+    resolve(__dirname, '../../../app/components/forms/QuestForm.vue'),
+    'utf-8',
+  )
+
+  it('generates the options instead of listing them', () => {
+    expect(form).toMatch(/v-for="s in QUEST_STATUSES"/)
+  })
+
+  it('hard-codes no status value of its own', () => {
+    const template = form.slice(0, form.indexOf('<script'))
+    const markup = template.replace(/<!--[\s\S]*?-->/g, '')
+    for (const status of QUEST_STATUSES) {
+      expect(markup, `the form hard-codes an option for "${status}"`).not.toMatch(
+        new RegExp(`<option[^>]*value="${status}"`),
+      )
+    }
+  })
+
+  it('has a translation for every status in both locales, so no option renders as a raw slug', () => {
+    for (const locale of ['es', 'en']) {
+      const bundle = JSON.parse(
+        readFileSync(resolve(__dirname, `../../../i18n/locales/${locale}.json`), 'utf-8'),
+      ) as { quests: Record<string, string>; sessions: Record<string, string> }
+      for (const status of QUEST_STATUSES) {
+        const key = `status${status.charAt(0).toUpperCase()}${status.slice(1)}`
+        const found = bundle.quests?.[key] ?? bundle.sessions?.[key]
+        expect(found, `${locale}.json has no label for "${status}" (${key})`).toBeTruthy()
+      }
+    }
   })
 })

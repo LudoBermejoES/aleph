@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { QUEST_STATUSES } from '#shared/utils/quest-status'
 import { QUEST_SHORT_DESCRIPTION_MAX_LENGTH } from '#shared/utils/quest-short-description'
 import { eq, and } from 'drizzle-orm'
 import { useDb, useSqlite } from '../../../../../utils/db'
@@ -25,7 +26,7 @@ export default defineEventHandler(async (event) => {
     name: z.string().min(1).optional(),
     description: z.string().optional(),
     shortDescription: z.string().max(QUEST_SHORT_DESCRIPTION_MAX_LENGTH).nullable().optional(),
-    status: z.enum(['active', 'completed', 'failed', 'on_hold']).optional(),
+    status: z.enum(QUEST_STATUSES).optional(),
     isSecret: z.boolean().optional(),
     subCampaignSlug: z.string().optional(),
   })

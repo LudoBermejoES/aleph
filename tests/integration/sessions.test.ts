@@ -257,14 +257,40 @@ describe('Quest CRUD (integration)', () => {
     expect(res.status).toBe(200)
   })
 
-  it('PUT rejects invalid status transition', async () => {
-    // completed → active is not allowed
+  /**
+   * REWRITTEN by fix-quest-status-vocabulary, against the rule rather than against the red.
+   *
+   * This used to assert that `completed -> active` was rejected. That mirrored the transition
+   * table, and the table mirrored nothing: no requirement anywhere said completing a quest was
+   * final. Reopening is now allowed, because it is the correction a Narrator needs when a thread
+   * comes back or the wrong row was clicked.
+   *
+   * What is still rejected is `completed -> failed`, which is a contradiction rather than a
+   * correction — reopen first, then fail.
+   */
+  it('PUT rejects a jump from one closed status straight to another', async () => {
+    const res = await api(`/api/campaigns/${campaignId}/quests/${questSlug}`, {
+      method: 'PUT',
+      headers: withCsrf(cookie, csrfToken),
+      body: { status: 'failed' },
+    })
+    expect(res.status).toBe(400)
+  })
+
+  it('PUT reopens a completed quest', async () => {
     const res = await api(`/api/campaigns/${campaignId}/quests/${questSlug}`, {
       method: 'PUT',
       headers: withCsrf(cookie, csrfToken),
       body: { status: 'active' },
     })
-    expect(res.status).toBe(400)
+    expect(res.status).toBe(200)
+
+    // Read back: a 200 does not prove the status changed.
+    const after = await api(`/api/campaigns/${campaignId}/quests/${questSlug}`, {
+      method: 'GET',
+      headers: { Cookie: cookie },
+    })
+    expect((await after.json()).status).toBe('active')
   })
 
   it('GET quest list returns quests', async () => {

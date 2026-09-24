@@ -2,29 +2,25 @@ import { hasMinRole } from '../utils/permissions'
 import type { CampaignRole } from '../utils/permissions'
 
 /**
- * Valid quest status transitions.
+ * Quest statuses and their transitions now live in `#shared/utils/quest-status`, because this
+ * table and the zod enums on POST/PUT used to be two independent declarations of the same
+ * vocabulary and they disagreed: this one knew `abandoned`, they knew `on_hold`, and neither knew
+ * the other's word. Re-exported under the old names so no caller had to change.
  */
-export const VALID_QUEST_TRANSITIONS: Record<string, string[]> = {
-  active: ['completed', 'failed', 'abandoned'],
-  completed: [],
-  failed: ['active'],
-  abandoned: ['active'],
-}
+export {
+  QUEST_STATUSES,
+  QUEST_STATUS_TRANSITIONS,
+  QUEST_STATUS_TRANSITIONS as VALID_QUEST_TRANSITIONS,
+  canTransitionQuestStatus,
+  isQuestStatus,
+} from '#shared/utils/quest-status'
+export type { QuestStatus } from '#shared/utils/quest-status'
 
 /**
  * Calculate the next session number given the current maximum.
  */
 export function nextSessionNumber(currentMax: number): number {
   return currentMax + 1
-}
-
-/**
- * Check if a quest status transition is valid.
- */
-export function canTransitionQuestStatus(from: string, to: string): boolean {
-  const allowed = VALID_QUEST_TRANSITIONS[from]
-  if (!allowed) return false
-  return allowed.includes(to)
 }
 
 /**

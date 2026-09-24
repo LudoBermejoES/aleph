@@ -157,7 +157,9 @@ export const quests = sqliteTable(
     // Plain text, capped server-side at QUEST_SHORT_DESCRIPTION_MAX_LENGTH -- the cap is what makes
     // "shown whole, never trimmed" true, so it is enforced, not advisory.
     shortDescription: text('short_description'),
-    status: text('status').notNull().default('active'), // active, completed, failed, abandoned
+    // The vocabulary is declared in `shared/utils/quest-status.ts`, not here: this comment used
+    // to be one of several hand-maintained copies, and copies of a vocabulary drift.
+    status: text('status').notNull().default('active'),
     parentQuestId: text('parent_quest_id'),
     entityId: text('entity_id'),
     isSecret: integer('is_secret', { mode: 'boolean' }).notNull().default(false),

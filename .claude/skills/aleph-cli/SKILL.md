@@ -4,7 +4,7 @@ description: Use the aleph CLI to manage campaigns, entities, characters, locati
 license: MIT
 metadata:
   author: aleph
-  version: '3.29'
+  version: '3.30'
 ---
 
 You have access to the `aleph` CLI tool at `node /Users/ludo/code/aleph/cli/bin/aleph.js` (or `npm run aleph -- <args>` from the project root). Use it to interact with the running Aleph server.
@@ -354,6 +354,8 @@ node /Users/ludo/code/aleph/cli/bin/aleph.js map region-delete --campaign <id> -
 node /Users/ludo/code/aleph/cli/bin/aleph.js quest list --campaign <id> [--status <status>] [--subcampaign <slug>] [--json]   # the table carries sub-campaign and short-description columns
 node /Users/ludo/code/aleph/cli/bin/aleph.js quest create --campaign <id> --name <name> [--status <status>] [--description <desc>] [--short-description <text>] [--subcampaign <slug>] [--json]   # omit --subcampaign to use the campaign's default sub-campaign
 node /Users/ludo/code/aleph/cli/bin/aleph.js quest update --campaign <id> --slug <slug> [--name <name>] [--status <status>] [--description <desc>] [--short-description <text>] [--subcampaign <slug>]
+#   --status vocabulary: active|completed|failed|abandoned. A completed quest CAN be reopened
+#   to active (but not sent straight to failed/abandoned). `on_hold` is not a status and is rejected.
 #   --short-description is PLAIN TEXT, max 200 chars, and the quests list shows it IN FULL.
 #   When it is empty the list falls back to an auto-excerpt of --description. Pass "" to clear it.
 node /Users/ludo/code/aleph/cli/bin/aleph.js quest delete --campaign <id> --slug <slug> [--yes]

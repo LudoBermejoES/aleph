@@ -370,6 +370,8 @@ aleph map region-delete --campaign <id> --slug <slug> --region <regionId> [--yes
 aleph quest list --campaign <id> [--status <status>] [--subcampaign <slug>] [--json]   # the table carries sub-campaign and short-description columns
 aleph quest create --campaign <id> --name <name> [--status <status>] [--description <desc>] [--short-description <text>] [--subcampaign <slug>] [--json]   # omit --subcampaign to use the campaign's default sub-campaign
 aleph quest update --campaign <id> --slug <slug> [--name <name>] [--status <status>] [--description <desc>] [--short-description <text>] [--subcampaign <slug>]
+#   --status vocabulary: active|completed|failed|abandoned. A completed quest CAN be reopened
+#   to active (but not sent straight to failed/abandoned). `on_hold` is not a status and is rejected.
 #   --short-description is PLAIN TEXT, max 200 chars, and the quests list shows it IN FULL.
 #   When it is empty the list falls back to an auto-excerpt of --description. Pass "" to clear it.
 aleph quest delete --campaign <id> --slug <slug> [--yes]

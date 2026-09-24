@@ -274,6 +274,13 @@
       "when": 1790232926470,
       "tag": "0038_quest_short_description",
       "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "6",
+      "when": 1790235758730,
+      "tag": "0039_quest_status_vocabulary",
+      "breakpoints": true
     }
   ]
 }
