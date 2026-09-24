@@ -68,8 +68,8 @@
 
 - [x] 7.1 `npm run format:check`, `npx eslint .`, full unit suite — **on Node 25**.
 - [x] 7.2 Integration suite with the server running.
-- [ ] 7.3 Push and confirm all three CI jobs, citing the run id.
-- [ ] 7.4 **Against the live server**: move `el-anillo-de-bodas-robado-a-svetlana` out of its frozen
+- [x] 7.3 Push and confirm all three CI jobs, citing the run id.
+- [x] 7.4 **Against the live server**: move `el-anillo-de-bodas-robado-a-svetlana` out of its frozen
       state and back, proving the incident that motivated this change is actually closed. Re-count
       the status values across the four campaigns and confirm nothing is outside the vocabulary.
-- [ ] 7.5 Bump the `aleph` pin in mago20.
+- [x] 7.5 Bump the `aleph` pin in mago20.
