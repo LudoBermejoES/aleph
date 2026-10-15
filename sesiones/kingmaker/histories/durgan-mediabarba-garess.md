@@ -57,3 +57,9 @@ El día empezó con él a cuatro patas cavando. El tronco de la trampa no estaba
 En el combate marcó con perseguir presa, metió un ballestazo de seis, recargó en movimiento y acabó matando a la presa que había marcado. Se pasó media pelea gritándole avisos a Svetlana hasta que Linzi le corrigió a voces que era en el edificio de al lado, idiota.
 
 Y fue el único que se acordó a tiempo de lo que de verdad importaba. Cuando ya sólo quedaba rematar, sacó a Tark de la casa a tirones gritando que necesitaba prisioneros — sin éxito, porque a Tark lo agarraron de la cabeza y lo echaron atrás. Terminó la sesión arrodillado sobre un caído, aplicándole la medicina de combate que acababa de aprender.
+
+## Sesión del 4 de octubre de 2026 — El puente se cobró el carro
+
+Sin Nali en el grupo, la curación le tocó a él, y la sacó a base de encontrar en su ficha la acción de tratar heridas: dos pruebas superadas, Tark de vuelta a 30 de 38 y doce puntos para Sim Sim con un emplasto que avisó de que iba a escocer. Desde entonces no ha dejado de curar a todo el mundo cada día, y para cuando cruzaron el puente el grupo y el prisionero estaban curados del todo.
+
+Estuvo en el interrogatorio sin participar, fumando una pipa que dejó el cuarto con un humo muy adecuado. Esa noche se ocupó del prisionero como de un paciente —emplastos, cena, que estuviera caliente—, porque tiene que guiarlos. En el viaje montó el campamento, propuso los detalles del cruce del puente para que nadie se quedara atrás si se hundía, y la noche en que todos miraron a Gael a la hora de cocinar, echó sobre la comida fresca las hierbas que peor huelen de su saquito para dar a entender que se había estropeado.

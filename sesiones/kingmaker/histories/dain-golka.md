@@ -51,3 +51,9 @@ En el reparto de posiciones le tocó la tarea de la que depende todo lo demás: 
 Le tocaba la tarea de la que dependía todo —esconderse bajo una tela junto al portón y cerrarlo en cuanto estuvieran todos dentro— y fue justo la que no hizo. Con la sorpresa ya perdida y un bandido al lado, atacó en vez de cerrar, y lo mató de un martillazo. Levantó el escudo y aguantó dos flechas: la primera falló y la segunda dio en el escudo alzado y hizo plank. Flanqueando al siguiente sacó un 19, crítico, diecinueve puntos, y lo mató también.
 
 Sólo cuando ya no quedaba nadie a quien encerrar salió y cerró la puerta, que era lo que tenía que haber hecho al principio. No lo comentó. Terminó la mañana sin un rasguño, igual que casi todos.
+
+## Sesión del 4 de octubre de 2026 — El puente se cobró el carro
+
+Fue el primero en preguntar si convenía ponerse en marcha enseguida, por si venían a buscar a los muertos, y el que preguntó a Durgan si le había quedado claro hacia dónde estaba el campamento. Cuando salieron con el prisionero atado en el carro, le anunció que tendría una oportunidad de redención y se pasó el viaje explicándole cómo ser un elemento provechoso para la sociedad; el hombre suplicaba en voz baja que no lo dejaran con el enano.
+
+Organizó las guardias de la primera noche con éxito. En el puente, una tirada oculta de Artesanía le hizo ver el tramo deteriorado, y el grupo invirtió una hora en reforzarlo bajo su dirección. No bastó para sostener el carro, pero sí para que todo lo demás cruzara.

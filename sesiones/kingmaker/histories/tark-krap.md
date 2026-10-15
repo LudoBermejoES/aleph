@@ -63,3 +63,9 @@ Hizo la guardia de las seis envuelto en una manta, cagándose en todo y dándole
 Salió de debajo de la mesa y pilló al primero desprevenido: once de daño, y el hombre girando como una peonza. Se parapetó detrás del caballo y aun así se llevó doce puntos, el único daño serio de toda la sesión. Respondió con una carga repentina de catorce que mató al segundo. Más tarde reventó de una patada la misma puerta que Sim Sim acababa de cerrar para encerrar a los últimos dos, y remató al que quedaba dentro. El Narrador dijo que el hombre le miraba con ojitos del gato con botas.
 
 «Me como a los gatos.»
+
+## Sesión del 4 de octubre de 2026 — El puente se cobró el carro
+
+Registró a todos los muertos, porque su jefe le prohibió robar pero no robar a los muertos, y sacó poco más que cobres, arcos, dagas y ocho amuletos de plata. Paró a Oleg cuando iba a quemar los cuerpos, porque el fuego se vería; Oleg señaló la nieve. En el interrogatorio miró desde una esquina con una cerveza enorme, y en el festín ofreció las monedas de plata a Oleg, que no las quiso. Achispado, se subió encima de su hermano de puta para cantar y tocarle el pelo.
+
+Camufló el campamento la primera noche y comió de todo lo que cocinó Gael, incluida la cena de la diarrea. Cuando el prisionero, atado, no pudo seguir el ritmo de los demás, fue él quien lo limpió para no dejar rastro, mirando muy mal a Gael, y el hombre se lo agradeció avisándole de cómo cruzar el puente. Tiró él solo del carro sobre el tramo malo con su metro treinta de músculo; el puente cedió, el carro cayó siete metros al río, y él se agarró a la cuerda como Indiana Jones y trepó hasta el otro lado.

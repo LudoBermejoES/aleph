@@ -59,3 +59,9 @@ El plan de la emboscada es suyo casi entero. Interrogó a Oleg y a Svetlana sobr
 Desde el adarve fue el que contó a los que venían: once o doce, con arcos y armadura de cuero, ninguno goblin porque todos eran altos. Cuando el plan se vino abajo por hablar fuera de turno, soltó el canto de estornino de todas formas, aunque ya no sirviera de señal para nada.
 
 Disparó hacia fuera tres veces: la primera entró, la segunda a −4 sacó 17 y mató, la tercera a −10 se quedó en 10. Pero lo que decidió la escena vino después. Cuando el jefe de los bandidos dio media vuelta para escapar, fue su flecha la que lo derribó por la espalda, acertando con 20 y con 16 sobre un hombre que ya corría. Ese cuerpo caído, ni muerto ni vivo del todo, es ahora la única pista que el grupo tiene hacia el campamento. Cerró su parte gastando un golpe seguro para liquidar al último que quedaba fuera.
+
+## Sesión del 4 de octubre de 2026 — El puente se cobró el carro
+
+Se colgó uno de los amuletos de plata de los bandidos antes de entrar al interrogatorio, con Gael encantando al prisionero, e hizo de poli malo mirándolo con cara de mala hostia. Fue quien le preguntó por el anillo de Svetlana: el hombre no lo sabía, pero sí que, si existe, lo tiene Kressle, la jefa.
+
+En el festín tocó el laúd con Linzi, se mantuvo sobrio porque no se fía de nadie, y cuando Oleg preguntó si pretendían conquistar las Tierras Robadas, se presentó como Laughlin Lodovka y contestó como contestan los nobles, de forma que valiera como sí y como no. Svetlana vio la maniobra: sabe que los Lodovka están en una isla y no pueden mandar tropas, y aun así sospecha que el grupo guarda una carta en la manga. Cantó en el campamento la primera noche y, tras la cena de Gael, tomó nota de no hacerle testamento a quien le envenena.

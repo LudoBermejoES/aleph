@@ -53,3 +53,9 @@ En el plan de la emboscada le tocó el establo y el objetivo más concreto de to
 Su puesto era el establo y su objetivo el conductor del carro, porque quien conduce sabe de dónde viene. Con el plan ya roto se dedicó a lo que mejor sabe hacer: salir, pegar y volver a meterse detrás de la puerta. Cinco de daño la primera vez, otros cinco y un fallo la segunda.
 
 Cuando entró donde quedaban dos, atacó deliberadamente para dejarlos inconscientes y no matarlos, y cuando el Narrador dio la muerte por hecha fue el grupo entero el que insistió en que no, que quedaban vivos. Cerró la puerta para dejarlos encerrados — y Tark se la reventó de una patada poco después. Salió de la mañana con cinco puntos de daño, el segundo más tocado de los siete, que en esta sesión no es decir gran cosa.
+
+## Sesión del 4 de octubre de 2026 — El puente se cobró el carro
+
+Se agachó junto a cada muerto del patio y les dijo, en su idioma, que el cuerpo había cumplido su propósito, que la disciplina y el conocimiento permanecían y que el camino continuaba. Le tocó un emplasto de Durgan por los cinco puntos del combate —doce recuperados, y la advertencia de que iba a escocer, que despachó diciendo que estaba entrenado para el dolor—. Salió de la habitación cuando empezó el interrogatorio, porque sus principios no le dejan estar.
+
+En el festín de Svetlana se resistió al licor de arroz lo justo y acabó bebiéndose una botella entera sin que se le notara: un borracho funcional, con técnica para ello. A la mañana siguiente estaba en el patio haciendo sus ejercicios bajo la lluvia como si no tuviera resaca. En el puente fue el primero en cruzar, a saltitos, como si pesara lo que una pluma.

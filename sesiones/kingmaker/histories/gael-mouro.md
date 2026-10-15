@@ -59,3 +59,9 @@ En la planificación fue el que empujó por evitar el combate del todo: si se le
 Le tocó la peor mano de la sesión: escondido arriba entre las catapultas rotas, con los bandidos a ochenta o noventa pies y unos conjuros que llegan a treinta o sesenta. Es decir, fuera de alcance de principio a fin.
 
 Lo resolvió como pudo. Lanzó una ilusión fantasmal de un orco grande con hacha a dos manos y cara de asesino, puesta ahí para que le dispararan a ella en vez de a los que estaban abajo. El único conjuro que llegó a tocar a alguien, un arco eléctrico, se lo salvó el bandido con un 20 natural. Cuando intentó bajar saltando por las cajas sacó 11 en Acrobacias contra una dificultad de 12, y se cayó sin hacerse nada y sin turno — aunque el Narrador le concedió caer con muchísima elegancia, porque carisma le sobra. Cuando le preguntaron si había recibido daño, la respuesta fue en la dignidad.
+
+## Sesión del 4 de octubre de 2026 — El puente se cobró el carro
+
+Comprobó con detectar magia que los ocho amuletos de plata de los bandidos no tienen ninguna. En el interrogatorio hizo de poli bueno con magia: un polvo feérico para bajarle la voluntad al prisionero y después un hechizo de encantamiento que el hombre no resistió. Desde entonces lo mira con una fascinación algo inquietante y le contó a él dónde está el campamento, cuántos son y que la jefa se llama Kressle.
+
+En el festín se puso en pie con un pie en el banco, alzó la copa y proclamó «derechos de conquista, mi señor», y aún le quedó dignidad para arrastrarse a una cama. Se puso una de las capas de los bandidos tras limpiarla con un truco. Cocinó las dos primeras noches: la primera, comida insípida; la segunda, otro uno natural, pifia, y diarrea para todo el que comió, él incluido. Cuando le tocó ocuparse del prisionero, dejó claro que el hechicero no limpia.
