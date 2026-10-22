@@ -89,3 +89,11 @@ Se mantuvo un par de pasos por detrás durante casi toda la conversación con la
 Lo que contaron los cuatro Verbena lo explica todo lo que a él le ha costado años: hace treinta años la tormenta cerró los senderos y entrar en la Penumbra pasó a ser prácticamente imposible —cada día al otro lado se pierde esencia, y a los diez días se muere—, de modo que su maestría de Espíritu nunca ha servido para pasear por la Umbra sino para ayudar a los que se quedan atrapados y llevarlos donde deben ir. Lo del hotel fue vía astral; a la Umbra cercana no han entrado nunca.
 
 Eso es lo que acaba de cambiar. Las sendas de los Wyck volvieron a brotar hace menos de una luna, Horizonte vuelve a ser alcanzable, y **él es el único de la cábala que podría llevarlos**. Nunca le ha interesado. Además, Julia le ha reservado un segundo encargo: el ritual de Tiempo y Espíritu, en Roma, para averiguar cuál de ellos estuvo con Liandra hace seiscientos años.
+
+## Sesión del 15 de octubre de 2026 — La información tiene que ser libre
+
+Fue suyo el argumento que les ahorró un desaire: presentarse a medianoche ante unos magos confucianistas, para quienes toda palabra pesa, era mala idea, así que la cita con los Wu Lung quedó para la mañana siguiente.
+
+Se quedó fuera del ritual de Julia, y su trabajo llegó después. Cuando apareció V10 fue el primero en acercarse con el diagnóstico medio hecho —«creo que el que tiene el mal de la Umbra y necesita ayuda es usted»— y, pidiendo permiso primero, lo examinó con Espíritu y Cardinal. Lo que vio: el patrón de vida, el espiritual y el cardinal del adepto virtual entremezclados y destruyéndose mutuamente, con la vida muy por debajo de lo demás, como si se hubiera invertido en espíritu.
+
+Sabe lo que es —la disolución de quien pasa demasiado tiempo fuera de la Tierra, que normalmente mata en un par de semanas— y sabe que no cuadra: este hombre ha aguantado veinte años sin medidas de protección y nadie entiende cómo. Puede investigar si hay forma de revertirlo, pero no es su especialidad: la suya es llevar a los espíritus atrapados donde deben ir, no retener a los vivos que se deshacen.

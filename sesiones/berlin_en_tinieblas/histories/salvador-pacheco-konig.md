@@ -57,3 +57,13 @@ Fue el que peor disimuló el entusiasmo. Se subió encima de las plantas del inv
 Aportó dos cosas. La primera, descartar lo del río levantando la mano como en el colegio: si los sacrificios de la ribera del Spree bastaban para abrir los caminos, ¿no sería esto cosa de un conejo? La respuesta de Babatunde Adéwálé fue seca — si sólo hiciera falta sacrificio de carne y sangre, los Verbena lo habrían hecho hace mucho tiempo. La segunda fue explicarle a la india qué son los Hijos del Éter cuando ella lo confundió con la Orden de la Razón, y ahí la perdió: magos que creen en la imaginación por encima de la observación de la realidad, bla, bla, bla, mientras ella intentaba con el otro ojo enterarse de lo que estaba pasando de verdad.
 
 Salió de allí con una idea fija: quiere aprender a caminar de lado. Vio al Cuentasueños dar un paso hacia el cristal del invernadero y desaparecer, sin portal ni aparato de por medio, y no le ha hecho ninguna gracia que eso se haga de frente y no de lado.
+
+## Sesión del 15 de octubre de 2026 — La información tiene que ser libre
+
+Entró en el ritual de Julia como guía, no como pasajero: la idea era que él viera en directo el pasado del edificio y le fuera diciendo dónde mirar, porque hay cosas de la cábala anterior que ella no sabría interpretar. Se preparó a su manera, en su propio taller — rock sinfónico que cambió a _Kung Fu Fighting_ en cuanto vio las katas, privación sensorial, una silla cómoda y un cuadradito de LSD.
+
+Le costó caro. La guarda del pasado lo alcanzó de rebote siendo un simple acompañante —«de come paradojas», dijo— y las extremidades se le empezaron a convertir en piedra hasta que Roland se lo revirtió. Salió de ahí con dolores viejos curados y los pendientes caídos porque se le cerraron los agujeros.
+
+Lo que sí sacó es el nombre que buscaban. Las guardas encajan con **Thomas Lacan**, con el que se llevaba mejor que con nadie de aquella cábala: matemático teórico, Hijo del Éter de los que la Hermandad no documenta, especializado solo en Correspondencia, Tiempo y Vida —nada de Materia—, aficionado a la geometría sagrada, y el que le enseñó a tomar LSD con precaución tomándose él dos pastillas mientras a Salvador le daba un cuartito. Fue quien le salvó la vida metiéndolo en el tubo. De las dos compañeras sabe lo que pasó; de él no.
+
+También confirmó que en la capilla había varios nodos que él nunca llegó a conocer por haber entrado el último, y que uno tiene un cable por debajo del río que exige Cardinal 4 para moverlo.

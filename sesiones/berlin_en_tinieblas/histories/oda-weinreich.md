@@ -53,3 +53,9 @@ Mientras el resto se adelantaba a saludar, ella se quedó atrás contemplando el
 Muireann Nic Aodha se le acercó con una rapidez que no encajaba con su cuerpo, le agarró la mano, se la olió y después se la lamió. «Huele a... debería estar aquí.» Cuando preguntó qué escondía la niña, fue Julia quien contestó que sus secretos son suyos y le pasó un trapo para que se limpiara. Uyaraq Kaleak cortó a la vieja y lo reformuló de la única manera que a Oda se le va a quedar grabada: que ella es el tambor que está haciendo vibrar el mundo, y que ni siquiera sabe por qué lo está haciendo. Las hebras del destino se enlazan con Roland y con ella, pero sobre todo con ella.
 
 Sigue siendo una huérfana que no ha elegido tradición: está empapándose de todas y ya decidirá si sobrevive a esto. Julia es lo más parecido a una mentora que tiene, y se fía más de ella que de Roland sin saber del todo por qué. La Convocación quiere que esté sentada a la mesa de Horizonte junto a Liandra.
+
+## Sesión del 15 de octubre de 2026 — La información tiene que ser libre
+
+Se quedó fuera del ritual y acabó siendo la que lo desatascó. Cuando la guarda del pasado empezó a convertir en piedra las manos de Julia y Salvador, sacó sus dos inyecciones de adrenalina pura, las miró, y en vez de clavarlas se las lanzó con estilo acásico — lo que le valió a Roland un éxito automático para el efecto de Vida que les revirtió la petrificación. Después pidió recuperar las jeringuillas y se encontró con que se habían caído solas.
+
+Con V10 fue directamente a lo que le interesa. Le pidió permiso para tomarle muestras de piel y de sangre, no para clonarlo —él se ofreció, pidiendo que el clon fuera más joven que él— sino para ver cómo le ha alterado el ADN pasar veinte años fuera. Se las dio al momento, con su frase de siempre: la información tiene que ser libre.

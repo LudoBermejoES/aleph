@@ -55,3 +55,11 @@ Empezó la noche recibiendo lo contrario de un saludo. Joseph Fries apartó a Ar
 Preguntó dos cosas que valen por sí solas. Una, cómo se detecta si alguien tiene el Avatar despierto: fácil si lleva Quintaesencia encima, porque entonces es un artículo de feria echando chispas, y muy difícil si tiene Cardinal, Espíritu o Arcano para ocultarse. Otra, directamente a la Convocación, qué hacían aquí tan lejos de su hábitat y si podían ayudarles en algo — y ahí casi la lía, porque entre la Orden de Hermes y los Verbena queda el resquemor de cuando los herméticos declararon infernalistas a media tradición e intentaron matarlos a todos. Probó con el argumentario de que aquello fueron otros tiempos y se llevó la réplica: «Jovencito, yo viví esa época.»
 
 Es también quien ha puesto sobre la mesa que, si aprecian su vida, no van a querer ir a Horizonte.
+
+## Sesión del 15 de octubre de 2026 — La información tiene que ser libre
+
+Pasó la noche arriba, ocupado en lo suyo: trasladar su sanctum a la capilla, libros, ordenador y despacho incluidos, con la advertencia del Narrador de que un mago solo tiene un sanctum, de modo que mudarlo significa que el otro deja de serlo. Está en proceso.
+
+Bajó tarde, con la taza de té y el agua ya fría, y se encontró de frente a un desconocido que le tendió la mano acercándose demasiado. Le preguntó quién era y recibió la presentación entera: V10, adepto virtual, amigo de la antigua cábala de la casa. Philip aún no lo había visto; a él ese hombre le tocaba conocerlo esta noche.
+
+Se llevó además la última frase de la sesión, que no iba dirigida a él sino sobre él: V10 se volvió hacia Roland para preguntarle, ya que tiene pinta de tener buen olfato, por qué huele a perro ese hermético. Philip, que estaba siendo civilizado y acababa de ofrecerle té, lo miró con mucho odio.
