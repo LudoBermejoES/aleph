@@ -63,3 +63,13 @@ Pasó la noche arriba, ocupado en lo suyo: trasladar su sanctum a la capilla, li
 Bajó tarde, con la taza de té y el agua ya fría, y se encontró de frente a un desconocido que le tendió la mano acercándose demasiado. Le preguntó quién era y recibió la presentación entera: V10, adepto virtual, amigo de la antigua cábala de la casa. Philip aún no lo había visto; a él ese hombre le tocaba conocerlo esta noche.
 
 Se llevó además la última frase de la sesión, que no iba dirigida a él sino sobre él: V10 se volvió hacia Roland para preguntarle, ya que tiene pinta de tener buen olfato, por qué huele a perro ese hermético. Philip, que estaba siendo civilizado y acababa de ofrecerle té, lo miró con mucho odio.
+
+## Sesión del 22 de octubre de 2026 — Hemos venido a escuchar a la cábala sin nombre
+
+La noche empezó con la pregunta de V10 todavía en el aire —por qué huele a perro ese hermético— y la respuesta resultó ser mundana: el adepto virtual reconoce el olor porque una loba se juntó con él. Philip se ofreció a ayudarle a buscar a su familia desaparecida y V10 declinó, diciendo que ya tenían bastante con el concilio y con lo de ir a Horizonte.
+
+A las cuatro y treinta y tres de la madrugada colocó la última pieza: **su cuarto es ya el sanctum de la casa**. Bajó a desayunar con cara de cansado.
+
+El Narrador resolvió con un dado de diez la cuestión de su novia garú: le tocaba descendencia de uno a siete y sacó un nueve. No hay parentela. La consecuencia la paga él: el viejo de la manada está cabreado, y ya hay quien murmura por la noche que igual este no puede.
+
+Para los Wu Lung le costó elegir —es muy suyo con su biblioteca— y acabó llevando un libro. No llegó a entregarlo: la sesión terminó antes.

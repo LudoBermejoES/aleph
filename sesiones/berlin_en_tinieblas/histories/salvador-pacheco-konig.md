@@ -67,3 +67,13 @@ Le costó caro. La guarda del pasado lo alcanzó de rebote siendo un simple acom
 Lo que sí sacó es el nombre que buscaban. Las guardas encajan con **Thomas Lacan**, con el que se llevaba mejor que con nadie de aquella cábala: matemático teórico, Hijo del Éter de los que la Hermandad no documenta, especializado solo en Correspondencia, Tiempo y Vida —nada de Materia—, aficionado a la geometría sagrada, y el que le enseñó a tomar LSD con precaución tomándose él dos pastillas mientras a Salvador le daba un cuartito. Fue quien le salvó la vida metiéndolo en el tubo. De las dos compañeras sabe lo que pasó; de él no.
 
 También confirmó que en la capilla había varios nodos que él nunca llegó a conocer por haber entrado el último, y que uno tiene un cable por debajo del río que exige Cardinal 4 para moverlo.
+
+## Sesión del 22 de octubre de 2026 — Hemos venido a escuchar a la cábala sin nombre
+
+Le propuso a V10 lo evidente —hoy hay almacenamiento de sobra, que se haga una copia de seguridad— y recibió la respuesta de quien ya lo ha pensado: está demasiado corrupto, absolutamente destrozado por dentro. A cambio se llevó el mejor regalo de la noche: V10 le dejó en el ordenador que ya tenía hackeado **los planos de una sala de hologramas con materia**, de las de Star Trek, que ha pasado veinticinco años mejorando. Ahí se toca lo que se ve, y lo importante es que pasa por mundana — sobre todo porque la tecnología de hoy va muy por delante de la que él conoció. Se acostó tarde dándole vueltas y cree que puede construirla: una sala del peligro para entrenar a la unidad especial de Otto.
+
+También le dio un consejo que no coló: «no toda la información tiene que ser libre, y a veces sobra». Respuesta: «eso es mentira».
+
+Por la mañana se levantó a cocinar con Raffela Diemer, que ha descubierto que se le da bien además de matar magos: desayuno inglés mezclado con alemán, cerveza por alguna razón, y tortilla de patatas. Apareció en calzoncillos y bata roja mientras Julia hacía katas.
+
+Para los Wu Lung construyó con sus propias manos una arrocera con la receta de la paella escrita a mano en alemán, español e inglés, porque no se fía de traducir al chino con una máquina. La entregó corriendo, en una caja de cartón reblandecida por la humedad, con la mujer de mirada severa levantando una ceja hasta donde no llegan las cejas. Xu Wanqing la aceptó sin asomo de burla —«tener un objeto que ha hecho un artesano siempre es una bendición»— y pronunció «paella» perfectamente.

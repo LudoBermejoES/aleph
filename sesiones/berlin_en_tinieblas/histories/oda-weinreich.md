@@ -59,3 +59,11 @@ Sigue siendo una huérfana que no ha elegido tradición: está empapándose de t
 Se quedó fuera del ritual y acabó siendo la que lo desatascó. Cuando la guarda del pasado empezó a convertir en piedra las manos de Julia y Salvador, sacó sus dos inyecciones de adrenalina pura, las miró, y en vez de clavarlas se las lanzó con estilo acásico — lo que le valió a Roland un éxito automático para el efecto de Vida que les revirtió la petrificación. Después pidió recuperar las jeringuillas y se encontró con que se habían caído solas.
 
 Con V10 fue directamente a lo que le interesa. Le pidió permiso para tomarle muestras de piel y de sangre, no para clonarlo —él se ofreció, pidiendo que el clon fuera más joven que él— sino para ver cómo le ha alterado el ADN pasar veintiocho años fuera. Se las dio al momento, con su frase de siempre: la información tiene que ser libre.
+
+## Sesión del 22 de octubre de 2026 — Hemos venido a escuchar a la cábala sin nombre
+
+Antes de acostarse bajó al laboratorio que le paga Julia con las muestras de piel y sangre de V10. Quiso congelarlas y le explicaron que el nitrógeno líquido destruiría el tejido, así que las dejó a veinte grados bajo cero. Y ahí descubrió algo de sí misma: mirando las dos placas de Petri le llegó un pálpito sin usar aparato ninguno — aquello se está degenerando y no le queda mucho tiempo. Es Entropía 1 junto con Vida, y es la primera vez que lo nota sin un cacharro de por medio.
+
+Para los Wu Lung escogió dos regalos: un microscopio de 1892 que se compró con su primer sueldo de becaria en un mercadillo, y un cerezo de hojas rojas que ha sacado alterando semillas en los ratos en que no la sacaban a abrir la Umbra.
+
+En el gimnasio fue ella quien leyó a Xu Wanqing. Cuatro éxitos en Percepción más Empatía a dificultad 7 bastaron para ver lo que la mujer estaba conteniendo cuando Julia le presentó el pergamino de su maestro: lágrimas. También pidió permiso para llevarse una muestra de las manchas de sangre del tatami, las del ataque al maestro de Julia.

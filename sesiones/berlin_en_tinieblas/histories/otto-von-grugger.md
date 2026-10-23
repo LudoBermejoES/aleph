@@ -97,3 +97,13 @@ Fue suyo el argumento que les ahorró un desaire: presentarse a medianoche ante 
 Se quedó fuera del ritual de Julia, y su trabajo llegó después. Cuando apareció V10 fue el primero en acercarse con el diagnóstico medio hecho —«creo que el que tiene el mal de la Umbra y necesita ayuda es usted»— y, pidiendo permiso primero, lo examinó con Espíritu y Cardinal. Lo que vio: el patrón de vida, el espiritual y el cardinal del adepto virtual entremezclados y destruyéndose mutuamente, con la vida muy por debajo de lo demás, como si se hubiera invertido en espíritu.
 
 Sabe lo que es —la disolución de quien pasa demasiado tiempo fuera de la Tierra, que normalmente mata en un par de semanas— y sabe que no cuadra: este hombre ha aguantado veintiocho años sin medidas de protección y nadie entiende cómo. Puede investigar si hay forma de revertirlo, pero no es su especialidad: la suya es llevar a los espíritus atrapados donde deben ir, no retener a los vivos que se deshacen.
+
+## Sesión del 22 de octubre de 2026 — Hemos venido a escuchar a la cábala sin nombre
+
+Escuchó a V10 contar lo que le queda fuera de la Red y no es poco: una mujer garú, seis hijos a los que nombró con los buscadores que había cuando entró —Altavista, Lycos, Google, Terra— y que se cambiaron los nombres al crecer, y los siete desaparecidos. Lleva setenta y dos horas sin dormir buscándolos en todas las cámaras del mundo. Él mismo les enseñó en su día a esconderse para que no los localizaran con un hechizo.
+
+Se ofreció a estudiar su caso, que es lo que puede hacer: la disolución del que pasa demasiado tiempo fuera no es su especialidad, pero algo podrá investigar.
+
+El Narrador se acordó de que no ha vuelto a hablar con la loba de hace unos meses y lo resolvió con un dado de diez. Se salvó.
+
+Para los Wu Lung eligió un incensario viejo de la zona de su tradición, impregnado de los aromas de los rituales en que se ha usado — no contiene magia, pero cualquier mago nota que ha servido para ella. En el gimnasio fue un paso por detrás de Julia todo el rato, por protocolo: ella es la representante y es medio asiática. No llegó a entregar su regalo: la sesión terminó con el de Julia y el de Salvador.
