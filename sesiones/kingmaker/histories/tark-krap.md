@@ -69,3 +69,9 @@ Salió de debajo de la mesa y pilló al primero desprevenido: once de daño, y e
 Registró a todos los muertos, porque su jefe le prohibió robar pero no robar a los muertos, y sacó poco más que cobres, arcos, dagas y ocho amuletos de plata. Paró a Oleg cuando iba a quemar los cuerpos, porque el fuego se vería; Oleg señaló la nieve. En el interrogatorio miró desde una esquina con una cerveza enorme, y en el festín ofreció las monedas de plata a Oleg, que no las quiso. Achispado, se subió encima de su hermano de puta para cantar y tocarle el pelo.
 
 Camufló el campamento la primera noche y comió de todo lo que cocinó Gael, incluida la cena de la diarrea. Cuando el prisionero, atado, no pudo seguir el ritmo de los demás, fue él quien lo limpió para no dejar rastro, mirando muy mal a Gael, y el hombre se lo agradeció avisándole de cómo cruzar el puente. Tiró él solo del carro sobre el tramo malo con su metro treinta de músculo; el puente cedió, el carro cayó siete metros al río, y él se agarró a la cuerda como Indiana Jones y trepó hasta el otro lado.
+
+## Sesión del 11 de octubre de 2026 — Nos va a matar la comida, no los enemigos
+
+Salió del ataque nocturno sin armadura, hacha en mano, y con un diecinueve en intimidación dejó asustado al bandido más cercano; los dos flechazos que le tiraron fallaron. Remató al tercer bandido con una carga repentina, partiéndole la cabeza en dos, y saqueó a los muertos: doce monedas de plata y tres amuletos más.
+
+Acompañó a Durgan como explorador por ser el más discreto, pequeño y sin metal, y organizó las guardias del pequeño campamento. Los dos encontraron el campamento de Kressle. Al volver, sin raciones, cocinó él, que sí tiene supervivencia entrenada, y sacó un uno. Se lavó con su pastillita aprovechando el vendaval.

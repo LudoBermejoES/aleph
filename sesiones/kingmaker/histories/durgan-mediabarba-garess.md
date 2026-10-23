@@ -63,3 +63,9 @@ Y fue el único que se acordó a tiempo de lo que de verdad importaba. Cuando ya
 Sin Nali en el grupo, la curación le tocó a él, y la sacó a base de encontrar en su ficha la acción de tratar heridas: dos pruebas superadas, Tark de vuelta a 30 de 38 y doce puntos para Sim Sim con un emplasto que avisó de que iba a escocer. Desde entonces no ha dejado de curar a todo el mundo cada día, y para cuando cruzaron el puente el grupo y el prisionero estaban curados del todo.
 
 Estuvo en el interrogatorio sin participar, fumando una pipa que dejó el cuarto con un humo muy adecuado. Esa noche se ocupó del prisionero como de un paciente —emplastos, cena, que estuviera caliente—, porque tiene que guiarlos. En el viaje montó el campamento, propuso los detalles del cruce del puente para que nadie se quedara atrás si se hundía, y la noche en que todos miraron a Gael a la hora de cocinar, echó sobre la comida fresca las hierbas que peor huelen de su saquito para dar a entender que se había estropeado.
+
+## Sesión del 11 de octubre de 2026 — Nos va a matar la comida, no los enemigos
+
+En el ataque nocturno sacó el martillo ligero —también lleva una sartén— y avanzó hacia un arquero sin la cota de malla, que no le dio tiempo a ponerse. Luego se ofreció como explorador y fue río arriba con Tark: un día de ida, otro para explorar, otro de vuelta. Comió raciones y estuvo bien mientras el resto se intoxicaba.
+
+Encontró el campamento de Kressle siguiendo las indicaciones del prisionero, que resultaron buenas: tres plataformas con vigías, cuatro bandidos abajo y la jefa junto a la hoguera. Sobrevivió al vendaval con un dieciocho en Supervivencia, salió a cazar cuando se acabaron las raciones, y en la víspera propuso el plan: atraerlos con proyectiles desde los árboles, esperar a cubierto con los de cuerpo a cuerpo, retrasar acciones y flanquear. Es el único sanador del grupo mientras falte Nali.

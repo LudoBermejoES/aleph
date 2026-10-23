@@ -65,3 +65,9 @@ Disparó hacia fuera tres veces: la primera entró, la segunda a −4 sacó 17 y
 Se colgó uno de los amuletos de plata de los bandidos antes de entrar al interrogatorio, con Gael encantando al prisionero, e hizo de poli malo mirándolo con cara de mala hostia. Fue quien le preguntó por el anillo de Svetlana: el hombre no lo sabía, pero sí que, si existe, lo tiene Kressle, la jefa.
 
 En el festín tocó el laúd con Linzi, se mantuvo sobrio porque no se fía de nadie, y cuando Oleg preguntó si pretendían conquistar las Tierras Robadas, se presentó como Laughlin Lodovka y contestó como contestan los nobles, de forma que valiera como sí y como no. Svetlana vio la maniobra: sabe que los Lodovka están en una isla y no pueden mandar tropas, y aun así sospecha que el grupo guarda una carta en la manga. Cantó en el campamento la primera noche y, tras la cena de Gael, tomó nota de no hacerle testamento a quien le envenena.
+
+## Sesión del 11 de octubre de 2026 — Nos va a matar la comida, no los enemigos
+
+Sacó un crítico en su actuación de la primera noche, que dejó un bonificador para el grupo, y se ofreció como el estómago más fino; no consiguió mantenerse despierto y durmió el ataque entero. Sim Sim tuvo que despertarlo, y no llegó a actuar.
+
+Mientras Durgan y Tark exploraban, recorrió la zona con el resto: un río con pesca abundante y un bosque al norte, el mejor sitio que han visto desde que salieron, y el único en el que se ha sentido cómodo, criado como está junto al comercio fluvial. Insistió en ir deprisa para conseguir antes los derechos de conquista. Le tocó cocinar una noche y sacó un uno.

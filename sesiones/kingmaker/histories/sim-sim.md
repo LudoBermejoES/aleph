@@ -59,3 +59,9 @@ Cuando entró donde quedaban dos, atacó deliberadamente para dejarlos inconscie
 Se agachó junto a cada muerto del patio y les dijo, en su idioma, que el cuerpo había cumplido su propósito, que la disciplina y el conocimiento permanecían y que el camino continuaba. Le tocó un emplasto de Durgan por los cinco puntos del combate —doce recuperados, y la advertencia de que iba a escocer, que despachó diciendo que estaba entrenado para el dolor—. Salió de la habitación cuando empezó el interrogatorio, porque sus principios no le dejan estar.
 
 En el festín de Svetlana se resistió al licor de arroz lo justo y acabó bebiéndose una botella entera sin que se le notara: un borracho funcional, con técnica para ello. A la mañana siguiente estaba en el patio haciendo sus ejercicios bajo la lluvia como si no tuviera resaca. En el puente fue el primero en cruzar, a saltitos, como si pesara lo que una pluma.
+
+## Sesión del 11 de octubre de 2026 — Nos va a matar la comida, no los enemigos
+
+Se ofreció a cocinar la primera noche al otro lado del río, convencido de que tenía la supervivencia entrenada; no la tenía, y la cena salió con un fallo crítico. A las tres de la madrugada fue el primero en despertarse cuando Linzi dio la alarma: despertó a Laughlin, se asomó, contó tres atacantes y se puso a cubierto gritando «¡arqueros!». Después echó a correr, se impulsó en el hombro de Durgan y, en una ráfaga de golpes, falló el primero y mató al segundo bandido con el otro, desde dos metros de altura.
+
+Pasó la semana como todos, indispuesto, y en el reparto de tareas del campamento no pudo organizar guardias ni camuflar: no tiene la pericia necesaria. En la víspera del asalto recordó que puede curar, aunque solo una vez.

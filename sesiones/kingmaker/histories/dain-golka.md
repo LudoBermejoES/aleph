@@ -57,3 +57,9 @@ Sólo cuando ya no quedaba nadie a quien encerrar salió y cerró la puerta, que
 Fue el primero en preguntar si convenía ponerse en marcha enseguida, por si venían a buscar a los muertos, y el que preguntó a Durgan si le había quedado claro hacia dónde estaba el campamento. Cuando salieron con el prisionero atado en el carro, le anunció que tendría una oportunidad de redención y se pasó el viaje explicándole cómo ser un elemento provechoso para la sociedad; el hombre suplicaba en voz baja que no lo dejaran con el enano.
 
 Organizó las guardias de la primera noche con éxito. En el puente, una tirada oculta de Artesanía le hizo ver el tramo deteriorado, y el grupo invirtió una hora en reforzarlo bajo su dirección. No bastó para sostener el carro, pero sí para que todo lo demás cruzara.
+
+## Sesión del 11 de octubre de 2026 — Nos va a matar la comida, no los enemigos
+
+Se unió al grupo después del ataque nocturno, cuando ya estaba resuelto. Montó el campamento grande, organizó las guardias —una de ellas con un crítico— y propuso cartografiar la zona: poco más que espacio y un puente medio caído pero reparable. Esa noche la comida salió sólo normal, la primera sin consecuencias en una semana.
+
+En el vendaval sacó un dieciocho en Supervivencia y encontró refugio para su grupo. En la víspera del asalto, con su escudo, es uno de los dos que recibirán primero.

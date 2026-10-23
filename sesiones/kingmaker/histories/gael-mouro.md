@@ -65,3 +65,9 @@ Lo resolvió como pudo. Lanzó una ilusión fantasmal de un orco grande con hach
 Comprobó con detectar magia que los ocho amuletos de plata de los bandidos no tienen ninguna. En el interrogatorio hizo de poli bueno con magia: un polvo feérico para bajarle la voluntad al prisionero y después un hechizo de encantamiento que el hombre no resistió. Desde entonces lo mira con una fascinación algo inquietante y le contó a él dónde está el campamento, cuántos son y que la jefa se llama Kressle.
 
 En el festín se puso en pie con un pie en el banco, alzó la copa y proclamó «derechos de conquista, mi señor», y aún le quedó dignidad para arrastrarse a una cama. Se puso una de las capas de los bandidos tras limpiarla con un truco. Cocinó las dos primeras noches: la primera, comida insípida; la segunda, otro uno natural, pifia, y diarrea para todo el que comió, él incluido. Cuando le tocó ocuparse del prisionero, dejó claro que el hechicero no limpia.
+
+## Sesión del 11 de octubre de 2026 — Nos va a matar la comida, no los enemigos
+
+Lo despertó un ataque a las tres de la madrugada y salió más molesto por eso que porque intentaran matarle. Plantó los pies, concentró la humedad del aire entre las manos y estrenó el empujón hidráulico: veintidós para impactar, once de daño, y un cañón de agua que mató a uno de los tres bandidos.
+
+En el campamento grande no pudo ocupar ninguna casilla por falta de pericias y contó una historia que no salió demasiado bien. Ha prometido aprender algo útil en la próxima subida de nivel. Cuando se acabaron las raciones, todos lo miraron; él ya estaba limpiando las cacerolas.
