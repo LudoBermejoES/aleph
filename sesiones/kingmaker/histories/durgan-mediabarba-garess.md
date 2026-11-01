@@ -69,3 +69,11 @@ Estuvo en el interrogatorio sin participar, fumando una pipa que dejó el cuarto
 En el ataque nocturno sacó el martillo ligero —también lleva una sartén— y avanzó hacia un arquero sin la cota de malla, que no le dio tiempo a ponerse. Luego se ofreció como explorador y fue río arriba con Tark: un día de ida, otro para explorar, otro de vuelta. Comió raciones y estuvo bien mientras el resto se intoxicaba.
 
 Encontró el campamento de Kressle siguiendo las indicaciones del prisionero, que resultaron buenas: tres plataformas con vigías, cuatro bandidos abajo y la jefa junto a la hoguera. Sobrevivió al vendaval con un dieciocho en Supervivencia, salió a cazar cuando se acabaron las raciones, y en la víspera propuso el plan: atraerlos con proyectiles desde los árboles, esperar a cubierto con los de cuerpo a cuerpo, retrasar acciones y flanquear. Es el único sanador del grupo mientras falte Nali.
+
+## Sesión del 25 de octubre de 2026 — Se ha emocionado, que es muy goblin
+
+Con Tark, por ser los dos que habían explorado el campamento, le tocó decidir por dónde entraban: la esquina sur, con los arqueros delante y el resto detrás. Avisó de que dejar huir a nadie era mala idea porque podían avisar en el otro campamento.
+
+En combate trabajó la ballesta como debe: fijar presa sobre un objetivo, disparar, y moverse a cubierto para recargar con su habilidad, lo que le costó un par de turnos de ir y venir hasta encontrar un sitio con cobertura de verdad. Falló más de lo que acertó. Nali le pasó orientación dos veces.
+
+Fue él quien, terminado el combate, empezó a sacarle al prisionero lo que de verdad importaba: que el campamento del Señor de las Astas es un fuerte y no un claro, que no se entra como allí, que hay contraseña, y que había un tipo encerrado en un sótano. Preguntó también por los caballos —no hay— y por si el licor lo llevaban ellos o venían a recogerlo. Vienen a recogerlo.

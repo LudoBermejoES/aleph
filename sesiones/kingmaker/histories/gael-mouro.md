@@ -71,3 +71,11 @@ En el festín se puso en pie con un pie en el banco, alzó la copa y proclamó �
 Lo despertó un ataque a las tres de la madrugada y salió más molesto por eso que porque intentaran matarle. Plantó los pies, concentró la humedad del aire entre las manos y estrenó el empujón hidráulico: veintidós para impactar, once de daño, y un cañón de agua que mató a uno de los tres bandidos.
 
 En el campamento grande no pudo ocupar ninguna casilla por falta de pericias y contó una historia que no salió demasiado bien. Ha prometido aprender algo útil en la próxima subida de nivel. Cuando se acabaron las raciones, todos lo miraron; él ya estaba limpiando las cacerolas.
+
+## Sesión del 25 de octubre de 2026 — Se ha emocionado, que es muy goblin
+
+Abrió el combate con lo mejor que ha hecho hasta ahora. Concentró en las manos la lluvia que estaba cayendo y lanzó un empujón hidráulico contra el arquero de la torre: veinticuatro, crítico, seis de daño contundente y diez metros de empujón. El bandido salió disparado desde lo alto y no se levantó.
+
+El resto del combate lo pasó gastando hechizos de nivel uno de los cuatro que tiene, moviéndose entre los árboles para encontrar línea de visión y levantando el escudo —que lleva por ser lo único que le permite el juego, no por saber usarlo— cuando un bandido gritó «coño, un mago» y le acertó. Le quitaron tres puntos de vida, que Nali le devolvió después apoyándolo contra un tronco.
+
+Del botín, lo único que le llamó la atención fue la tienda de buena calidad, con la idea de poder dormir un poco mejor.

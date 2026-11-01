@@ -71,3 +71,11 @@ En el festín tocó el laúd con Linzi, se mantuvo sobrio porque no se fía de n
 Sacó un crítico en su actuación de la primera noche, que dejó un bonificador para el grupo, y se ofreció como el estómago más fino; no consiguió mantenerse despierto y durmió el ataque entero. Sim Sim tuvo que despertarlo, y no llegó a actuar.
 
 Mientras Durgan y Tark exploraban, recorrió la zona con el resto: un río con pesca abundante y un bosque al norte, el mejor sitio que han visto desde que salieron, y el único en el que se ha sentido cómodo, criado como está junto al comercio fluvial. Insistió en ir deprisa para conseguir antes los derechos de conquista. Le tocó cocinar una noche y sacó un uno.
+
+## Sesión del 25 de octubre de 2026 — Se ha emocionado, que es muy goblin
+
+Llegó tarde y a trompicones —el router le tiró tres veces antes de que consiguiera conectarse por el móvil— y se incorporó al combate ya empezado. Desde la cobertura de un árbol mató a un bandido con un veintidós y ocho de daño, falló al segundo, que estaba a cubierto, y falló también el tercer disparo del turno con el penalizador acumulado.
+
+Su aportación de después es la que puede acabar valiendo algo. Probó el licor de hierbas del botín —ocho botellas, protegidas con las pieles, que es por donde empezó a sospechar— y dictaminó que es notablemente bueno para el sitio donde están: no tan bueno como el de su familia, pero demasiado limpio para ser robado. Cree que está comprado. Y propuso no bebérselo entero, sino llevárselo a Oleg y Svetlana para fomentarles el negocio.
+
+Preguntó también de dónde salía, y la respuesta fue que es para el Señor de las Astas, que es un borracho.

@@ -49,3 +49,17 @@ Aportó el mechón de pelo —con su abalorio rojo— con el que Tark se fabric�
 Su momento llegó por el otro lado: una lanza divina con 20 natural, 28 en total, crítico, daño doble, diez puntos y un bandido muerto. Volvió a acertar a −10 pero sin daño suficiente, y el Narrador le tuvo tanta lástima que le regaló una segunda tirada como si no hubiera gastado la acción — su dios la recompensaba, dijo — y también falló. Acabó saltando al tejado.
 
 Y fue suya la idea que deja abierta la próxima sesión: ir a curar al jefe caído, no por piedad sino porque un prisionero vivo es la única forma de encontrar el campamento. La tirada quedó aplazada.
+
+## Sesión del 25 de octubre de 2026 — Se ha emocionado, que es muy goblin
+
+Vuelve al grupo después de varias sesiones fuera, y llega a tiempo para el asalto al campamento de Kressle. Es la única que no arrastra indispuesto: no estaba en las cenas que dejaron al resto cagándose por las patas abajo, y se quitó el estado ella misma en cuanto se lo pusieron por error. Trae además una decisión tomada sobre su ficha — empezar a coger la habilidad de crear comida, porque el grupo lleva semanas envenenándose solo.
+
+Los amuletos de cráneo plateado que acumulan le parecen un poco blasfemos.
+
+Propuso atacar al alba para que el sol les diera en la cara a los bandidos, y se descartó porque implicaba pasar la noche mojándose. En combate hizo de arquera: un flechazo de daño máximo que mató a uno, y orientación sobre Durgan dos veces. Fue suya la etiqueta de **el gambito de Sim Sim** para describir al monje plantado solo en campo abierto recibiendo todas las flechas.
+
+Después del combate ejerció de curandera y de interrogadora a la vez, que es una combinación que al resto le llamó la atención: curó a Gael apoyándolo en un tronco —«apóyate en el tronquito, mi rey»—, curó al prisionero siete puntos para que pudiera hablar, y entre cura y cura le soltó un par de bofetones y la pregunta con la que lo abrió del todo:
+
+> «Cuéntame dónde está el campamento de tu jefe, porque a lo mejor te mueres hoy.»
+
+Veinticuatro en intimidación. También se puso especialita con la botánica: no se cree que a esas latitudes crezca un sicómoro.

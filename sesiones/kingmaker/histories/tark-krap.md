@@ -75,3 +75,15 @@ Camufló el campamento la primera noche y comió de todo lo que cocinó Gael, in
 Salió del ataque nocturno sin armadura, hacha en mano, y con un diecinueve en intimidación dejó asustado al bandido más cercano; los dos flechazos que le tiraron fallaron. Remató al tercer bandido con una carga repentina, partiéndole la cabeza en dos, y saqueó a los muertos: doce monedas de plata y tres amuletos más.
 
 Acompañó a Durgan como explorador por ser el más discreto, pequeño y sin metal, y organizó las guardias del pequeño campamento. Los dos encontraron el campamento de Kressle. Al volver, sin raciones, cocinó él, que sí tiene supervivencia entrenada, y sacó un uno. Se lavó con su pastillita aprovechando el vendaval.
+
+## Sesión del 25 de octubre de 2026 — Se ha emocionado, que es muy goblin
+
+Él y Durgan, los únicos que habían visto el campamento entero, eligieron el punto de ataque: la esquina sur, arqueros delante. Durante la primera mitad del combate se movió por el flanco y mató a un bandido con trece de daño, todo ello arrastrando indispuesto 2 y dejando, según sus propias palabras, un reguero a su espalda.
+
+Cuando Foundry perdió el encuentro y hubo que volver a tirar iniciativa, salió el primero. Kressle estaba a doce metros. Gastó dos acciones en carga repentina para llegar y golpear —dieciséis para impactar, once de daño— y la tercera en un segundo hachazo con el menos cinco: diecisiete, ocho más quince. Veintitrés puntos en total. La partió por la mitad, le hizo saltar la cabeza y se cagó encima del esfuerzo.
+
+Un segundo después alguien recordó en voz alta que había que capturarla viva, porque era la única que sabía dónde está el fuerte del Señor de las Astas.
+
+> «Pues efectivamente, el goblin se ha emocionado, que es muy goblin.»
+
+Saqueó el cuerpo: dos hachas corrientes, una armadura mala, un amuleto y una poción de curación que no le sirvió de nada a su dueña y que él se quedó. El dinero, al común. También se pidió para sí la caja de madera que suena a música al abrirla y el licor de hierbas. Cuando propusieron matar al prisionero que ya tenían, fue él quien dijo que no.

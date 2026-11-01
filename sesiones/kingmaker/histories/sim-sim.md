@@ -65,3 +65,13 @@ En el festín de Svetlana se resistió al licor de arroz lo justo y acabó bebi�
 Se ofreció a cocinar la primera noche al otro lado del río, convencido de que tenía la supervivencia entrenada; no la tenía, y la cena salió con un fallo crítico. A las tres de la madrugada fue el primero en despertarse cuando Linzi dio la alarma: despertó a Laughlin, se asomó, contó tres atacantes y se puso a cubierto gritando «¡arqueros!». Después echó a correr, se impulsó en el hombro de Durgan y, en una ráfaga de golpes, falló el primero y mató al segundo bandido con el otro, desde dos metros de altura.
 
 Pasó la semana como todos, indispuesto, y en el reparto de tareas del campamento no pudo organizar guardias ni camuflar: no tiene la pericia necesaria. En la víspera del asalto recordó que puede curar, aunque solo una vez.
+
+## Sesión del 25 de octubre de 2026 — Se ha emocionado, que es muy goblin
+
+Hizo el resumen de la sesión anterior y después se metió él solito en el peor sitio del mapa: corrió tres veces para refugiarse detrás de la torreta y se quedó siendo el único de los siete a campo abierto. A partir de ahí todos los arqueros del campamento le dispararon a él. Nali lo bautizó como **el gambito de Sim Sim**.
+
+Lo que le movió el resto del combate no fue táctico. Uno de los bandidos le llamó calvo —se rapa, matiz importante— y se pasó media batalla persiguiendo al que llamó el matacalvos, hasta rematarlo con un puñetazo de cinco de daño sobre lo que ya le había hecho Gael, gritándole la respuesta mientras retrocedía.
+
+Fue suya la jugada que salvó algo del desastre: en vez de atacar al último bandido en pie, lo inmovilizó con una tirada de atletismo de quince, y ese fue el prisionero del que sacaron toda la información. Le hizo la pregunta que de verdad le importaba —si sabía cocinar— y le contestaron que no, que ellos roban raciones.
+
+Descubrió además que el conjuro de curación que se pilló al subir de nivel «porque era gratis» también funciona sobre uno mismo: seis puntos.
