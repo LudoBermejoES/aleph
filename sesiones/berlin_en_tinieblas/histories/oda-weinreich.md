@@ -67,3 +67,9 @@ Antes de acostarse bajó al laboratorio que le paga Julia con las muestras de pi
 Para los Wu Lung escogió dos regalos: un microscopio de 1892 que se compró con su primer sueldo de becaria en un mercadillo, y un cerezo de hojas rojas que ha sacado alterando semillas en los ratos en que no la sacaban a abrir la Umbra.
 
 En el gimnasio fue ella quien leyó a Xu Wanqing. Cuatro éxitos en Percepción más Empatía a dificultad 7 bastaron para ver lo que la mujer estaba conteniendo cuando Julia le presentó el pergamino de su maestro: lágrimas. También pidió permiso para llevarse una muestra de las manchas de sangre del tatami, las del ataque al maestro de Julia.
+
+## Sesión del 29 de octubre de 2026 — Es tan seguro entrar como vivir
+
+Regaló a Xu Wanqing el microscopio de 1892 que se compró con su primer sueldo de becaria, envuelto en un pañuelo de cuello, explicando que había sido uno de sus pocos momentos de felicidad genuina. A ella le pareció demasiado valioso, y justo después la Legación cambió en silencio la caja-puzzle por otro regalo. Oda temió haber metido la pata, hasta que Julia le guiñó un ojo. Su segundo regalo fueron unas semillas de cerezo, con la leyenda de los pétalos rojos teñidos por la sangre de guerreros enterrados.
+
+Julia le pasó la bola de cristal para que la sujetara, y no pudo decir más que «esto es una bola de las de los chinos, ¿no?»: Liandra tomó el control y ya no lo soltó en el resto de la sesión.

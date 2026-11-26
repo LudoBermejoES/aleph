@@ -73,3 +73,9 @@ A las cuatro y treinta y tres de la madrugada colocó la última pieza: **su cua
 El Narrador resolvió con un dado de diez la cuestión de su novia garú: le tocaba descendencia de uno a siete y sacó un nueve. No hay parentela. La consecuencia la paga él: el viejo de la manada está cabreado, y ya hay quien murmura por la noche que igual este no puede.
 
 Para los Wu Lung le costó elegir —es muy suyo con su biblioteca— y acabó llevando un libro. No llegó a entregarlo: la sesión terminó antes.
+
+## Sesión del 29 de octubre de 2026 — Es tan seguro entrar como vivir
+
+Regaló a la Legación un libro de saber ancestral chino, bilingüe en chino e inglés, y ofreció con él una clase magistral. Xu Wanqing le presentó a su acompañante como una reputada matemática de su tierra, Mei Xiulan, que tras leer el título le concedió una inclinación de cabeza casi imperceptible. Confirmó ante los Wu Lung el heraldo changeling que la cábala se cargó, y se pasó buena parte de la reunión sacándole juegos de luz a su taza de jade.
+
+Dentro de la bola de cristal fue quien le puso nombre: es un **Aleph**, el punto del universo desde el que se ven todos los puntos, y quien lo mira de frente ve el universo entero desde todos los ángulos y en todos los tiempos hasta que la mente le explota. Pero quien sepa mirarlo lo puede ver todo. Liandra lo vistió de caballero inglés de época.

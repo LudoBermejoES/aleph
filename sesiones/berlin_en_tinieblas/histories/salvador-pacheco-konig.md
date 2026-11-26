@@ -77,3 +77,9 @@ También le dio un consejo que no coló: «no toda la información tiene que ser
 Por la mañana se levantó a cocinar con Raffela Diemer, que ha descubierto que se le da bien además de matar magos: desayuno inglés mezclado con alemán, cerveza por alguna razón, y tortilla de patatas. Apareció en calzoncillos y bata roja mientras Julia hacía katas.
 
 Para los Wu Lung construyó con sus propias manos una arrocera con la receta de la paella escrita a mano en alemán, español e inglés, porque no se fía de traducir al chino con una máquina. La entregó corriendo, en una caja de cartón reblandecida por la humedad, con la mujer de mirada severa levantando una ceja hasta donde no llegan las cejas. Xu Wanqing la aceptó sin asomo de burla —«tener un objeto que ha hecho un artesano siempre es una bendición»— y pronunció «paella» perfectamente.
+
+## Sesión del 29 de octubre de 2026 — Es tan seguro entrar como vivir
+
+Quiso rebajar la tensión entre Otto y Xu Wanqing mencionando que Otto dirige su departamento de policía, y le acabó colgando a Otto el título de «servidor de la justicia que sale en televisión». A la vuelta le preguntó si alguna encarnación suya había tenido la bola de cristal; Otto no la reconoce.
+
+En La Capilla le acercó a la bola su contador Geiger: es levemente radiactiva, no tanto como para dar cáncer, pero tiene tanta magia dentro que el aparato la detecta. Entró con los demás. Liandra lo vistió de He-Man, con armadura, espada enorme, taparrabos y botas de bárbaro, y lo recibió encantado.

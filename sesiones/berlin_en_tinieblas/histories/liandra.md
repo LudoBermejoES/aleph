@@ -33,3 +33,11 @@ Habló en gaélico arcaico, traduciéndolo al vuelo: esposa del Solificati, miem
 Sostuvo el resto del argumento ella misma. Que las cartas son el único modo de cambiar la realidad; que su cábala tenía la mitad, la Orden otra parte y Tezgul el tercio restante; que en su realidad lo que ahora llaman Tecnocracia eran los artesanos y fueron aliados contra Tezgul. Y cuando propusieron destruir las cartas, lo zanjó: se puede destruir el amor, la muerte o el sol — las cartas son representaciones de las energías del universo. Cada vez que reaparecen, la rueda gira.
 
 Al final le hizo a Julia una pregunta en voz baja, que es la que ha venido a hacer: si habría forma de saber si los compañeros de Julia fueron sus compañeros. Julia le explicó que haría falta un ritual largo de Tiempo y Espíritu compartido con Otto, mejor hecho en Roma, donde ocurrió, y que tenerla a ella delante es un bonus gordo. Entonces lo dijo en alto: **uno de vosotros estuvo conmigo**. De Roland se fía más que de Julia, aunque su manía de no matar le parezca impropia de un guerrero.
+
+## Sesión del 29 de octubre de 2026 — Es tan seguro entrar como vivir
+
+Tomó el control en cuanto Oda tuvo en las manos la bola de cristal que regalaron los Wu Lung: la fabricó **Ibrahim**, un Ahl-i-Batin de su cábala y gran amigo suyo, para ver cosas en la lejanía. Solo la tocaba él, y la estaba creando cuando ella vivía. Ya no soltó el cuerpo en toda la sesión.
+
+Pidió permiso a Julia para dirigirse a Xu Wanqing, a la que llamó _dama virtuosa de mirada justa, hija de honorable familia_, y le preguntó a quién habían comprado la bola. Su padre se la arrancó de las manos muertas a un nefando. «Es un regalo y es una maldición», le dijo Xu Wanqing; cuando Liandra respondió que no se creó como arma, aunque acabara siéndolo, le contestó que sus habitantes tal vez opinen lo contrario, y desde entonces la ignoró. A Otto le prohibió tocar la bola.
+
+En La Capilla se sirvió el bourbon de Julia y animó a entrar: lo peor sería quedarse atrapados para siempre, y lo mejor, aprender muchísimo. Dentro de la bola hizo magia por primera vez en este tiempo: vistió a cada uno según como los ve, y a sí misma le devolvió su propio aspecto —estatura, pelo negro, ojos verdes, piel blanca y tatuajes azules—, desnuda y a juego con Roland.

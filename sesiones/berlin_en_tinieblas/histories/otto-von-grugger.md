@@ -107,3 +107,11 @@ Se ofreció a estudiar su caso, que es lo que puede hacer: la disolución del qu
 El Narrador se acordó de que no ha vuelto a hablar con la loba de hace unos meses y lo resolvió con un dado de diez. Se salvó.
 
 Para los Wu Lung eligió un incensario viejo de la zona de su tradición, impregnado de los aromas de los rituales en que se ha usado — no contiene magia, pero cualquier mago nota que ha servido para ella. En el gimnasio fue un paso por detrás de Julia todo el rato, por protocolo: ella es la representante y es medio asiática. No llegó a entregar su regalo: la sesión terminó con el de Julia y el de Salvador.
+
+## Sesión del 29 de octubre de 2026 — Es tan seguro entrar como vivir
+
+Entregó a la Legación Wu Lung un incensario de su tradición, y Xu Wanqing hizo lo que no había hecho con ningún otro regalo salvo el pergamino de Julia: tocarlo. Se miraron fijamente, y con un éxito en Inteligencia más Conciencia le llegó un destello de que aquella mujer le suena, aunque no la ha visto nunca. Ella lo dijo primero: que su espíritu le dice que se conocieron en el pasado. Los suyos y los de ella llevan generaciones enfrentados. Desde que Salvador mencionó que dirige su departamento de policía, Shen Baolin le llama «importante servidor de la justicia que sale en televisión».
+
+En la reunión concretó la petición de ayuda: Berlín es el epicentro, harán falta vigilancia para detectar incursiones y fuerzas de choque para localizar y combatir a los enviados, y la corrupción alcanzó también a vampiros y demonios. Prometió un informe escrito para la Legación. Se ofreció a cuidar él la bola de cristal, y Liandra le contestó que ni de coña. A Salvador, que le preguntó si alguna encarnación suya la había tenido, le dijo que no la reconoce.
+
+Pidió que Julia no llamara sola a la bola y entró en ella declarando que tiene un magnífico defecto llamado curiosidad. Dentro, su visión de Espíritu se fragmentó como un caleidoscopio y tuvo que cerrarla. Liandra lo vistió a la manera de los chakravanti que recuerda: sari a pecho descubierto y sedas con sutras que alaban la Rueda.
