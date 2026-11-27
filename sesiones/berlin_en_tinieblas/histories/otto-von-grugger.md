@@ -115,3 +115,9 @@ Entregó a la Legación Wu Lung un incensario de su tradición, y Xu Wanqing hiz
 En la reunión concretó la petición de ayuda: Berlín es el epicentro, harán falta vigilancia para detectar incursiones y fuerzas de choque para localizar y combatir a los enviados, y la corrupción alcanzó también a vampiros y demonios. Prometió un informe escrito para la Legación. Se ofreció a cuidar él la bola de cristal, y Liandra le contestó que ni de coña. A Salvador, que le preguntó si alguna encarnación suya la había tenido, le dijo que no la reconoce.
 
 Pidió que Julia no llamara sola a la bola y entró en ella declarando que tiene un magnífico defecto llamado curiosidad. Dentro, su visión de Espíritu se fragmentó como un caleidoscopio y tuvo que cerrarla. Liandra lo vistió a la manera de los chakravanti que recuerda: sari a pecho descubierto y sedas con sutras que alaban la Rueda.
+
+## Sesión del 26 de noviembre de 2026 — Es tan perfecto que está paralizado
+
+Dentro de la bola miró con Espíritu a Oda y a Liandra, separadas cada una en su cuerpo, y algo no le cuadró: un avatar dividido que se junta no se separa, y entre esas dos mitades hay algo que les impide unirse de verdad. Notó que allí no hay entropía, ni azar ni degradación: un lugar en éxtasis, muerto sin ser de los suyos.
+
+No quiso destrozar nada en casa ajena. En vez de eso buscó con Entropía lo que no fuera del todo estático, y aunque sacó dos unos encontró un mapa escondido dentro del mapa, un camino que alguien había escrito, y llevó por él a la cábala aliviando la presión que los aplastaba. Ante las puertas de marfil aprovechó la Correspondencia de más para mapear su dibujo.

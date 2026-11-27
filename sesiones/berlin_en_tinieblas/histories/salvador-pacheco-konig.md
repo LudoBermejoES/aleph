@@ -83,3 +83,9 @@ Para los Wu Lung construyó con sus propias manos una arrocera con la receta de 
 Quiso rebajar la tensión entre Otto y Xu Wanqing mencionando que Otto dirige su departamento de policía, y le acabó colgando a Otto el título de «servidor de la justicia que sale en televisión». A la vuelta le preguntó si alguna encarnación suya había tenido la bola de cristal; Otto no la reconoce.
 
 En La Capilla le acercó a la bola su contador Geiger: es levemente radiactiva, no tanto como para dar cáncer, pero tiene tanta magia dentro que el aparato la detecta. Entró con los demás. Liandra lo vistió de He-Man, con armadura, espada enorme, taparrabos y botas de bárbaro, y lo recibió encantado.
+
+## Sesión del 26 de noviembre de 2026 — Es tan perfecto que está paralizado
+
+Se presentó a Liandra con la mano tendida y ella le respondió agarrándole el antebrazo y con un golpe de pecho; se fue ruborizado. Dentro de la bola le fascinó la ciudad perfecta: con una percepción de Materia y la lupa del móvil vio los átomos alineados con escuadra, sin la chispa de la vida que está en la excitación de los electrones, y quiso quedarse a experimentar hasta que Julia se lo cargó en brazos.
+
+Se defendió de la parálisis como sabe: un montaje para irse dando calambrazos con la electricidad estática mientras se comía una barrita del taparrabos de He-Man. Ante las puertas de marfil fue el único que se preguntó por qué hay marfil, orgánico por fuerza, en un mundo inorgánico, y se puso a picarlo hasta que lo arrastraron de la oreja.

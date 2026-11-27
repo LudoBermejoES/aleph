@@ -41,3 +41,9 @@ Tomó el control en cuanto Oda tuvo en las manos la bola de cristal que regalaro
 Pidió permiso a Julia para dirigirse a Xu Wanqing, a la que llamó _dama virtuosa de mirada justa, hija de honorable familia_, y le preguntó a quién habían comprado la bola. Su padre se la arrancó de las manos muertas a un nefando. «Es un regalo y es una maldición», le dijo Xu Wanqing; cuando Liandra respondió que no se creó como arma, aunque acabara siéndolo, le contestó que sus habitantes tal vez opinen lo contrario, y desde entonces la ignoró. A Otto le prohibió tocar la bola.
 
 En La Capilla se sirvió el bourbon de Julia y animó a entrar: lo peor sería quedarse atrapados para siempre, y lo mejor, aprender muchísimo. Dentro de la bola hizo magia por primera vez en este tiempo: vistió a cada uno según como los ve, y a sí misma le devolvió su propio aspecto —estatura, pelo negro, ojos verdes, piel blanca y tatuajes azules—, desnuda y a juego con Roland.
+
+## Sesión del 26 de noviembre de 2026 — Es tan perfecto que está paralizado
+
+Dentro de la bola tuvo por fin su propio cuerpo: metro ochenta de músculo, piel blanca, pelo negro con barro azul, tatuajes azules, un pecho cortado y desnuda. Saludó a cada uno a su manera — un golpe de pecho a Salvador, reverencias a Philip y a Otto — y besó a Julia, a quien explicó que es sacerdotisa de la Morrigan criada entre guerreras y que le parece hermosa. Oda, separada de ella, no la quiso cerca.
+
+Para no quedarse de piedra se abrió dos llagas en las manos y dejó caer la sangre: a su paso crecía la hierba entre las piedras perfectas y se agostaba tres pasos después. Le dio lo justo para llegar, desangrándose, a las puertas de marfil.

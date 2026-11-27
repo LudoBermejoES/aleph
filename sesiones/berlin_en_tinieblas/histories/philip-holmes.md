@@ -79,3 +79,9 @@ Para los Wu Lung le costó elegir —es muy suyo con su biblioteca— y acabó l
 Regaló a la Legación un libro de saber ancestral chino, bilingüe en chino e inglés, y ofreció con él una clase magistral. Xu Wanqing le presentó a su acompañante como una reputada matemática de su tierra, Mei Xiulan, que tras leer el título le concedió una inclinación de cabeza casi imperceptible. Confirmó ante los Wu Lung el heraldo changeling que la cábala se cargó, y se pasó buena parte de la reunión sacándole juegos de luz a su taza de jade.
 
 Dentro de la bola de cristal fue quien le puso nombre: es un **Aleph**, el punto del universo desde el que se ven todos los puntos, y quien lo mira de frente ve el universo entero desde todos los ángulos y en todos los tiempos hasta que la mente le explota. Pero quien sepa mirarlo lo puede ver todo. Liandra lo vistió de caballero inglés de época.
+
+## Sesión del 26 de noviembre de 2026 — Es tan perfecto que está paralizado
+
+La ciudad blanca de la bola le pareció su casa: proporción áurea exacta, ángulos perfectos, círculos que lo son se miren desde donde se miren. Por eso lo pasó peor que nadie. La resonancia del lugar es exactamente la que él busca y no pudo imponerle un orden mejor; el traje de época que le puso Liandra se le endureció con bordes blancos y se quedó parado, y algo le pasó entonces que se ha guardado para sí.
+
+Cuando levantó la cabeza, usó Fuerzas, Cardinal y Entropía para reventar todo lo que tenía alrededor a cada paso, algo tan caótico que nadie de la cábala le había visto hacer nunca. No lo disfrutó. Llegó con los demás a las puertas de marfil, donde cada uno se vio tallado como le gustaría ser.

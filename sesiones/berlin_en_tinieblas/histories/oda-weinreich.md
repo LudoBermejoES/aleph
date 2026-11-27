@@ -73,3 +73,9 @@ En el gimnasio fue ella quien leyó a Xu Wanqing. Cuatro éxitos en Percepción 
 Regaló a Xu Wanqing el microscopio de 1892 que se compró con su primer sueldo de becaria, envuelto en un pañuelo de cuello, explicando que había sido uno de sus pocos momentos de felicidad genuina. A ella le pareció demasiado valioso, y justo después la Legación cambió en silencio la caja-puzzle por otro regalo. Oda temió haber metido la pata, hasta que Julia le guiñó un ojo. Su segundo regalo fueron unas semillas de cerezo, con la leyenda de los pétalos rojos teñidos por la sangre de guerreros enterrados.
 
 Julia le pasó la bola de cristal para que la sujetara, y no pudo decir más que «esto es una bola de las de los chinos, ¿no?»: Liandra tomó el control y ya no lo soltó en el resto de la sesión.
+
+## Sesión del 26 de noviembre de 2026 — Es tan perfecto que está paralizado
+
+Dentro de la bola volvió a ser ella misma, separada de Liandra, y lo primero que hizo fue esconderse detrás de Julia y pedirle que no la dejara acercarse. Cuando Liandra besó a Julia, por primera vez en su vida se puso de protectora: le cogió la mano a su mentora y se plantó delante.
+
+Se defendió de la parálisis a su manera: puso Billie Jean en el móvil y fue cantándola y bailándola, mal, mientras cada pisada con Materia convertía el suelo blanco en una baldosa de fractales de colores, hasta llegar a las puertas de marfil.

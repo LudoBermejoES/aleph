@@ -55,3 +55,7 @@ Fue el primero en hablarle a V10 de tú a tú. Le explicó que fueron ellos quie
 Volvió a la mesa después de faltar a la sesión anterior. Su regalo para la Legación fueron seis abejas en un pañuelo: las primeras hijas de su vieja reina, destinadas a ser reinas. Un anciano del séquito con un bastón, que no había prestado atención a nada, se las llevó con un cuidado exquisito y sin dejar de sonreírle. Antes de irse dejó su número de teléfono en el escritorio de la legación.
 
 En La Capilla apoyó a Julia para llamar a la puerta de la bola: la pulió con el aliento, sacó dos éxitos y le bajó la dificultad a 3. Antes de entrar dejó instrucciones a Carl, su cuervo, de traer a toda la casa si no salían en un par de horas. Dentro se cubrió con un escudo de Mente y expandió los sentidos con Vida, y confirmó que la ciudad del Aleph no está vacía: muchos ojos los vigilan. Fue él quien preguntó en voz alta «Ibrahim, ¿estás por aquí?», y una voz respondió: «Venid al centro.» Liandra lo vistió como un verbena de verdad: desnudo, tatuado y con el pelo cardado de azul.
+
+## Sesión del 26 de noviembre de 2026 — Es tan perfecto que está paralizado
+
+Dentro de la bola estuvo nervioso desde el primer momento: aquella ciudad perfecta es lo contrario de lo natural, sin fluidos, sin curvas sobre curvas, sin vida. Caminó con la cábala durante horas hasta las puertas de marfil.
